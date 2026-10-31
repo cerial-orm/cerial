@@ -12,6 +12,7 @@ import type { ASTDecorator, ASTField } from '../../../types';
 import { isValidFieldName } from '../../../utils/validation-utils';
 import { createField, createPosition, createRange } from '../ast';
 import { matchDecoratorToken } from '../../registry';
+import { isTypeName, toleratesUnresolvedTypes } from '../../unresolved-types';
 import { hasValidSortArgument } from '../field-decorators';
 import {
   extractLiteralName,
@@ -174,7 +175,10 @@ export function parseFieldDeclaration(
   }
 
   // Parse field type (pass objectNames, tupleNames, and literalNames for type resolution)
-  const fieldType = parseFieldType(typeStr, objectNames, tupleNames, literalNames);
+  // Pass 1 of a mixed entry keeps a field typed by a name TypeScript declares, as a member whose type pass 3 settles
+  const fieldType =
+    parseFieldType(typeStr, objectNames, tupleNames, literalNames) ??
+    (toleratesUnresolvedTypes() && isTypeName(typeStr) ? 'any' : null);
   if (!fieldType) {
     return {
       field: null,

@@ -41,6 +41,7 @@ import {
 import { DECORATOR_REGISTRY, matchDecoratorToken } from './registry';
 import type { DecoratorEntry } from './registry';
 import { isMixedPickOmit, parseExtendsBracket } from './types/model/model-declaration-parser';
+import { isTypeName, toleratesUnresolvedTypes, withUnresolvedTypes } from './unresolved-types';
 
 /** Parser state */
 interface ParserState {
@@ -522,7 +523,9 @@ function parseTupleElement(
   }
 
   // Resolve type
-  const fieldType = parseFieldType(typeStr, objectNames, tupleNames, literalNames);
+  const fieldType =
+    parseFieldType(typeStr, objectNames, tupleNames, literalNames) ??
+    (toleratesUnresolvedTypes() && isTypeName(typeStr) ? 'any' : null);
   if (!fieldType) return null;
 
   // Extract object/tuple/literal name if applicable
@@ -749,6 +752,11 @@ function parseLiteralVariant(token: string, state: ParserState, literalName: str
 
   // Reference to an object
   if (state.objectNames.has(trimmed)) return { kind: 'objectRef', objectName: trimmed };
+
+  // A name TypeScript declares, in a pass that only needs the variant's identity
+  if (toleratesUnresolvedTypes() && isTypeName(trimmed) && !trimmed.endsWith('[]')) {
+    return { kind: 'literalRef', literalName: trimmed };
+  }
 
   addError(state, `Unknown variant '${trimmed}' in literal ${literalName}`);
 
@@ -1121,6 +1129,24 @@ export function parse(
 ): ParseResult {
   return withParseFile(filePath, () =>
     parseSource(source, externalObjectNames, externalTupleNames, externalLiteralNames, externalEnumNames),
+  );
+}
+
+/**
+ * Parse for the handles of a mixed entry: a type name no `.cerial` file declares is kept as a member of
+ * unresolved type instead of an error, because a TypeScript module may declare it. Only the declarations'
+ * shape is meant to be read from the result; the full parse of pass 3 reports an unknown name.
+ */
+export function parseForHandles(
+  source: string,
+  externalObjectNames?: Set<string>,
+  externalTupleNames?: Set<string>,
+  externalLiteralNames?: Set<string>,
+  externalEnumNames?: Set<string>,
+  filePath?: string,
+): ParseResult {
+  return withUnresolvedTypes(() =>
+    parse(source, externalObjectNames, externalTupleNames, externalLiteralNames, externalEnumNames, filePath),
   );
 }
 

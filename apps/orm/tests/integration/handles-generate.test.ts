@@ -102,18 +102,18 @@ describe('handles on generate', () => {
     expect(await readFile(handlesFile(dir), 'utf-8')).toBe('export const mine = 1;\n');
   });
 
-  it('keeps handles for the declarations that parsed when another references a TypeScript-declared type', async () => {
+  it('keeps a handle for a declaration whose field names a type nobody declares, and still reports the type', async () => {
     const dir = await entry({
       'a.cerial': `${CERIAL}model NeedsTs {\n  id Record @id\n  where TsAddress\n}\n`,
       'x.schema.ts': TS_MODULE,
     });
     const built = await buildResolvedSchemaAst({ schemaPath: dir });
 
-    // Pass 1 sees only .cerial names, so the reference fails today; the merge pass resolves it
-    expect(built.parseErrors.length).toBe(1);
+    expect(built.parseErrors).toHaveLength(1);
+    expect(built.parseErrors[0]).toContain('Invalid field type: TsAddress');
     const text = await readFile(handlesFile(dir), 'utf-8');
     expect(text).toContain("handle.model('Host'");
-    expect(text).not.toContain('NeedsTs');
+    expect(text).toContain("handle.model('NeedsTs', { members: ['id', 'where']");
   });
 });
 

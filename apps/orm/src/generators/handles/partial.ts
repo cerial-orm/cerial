@@ -23,8 +23,7 @@ function keep<T extends { name: string; extends?: string; range: SourceRange }>(
 }
 
 /**
- * The part of a pass-1 AST that is whole. The parser drops a field it cannot type (a reference to a
- * TypeScript-declared type fails the DSL-only parse) yet still returns the declaration around it, so a
+ * The part of a pass-1 AST that is whole. The parser drops a field it cannot parse yet still returns the declaration around it, so a
  * declaration covering an error line would list too few members. Those, and everything extending them, are left out
  * and the rest keep their handles.
  */

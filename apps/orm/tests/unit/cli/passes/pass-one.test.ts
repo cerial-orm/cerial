@@ -38,7 +38,7 @@ describe('runPassOne', () => {
     expect(ast.models[0]!.fields.map((f) => f.name)).toEqual(['id', 'home']);
   });
 
-  it('leaves out a declaration whose field names a TypeScript-declared type, without reporting an error', async () => {
+  it('keeps a declaration whose field names a TypeScript-declared type, the field as a member', async () => {
     const root = await tempProject({});
 
     const ast = await runPassOne(
@@ -49,8 +49,40 @@ describe('runPassOne', () => {
       root,
     );
 
+    expect(ast.models.map((m) => m.name)).toEqual(['Order', 'Post']);
+    expect(ast.models[0]!.fields.map((f) => f.name)).toEqual(['id', 'total']);
+    const text = await readFile(handlesPath(root), 'utf-8');
+    expect(text).toContain("handle.model('Order', { members: ['id', 'total']");
+  });
+
+  it('keeps an array of a TypeScript-declared type and a tuple element or literal variant naming one', async () => {
+    const root = await tempProject({});
+    const content =
+      'model M {\n  id Record(int) @id\n  all Money[]\n  maybe Money?\n}\ntuple T {\n  a Money,\n  b Int\n}\nliteral L {\n  Money,\n  1\n}\n';
+
+    const ast = await runPassOne([{ path: 'a.cerial', content }], root);
+
+    expect(ast.models[0]!.fields.map((f) => f.name)).toEqual(['id', 'all', 'maybe']);
+    expect(ast.tuples[0]!.elements.map((e) => e.name)).toEqual(['a', 'b']);
+    expect(ast.literals[0]!.variants).toEqual([
+      { kind: 'literalRef', literalName: 'Money' },
+      { kind: 'int', value: 1 },
+    ]);
+  });
+
+  it('still leaves out a declaration with a genuine parse error', async () => {
+    const root = await tempProject({});
+    const broken = 'model Bad {\n  id Record(int) @id\n  1bad String\n}\n';
+
+    const ast = await runPassOne(
+      [
+        { path: 'a.cerial', content: broken },
+        { path: 'b.cerial', content: WHOLE },
+      ],
+      root,
+    );
+
     expect(ast.models.map((m) => m.name)).toEqual(['Post']);
-    expect(await readFile(handlesPath(root), 'utf-8')).not.toContain('export const Order');
   });
 
   it('refuses to overwrite a handles file the generator did not write', async () => {
