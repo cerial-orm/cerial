@@ -455,7 +455,7 @@ ${_generateTransactionOverloads()}
    * \`\`\`
    */
    $transaction<R>(
-     fn: (tx: Omit<TypedDb, '$transaction'>) => Promise<R> | R,
+     fn: (tx: Omit<TypedDb, '$transaction'> & Pick<CerialTransaction, '$raw'>) => Promise<R> | R,
      options?: TransactionOptions,
    ): Promise<R>;
 
@@ -569,7 +569,9 @@ ${_generateTransactionOverloads()}
     // Ensure all involved models are migrated before executing
     const queryItems = arg.filter(q => CerialQueryPromise.isCerialQueryPromise(q)) as CerialQueryPromise<any>[];
     const hasFunctions = arg.some(q => typeof q === 'function');
-    if (hasFunctions) {
+    // A client-level $raw item names no model, so a model-only migration would migrate nothing for it
+    const hasUnboundItem = queryItems.some(q => !q.modelNames.length);
+    if (hasFunctions || hasUnboundItem) {
       // Functions could access any model — migrate all
       await this.ensureMigrated();
     } else {

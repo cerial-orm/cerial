@@ -1,6 +1,9 @@
 import type { Surreal, SurrealTransaction } from 'surrealdb';
 import { CerialTransactionError, CerialUnknownModelError } from '../errors';
 import type { ModelRegistry } from '../types';
+import { CerialQueryPromise } from '../query/cerial-query-promise';
+import type { SqlFragment } from '../query/compile';
+import { compileRawStatement, executeRawStatement } from '../query/raw-statement';
 import { Model } from './model/model';
 import { wrapDatabaseError } from './model/wrap-database-error';
 
@@ -20,7 +23,7 @@ const IGNORED_PROPERTIES = new Set([
   '_isMockFunction',
 ]);
 
-const KNOWN_PROPERTIES = new Set(['commit', 'cancel', 'state', '_raw', '_registryRef', '_ensureActive']);
+const KNOWN_PROPERTIES = new Set(['commit', 'cancel', 'state', '_raw', '_registryRef', '_ensureActive', '$raw']);
 
 export class CerialTransaction {
   private _state: TransactionState = 'active';
@@ -77,6 +80,32 @@ export class CerialTransaction {
       this._txn.cancel().catch(() => {});
       this._state = 'cancelled';
     }
+  }
+
+  /**
+   * Run a whole raw statement inside this transaction and return the last statement's result as an array,
+   * unmapped. Use a model's own `$raw` on the transaction client to map its rows.
+   */
+  $raw<T = unknown>(fragment: SqlFragment<T>): CerialQueryPromise<T[]> {
+    this._ensureActive();
+    const compiled = compileRawStatement(fragment);
+    const dbLike = this._txn as unknown as Surreal;
+
+    return new CerialQueryPromise<T[]>(
+      async () => {
+        this._ensureActive();
+        try {
+          return await executeRawStatement<T>(dbLike, compiled);
+        } catch (error) {
+          throw wrapDatabaseError(error, undefined, '$raw');
+        }
+      },
+      compiled,
+      undefined,
+      'raw',
+      undefined,
+      [],
+    );
   }
 
   /** @internal */

@@ -6,7 +6,8 @@ import { BoundQuery, isRetryableConflict, type Surreal, SurrealTransaction } fro
 import type { ModelMetadata, ModelRegistry, SelectClause, TransactionOptions } from '../types';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
-import { mapResult, mapSingleResult } from './mappers';
+import { mapRawResult, mapResult, mapSingleResult } from './mappers';
+import { executeRawStatement } from './raw-statement';
 
 /** Query execution options */
 export interface ExecuteOptions {
@@ -340,6 +341,8 @@ function mapTransactionResult(
     case 'void': {
       return true;
     }
+    case 'raw':
+      return mapRawResult(rawResult as unknown[], metadata);
     default:
       return rawResult;
   }
@@ -368,6 +371,16 @@ async function executeItemInTransaction(
   item: TransactionItem,
   prefixedQuery: CompiledQuery,
 ): Promise<unknown> {
+  // A raw statement returns the last statement's result, which extractRawResult cannot: it skips trailing NONE
+  if (item.resultType === 'raw') {
+    const text = isMultiStatementQuery(prefixedQuery.text)
+      ? stripTransactionWrapper(prefixedQuery.text)
+      : prefixedQuery.text;
+    const rows = await executeRawStatement(db, { text, vars: prefixedQuery.vars });
+
+    return mapTransactionResult(rows, item.resultType, item.metadata, item.select);
+  }
+
   if (isMultiStatementQuery(prefixedQuery.text)) {
     return executeMultiStatementInTransaction(db, prefixedQuery, item);
   }
