@@ -214,6 +214,23 @@ describe('schema setup in an end-to-end file', () => {
     expect(scanE2eSetup(path, 'await client.migrate();')).toEqual([]);
   });
 
+  test.each(['graph-edges', 'vector-indexes', 'time-series', 'live-queries'])(
+    'the raw surface spec %s may remove its own table',
+    (name) => {
+      const path = `apps/orm/tests/e2e/raw/surfaces/${name}.test.ts`;
+
+      expect(scanE2eSetup(path, "await client.query('REMOVE TABLE rawsf_a');")).toEqual([]);
+    },
+  );
+
+  test('other raw specs and unlisted surface files are still refused', () => {
+    for (const path of ['apps/orm/tests/e2e/raw/filter.test.ts', 'apps/orm/tests/e2e/raw/surfaces/other.test.ts']) {
+      expect(rules(scanE2eSetup(path, "await client.query('REMOVE TABLE rawsf_a');"))).toEqual([
+        'e2e-setup.remove-table',
+      ]);
+    }
+  });
+
   test('only the lines the caller names are read', () => {
     const content = 'await client.migrate();\nfine;\nawait client.migrate();';
 

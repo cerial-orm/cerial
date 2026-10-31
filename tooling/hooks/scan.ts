@@ -302,6 +302,14 @@ const E2E_SETUP_EXEMPT_PATHS: readonly string[] = [
   'apps/orm/tests/e2e/multi-schema/runtime-helpers.ts',
   'apps/orm/tests/e2e/multi-schema/runtime.test.ts',
   'apps/orm/tests/e2e/multi-schema/same-model-name.test.ts',
+  // The raw-query surface specs exercise graph edges, vector indexes and time-series views, which
+  // cannot be declared in a schema, so their `rawsf_` tables are invisible to the registry and to
+  // every other file. Each spec defines and removes its own tables and races nothing. Other specs
+  // under `raw/` use registered tables and stay subject to the scan.
+  'apps/orm/tests/e2e/raw/surfaces/graph-edges.test.ts',
+  'apps/orm/tests/e2e/raw/surfaces/vector-indexes.test.ts',
+  'apps/orm/tests/e2e/raw/surfaces/time-series.test.ts',
+  'apps/orm/tests/e2e/raw/surfaces/live-queries.test.ts',
 ];
 
 /** Schema setup in an end-to-end file, for the lines the caller names (every line when none). */
