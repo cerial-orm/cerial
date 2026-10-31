@@ -292,6 +292,10 @@ export interface ExtLiteralContainerModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: {
+    where?: ExtLiteralContainerWhere;
+  }): Promise<import('cerial').CerialLiveHandle<ExtLiteralContainer>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -585,6 +589,8 @@ export interface ExtLiteralModelModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtLiteralModelWhere }): Promise<import('cerial').CerialLiveHandle<ExtLiteralModel>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -828,6 +834,8 @@ export interface ExtLiteralQuotedModel {
   exists(where?: ExtLiteralQuotedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtLiteralQuotedWhere }): Promise<import('cerial').CerialLiveHandle<ExtLiteralQuoted>>;
 
   getMetadata(): ModelMetadata;
 

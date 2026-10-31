@@ -274,6 +274,8 @@ export interface EnumBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: EnumBasicWhere }): Promise<import('cerial').CerialLiveHandle<EnumBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -536,6 +538,8 @@ export interface EnumDefaultsModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: EnumDefaultsWhere }): Promise<import('cerial').CerialLiveHandle<EnumDefaults>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -771,6 +775,8 @@ export interface EnumLiteralRefModel {
   exists(where?: EnumLiteralRefWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: EnumLiteralRefWhere }): Promise<import('cerial').CerialLiveHandle<EnumLiteralRef>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1041,6 +1047,8 @@ export interface EnumMultipleModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: EnumMultipleWhere }): Promise<import('cerial').CerialLiveHandle<EnumMultiple>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1281,6 +1289,8 @@ export interface EnumUniqueModel {
   exists(where?: EnumUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: EnumUniqueWhere }): Promise<import('cerial').CerialLiveHandle<EnumUnique>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1568,6 +1578,8 @@ export interface EnumWithObjectModel {
   exists(where?: EnumWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: EnumWithObjectWhere }): Promise<import('cerial').CerialLiveHandle<EnumWithObject>>;
 
   getMetadata(): ModelMetadata;
 

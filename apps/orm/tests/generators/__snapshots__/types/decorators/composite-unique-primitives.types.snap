@@ -323,6 +323,8 @@ export interface StaffModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: StaffWhere }): Promise<import('cerial').CerialLiveHandle<Staff>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;

@@ -338,6 +338,8 @@ export interface ExtAddressUserModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtAddressUserWhere }): Promise<import('cerial').CerialLiveHandle<ExtAddressUser>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -611,6 +613,8 @@ export interface ExtChainModelModel {
   exists(where?: ExtChainModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtChainModelWhere }): Promise<import('cerial').CerialLiveHandle<ExtChainModel>>;
 
   getMetadata(): ModelMetadata;
 

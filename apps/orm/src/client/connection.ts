@@ -303,7 +303,10 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
       proxySurreal = wsSurreal;
     }
 
-    const proxy = createModelProxy<R>(proxySurreal, this.registry, this.proxyOptions);
+    const proxy = createModelProxy<R>(proxySurreal, this.registry, {
+      ...this.proxyOptions,
+      trackLive: (handle) => this.trackLive(handle, name),
+    });
 
     this.connections.set(name, {
       surreal,

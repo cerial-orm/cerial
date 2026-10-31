@@ -331,6 +331,8 @@ export interface AgentModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: AgentWhere }): Promise<import('cerial').CerialLiveHandle<Agent>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -671,6 +673,8 @@ export interface CustomerModel {
   exists(where?: CustomerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: CustomerWhere }): Promise<import('cerial').CerialLiveHandle<Customer>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1087,6 +1091,8 @@ export interface PurchaseOrderModel {
   exists(where?: PurchaseOrderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: PurchaseOrderWhere }): Promise<import('cerial').CerialLiveHandle<PurchaseOrder>>;
 
   getMetadata(): ModelMetadata;
 

@@ -325,6 +325,8 @@ export interface NumberBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: NumberBasicWhere }): Promise<import('cerial').CerialLiveHandle<NumberBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -621,6 +623,8 @@ export interface NumberDecoratedModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: NumberDecoratedWhere }): Promise<import('cerial').CerialLiveHandle<NumberDecorated>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -906,6 +910,8 @@ export interface NumberWithObjectModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: NumberWithObjectWhere }): Promise<import('cerial').CerialLiveHandle<NumberWithObject>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1178,6 +1184,8 @@ export interface NumberWithTupleModel {
   exists(where?: NumberWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: NumberWithTupleWhere }): Promise<import('cerial').CerialLiveHandle<NumberWithTuple>>;
 
   getMetadata(): ModelMetadata;
 

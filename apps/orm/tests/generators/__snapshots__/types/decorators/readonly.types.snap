@@ -325,6 +325,8 @@ export interface ReadonlyRecordModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ReadonlyRecordWhere }): Promise<import('cerial').CerialLiveHandle<ReadonlyRecord>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -744,6 +746,8 @@ export interface ReadonlyTestModel {
   exists(where?: ReadonlyTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ReadonlyTestWhere }): Promise<import('cerial').CerialLiveHandle<ReadonlyTest>>;
 
   getMetadata(): ModelMetadata;
 

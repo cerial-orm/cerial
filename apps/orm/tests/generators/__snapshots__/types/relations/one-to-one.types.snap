@@ -355,6 +355,8 @@ export interface ProfileOptionalModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ProfileOptionalWhere }): Promise<import('cerial').CerialLiveHandle<ProfileOptional>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -737,6 +739,8 @@ export interface ProfileRequiredModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ProfileRequiredWhere }): Promise<import('cerial').CerialLiveHandle<ProfileRequired>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1090,6 +1094,8 @@ export interface ProfileSingleSidedModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ProfileSingleSidedWhere }): Promise<import('cerial').CerialLiveHandle<ProfileSingleSided>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1438,6 +1444,8 @@ export interface UserOptionalModel {
   exists(where?: UserOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UserOptionalWhere }): Promise<import('cerial').CerialLiveHandle<UserOptional>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1788,6 +1796,8 @@ export interface UserRequiredModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: UserRequiredWhere }): Promise<import('cerial').CerialLiveHandle<UserRequired>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2038,6 +2048,8 @@ export interface UserSingleSidedModel {
   exists(where?: UserSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UserSingleSidedWhere }): Promise<import('cerial').CerialLiveHandle<UserSingleSided>>;
 
   getMetadata(): ModelMetadata;
 

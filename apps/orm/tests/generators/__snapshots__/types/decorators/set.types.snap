@@ -297,6 +297,8 @@ export interface SetBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: SetBasicWhere }): Promise<import('cerial').CerialLiveHandle<SetBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;

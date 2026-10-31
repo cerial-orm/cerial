@@ -460,6 +460,8 @@ export interface ArrayDecoratorTestModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ArrayDecoratorTestWhere }): Promise<import('cerial').CerialLiveHandle<ArrayDecoratorTest>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -727,6 +729,8 @@ export interface ScalarArraysModel {
   exists(where?: ScalarArraysWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ScalarArraysWhere }): Promise<import('cerial').CerialLiveHandle<ScalarArrays>>;
 
   getMetadata(): ModelMetadata;
 

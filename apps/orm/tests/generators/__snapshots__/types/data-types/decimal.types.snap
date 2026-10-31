@@ -327,6 +327,8 @@ export interface DecimalBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DecimalBasicWhere }): Promise<import('cerial').CerialLiveHandle<DecimalBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -625,6 +627,8 @@ export interface DecimalDecoratedModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DecimalDecoratedWhere }): Promise<import('cerial').CerialLiveHandle<DecimalDecorated>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -894,6 +898,8 @@ export interface DecimalWithObjectModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DecimalWithObjectWhere }): Promise<import('cerial').CerialLiveHandle<DecimalWithObject>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1159,6 +1165,8 @@ export interface DecimalWithTupleModel {
   exists(where?: DecimalWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: DecimalWithTupleWhere }): Promise<import('cerial').CerialLiveHandle<DecimalWithTuple>>;
 
   getMetadata(): ModelMetadata;
 

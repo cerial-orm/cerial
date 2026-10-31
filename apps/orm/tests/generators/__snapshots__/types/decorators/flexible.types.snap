@@ -369,6 +369,8 @@ export interface FlexUserModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: FlexUserWhere }): Promise<import('cerial').CerialLiveHandle<FlexUser>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;

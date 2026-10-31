@@ -962,6 +962,8 @@ export interface NcDocModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: NcDocWhere }): Promise<import('cerial').CerialLiveHandle<NcDoc>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1315,6 +1317,8 @@ export interface NcGroupModel {
   exists(where?: NcGroupWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: NcGroupWhere }): Promise<import('cerial').CerialLiveHandle<NcGroup>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1711,6 +1715,8 @@ export interface NcHolderModel {
   exists(where?: NcHolderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: NcHolderWhere }): Promise<import('cerial').CerialLiveHandle<NcHolder>>;
 
   getMetadata(): ModelMetadata;
 

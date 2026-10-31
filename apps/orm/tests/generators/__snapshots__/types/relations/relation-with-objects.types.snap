@@ -366,6 +366,8 @@ export interface RelObjCompanyModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: RelObjCompanyWhere }): Promise<import('cerial').CerialLiveHandle<RelObjCompany>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -726,6 +728,8 @@ export interface RelObjEmployeeModel {
   exists(where?: RelObjEmployeeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: RelObjEmployeeWhere }): Promise<import('cerial').CerialLiveHandle<RelObjEmployee>>;
 
   getMetadata(): ModelMetadata;
 

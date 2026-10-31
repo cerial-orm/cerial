@@ -280,6 +280,8 @@ export interface AnyBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: AnyBasicWhere }): Promise<import('cerial').CerialLiveHandle<AnyBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -664,6 +666,8 @@ export interface AnyDecoratedModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: AnyDecoratedWhere }): Promise<import('cerial').CerialLiveHandle<AnyDecorated>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -921,6 +925,8 @@ export interface AnyUniqueModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: AnyUniqueWhere }): Promise<import('cerial').CerialLiveHandle<AnyUnique>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1176,6 +1182,8 @@ export interface AnyWithObjectModel {
   exists(where?: AnyWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: AnyWithObjectWhere }): Promise<import('cerial').CerialLiveHandle<AnyWithObject>>;
 
   getMetadata(): ModelMetadata;
 

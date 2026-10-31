@@ -354,6 +354,8 @@ export interface TimestampTestModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TimestampTestWhere }): Promise<import('cerial').CerialLiveHandle<TimestampTest>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;

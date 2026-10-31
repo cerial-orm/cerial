@@ -239,6 +239,8 @@ export interface ArticleModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ArticleWhere }): Promise<import('cerial').CerialLiveHandle<Article>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -599,6 +601,8 @@ export interface AuthorModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: AuthorWhere }): Promise<import('cerial').CerialLiveHandle<Author>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -933,6 +937,8 @@ export interface CommentModel {
   exists(where?: CommentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: CommentWhere }): Promise<import('cerial').CerialLiveHandle<Comment>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1331,6 +1337,8 @@ export interface PostRequiredModel {
   exists(where?: PostRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: PostRequiredWhere }): Promise<import('cerial').CerialLiveHandle<PostRequired>>;
 
   getMetadata(): ModelMetadata;
 

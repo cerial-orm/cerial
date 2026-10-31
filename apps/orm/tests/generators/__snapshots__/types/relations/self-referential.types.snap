@@ -371,6 +371,8 @@ export interface AssistantModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: AssistantWhere }): Promise<import('cerial').CerialLiveHandle<Assistant>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -769,6 +771,8 @@ export interface CategoryTreeModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: CategoryTreeWhere }): Promise<import('cerial').CerialLiveHandle<CategoryTree>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1121,6 +1125,10 @@ export interface EmployeeSingleSidedModel {
   exists(where?: EmployeeSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: {
+    where?: EmployeeSingleSidedWhere;
+  }): Promise<import('cerial').CerialLiveHandle<EmployeeSingleSided>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1529,6 +1537,10 @@ export interface EmployeeWithReportsModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: {
+    where?: EmployeeWithReportsWhere;
+  }): Promise<import('cerial').CerialLiveHandle<EmployeeWithReports>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1873,6 +1885,8 @@ export interface FriendModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: FriendWhere }): Promise<import('cerial').CerialLiveHandle<Friend>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2214,6 +2228,8 @@ export interface PersonModel {
   exists(where?: PersonWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: PersonWhere }): Promise<import('cerial').CerialLiveHandle<Person>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2569,6 +2585,8 @@ export interface SocialUserModel {
   exists(where?: SocialUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SocialUserWhere }): Promise<import('cerial').CerialLiveHandle<SocialUser>>;
 
   getMetadata(): ModelMetadata;
 

@@ -16,6 +16,7 @@ import {
   generateFindUniqueMethod,
   generateIntrospectionMethods,
   generateRawMethod,
+  generateLiveMethod,
   generateMethodSignatures,
   generateUpdateMethod,
   generateUpdateUniqueMethod,
@@ -356,6 +357,12 @@ describe('count, exists and introspection signatures', () => {
     );
   });
 
+  test('$live takes an optional typed where and resolves to a handle of the model row', () => {
+    expect(generateLiveMethod(plain)).toBe(
+      "$live(options?: { where?: UserWhere }): Promise<import('cerial').CerialLiveHandle<User>>;",
+    );
+  });
+
   test('introspection methods are blank-line separated', () => {
     expect(generateIntrospectionMethods()).toBe(
       'getMetadata(): ModelMetadata;\n\n  getName(): string;\n\n  getTableName(): string;',
@@ -369,7 +376,7 @@ describe('count, exists and introspection signatures', () => {
 });
 
 describe('generateMethodSignatures', () => {
-  test('returns the thirteen signatures in declaration order', () => {
+  test('returns the fourteen signatures in declaration order', () => {
     expect(generateMethodSignatures(related)).toEqual([
       generateFindOneMethod(related),
       generateFindManyMethod(related),
@@ -383,6 +390,7 @@ describe('generateMethodSignatures', () => {
       generateCountMethod(related),
       generateExistsMethod(related),
       generateRawMethod(),
+      generateLiveMethod(related),
       generateIntrospectionMethods(),
     ]);
   });

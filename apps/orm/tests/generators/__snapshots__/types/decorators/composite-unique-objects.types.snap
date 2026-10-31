@@ -247,6 +247,8 @@ export interface DepotModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DepotWhere }): Promise<import('cerial').CerialLiveHandle<Depot>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -545,6 +547,8 @@ export interface WarehouseModel {
   exists(where?: WarehouseWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: WarehouseWhere }): Promise<import('cerial').CerialLiveHandle<Warehouse>>;
 
   getMetadata(): ModelMetadata;
 

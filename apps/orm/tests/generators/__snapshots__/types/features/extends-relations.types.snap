@@ -435,6 +435,8 @@ export interface ExtRelBlogAuthorModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtRelBlogAuthorWhere }): Promise<import('cerial').CerialLiveHandle<ExtRelBlogAuthor>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -863,6 +865,8 @@ export interface ExtRelBlogPostModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtRelBlogPostWhere }): Promise<import('cerial').CerialLiveHandle<ExtRelBlogPost>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1264,6 +1268,8 @@ export interface ExtRelBlogPostTagModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtRelBlogPostTagWhere }): Promise<import('cerial').CerialLiveHandle<ExtRelBlogPostTag>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1662,6 +1668,8 @@ export interface ExtRelBlogTagModel {
   exists(where?: ExtRelBlogTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtRelBlogTagWhere }): Promise<import('cerial').CerialLiveHandle<ExtRelBlogTag>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2063,6 +2071,8 @@ export interface ExtRelCommentModel {
   exists(where?: ExtRelCommentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtRelCommentWhere }): Promise<import('cerial').CerialLiveHandle<ExtRelComment>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2570,6 +2580,10 @@ export interface ExtRelCommentModeratedModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: {
+    where?: ExtRelCommentModeratedWhere;
+  }): Promise<import('cerial').CerialLiveHandle<ExtRelCommentModerated>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2922,6 +2936,8 @@ export interface ExtRelPostArchiveModel {
   exists(where?: ExtRelPostArchiveWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtRelPostArchiveWhere }): Promise<import('cerial').CerialLiveHandle<ExtRelPostArchive>>;
 
   getMetadata(): ModelMetadata;
 
@@ -3299,6 +3315,8 @@ export interface ExtRelPostSummaryModel {
   exists(where?: ExtRelPostSummaryWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtRelPostSummaryWhere }): Promise<import('cerial').CerialLiveHandle<ExtRelPostSummary>>;
 
   getMetadata(): ModelMetadata;
 
@@ -3731,6 +3749,8 @@ export interface ExtRelProjectModel {
   exists(where?: ExtRelProjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtRelProjectWhere }): Promise<import('cerial').CerialLiveHandle<ExtRelProject>>;
 
   getMetadata(): ModelMetadata;
 

@@ -47,6 +47,7 @@ import type {
   WhereClause,
 } from '../../types';
 import type { CerialTransaction } from '../cerial-transaction';
+import { type CerialLiveHandle, createModelLive, type EndableLive, type ModelLiveOptions } from '../live';
 import { wrapDatabaseError } from './wrap-database-error';
 
 /** Extended find unique options with include support */
@@ -66,12 +67,15 @@ export interface ModelOptions {
   onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
   /** Attach the generated statement and its bound values to a wrapped database error (default: false) */
   includeStatementInErrors?: boolean;
+  /** Registers a live handle with its connection so a deliberate `disconnect()` ends it */
+  trackLive?: (handle: EndableLive) => () => void;
 }
 
 /** Model class that wraps query builder methods */
 export class Model<T extends Record<string, unknown> = Record<string, unknown>> {
   private onBeforeQueryCallbacks: BeforeQueryCallback[] = [];
   private readonly includeStatement: boolean;
+  private readonly trackLive: ModelOptions['trackLive'];
 
   constructor(
     private db: Surreal,
@@ -80,6 +84,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     options?: ModelOptions,
   ) {
     this.includeStatement = options?.includeStatementInErrors ?? false;
+    this.trackLive = options?.trackLive;
     // Normalize to array for consistent handling
     if (options?.onBeforeQuery) {
       this.onBeforeQueryCallbacks = Array.isArray(options.onBeforeQuery)
@@ -151,6 +156,24 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       'raw',
       this.registry,
       modelNames,
+    );
+  }
+
+  /**
+   * Subscribe to changes on this model's table with a managed live query. Resolves once the query is
+   * registered. Rows arrive mapped through the model, a delete carries the row it removed, and the handle
+   * ends when the query is killed. Not available inside a transaction.
+   * @param options.where - A typed where of this model, including `$raw`
+   */
+  async $live<R = T>(options?: ModelLiveOptions): Promise<CerialLiveHandle<R>> {
+    await this.beforeQuery([this.metadata.name]);
+
+    return createModelLive<R>(
+      this.metadata,
+      this.registry,
+      options,
+      async () => this.db,
+      (handle) => this.trackLive?.(handle) ?? (() => {}),
     );
   }
 

@@ -365,6 +365,8 @@ export interface BookModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: BookWhere }): Promise<import('cerial').CerialLiveHandle<Book>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -705,6 +707,8 @@ export interface PublisherModel {
   exists(where?: PublisherWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: PublisherWhere }): Promise<import('cerial').CerialLiveHandle<Publisher>>;
 
   getMetadata(): ModelMetadata;
 

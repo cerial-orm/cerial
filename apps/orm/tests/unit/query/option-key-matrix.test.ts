@@ -161,6 +161,8 @@ const NOT_QUERY_METHODS = new Set([
   'resolveDb',
   // Takes a whole fragment, not option keys
   '$raw',
+  // Takes a where only, which the live suite covers
+  '$live',
   'getMetadata',
   'getName',
   'getTableName',

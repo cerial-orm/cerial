@@ -119,7 +119,7 @@ export class CerialTransaction {
 
   /** A live query outlives the transaction that would own it, so a transaction refuses it. */
   $live(): never {
-    throw new CerialTransactionError('$live is not available inside a transaction', { operation: '$live' });
+    refuseLive();
   }
 
   /** @internal */
@@ -163,9 +163,15 @@ export class CerialTransaction {
   }
 }
 
+/** A live query outlives the transaction that would own it. */
+function refuseLive(): never {
+  throw new CerialTransactionError('$live is not available inside a transaction', { operation: '$live' });
+}
+
 function createTransactionModelProxy(model: Model, ensureActive: () => void): unknown {
   return new Proxy(model, {
     get(target, prop) {
+      if (prop === '$live') return () => refuseLive();
       const value = Reflect.get(target, prop);
       if (typeof value !== 'function') return value;
 

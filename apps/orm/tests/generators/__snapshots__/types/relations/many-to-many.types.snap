@@ -368,6 +368,8 @@ export interface CourseModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: CourseWhere }): Promise<import('cerial').CerialLiveHandle<Course>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -741,6 +743,8 @@ export interface StudentModel {
   exists(where?: StudentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: StudentWhere }): Promise<import('cerial').CerialLiveHandle<Student>>;
 
   getMetadata(): ModelMetadata;
 

@@ -325,6 +325,8 @@ export interface UuidBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: UuidBasicWhere }): Promise<import('cerial').CerialLiveHandle<UuidBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -671,6 +673,8 @@ export interface UuidDecoratedModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: UuidDecoratedWhere }): Promise<import('cerial').CerialLiveHandle<UuidDecorated>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -955,6 +959,8 @@ export interface UuidWithObjectModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: UuidWithObjectWhere }): Promise<import('cerial').CerialLiveHandle<UuidWithObject>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1217,6 +1223,8 @@ export interface UuidWithTupleModel {
   exists(where?: UuidWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UuidWithTupleWhere }): Promise<import('cerial').CerialLiveHandle<UuidWithTuple>>;
 
   getMetadata(): ModelMetadata;
 

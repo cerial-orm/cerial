@@ -35,12 +35,19 @@ export class CerialLiveHandle<T = unknown>
   readonly #queue: Array<LiveNotification<T>> = [];
   readonly #waiters: Array<Waiter<T>> = [];
   readonly #cleanups: Array<() => void> = [];
+  readonly #mapValue: ((value: unknown) => unknown) | undefined;
   #ended = false;
   #error: unknown;
 
   /** @internal Built by `createClientLive`; `track` registers the handle and returns its unregister. */
-  constructor(subscription: LiveSubscription, surreal: Surreal, track: (handle: CerialLiveHandle<T>) => () => void) {
+  constructor(
+    subscription: LiveSubscription,
+    surreal: Surreal,
+    track: (handle: CerialLiveHandle<T>) => () => void,
+    mapValue?: (value: unknown) => unknown,
+  ) {
     this.#subscription = subscription;
+    this.#mapValue = mapValue;
     // The cursor is taken now, in the same turn the subscription is ready, so no notification is dropped.
     this.#cursor = subscription[Symbol.asyncIterator]();
     this.#cleanups.push(
@@ -123,7 +130,16 @@ export class CerialLiveHandle<T = unknown>
       const message = result.value;
       // A KILLED message has no record and no value, so it ends the handle before any mapping.
       if (message.action === 'KILLED') break;
-      this.#push({ action: message.action, recordId: message.recordId, value: message.value as T });
+      let value: unknown;
+      try {
+        value = this.#mapValue ? this.#mapValue(message.value) : message.value;
+      } catch (error) {
+        // A row that cannot be mapped must not leave the consumer waiting on a stalled pump.
+        await this.#finish(error).catch(() => {});
+
+        return;
+      }
+      this.#push({ action: message.action, recordId: message.recordId, value: value as T });
     }
     await this.#finish().catch(() => {});
   }

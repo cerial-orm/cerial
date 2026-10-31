@@ -332,6 +332,8 @@ export interface DepartmentModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DepartmentWhere }): Promise<import('cerial').CerialLiveHandle<Department>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -687,6 +689,8 @@ export interface EmployeeModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: EmployeeWhere }): Promise<import('cerial').CerialLiveHandle<Employee>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1037,6 +1041,8 @@ export interface MemberModel {
   exists(where?: MemberWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: MemberWhere }): Promise<import('cerial').CerialLiveHandle<Member>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1397,6 +1403,8 @@ export interface MemberNoActionModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: MemberNoActionWhere }): Promise<import('cerial').CerialLiveHandle<MemberNoAction>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1755,6 +1763,8 @@ export interface MemberSetNullModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: MemberSetNullWhere }): Promise<import('cerial').CerialLiveHandle<MemberSetNull>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2106,6 +2116,8 @@ export interface OdChildModel {
   exists(where?: OdChildWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: OdChildWhere }): Promise<import('cerial').CerialLiveHandle<OdChild>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2496,6 +2508,8 @@ export interface OdFolderModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: OdFolderWhere }): Promise<import('cerial').CerialLiveHandle<OdFolder>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2836,6 +2850,8 @@ export interface OdGrandparentModel {
   exists(where?: OdGrandparentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: OdGrandparentWhere }): Promise<import('cerial').CerialLiveHandle<OdGrandparent>>;
 
   getMetadata(): ModelMetadata;
 
@@ -3250,6 +3266,8 @@ export interface OdParentModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: OdParentWhere }): Promise<import('cerial').CerialLiveHandle<OdParent>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -3613,6 +3631,8 @@ export interface ProfileCascadeModel {
   exists(where?: ProfileCascadeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ProfileCascadeWhere }): Promise<import('cerial').CerialLiveHandle<ProfileCascade>>;
 
   getMetadata(): ModelMetadata;
 
@@ -3978,6 +3998,8 @@ export interface ProfileNoActionModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ProfileNoActionWhere }): Promise<import('cerial').CerialLiveHandle<ProfileNoAction>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -4342,6 +4364,8 @@ export interface ProfileRestrictModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ProfileRestrictWhere }): Promise<import('cerial').CerialLiveHandle<ProfileRestrict>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -4703,6 +4727,8 @@ export interface ProfileSetNoneModel {
   exists(where?: ProfileSetNoneWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ProfileSetNoneWhere }): Promise<import('cerial').CerialLiveHandle<ProfileSetNone>>;
 
   getMetadata(): ModelMetadata;
 
@@ -5068,6 +5094,8 @@ export interface ProfileSetNullModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ProfileSetNullWhere }): Promise<import('cerial').CerialLiveHandle<ProfileSetNull>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -5404,6 +5432,8 @@ export interface TeamModel {
   exists(where?: TeamWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TeamWhere }): Promise<import('cerial').CerialLiveHandle<Team>>;
 
   getMetadata(): ModelMetadata;
 
@@ -5749,6 +5779,8 @@ export interface TeamNoActionModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TeamNoActionWhere }): Promise<import('cerial').CerialLiveHandle<TeamNoAction>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -6093,6 +6125,8 @@ export interface TeamSetNullModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TeamSetNullWhere }): Promise<import('cerial').CerialLiveHandle<TeamSetNull>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -6421,6 +6455,8 @@ export interface UserCascadeModel {
   exists(where?: UserCascadeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UserCascadeWhere }): Promise<import('cerial').CerialLiveHandle<UserCascade>>;
 
   getMetadata(): ModelMetadata;
 
@@ -6751,6 +6787,8 @@ export interface UserNoActionModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: UserNoActionWhere }): Promise<import('cerial').CerialLiveHandle<UserNoAction>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -7080,6 +7118,8 @@ export interface UserRestrictModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: UserRestrictWhere }): Promise<import('cerial').CerialLiveHandle<UserRestrict>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -7408,6 +7448,8 @@ export interface UserSetNoneModel {
   exists(where?: UserSetNoneWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UserSetNoneWhere }): Promise<import('cerial').CerialLiveHandle<UserSetNone>>;
 
   getMetadata(): ModelMetadata;
 
@@ -7757,6 +7799,8 @@ export interface UserSetNullModel {
   exists(where?: UserSetNullWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UserSetNullWhere }): Promise<import('cerial').CerialLiveHandle<UserSetNull>>;
 
   getMetadata(): ModelMetadata;
 

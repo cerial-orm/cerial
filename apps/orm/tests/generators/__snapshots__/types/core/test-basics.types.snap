@@ -357,6 +357,8 @@ export interface PostModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: PostWhere }): Promise<import('cerial').CerialLiveHandle<Post>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -738,6 +740,8 @@ export interface ProfileModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ProfileWhere }): Promise<import('cerial').CerialLiveHandle<Profile>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1091,6 +1095,8 @@ export interface TagModel {
   exists(where?: TagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TagWhere }): Promise<import('cerial').CerialLiveHandle<Tag>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1817,6 +1823,8 @@ export interface UserModel {
   exists(where?: UserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UserWhere }): Promise<import('cerial').CerialLiveHandle<User>>;
 
   getMetadata(): ModelMetadata;
 

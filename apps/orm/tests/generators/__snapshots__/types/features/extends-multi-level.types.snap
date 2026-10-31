@@ -383,6 +383,8 @@ export interface ExtL4AltConcreteModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtL4AltConcreteWhere }): Promise<import('cerial').CerialLiveHandle<ExtL4AltConcrete>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -780,6 +782,8 @@ export interface ExtL4ConcreteModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtL4ConcreteWhere }): Promise<import('cerial').CerialLiveHandle<ExtL4Concrete>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1117,6 +1121,8 @@ export interface ExtL4OmitConcreteModel {
   exists(where?: ExtL4OmitConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtL4OmitConcreteWhere }): Promise<import('cerial').CerialLiveHandle<ExtL4OmitConcrete>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1500,6 +1506,8 @@ export interface ExtL4PickConcreteModel {
   exists(where?: ExtL4PickConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtL4PickConcreteWhere }): Promise<import('cerial').CerialLiveHandle<ExtL4PickConcrete>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1909,6 +1917,8 @@ export interface ExtL5VeryDeepModel {
   exists(where?: ExtL5VeryDeepWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtL5VeryDeepWhere }): Promise<import('cerial').CerialLiveHandle<ExtL5VeryDeep>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2518,6 +2528,8 @@ export interface ExtL6UltraDeepModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtL6UltraDeepWhere }): Promise<import('cerial').CerialLiveHandle<ExtL6UltraDeep>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2865,6 +2877,8 @@ export interface ExtP4ConcreteModel {
   exists(where?: ExtP4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtP4ConcreteWhere }): Promise<import('cerial').CerialLiveHandle<ExtP4Concrete>>;
 
   getMetadata(): ModelMetadata;
 

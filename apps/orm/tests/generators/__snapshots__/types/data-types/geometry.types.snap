@@ -375,6 +375,8 @@ export interface GeometryBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: GeometryBasicWhere }): Promise<import('cerial').CerialLiveHandle<GeometryBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -691,6 +693,8 @@ export interface GeometryMultiModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: GeometryMultiWhere }): Promise<import('cerial').CerialLiveHandle<GeometryMulti>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -954,6 +958,8 @@ export interface GeometryWithObjectModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: GeometryWithObjectWhere }): Promise<import('cerial').CerialLiveHandle<GeometryWithObject>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1213,6 +1219,8 @@ export interface GeometryWithTupleModel {
   exists(where?: GeometryWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: GeometryWithTupleWhere }): Promise<import('cerial').CerialLiveHandle<GeometryWithTuple>>;
 
   getMetadata(): ModelMetadata;
 

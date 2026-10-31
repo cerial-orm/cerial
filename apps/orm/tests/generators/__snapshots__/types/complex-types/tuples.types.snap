@@ -271,6 +271,8 @@ export interface TupleBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TupleBasicWhere }): Promise<import('cerial').CerialLiveHandle<TupleBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -538,6 +540,8 @@ export interface TupleDecoratedNestModel {
   exists(where?: TupleDecoratedNestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TupleDecoratedNestWhere }): Promise<import('cerial').CerialLiveHandle<TupleDecoratedNest>>;
 
   getMetadata(): ModelMetadata;
 
@@ -808,6 +812,8 @@ export interface TupleDeepNestModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TupleDeepNestWhere }): Promise<import('cerial').CerialLiveHandle<TupleDeepNest>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1063,6 +1069,8 @@ export interface TupleDefaultedModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TupleDefaultedWhere }): Promise<import('cerial').CerialLiveHandle<TupleDefaulted>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1311,6 +1319,8 @@ export interface TupleInObjModel {
   exists(where?: TupleInObjWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TupleInObjWhere }): Promise<import('cerial').CerialLiveHandle<TupleInObj>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1588,6 +1598,10 @@ export interface TupleLiteralElementModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: {
+    where?: TupleLiteralElementWhere;
+  }): Promise<import('cerial').CerialLiveHandle<TupleLiteralElement>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1826,6 +1840,8 @@ export interface TupleNestedModel {
   exists(where?: TupleNestedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TupleNestedWhere }): Promise<import('cerial').CerialLiveHandle<TupleNested>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2116,6 +2132,8 @@ export interface TupleNullableModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TupleNullableWhere }): Promise<import('cerial').CerialLiveHandle<TupleNullable>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2363,6 +2381,8 @@ export interface TupleObjInTupleModel {
   exists(where?: TupleObjInTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TupleObjInTupleWhere }): Promise<import('cerial').CerialLiveHandle<TupleObjInTuple>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2726,6 +2746,8 @@ export interface TupleRelatedPostModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TupleRelatedPostWhere }): Promise<import('cerial').CerialLiveHandle<TupleRelatedPost>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2980,6 +3002,8 @@ export interface TupleStampedModel {
   exists(where?: TupleStampedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TupleStampedWhere }): Promise<import('cerial').CerialLiveHandle<TupleStamped>>;
 
   getMetadata(): ModelMetadata;
 
@@ -3332,6 +3356,8 @@ export interface TupleWithRelationModel {
   exists(where?: TupleWithRelationWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TupleWithRelationWhere }): Promise<import('cerial').CerialLiveHandle<TupleWithRelation>>;
 
   getMetadata(): ModelMetadata;
 

@@ -311,6 +311,8 @@ export interface BytesBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: BytesBasicWhere }): Promise<import('cerial').CerialLiveHandle<BytesBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -580,6 +582,8 @@ export interface BytesWithObjectModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: BytesWithObjectWhere }): Promise<import('cerial').CerialLiveHandle<BytesWithObject>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -836,6 +840,8 @@ export interface BytesWithTupleModel {
   exists(where?: BytesWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: BytesWithTupleWhere }): Promise<import('cerial').CerialLiveHandle<BytesWithTuple>>;
 
   getMetadata(): ModelMetadata;
 

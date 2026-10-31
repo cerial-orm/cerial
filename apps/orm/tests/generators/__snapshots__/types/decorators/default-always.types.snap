@@ -430,6 +430,8 @@ export interface ContentItemModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ContentItemWhere }): Promise<import('cerial').CerialLiveHandle<ContentItem>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;

@@ -327,6 +327,8 @@ export interface DurationBasicModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DurationBasicWhere }): Promise<import('cerial').CerialLiveHandle<DurationBasic>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -625,6 +627,8 @@ export interface DurationDecoratedModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DurationDecoratedWhere }): Promise<import('cerial').CerialLiveHandle<DurationDecorated>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -894,6 +898,8 @@ export interface DurationWithObjectModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DurationWithObjectWhere }): Promise<import('cerial').CerialLiveHandle<DurationWithObject>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1159,6 +1165,8 @@ export interface DurationWithTupleModel {
   exists(where?: DurationWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: DurationWithTupleWhere }): Promise<import('cerial').CerialLiveHandle<DurationWithTuple>>;
 
   getMetadata(): ModelMetadata;
 

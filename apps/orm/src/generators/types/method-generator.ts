@@ -705,6 +705,11 @@ export function generateRawMethod(): string {
   return `$raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;`;
 }
 
+/** Generate the managed live subscription method signature */
+export function generateLiveMethod(model: ModelMetadata): string {
+  return `$live(options?: { where?: ${model.name}Where }): Promise<import('cerial').CerialLiveHandle<${model.name}>>;`;
+}
+
 /** Generate introspection method signatures (getMetadata, getName, getTableName) */
 export function generateIntrospectionMethods(): string {
   return ['getMetadata(): ModelMetadata;', 'getName(): string;', 'getTableName(): string;'].join('\n\n  ');
@@ -725,6 +730,7 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
     generateCountMethod(model),
     generateExistsMethod(model),
     generateRawMethod(),
+    generateLiveMethod(model),
     generateIntrospectionMethods(),
   ];
 }

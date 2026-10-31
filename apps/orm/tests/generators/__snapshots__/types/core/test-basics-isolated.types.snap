@@ -364,6 +364,8 @@ export interface BasicsPostModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: BasicsPostWhere }): Promise<import('cerial').CerialLiveHandle<BasicsPost>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -753,6 +755,8 @@ export interface BasicsProfileModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: BasicsProfileWhere }): Promise<import('cerial').CerialLiveHandle<BasicsProfile>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1116,6 +1120,8 @@ export interface BasicsTagModel {
   exists(where?: BasicsTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: BasicsTagWhere }): Promise<import('cerial').CerialLiveHandle<BasicsTag>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1861,6 +1867,8 @@ export interface BasicsUserModel {
   exists(where?: BasicsUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: BasicsUserWhere }): Promise<import('cerial').CerialLiveHandle<BasicsUser>>;
 
   getMetadata(): ModelMetadata;
 

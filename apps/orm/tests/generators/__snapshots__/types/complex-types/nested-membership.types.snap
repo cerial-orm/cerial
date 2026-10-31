@@ -365,6 +365,8 @@ export interface NmObjectDocModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: NmObjectDocWhere }): Promise<import('cerial').CerialLiveHandle<NmObjectDoc>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -805,6 +807,8 @@ export interface NmTupleDocModel {
   exists(where?: NmTupleDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: NmTupleDocWhere }): Promise<import('cerial').CerialLiveHandle<NmTupleDoc>>;
 
   getMetadata(): ModelMetadata;
 

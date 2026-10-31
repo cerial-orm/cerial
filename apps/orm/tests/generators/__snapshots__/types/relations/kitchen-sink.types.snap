@@ -245,6 +245,8 @@ export interface KitchenSinkBadgeModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: KitchenSinkBadgeWhere }): Promise<import('cerial').CerialLiveHandle<KitchenSinkBadge>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -593,6 +595,8 @@ export interface KitchenSinkPostModel {
   exists(where?: KitchenSinkPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: KitchenSinkPostWhere }): Promise<import('cerial').CerialLiveHandle<KitchenSinkPost>>;
 
   getMetadata(): ModelMetadata;
 
@@ -954,6 +958,8 @@ export interface KitchenSinkProfileModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: KitchenSinkProfileWhere }): Promise<import('cerial').CerialLiveHandle<KitchenSinkProfile>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1312,6 +1318,10 @@ export interface KitchenSinkSettingsModel {
   exists(where?: KitchenSinkSettingsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: {
+    where?: KitchenSinkSettingsWhere;
+  }): Promise<import('cerial').CerialLiveHandle<KitchenSinkSettings>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1680,6 +1690,8 @@ export interface KitchenSinkTagModel {
   exists(where?: KitchenSinkTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: KitchenSinkTagWhere }): Promise<import('cerial').CerialLiveHandle<KitchenSinkTag>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2306,6 +2318,8 @@ export interface KitchenSinkUserModel {
   exists(where?: KitchenSinkUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: KitchenSinkUserWhere }): Promise<import('cerial').CerialLiveHandle<KitchenSinkUser>>;
 
   getMetadata(): ModelMetadata;
 

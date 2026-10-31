@@ -392,6 +392,8 @@ export interface DocumentModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: DocumentWhere }): Promise<import('cerial').CerialLiveHandle<Document>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -780,6 +782,8 @@ export interface WriterModel {
   exists(where?: WriterWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: WriterWhere }): Promise<import('cerial').CerialLiveHandle<Writer>>;
 
   getMetadata(): ModelMetadata;
 

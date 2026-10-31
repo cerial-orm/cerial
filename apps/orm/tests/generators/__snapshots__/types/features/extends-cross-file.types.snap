@@ -466,6 +466,8 @@ export interface ExtCrossAdminModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtCrossAdminWhere }): Promise<import('cerial').CerialLiveHandle<ExtCrossAdmin>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -810,6 +812,8 @@ export interface ExtCrossModeratorModel {
   exists(where?: ExtCrossModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtCrossModeratorWhere }): Promise<import('cerial').CerialLiveHandle<ExtCrossModerator>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1280,6 +1284,8 @@ export interface ExtCrossPremiumModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtCrossPremiumWhere }): Promise<import('cerial').CerialLiveHandle<ExtCrossPremium>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1619,6 +1625,8 @@ export interface ExtCrossPrivateModel {
   exists(where?: ExtCrossPrivateWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtCrossPrivateWhere }): Promise<import('cerial').CerialLiveHandle<ExtCrossPrivate>>;
 
   getMetadata(): ModelMetadata;
 
@@ -2160,6 +2168,8 @@ export interface ExtCrossProfileModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtCrossProfileWhere }): Promise<import('cerial').CerialLiveHandle<ExtCrossProfile>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2540,6 +2550,8 @@ export interface ExtCrossUserModel {
   exists(where?: ExtCrossUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtCrossUserWhere }): Promise<import('cerial').CerialLiveHandle<ExtCrossUser>>;
 
   getMetadata(): ModelMetadata;
 

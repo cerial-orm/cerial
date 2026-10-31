@@ -310,6 +310,8 @@ export interface ObjDecUserModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ObjDecUserWhere }): Promise<import('cerial').CerialLiveHandle<ObjDecUser>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;

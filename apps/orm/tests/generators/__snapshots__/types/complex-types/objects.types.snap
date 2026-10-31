@@ -310,6 +310,8 @@ export interface ObjectTestOrderModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ObjectTestOrderWhere }): Promise<import('cerial').CerialLiveHandle<ObjectTestOrder>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -654,6 +656,8 @@ export interface ObjectTestUserModel {
   exists(where?: ObjectTestUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ObjectTestUserWhere }): Promise<import('cerial').CerialLiveHandle<ObjectTestUser>>;
 
   getMetadata(): ModelMetadata;
 

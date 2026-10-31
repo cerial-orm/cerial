@@ -245,6 +245,8 @@ export interface ExtTupleByNameModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: ExtTupleByNameWhere }): Promise<import('cerial').CerialLiveHandle<ExtTupleByName>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -579,6 +581,8 @@ export interface ExtTupleModelModel {
   exists(where?: ExtTupleModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: ExtTupleModelWhere }): Promise<import('cerial').CerialLiveHandle<ExtTupleModel>>;
 
   getMetadata(): ModelMetadata;
 

@@ -701,6 +701,8 @@ export interface UnsetTestModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: UnsetTestWhere }): Promise<import('cerial').CerialLiveHandle<UnsetTest>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;

@@ -328,6 +328,8 @@ export interface BloggerModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: BloggerWhere }): Promise<import('cerial').CerialLiveHandle<Blogger>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -573,6 +575,8 @@ export interface LabelModel {
   exists(where?: LabelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: LabelWhere }): Promise<import('cerial').CerialLiveHandle<Label>>;
 
   getMetadata(): ModelMetadata;
 

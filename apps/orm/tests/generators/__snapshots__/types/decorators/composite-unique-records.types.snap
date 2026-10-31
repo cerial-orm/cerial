@@ -442,6 +442,8 @@ export interface AttendeeModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: AttendeeWhere }): Promise<import('cerial').CerialLiveHandle<Attendee>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -789,6 +791,8 @@ export interface BookingModel {
   exists(where?: BookingWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: BookingWhere }): Promise<import('cerial').CerialLiveHandle<Booking>>;
 
   getMetadata(): ModelMetadata;
 
@@ -1210,6 +1214,8 @@ export interface RegistrationModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: RegistrationWhere }): Promise<import('cerial').CerialLiveHandle<Registration>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1628,6 +1634,8 @@ export interface TicketModel {
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
+  $live(options?: { where?: TicketWhere }): Promise<import('cerial').CerialLiveHandle<Ticket>>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2023,6 +2031,8 @@ export interface WorkshopModel {
   exists(where?: WorkshopWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: WorkshopWhere }): Promise<import('cerial').CerialLiveHandle<Workshop>>;
 
   getMetadata(): ModelMetadata;
 

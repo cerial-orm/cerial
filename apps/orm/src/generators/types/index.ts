@@ -58,6 +58,7 @@ export {
   generateDeleteManyMethod,
   generateExistsMethod,
   generateRawMethod,
+  generateLiveMethod,
   generateFindManyMethod,
   generateFindOneMethod,
   generateFindUniqueMethod,

@@ -20,6 +20,8 @@ export interface ProxyOptions {
   perModelCallbacks?: PerModelCallbacks;
   /** Attach the generated statement and its bound values to a wrapped database error (default: false) */
   includeStatementInErrors?: boolean;
+  /** Registers a live handle with its connection so a deliberate `disconnect()` ends it. Set by the connection manager. */
+  trackLive?: ModelOptions['trackLive'];
 }
 
 /** Stands in for the options of a client built without any, so those clients still share instances */
@@ -96,8 +98,12 @@ function buildModelOptions(modelName: string, options?: ProxyOptions): ModelOpti
 
   const allCallbacks = [...globalCallbacks, ...perModelCallbacks];
 
-  if (allCallbacks.length === 0 && !options?.includeStatementInErrors) return undefined;
-  return { onBeforeQuery: allCallbacks, includeStatementInErrors: options?.includeStatementInErrors };
+  if (allCallbacks.length === 0 && !options?.includeStatementInErrors && !options?.trackLive) return undefined;
+  return {
+    onBeforeQuery: allCallbacks,
+    includeStatementInErrors: options?.includeStatementInErrors,
+    trackLive: options?.trackLive,
+  };
 }
 
 /** Create proxy handler for model access */
