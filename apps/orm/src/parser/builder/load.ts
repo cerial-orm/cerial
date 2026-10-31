@@ -6,19 +6,19 @@ import { isModelHandle } from './model';
 import { isObjectHandle } from './object';
 import { isTupleHandle } from './tuple';
 
-/** Imports one module and returns its namespace. A token makes the import see the file as it is now. */
-export type ModuleImporter = (path: string, cacheBust?: string) => Promise<Record<string, unknown>>;
+/** Imports one module and returns its namespace. */
+export type ModuleImporter = (path: string) => Promise<Record<string, unknown>>;
 
 export interface LoadOptions {
   /** Replaces the import, so a caller can supply a fresh one. Defaults to {@link importSchemaModule}. */
   readonly importModule?: ModuleImporter;
-  /** Passed to every import; a changed value forces the runtime to re-evaluate the module. */
-  readonly cacheBust?: string;
 }
 
-/** The one place a schema module is imported. The query string gives a re-import a new module identity. */
-export const importSchemaModule: ModuleImporter = (path, cacheBust) =>
-  import(cacheBust ? `${path}?v=${encodeURIComponent(cacheBust)}` : path);
+/**
+ * The one place a schema module is imported. A `?v=` query would re-evaluate only the module it names, not
+ * the modules it imports, so a watcher gets a fresh module graph from a new process instead.
+ */
+export const importSchemaModule: ModuleImporter = (path) => import(path);
 
 function isDeclaration(value: unknown): value is object {
   if (typeof value !== 'object' || value === null) return false;
@@ -41,13 +41,13 @@ export async function loadDeclarations(
   files: readonly string[],
   options: LoadOptions = {},
 ): Promise<ExportedDeclaration[]> {
-  const { importModule = importSchemaModule, cacheBust } = options;
+  const { importModule = importSchemaModule } = options;
   const declarations: ExportedDeclaration[] = [];
 
   for (const module of files) {
     let namespace: Record<string, unknown>;
     try {
-      namespace = await importModule(module, cacheBust);
+      namespace = await importModule(module);
     } catch (error) {
       throw new CerialGenerationError(
         `Failed to load schema module ${module}: ${error instanceof Error ? error.message : String(error)}`,

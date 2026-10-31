@@ -3,14 +3,15 @@
  * Uses node:fs watch with recursive option (supported natively by Bun on macOS/Linux).
  */
 
+import { spawn } from 'node:child_process';
 import { type FSWatcher, watch } from 'node:fs';
-import { basename, resolve } from 'node:path';
+import { basename, isAbsolute, relative, resolve } from 'node:path';
 import { resolveConfig as resolveFormatConfig } from '../formatter/rules';
 import type { FormatConfig } from '../formatter/types';
 import type { PathFilter } from './filters/types';
 import { formatSingleFile } from './format';
 import { generateSingleSchema } from './generate';
-import { isSchemaFile } from './resolvers/schema-resolver';
+import { isSchemaFile, isTypescriptSchemaFile, resolveSinglePath } from './resolvers/schema-resolver';
 
 /** Base fields needed by any watcher target */
 export interface WatchTargetBase {
@@ -23,6 +24,8 @@ export interface WatchTargetBase {
 export interface WatchTarget extends WatchTargetBase {
   outputDir: string;
   clientClassName?: string;
+  /** The `--config` path the user passed; set only on targets built from a config entry */
+  configPath?: string;
 }
 
 /** Watch target for format mode */
@@ -46,16 +49,42 @@ export function isCerialIgnoreFile(filename: string | null): boolean {
   return filename.endsWith('.cerialignore');
 }
 
-export function shouldTriggerRegeneration(filename: string | null, filter?: PathFilter): boolean {
+/** Where a TypeScript entry writes, so its own output never triggers it */
+export interface TypescriptEntryScope {
+  schemaPath: string;
+  outputDir: string;
+}
+
+/** A plain `.ts` file in a TypeScript entry: a schema module may import it, unless it is generated output */
+function isTypescriptDependency(filename: string, scope: TypescriptEntryScope): boolean {
+  if (!filename.endsWith('.ts')) return false;
+
+  const path = filename.replace(/\\/g, '/');
+  if (/(^|\/)cerial\/handles\.ts$/.test(path)) return false;
+
+  const outputRelative = relative(resolve(scope.schemaPath), resolve(scope.outputDir)).replace(/\\/g, '/');
+  const outputInside = outputRelative !== '' && !outputRelative.startsWith('..') && !isAbsolute(outputRelative);
+
+  return !(outputInside && (path === outputRelative || path.startsWith(`${outputRelative}/`)));
+}
+
+export function shouldTriggerRegeneration(
+  filename: string | null,
+  filter?: PathFilter,
+  typescriptEntry?: TypescriptEntryScope,
+): boolean {
   if (!filename) return false;
 
   // .cerialignore changes always trigger (filter re-resolution needed)
   if (isCerialIgnoreFile(filename)) return true;
 
-  // Must be a .cerial file or a TypeScript schema module
-  if (!isSchemaFile(filename)) return false;
+  // Must be a .cerial file, a TypeScript schema module, or (in a TypeScript entry) a file one may import
+  const isTrigger =
+    isSchemaFile(filename) ||
+    (!!typescriptEntry && !isTypescriptSchemaFile(filename) && isTypescriptDependency(filename, typescriptEntry));
+  if (!isTrigger) return false;
 
-  // If no filter, all .cerial files trigger
+  // If no filter, all trigger
   if (!filter) return true;
 
   // Check filter — normalize Windows backslashes before checking
@@ -114,7 +143,7 @@ export function createDebouncer(delayMs: number): Debouncer {
 export async function startWatcherWithCallback<T extends WatchTargetBase>(
   targets: T[],
   onFileChange: WatchCallback<T>,
-  options?: { label?: string },
+  options?: { label?: string; shouldTrigger?: (target: T, filename: string | null) => boolean },
 ): Promise<void> {
   if (!targets.length) return;
 
@@ -141,7 +170,8 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
   for (const [index, target] of targets.entries()) {
     try {
       const watcher = watch(target.schemaPath, { recursive: true }, (_event, filename) => {
-        if (!shouldTriggerRegeneration(filename, target.filter)) return;
+        const triggers = options?.shouldTrigger ?? ((t, f) => shouldTriggerRegeneration(f, t.filter));
+        if (!triggers(target, filename)) return;
 
         debouncer.schedule(String(index), () => {
           void onFileChange(target, filename!);
@@ -169,18 +199,144 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
   });
 }
 
+/** The running CLI, re-invoked in a child process so a TypeScript entry sees a fresh module cache */
+export interface CliInvocation {
+  execPath: string;
+  entry: string;
+  /** Extra leading args, for runtimes that need them */
+  args?: string[];
+}
+
 export interface WatcherOptions {
   format?: boolean;
   formatConfig?: FormatConfig;
+  /** Defaults to the running process: `process.execPath` and `process.argv[1]` */
+  cli?: CliInvocation;
+}
+
+/** True when the entry's TypeScript modules are what generation imports: some exist and no `.cerial` file does */
+export async function holdsTypescriptModules(target: WatchTargetBase): Promise<boolean> {
+  try {
+    const files = await resolveSinglePath(target.schemaPath, process.cwd(), target.filter);
+
+    return files.some(isTypescriptSchemaFile) && !files.some((f) => f.endsWith('.cerial'));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The args that make a child regenerate exactly this target. A config entry is selected by name so its
+ * client class name and filters apply; `-s` would silently fall back to the default class name. Only paths
+ * and names travel on argv.
+ */
+export function buildGenerateArgs(target: WatchTarget, cli: CliInvocation): string[] {
+  const select =
+    target.name && target.clientClassName
+      ? ['-n', target.name, ...(target.configPath ? ['-C', target.configPath] : [])]
+      : ['-s', target.schemaPath];
+
+  return [...(cli.args ?? []), cli.entry, 'generate', ...select, '-o', target.outputDir, '--log', 'minimal'];
+}
+
+/**
+ * Run one generation in a child process of this same CLI, in this process's working directory so a config
+ * found relative to it is found again. Resolves with a failure message, or null on success.
+ */
+export function runGenerateChild(target: WatchTarget, cli: CliInvocation): Promise<string | null> {
+  const args = buildGenerateArgs(target, cli);
+
+  return new Promise((resolvePromise) => {
+    try {
+      const child = spawn(cli.execPath, args, { stdio: 'inherit' });
+      child.once('error', (error) => resolvePromise(`could not start the generation process: ${error.message}`));
+      child.once('close', (code, signal) => {
+        if (code === 0) return resolvePromise(null);
+        resolvePromise(
+          signal ? `generation process was stopped by ${signal}` : `generation process exited with code ${code}`,
+        );
+      });
+    } catch (error) {
+      resolvePromise(error instanceof Error ? error.message : String(error));
+    }
+  });
+}
+
+/**
+ * Serialises regenerations of one entry: at most one runs at a time, and changes that arrive while it runs
+ * cost exactly one more run afterwards.
+ */
+export function createCoalescedRunner(run: () => Promise<void>): () => Promise<void> {
+  let running = false;
+  let again = false;
+
+  return async () => {
+    if (running) {
+      again = true;
+
+      return;
+    }
+    running = true;
+    try {
+      do {
+        again = false;
+        await run();
+      } while (again);
+    } finally {
+      running = false;
+    }
+  };
 }
 
 /**
  * Start watching schema directories for .cerial file changes.
  * On change, regenerates only the affected schema.
+ * A TypeScript entry regenerates in a child process, because an imported module stays cached in this one.
  * If format option is enabled, formats the changed file before generating.
  * Returns a Promise that resolves when the watcher is stopped via SIGINT.
  */
 export async function startWatcher(schemas: WatchTarget[], options?: WatcherOptions): Promise<void> {
+  const cli: CliInvocation = options?.cli ?? { execPath: process.execPath, entry: process.argv[1]! };
+  const typescriptTargets = new Set<WatchTarget>();
+  for (const target of schemas) {
+    if (await holdsTypescriptModules(target)) typescriptTargets.add(target);
+  }
+  const runners = new Map<WatchTarget, () => Promise<void>>();
+
+  async function regenerate(target: WatchTarget, schemaLabel: string): Promise<void> {
+    const start = performance.now();
+
+    if (typescriptTargets.has(target)) {
+      const failure = await runGenerateChild(target, cli);
+      if (failure) console.error(`[watch] Error regenerating '${schemaLabel}': ${failure}`);
+      else console.log(`[watch] '${schemaLabel}' regenerated in ${Math.round(performance.now() - start)}ms`);
+
+      return;
+    }
+
+    try {
+      const result = await generateSingleSchema({
+        schemaPath: target.schemaPath,
+        outputDir: target.outputDir,
+        clientClassName: target.clientClassName,
+        logLevel: 'minimal',
+      });
+
+      const elapsed = Math.round(performance.now() - start);
+
+      if (result.success) {
+        console.log(`[watch] '${schemaLabel}' regenerated in ${elapsed}ms`);
+      } else {
+        for (const error of result.errors) {
+          console.error(`[watch] Error regenerating '${schemaLabel}': ${error}`);
+        }
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[watch] Error regenerating '${schemaLabel}': ${message}`);
+    }
+  }
+
   return startWatcherWithCallback(
     schemas,
     async (target, filename) => {
@@ -200,30 +356,22 @@ export async function startWatcher(schemas: WatchTarget[], options?: WatcherOpti
 
       console.log(`[watch] Change detected in '${schemaLabel}' (${filename}). Regenerating...`);
 
-      const start = performance.now();
-      try {
-        const result = await generateSingleSchema({
-          schemaPath: target.schemaPath,
-          outputDir: target.outputDir,
-          clientClassName: target.clientClassName,
-          logLevel: 'minimal',
-        });
-
-        const elapsed = Math.round(performance.now() - start);
-
-        if (result.success) {
-          console.log(`[watch] '${schemaLabel}' regenerated in ${elapsed}ms`);
-        } else {
-          for (const error of result.errors) {
-            console.error(`[watch] Error regenerating '${schemaLabel}': ${error}`);
-          }
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error(`[watch] Error regenerating '${schemaLabel}': ${message}`);
+      let runner = runners.get(target);
+      if (!runner) {
+        runner = createCoalescedRunner(() => regenerate(target, schemaLabel));
+        runners.set(target, runner);
       }
+      await runner();
     },
-    { label: 'watch' },
+    {
+      label: 'watch',
+      shouldTrigger: (target, filename) =>
+        shouldTriggerRegeneration(
+          filename,
+          target.filter,
+          typescriptTargets.has(target) ? { schemaPath: target.schemaPath, outputDir: target.outputDir } : undefined,
+        ),
+    },
   );
 }
 

@@ -98,32 +98,3 @@ describe('loadDeclarations', () => {
     await expect(importSchemaModule(HANDLES)).rejects.toThrow();
   });
 });
-
-describe('import function', () => {
-  test('passes the cache-bust token to every import', async () => {
-    const seen: Array<[string, string | undefined]> = [];
-    const importModule: ModuleImporter = async (path, token) => {
-      seen.push([path, token]);
-
-      return {};
-    };
-
-    await loadDeclarations(['/a.schema.ts', '/b.schema.ts'], { importModule, cacheBust: 'v2' });
-    await loadDeclarations(['/c.schema.ts'], { importModule });
-
-    expect(seen).toEqual([
-      ['/a.schema.ts', 'v2'],
-      ['/b.schema.ts', 'v2'],
-      ['/c.schema.ts', undefined],
-    ]);
-  });
-
-  test('a different token yields a fresh module evaluation, the same token a cached one', async () => {
-    const first = await importSchemaModule(USER);
-    const same = await importSchemaModule(USER);
-    const fresh = await importSchemaModule(USER, 'fresh-1');
-
-    expect(same.User).toBe(first.User);
-    expect(fresh.User).not.toBe(first.User);
-  });
-});

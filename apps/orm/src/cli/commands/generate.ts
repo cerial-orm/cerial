@@ -75,6 +75,7 @@ async function buildWatchTargets(options: CLIOptions): Promise<WatchTarget[]> {
         schemaPath: entry.path,
         outputDir: entry.output,
         clientClassName: entry.clientClassName,
+        configPath: options.config,
         filter,
       });
     }
