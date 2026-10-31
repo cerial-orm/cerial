@@ -38,3 +38,5 @@ export type { ExportedDeclaration } from './materialise';
 export { materialise } from './materialise';
 export type { LoadOptions, ModuleImporter } from './load';
 export { importSchemaModule, loadDeclarations } from './load';
+export type { BuilderMethod, BuilderRoute } from './method-table';
+export { BUILDER_METHODS, DECLARATION_METHODS, LITERAL_VARIANT_METHODS } from './method-table';
