@@ -8,6 +8,7 @@
 
 import type { RecordId, Surreal } from 'surrealdb';
 import { CerialValidationError } from '../errors';
+import { isObject } from '../utils/type-utils';
 import type {
   CreateOptions,
   DeleteManyOptions,
@@ -537,6 +538,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Validate where clause
     const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, this.model, 'upsert');
+    assertUpsertNotRawOnly(where, this.model);
+
     refuseFragmentInValue(createData, 'create', { model: this.model.name, operation: 'upsert' });
     refuseFragmentInValue(updateData, 'update', { model: this.model.name, operation: 'upsert' });
 
@@ -1070,6 +1073,41 @@ function recordIdFromWhere(model: ModelMetadata, where: WhereClause): RecordId |
   return transformOrValidateRecordId(model.tableName, id as string);
 }
 
+/** The shape of a where once `$raw` is set aside: whether it held one, and whether anything else is left to filter on */
+function scanRaw(where: WhereClause): { hasRaw: boolean; hasCondition: boolean } {
+  let hasRaw = false;
+  let hasCondition = false;
+  const visit = (node: Record<string, unknown>): void => {
+    for (const [key, value] of Object.entries(node)) {
+      if (key === '$raw') hasRaw = true;
+      else if (value === undefined) continue;
+      else if (key === 'AND' || key === 'OR') {
+        if (Array.isArray(value)) for (const item of value) if (isObject(item)) visit(item);
+      } else if (key === 'NOT') {
+        if (isObject(value)) visit(value);
+      } else hasCondition = true;
+    }
+  };
+  visit(where as Record<string, unknown>);
+
+  return { hasRaw, hasCondition };
+}
+
+/**
+ * An upsert skips the unique-field check, so a where made only of `$raw` compiles to UPSERT table ... WHERE (fragment)
+ * and rewrites every row the fragment matches. Unlike deleteMany, that is never what the fragment's author meant.
+ */
+function assertUpsertNotRawOnly(where: WhereClause, model: ModelMetadata): void {
+  const { hasRaw, hasCondition } = scanRaw(where);
+  if (!hasRaw || hasCondition) return;
+
+  throw new CerialValidationError(
+    `upsert on ${model.name}: a where made only of $raw would rewrite every row the fragment matches. ` +
+      'Add the id or a @unique field beside it, or use updateMany.',
+    { model: model.name, operation: 'upsert', field: 'where.$raw' },
+  );
+}
+
 /**
  * A relation op in an upsert needs one row to attach to. A where that is not an id or a @unique field can
  * match none (the upsert creates one row) or several (no row to pick), so there is no defined target and
@@ -1105,6 +1143,8 @@ export function compileUpsert(
 
   const whereValidation = validateWhere(where, model, registry);
   if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, model, 'upsert');
+  assertUpsertNotRawOnly(where, model);
+
   refuseFragmentInValue(createData, 'create', { model: model.name, operation: 'upsert' });
   refuseFragmentInValue(updateData, 'update', { model: model.name, operation: 'upsert' });
 
