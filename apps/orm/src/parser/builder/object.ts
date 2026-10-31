@@ -6,7 +6,7 @@ import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
 import type { PrivateKeys } from './handle';
 import { isRelationBuilder } from './relation';
-import { sharedWeakMap } from './shared-state';
+import { numberDeclaration, sharedWeakMap } from './shared-state';
 
 /** The field builders of an object body, keyed by field name. */
 export type ObjectFields = Readonly<Record<string, object>>;
@@ -48,6 +48,7 @@ export function object<
   >(name);
   recordExtends(handle, options.extends);
   NODES.set(handle, { name, fields });
+  numberDeclaration(handle);
 
   return handle;
 }

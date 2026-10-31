@@ -12,7 +12,7 @@ import type { ObjectFields } from './object';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
 import type { PrivateKeys } from './handle';
-import { sharedWeakMap } from './shared-state';
+import { numberDeclaration, sharedWeakMap } from './shared-state';
 
 /** The field builders of a model body, keyed by field name. */
 export type ModelFields = ObjectFields;
@@ -91,6 +91,7 @@ export function model<
   >(name);
   recordExtends(handle, options.extends);
   NODES.set(handle, { name, fields, options });
+  numberDeclaration(handle);
 
   return handle;
 }

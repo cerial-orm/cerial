@@ -71,6 +71,7 @@ describe('loadDeclarations', () => {
     const backward = materialise(await loadDeclarations([POST, USER]));
 
     expect(backward).toEqual(forward);
+    // File path decides across modules (post before user), declaration order within one
     expect(forward.models.map((m) => m.name)).toEqual(['Post', 'User']);
   });
 

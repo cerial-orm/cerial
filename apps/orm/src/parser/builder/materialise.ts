@@ -18,6 +18,7 @@ import { enumNode, isEnumHandle } from './enum';
 import { isLiteralHandle, literalNode } from './literal';
 import { isModelHandle, modelNode } from './model';
 import { isObjectHandle, objectNode } from './object';
+import { declarationNumber } from './shared-state';
 import { isTupleHandle, tupleNode } from './tuple';
 
 /** One exported declaration and where it came from. `handle` is what `model()`, `object()` and the like returned. */
@@ -58,6 +59,11 @@ function compare(a: string, b: string): number {
 
 function byPlace(a: ExportedDeclaration, b: ExportedDeclaration): number {
   return compare(a.module, b.module) || compare(a.exportName, b.exportName);
+}
+
+/** Within one module: the order the declarations ran in, which is the order they were written. */
+function byDeclaration(a: ExportedDeclaration, b: ExportedDeclaration): number {
+  return declarationNumber(a.handle) - declarationNumber(b.handle) || compare(a.exportName, b.exportName);
 }
 
 function kindOf(declaration: ExportedDeclaration): Kind {
@@ -204,8 +210,10 @@ function build(place: Placed, context: Context): ASTModel | ASTObject | ASTTuple
  * Turn the declarations one schema entry exported into its `SchemaAST`. A declaration exported under
  * several names, or re-exported, is one declaration (identity), and takes the origin of the first place
  * in (module, export) order. Two different declarations with one name both stay, for the duplicate-name
- * check downstream. Each array is sorted by name, then module, then export, so the result does not
- * depend on the order modules were imported or declarations listed; fields keep declaration order.
+ * check downstream. Each array follows file path, then the order the declarations were written in, as
+ * the parser's output does, so the result does not depend on the order modules were imported; fields keep
+ * declaration order. A declaration re-exported from another module sorts in the module whose (module,
+ * export) place is smallest, which is where its origin points.
  *
  * References resolve by name within the entry, as in the schema text. A name no declaration in the entry
  * provides, including a model name in a field position, is refused.
@@ -222,7 +230,7 @@ export function materialise(declarations: readonly ExportedDeclaration[]): Schem
     kind: kindOf(declaration),
     name: (declaration.handle as { name: string }).name,
   }));
-  placed.sort((a, b) => compare(a.name, b.name) || byPlace(a, b));
+  placed.sort((a, b) => compare(a.module, b.module) || byDeclaration(a, b));
 
   const named = (kinds: readonly Kind[]): Set<string> =>
     new Set(placed.filter((place) => kinds.includes(place.kind)).map((place) => place.name));

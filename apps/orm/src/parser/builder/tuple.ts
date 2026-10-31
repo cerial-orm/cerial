@@ -10,7 +10,7 @@ import type { PrivateMark, Reference } from './handle';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
-import { sharedWeakMap } from './shared-state';
+import { numberDeclaration, sharedWeakMap } from './shared-state';
 
 declare const ELEMENT: unique symbol;
 declare const ELEMENT_NAME: unique symbol;
@@ -235,6 +235,7 @@ export function tuple<
   >(name);
   recordExtends(handle, options.extends);
   NODES.set(handle, { name, elements });
+  numberDeclaration(handle);
 
   return handle;
 }

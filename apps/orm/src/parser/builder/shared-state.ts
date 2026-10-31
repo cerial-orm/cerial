@@ -5,6 +5,7 @@
  * declarations. Every table lives under one `Symbol.for` key on `globalThis`, shared by all copies.
  */
 const KEY = Symbol.for('cerial.builder.tables');
+const COUNTER = Symbol.for('cerial.builder.declarations');
 
 type Tables = Map<string, WeakMap<object, unknown> | WeakSet<object>>;
 
@@ -30,4 +31,23 @@ export function sharedWeakSet(name: string): WeakSet<object> {
   if (!table) all.set(name, (table = new WeakSet<object>()));
 
   return table as WeakSet<object>;
+}
+
+const ORDER = sharedWeakMap<number>('declaration.order');
+
+/**
+ * Number a declaration from one counter shared by every copy of the builder. A module's declarations run
+ * in source order, so within one file the numbers follow the text; across files they follow import order,
+ * which is why the number is only ever compared inside a single module.
+ */
+export function numberDeclaration(handle: object): void {
+  const holder = globalThis as { [COUNTER]?: number };
+  const next = (holder[COUNTER] ?? 0) + 1;
+  holder[COUNTER] = next;
+  ORDER.set(handle, next);
+}
+
+/** The number `numberDeclaration` gave `handle`, or 0 for an object that was never numbered. */
+export function declarationNumber(handle: object): number {
+  return ORDER.get(handle) ?? 0;
 }

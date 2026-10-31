@@ -4,7 +4,7 @@ import { BUILDER_RANGE } from './chain';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, VisibleOf } from './extends';
 import type { LiteralHandle } from './literal';
-import { sharedWeakMap } from './shared-state';
+import { numberDeclaration, sharedWeakMap } from './shared-state';
 
 const IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
@@ -45,6 +45,7 @@ export function enumeration<
   const handle = extendable(name);
   recordExtends(handle, options.extends);
   DEFINITIONS.set(handle, { name, values: [...values] });
+  numberDeclaration(handle);
 
   return handle as never;
 }

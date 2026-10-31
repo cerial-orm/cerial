@@ -71,14 +71,10 @@ export function differences(left: unknown, right: unknown, path = '$'): string[]
   return Object.is(left, right) ? [] : [`${path}: ${JSON.stringify(left)} against ${JSON.stringify(right)}`];
 }
 
-function byName(items: readonly { readonly name: string }[]): { readonly name: string }[] {
-  return [...items].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
-}
-
 /**
- * Compare two raw ASTs. Each top-level array is compared by name, because a materialised AST is sorted by
- * name while the parser keeps file order; everything inside a declaration stays positional. `source` is
- * left out of both sides: it is the schema text, which a built AST does not have.
+ * Compare two raw ASTs, every array positionally: a materialised AST keeps the parser's file-then-declaration
+ * order, and the generated client follows that order. `source` is left out of both sides: it is the schema
+ * text, which a built AST does not have.
  */
 export function compareAsts(parsed: SchemaAST, built: SchemaAST): string[] {
   const { source: _parsedSource, ...parsedRest } = parsed;
@@ -86,8 +82,8 @@ export function compareAsts(parsed: SchemaAST, built: SchemaAST): string[] {
   const found = differences(Object.keys(parsedRest).sort(), Object.keys(builtRest).sort(), '$ keys');
 
   for (const list of LISTS) {
-    const left = byName(parsed[list]);
-    const right = byName(built[list]);
+    const left = parsed[list];
+    const right = built[list];
     const names = (items: readonly { readonly name: string }[]): string[] => items.map((item) => item.name);
     const same = differences(names(left), names(right), `${list} names`);
     if (same.length) {
@@ -192,8 +188,9 @@ describe('the comparison itself', () => {
 
   const source = (names: string[]) => names.map((name) => `model ${name} {\n  id Record @id\n}`).join('\n');
 
-  test('top-level arrays are compared by name, not position', () => {
-    expect(compareAsts(parse(source(['A', 'B'])).ast, parse(source(['B', 'A'])).ast)).toEqual([]);
+  test('top-level arrays are compared by position, so a different order fails', () => {
+    expect(compareAsts(parse(source(['A', 'B'])).ast, parse(source(['A', 'B'])).ast)).toEqual([]);
+    expect(compareAsts(parse(source(['A', 'B'])).ast, parse(source(['B', 'A'])).ast)).not.toEqual([]);
   });
 
   test('a different set of names fails, as does a different count', () => {

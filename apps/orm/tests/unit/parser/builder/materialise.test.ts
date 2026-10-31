@@ -213,7 +213,7 @@ describe('materialise: references', () => {
       declare(model('Post', { author: f.relation('User') }), 'Post'),
     ]);
 
-    expect(ast.models.map((m) => m.name)).toEqual(['Post', 'User']);
+    expect(ast.models.map((m) => m.name)).toEqual(['User', 'Post']);
   });
 
   test('a thunk that throws refuses with the module, the export and the cause', () => {
@@ -324,8 +324,19 @@ describe('materialise: identity and order', () => {
     ];
 
     expect(materialise([...list].reverse())).toEqual(materialise(list));
-    expect(materialise(list).models.map((m) => m.name)).toEqual(['Abe', 'Zed']);
-    expect(materialise(list).objects.map((o) => o.name)).toEqual(['O1', 'O2']);
+  });
+
+  test('arrays follow file path, then the order the declarations were written in', () => {
+    const list = [
+      declare(model('Zed', { id: f.record().id() }), 'Zed', '/z.ts'),
+      declare(model('Abe', { id: f.record().id() }), 'Abe', '/z.ts'),
+      declare(model('Mid', { id: f.record().id() }), 'Mid', '/a.ts'),
+      declare(object('O2', { a: f.string() }), 'O2', '/m.ts'),
+      declare(object('O1', { a: f.string() }), 'O1', '/m.ts'),
+    ];
+
+    expect(materialise([...list].reverse()).models.map((m) => m.name)).toEqual(['Mid', 'Zed', 'Abe']);
+    expect(materialise(list).objects.map((o) => o.name)).toEqual(['O2', 'O1']);
   });
 
   test('fields keep their declaration order', () => {

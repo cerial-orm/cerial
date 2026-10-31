@@ -6,7 +6,7 @@ import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsFiltered, ExtendsTarget, VisibleOf } from './extends';
 import { referenceName } from './handle';
 import type { Handle, Reference } from './handle';
-import { sharedWeakMap } from './shared-state';
+import { numberDeclaration, sharedWeakMap } from './shared-state';
 
 /** The broad type names a literal variant may stand for, as the parser recognises them. */
 export type BroadTypeName = 'String' | 'Int' | 'Float' | 'Bool' | 'Date';
@@ -157,6 +157,7 @@ export function literal<
   const handle = extendable(name);
   recordExtends(handle, options.extends);
   DEFINITIONS.set(handle, { name, variants });
+  numberDeclaration(handle);
 
   return handle as never;
 }
