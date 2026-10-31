@@ -33,7 +33,7 @@ export type SchemaEntry = SchemaEntryBase & {
    * Literal file paths (not globs), relative to the config's directory: `.cerial` files or TypeScript modules,
    * each a schema source on its own. A listed TypeScript module is imported whether or not it ends in
    * `.schema.ts`, and is not walked for imports unless it exports a `defineSchema()` result. The `ignore`,
-   * `exclude` and `include` filters do not apply to listed files.
+   * `exclude` and `include` filters apply to listed files as to any other source.
    */
   files?: string[];
 } & ({ path: string } | { entry: string } | { files: string[] });
