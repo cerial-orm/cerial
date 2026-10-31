@@ -103,9 +103,9 @@ describe('the mixed project through the CLI', () => {
     const ticket = await generated(mixed.dir, 'models/ticket.ts');
 
     expect(declaration(purchase, 'Purchase')).toMatch(/accountId: CerialId<number>;/);
-    expect(purchase).toMatch(/account\?: AccountWhere;/);
+    expect(purchase).toMatch(/account\?: Omit<AccountWhere, '\$raw'>;/);
     expect(declaration(ticket, 'Ticket')).toMatch(/purchaseId\?: CerialId<number>;/);
-    expect(ticket).toMatch(/purchase\?: PurchaseWhere;/);
+    expect(ticket).toMatch(/purchase\?: Omit<PurchaseWhere, '\$raw'>;/);
   });
 
   it('writes the handles into the copy and leaves the committed project alone', () => {
