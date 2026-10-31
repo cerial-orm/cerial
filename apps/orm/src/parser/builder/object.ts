@@ -14,7 +14,7 @@ export type ObjectFields = Readonly<Record<string, object>>;
 
 /** The second argument of `object()`: the parent to inherit from, as for a model. */
 export interface ObjectOptions<Parent extends string = string, Reserved extends string = string> {
-  readonly extends?: ExtendsTarget<Parent, Reserved>;
+  readonly extends?: ExtendsTarget<Parent, Reserved, 'object'>;
 }
 
 // Read only by `objectNode`; the parent is also reachable through `extendsOf`.
@@ -39,7 +39,15 @@ export function object<
   name: Name,
   fields: Fields & NoPrivateOverride<NoInfer<Fields>, Reserved>,
   options: ObjectOptions<Parent, Reserved> = {},
-): Extendable<Name, never, keyof Fields & string, (keyof Fields & string) | Parent, PrivateKeys<Fields> | Reserved> {
+): Extendable<
+  Name,
+  never,
+  keyof Fields & string,
+  (keyof Fields & string) | Parent,
+  PrivateKeys<Fields> | Reserved,
+  never,
+  'object'
+> {
   checkedIdentifier('object', name);
   checkedKeys('object field', fields);
   const handle = extendable<
@@ -47,9 +55,11 @@ export function object<
     never,
     keyof Fields & string,
     (keyof Fields & string) | Parent,
-    PrivateKeys<Fields> | Reserved
+    PrivateKeys<Fields> | Reserved,
+    never,
+    'object'
   >(name);
-  recordExtends(handle, options.extends);
+  recordExtends(handle, options.extends, 'object');
   NODES.set(handle, { name, fields });
   numberDeclaration(handle);
 

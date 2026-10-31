@@ -1,3 +1,4 @@
+import { CerialGenerationError } from '../../errors';
 import { extendable } from './extends';
 import type { Extendable } from './extends';
 import { checkedIdentifier } from './identifier';
@@ -9,8 +10,15 @@ import { sharedWeakMap } from './shared-state';
  * What a builder returns: the definition's name, plus the ID type of a model so a reference to it can type
  * relations against it. `idType` and `memberNames` are phantoms, never present at runtime.
  */
-export interface Handle<Name extends string = string, Id = never, Members extends string = string> {
+export interface Handle<
+  Name extends string = string,
+  Id = never,
+  Members extends string = string,
+  Kind extends DslHandleKind = DslHandleKind,
+> {
   readonly name: Name;
+  /** The kind of declaration the handle stands for, so a position can refuse another kind. Never present at runtime. */
+  declares?(kind: Kind): void;
   readonly idType?: Id;
   /** The names the declaration declares, for checking a pick or omit list. Never present at runtime. */
   readonly memberNames?: Members;
@@ -29,17 +37,27 @@ export type PrivateKeys<Fields extends object> = {
 }[keyof Fields & string];
 
 /** A reference in a field position: a handle by value, a thunk returning one, or a bare name */
-export type Reference<Name extends string = string> = Handle<Name, unknown> | (() => Handle<Name, unknown>) | Name;
+export type Reference<Name extends string = string, Kind extends DslHandleKind = DslHandleKind> =
+  // A thunk matches this member through `Function.name`, so its return type is never inspected. That is
+  // deliberate: inspecting it makes two models that refer to each other through thunks infer each other's
+  // type. A thunk of the wrong kind is refused when the declaration is built.
+  Handle<Name, unknown, string, Kind> | (() => Handle<Name, unknown, string, Kind>) | Name;
 
 /**
  * Reduce a reference to the name it stands for. A thunk is called here and nowhere earlier, so a
  * reference to a `const` declared further down the module is safe until materialise time.
  */
-export function referenceName(reference: Reference): string {
-  if (typeof reference === 'string') return reference;
-  if (typeof reference === 'function') return reference().name;
+export function referenceName(reference: Reference, ...accepts: readonly DslHandleKind[]): string {
+  const target = typeof reference === 'function' ? reference() : reference;
+  if (typeof target === 'string') return target;
+  const kind = dslHandleInfo(target)?.kind;
+  if (accepts.length && kind && !accepts.includes(kind)) {
+    throw new CerialGenerationError(
+      `'${target.name}' is a ${kind} handle, but this position takes ${accepts.join(' or ')}`,
+    );
+  }
 
-  return reference.name;
+  return target.name;
 }
 
 export type DslHandleKind = 'model' | 'object' | 'tuple' | 'enum' | 'literal';
@@ -106,7 +124,9 @@ export const handle = Object.freeze({
     [Ids] extends [never] ? never : RecordIdValue<Ids>,
     Members[number],
     Members[number],
-    Private[number]
+    Private[number],
+    never,
+    'model'
   > => makeHandle({ kind: 'model', name, members: spec.members, idTypes: spec.id }, 'model field') as never,
   object: <
     const Name extends string,
@@ -115,7 +135,7 @@ export const handle = Object.freeze({
   >(
     name: Name,
     spec: MemberSpec<Members, Private>,
-  ): Extendable<Name, never, Members[number], Members[number], Private[number]> =>
+  ): Extendable<Name, never, Members[number], Members[number], Private[number], never, 'object'> =>
     makeHandle({ kind: 'object', name, members: spec.members }, 'object field') as never,
   /** `members` are the element names; an unnamed element is reached by position, up to `size`. */
   tuple: <
@@ -125,12 +145,12 @@ export const handle = Object.freeze({
   >(
     name: Name,
     spec: MemberSpec<Members, Private> & { readonly size: number },
-  ): Extendable<Name, never, Members[number], Members[number], Private[number], number> =>
+  ): Extendable<Name, never, Members[number], Members[number], Private[number], number, 'tuple'> =>
     makeHandle({ kind: 'tuple', name, members: spec.members, size: spec.size }, 'tuple element') as never,
   enum: <const Name extends string, const Values extends readonly string[]>(
     name: Name,
     values: Values,
-  ): LiteralHandle<Name, true> & Extendable<Name, never, Values[number], Values[number]> =>
+  ): LiteralHandle<Name, true> & Extendable<Name, never, Values[number], Values[number], never, never, 'enum'> =>
     makeHandle({ kind: 'enum', name, members: values }, 'enum value') as never,
   /** `variants` are the identities `getVariantIdentity` gives: `"'low'"` for a string, `'1'`, `'true'`, `'Int'`, or a declaration's name. */
   literal: <const Name extends string, const Variants extends readonly string[], const Simple extends boolean>(

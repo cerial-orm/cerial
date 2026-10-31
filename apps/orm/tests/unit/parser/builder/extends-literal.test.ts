@@ -225,7 +225,7 @@ describe('literal extends: refusals', () => {
 
   test('the parent must be a literal handle', () => {
     const Role = tuple('Role', [e.int()]);
-    // A tuple handle types as a parent, so only the build refuses it
+    // @ts-expect-error -- a tuple handle is not a literal handle; the build refuses it too
     const wrong = literal('Bad', [], { extends: Role.pick(0) });
 
     expect(() => literalNode(wrong)).toThrow(/takes a literal handle/);

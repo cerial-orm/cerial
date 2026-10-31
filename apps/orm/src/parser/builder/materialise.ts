@@ -37,6 +37,9 @@ const FIELD_ORDER: readonly ReferenceKind[] = ['literal', 'object', 'tuple'];
 /** The order it tries a bare name as a literal variant: literal, tuple, object. */
 const VARIANT_ORDER: readonly ReferenceKind[] = ['literal', 'tuple', 'object'];
 
+/** Names declared outside the declarations handed to `materialise`, such as the `.cerial` files of a mixed entry. */
+export type KnownNames = { readonly [K in ReferenceKind]?: Iterable<string> };
+
 type Kind = 'model' | ReferenceKind | 'enum';
 
 interface Placed extends ExportedDeclaration {
@@ -216,9 +219,10 @@ function build(place: Placed, context: Context): ASTModel | ASTObject | ASTTuple
  * export) place is smallest, which is where its origin points.
  *
  * References resolve by name within the entry, as in the schema text. A name no declaration in the entry
- * provides, including a model name in a field position, is refused.
+ * provides, including a model name in a field position, is refused. `known` lists names declared
+ * elsewhere, which a reference may then resolve to; a literal name there covers an enum too.
  */
-export function materialise(declarations: readonly ExportedDeclaration[]): SchemaAST {
+export function materialise(declarations: readonly ExportedDeclaration[], known: KnownNames = {}): SchemaAST {
   const unique = new Map<object, ExportedDeclaration>();
   for (const declaration of declarations) {
     const kept = unique.get(declaration.handle);
@@ -232,11 +236,15 @@ export function materialise(declarations: readonly ExportedDeclaration[]): Schem
   }));
   placed.sort((a, b) => compare(a.module, b.module) || byDeclaration(a, b));
 
-  const named = (kinds: readonly Kind[]): Set<string> =>
-    new Set(placed.filter((place) => kinds.includes(place.kind)).map((place) => place.name));
+  const named = (kinds: readonly Kind[], outside: Iterable<string> = []): Set<string> =>
+    new Set([...placed.filter((place) => kinds.includes(place.kind)).map((place) => place.name), ...outside]);
   const modules = [...new Set(placed.map((place) => place.module))].sort(compare);
   const context: Context = {
-    names: { literal: named(['literal', 'enum']), object: named(['object']), tuple: named(['tuple']) },
+    names: {
+      literal: named(['literal', 'enum'], known.literal),
+      object: named(['object'], known.object),
+      tuple: named(['tuple'], known.tuple),
+    },
     entry: `the schema entry of ${modules.join(', ') || 'no modules'}`,
   };
 

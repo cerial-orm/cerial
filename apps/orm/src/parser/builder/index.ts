@@ -34,7 +34,7 @@ export { extendsOf } from './extends';
 export { model, modelNode } from './model';
 export type { CompositeFieldPath } from './composite';
 export { compositeDirectives } from './composite';
-export type { ExportedDeclaration } from './materialise';
+export type { ExportedDeclaration, KnownNames } from './materialise';
 export { materialise } from './materialise';
 export type { ImportReader, LoadOptions, ModuleImporter } from './load';
 export {

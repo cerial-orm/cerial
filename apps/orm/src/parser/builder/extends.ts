@@ -1,5 +1,7 @@
 import type { ExtendsFilter } from '../../types';
-import type { Handle } from './handle';
+import { CerialGenerationError } from '../../errors';
+import { dslHandleInfo } from './handle';
+import type { DslHandleKind, Handle } from './handle';
 import { sharedWeakMap, sharedWeakSet } from './shared-state';
 
 /**
@@ -17,17 +19,18 @@ export interface Extendable<
   Visible extends string = Own,
   Reserved extends string = never,
   Index extends number = never,
-> extends Handle<Name, Id, Own> {
+  Kind extends DslHandleKind = DslHandleKind,
+> extends Handle<Name, Id, Own, Kind> {
   readonly visibleMembers?: Visible;
   readonly reservedMembers?: Reserved;
   /** `extends Name[a, b]`: only these of the parent's own fields. */
   pick<Picked extends Own, At extends Index = never>(
     ...fields: [Picked | At, ...(Picked | At)[]]
-  ): ExtendsFiltered<Name, Picked, Reserved>;
+  ): ExtendsFiltered<Name, Picked, Reserved, Kind>;
   /** `extends Name[!a, !b]`: every field of the parent but these. */
   omit<Omitted extends Own, At extends Index = never>(
     ...fields: [Omitted | At, ...(Omitted | At)[]]
-  ): ExtendsFiltered<Name, Exclude<Visible, Omitted>, Reserved>;
+  ): ExtendsFiltered<Name, Exclude<Visible, Omitted>, Reserved, Kind>;
 }
 
 /**
@@ -38,8 +41,10 @@ export interface ExtendsFiltered<
   Name extends string = string,
   Visible extends string = string,
   Reserved extends string = never,
+  Kind extends DslHandleKind = DslHandleKind,
 > {
   readonly name: Name;
+  declares?(kind: Kind): void;
   readonly mode: 'pick' | 'omit';
   readonly fields: readonly string[];
   readonly visibleMembers?: Visible;
@@ -47,9 +52,13 @@ export interface ExtendsFiltered<
 }
 
 /** What an `extends` option takes: a parent, or a filtered view of one. */
-export type ExtendsTarget<Visible extends string = string, Reserved extends string = string> =
-  | Extendable<string, unknown, string, Visible, Reserved, number>
-  | ExtendsFiltered<string, Visible, Reserved>;
+export type ExtendsTarget<
+  Visible extends string = string,
+  Reserved extends string = string,
+  Kind extends DslHandleKind = DslHandleKind,
+> =
+  | Extendable<string, unknown, string, Visible, Reserved, number, Kind>
+  | ExtendsFiltered<string, Visible, Reserved, Kind>;
 
 /**
  * The check on a child's field list: a key the parent reserves must not appear. Naming the offending key
@@ -80,7 +89,8 @@ export function extendable<
   Visible extends string,
   Reserved extends string,
   Index extends number = never,
->(name: Name): Extendable<Name, Id, Own, Visible, Reserved, Index> {
+  Kind extends DslHandleKind = DslHandleKind,
+>(name: Name): Extendable<Name, Id, Own, Visible, Reserved, Index, Kind> {
   const handle = { name };
   // A position is written as the decimal digits the parser stores for `[0, 1]`
   const filtered = (mode: 'pick' | 'omit', list: (string | number)[]): object => {
@@ -97,7 +107,7 @@ export function extendable<
   Object.freeze(handle);
   PARENTS.add(handle);
 
-  return handle as unknown as Extendable<Name, Id, Own, Visible, Reserved, Index>;
+  return handle as unknown as Extendable<Name, Id, Own, Visible, Reserved, Index, Kind>;
 }
 
 /** Resolve an `extends` option to the clause it declares, refusing anything that is not a parent or a filtered parent. */
@@ -110,9 +120,20 @@ export function extendsClause(target: object): ExtendsClause {
 }
 
 /** Remember the clause a child was declared with, so a later pass can walk from the child to its raw parent. */
-export function recordExtends(child: object, target: object | undefined): ExtendsClause | undefined {
+export function recordExtends(
+  child: object,
+  target: object | undefined,
+  kind: DslHandleKind,
+): ExtendsClause | undefined {
   if (!target) return undefined;
   const clause = extendsClause(target);
+  const parentKind = dslHandleInfo(clause.parent)?.kind;
+  if (parentKind && parentKind !== kind) {
+    const { name } = clause.parent as { name: string };
+    throw new CerialGenerationError(
+      `'extends' on a ${kind} takes a ${kind} handle, got the ${parentKind} handle '${name}'`,
+    );
+  }
   CLAUSES.set(child, clause);
 
   return clause;

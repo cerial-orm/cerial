@@ -76,7 +76,7 @@ type RefusedIdType =
   | 'any';
 
 /** A primitive, or an object or tuple id named by handle, thunk or bare name. */
-export type RecordIdType = PrimitiveIdType | Reference;
+export type RecordIdType = PrimitiveIdType | Reference<string, 'object' | 'tuple'>;
 
 type ValidIdType<T> = T extends RefusedIdType ? never : T;
 
@@ -100,17 +100,17 @@ export type FieldFactories = {
     ...idTypes: Ids & { [K in keyof Ids]: ValidIdType<Ids[K]> }
   ) => FieldBuilder<RegisteredDecorator, true, RecordIdValue<Ids>>;
   /** A field typed as an object definition, named by handle, thunk or bare name. */
-  readonly object: (reference: Reference) => ObjectFieldBuilder;
+  readonly object: (reference: Reference<string, 'object'>) => ObjectFieldBuilder;
   /** A field typed as a tuple definition, named by handle, thunk or bare name. */
-  readonly tuple: (reference: Reference) => ObjectFieldBuilder;
+  readonly tuple: (reference: Reference<string, 'tuple'>) => ObjectFieldBuilder;
   /** A field typed as a literal definition. Takes `@nullable`, unlike an object or tuple. */
-  readonly literal: (reference: Reference) => FieldBuilder;
+  readonly literal: (reference: Reference<string, 'literal' | 'enum'>) => FieldBuilder;
   /** A field typed as an enum, which the parser records as a literal field. */
-  readonly enum: (reference: Reference) => FieldBuilder;
+  readonly enum: (reference: Reference<string, 'literal' | 'enum'>) => FieldBuilder;
   /** A forward to-one relation; its backing `Record` is derived. Models only. */
-  readonly relation: (target: Reference) => RelationBuilder;
+  readonly relation: (target: Reference<string, 'model'>) => RelationBuilder;
   /** The reverse side of a relation: no foreign key, since the forward side owns it. Models only. */
-  readonly reverse: (target: Reference) => ReverseBuilder;
+  readonly reverse: (target: Reference<string, 'model'>) => ReverseBuilder;
 };
 
 interface FieldSpec {
@@ -176,7 +176,7 @@ export function fieldNode(builder: object, name: string): ASTField {
   const { spec } = state;
   // Only field decorators chain on a model field; a directive never reaches here
   const decorators = state.chain.decorators().filter((node): node is ASTDecorator => 'type' in node);
-  const recordIdTypes = spec.recordIdTypes?.map((id) => referenceName(id));
+  const recordIdTypes = spec.recordIdTypes?.map((id) => referenceName(id, 'object', 'tuple'));
 
   return createField(
     name,
@@ -185,16 +185,16 @@ export function fieldNode(builder: object, name: string): ASTField {
     decorators,
     BUILDER_RANGE,
     state.isArray,
-    spec.objectReference === undefined ? undefined : referenceName(spec.objectReference),
-    spec.tupleReference === undefined ? undefined : referenceName(spec.tupleReference),
-    spec.literalName === undefined ? undefined : referenceName(spec.literalName),
+    spec.objectReference === undefined ? undefined : referenceName(spec.objectReference, 'object'),
+    spec.tupleReference === undefined ? undefined : referenceName(spec.tupleReference, 'tuple'),
+    spec.literalName === undefined ? undefined : referenceName(spec.literalName, 'literal', 'enum'),
     recordIdTypes,
     state.isPrivate || undefined,
   );
 }
 
 /** A field typed by a literal or an enum, which the parser records the same way. */
-function literalField(reference: Reference): object {
+function literalField(reference: Reference<string, 'literal' | 'enum'>): object {
   return start({ type: 'literal', literalName: reference, any: false });
 }
 

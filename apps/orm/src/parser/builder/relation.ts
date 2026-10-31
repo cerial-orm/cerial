@@ -117,7 +117,7 @@ interface ChainRuntime {
 }
 
 interface RelationState {
-  readonly target: Reference;
+  readonly target: Reference<string, 'model'>;
   readonly foreignKey: string | undefined;
   readonly isOptional: boolean;
   readonly isArray: boolean;
@@ -164,7 +164,7 @@ function builderOf(state: RelationState): object {
  * A relation to `target`: a handle, a thunk returning one, or a bare name (only for a module graph that
  * is cyclic). The target is not read until the model is materialised, so a thunk may name a later `const`.
  */
-export function relation(target: Reference): RelationBuilder {
+export function relation(target: Reference<string, 'model'>): RelationBuilder {
   const chain = createChain('modelField', { kind: 'relation' }) as unknown as ChainRuntime;
 
   return builderOf({
@@ -194,7 +194,7 @@ function reverseBuilderOf(state: RelationState): object {
  * The reverse side of a relation to `target`: no foreign key is derived, because the forward side owns
  * it. `f.relation` is always the forward side.
  */
-export function reverse(target: Reference): ReverseBuilder {
+export function reverse(target: Reference<string, 'model'>): ReverseBuilder {
   const chain = createChain('modelField', { kind: 'relation' }) as unknown as ChainRuntime;
 
   return reverseBuilderOf({
@@ -221,7 +221,7 @@ function derivedKey(name: string, isArray: boolean): string {
 
 function reverseNode(state: RelationState, name: string): ASTField {
   const decorators = [
-    decoratorNode('@model', referenceName(state.target)),
+    decoratorNode('@model', referenceName(state.target, 'model')),
     ...state.chain.decorators().filter((node): node is ASTDecorator => 'type' in node),
   ];
 
@@ -263,7 +263,7 @@ export function relationNodes(builder: object, name: string, declared: ReadonlyS
   const foreignKey = state.foreignKey ?? derivedKey(name, state.isArray);
   const decorators = [
     decoratorNode('@field', foreignKey),
-    decoratorNode('@model', referenceName(state.target)),
+    decoratorNode('@model', referenceName(state.target, 'model')),
     ...state.chain.decorators().filter((node): node is ASTDecorator => 'type' in node),
   ];
   const relationField = createField(

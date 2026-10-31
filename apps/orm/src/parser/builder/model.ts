@@ -12,6 +12,7 @@ import type { Options } from './types';
 import type { ObjectFields } from './object';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
+import { dslHandleInfo } from './handle';
 import type { PrivateKeys } from './handle';
 import { numberDeclaration, sharedWeakMap } from './shared-state';
 
@@ -30,7 +31,7 @@ export type ModelOptions<
   /** `abstract model`: consumed by inheritance resolution, never given a table. */
   readonly abstract?: boolean;
   /** The parent to inherit from: its handle, or `Parent.pick(...)` and `Parent.omit(...)` of it. */
-  readonly extends?: ExtendsTarget<Parent, Reserved>;
+  readonly extends?: ExtendsTarget<Parent, Reserved, 'model'>;
 };
 
 type StemOf<K extends string> = K extends `${infer S}s` ? S : K;
@@ -82,7 +83,15 @@ export function model<
   name: Name,
   fields: Fields & NoPrivateOverride<NoInfer<Fields>, Reserved>,
   options: ModelOptions<MembersOf<Fields> | NoInfer<Parent>, Parent, Reserved> = {},
-): Extendable<Name, IdOf<Fields>, MembersOf<Fields>, MembersOf<Fields> | Parent, PrivateKeys<Fields> | Reserved> {
+): Extendable<
+  Name,
+  IdOf<Fields>,
+  MembersOf<Fields>,
+  MembersOf<Fields> | Parent,
+  PrivateKeys<Fields> | Reserved,
+  never,
+  'model'
+> {
   checkedIdentifier('model', name);
   checkedKeys('model field', fields);
   const handle = extendable<
@@ -90,9 +99,11 @@ export function model<
     IdOf<Fields>,
     MembersOf<Fields>,
     MembersOf<Fields> | Parent,
-    PrivateKeys<Fields> | Reserved
+    PrivateKeys<Fields> | Reserved,
+    never,
+    'model'
   >(name);
-  recordExtends(handle, options.extends);
+  recordExtends(handle, options.extends, 'model');
   NODES.set(handle, { name, fields, options });
   numberDeclaration(handle);
 
@@ -103,10 +114,12 @@ export function model<
 function inheritedNames(handle: object, seen: ReadonlySet<object> = new Set()): Set<string> {
   const clause = extendsOf(handle);
   const parent = clause && NODES.get(clause.parent);
+  const stated = clause && dslHandleInfo(clause.parent);
   const names = new Set<string>();
-  if (!clause || !parent || seen.has(handle)) return names;
-  const visible = inheritedNames(clause.parent, new Set([...seen, handle]));
-  for (const [key, builder] of Object.entries(parent.fields)) {
+  if (!clause || (!parent && !stated) || seen.has(handle)) return names;
+  // A `.cerial` parent lists every name it declares, foreign keys included
+  const visible = stated ? new Set(stated.members) : inheritedNames(clause.parent, new Set([...seen, handle]));
+  for (const [key, builder] of Object.entries(parent?.fields ?? {})) {
     visible.add(key);
     const foreignKey = foreignKeyOf(builder, key);
     if (foreignKey) visible.add(foreignKey);

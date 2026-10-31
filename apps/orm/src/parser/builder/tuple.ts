@@ -68,11 +68,11 @@ export type ElementFactories = {
   readonly [T in SimpleElementType]: () => ElementBuilder;
 } & {
   /** An element typed as an object definition. */
-  readonly object: (reference: Reference) => ObjectElementBuilder;
+  readonly object: (reference: Reference<string, 'object'>) => ObjectElementBuilder;
   /** An element typed as another tuple. */
-  readonly tuple: (reference: Reference) => ElementBuilder;
+  readonly tuple: (reference: Reference<string, 'tuple'>) => ElementBuilder;
   /** An element typed as a literal or an enum, which the parser records the same way. */
-  readonly literal: (reference: Reference) => ElementBuilder;
+  readonly literal: (reference: Reference<string, 'literal' | 'enum'>) => ElementBuilder;
   /** An element typed as the tuple being declared. */
   readonly self: () => SelfElementBuilder;
 };
@@ -149,9 +149,10 @@ function simpleFactories(): Record<string, () => object> {
 /** The element factories, for use inside `tuple(...)`. */
 export const e = Object.freeze({
   ...simpleFactories(),
-  object: (reference: Reference) => start({ type: 'object', objectReference: reference }),
-  tuple: (reference: Reference) => start({ type: 'tuple', tupleReference: reference }),
-  literal: (reference: Reference) => start({ type: 'literal', literalReference: reference }),
+  object: (reference: Reference<string, 'object'>) => start({ type: 'object', objectReference: reference }),
+  tuple: (reference: Reference<string, 'tuple'>) => start({ type: 'tuple', tupleReference: reference }),
+  literal: (reference: Reference<string, 'literal' | 'enum'>) =>
+    start({ type: 'literal', literalReference: reference }),
   self: selfBuilder,
 }) as unknown as ElementFactories;
 
@@ -171,7 +172,7 @@ export function isTupleHandle(handle: object): boolean {
 
 /** The second argument of `tuple()`: the parent to inherit from, as for a model. */
 export interface TupleOptions<Parent extends string = string, Reserved extends string = string> {
-  readonly extends?: ExtendsTarget<Parent, Reserved>;
+  readonly extends?: ExtendsTarget<Parent, Reserved, 'tuple'>;
 }
 
 /** The name `.named()` gave an element, or `never`. */
@@ -221,7 +222,15 @@ export function tuple<
   name: Name,
   elements: Elements & NoPrivateOverride<NoInfer<Elements>, Reserved> & NoNamedInRecord<NoInfer<Elements>>,
   options: TupleOptions<Parent, Reserved> = {},
-): Extendable<Name, never, NamesOf<Elements>, NamesOf<Elements> | Parent, PrivateNamesOf<Elements> | Reserved, number> {
+): Extendable<
+  Name,
+  never,
+  NamesOf<Elements>,
+  NamesOf<Elements> | Parent,
+  PrivateNamesOf<Elements> | Reserved,
+  number,
+  'tuple'
+> {
   checkedIdentifier('tuple', name);
   // An integer-like key is left to `tupleNode`, whose message says to name the element instead
   if (!Array.isArray(elements)) {
@@ -233,9 +242,10 @@ export function tuple<
     NamesOf<Elements>,
     NamesOf<Elements> | Parent,
     PrivateNamesOf<Elements> | Reserved,
-    number
+    number,
+    'tuple'
   >(name);
-  recordExtends(handle, options.extends);
+  recordExtends(handle, options.extends, 'tuple');
   NODES.set(handle, { name, elements });
   numberDeclaration(handle);
 
@@ -253,16 +263,16 @@ function elementNode(builder: Element, tupleName: string, key?: string): ASTTupl
   const { spec } = state;
   // Only field decorators chain on a tuple element; a directive never reaches here
   const decorators = state.chain.decorators().filter((node): node is ASTDecorator => 'type' in node);
-  const tupleRef = spec.self ? tupleName : spec.tupleReference && referenceName(spec.tupleReference);
+  const tupleRef = spec.self ? tupleName : spec.tupleReference && referenceName(spec.tupleReference, 'tuple');
 
   return createTupleElement(
     spec.type,
     false,
     key ?? state.name,
-    spec.objectReference && referenceName(spec.objectReference),
+    spec.objectReference && referenceName(spec.objectReference, 'object'),
     tupleRef,
     decorators,
-    spec.literalReference && referenceName(spec.literalReference),
+    spec.literalReference && referenceName(spec.literalReference, 'literal', 'enum'),
     state.isPrivate || undefined,
   );
 }

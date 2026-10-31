@@ -61,6 +61,7 @@ describe('enum extends', () => {
 
   test('the parent must be an enum handle', () => {
     const Mixed = literal('Mixed', [variant.string('A')]);
+    // @ts-expect-error -- a literal handle is not an enum handle; the build refuses it too
     const wrong = enum_('Bad', [], { extends: Mixed });
 
     expect(() => enumNode(wrong)).toThrow(/takes an enum handle/);

@@ -4,6 +4,7 @@ import { BUILDER_RANGE } from './chain';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, VisibleOf } from './extends';
 import type { LiteralHandle } from './literal';
+import { dslHandleInfo } from './handle';
 import { checkedIdentifier } from './identifier';
 import { IDENTIFIER_PATTERN } from '../tokenizer';
 import { numberDeclaration, sharedWeakMap } from './shared-state';
@@ -30,12 +31,12 @@ export function isEnumHandle(handle: object): boolean {
 export function enumeration<
   const Name extends string,
   const V extends readonly string[],
-  Target extends ExtendsTarget = never,
+  Target extends ExtendsTarget<string, string, 'enum'> = never,
 >(
   name: Name,
   values: V,
   options: { readonly extends?: Target } = {},
-): LiteralHandle<Name, true> & Extendable<Name, never, V[number], V[number] | VisibleOf<Target>> {
+): LiteralHandle<Name, true> & Extendable<Name, never, V[number], V[number] | VisibleOf<Target>, never, never, 'enum'> {
   checkedIdentifier('enum', name);
   // Same rule as the parser: bare identifiers, never a boolean word, which also keeps quotes and separators out
   for (const value of values) {
@@ -44,7 +45,7 @@ export function enumeration<
     }
   }
   const handle = extendable(name);
-  recordExtends(handle, options.extends);
+  recordExtends(handle, options.extends, 'enum');
   DEFINITIONS.set(handle, { name, values: [...values] });
   numberDeclaration(handle);
 
@@ -57,7 +58,7 @@ export function enumNode(handle: LiteralHandle): ASTEnum {
   if (!definition) throw new Error(`Not an enum handle: ${handle.name}`);
 
   const clause = extendsOf(handle);
-  if (clause && !DEFINITIONS.has(clause.parent)) {
+  if (clause && !DEFINITIONS.has(clause.parent) && dslHandleInfo(clause.parent)?.kind !== 'enum') {
     throw new Error(`'extends' on an enum takes an enum handle, got ${String(clause.parent)}`);
   }
   const [parentName, filter] = clause ? extendsFields(clause) : [];

@@ -5,7 +5,7 @@ import { checkedIdentifier } from './identifier';
 import { getVariantIdentity } from '../../resolver';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsFiltered, ExtendsTarget, VisibleOf } from './extends';
-import { referenceName } from './handle';
+import { dslHandleInfo, referenceName } from './handle';
 import type { Handle, Reference } from './handle';
 import { numberDeclaration, sharedWeakMap } from './shared-state';
 
@@ -17,16 +17,21 @@ type ComplexKind = 'tupleRef' | 'objectRef' | 'literalRef';
 /** A variant under construction; references stay unresolved until the node is asked for. */
 export type VariantSpec =
   | Extract<ASTLiteralVariant, { kind: 'string' | 'int' | 'float' | 'bool' | 'broadType' }>
-  | { readonly kind: 'tupleRef'; readonly ref: Reference }
-  | { readonly kind: 'objectRef'; readonly ref: Reference }
-  | { readonly kind: 'literalRef'; readonly ref: Reference };
+  | { readonly kind: 'tupleRef'; readonly ref: Reference<string, 'tuple'> }
+  | { readonly kind: 'objectRef'; readonly ref: Reference<string, 'object'> }
+  | { readonly kind: 'literalRef'; readonly ref: Reference<string, 'literal' | 'enum'> };
 
 /**
  * A literal's handle. `Simple` is true when every variant is a primitive, a broad type, or nothing but
  * strings (an enum): the only literals an object or tuple may nest, because inline type syntax cannot
  * express a nested literal that holds a reference. `simple` is a phantom, never present at runtime.
  */
-export interface LiteralHandle<Name extends string = string, Simple extends boolean = boolean> extends Handle<Name> {
+export interface LiteralHandle<Name extends string = string, Simple extends boolean = boolean> extends Handle<
+  Name,
+  never,
+  string,
+  'literal' | 'enum'
+> {
   readonly simple?: Simple;
 }
 
@@ -54,9 +59,9 @@ export const variant = Object.freeze({
   },
   bool: <const T extends boolean>(value: T) => ({ kind: 'bool', value }) as const,
   broadType: <const T extends BroadTypeName>(typeName: T) => ({ kind: 'broadType', typeName }) as const,
-  tuple: <const R extends Reference>(ref: R) => ({ kind: 'tupleRef', ref }) as const,
-  object: <const R extends Reference>(ref: R) => ({ kind: 'objectRef', ref }) as const,
-  literal: <const R extends Reference>(ref: R) => ({ kind: 'literalRef', ref }) as const,
+  tuple: <const R extends Reference<string, 'tuple'>>(ref: R) => ({ kind: 'tupleRef', ref }) as const,
+  object: <const R extends Reference<string, 'object'>>(ref: R) => ({ kind: 'objectRef', ref }) as const,
+  literal: <const R extends Reference<string, 'literal' | 'enum'>>(ref: R) => ({ kind: 'literalRef', ref }) as const,
 });
 
 type IsSimple<V extends VariantSpec> = [Extract<V, { kind: ComplexKind }>] extends [never] ? true : false;
@@ -108,15 +113,17 @@ export type ExtendableLiteral<
 > = {
   pick<Picked extends Own>(
     ...fields: [Picked, ...Picked[]]
-  ): ExtendsFiltered<Name, Picked> & { readonly simple?: Simple };
+  ): ExtendsFiltered<Name, Picked, never, 'literal'> & { readonly simple?: Simple };
   omit<Omitted extends Own>(
     ...fields: [Omitted, ...Omitted[]]
-  ): ExtendsFiltered<Name, Exclude<Visible, Omitted>> & { readonly simple?: Simple };
+  ): ExtendsFiltered<Name, Exclude<Visible, Omitted>, never, 'literal'> & { readonly simple?: Simple };
 } & LiteralHandle<Name, Simple> &
-  Extendable<Name, never, Own, Visible>;
+  Extendable<Name, never, Own, Visible, never, never, 'literal'>;
 
 /** The second argument of `literal()`: the parent to inherit from, as for a model. */
-export interface LiteralOptions<Target extends ExtendsTarget = ExtendsTarget> {
+export interface LiteralOptions<
+  Target extends ExtendsTarget<string, string, 'literal'> = ExtendsTarget<string, string, 'literal'>,
+> {
   readonly extends?: Target;
 }
 
@@ -144,7 +151,7 @@ export function isLiteralHandle(handle: object): boolean {
 export function literal<
   const Name extends string,
   const V extends readonly VariantSpec[],
-  Target extends ExtendsTarget = never,
+  Target extends ExtendsTarget<string, string, 'literal'> = never,
 >(
   name: Name,
   variants: V,
@@ -157,7 +164,7 @@ export function literal<
 > {
   checkedIdentifier('literal', name);
   const handle = extendable(name);
-  recordExtends(handle, options.extends);
+  recordExtends(handle, options.extends, 'literal');
   DEFINITIONS.set(handle, { name, variants });
   numberDeclaration(handle);
 
@@ -166,6 +173,9 @@ export function literal<
 
 /** The identities a parent literal declares itself: what a child's pick or omit list is checked against. */
 function declaredIdentities(parent: object): string[] {
+  // A handle for a `.cerial` literal already lists its variants as identities
+  const stated = dslHandleInfo(parent);
+  if (stated?.kind === 'literal') return [...stated.members];
   const definition = DEFINITIONS.get(parent);
   if (!definition) throw new Error(`'extends' on a literal takes a literal handle, got ${String(parent)}`);
 
@@ -175,11 +185,11 @@ function declaredIdentities(parent: object): string[] {
 function resolveVariant(spec: VariantSpec, literalName: string): ASTLiteralVariant {
   switch (spec.kind) {
     case 'tupleRef':
-      return { kind: 'tupleRef', tupleName: referenceName(spec.ref) };
+      return { kind: 'tupleRef', tupleName: referenceName(spec.ref, 'tuple') };
     case 'objectRef':
-      return { kind: 'objectRef', objectName: referenceName(spec.ref) };
+      return { kind: 'objectRef', objectName: referenceName(spec.ref, 'object') };
     case 'literalRef': {
-      const target = referenceName(spec.ref);
+      const target = referenceName(spec.ref, 'literal', 'enum');
       if (target === literalName) throw new Error(`Literal ${literalName} cannot reference itself`);
 
       return { kind: 'literalRef', literalName: target };
