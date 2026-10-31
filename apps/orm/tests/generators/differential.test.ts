@@ -9,12 +9,13 @@
  * to the declarations that module itself exports.
  */
 import { describe, expect, test } from 'bun:test';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, relative, resolve } from 'node:path';
 import { loadDeclarations, materialise } from '../../src/parser/builder';
 import { parse } from '../../src/parser/parser';
 import type { SchemaAST } from '../../src/types';
-import { loadCorpus, SCHEMAS_DIR } from './parity-corpus';
+import { findSchemaFiles, loadCorpus, SCHEMAS_DIR } from './parity-corpus';
 
 const TWINS_DIR = join(import.meta.dir, '..', 'e2e', 'schemas-ts');
 const LISTS = ['models', 'objects', 'tuples', 'literals', 'enums'] as const;
@@ -214,17 +215,94 @@ describe('the comparison itself', () => {
   });
 });
 
-for (const directory of readdirSync(TWINS_DIR).sort()) {
-  const files = readdirSync(join(SCHEMAS_DIR, directory))
-    .filter((file) => file.endsWith('.cerial'))
-    .sort();
+/** The `.cerial` file a twin stands for: the inverse of `twinPathOf`. */
+function cerialPathOf(twinPath: string, schemasDir: string, twinsDir: string): string {
+  return join(schemasDir, relative(twinsDir, twinPath).replace(/\.schema\.ts$/, '.cerial'));
+}
 
+/** One message per `.cerial` file whose twin is absent from `twins`. Paths are absolute. */
+export function missingTwins(cerials: readonly string[], twins: readonly string[]): string[] {
+  const have = new Set(twins);
+
+  return cerials.filter((path) => !have.has(twinPathOf(path))).map((path) => `no twin for ${path}`);
+}
+
+/** One message per twin whose `.cerial` file is absent from `cerials`. Paths are absolute. */
+export function strayTwins(cerials: readonly string[], twins: readonly string[]): string[] {
+  const have = new Set(cerials);
+
+  return twins
+    .filter((path) => !have.has(cerialPathOf(path, SCHEMAS_DIR, TWINS_DIR)))
+    .map((path) => `no .cerial file for twin ${path}`);
+}
+
+const CERIALS = findSchemaFiles(SCHEMAS_DIR);
+const TWINS = findSchemaFiles(TWINS_DIR, '.schema.ts');
+
+const byDirectory = new Map<string, string[]>();
+for (const path of CERIALS) {
+  const directory = relative(SCHEMAS_DIR, dirname(path)) || '.';
+  byDirectory.set(directory, [...(byDirectory.get(directory) ?? []), path]);
+}
+
+for (const [directory, paths] of [...byDirectory].sort(([a], [b]) => a.localeCompare(b))) {
   describe(`${directory}/`, () => {
-    test.each(files)('%s matches its twin', async (file) => {
-      expect(await differentialOf(join(SCHEMAS_DIR, directory, file))).toEqual([]);
-    });
+    test.each(paths.map((path) => [relative(SCHEMAS_DIR, path), path] as const))(
+      '%s matches its twin',
+      async (_name, path) => {
+        expect(await differentialOf(path)).toEqual([]);
+      },
+    );
   });
 }
+
+describe('the corpus and the twins pair up', () => {
+  test('every .cerial file has a twin', () => {
+    expect(missingTwins(CERIALS, TWINS)).toEqual([]);
+  });
+
+  test('every twin has a .cerial file', () => {
+    expect(strayTwins(CERIALS, TWINS)).toEqual([]);
+  });
+});
+
+describe('the pairing checks', () => {
+  const cerial = (name: string) => join(SCHEMAS_DIR, `${name}.cerial`);
+  const twin = (name: string) => join(TWINS_DIR, `${name}.schema.ts`);
+
+  test('a .cerial file with no twin is named, nested directories included', () => {
+    expect(missingTwins([cerial('a/x'), cerial('a/b/y')], [twin('a/x')])).toEqual([`no twin for ${cerial('a/b/y')}`]);
+  });
+
+  test('a twin with no .cerial file is named', () => {
+    expect(strayTwins([cerial('a/x')], [twin('a/x'), twin('a/old')])).toEqual([
+      `no .cerial file for twin ${twin('a/old')}`,
+    ]);
+  });
+
+  test('a matched set reports nothing in either direction', () => {
+    expect(missingTwins([cerial('a/x')], [twin('a/x')])).toEqual([]);
+    expect(strayTwins([cerial('a/x')], [twin('a/x')])).toEqual([]);
+  });
+
+  test('an empty twin list names every file', () => {
+    expect(missingTwins([cerial('a'), cerial('b')], [])).toHaveLength(2);
+  });
+
+  test('the walk finds files on temp directories by suffix', () => {
+    const root = mkdtempSync(join(tmpdir(), 'pairing-'));
+    try {
+      mkdirSync(join(root, 'd/e'), { recursive: true });
+      writeFileSync(join(root, 'd/e/a.cerial'), '');
+      writeFileSync(join(root, 'd/b.cerial'), '');
+      writeFileSync(join(root, 'd/c.txt'), '');
+
+      expect(findSchemaFiles(root).map((path) => relative(root, path))).toEqual(['d/b.cerial', 'd/e/a.cerial']);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
 
 describe('the comparison', () => {
   test('a key added to a twin node is reported', async () => {

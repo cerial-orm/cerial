@@ -33,12 +33,13 @@ export interface Corpus {
   readonly tupleNames: ReadonlySet<string>;
 }
 
-function findSchemaFiles(dir: string): string[] {
+/** Every file under `dir` ending in `suffix`, recursively, sorted; the one walk the corpus checks share. */
+export function findSchemaFiles(dir: string, suffix: string = '.cerial'): string[] {
   const found: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) found.push(...findSchemaFiles(path));
-    else if (entry.name.endsWith('.cerial')) found.push(path);
+    if (entry.isDirectory()) found.push(...findSchemaFiles(path, suffix));
+    else if (entry.name.endsWith(suffix)) found.push(path);
   }
 
   return found.sort();
