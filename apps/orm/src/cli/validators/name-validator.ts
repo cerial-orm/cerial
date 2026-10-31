@@ -3,7 +3,7 @@
  */
 
 import type { Origin, SchemaAST } from '../../types';
-import { originLine } from './origin-location';
+import { formatOrigin, originLine } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 interface Named {
@@ -13,13 +13,18 @@ interface Named {
 
 function findDuplicates(kind: string, items: Named[]): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
-  const seen = new Set<string>();
+  const seen = new Map<string, Origin>();
 
   for (const item of items) {
-    if (seen.has(item.name)) {
-      errors.push({ message: `Duplicate ${kind} name: ${item.name}`, line: originLine(item.origin) });
+    const first = seen.get(item.name);
+    if (first) {
+      errors.push({
+        message: `Duplicate ${kind} name: ${item.name} (declared in ${formatOrigin(first)} and in ${formatOrigin(item.origin)})`,
+        line: originLine(item.origin),
+      });
+    } else {
+      seen.set(item.name, item.origin);
     }
-    seen.add(item.name);
   }
 
   return errors;

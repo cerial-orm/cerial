@@ -27,12 +27,14 @@ function merge(...sources: string[]): SchemaAST {
 }
 
 const messages = (ast: SchemaAST) => validateDuplicateNames(ast).map((e) => e.message);
+// The part naming the kind and the name, without the origins that follow it
+const heads = (ast: SchemaAST) => messages(ast).map((m) => m.replace(/ \(declared in .*\)$/, ''));
 
 describe('Duplicate Name Validator', () => {
   const user = 'model User {\n  id Record @id\n}';
 
   test('reports a model declared in two files', () => {
-    expect(messages(merge(user, user))).toEqual(['Duplicate model name: User']);
+    expect(heads(merge(user, user))).toEqual(['Duplicate model name: User']);
   });
 
   test('the resolver collapses that duplicate, which is why the check runs first', () => {
@@ -43,7 +45,7 @@ describe('Duplicate Name Validator', () => {
   });
 
   test('reports a duplicate of every kind', () => {
-    const found = messages(
+    const found = heads(
       merge(
         'object Geo {\n  lat Float\n}\ntuple Pair {\n  Int,\n  Int\n}\nliteral Lv { "a", "b" }\nenum Role { A }',
         'object Geo {\n  lng Float\n}\ntuple Pair {\n  Float,\n  Float\n}\nliteral Lv { "c" }\nenum Role { B }',
@@ -56,6 +58,16 @@ describe('Duplicate Name Validator', () => {
       'Duplicate literal name: Lv',
       'Duplicate enum name: Role',
     ]);
+  });
+
+  test('names where both declarations are, whether they come from DSL or TypeScript', () => {
+    const [dsl] = merge(user).models;
+    const ts = { ...dsl!, origin: { kind: 'ts' as const, file: '/app/user.ts', export: 'User' } };
+    const [message] = messages({ ...merge(user), models: [dsl!, ts] });
+
+    expect(message).toContain('Duplicate model name: User');
+    expect(message).toContain(`${dsl!.origin.file}:`);
+    expect(message).toContain('/app/user.ts (export User)');
   });
 
   test('accepts distinct names across files', () => {

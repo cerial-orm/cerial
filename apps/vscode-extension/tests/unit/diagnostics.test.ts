@@ -627,11 +627,31 @@ describe('duplicate declaration diagnostics', () => {
   const HOST = 'model Host {\n  id Record @id\n}';
 
   test.each([
-    ['model', 'model Host {\n  id Record @id\n}\n\nmodel Host {\n  id Record @id\n}', 'Duplicate model name: Host'],
-    ['enum', 'enum Role { A, B }\n\nenum Role { C }', 'Duplicate enum name: Role'],
-    ['tuple', 'tuple P {\n  Int,\n  Int\n}\n\ntuple P {\n  Int,\n  Int\n}', 'Duplicate tuple name: P'],
-    ['literal', "literal L { 'a', 'b' }\n\nliteral L { 'c' }", 'Duplicate literal name: L'],
-    ['object', 'object G {\n  lat Float\n}\n\nobject G {\n  lng Float\n}', 'Duplicate object name: G'],
+    [
+      'model',
+      'model Host {\n  id Record @id\n}\n\nmodel Host {\n  id Record @id\n}',
+      'Duplicate model name: Host (declared in <input>:1 and in <input>:5)',
+    ],
+    [
+      'enum',
+      'enum Role { A, B }\n\nenum Role { C }',
+      'Duplicate enum name: Role (declared in <input>:1 and in <input>:3)',
+    ],
+    [
+      'tuple',
+      'tuple P {\n  Int,\n  Int\n}\n\ntuple P {\n  Int,\n  Int\n}',
+      'Duplicate tuple name: P (declared in <input>:1 and in <input>:6)',
+    ],
+    [
+      'literal',
+      "literal L { 'a', 'b' }\n\nliteral L { 'c' }",
+      'Duplicate literal name: L (declared in <input>:1 and in <input>:3)',
+    ],
+    [
+      'object',
+      'object G {\n  lat Float\n}\n\nobject G {\n  lng Float\n}',
+      'Duplicate object name: G (declared in <input>:1 and in <input>:5)',
+    ],
   ])('a %s declared twice in one file is reported on the second declaration', (_kind, source, message) => {
     const { ast } = parse(source);
     const errors = getDuplicateNameErrors(ast, [ast]);
@@ -646,7 +666,7 @@ describe('duplicate declaration diagnostics', () => {
 
     expect(getDuplicateNameErrors(first, [first, second])).toEqual([]);
     expect(getDuplicateNameErrors(second, [first, second]).map((e) => e.message)).toEqual([
-      'Duplicate model name: Host',
+      'Duplicate model name: Host (declared in <input>:1 and in <input>:1)',
     ]);
   });
 

@@ -110,7 +110,7 @@ export function getDuplicateNameErrors(fileAST: SchemaAST, groupASTs: Iterable<S
   ];
 
   return validateDuplicateNames(merged).filter((error) =>
-    declarations.some((d) => d.range.start.line === error.line && error.message.endsWith(`: ${d.name}`)),
+    declarations.some((d) => d.range.start.line === error.line && error.message.includes(`: ${d.name} (declared in `)),
   );
 }
 
