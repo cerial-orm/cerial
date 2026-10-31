@@ -16,6 +16,7 @@
     "optional-fields",
     "complex-record",
     "inheritance",
+    "typescript",
     "enums-vs-literals",
     "cross-file-references",
     "comments"

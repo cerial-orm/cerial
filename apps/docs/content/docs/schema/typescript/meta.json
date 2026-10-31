@@ -1,0 +1,12 @@
+{
+  "title": "TypeScript Schemas",
+  "pages": [
+    "overview",
+    "fields",
+    "models",
+    "relations",
+    "objects-tuples",
+    "enums-literals",
+    "extends"
+  ]
+}

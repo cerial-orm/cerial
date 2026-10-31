@@ -1,0 +1,215 @@
+---
+title: Models
+description: Declare models in TypeScript, with record ids, composite indexes and uniques, and abstract models.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+`model(name, fields, options?)` declares a model. The third argument is optional and carries what has no place on a single field: `abstract`, `extends`, and composite `index` and `unique`. Inheritance is on [Extends](/schema/typescript/extends).
+
+## Record ids
+
+`f.record()` is the one factory for `Record`. Its arguments are the id types, so it covers every `Record(...)` form. `.id()` marks the field as the model's id.
+
+```cerial
+tuple IdCoord {
+  Float,
+  Float
+}
+
+object IdKey {
+  service String
+  timestamp Int
+}
+
+model PlainId {
+  id Record @id
+}
+
+model IntId {
+  id Record(int) @id
+}
+
+model NumberId {
+  id Record(number) @id
+}
+
+model StringId {
+  id Record(string) @id
+}
+
+model UuidId {
+  id Record(uuid) @id
+}
+
+model TupleId {
+  id Record(IdCoord) @id
+}
+
+model ObjectId {
+  id Record(IdKey) @id
+}
+
+model UnionId {
+  id Record(string, int) @id
+}
+```
+
+```typescript
+import { e, f, model, object, tuple } from 'cerial/schema';
+
+export const IdCoord = tuple('IdCoord', [e.float(), e.float()]);
+
+export const IdKey = object('IdKey', {
+  service: f.string(),
+  timestamp: f.int(),
+});
+
+export const PlainId = model('PlainId', {
+  id: f.record().id(),
+});
+
+export const IntId = model('IntId', {
+  id: f.record('int').id(),
+});
+
+export const NumberId = model('NumberId', {
+  id: f.record('number').id(),
+});
+
+export const StringId = model('StringId', {
+  id: f.record('string').id(),
+});
+
+export const UuidId = model('UuidId', {
+  id: f.record('uuid').id(),
+});
+
+export const TupleId = model('TupleId', {
+  id: f.record(IdCoord).id(),
+});
+
+export const ObjectId = model('ObjectId', {
+  id: f.record(IdKey).id(),
+});
+
+export const UnionId = model('UnionId', {
+  id: f.record('string', 'int').id(),
+});
+```
+
+An object or tuple id is passed by declaration, by function (`() => IdKey`) or by name, like any other reference. Only `'int'`, `'number'`, `'string'` and `'uuid'` are valid primitive id types, and the others are a compile error:
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const BadId = model('BadId', {
+  // @ts-expect-error float is not a valid record id type
+  id: f.record('float').id(),
+});
+```
+
+The id field does not have to be called `id`. The field marked `.id()` is the id.
+
+### Record fields that are not the id
+
+A `Record` field without `.id()` stores a record id. It takes the same arguments and `.array()`.
+
+```cerial
+model Bookmarks {
+  id Record @id
+  externalRef Record(int)
+  externalRefs Record(int)[]
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Bookmarks = model('Bookmarks', {
+  id: f.record().id(),
+  externalRef: f.record('int'),
+  externalRefs: f.record('int').array(),
+});
+```
+
+To point at another model, use a relation instead of writing the `Record` field yourself. See [Relations](/schema/typescript/relations).
+
+## Composite indexes and uniques
+
+`@@index` and `@@unique` are the `index` and `unique` options. Each takes one entry, or a list of entries, of `{ name, fields }`. A field path may be dotted to reach into an object field, and one list can mix plain fields, dotted paths and record fields.
+
+```cerial
+object Location {
+  city String
+  zip String
+  street String?
+}
+
+model Warehouse {
+  id Record @id
+  name String @index
+  location Location
+  ownerId Record
+  slot Int
+  @@unique(cityZip, [location.city, location.zip])
+  @@unique(nameCity, [name, location.city])
+  @@index(ownerSlot, [ownerId, slot])
+}
+```
+
+```typescript
+import { f, model, object } from 'cerial/schema';
+
+export const Location = object('Location', {
+  city: f.string(),
+  zip: f.string(),
+  street: f.string().optional(),
+});
+
+export const Warehouse = model(
+  'Warehouse',
+  {
+    id: f.record().id(),
+    name: f.string().index(),
+    location: f.object(Location),
+    ownerId: f.record(),
+    slot: f.int(),
+  },
+  {
+    unique: [
+      { name: 'cityZip', fields: ['location.city', 'location.zip'] },
+      { name: 'nameCity', fields: ['name', 'location.city'] },
+    ],
+    index: { name: 'ownerSlot', fields: ['ownerId', 'slot'] },
+  },
+);
+```
+
+Each path must start from a field of the model, and TypeScript checks that. Entries of one kind keep their order. Between the two kinds, the order follows the order of the keys in the options object, so a model that alternates `@@index`, `@@unique`, `@@index` cannot be written in exactly that order.
+
+## Abstract models
+
+An abstract model exists to be extended. It has no table and no client accessor.
+
+```cerial
+abstract model Timestamped {
+  id Record @id
+  createdAt Date @createdAt
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Timestamped = model(
+  'Timestamped',
+  {
+    id: f.record().id(),
+    createdAt: f.date().createdAt(),
+  },
+  { abstract: true },
+);
+```

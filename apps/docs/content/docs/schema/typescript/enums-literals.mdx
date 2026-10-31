@@ -1,0 +1,220 @@
+---
+title: Enums and literals
+description: Declare enums and literal unions in TypeScript, with every variant kind shown beside its .cerial form.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+## Enums
+
+`enum(name, values)` declares an enum from a list of strings. `enum` is a reserved word in JavaScript, so import it under another name. A model uses an enum with `f.enum(Role)`.
+
+```cerial
+enum Role { ADMIN, USER, MODERATOR }
+
+model Member {
+  id Record @id
+  role Role
+  backup Role?
+  muted Role? @nullable
+  roles Role[]
+  fallback Role @default('USER')
+}
+```
+
+```typescript
+import { enum as enumeration, f, model } from 'cerial/schema';
+
+export const Role = enumeration('Role', ['ADMIN', 'USER', 'MODERATOR']);
+
+export const Member = model('Member', {
+  id: f.record().id(),
+  role: f.enum(Role),
+  backup: f.enum(Role).optional(),
+  muted: f.enum(Role).optional().nullable(),
+  roles: f.enum(Role).array(),
+  fallback: f.enum(Role).default('USER'),
+});
+```
+
+Values are identifiers, and they are strings only. A number or a boolean is a compile error. Use a literal when you need mixed types.
+
+```typescript
+import { enum as enumeration } from 'cerial/schema';
+
+// @ts-expect-error enum values are strings
+export const Levels = enumeration('Levels', [1, 2]);
+```
+
+## Literals
+
+`literal(name, variants)` declares a union of values and types. Each variant is built with `variant`, and a model uses the literal with `f.literal(Status)`.
+
+| Variant | `.cerial` | TypeScript |
+|---|---|---|
+| String | `'active'` | `variant.string('active')` |
+| Integer | `1` | `variant.int(1)` |
+| Float | `0.5` | `variant.float(0.5)` |
+| Boolean | `true` | `variant.bool(true)` |
+| Broad type | `String`, `Int`, `Float`, `Bool` or `Date` | `variant.broadType('String')` |
+| Tuple | `Coordinate` | `variant.tuple(Coordinate)` |
+| Object | `Point` | `variant.object(Point)` |
+| Literal or enum | `Status` | `variant.literal(Status)` |
+
+`variant.int` and `variant.float` are separate because `.cerial` tells them apart by the decimal point, and a JavaScript number cannot carry one. `variant.int(1.5)` throws.
+
+### Primitive variants
+
+```cerial
+literal Status { 'active', 'inactive', 'pending' }
+
+literal Priority { 1, 2, 3 }
+
+literal Ratio { 0.5, 1.5, 2.5 }
+
+literal Mixed { 'low', 'high', 1, 2, true }
+
+model Ticket {
+  id Record @id
+  status Status
+  priority Priority
+  ratio Ratio
+  tag Mixed
+  history Status[]
+  next Status?
+  state Status @default('active')
+}
+```
+
+```typescript
+import { f, literal, model, variant } from 'cerial/schema';
+
+export const Status = literal('Status', [
+  variant.string('active'),
+  variant.string('inactive'),
+  variant.string('pending'),
+]);
+
+export const Priority = literal('Priority', [variant.int(1), variant.int(2), variant.int(3)]);
+
+export const Ratio = literal('Ratio', [variant.float(0.5), variant.float(1.5), variant.float(2.5)]);
+
+export const Mixed = literal('Mixed', [
+  variant.string('low'),
+  variant.string('high'),
+  variant.int(1),
+  variant.int(2),
+  variant.bool(true),
+]);
+
+export const Ticket = model('Ticket', {
+  id: f.record().id(),
+  status: f.literal(Status),
+  priority: f.literal(Priority),
+  ratio: f.literal(Ratio),
+  tag: f.literal(Mixed),
+  history: f.literal(Status).array(),
+  next: f.literal(Status).optional(),
+  state: f.literal(Status).default('active'),
+});
+```
+
+### Broad type variants
+
+A broad type accepts any value of that type.
+
+```cerial
+literal Payload { String, Int }
+
+literal Stamp { Float, Bool, Date }
+```
+
+```typescript
+import { literal, variant } from 'cerial/schema';
+
+export const Payload = literal('Payload', [variant.broadType('String'), variant.broadType('Int')]);
+
+export const Stamp = literal('Stamp', [
+  variant.broadType('Float'),
+  variant.broadType('Bool'),
+  variant.broadType('Date'),
+]);
+```
+
+### Variants that reference other types
+
+A literal can include a tuple, an object, another literal or an enum.
+
+```cerial
+tuple Coord {
+  x Float,
+  y Float
+}
+
+object Point {
+  label String
+  weight Int
+}
+
+enum Access { ADMIN, USER }
+
+literal Shape { 'none', Coord, Point }
+
+literal Visibility { Access, 'custom' }
+```
+
+```typescript
+import { e, enum as enumeration, f, literal, object, tuple, variant } from 'cerial/schema';
+
+export const Coord = tuple('Coord', { x: e.float(), y: e.float() });
+
+export const Point = object('Point', {
+  label: f.string(),
+  weight: f.int(),
+});
+
+export const Access = enumeration('Access', ['ADMIN', 'USER']);
+
+export const Shape = literal('Shape', [variant.string('none'), variant.tuple(Coord), variant.object(Point)]);
+
+export const Visibility = literal('Visibility', [variant.literal(Access), variant.string('custom')]);
+```
+
+A literal cannot reference itself.
+
+### Literals and enums in objects and tuples
+
+An object field uses `f.literal` and `f.enum` like a model does. A tuple element uses `e.literal` for both.
+
+```cerial
+literal Level { 'low', 'high' }
+
+enum Mode { ON, OFF }
+
+object Setting {
+  level Level
+  mode Mode
+}
+
+tuple Switch {
+  Level,
+  Mode
+}
+```
+
+```typescript
+import { e, enum as enumeration, f, literal, object, tuple, variant } from 'cerial/schema';
+
+export const Level = literal('Level', [variant.string('low'), variant.string('high')]);
+
+export const Mode = enumeration('Mode', ['ON', 'OFF']);
+
+export const Setting = object('Setting', {
+  level: f.literal(Level),
+  mode: f.enum(Mode),
+});
+
+export const Switch = tuple('Switch', [e.literal(Level), e.literal(Mode)]);
+```

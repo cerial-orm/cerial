@@ -1,0 +1,352 @@
+---
+title: Extends
+description: Inherit from models, objects, tuples, enums and literals in TypeScript, with pick and omit lists checked by the compiler.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Inheritance works the same as in `.cerial` and is resolved when the schema is generated. In TypeScript, `extends` is a key of the declaration's options, and it takes the parent declaration. `Parent.pick(...)` and `Parent.omit(...)` take the place of `Parent[a, b]` and `Parent[!a, !b]`.
+
+| Form | `.cerial` | TypeScript |
+|---|---|---|
+| Inherit everything | `extends Parent` | `{ extends: Parent }` |
+| Pick | `extends Parent[a, b]` | `{ extends: Parent.pick('a', 'b') }` |
+| Omit | `extends Parent[!a, !b]` | `{ extends: Parent.omit('a', 'b') }` |
+
+The parent must be in the same schema entry and must be exported. It can be imported from another file of that entry. A declaration in another entry cannot be extended.
+
+## Models
+
+Fields the child declares are added to the inherited ones. A child can redeclare an inherited field to override it, except one marked `.private()`.
+
+```cerial
+abstract model Entity {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  updatedAt Date @updatedAt
+}
+
+abstract model BaseUser extends Entity {
+  email Email @unique
+  name String
+  isActive Bool @default(true)
+}
+
+model User extends BaseUser {
+  age Int?
+}
+
+model Admin extends BaseUser[!isActive] {
+  level Int @default(1)
+}
+
+model Moderator extends Entity[id, createdAt] {
+  email Email @unique
+  name String
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Entity = model(
+  'Entity',
+  {
+    id: f.record().id().private(),
+    createdAt: f.date().createdAt().private(),
+    updatedAt: f.date().updatedAt(),
+  },
+  { abstract: true },
+);
+
+export const BaseUser = model(
+  'BaseUser',
+  {
+    email: f.email().unique(),
+    name: f.string(),
+    isActive: f.bool().default(true),
+  },
+  { abstract: true, extends: Entity },
+);
+
+export const User = model('User', { age: f.int().optional() }, { extends: BaseUser });
+
+export const Admin = model('Admin', { level: f.int().default(1) }, { extends: BaseUser.omit('isActive') });
+
+export const Moderator = model(
+  'Moderator',
+  {
+    email: f.email().unique(),
+    name: f.string(),
+  },
+  { extends: Entity.pick('id', 'createdAt') },
+);
+```
+
+The names in `pick` and `omit` are checked against the fields the parent declares itself, not the ones it inherited. A name that is not among them is a compile error:
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Base = model('Base', { id: f.record().id(), name: f.string() }, { abstract: true });
+
+export const Typo = model(
+  'Typo',
+  { extra: f.string() },
+  // @ts-expect-error Base has no field called nme
+  { extends: Base.omit('nme') },
+);
+```
+
+### Private fields
+
+`.private()` is `!!private`. A child cannot declare a field with a private name, and TypeScript reports it. A private field can still be left out of a pick list or omitted, as `Moderator` leaves out `updatedAt` and keeps `id`.
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Locked = model('Locked', { id: f.record().id().private() }, { abstract: true });
+
+export const Overrides = model(
+  'Overrides',
+  // @ts-expect-error id is private in Locked
+  { id: f.record().id() },
+  { extends: Locked },
+);
+```
+
+## Objects
+
+```cerial
+object BaseAddress {
+  street String
+  city String
+  country String @default('US')
+}
+
+object Apartment extends BaseAddress {
+  unit String?
+}
+
+object CityAddress extends BaseAddress[city, country] {
+  district String?
+}
+
+object SimpleAddress extends BaseAddress[!country] {
+  region String?
+}
+```
+
+```typescript
+import { f, object } from 'cerial/schema';
+
+export const BaseAddress = object('BaseAddress', {
+  street: f.string(),
+  city: f.string(),
+  country: f.string().default('US'),
+});
+
+export const Apartment = object('Apartment', { unit: f.string().optional() }, { extends: BaseAddress });
+
+export const CityAddress = object(
+  'CityAddress',
+  { district: f.string().optional() },
+  { extends: BaseAddress.pick('city', 'country') },
+);
+
+export const SimpleAddress = object(
+  'SimpleAddress',
+  { region: f.string().optional() },
+  { extends: BaseAddress.omit('country') },
+);
+```
+
+## Tuples
+
+A child's elements are appended to the inherited ones. A pick or omit list names an element, or gives its position as a number. Positions are not checked by the compiler. A position that does not exist is refused when the schema is generated.
+
+```cerial
+tuple Pair {
+  String,
+  Int
+}
+
+tuple Triple extends Pair {
+  Bool
+}
+
+tuple FirstTwo extends Pair[0, 1] { }
+
+tuple WithoutSecond extends Pair[!1] { }
+
+tuple Person {
+  name String,
+  age Int
+}
+
+tuple JustName extends Person[name] { }
+
+tuple NoAge extends Person[!age] { }
+```
+
+```typescript
+import { e, tuple } from 'cerial/schema';
+
+export const Pair = tuple('Pair', [e.string(), e.int()]);
+
+export const Triple = tuple('Triple', [e.bool()], { extends: Pair });
+
+export const FirstTwo = tuple('FirstTwo', [], { extends: Pair.pick(0, 1) });
+
+export const WithoutSecond = tuple('WithoutSecond', [], { extends: Pair.omit(1) });
+
+export const Person = tuple('Person', { name: e.string(), age: e.int() });
+
+export const JustName = tuple('JustName', {}, { extends: Person.pick('name') });
+
+export const NoAge = tuple('NoAge', {}, { extends: Person.omit('age') });
+```
+
+## Enums
+
+```cerial
+enum BaseRole { ADMIN, USER, MODERATOR }
+
+enum ExtendedRole extends BaseRole { SUPERADMIN, GUEST }
+
+enum CoreRole extends BaseRole[ADMIN, USER] { }
+
+enum NonAdminRole extends BaseRole[!ADMIN] { }
+```
+
+```typescript
+import { enum as enumeration } from 'cerial/schema';
+
+export const BaseRole = enumeration('BaseRole', ['ADMIN', 'USER', 'MODERATOR']);
+
+export const ExtendedRole = enumeration('ExtendedRole', ['SUPERADMIN', 'GUEST'], { extends: BaseRole });
+
+export const CoreRole = enumeration('CoreRole', [], { extends: BaseRole.pick('ADMIN', 'USER') });
+
+export const NonAdminRole = enumeration('NonAdminRole', [], { extends: BaseRole.omit('ADMIN') });
+```
+
+## Literals
+
+A literal's pick and omit lists name a variant by its identity. A string variant is named by its quoted value, so `'low'` is written `"'low'"`, with the quotes inside the string. Any other variant is named bare: `'1'` for an integer, `'true'` for a boolean, `'Int'` for a broad type, and the declaration's name for a tuple, object, literal or enum.
+
+```cerial
+literal BasePriority { 'low', 'medium', 'high' }
+
+literal ExtendedPriority extends BasePriority { 'critical' }
+
+literal LowOrHigh extends BasePriority['low', 'high'] { }
+
+literal NotMedium extends BasePriority[!'medium'] { }
+
+literal BaseMixed { 'active', 'inactive', true, false }
+
+literal OnlyBools extends BaseMixed[true, false] { }
+
+literal NoBools extends BaseMixed[!true, !false] { }
+```
+
+```typescript
+import { literal, variant } from 'cerial/schema';
+
+export const BasePriority = literal('BasePriority', [
+  variant.string('low'),
+  variant.string('medium'),
+  variant.string('high'),
+]);
+
+export const ExtendedPriority = literal('ExtendedPriority', [variant.string('critical')], {
+  extends: BasePriority,
+});
+
+export const LowOrHigh = literal('LowOrHigh', [], { extends: BasePriority.pick("'low'", "'high'") });
+
+export const NotMedium = literal('NotMedium', [], { extends: BasePriority.omit("'medium'") });
+
+export const BaseMixed = literal('BaseMixed', [
+  variant.string('active'),
+  variant.string('inactive'),
+  variant.bool(true),
+  variant.bool(false),
+]);
+
+export const OnlyBools = literal('OnlyBools', [], { extends: BaseMixed.pick('true', 'false') });
+
+export const NoBools = literal('NoBools', [], { extends: BaseMixed.omit('true', 'false') });
+```
+
+## Chaining and mixing
+
+A child that was declared with a pick or an omit can itself be extended, and a chain can go as deep as you like.
+
+```cerial
+object Source {
+  a String
+  b String
+  c String
+}
+
+object Narrow extends Source[a, b] {
+  p String
+}
+
+object Narrower extends Narrow[!p] {
+  r String?
+}
+```
+
+```typescript
+import { f, object } from 'cerial/schema';
+
+export const Source = object('Source', {
+  a: f.string(),
+  b: f.string(),
+  c: f.string(),
+});
+
+export const Narrow = object('Narrow', { p: f.string() }, { extends: Source.pick('a', 'b') });
+
+export const Narrower = object('Narrower', { r: f.string().optional() }, { extends: Narrow.omit('p') });
+```
+
+The other order works too. The list names a field `Slim` declares itself:
+
+```cerial
+object Slim extends Source[!c] {
+  s String
+}
+
+object Slimmer extends Slim[s] {
+  t String?
+}
+```
+
+```typescript
+import { f, object } from 'cerial/schema';
+
+export const Slim = object('Slim', { s: f.string() }, { extends: Source.omit('c') });
+
+export const Slimmer = object('Slimmer', { t: f.string().optional() }, { extends: Slim.pick('s') });
+```
+
+One `extends` clause is a pick or an omit, never both. The result of `pick` has no `omit` method, so chaining the two is a compile error:
+
+```typescript
+import { f, object } from 'cerial/schema';
+
+export const Wide = object('Wide', { a: f.string(), b: f.string(), c: f.string() });
+
+export const Mixed = object(
+  'Mixed',
+  { d: f.string() },
+  // @ts-expect-error a clause is a pick or an omit, not both
+  { extends: Wide.pick('a', 'b').omit('b') },
+);
+```

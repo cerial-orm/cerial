@@ -1,0 +1,359 @@
+---
+title: Relations
+description: Declare forward and reverse relations in TypeScript, with derived foreign keys, f.field(), f.key() and onDelete.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+A relation has two sides in `.cerial`: a `Record` field that stores the foreign key, and a `Relation` field that points through it. In TypeScript the forward side is one field, `f.relation(Target)`, and the `Record` field behind it is derived. The reverse side, which stores nothing, is `f.reverse(Target)`.
+
+| `.cerial` | TypeScript |
+|---|---|
+| `authorId Record` plus `author Relation @field(authorId) @model(User)` | `author: f.relation(User)` |
+| `posts Relation[] @model(Post)` | `posts: f.reverse(Post).array()` |
+
+## One to many
+
+```cerial
+model User {
+  id Record @id
+  name String
+  posts Relation[] @model(Post)
+}
+
+model Post {
+  id Record @id
+  title String
+  authorId Record
+  author Relation @field(authorId) @model(User)
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const User = model('User', {
+  id: f.record().id(),
+  name: f.string(),
+  posts: f.reverse(() => Post).array(),
+});
+
+export const Post = model('Post', {
+  id: f.record().id(),
+  title: f.string(),
+  author: f.relation(User),
+});
+```
+
+The derived key is named after the relation: `author` gives `authorId`. The key follows the relation's modifiers, so an optional relation derives an optional key.
+
+`User` is passed directly to `f.relation` because it is declared above `Post`. The reverse side in `User` uses a function, because `Post` is declared below it.
+
+`f.reverse` returns a builder with only `.array()`, `.optional()`, `.private()` and `.key()`. It has no `.field()` and no `.onDelete()`, because the reverse side owns neither a key nor a deletion rule, so using one is a compile error:
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Account = model('Account', {
+  id: f.record().id(),
+  // @ts-expect-error the reverse side has no foreign key to name
+  logins: f.reverse(() => Login).field('accountId'),
+});
+
+export const Login = model('Login', {
+  id: f.record().id(),
+  account: f.relation(Account),
+});
+```
+
+## One to one
+
+An optional relation derives an optional key. Here the reverse side is optional too.
+
+```cerial
+model Person {
+  id Record @id
+  profile Relation? @model(Profile)
+}
+
+model Profile {
+  id Record @id
+  bio String?
+  personId Record?
+  person Relation? @field(personId) @model(Person)
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Person = model('Person', {
+  id: f.record().id(),
+  profile: f.reverse(() => Profile).optional(),
+});
+
+export const Profile = model('Profile', {
+  id: f.record().id(),
+  bio: f.string().optional(),
+  person: f.relation(Person).optional(),
+});
+```
+
+## Many to many
+
+Both sides are forward relations with `.array()`. Each derives a `Record[]` key: `courses` derives `courseIds` and `students` derives `studentIds`. A key drops one trailing `s` before the `Ids` suffix.
+
+```cerial
+model Student {
+  id Record @id
+  name String
+  courseIds Record[]
+  courses Relation[] @field(courseIds) @model(Course)
+}
+
+model Course {
+  id Record @id
+  title String
+  studentIds Record[]
+  students Relation[] @field(studentIds) @model(Student)
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Student = model('Student', {
+  id: f.record().id(),
+  name: f.string(),
+  courses: f.relation(() => Course).array(),
+});
+
+export const Course = model('Course', {
+  id: f.record().id(),
+  title: f.string(),
+  students: f.relation(Student).array(),
+});
+```
+
+## Naming the foreign key
+
+`.field(name)` chooses the key's name. If the model declares a field with that name (or inherits one), the relation binds to it and the field keeps its own declaration. If no field has that name, the name is used for the key that is derived.
+
+Bind to a field you declare when the key needs its own shape, or when the name does not follow the pattern:
+
+```cerial
+model Employee {
+  id Record @id
+  name String
+  approvedBy Record?
+  approver Relation? @field(approvedBy) @model(Employee)
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Employee = model('Employee', {
+  id: f.record().id(),
+  name: f.string(),
+  approvedBy: f.record().optional(),
+  approver: f.relation(() => Employee).optional().field('approvedBy'),
+});
+```
+
+Or name the derived key without declaring it:
+
+```cerial
+model Staff {
+  id Record @id
+}
+
+model Article {
+  id Record @id
+  writerId Record
+  writer Relation @field(writerId) @model(Staff)
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Staff = model('Staff', {
+  id: f.record().id(),
+});
+
+export const Article = model('Article', {
+  id: f.record().id(),
+  writer: f.relation(Staff).field('writerId'),
+});
+```
+
+## Pairing two relations to the same model
+
+`.key(name)` pairs a forward relation with its reverse side when a model has more than one relation to the same target, or relates to itself.
+
+```cerial
+model Folder {
+  id Record @id
+  name String
+  parentId Record?
+  parent Relation? @field(parentId) @model(Folder) @key(tree)
+  children Relation[] @model(Folder) @key(tree)
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Folder = model('Folder', {
+  id: f.record().id(),
+  name: f.string(),
+  parent: f.relation(() => Folder).optional().key('tree'),
+  children: f.reverse(() => Folder).array().key('tree'),
+});
+```
+
+A relation to its own model needs a function, not the declaration itself. See [self-referencing declarations](/schema/typescript/overview#self-referencing-declarations).
+
+## On delete
+
+`.onDelete(action)` takes `'Cascade'`, `'SetNull'`, `'SetNone'`, `'Restrict'` or `'NoAction'`. It exists only on an optional, singular relation. A required relation always cascades, and an array relation takes no rule, so on those the method is not there.
+
+`'SetNull'` derives a nullable key. `'SetNone'` derives an optional key.
+
+```cerial
+model Team {
+  id Record @id
+  members Relation[] @model(Member)
+}
+
+model Member {
+  id Record @id
+  teamId Record? @nullable
+  team Relation? @field(teamId) @model(Team) @onDelete(SetNull)
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Team = model('Team', {
+  id: f.record().id(),
+  members: f.reverse(() => Member).array(),
+});
+
+export const Member = model('Member', {
+  id: f.record().id(),
+  team: f.relation(Team).optional().onDelete('SetNull'),
+});
+```
+
+Each action, on an optional relation to one target:
+
+| `.cerial` | TypeScript | Derived key |
+|---|---|---|
+| `@onDelete(Cascade)` | `.onDelete('Cascade')` | optional |
+| `@onDelete(SetNull)` | `.onDelete('SetNull')` | optional and nullable |
+| `@onDelete(SetNone)` | `.onDelete('SetNone')` | optional |
+| `@onDelete(Restrict)` | `.onDelete('Restrict')` | optional |
+| `@onDelete(NoAction)` | `.onDelete('NoAction')` | optional |
+
+```cerial
+model Board {
+  id Record @id
+}
+
+model CascadePin {
+  id Record @id
+  boardId Record?
+  board Relation? @field(boardId) @model(Board) @onDelete(Cascade)
+}
+
+model NullPin {
+  id Record @id
+  boardId Record? @nullable
+  board Relation? @field(boardId) @model(Board) @onDelete(SetNull)
+}
+
+model NonePin {
+  id Record @id
+  boardId Record?
+  board Relation? @field(boardId) @model(Board) @onDelete(SetNone)
+}
+
+model RestrictPin {
+  id Record @id
+  boardId Record?
+  board Relation? @field(boardId) @model(Board) @onDelete(Restrict)
+}
+
+model NoActionPin {
+  id Record @id
+  boardId Record?
+  board Relation? @field(boardId) @model(Board) @onDelete(NoAction)
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Board = model('Board', {
+  id: f.record().id(),
+});
+
+export const CascadePin = model('CascadePin', {
+  id: f.record().id(),
+  board: f.relation(Board).optional().onDelete('Cascade'),
+});
+
+export const NullPin = model('NullPin', {
+  id: f.record().id(),
+  board: f.relation(Board).optional().onDelete('SetNull'),
+});
+
+export const NonePin = model('NonePin', {
+  id: f.record().id(),
+  board: f.relation(Board).optional().onDelete('SetNone'),
+});
+
+export const RestrictPin = model('RestrictPin', {
+  id: f.record().id(),
+  board: f.relation(Board).optional().onDelete('Restrict'),
+});
+
+export const NoActionPin = model('NoActionPin', {
+  id: f.record().id(),
+  board: f.relation(Board).optional().onDelete('NoAction'),
+});
+```
+
+A required relation takes no rule:
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Org = model('Org', {
+  id: f.record().id(),
+});
+
+export const Seat = model('Seat', {
+  id: f.record().id(),
+  // @ts-expect-error a required relation cascades and takes no rule
+  org: f.relation(Org).onDelete('Cascade'),
+});
+```
+
+## A string for a cyclic module graph
+
+When two modules import each other, a function does not help, because the import itself is circular. A name string breaks the cycle: here `Customer` is declared in the module that imports this one. TypeScript does not check the string, so use it only for that case.
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const Invoice = model('Invoice', {
+  id: f.record().id(),
+  customer: f.relation('Customer'),
+});
+```

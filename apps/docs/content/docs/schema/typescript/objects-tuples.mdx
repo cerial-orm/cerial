@@ -1,0 +1,254 @@
+---
+title: Objects and tuples
+description: Declare embedded objects and positional tuples in TypeScript, with element builders, named elements and flexible fields.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+## Objects
+
+`object(name, fields)` declares an embedded object. Its fields are the same builders as a model's, minus the ones that need identity (`.id()` and relations). A model uses the object with `f.object(Address)`, and the usual modifiers apply.
+
+```cerial
+object Address {
+  street String
+  city String
+  zipCode String?
+  internalNote String? !!private
+}
+
+model Customer {
+  id Record @id
+  name String
+  address Address
+  shipping Address?
+  past Address[]
+}
+```
+
+```typescript
+import { f, model, object } from 'cerial/schema';
+
+export const Address = object('Address', {
+  street: f.string(),
+  city: f.string(),
+  zipCode: f.string().optional(),
+  internalNote: f.string().optional().private(),
+});
+
+export const Customer = model('Customer', {
+  id: f.record().id(),
+  name: f.string(),
+  address: f.object(Address),
+  shipping: f.object(Address).optional(),
+  past: f.object(Address).array(),
+});
+```
+
+An object field takes `.optional()` and `.array()`. It does not take `.nullable()`: SurrealDB cannot define sub-fields under a nullable parent.
+
+### Flexible fields
+
+`.flexible()` lets one field accept keys the object does not declare. It is a property of the field, not of the object, so one object can be flexible in one place and strict in another.
+
+```cerial
+object Meta {
+  label String
+}
+
+model Document {
+  id Record @id
+  strictMeta Meta
+  looseMeta Meta @flexible
+}
+```
+
+```typescript
+import { f, model, object } from 'cerial/schema';
+
+export const Meta = object('Meta', {
+  label: f.string(),
+});
+
+export const Document = model('Document', {
+  id: f.record().id(),
+  strictMeta: f.object(Meta),
+  looseMeta: f.object(Meta).flexible(),
+});
+```
+
+## Tuples
+
+`tuple(name, elements)` declares a tuple. Elements are built with `e`, which has a factory for every field type that can sit in a tuple: `e.string()`, `e.int()`, `e.float()`, `e.bool()`, `e.date()` and so on, plus `e.object`, `e.tuple`, `e.literal` and `e.self`. A model uses a tuple with `f.tuple(Coordinate)`.
+
+There are three ways to write the elements, and they produce the same thing.
+
+### Positional elements
+
+```cerial
+tuple Pair {
+  String,
+  Int
+}
+```
+
+```typescript
+import { e, tuple } from 'cerial/schema';
+
+export const Pair = tuple('Pair', [e.string(), e.int()]);
+```
+
+### Named elements
+
+An object names its elements by key.
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model Place {
+  id Record @id
+  location Coordinate
+  backup Coordinate?
+  trail Coordinate[]
+}
+```
+
+```typescript
+import { e, f, model, tuple } from 'cerial/schema';
+
+export const Coordinate = tuple('Coordinate', { lat: e.float(), lng: e.float() });
+
+export const Place = model('Place', {
+  id: f.record().id(),
+  location: f.tuple(Coordinate),
+  backup: f.tuple(Coordinate).optional(),
+  trail: f.tuple(Coordinate).array(),
+});
+```
+
+An object key that looks like an integer is moved to the front by JavaScript, which would silently reorder the tuple. `cerial generate` refuses such a key.
+
+### Mixed named and unnamed elements
+
+An array holds the order, and `.named(name)` names an element in it.
+
+```cerial
+tuple Entry {
+  name String,
+  Int,
+  Bool
+}
+```
+
+```typescript
+import { e, tuple } from 'cerial/schema';
+
+export const Entry = tuple('Entry', [e.string().named('name'), e.int(), e.bool()]);
+```
+
+Do not use `.named()` in the object form, where the key is the name. TypeScript reports it:
+
+```typescript
+import { e, tuple } from 'cerial/schema';
+
+export const Doubled = tuple('Doubled', {
+  // @ts-expect-error the key names the element, so drop .named()
+  first: e.string().named('other'),
+});
+```
+
+### Element modifiers and decorators
+
+`.nullable()` is the only way to allow null in an element. An element is never optional, because SurrealDB returns null, not NONE, for a missing position, so the builder has no `.optional()`:
+
+```cerial
+tuple Reading {
+  label String,
+  value Float @nullable,
+  taken Date @createdAt,
+  seen Date @updatedAt,
+  tier Int @default(1),
+  hits Int @defaultAlways(7),
+  secret String !!private
+}
+```
+
+```typescript
+import { e, tuple } from 'cerial/schema';
+
+export const Reading = tuple('Reading', {
+  label: e.string(),
+  value: e.float().nullable(),
+  taken: e.date().createdAt(),
+  seen: e.date().updatedAt(),
+  tier: e.int().default(1),
+  hits: e.int().defaultAlways(7),
+  secret: e.string().private(),
+});
+```
+
+```typescript
+import { e, tuple } from 'cerial/schema';
+
+export const Refused = tuple('Refused', [
+  // @ts-expect-error elements cannot be optional
+  e.string().optional(),
+]);
+```
+
+### Nested elements
+
+```cerial
+object Spot {
+  street String
+  city String
+}
+
+tuple Inner {
+  x Int,
+  y Int
+}
+
+tuple Outer {
+  label String,
+  Inner,
+  Spot
+}
+```
+
+```typescript
+import { e, f, object, tuple } from 'cerial/schema';
+
+export const Spot = object('Spot', {
+  street: f.string(),
+  city: f.string(),
+});
+
+export const Inner = tuple('Inner', { x: e.int(), y: e.int() });
+
+export const Outer = tuple('Outer', [e.string().named('label'), e.tuple(Inner), e.object(Spot)]);
+```
+
+`e.literal(Status)` puts a literal or an enum in an element. See [Enums and literals](/schema/typescript/enums-literals).
+
+### Self-reference
+
+A tuple can contain itself only as a nullable element. `e.self()` is that reference, and it has `.nullable()` and nothing else until you call it.
+
+```cerial
+tuple Tree {
+  Int,
+  Tree @nullable
+}
+```
+
+```typescript
+import { e, tuple } from 'cerial/schema';
+
+export const Tree = tuple('Tree', [e.int(), e.self().nullable()]);
+```
