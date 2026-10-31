@@ -59,6 +59,23 @@ describe('a feature-folder project', () => {
     expect(text).not.toContain('Ghost');
   });
 
+  it('merges an entry set beside .cerial files', async () => {
+    const dir = await tempProject({
+      'cerial.config.ts':
+        "export default { schemas: { app: { path: './schemas', entry: './src/schema.ts', output: './out' } } };\n",
+      'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
+      'src/schema.ts': entryModule(['User']),
+      'src/user.ts': modelModule('User'),
+    });
+
+    const { code, output } = await cerial(dir);
+
+    expect(code, output).toBe(0);
+    const text = await generated(join(dir, 'out'));
+    expect(text).toContain('User');
+    expect(text).toContain('A');
+  }, 60_000);
+
   it('generates through the CLI from a cerial.config.ts naming the entry', async () => {
     const dir = await tempProject({
       'cerial.config.ts': config('./src/schema.ts'),
@@ -177,19 +194,6 @@ describe('refusals through the CLI', () => {
 
     expect(output).toContain('schemas.app');
     expect(output).toContain("'entry'");
-  }, 60_000);
-
-  it('an entry beside .cerial files, naming the entry', async () => {
-    const output = await refused({
-      'cerial.config.ts':
-        "export default { schemas: { app: { path: './schemas', entry: './src/schema.ts', output: './out' } } };\n",
-      'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
-      'src/schema.ts': entryModule(['User']),
-      'src/user.ts': modelModule('User'),
-    });
-
-    expect(output).toContain('src/schema.ts');
-    expect(output).toContain('.cerial');
   }, 60_000);
 
   it('a listed model that is not an exported binding, naming it', async () => {

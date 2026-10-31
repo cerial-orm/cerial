@@ -211,10 +211,10 @@ describe('configured projects', () => {
 });
 
 describe('mixed .cerial root', () => {
-  it('collects the module, but the parser never sees it', async () => {
+  it('collects the module and imports it, leaving the parser the .cerial files only', async () => {
     const dir = project('mixed', {
       'auth/schema.cerial': USER_CERIAL,
-      'auth/user.schema.ts': 'this is not valid {{ typescript',
+      'auth/user.schema.ts': TS_STUB,
     });
     const roots = await findSchemaRoots(dir);
 
@@ -227,6 +227,15 @@ describe('mixed .cerial root', () => {
     expect(result.typescriptFiles.map((f) => basename(f))).toEqual(['user.schema.ts']);
     expect(result.schemaContents.map((c) => basename(c.path))).toEqual(['schema.cerial']);
     expect(result.resolvedAST?.models.map((m) => m.name)).toEqual(['User']);
+  });
+
+  it('refuses a module that does not run, naming its path', async () => {
+    const dir = project('mixed-broken', {
+      'auth/schema.cerial': USER_CERIAL,
+      'auth/user.schema.ts': 'this is not valid {{ typescript',
+    });
+
+    await expect(buildResolvedSchemaAst({ schemaPath: resolve(dir, 'auth') })).rejects.toThrow(/user\.schema\.ts/);
   });
 
   it('a .cerial-only project reports no TypeScript files', async () => {

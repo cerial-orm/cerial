@@ -1,3 +1,4 @@
+export { mergeDeclarations } from './merge';
 export { collectDslNames, NO_NAMES, unionNames } from './names';
 export { runPassOne } from './pass-one';
 export type { PassTwoOptions } from './pass-two';

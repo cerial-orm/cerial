@@ -392,7 +392,7 @@ export interface WatcherOptions {
   readImports?: ImportReader;
 }
 
-/** True when the entry's TypeScript modules are what generation imports: some exist and no `.cerial` file does */
+/** True when generation imports the entry's TypeScript modules, whether or not `.cerial` files sit beside them */
 export async function holdsTypescriptModules(
   target: WatchTargetBase & { entry?: string; files?: string[] },
 ): Promise<boolean> {
@@ -402,7 +402,7 @@ export async function holdsTypescriptModules(
   try {
     const files = await resolveSinglePath(target.schemaPath, process.cwd(), target.filter);
 
-    return files.some(isTypescriptSchemaFile) && !files.some((f) => f.endsWith('.cerial'));
+    return files.some(isTypescriptSchemaFile);
   } catch {
     return false;
   }

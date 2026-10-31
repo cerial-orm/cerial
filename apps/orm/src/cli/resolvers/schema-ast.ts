@@ -8,7 +8,16 @@ import { resolveInheritance } from '../../resolver';
 import type { SchemaAST } from '../../types';
 import type { PathFilter } from '../filters';
 import { toFilterPath } from '../filters/path-utils';
-import { emptyAst, runPassOne, runPassThree, runPassTwo } from '../passes';
+import type { NameSets } from '../passes';
+import {
+  collectDslNames,
+  emptyAst,
+  mergeDeclarations,
+  NO_NAMES,
+  runPassOne,
+  runPassThree,
+  runPassTwo,
+} from '../passes';
 import { logger } from '../utils';
 import type { SchemaValidationError } from '../validators';
 import { validateDuplicateNames, validateExtends } from '../validators';
@@ -33,7 +42,7 @@ export interface SchemaAstOptions {
 export interface SchemaAstResult {
   /** `.cerial` files only; these are the ones read and parsed */
   schemaFiles: string[];
-  /** `*.schema.ts` modules found for the entry; never read, imported or parsed here */
+  /** TypeScript schema modules found for the entry; with `.cerial` files beside them they are merged in */
   typescriptFiles: string[];
   schemaContents: Array<{ path: string; content: string }>;
   /** `path:line: message` per parse error; when non-empty the AST fields below are empty */
@@ -141,13 +150,6 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     );
   }
 
-  const explicitTypescript = [...(entry ? [entry] : []), ...listedTypescript];
-  if (explicitTypescript.length && schemaFiles.length) {
-    throw new CerialGenerationError(
-      `Schema module ${explicitTypescript[0]} is set in the config, but the schema also holds ${schemaFiles.length} .cerial file(s). Combining the two forms is not supported yet: use only .cerial files or only TypeScript modules.`,
-    );
-  }
-
   // Handles exist only while the entry mixes both forms; any other entry drops a stale one this generator wrote
   const mixing = !!schemaFiles.length && !!typescriptFiles.length;
   const root = handlesRoot(scopeDir, [...schemaFiles, ...typescriptFiles]);
@@ -193,11 +195,6 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     return validateAndResolve(result, combinedAST);
   }
 
-  if (typescriptFiles.length) {
-    // Merging the two forms is not done here, and a `user.schema.ts` beside `.cerial` files may not be a Cerial schema
-    logger.info('The entry also holds .cerial files, so its TypeScript schema modules are not imported');
-  }
-
   logger.info(`Found ${schemaFiles.length} schema file(s)`);
   if (options.verbose) {
     schemaFiles.forEach((f) => logger.debug(`  - ${f}`));
@@ -215,17 +212,39 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   );
   result.schemaContents = schemaContents;
 
-  // Pass 1 writes the handles; TypeScript modules are not imported for a mixed entry yet, so pass 3 sees
-  // only the names the .cerial files declare
-  if (mixing) await runPassOne(schemaContents, root);
+  // Pass 1 writes the handles the TypeScript modules may import, so it runs before they are imported
+  const handlesAst = mixing ? await runPassOne(schemaContents, root) : emptyAst();
 
-  const parsed = runPassThree(schemaContents);
+  let declared: NameSets = NO_NAMES;
+  let typescriptAST = emptyAst();
+  if (mixing) {
+    logger.progress('Loading TypeScript schema modules...');
+    const dsl = collectDslNames(schemaContents);
+    typescriptAST = materialise(
+      await runPassTwo(typescriptFiles, {
+        entries: entry ? [entry] : [],
+        excludes: filter ? isExcluded : undefined,
+        handles: { root, ast: handlesAst },
+      }),
+      { object: dsl.objects, tuple: dsl.tuples, literal: [...dsl.literals, ...dsl.enums] },
+    );
+    declared = {
+      objects: new Set(typescriptAST.objects.map((o) => o.name)),
+      tuples: new Set(typescriptAST.tuples.map((t) => t.name)),
+      literals: new Set(typescriptAST.literals.map((l) => l.name)),
+      enums: new Set(typescriptAST.enums.map((e) => e.name)),
+    };
+  }
+
+  const parsed = runPassThree(schemaContents, declared);
   result.parseErrors.push(...parsed.errors);
   result.combinedAST = parsed.ast;
 
   if (result.parseErrors.length) return result;
 
-  return validateAndResolve(result, parsed.ast);
+  result.combinedAST = mixing ? mergeDeclarations(parsed.ast, typescriptAST) : parsed.ast;
+
+  return validateAndResolve(result, result.combinedAST);
 }
 
 function hasDeclarations(ast: SchemaAST): boolean {

@@ -15,6 +15,14 @@ describe('watching an entry module', () => {
     expect(await holdsTypescriptModules({ schemaPath: dir, entry: `${dir}/schema.ts` })).toBe(true);
   });
 
+  it('treats a folder mixing *.schema.ts and .cerial as TypeScript, since generation imports the modules', async () => {
+    const dir = await tempProject({ 'a.cerial': 'model A {\n  id Record @id\n}\n', 'x.schema.ts': 'export {};\n' });
+    const cerialOnly = await tempProject({ 'a.cerial': 'model A {\n  id Record @id\n}\n' });
+
+    expect(await holdsTypescriptModules({ schemaPath: dir })).toBe(true);
+    expect(await holdsTypescriptModules({ schemaPath: cerialOnly })).toBe(false);
+  });
+
   it('triggers on a plainly named module the entry may import', () => {
     expect(shouldTriggerRegeneration('users/user.ts', undefined, scope)).toBe(true);
     expect(shouldTriggerRegeneration('schema.ts', undefined, scope)).toBe(true);

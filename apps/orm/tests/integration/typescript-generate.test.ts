@@ -113,7 +113,7 @@ describe('TypeScript-only entry', () => {
 });
 
 describe('entry holding both forms', () => {
-  it('parses the .cerial files and never imports the TypeScript modules', async () => {
+  it('parses the .cerial files and imports the TypeScript modules, which declare nothing', async () => {
     const built = await buildResolvedSchemaAst({ schemaPath: await copyOf('mixed') });
 
     expect(built.schemaFiles).toHaveLength(1);

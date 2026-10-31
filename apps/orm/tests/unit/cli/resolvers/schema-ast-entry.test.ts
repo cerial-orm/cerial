@@ -84,7 +84,7 @@ describe('buildResolvedSchemaAst with an entry', () => {
     expect(error.message).toContain('defineSchema');
   });
 
-  it('refuses an entry set beside .cerial files, naming the entry', async () => {
+  it('merges an entry set beside .cerial files', async () => {
     const dir = await tempProject({
       'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
       'src/schema.ts': entryModule(['User']),
@@ -92,17 +92,29 @@ describe('buildResolvedSchemaAst with an entry', () => {
     });
     const entry = join(dir, 'src/schema.ts');
 
-    const error = await refusal(buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas'), entry }));
+    const built = await buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas'), entry });
 
-    expect(error.message).toContain(entry);
-    expect(error.message).toContain('.cerial');
+    expect(built.parseErrors).toEqual([]);
+    expect(built.typescriptFiles).toEqual([entry]);
+    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['A', 'User']);
   });
 
-  it('still leaves a convention *.schema.ts beside .cerial files unimported, without an explicit entry', async () => {
+  it('imports a convention *.schema.ts beside .cerial files, and follows it when it is an entry', async () => {
     const dir = await tempProject({
       'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
       'schemas/cerial.schema.ts': entryModule(['User']),
       'schemas/user.ts': modelModule('User'),
+    });
+
+    const built = await buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas') });
+
+    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['A', 'User']);
+  });
+
+  it('lets a convention module with no declaration sit beside .cerial files', async () => {
+    const dir = await tempProject({
+      'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
+      'schemas/validation.schema.ts': "export const rule = 'not a schema';\n",
     });
 
     const built = await buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas') });
