@@ -1,17 +1,22 @@
 import type { ASTDecorator, ASTTuple, ASTTupleElement, SchemaFieldType } from '../../types';
+import { CerialGenerationError } from '../../errors';
 import { createTuple, createTupleElement } from '../types/ast';
 import { FIELD_TYPE_REGISTRY } from '../registry';
 import type { DecoratorEntry, RegisteredDecorator } from '../registry';
 import { BUILDER_RANGE, createChain } from './chain';
 import { bareName, chainEntries } from './entries';
 import { referenceName } from './handle';
-import type { PrivateKeys, PrivateMark, Reference } from './handle';
+import type { PrivateMark, Reference } from './handle';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 import { sharedWeakMap } from './shared-state';
 
 declare const ELEMENT: unique symbol;
+declare const ELEMENT_NAME: unique symbol;
+
+/** Type-only: the name `.named()` gave an element, `never` for an unnamed one. */
+type NamedMark<Name extends string> = [Name] extends [never] ? unknown : { readonly [ELEMENT_NAME]: Name };
 
 /** What `tuple(...)` accepts as an element; a self-reference that is not yet nullable does not carry it. */
 export interface Element {
@@ -23,14 +28,24 @@ export interface Element {
  * so `@uuid` and the other decorators a tuple element refuses are absent. There is no `optional()`: the
  * schema validator rejects `?` on every element, because SurrealDB returns null for an absent position.
  */
-export type ElementBuilder<E extends DecoratorEntry = RegisteredDecorator, Hidden extends boolean = false> = Element & {
+export type ElementBuilder<
+  E extends DecoratorEntry = RegisteredDecorator,
+  Hidden extends boolean = false,
+  Name extends string = never,
+> = Element & {
   readonly [X in ChainEntry<E, 'tupleElement', 'plain'> as BareName<X['name']>]: (
     ...args: MethodArgs<X['args']>
-  ) => ElementBuilder<Remaining<E, X>, Hidden>;
+  ) => ElementBuilder<Remaining<E, X>, Hidden, Name>;
 } & {
   /** `!!private`: hidden from the client's output types, and a child cannot redeclare it. */
-  private(): ElementBuilder<E, true>;
-} & PrivateMark<Hidden>;
+  private(): ElementBuilder<E, true, Name>;
+  /**
+   * Name this element in the array form, so a tuple can mix named and unnamed elements. The record form
+   * already names its elements by key and refuses a name given here.
+   */
+  named<N extends string>(name: N): ElementBuilder<E, Hidden, N>;
+} & PrivateMark<Hidden> &
+  NamedMark<Name>;
 
 type NullableEntry = Extract<RegisteredDecorator, { readonly name: '@nullable' }>;
 
@@ -72,6 +87,7 @@ interface ElementSpec {
 interface ElementState {
   readonly spec: ElementSpec;
   readonly isPrivate: boolean;
+  readonly name?: string;
   readonly chain: ChainRuntime;
 }
 
@@ -83,10 +99,17 @@ interface ChainRuntime {
 // Read only by `tupleNode`, so a builder carries nothing but its public methods.
 const STATES = sharedWeakMap<ElementState>('tuple.states');
 
+// A digit-only name is what the record form refuses as a key, and no identifier starts with a digit
+function checkedName(name: unknown): string {
+  if (typeof name === 'string' && /^[A-Za-z_]\w*$/.test(name)) return name;
+  throw new CerialGenerationError(`An element name must be an identifier, got ${JSON.stringify(name)}`);
+}
+
 function builderOf(state: ElementState): object {
   const { spec } = state;
   const methods: Record<string, unknown> = {
     private: () => builderOf({ ...state, isPrivate: true }),
+    named: (name: unknown) => builderOf({ ...state, name: checkedName(name) }),
   };
   for (const entry of chainEntries('tupleElement')) {
     const name = bareName(entry.name);
@@ -154,8 +177,37 @@ export interface TupleOptions<Parent extends string = string, Reserved extends s
   readonly extends?: ExtendsTarget<Parent, Reserved>;
 }
 
-/** The element names a tuple body declares: none for a positional body. */
-type NamesOf<Elements extends TupleElements> = Elements extends readonly Element[] ? never : keyof Elements & string;
+/** The name `.named()` gave an element, or `never`. */
+type NameOf<El> = El extends { readonly [ELEMENT_NAME]: infer N extends string } ? N : never;
+
+/** The element names a tuple body declares: its keys, or what `.named()` gave the elements of an array. */
+type NamesOf<Elements extends TupleElements> = Elements extends readonly Element[]
+  ? NameOf<Elements[number]>
+  : keyof Elements & string;
+
+/** The names of the elements marked `.private()`. */
+type PrivateNamesOf<Elements extends TupleElements> = Elements extends readonly Element[]
+  ? Elements[number] extends infer El
+    ? El extends PrivateMark<true>
+      ? NameOf<El>
+      : never
+    : never
+  : {
+      [K in keyof Elements & string]: Elements[K] extends PrivateMark<infer H>
+        ? [H] extends [true]
+          ? K
+          : never
+        : never;
+    }[keyof Elements & string];
+
+/** The record form names by key, so a `.named()` element there is refused with the offending key in the message. */
+type NoNamedInRecord<Elements extends TupleElements> = Elements extends readonly Element[]
+  ? unknown
+  : {
+      readonly [K in keyof Elements]: [NameOf<Elements[K]>] extends [never]
+        ? unknown
+        : `'${K & string}' is named by its key; drop .named()`;
+    };
 
 /**
  * Declare a tuple type. Element order is position, and a named element is also reachable by index, so a
@@ -164,27 +216,21 @@ type NamesOf<Elements extends TupleElements> = Elements extends readonly Element
  */
 export function tuple<
   Name extends string,
-  Elements extends TupleElements,
+  // const keeps each array element's own type; a plain array would reduce them to one and lose their names
+  const Elements extends TupleElements,
   Parent extends string = never,
   Reserved extends string = never,
 >(
   name: Name,
-  elements: Elements & NoPrivateOverride<NoInfer<Elements>, Reserved>,
+  elements: Elements & NoPrivateOverride<NoInfer<Elements>, Reserved> & NoNamedInRecord<NoInfer<Elements>>,
   options: TupleOptions<Parent, Reserved> = {},
-): Extendable<
-  Name,
-  never,
-  NamesOf<Elements>,
-  NamesOf<Elements> | Parent,
-  PrivateKeys<Elements extends readonly Element[] ? object : Elements> | Reserved,
-  number
-> {
+): Extendable<Name, never, NamesOf<Elements>, NamesOf<Elements> | Parent, PrivateNamesOf<Elements> | Reserved, number> {
   const handle = extendable<
     Name,
     never,
     NamesOf<Elements>,
     NamesOf<Elements> | Parent,
-    PrivateKeys<Elements extends readonly Element[] ? object : Elements> | Reserved,
+    PrivateNamesOf<Elements> | Reserved,
     number
   >(name);
   recordExtends(handle, options.extends);
@@ -193,9 +239,14 @@ export function tuple<
   return handle;
 }
 
-function elementNode(builder: Element, tupleName: string, name?: string): ASTTupleElement {
+function elementNode(builder: Element, tupleName: string, key?: string): ASTTupleElement {
   const state = STATES.get(builder);
   if (!state) throw new Error(`Not a tuple element builder: ${String(builder)}`);
+  if (key !== undefined && state.name !== undefined) {
+    throw new CerialGenerationError(
+      `Tuple ${tupleName}: element '${key}' is named by its key, so .named('${state.name}') is not allowed there`,
+    );
+  }
   const { spec } = state;
   // Only field decorators chain on a tuple element; a directive never reaches here
   const decorators = state.chain.decorators().filter((node): node is ASTDecorator => 'type' in node);
@@ -204,7 +255,7 @@ function elementNode(builder: Element, tupleName: string, name?: string): ASTTup
   return createTupleElement(
     spec.type,
     false,
-    name,
+    key ?? state.name,
     spec.objectReference && referenceName(spec.objectReference),
     tupleRef,
     decorators,
@@ -218,6 +269,15 @@ export function tupleNode(handle: object): ASTTuple {
   const declared = NODES.get(handle);
   if (!declared) throw new Error(`Not a tuple handle: ${String(handle)}`);
   const { name, elements } = declared;
+  // Integer-like keys are moved to the front of an object by the language, which would reorder positions
+  const reordered = Array.isArray(elements)
+    ? undefined
+    : Object.keys(elements).find((key) => /^(0|[1-9]\d*)$/.test(key));
+  if (reordered !== undefined) {
+    throw new CerialGenerationError(
+      `Tuple ${name}: key '${reordered}' is integer-like and JavaScript would reorder it; give the element a name, or use the array form with .named()`,
+    );
+  }
   const nodes = Array.isArray(elements)
     ? (elements as readonly Element[]).map((element) => elementNode(element, name))
     : Object.entries(elements).map(([key, element]) => elementNode(element as Element, name, key));

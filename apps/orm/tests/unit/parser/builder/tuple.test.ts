@@ -86,6 +86,110 @@ describe('tuple builder', () => {
     });
   });
 
+  describe('.named() in the array form', () => {
+    const MIXED = 'tuple Entry {\n  label String,\n  Int,\n  flag Bool\n}\n';
+
+    test('mixed named and unnamed elements match the parser, and an unnamed one has no name key', () => {
+      const node = tupleNode(tuple('Entry', [e.string().named('label'), e.int(), e.bool().named('flag')]));
+
+      expectSame(node, MIXED);
+      expect(node.elements.map((element) => 'name' in element)).toEqual([true, false, true]);
+    });
+
+    test('a name set anywhere in the chain is kept by the calls after it and by private', () => {
+      const node = tupleNode(
+        tuple('T', [
+          e.float().named('a').nullable(),
+          e.float().nullable().named('b'),
+          e.float().named('c').nullable().private(),
+          e.self().nullable().named('d'),
+        ]),
+      );
+
+      expectSame(
+        node,
+        'tuple T {\n  a Float @nullable,\n  b Float @nullable,\n  c Float @nullable !!private,\n  d T @nullable\n}\n',
+      );
+    });
+
+    test('naming is immutable: the builder it was called on stays unnamed', () => {
+      const base = e.string();
+      const named = base.named('x');
+      const node = tupleNode(tuple('T', [base, named]));
+
+      expect(node.elements.map((element) => 'name' in element)).toEqual([false, true]);
+    });
+
+    test('the object, tuple and literal factories take a name too', () => {
+      const node = tupleNode(
+        tuple('T', [e.object('A').named('o'), e.tuple('B').named('t'), e.literal('C').named('l')]),
+      );
+
+      const source =
+        "object A {\n  x Int\n}\ntuple B {\n  Int\n}\nliteral C { 'a' }\ntuple T {\n  o A,\n  t B,\n  l C\n}\n";
+
+      expectSame(node, source, 1);
+    });
+
+    test('names from the array form join pick and omit, by name and by position', () => {
+      const Base = tuple('Entry', [e.string().named('label'), e.int(), e.bool().named('flag')]);
+      const source = `${MIXED}tuple Picked extends Entry[label, 1] { }
+tuple Omitted extends Entry[!flag] { }`;
+
+      expectSame(tupleNode(Base), source, 0);
+      expectSame(tupleNode(tuple('Picked', [], { extends: Base.pick('label', 1) })), source, 1);
+      expectSame(tupleNode(tuple('Omitted', [], { extends: Base.omit('flag') })), source, 2);
+    });
+
+    test('negative: a pick or omit of a name the array form never gave does not compile', () => {
+      const Base = tuple('Entry', [e.string().named('label'), e.int()]);
+
+      // @ts-expect-error `missing` names no element
+      expect(Base.pick('missing').fields).toEqual(['missing']);
+      // @ts-expect-error `missing` names no element
+      expect(Base.omit('missing').fields).toEqual(['missing']);
+    });
+
+    test('a private named element is tracked: omitting it is fine, redeclaring it is the validator call', () => {
+      const Base = tuple('Entry', [e.string().named('secret').private(), e.int()]);
+      // @ts-expect-error the parent holds `secret` as private, so a child cannot declare it in the record form
+      const clash = tuple('Clash', { secret: e.string() }, { extends: Base });
+
+      expect(tupleNode(tuple('Free', [], { extends: Base.omit('secret') })).extendsFilter).toEqual({
+        mode: 'omit',
+        fields: ['secret'],
+      });
+      expect(clash.name).toBe('Clash');
+    });
+
+    test('negative: a name from .named() in the record form is refused, at the type and at runtime', () => {
+      // @ts-expect-error the record key already names the element
+      const both = tuple('Both', { x: e.float().named('y') });
+
+      expect(() => tupleNode(both)).toThrow("element 'x' is named by its key");
+    });
+
+    test('negative: a name that is not an identifier is refused, including a digit-only one', () => {
+      for (const bad of ['', '1', '0', 'a b', 'a-b']) expect(() => e.int().named(bad)).toThrow('must be an identifier');
+      expect(() => e.int().named(3 as never)).toThrow('must be an identifier');
+    });
+  });
+
+  describe('integer-like keys in the record form', () => {
+    test('are refused rather than silently moved to the front', () => {
+      const reordered = tuple('Reorder', { label: e.string(), 1: e.float() });
+
+      expect(Object.keys(reordered)).toEqual(['name']);
+      expect(() => tupleNode(reordered)).toThrow("key '1' is integer-like");
+    });
+
+    test('a key that merely starts with a digit-free name or contains digits is not integer-like', () => {
+      const node = tupleNode(tuple('T', { x1: e.int(), _2: e.int(), a0: e.int() }));
+
+      expectSame(node, 'tuple T {\n  x1 Int,\n  _2 Int,\n  a0 Int\n}\n');
+    });
+  });
+
   describe('element types', () => {
     test.each(SIMPLE.map((entry) => [entry.name, entry.fieldType] as const))('%s matches the parser', (name, type) => {
       const make = e[type as keyof typeof e] as () => object;
