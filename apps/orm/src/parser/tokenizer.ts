@@ -169,6 +169,9 @@ function readNumber(state: TokenizerState): CerialToken {
   return createToken('number', value, pos);
 }
 
+/** The whole-string form of the rule `readIdentifier` applies, for names that arrive other than as text. */
+export const IDENTIFIER_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
 /** Read identifier or keyword */
 function readIdentifier(state: TokenizerState): CerialToken {
   const pos = getPosition(state);

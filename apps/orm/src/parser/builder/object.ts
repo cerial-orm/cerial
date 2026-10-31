@@ -1,6 +1,7 @@
 import type { ASTObject } from '../../types';
 import { createObject } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
+import { checkedIdentifier, checkedKeys } from './identifier';
 import { fieldNode } from './field';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
@@ -39,6 +40,8 @@ export function object<
   fields: Fields & NoPrivateOverride<NoInfer<Fields>, Reserved>,
   options: ObjectOptions<Parent, Reserved> = {},
 ): Extendable<Name, never, keyof Fields & string, (keyof Fields & string) | Parent, PrivateKeys<Fields> | Reserved> {
+  checkedIdentifier('object', name);
+  checkedKeys('object field', fields);
   const handle = extendable<
     Name,
     never,

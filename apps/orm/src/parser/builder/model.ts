@@ -1,6 +1,7 @@
 import type { ASTModel } from '../../types';
 import { createModel } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
+import { checkedIdentifier, checkedKeys } from './identifier';
 import { fieldNode } from './field';
 import type { IdOf } from './field';
 import { foreignKeyOf, isRelationBuilder, relationNodes } from './relation';
@@ -82,6 +83,8 @@ export function model<
   fields: Fields & NoPrivateOverride<NoInfer<Fields>, Reserved>,
   options: ModelOptions<MembersOf<Fields> | NoInfer<Parent>, Parent, Reserved> = {},
 ): Extendable<Name, IdOf<Fields>, MembersOf<Fields>, MembersOf<Fields> | Parent, PrivateKeys<Fields> | Reserved> {
+  checkedIdentifier('model', name);
+  checkedKeys('model field', fields);
   const handle = extendable<
     Name,
     IdOf<Fields>,

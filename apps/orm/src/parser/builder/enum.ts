@@ -4,9 +4,9 @@ import { BUILDER_RANGE } from './chain';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, VisibleOf } from './extends';
 import type { LiteralHandle } from './literal';
+import { checkedIdentifier } from './identifier';
+import { IDENTIFIER_PATTERN } from '../tokenizer';
 import { numberDeclaration, sharedWeakMap } from './shared-state';
-
-const IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
 interface EnumDefinition {
   readonly name: string;
@@ -36,9 +36,10 @@ export function enumeration<
   values: V,
   options: { readonly extends?: Target } = {},
 ): LiteralHandle<Name, true> & Extendable<Name, never, V[number], V[number] | VisibleOf<Target>> {
+  checkedIdentifier('enum', name);
   // Same rule as the parser: bare identifiers, never a boolean word, which also keeps quotes and separators out
   for (const value of values) {
-    if (typeof value !== 'string' || !IDENTIFIER.test(value) || value === 'true' || value === 'false') {
+    if (typeof value !== 'string' || !IDENTIFIER_PATTERN.test(value) || value === 'true' || value === 'false') {
       throw new Error(`Enum ${name}: invalid value '${value}'. Values must be valid identifiers`);
     }
   }

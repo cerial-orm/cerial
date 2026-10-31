@@ -6,6 +6,7 @@ import { chainToken } from './argument-source';
 import { BUILDER_RANGE, createChain } from './chain';
 import { bareName, chainEntries } from './entries';
 import { REFUSED_ON_RELATION } from './exposure';
+import { checkedIdentifier } from './identifier';
 import { referenceName } from './handle';
 import type { PrivateMark, Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
@@ -143,7 +144,7 @@ function decoratorNode(name: DecoratorName, arg?: string): ASTDecorator {
 
 function builderOf(state: RelationState): object {
   const methods: Record<string, unknown> = {
-    field: (name: string) => builderOf({ ...state, foreignKey: name }),
+    field: (name: string) => builderOf({ ...state, foreignKey: checkedIdentifier('foreign key', name) }),
     array: () => builderOf({ ...state, isArray: true }),
     optional: () => builderOf({ ...state, isOptional: true }),
     private: () => builderOf({ ...state, isPrivate: true }),

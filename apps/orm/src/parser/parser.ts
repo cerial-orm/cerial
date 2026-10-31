@@ -20,7 +20,7 @@ import type {
 } from '../types';
 import { removeComments } from '../utils/string-utils';
 import { lex } from './lexer';
-import { tokenize } from './tokenizer';
+import { IDENTIFIER_PATTERN, tokenize } from './tokenizer';
 import {
   createEnum,
   createLiteral,
@@ -940,7 +940,7 @@ function parseEnumValues(content: string, enumName: string, state: ParserState):
     }
 
     // Must be a valid identifier
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cleaned)) {
+    if (!IDENTIFIER_PATTERN.test(cleaned)) {
       addError(state, `Enum ${enumName}: invalid value '${cleaned}'. Values must be valid identifiers`);
       continue;
     }

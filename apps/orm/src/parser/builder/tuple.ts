@@ -5,6 +5,7 @@ import { FIELD_TYPE_REGISTRY } from '../registry';
 import type { DecoratorEntry, RegisteredDecorator } from '../registry';
 import { BUILDER_RANGE, createChain } from './chain';
 import { bareName, chainEntries } from './entries';
+import { checkedIdentifier } from './identifier';
 import { referenceName } from './handle';
 import type { PrivateMark, Reference } from './handle';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
@@ -96,20 +97,16 @@ interface ChainRuntime {
   [method: string]: (...args: unknown[]) => unknown;
 }
 
+const INTEGER_KEY = /^(0|[1-9]\d*)$/;
+
 // Read only by `tupleNode`, so a builder carries nothing but its public methods.
 const STATES = sharedWeakMap<ElementState>('tuple.states');
-
-// A digit-only name is what the record form refuses as a key, and no identifier starts with a digit
-function checkedName(name: unknown): string {
-  if (typeof name === 'string' && /^[A-Za-z_]\w*$/.test(name)) return name;
-  throw new CerialGenerationError(`An element name must be an identifier, got ${JSON.stringify(name)}`);
-}
 
 function builderOf(state: ElementState): object {
   const { spec } = state;
   const methods: Record<string, unknown> = {
     private: () => builderOf({ ...state, isPrivate: true }),
-    named: (name: unknown) => builderOf({ ...state, name: checkedName(name) }),
+    named: (name: unknown) => builderOf({ ...state, name: checkedIdentifier('tuple element', name) }),
   };
   for (const entry of chainEntries('tupleElement')) {
     const name = bareName(entry.name);
@@ -225,6 +222,11 @@ export function tuple<
   elements: Elements & NoPrivateOverride<NoInfer<Elements>, Reserved> & NoNamedInRecord<NoInfer<Elements>>,
   options: TupleOptions<Parent, Reserved> = {},
 ): Extendable<Name, never, NamesOf<Elements>, NamesOf<Elements> | Parent, PrivateNamesOf<Elements> | Reserved, number> {
+  checkedIdentifier('tuple', name);
+  // An integer-like key is left to `tupleNode`, whose message says to name the element instead
+  if (!Array.isArray(elements)) {
+    for (const key of Object.keys(elements)) if (!INTEGER_KEY.test(key)) checkedIdentifier('tuple element', key);
+  }
   const handle = extendable<
     Name,
     never,
@@ -271,9 +273,7 @@ export function tupleNode(handle: object): ASTTuple {
   if (!declared) throw new Error(`Not a tuple handle: ${String(handle)}`);
   const { name, elements } = declared;
   // Integer-like keys are moved to the front of an object by the language, which would reorder positions
-  const reordered = Array.isArray(elements)
-    ? undefined
-    : Object.keys(elements).find((key) => /^(0|[1-9]\d*)$/.test(key));
+  const reordered = Array.isArray(elements) ? undefined : Object.keys(elements).find((key) => INTEGER_KEY.test(key));
   if (reordered !== undefined) {
     throw new CerialGenerationError(
       `Tuple ${name}: key '${reordered}' is integer-like and JavaScript would reorder it; give the element a name, or use the array form with .named()`,

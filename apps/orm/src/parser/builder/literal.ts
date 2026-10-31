@@ -1,6 +1,7 @@
 import type { ASTLiteral, ASTLiteralVariant } from '../../types';
 import { createLiteral } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
+import { checkedIdentifier } from './identifier';
 import { getVariantIdentity } from '../../resolver';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsFiltered, ExtendsTarget, VisibleOf } from './extends';
@@ -154,6 +155,7 @@ export function literal<
   VariantIdentity<V[number]>,
   VariantIdentity<V[number]> | VisibleOf<Target>
 > {
+  checkedIdentifier('literal', name);
   const handle = extendable(name);
   recordExtends(handle, options.extends);
   DEFINITIONS.set(handle, { name, variants });
