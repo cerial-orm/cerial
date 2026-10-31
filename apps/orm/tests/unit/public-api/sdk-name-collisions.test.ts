@@ -46,6 +46,14 @@ describe('public API: no name collides with the surrealdb SDK', () => {
     expect(names.has('CerialValidationIssue')).toBe(true);
   });
 
+  test('the sql tag is exported, and the SDK keeps its own surql tag', async () => {
+    const names = await exportedNames();
+
+    expect(names.has('sql')).toBe(true);
+    expect(names.has('SqlFragment')).toBe(true);
+    expect(names.has('surql')).toBe(false);
+  });
+
   test('the parser is not fooled by an aliased re-export', async () => {
     const names = await exportedNames();
 

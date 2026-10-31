@@ -33,9 +33,10 @@ export {
 export type { QueryResultType, TransactionArrayItem } from './cerial-query-promise';
 // CerialQueryPromise
 export { CerialQueryPromise } from './cerial-query-promise';
-export type { CompiledQuery, QueryFragment, QueryVars, VarBinding } from './compile';
+export type { CompiledQuery, QueryFragment, QueryVars, SqlFragment, VarBinding } from './compile';
 // Compile primitives
 export {
+  compileFragment,
   createCompileContext,
   createEmptyQuery,
   createFragment,
@@ -43,8 +44,10 @@ export {
   EMPTY_FRAGMENT,
   fragmentToQuery,
   isEmptyFragment,
+  isSqlFragment,
   joinFragments,
   mergeFragments,
+  sql,
   wrapParens,
 } from './compile';
 export type { ExecuteOptions, TransactionExecutionItem, TransactionItem } from './executor';
