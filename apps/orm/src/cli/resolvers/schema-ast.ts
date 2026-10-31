@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { dirname, isAbsolute, resolve } from 'node:path';
+import { dirname, isAbsolute, resolve, sep } from 'node:path';
 import { CerialGenerationError } from '../../errors';
 import {
   collectEnumNames,
@@ -10,6 +10,7 @@ import {
   parse,
 } from '../../parser/parser';
 import { loadDeclarations, materialise } from '../../parser/builder';
+import { syncHandles, withoutErroredDeclarations } from '../../generators/handles';
 import { resolveInheritance } from '../../resolver';
 import type { SchemaAST } from '../../types';
 import type { PathFilter } from '../filters';
@@ -64,6 +65,22 @@ function filterPathOf(file: string, bases: readonly string[]): string | undefine
   }
 
   return undefined;
+}
+
+/** The directory `cerial/handles.ts` lives under: the scope when one is given, else what every source shares */
+function handlesRoot(scopeDir: string | undefined, sources: readonly string[]): string {
+  if (scopeDir) return scopeDir;
+  const parts = sources.map((file) => dirname(resolve(file)).split(sep));
+  const first = parts[0] ?? [];
+  let shared = first.length;
+  for (const other of parts) {
+    shared = Math.min(shared, other.length);
+    for (let i = 0; i < shared; i++) {
+      if (other[i] !== first[i]) shared = i;
+    }
+  }
+
+  return first.slice(0, shared).join(sep) || sep;
 }
 
 /** Resolve an entry's schema files, parse them with cross-file name context, validate extends and resolve inheritance */
@@ -136,6 +153,11 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
       `Schema module ${explicitTypescript[0]} is set in the config, but the schema also holds ${schemaFiles.length} .cerial file(s). Combining the two forms is not supported yet: use only .cerial files or only TypeScript modules.`,
     );
   }
+
+  // Handles exist only while the entry mixes both forms; any other entry drops a stale one this generator wrote
+  const mixing = !!schemaFiles.length && !!typescriptFiles.length;
+  const root = handlesRoot(scopeDir, [...schemaFiles, ...typescriptFiles]);
+  if (!mixing) await syncHandles(root, null);
 
   let combinedAST: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
   const result: SchemaAstResult = {
@@ -211,9 +233,22 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     for (const name of collectEnumNames(content)) allEnumNames.add(name);
   }
 
+  // These parses name only .cerial declarations, so a reference to a TypeScript-declared type
+  // fails here. The declarations that parsed whole still get their handles.
+  const handlesAst: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
+
   // Second pass: parse each schema with full object, tuple, literal, and enum name context
   for (const { path, content } of schemaContents) {
     const parseResult = parse(content, allObjectNames, allTupleNames, allLiteralNames, allEnumNames, path);
+
+    if (mixing) {
+      const whole = withoutErroredDeclarations(parseResult.ast, parseResult.errors);
+      handlesAst.models.push(...whole.models);
+      handlesAst.objects.push(...whole.objects);
+      handlesAst.tuples.push(...whole.tuples);
+      handlesAst.literals.push(...whole.literals);
+      handlesAst.enums.push(...whole.enums);
+    }
 
     if (parseResult.errors.length) {
       for (const error of parseResult.errors) {
@@ -228,6 +263,9 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     combinedAST.literals.push(...parseResult.ast.literals);
     combinedAST.enums.push(...parseResult.ast.enums);
   }
+
+  // Before any TypeScript module is imported, so the modules can import it
+  if (mixing) await syncHandles(root, handlesAst);
 
   if (result.parseErrors.length) return result;
 

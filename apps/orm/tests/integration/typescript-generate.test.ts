@@ -5,7 +5,7 @@
  */
 
 import { afterAll, describe, expect, it } from 'bun:test';
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { generateSingleSchema } from '../../src/cli/generate';
@@ -26,10 +26,18 @@ async function outputDir(base = tmpdir()): Promise<string> {
   return dir;
 }
 
+// A mixed entry gets `cerial/handles.ts` beside its sources, so it is generated from a copy, never in the repo
+async function copyOf(fixture: string): Promise<string> {
+  const copy = await outputDir();
+  await cp(join(FIXTURES, fixture), copy, { recursive: true });
+
+  return copy;
+}
+
 async function generateFrom(fixture: string, base?: string): Promise<{ result: GenerateResult; dir: string }> {
   const dir = await outputDir(base);
   const result = await generateSingleSchema({
-    schemaPath: join(FIXTURES, fixture),
+    schemaPath: fixture === 'mixed' ? await copyOf(fixture) : join(FIXTURES, fixture),
     outputDir: dir,
     logLevel: 'minimal',
   });
@@ -106,7 +114,7 @@ describe('TypeScript-only entry', () => {
 
 describe('entry holding both forms', () => {
   it('parses the .cerial files and never imports the TypeScript modules', async () => {
-    const built = await buildResolvedSchemaAst({ schemaPath: join(FIXTURES, 'mixed') });
+    const built = await buildResolvedSchemaAst({ schemaPath: await copyOf('mixed') });
 
     expect(built.schemaFiles).toHaveLength(1);
     expect(built.typescriptFiles).toHaveLength(1);
