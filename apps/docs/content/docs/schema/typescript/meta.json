@@ -2,6 +2,7 @@
   "title": "TypeScript Schemas",
   "pages": [
     "overview",
+    "choosing",
     "fields",
     "models",
     "relations",

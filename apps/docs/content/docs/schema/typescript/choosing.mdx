@@ -1,0 +1,62 @@
+---
+title: Choosing a Schema Form
+description: What you gain and give up by writing a schema in TypeScript instead of .cerial, and why the TypeScript form has no relations() block and still uses code generation.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+`.cerial` is the canonical way to write a Cerial schema. TypeScript is a supported peer, not a migration stage, but it gives up the Cerial tooling that reads `.cerial` text. This page covers that trade and two design choices a reader coming from Drizzle or Kysely will ask about.
+
+## What a TypeScript schema does not get
+
+Four pieces of tooling work on `.cerial` files and never see a TypeScript schema:
+
+- **`cerial format`** formats `.cerial` files. It skips TypeScript schema modules.
+- **Diagnostics** in the [VS Code extension](/extension) (parse errors and schema validators as you type) run on `.cerial` files only.
+- **Hover** documentation for field types and decorators appears in `.cerial` files only.
+- **Completion** of keywords, field types, decorators and `@model()` / `@field()` arguments works in `.cerial` files only.
+
+A TypeScript schema gets TypeScript's own tooling instead: the compiler's errors, your editor's completion, go-to-definition and rename across files, and your usual formatter. The builder also rejects many invalid combinations at compile time. Cross-model relation rules are still checked when you run `cerial generate`.
+
+## What "canonical" means for your project
+
+`.cerial` is the form that `cerial init` creates and the form this documentation leads with. It is the only one with a formatter, a syntax grammar and editor support, and the only one a non-TypeScript tool can read.
+
+In practice:
+
+- Choose `.cerial` for the stable core of a schema, the part you want tooling to understand and the team to read as plain text.
+- Choose TypeScript when the schema is generated, shared across packages, or derived from something else in your code, and you accept the tooling trade above.
+- A project uses one form per schema entry today. Both forms produce the same client.
+
+## Relations are declared inline
+
+There is no separate `relations()` block, unlike Drizzle. A relation is declared once, on the model that owns it, and Cerial derives the backing `Record` field from it:
+
+```typescript
+import { f, model } from 'cerial/schema';
+
+export const User = model('User', {
+  id: f.record().id(),
+  name: f.string(),
+});
+
+export const Post = model('Post', {
+  id: f.record().id(),
+  title: f.string(),
+  author: f.relation(User),
+});
+```
+
+`Post` ends up with an `authorId` key and an `author` relation, with no second declaration to keep in step. A separate block would bring back the two-halves problem in `.cerial`, where a key field and its relation must agree and validators exist to catch a mismatch.
+
+By default the key is derived, so it cannot disagree with its relation. `.field(name)` can instead bind the relation to a key the model declares or inherits. Then that key's declaration is yours to keep consistent with the relation, and the validator checks it when you generate. See [Relations](/schema/typescript/relations).
+
+## Code generation stays
+
+The builder describes the schema but does not infer types from it. `cerial generate` still writes the client and its types, in both forms.
+
+The types Cerial produces are not a direct mapping of the schema. They depend on the call: the shape of a result changes with `select` and `include`, filters differ per field type, and nested writes have their own input types. Generating them as text keeps those types readable and fast to check. Deriving them with generics inside the builder would be a second implementation of the same rules, kept in step with the generator by hand. The same generation step also gives both forms one client.
+
+Run `cerial generate` after changing a TypeScript schema, as you do for `.cerial`.
