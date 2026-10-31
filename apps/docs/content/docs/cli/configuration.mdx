@@ -96,12 +96,55 @@ Each schema entry accepts:
 
 | Field | Type | Description | Default |
 |---|---|---|---|
-| `path` | `string` | Path to schema file or directory | (required) |
-| `output` | `string` | Output directory for this schema's generated client | `{path}/client` |
+| `path` | `string` | Path to schema file or directory | Required unless `entry` is set |
+| `entry` | `string` | A TypeScript module exporting a `defineSchema()` result. See [Entry modules](#entry-modules) | |
+| `output` | `string` | Output directory for this schema's generated client | `{path}/client`, or `client` beside the entry module |
 | `connection` | `object` | [Connection config](/connection) for this schema | Inherits from root |
 | `ignore` | `string[]` | Absolute exclusion patterns. Nothing can override. | |
 | `exclude` | `string[]` | Exclusion patterns. Can be overridden by `include`. | |
 | `include` | `string[]` | Inclusion patterns. Overrides `exclude`/`.cerialignore` but not `ignore`. | |
+
+### Entry Modules
+
+A project that keeps schemas beside the code that uses them has no schema folder to point at. Point `entry` at one module instead. It lists the models with `defineSchema`, and every module it imports is registered, whatever the file is called:
+
+```typescript
+// src/schema.ts
+import { defineSchema } from 'cerial/schema';
+import { User } from './users/user';
+import { Post } from './posts/post';
+
+export default defineSchema({ models: [User, Post] });
+```
+
+```typescript
+// cerial.config.ts
+import { defineConfig } from 'cerial';
+
+export default defineConfig({
+  schemas: {
+    app: { entry: './src/schema.ts', output: './src/db' },
+  },
+});
+```
+
+With no config at all, a `cerial.schema.ts` at the project root is picked up as the entry.
+
+- `entry` can replace `path`, or sit beside it. With both, the declarations from each are combined.
+- Every model in the list must be an exported binding of a module the entry imports (`export const User = model(...)`). A `model()` call written inline in the list is refused.
+- Only value imports and re-exports are followed. `import type`, `export type` and dynamic `import()` are not, and neither are files under `node_modules`.
+- The `typescript` package, already a peer dependency of Cerial, must be installed.
+- An entry cannot be combined with `.cerial` files in the same schema; Cerial refuses it and names the entry.
+- Only a module that exports a `defineSchema()` result is followed. A plain `*.schema.ts` file keeps its imports unregistered.
+- `cerial generate --watch` regenerates when any `.ts` file in the entry's folder changes.
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+:::warning
+An entry module is ordinary code and runs when you generate, just as `cerial.config.ts` does. So does every module it imports. Generating from a schema you did not write runs that code.
+:::
 
 ### Output Directory Defaults
 
