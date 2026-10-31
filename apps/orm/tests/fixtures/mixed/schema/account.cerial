@@ -1,0 +1,33 @@
+# Typed by the four kinds the TypeScript half declares (Address, Point, Level, Role)
+model Account {
+  id Record(int) @id
+  name String
+  address Address
+  spot Point
+  tier Level
+  role Role
+  purchases Relation[] @model(Purchase)
+}
+
+# Declared here, used by the TypeScript model Purchase through its handle
+object Meta {
+  note String
+  weight Int
+}
+
+tuple Pair {
+  Int,
+  Int
+}
+
+literal Priority { 'low', 'high' }
+
+enum Status { OPEN, CLOSED }
+
+# Points at a TypeScript model by name
+model Ticket {
+  id Record(int) @id
+  title String
+  purchaseId Record?
+  purchase Relation? @field(purchaseId) @model(Purchase)
+}

@@ -3,5 +3,7 @@
   "compilerOptions": {
     // The package resolves itself to its built output, which lags the source the fixtures are checked against
     "paths": { "cerial/schema": ["./src/schema/index.ts"] }
-  }
+  },
+  // Imports `./cerial/handles`, which `cerial generate` writes into a temp copy and never into the repo
+  "exclude": ["node_modules", "tests/fixtures/mixed"]
 }
