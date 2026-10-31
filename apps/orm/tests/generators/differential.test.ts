@@ -9,7 +9,7 @@
  * to the declarations that module itself exports.
  */
 import { describe, expect, test } from 'bun:test';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { loadDeclarations, materialise } from '../../src/parser/builder';
 import { parse } from '../../src/parser/parser';
@@ -214,11 +214,19 @@ describe('the comparison itself', () => {
   });
 });
 
-describe('core/', () => {
-  test.each(['core/test-basics.cerial', 'core/test-basics-isolated.cerial'])('%s matches its twin', async (file) => {
-    expect(await differentialOf(join(SCHEMAS_DIR, file))).toEqual([]);
-  });
+for (const directory of readdirSync(TWINS_DIR).sort()) {
+  const files = readdirSync(join(SCHEMAS_DIR, directory))
+    .filter((file) => file.endsWith('.cerial'))
+    .sort();
 
+  describe(`${directory}/`, () => {
+    test.each(files)('%s matches its twin', async (file) => {
+      expect(await differentialOf(join(SCHEMAS_DIR, directory, file))).toEqual([]);
+    });
+  });
+}
+
+describe('the comparison', () => {
   test('a key added to a twin node is reported', async () => {
     const twin = await builtAst(twinPathOf(join(SCHEMAS_DIR, 'core/test-basics.cerial')));
     const parsed = parsedAst(join(SCHEMAS_DIR, 'core/test-basics.cerial'));
