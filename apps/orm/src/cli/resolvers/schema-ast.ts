@@ -2,19 +2,13 @@ import { existsSync, statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve, sep } from 'node:path';
 import { CerialGenerationError } from '../../errors';
-import {
-  collectEnumNames,
-  collectLiteralNames,
-  collectObjectNames,
-  collectTupleNames,
-  parse,
-} from '../../parser/parser';
-import { loadDeclarations, materialise } from '../../parser/builder';
-import { syncHandles, withoutErroredDeclarations } from '../../generators/handles';
+import { materialise } from '../../parser/builder';
+import { syncHandles } from '../../generators/handles';
 import { resolveInheritance } from '../../resolver';
 import type { SchemaAST } from '../../types';
 import type { PathFilter } from '../filters';
 import { toFilterPath } from '../filters/path-utils';
+import { emptyAst, runPassOne, runPassThree, runPassTwo } from '../passes';
 import { logger } from '../utils';
 import type { SchemaValidationError } from '../validators';
 import { validateDuplicateNames, validateExtends } from '../validators';
@@ -159,7 +153,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   const root = handlesRoot(scopeDir, [...schemaFiles, ...typescriptFiles]);
   if (!mixing) await syncHandles(root, null);
 
-  let combinedAST: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
+  let combinedAST: SchemaAST = emptyAst();
   const result: SchemaAstResult = {
     schemaFiles,
     typescriptFiles,
@@ -181,7 +175,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     // A TypeScript-only entry becomes the same AST the parser yields, so everything below runs unchanged
     logger.progress('Loading TypeScript schema modules...');
     combinedAST = materialise(
-      await loadDeclarations(typescriptFiles, {
+      await runPassTwo(typescriptFiles, {
         entries: entry ? [entry] : [],
         excludes: filter ? isExcluded : undefined,
       }),
@@ -221,55 +215,17 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   );
   result.schemaContents = schemaContents;
 
-  // Two-pass parsing: first collect all object, tuple, literal, and enum names across all files
-  const allObjectNames = new Set<string>();
-  const allTupleNames = new Set<string>();
-  const allLiteralNames = new Set<string>();
-  const allEnumNames = new Set<string>();
-  for (const { content } of schemaContents) {
-    for (const name of collectObjectNames(content)) allObjectNames.add(name);
-    for (const name of collectTupleNames(content)) allTupleNames.add(name);
-    for (const name of collectLiteralNames(content)) allLiteralNames.add(name);
-    for (const name of collectEnumNames(content)) allEnumNames.add(name);
-  }
+  // Pass 1 writes the handles; TypeScript modules are not imported for a mixed entry yet, so pass 3 sees
+  // only the names the .cerial files declare
+  if (mixing) await runPassOne(schemaContents, root);
 
-  // These parses name only .cerial declarations, so a reference to a TypeScript-declared type
-  // fails here. The declarations that parsed whole still get their handles.
-  const handlesAst: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
-
-  // Second pass: parse each schema with full object, tuple, literal, and enum name context
-  for (const { path, content } of schemaContents) {
-    const parseResult = parse(content, allObjectNames, allTupleNames, allLiteralNames, allEnumNames, path);
-
-    if (mixing) {
-      const whole = withoutErroredDeclarations(parseResult.ast, parseResult.errors);
-      handlesAst.models.push(...whole.models);
-      handlesAst.objects.push(...whole.objects);
-      handlesAst.tuples.push(...whole.tuples);
-      handlesAst.literals.push(...whole.literals);
-      handlesAst.enums.push(...whole.enums);
-    }
-
-    if (parseResult.errors.length) {
-      for (const error of parseResult.errors) {
-        result.parseErrors.push(`${path}:${error.position.line}: ${error.message}`);
-      }
-      continue;
-    }
-
-    combinedAST.models.push(...parseResult.ast.models);
-    combinedAST.objects.push(...parseResult.ast.objects);
-    combinedAST.tuples.push(...parseResult.ast.tuples);
-    combinedAST.literals.push(...parseResult.ast.literals);
-    combinedAST.enums.push(...parseResult.ast.enums);
-  }
-
-  // Before any TypeScript module is imported, so the modules can import it
-  if (mixing) await syncHandles(root, handlesAst);
+  const parsed = runPassThree(schemaContents);
+  result.parseErrors.push(...parsed.errors);
+  result.combinedAST = parsed.ast;
 
   if (result.parseErrors.length) return result;
 
-  return validateAndResolve(result, combinedAST);
+  return validateAndResolve(result, parsed.ast);
 }
 
 function hasDeclarations(ast: SchemaAST): boolean {
