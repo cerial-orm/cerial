@@ -137,7 +137,7 @@ export { Cerial as C };
 
 export type { RecordIdValue } from 'surrealdb';
 // SurrealDB SDK re-exports for typed ID support
-export { equals, escapeIdent, escapeIdPart, RecordId, StringRecordId, Table } from 'surrealdb';
+export { equals, RecordId, StringRecordId, Table } from 'surrealdb';
 export type {
   CLIOptions,
   GenerateResult,
