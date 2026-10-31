@@ -36,17 +36,17 @@ export function fragmentToExpr(fragment: unknown): Expr {
  * `ctx.def`. A where with keys that compiles to no condition refuses, because a subscription wider than the
  * caller asked for would notify about rows they meant to exclude.
  */
-export function modelWhereToExpr(
-  where: unknown,
-  metadata: ModelMetadata,
-  registry: ModelRegistry | undefined,
-): Expr | undefined {
-  if (where === undefined) return undefined;
+export function modelWhereToExpr(where: unknown, metadata: ModelMetadata, registry: ModelRegistry | undefined): Expr {
   if (!where || typeof where !== 'object' || Array.isArray(where)) {
     throw new CerialValidationError('$live: where must be an object', { model: metadata.name, operation: '$live' });
   }
   const clause = where as WhereClause;
-  if (!Object.keys(clause).length) return undefined;
+  if (!Object.keys(clause).length) {
+    throw new CerialValidationError(
+      `$live on ${metadata.name}: an empty where would watch every row; omit the where to do that`,
+      { model: metadata.name, operation: '$live' },
+    );
+  }
 
   const validation = validateWhere(clause, metadata, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, metadata, '$live');

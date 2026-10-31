@@ -200,4 +200,45 @@ describe('$live across a reconnect', () => {
     },
     60_000,
   );
+
+  // The documented recipe, measured: the same client disconnects and connects again inside the watch loop.
+  test.skipIf(!RESTARTABLE_CONTAINER)(
+    'after a server restart, disconnect then connect on the same client resubscribes and delivers',
+    async () => {
+      const direct = new CerialClient();
+      await direct.connect(config('ws://127.0.0.1:8000'));
+      const handle = await direct.$live('user');
+      const ended = handle.next().then(
+        () => undefined,
+        (error: unknown) => error,
+      );
+
+      await writer.disconnect().catch(() => {});
+      await restartContainer(RESTARTABLE_CONTAINER!);
+
+      const fresh = new CerialClient();
+      try {
+        await fresh.connect(config('ws://127.0.0.1:8000'));
+        await fresh.migrate();
+        expect(await within(10_000, ended)).toBeInstanceOf(CerialConnectionError);
+
+        await direct.disconnect();
+        await direct.connect(config('ws://127.0.0.1:8000'));
+        const resubscribed = await direct.$live('user');
+        try {
+          await fresh.db.User.create({ data: newUser() });
+          const heard = await within(5000, resubscribed.next());
+
+          expect(heard).not.toBe(SILENCE);
+          expect((heard as IteratorResult<{ action: string }>).value.action).toBe('CREATE');
+        } finally {
+          await resubscribed.kill().catch(() => {});
+        }
+      } finally {
+        await fresh.disconnect().catch(() => {});
+        await direct.disconnect().catch(() => {});
+      }
+    },
+    60_000,
+  );
 });

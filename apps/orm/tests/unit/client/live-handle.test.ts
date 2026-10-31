@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import type { LiveMessage, LiveSubscription, RecordId, Surreal } from 'surrealdb';
 import { LiveSubscriptionError } from 'surrealdb';
 import { CerialLiveHandle } from '../../../src/client/live';
+import { markSubscribeFailure } from '../../../src/client/live/live-handle';
 import { CerialConnectionError } from '../../../src/errors';
 
 type Listener = (...args: unknown[]) => void;
@@ -165,6 +166,31 @@ describe('CerialLiveHandle', () => {
     await expect(pending).rejects.toBeInstanceOf(CerialConnectionError);
     expect(handle.isAlive).toBe(false);
     expect(await handle.next()).toEqual({ value: undefined, done: true });
+  });
+
+  test('an error marked as a first-subscribe failure leaves the handle alive', async () => {
+    const { handle, emit } = open();
+    const failure = new LiveSubscriptionError('bad fragment');
+    // The driver publishes the event first and the caller's rejection after, so the mark lands later.
+    emit('error', failure);
+    markSubscribeFailure(failure);
+    await Bun.sleep(10);
+
+    expect(handle.isAlive).toBe(true);
+    await handle.kill();
+  });
+
+  test('a failed re-listen still ends the handle while a first subscribe fails at the same time', async () => {
+    const { handle, emit } = open();
+    const pending = handle.next();
+    const subscribeFailure = new LiveSubscriptionError('bad fragment');
+    const relistenFailure = new LiveSubscriptionError('relisten failed');
+    emit('error', subscribeFailure);
+    emit('error', relistenFailure);
+    markSubscribeFailure(subscribeFailure);
+
+    await expect(pending).rejects.toBeInstanceOf(CerialConnectionError);
+    expect(handle.isAlive).toBe(false);
   });
 
   test('queued notifications drain before the error is raised', async () => {

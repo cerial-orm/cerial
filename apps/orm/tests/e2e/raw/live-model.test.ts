@@ -126,6 +126,14 @@ describe('E2E Model.$live', () => {
       await expect(client.db.User.$live({ where: { name: undefined } })).rejects.toThrow(CerialValidationError);
     });
 
+    test('an empty where refuses instead of watching every row', async () => {
+      await expect(client.db.User.$live({ where: {} })).rejects.toThrow(CerialValidationError);
+    });
+
+    test('a where key holding undefined refuses instead of watching every row', async () => {
+      await expect(client.db.User.$live({ where: undefined })).rejects.toThrow(CerialValidationError);
+    });
+
     test('a hostile string in a typed where is bound and deletes nothing', async () => {
       const handle = track(await client.db.User.$live({ where: { name: "x'; DELETE user; --" } }));
       await client.db.User.create({ data: user(31, 'other') });
@@ -232,8 +240,8 @@ describe('E2E Model.$live', () => {
       expect((result as IteratorResult<{ value: { title: string } }>).value.value.title).toBe('keep');
     });
 
-    test('an empty where watches every row of the table only', async () => {
-      const handle = track(await own.db.User.$live({ where: {} }));
+    test('no options watches every row of the table only', async () => {
+      const handle = track(await own.db.User.$live());
       await own.db.Tag.create({ data: { name: 'elsewhere' } });
       await own.db.User.create({ data: user(41, 'mine') });
 

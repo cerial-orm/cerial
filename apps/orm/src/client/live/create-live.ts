@@ -1,10 +1,10 @@
-import { Table, type Expr, type Surreal } from 'surrealdb';
+import { LiveSubscriptionError, Table, type Expr, type Surreal } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type { SqlFragment } from '../../query/compile';
 import { wrapDatabaseError } from '../model/wrap-database-error';
 import { mapRecord } from '../../query/mappers';
 import type { ModelMetadata, ModelRegistry } from '../../types';
-import { CerialLiveHandle } from './live-handle';
+import { CerialLiveHandle, markSubscribeFailure } from './live-handle';
 import { fragmentToExpr, modelWhereToExpr } from './where-expr';
 
 export interface ClientLiveOptions {
@@ -25,7 +25,13 @@ async function openLive<T>(
   try {
     subscription = await db.live<T>(new Table(table)).where(where);
   } catch (error) {
-    throw wrapDatabaseError(error, undefined, '$live');
+    markSubscribeFailure(error);
+    // The driver wraps every subscribe failure in a LiveSubscriptionError; classify the real cause.
+    throw wrapDatabaseError(
+      error instanceof LiveSubscriptionError ? (error.cause ?? error) : error,
+      undefined,
+      '$live',
+    );
   }
 
   return new CerialLiveHandle<T>(subscription, db, track, mapValue);
@@ -44,7 +50,8 @@ export async function createClientLive<T = unknown>(
   if (typeof table !== 'string' || !table) {
     throw new CerialValidationError('$live: the table must be a non-empty string', { operation: '$live' });
   }
-  const where = options?.where === undefined ? undefined : fragmentToExpr(options.where);
+  // A `where` key that is present must hold a fragment, so `{ where: undefined }` refuses instead of watching every row.
+  const where = options && 'where' in options ? fragmentToExpr(options.where) : undefined;
 
   return openLive(table, where, getDb, track);
 }
@@ -66,7 +73,7 @@ export async function createModelLive<T = unknown>(
   getDb: () => Promise<Surreal>,
   track: (handle: CerialLiveHandle<T>) => () => void,
 ): Promise<CerialLiveHandle<T>> {
-  const where = modelWhereToExpr(options?.where, metadata, registry);
+  const where = options && 'where' in options ? modelWhereToExpr(options.where, metadata, registry) : undefined;
 
   return openLive(metadata.tableName, where, getDb, track, (value) => mapLiveRow(value, metadata));
 }

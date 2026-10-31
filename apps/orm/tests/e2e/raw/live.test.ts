@@ -107,6 +107,30 @@ describe('E2E client.$live', () => {
       expect(await count()).toBe(1);
     });
 
+    test('a where key holding undefined refuses instead of watching every row', async () => {
+      await expect(client.$live('user', { where: undefined })).rejects.toThrow(CerialValidationError);
+    });
+
+    test('a failed subscribe leaves a healthy handle on the same socket alive and delivering', async () => {
+      const own = createTestClient();
+      await own.connect(WS_CONFIG);
+      const healthy = await own.$live<Row>('user');
+      try {
+        await expect(own.$live('user', { where: sql`(((` })).rejects.toThrow(CerialDatabaseError);
+        await expect(own.$live('user', { where: sql`age > ${1} ORDER BY age` })).rejects.toThrow(CerialDatabaseError);
+        // The failed subscribe's error is judged one macrotask after it is published.
+        await Bun.sleep(100);
+
+        expect(healthy.isAlive).toBe(true);
+        await own.db.User.create({ data: user(55, 'after-failure') });
+        const result = await within(healthy.next());
+        expect((result as IteratorResult<{ value: Row }>).value.value.name).toBe('after-failure');
+      } finally {
+        await healthy.kill();
+        await own.disconnect();
+      }
+    });
+
     // The driver builds `FROM ${what}`; this proves the table travels as a bound value, not as text.
     const hostile = [
       'x\\⟩ FROM user; DELETE user; SELECT ⟨y',

@@ -10,6 +10,18 @@ export interface LiveNotification<T = unknown> {
   readonly value: T;
 }
 
+/**
+ * Errors that came from a first-time subscribe, which the caller receives as a rejection. The SDK also
+ * publishes them on the connection, where they look the same as a failed re-listen, so a handle uses this
+ * set to tell the two apart by the error object itself.
+ */
+const subscribeFailures = new WeakSet<object>();
+
+/** @internal Record that `error` is being thrown to the caller of a first-time subscribe. */
+export function markSubscribeFailure(error: unknown): void {
+  if (error instanceof LiveSubscriptionError) subscribeFailures.add(error);
+}
+
 /** What the connection manager needs of a handle, so one tracker serves handles of every row type. */
 export interface EndableLive {
   _endForDisconnect(): Promise<void>;
@@ -54,14 +66,19 @@ export class CerialLiveHandle<T = unknown>
       track(this),
       // The SDK swallows a failed re-listen and keeps `isAlive` true. It reports the failure on the
       // connection but names no subscription, so every handle on the socket ends rather than one hanging.
+      // The event fires before a first-time subscribe's rejection reaches `openLive`, so the decision waits
+      // one macrotask for that call to mark its error; a failure marked that way concerns no open handle.
       surreal.subscribe('error', (error) => {
         if (!(error instanceof LiveSubscriptionError)) return;
-        this.#finish(
-          new CerialConnectionError('The live subscription could not resume and has ended', {
-            operation: '$live',
-            cause: error,
-          }),
-        ).catch(() => {});
+        setTimeout(() => {
+          if (subscribeFailures.has(error)) return;
+          this.#finish(
+            new CerialConnectionError('The live subscription could not resume and has ended', {
+              operation: '$live',
+              cause: error,
+            }),
+          ).catch(() => {});
+        }, 0);
       }),
       surreal.subscribe('disconnected', () => {
         this.#finish(
