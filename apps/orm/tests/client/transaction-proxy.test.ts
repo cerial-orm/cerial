@@ -145,6 +145,7 @@ describe('createCerialTransactionProxy', () => {
         '_registryRef',
         '_ensureActive',
         '$raw',
+        '$live',
         'User',
         'Post',
       ]);

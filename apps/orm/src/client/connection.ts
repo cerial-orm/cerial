@@ -9,6 +9,7 @@
 import { Surreal } from 'surrealdb';
 import { CerialConnectionError, CerialNotConnectedError } from '../errors';
 import type { ConnectionConfig, ModelRegistry } from '../types';
+import type { EndableLive } from './live';
 import { clearModelCache, createModelProxy, type DatabaseProxy, type ProxyOptions } from './proxy';
 
 /** Default connection name */
@@ -249,6 +250,8 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
   private registry: R;
   private defaultConfig?: ConnectionConfig;
   private proxyOptions?: ProxyOptions;
+  /** Open live handles per connection name, so a deliberate disconnect can end them. */
+  private liveHandles: Map<string, Set<EndableLive>> = new Map();
 
   constructor(registry: R, options?: ConnectionManagerOptions | ConnectionConfig) {
     this.registry = registry;
@@ -315,11 +318,27 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     return proxy;
   }
 
+  /**
+   * Track an open live handle so `disconnect()` ends it cleanly, also when the socket stays open for
+   * another holder. Returns the function that forgets it.
+   */
+  trackLive(handle: EndableLive, name: string = DEFAULT_CONNECTION_NAME): () => void {
+    const handles = this.liveHandles.get(name) ?? new Set<EndableLive>();
+    handles.add(handle);
+    this.liveHandles.set(name, handles);
+
+    return () => {
+      handles.delete(handle);
+    };
+  }
+
   /** Disconnect from database */
   async disconnect(name: string = DEFAULT_CONNECTION_NAME): Promise<void> {
     const connection = this.connections.get(name);
     if (!connection) return;
 
+    // Before the socket is released, so a handle ends as a deliberate stop and not as a lost connection
+    await Promise.all([...(this.liveHandles.get(name) ?? [])].map((handle) => handle._endForDisconnect()));
     connection.isConnected = false;
     this.connections.delete(name);
 

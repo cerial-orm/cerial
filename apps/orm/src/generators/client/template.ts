@@ -11,7 +11,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientRawStatement, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -419,6 +419,28 @@ ${generateResolveConnection(connectConfigName, databasePins)}
 
       return surreal;
     });
+  }
+
+  /**
+   * Subscribe to changes on a table with a managed live query. Resolves once the query is registered, so a
+   * write made after the await is seen. Iterate the handle with for await; break or kill() stops it.
+   * Not available inside a transaction. A transaction client refuses it.
+   * @param table - The table to watch
+   * @param options.where - A fragment from the sql tag, evaluated per changed row; ORDER BY is not valid
+   */
+  async $live<T = unknown>(table: string, options?: ClientLiveOptions): Promise<CerialLiveHandle<T>> {
+    return createClientLive<T>(
+      table,
+      options,
+      async () => {
+        await this.ensureMigrated();
+        const surreal = this.connectionManager.getQuerySurreal();
+        if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: '$live' });
+
+        return surreal;
+      },
+      (handle) => this.connectionManager.trackLive(handle),
+    );
   }
 
   /**

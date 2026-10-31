@@ -155,17 +155,21 @@ export { defineConfig } from './cli/config/define-config';
 // Export client (explicit; the model/proxy factories stay internal)
 export type {
   BeforeQueryCallback,
+  ClientLiveOptions,
   ConnectionManagerOptions,
   DatabaseProxy,
+  LiveNotification,
   ModelOptions,
   PerModelCallbacks,
   ProxyOptions,
   TransactionState,
 } from './client';
 export {
+  CerialLiveHandle,
   CerialTransaction,
   ConnectionManager,
   createCerialTransactionProxy,
+  createClientLive,
   createClientRawStatement,
   createConnectionManager,
   guardUnknownModels,

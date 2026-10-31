@@ -13,6 +13,8 @@ export { createModel, Model } from './model';
 export type { DatabaseProxy, PerModelCallbacks, ProxyOptions } from './proxy';
 // Proxy
 export { clearModelCache, createModelProxy, createProxyHandler } from './proxy';
+export type { ClientLiveOptions, LiveNotification } from './live';
+export { CerialLiveHandle, createClientLive } from './live';
 export { createClientRawStatement } from './raw-statement';
 // Unknown-model guard
 export { guardUnknownModels } from './unknown-model-guard';

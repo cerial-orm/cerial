@@ -23,7 +23,16 @@ const IGNORED_PROPERTIES = new Set([
   '_isMockFunction',
 ]);
 
-const KNOWN_PROPERTIES = new Set(['commit', 'cancel', 'state', '_raw', '_registryRef', '_ensureActive', '$raw']);
+const KNOWN_PROPERTIES = new Set([
+  'commit',
+  'cancel',
+  'state',
+  '_raw',
+  '_registryRef',
+  '_ensureActive',
+  '$raw',
+  '$live',
+]);
 
 export class CerialTransaction {
   private _state: TransactionState = 'active';
@@ -106,6 +115,11 @@ export class CerialTransaction {
       undefined,
       [],
     );
+  }
+
+  /** A live query outlives the transaction that would own it, so a transaction refuses it. */
+  $live(): never {
+    throw new CerialTransactionError('$live is not available inside a transaction', { operation: '$live' });
   }
 
   /** @internal */
