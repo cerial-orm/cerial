@@ -145,6 +145,16 @@ development branch and is not available on npm.
   with no declaration contributes nothing. See
   [Finding Your Schemas](/schema/typescript/discovery).
 
+- A schema entry that holds both `.cerial` files and TypeScript modules now gets a
+  generated `cerial/handles.ts` under the schema root. TypeScript imports it to refer to
+  a `.cerial` declaration, for example to `extends` one or to type a field with it, in
+  both directions across the two forms, with pick, omit, `abstract` and `!!private`.
+  `.cerial` files refer to TypeScript declarations by name and need no import. You will
+  see the file appear after the first `cerial generate`; do not edit it, and add it to
+  `.gitignore`. Until the first generate, your typechecker cannot resolve the import.
+  Cerial never overwrites a `cerial/handles.ts` it did not write. See
+  [Mixing .cerial and TypeScript](/schema/typescript/mixed).
+
 - `schemas[].entry` points a schema at an entry module, and `schemas[].files` lists
   TypeScript modules by path (literal paths, no globs). Either can replace `path` or sit
   beside it. The `ignore`, `exclude` and `include` fields and `.cerialignore` apply to
@@ -547,6 +557,12 @@ development branch and is not available on npm.
 - A duplicate model, object, tuple, enum or literal name now reports where both
   declarations are, each as `file:line`, whether they come from `.cerial` files or
   TypeScript modules.
+
+  **Behavior change.** Two declarations sharing a name are now refused and no client is
+  written. Earlier releases did not check, so a project whose `.cerial` files already
+  declared the same name twice generated silently and now fails. Rename one declaration.
+  The check covers a name used by two kinds (a model and an object) and a collision
+  between a `.cerial` file and a TypeScript module.
 
 - `cerial generate --watch` also regenerates when a module an entry imports from outside
   its folder, or a listed file, changes. `cerial format` and `generate --format` format
