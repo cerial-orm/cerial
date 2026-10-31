@@ -235,6 +235,24 @@ export const Post = model('Post', { id: f.record().id(), author: f.relation(() =
     expect(await generatedText(join(p.dir, 'client'))).not.toContain('Helper');
   }, 60_000);
 
+  it('unions schemas[].files with the entry, a file reached both ways counting once', async () => {
+    const p = await project({
+      'cerial.config.ts':
+        "export default { schemas: { app: { entry: './src/schema.ts', files: ['./src/users/user.ts', './src/extra.ts', './src/cerial/handles.ts'], output: './out' } } };\n",
+      'src/schema.ts': entry,
+      'src/users/user.ts': user,
+      'src/posts/post.ts': post,
+      'src/extra.ts': user.replace(/User/g, 'Extra'),
+      'src/cerial/handles.ts': user.replace(/User/g, 'Handled'),
+    });
+    const { code, output } = await generate(binary, p.dir);
+
+    expect(code, output).toBe(0);
+    const text = await generatedText(p.out);
+    for (const name of ['User', 'Post', 'Extra']) expect(text).toContain(name);
+    expect(text).not.toContain('Handled');
+  }, 60_000);
+
   it('refuses a listed model that is not an exported binding, naming it', async () => {
     const p = await project({
       'cerial.config.ts': "export default { schemas: { app: { entry: './schema.ts', output: './out' } } };\n",
