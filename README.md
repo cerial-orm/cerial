@@ -9,6 +9,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 ### Schema
 
 - **Schema-first** — Define models in `.cerial` files with a clean, readable syntax
+- **TypeScript schemas** — Write the same schema as TypeScript with `cerial/schema`; `.cerial` stays the canonical form. Arrives in 0.3.0
 - **Field types** — String, Int, Float, Bool, Date, Email, Uuid, Duration, Decimal, Bytes, Geometry, Number, Any
 - **Embedded objects** — Inline `object {}` types with sub-field select, filtering, and updates
 - **Tuples** — Fixed-length typed arrays with `tuple {}` blocks, named elements, and flexible input forms
@@ -81,7 +82,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 
 ### Requirements
 
-- **Node.js** 20 or newer
+- **Node.js** 22.12 or newer (0.3.0 drops Node 20)
 - **TypeScript** 5.9.3 or newer. The floor and the current TypeScript release are both covered by CI;
   anything above the floor is supported but only those two are tested.
 - **SurrealDB** 3.3.0 or compatible
@@ -253,6 +254,7 @@ Full documentation is available at [**cerial-orm.github.io/cerial**](https://cer
 
 - [Getting Started](https://cerial-orm.github.io/cerial/getting-started) — Installation, setup, first queries
 - [Schema](https://cerial-orm.github.io/cerial/schema) — Field types, decorators, arrays, optionals, cross-file references
+- [TypeScript Schemas](https://cerial-orm.github.io/cerial/schema/typescript) — Declare models in TypeScript, how Cerial finds them, and what tooling they do not get (0.3.0)
 - [Relations](https://cerial-orm.github.io/cerial/relations) — 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
 - [Queries](https://cerial-orm.github.io/cerial/queries) — findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
 - [Filtering](https://cerial-orm.github.io/cerial/filtering) — Comparison, string, array, logical, special, nested, object operators
@@ -281,7 +283,7 @@ bun run ext:dev:cursor # after that reload cursor window
 
 ## Requirements
 
-- **[Node.js](https://nodejs.org/)** 20+ or **[Bun](https://bun.sh/)** 1+ (runtime)
+- **[Node.js](https://nodejs.org/)** 22.12+ or **[Bun](https://bun.sh/)** 1+ (runtime)
 - **[SurrealDB](https://surrealdb.com/)** database
 
 ## Contributing

@@ -118,6 +118,36 @@ development branch and is not available on npm.
 
 ### Added
 
+- A schema can now be written as TypeScript. Declare models, objects, tuples, enums
+  and literals with the factories exported from `cerial/schema`, and `cerial generate`
+  produces the same client as it does for `.cerial` files. `.cerial` stays the
+  canonical form. See [TypeScript Schemas](/schema/typescript).
+
+  ```typescript
+  import { f, model } from 'cerial/schema';
+
+  export const User = model('User', {
+    id: f.record().id(),
+    name: f.string(),
+  });
+  ```
+
+- Cerial finds TypeScript schemas three ways: the `*.schema.ts` suffix, an entry module
+  that default-exports `defineSchema({ models: [...] })`, and a list of files in the config.
+  The modes are additive: one schema entry can use all three, and Cerial generates the
+  union of what they find. Generation imports and runs this code, as it does for
+  `cerial.config.ts`, and an entry module also runs every module it imports, so generate
+  only from schemas you trust. See [Finding Your Schemas](/schema/typescript/discovery).
+
+- `schemas[].entry` points a schema at an entry module, and `schemas[].files` lists
+  TypeScript modules by path (literal paths, no globs). Either can replace `path` or sit
+  beside it. The `ignore`, `exclude` and `include` fields and `.cerialignore` apply to
+  all three modes. See [Configuration](/cli/configuration).
+
+- The TypeScript form has no `cerial format`, no editor diagnostics, no hover and no
+  completion from the VS Code extension; these work on `.cerial` files only. See
+  [Choosing a Schema Form](/schema/typescript/choosing).
+
 - `parse()` and `parseWithLexer()` take an optional last argument, the path of the
   schema file being parsed, and every node in the returned AST records it in a new
   `origin` field (`{ kind: 'dsl', file, range }`). Calls that leave it out keep
@@ -502,6 +532,20 @@ development branch and is not available on npm.
   array relation they are rejected like any other key that is not a quantifier.
 
 ### Changed
+
+- **Breaking.** Cerial now requires Node.js 22.12 or newer (`engines` is `>=22.12.0`).
+  Node 20 is no longer supported. TypeScript configs and schemas are loaded through
+  `jiti`, because Node's own type stripping cannot load them on any Node 22 release.
+  Bun is unaffected.
+
+- A duplicate model, object, tuple, enum or literal name now reports where both
+  declarations are, each as `file:line`, whether they come from `.cerial` files or
+  TypeScript modules.
+
+- `cerial generate --watch` also regenerates when a module an entry imports from outside
+  its folder, or a listed file, changes. `cerial format` and `generate --format` format
+  the `.cerial` files listed in `files` for a schema with no `path`, and leave TypeScript
+  modules untouched.
 
 - **Breaking.** The AST node types exported from `cerial` (`ASTModel`, `ASTField`,
   `ASTDecorator`, `ASTEnum` and the other node types) now require an `origin`.
