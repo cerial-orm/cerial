@@ -107,7 +107,7 @@ type SelectedKeys = ReadonlyTestSelect extends infer S ? (S extends unknown ? ke
 checks([
   check<
     keyof ReadonlyTestWhere,
-    'id' | 'name' | 'code' | 'score' | 'tags' | 'createdBy' | 'address' | 'meta' | 'AND' | 'OR' | 'NOT',
+    'id' | 'name' | 'code' | 'score' | 'tags' | 'createdBy' | 'address' | 'meta' | '$raw' | 'AND' | 'OR' | 'NOT',
     Test.Pass
   >(),
   check<SelectedKeys, 'id' | 'name' | 'code' | 'score' | 'tags' | 'createdBy' | 'address' | 'meta', Test.Pass>(),

@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -82,8 +83,14 @@ export interface RelObjCompanyWhere {
   headquarters?: AddressWhere;
   meta?: CompanyMetaWhere;
   employees?:
-    | { some?: RelObjEmployeeWhere; every?: RelObjEmployeeWhere; none?: RelObjEmployeeWhere; isEmpty?: boolean }
-    | Omit<RelObjEmployeeWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<RelObjEmployeeWhere, '$raw'>;
+        every?: Omit<RelObjEmployeeWhere, '$raw'>;
+        none?: Omit<RelObjEmployeeWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<RelObjEmployeeWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: RelObjCompanyWhere[];
   OR?: RelObjCompanyWhere[];
   NOT?: RelObjCompanyWhere;
@@ -361,6 +368,7 @@ export interface RelObjCompanyModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -439,7 +447,8 @@ export interface RelObjEmployeeWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  company?: RelObjCompanyWhere;
+  company?: Omit<RelObjCompanyWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: RelObjEmployeeWhere[];
   OR?: RelObjEmployeeWhere[];
   NOT?: RelObjEmployeeWhere;

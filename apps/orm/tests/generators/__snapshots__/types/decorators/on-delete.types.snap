@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -67,8 +68,14 @@ export interface DepartmentWhere {
         notIn?: string[];
       } & {});
   employees?:
-    | { some?: EmployeeWhere; every?: EmployeeWhere; none?: EmployeeWhere; isEmpty?: boolean }
-    | Omit<EmployeeWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<EmployeeWhere, '$raw'>;
+        every?: Omit<EmployeeWhere, '$raw'>;
+        none?: Omit<EmployeeWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<EmployeeWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: DepartmentWhere[];
   OR?: DepartmentWhere[];
   NOT?: DepartmentWhere;
@@ -327,6 +334,7 @@ export interface DepartmentModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -407,7 +415,8 @@ export interface EmployeeWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  department?: null | DepartmentWhere;
+  department?: null | Omit<DepartmentWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: EmployeeWhere[];
   OR?: EmployeeWhere[];
   NOT?: EmployeeWhere;
@@ -666,6 +675,7 @@ export interface EmployeeModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -746,7 +756,8 @@ export interface MemberWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  team?: null | TeamWhere;
+  team?: null | Omit<TeamWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: MemberWhere[];
   OR?: MemberWhere[];
   NOT?: MemberWhere;
@@ -992,6 +1003,7 @@ export interface MemberModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1072,7 +1084,8 @@ export interface MemberNoActionWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  team?: null | TeamNoActionWhere;
+  team?: null | Omit<TeamNoActionWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: MemberNoActionWhere[];
   OR?: MemberNoActionWhere[];
   NOT?: MemberNoActionWhere;
@@ -1335,6 +1348,7 @@ export interface MemberNoActionModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1415,7 +1429,8 @@ export interface MemberSetNullWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  team?: null | TeamSetNullWhere;
+  team?: null | Omit<TeamSetNullWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: MemberSetNullWhere[];
   OR?: MemberSetNullWhere[];
   NOT?: MemberSetNullWhere;
@@ -1677,6 +1692,7 @@ export interface MemberSetNullModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1757,7 +1773,8 @@ export interface OdChildWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  parent?: null | OdParentWhere;
+  parent?: null | Omit<OdParentWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: OdChildWhere[];
   OR?: OdChildWhere[];
   NOT?: OdChildWhere;
@@ -2010,6 +2027,7 @@ export interface OdChildModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2081,10 +2099,16 @@ export interface OdFolderWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  parent?: null | OdFolderWhere;
+  parent?: null | Omit<OdFolderWhere, '$raw'>;
   children?:
-    | { some?: OdFolderWhere; every?: OdFolderWhere; none?: OdFolderWhere; isEmpty?: boolean }
-    | Omit<OdFolderWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<OdFolderWhere, '$raw'>;
+        every?: Omit<OdFolderWhere, '$raw'>;
+        none?: Omit<OdFolderWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<OdFolderWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: OdFolderWhere[];
   OR?: OdFolderWhere[];
   NOT?: OdFolderWhere;
@@ -2378,6 +2402,7 @@ export interface OdFolderModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -2438,8 +2463,14 @@ export interface OdGrandparentWhere {
         notIn?: string[];
       } & {});
   parents?:
-    | { some?: OdParentWhere; every?: OdParentWhere; none?: OdParentWhere; isEmpty?: boolean }
-    | Omit<OdParentWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<OdParentWhere, '$raw'>;
+        every?: Omit<OdParentWhere, '$raw'>;
+        none?: Omit<OdParentWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<OdParentWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: OdGrandparentWhere[];
   OR?: OdGrandparentWhere[];
   NOT?: OdGrandparentWhere;
@@ -2698,6 +2729,7 @@ export interface OdGrandparentModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2787,10 +2819,16 @@ export interface OdParentWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  grandparent?: null | OdGrandparentWhere;
+  grandparent?: null | Omit<OdGrandparentWhere, '$raw'>;
   children?:
-    | { some?: OdChildWhere; every?: OdChildWhere; none?: OdChildWhere; isEmpty?: boolean }
-    | Omit<OdChildWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<OdChildWhere, '$raw'>;
+        every?: Omit<OdChildWhere, '$raw'>;
+        none?: Omit<OdChildWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<OdChildWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: OdParentWhere[];
   OR?: OdParentWhere[];
   NOT?: OdParentWhere;
@@ -3090,6 +3128,7 @@ export interface OdParentModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -3173,7 +3212,8 @@ export interface ProfileCascadeWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | UserCascadeWhere;
+  user?: null | Omit<UserCascadeWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileCascadeWhere[];
   OR?: ProfileCascadeWhere[];
   NOT?: ProfileCascadeWhere;
@@ -3438,6 +3478,7 @@ export interface ProfileCascadeModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -3521,7 +3562,8 @@ export interface ProfileNoActionWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | UserNoActionWhere;
+  user?: null | Omit<UserNoActionWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileNoActionWhere[];
   OR?: ProfileNoActionWhere[];
   NOT?: ProfileNoActionWhere;
@@ -3786,6 +3828,7 @@ export interface ProfileNoActionModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -3869,7 +3912,8 @@ export interface ProfileRestrictWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | UserRestrictWhere;
+  user?: null | Omit<UserRestrictWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileRestrictWhere[];
   OR?: ProfileRestrictWhere[];
   NOT?: ProfileRestrictWhere;
@@ -4134,6 +4178,7 @@ export interface ProfileRestrictModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -4215,7 +4260,8 @@ export interface ProfileSetNoneWhere {
         not?: string;
         isNone?: boolean;
       });
-  user?: UserSetNoneWhere;
+  user?: Omit<UserSetNoneWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileSetNoneWhere[];
   OR?: ProfileSetNoneWhere[];
   NOT?: ProfileSetNoneWhere;
@@ -4480,6 +4526,7 @@ export interface ProfileSetNoneModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -4563,7 +4610,8 @@ export interface ProfileSetNullWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | UserSetNullWhere;
+  user?: null | Omit<UserSetNullWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileSetNullWhere[];
   OR?: ProfileSetNullWhere[];
   NOT?: ProfileSetNullWhere;
@@ -4828,6 +4876,7 @@ export interface ProfileSetNullModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -4888,8 +4937,14 @@ export interface TeamWhere {
         notIn?: string[];
       } & {});
   members?:
-    | { some?: MemberWhere; every?: MemberWhere; none?: MemberWhere; isEmpty?: boolean }
-    | Omit<MemberWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<MemberWhere, '$raw'>;
+        every?: Omit<MemberWhere, '$raw'>;
+        none?: Omit<MemberWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<MemberWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: TeamWhere[];
   OR?: TeamWhere[];
   NOT?: TeamWhere;
@@ -5135,6 +5190,7 @@ export interface TeamModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -5195,8 +5251,14 @@ export interface TeamNoActionWhere {
         notIn?: string[];
       } & {});
   members?:
-    | { some?: MemberNoActionWhere; every?: MemberNoActionWhere; none?: MemberNoActionWhere; isEmpty?: boolean }
-    | Omit<MemberNoActionWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<MemberNoActionWhere, '$raw'>;
+        every?: Omit<MemberNoActionWhere, '$raw'>;
+        none?: Omit<MemberNoActionWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<MemberNoActionWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: TeamNoActionWhere[];
   OR?: TeamNoActionWhere[];
   NOT?: TeamNoActionWhere;
@@ -5458,6 +5520,7 @@ export interface TeamNoActionModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -5518,8 +5581,14 @@ export interface TeamSetNullWhere {
         notIn?: string[];
       } & {});
   members?:
-    | { some?: MemberSetNullWhere; every?: MemberSetNullWhere; none?: MemberSetNullWhere; isEmpty?: boolean }
-    | Omit<MemberSetNullWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<MemberSetNullWhere, '$raw'>;
+        every?: Omit<MemberSetNullWhere, '$raw'>;
+        none?: Omit<MemberSetNullWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<MemberSetNullWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: TeamSetNullWhere[];
   OR?: TeamSetNullWhere[];
   NOT?: TeamSetNullWhere;
@@ -5781,6 +5850,7 @@ export interface TeamSetNullModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -5840,7 +5910,8 @@ export interface UserCascadeWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  profile?: ProfileCascadeWhere;
+  profile?: Omit<ProfileCascadeWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: UserCascadeWhere[];
   OR?: UserCascadeWhere[];
   NOT?: UserCascadeWhere;
@@ -6094,6 +6165,7 @@ export interface UserCascadeModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -6153,7 +6225,8 @@ export interface UserNoActionWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  profile?: ProfileNoActionWhere;
+  profile?: Omit<ProfileNoActionWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: UserNoActionWhere[];
   OR?: UserNoActionWhere[];
   NOT?: UserNoActionWhere;
@@ -6407,6 +6480,7 @@ export interface UserNoActionModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -6466,7 +6540,8 @@ export interface UserRestrictWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  profile?: ProfileRestrictWhere;
+  profile?: Omit<ProfileRestrictWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: UserRestrictWhere[];
   OR?: UserRestrictWhere[];
   NOT?: UserRestrictWhere;
@@ -6720,6 +6795,7 @@ export interface UserRestrictModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -6779,7 +6855,8 @@ export interface UserSetNoneWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  profile?: ProfileSetNoneWhere;
+  profile?: Omit<ProfileSetNoneWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: UserSetNoneWhere[];
   OR?: UserSetNoneWhere[];
   NOT?: UserSetNoneWhere;
@@ -7033,6 +7110,7 @@ export interface UserSetNoneModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -7108,7 +7186,8 @@ export interface UserSetNullWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  profile?: ProfileSetNullWhere;
+  profile?: Omit<ProfileSetNullWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: UserSetNullWhere[];
   OR?: UserSetNullWhere[];
   NOT?: UserSetNullWhere;

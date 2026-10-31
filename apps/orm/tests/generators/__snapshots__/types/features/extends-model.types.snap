@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -139,6 +140,7 @@ export interface ExtAdminWhere {
         hasAny?: string[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: ExtAdminWhere[];
   OR?: ExtAdminWhere[];
   NOT?: ExtAdminWhere;
@@ -344,6 +346,7 @@ export interface ExtAdminModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -418,6 +421,7 @@ export interface ExtEmptyChildWhere {
         isNone?: boolean;
         between?: [Date, Date];
       });
+  $raw?: SqlFragment;
   AND?: ExtEmptyChildWhere[];
   OR?: ExtEmptyChildWhere[];
   NOT?: ExtEmptyChildWhere;
@@ -602,6 +606,7 @@ export interface ExtEmptyChildModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -725,6 +730,7 @@ export interface ExtModeratorWhere {
         not?: string;
         isNone?: boolean;
       });
+  $raw?: SqlFragment;
   AND?: ExtModeratorWhere[];
   OR?: ExtModeratorWhere[];
   NOT?: ExtModeratorWhere;
@@ -919,6 +925,7 @@ export interface ExtModeratorModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1100,6 +1107,7 @@ export interface ExtPremiumUserWhere {
         isNone?: boolean;
         between?: [Date, Date];
       });
+  $raw?: SqlFragment;
   AND?: ExtPremiumUserWhere[];
   OR?: ExtPremiumUserWhere[];
   NOT?: ExtPremiumUserWhere;
@@ -1402,6 +1410,7 @@ export interface ExtPremiumUserModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1525,6 +1534,7 @@ export interface ExtPrivateUserWhere {
         not?: string;
         isNone?: boolean;
       });
+  $raw?: SqlFragment;
   AND?: ExtPrivateUserWhere[];
   OR?: ExtPrivateUserWhere[];
   NOT?: ExtPrivateUserWhere;
@@ -1724,6 +1734,7 @@ export interface ExtPrivateUserModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1878,6 +1889,7 @@ export interface ExtProfileWhere {
         isNone?: boolean;
         between?: [number, number];
       });
+  $raw?: SqlFragment;
   AND?: ExtProfileWhere[];
   OR?: ExtProfileWhere[];
   NOT?: ExtProfileWhere;
@@ -2108,6 +2120,7 @@ export interface ExtProfileModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2261,6 +2274,7 @@ export interface ExtSuperAdminWhere {
         eq?: boolean;
         neq?: boolean;
       } & {});
+  $raw?: SqlFragment;
   AND?: ExtSuperAdminWhere[];
   OR?: ExtSuperAdminWhere[];
   NOT?: ExtSuperAdminWhere;
@@ -2483,6 +2497,7 @@ export interface ExtSuperAdminModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2633,6 +2648,7 @@ export interface ExtSystemAdminWhere {
         hasAny?: string[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: ExtSystemAdminWhere[];
   OR?: ExtSystemAdminWhere[];
   NOT?: ExtSystemAdminWhere;
@@ -2875,6 +2891,7 @@ export interface ExtSystemAdminModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -3022,6 +3039,7 @@ export interface ExtUserWhere {
         in?: string[];
         notIn?: string[];
       } & {});
+  $raw?: SqlFragment;
   AND?: ExtUserWhere[];
   OR?: ExtUserWhere[];
   NOT?: ExtUserWhere;

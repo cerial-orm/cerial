@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -100,7 +101,8 @@ export interface BasicsPostWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  author?: BasicsUserWhere;
+  author?: Omit<BasicsUserWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: BasicsPostWhere[];
   OR?: BasicsPostWhere[];
   NOT?: BasicsPostWhere;
@@ -364,6 +366,7 @@ export interface BasicsPostModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -467,7 +470,8 @@ export interface BasicsProfileWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | BasicsUserWhere;
+  user?: null | Omit<BasicsUserWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: BasicsProfileWhere[];
   OR?: BasicsProfileWhere[];
   NOT?: BasicsProfileWhere;
@@ -737,6 +741,7 @@ export interface BasicsProfileModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -807,7 +812,12 @@ export interface BasicsTagWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  users?: { some?: BasicsUserWhere; every?: BasicsUserWhere; none?: BasicsUserWhere };
+  users?: {
+    some?: Omit<BasicsUserWhere, '$raw'>;
+    every?: Omit<BasicsUserWhere, '$raw'>;
+    none?: Omit<BasicsUserWhere, '$raw'>;
+  };
+  $raw?: SqlFragment;
   AND?: BasicsTagWhere[];
   OR?: BasicsTagWhere[];
   NOT?: BasicsTagWhere;
@@ -1081,6 +1091,7 @@ export interface BasicsTagModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1275,7 +1286,7 @@ export interface BasicsUserWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  profile?: null | BasicsProfileWhere;
+  profile?: null | Omit<BasicsProfileWhere, '$raw'>;
   tagIds?:
     | RecordIdInput<string>[]
     | {
@@ -1284,10 +1295,20 @@ export interface BasicsUserWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  tags?: { some?: BasicsTagWhere; every?: BasicsTagWhere; none?: BasicsTagWhere };
+  tags?: {
+    some?: Omit<BasicsTagWhere, '$raw'>;
+    every?: Omit<BasicsTagWhere, '$raw'>;
+    none?: Omit<BasicsTagWhere, '$raw'>;
+  };
   posts?:
-    | { some?: BasicsPostWhere; every?: BasicsPostWhere; none?: BasicsPostWhere; isEmpty?: boolean }
-    | Omit<BasicsPostWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<BasicsPostWhere, '$raw'>;
+        every?: Omit<BasicsPostWhere, '$raw'>;
+        none?: Omit<BasicsPostWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<BasicsPostWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: BasicsUserWhere[];
   OR?: BasicsUserWhere[];
   NOT?: BasicsUserWhere;

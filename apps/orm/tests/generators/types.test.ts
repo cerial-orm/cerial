@@ -224,14 +224,25 @@ model Post {
       const result = generateWhereInterface(userForward, registryForward);
 
       expect(result).toContain('export interface UserWhere');
-      expect(result).toContain('profile?: ProfileWhere');
+      expect(result).toContain("profile?: Omit<ProfileWhere, '$raw'>");
     });
 
     test('generates where with reverse relation types', () => {
       const result = generateWhereInterface(userReverse, registryReverse);
 
       expect(result).toContain('export interface UserWhere');
-      expect(result).toContain('posts?: PostWhere');
+      expect(result).toContain("posts?: Omit<PostWhere, '$raw'>;");
+    });
+
+    test('declares $raw once on the model and drops it from relation positions', () => {
+      const forward = generateWhereInterface(userForward, registryForward);
+      const reverse = generateWhereInterface(userReverse, registryReverse);
+
+      for (const result of [forward, reverse]) {
+        expect(result.match(/\$raw\?: SqlFragment;/g)).toHaveLength(1);
+        expect(result).not.toMatch(/: (null \| )?(Profile|Post)Where;/);
+      }
+      expect(forward).toContain("profile?: Omit<ProfileWhere, '$raw'>;");
     });
   });
 });

@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -100,7 +101,8 @@ export interface PostWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  author?: UserWhere;
+  author?: Omit<UserWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: PostWhere[];
   OR?: PostWhere[];
   NOT?: PostWhere;
@@ -348,6 +350,7 @@ export interface PostModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -451,7 +454,8 @@ export interface ProfileWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | UserWhere;
+  user?: null | Omit<UserWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileWhere[];
   OR?: ProfileWhere[];
   NOT?: ProfileWhere;
@@ -710,6 +714,7 @@ export interface ProfileModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -780,7 +785,8 @@ export interface TagWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  users?: { some?: UserWhere; every?: UserWhere; none?: UserWhere };
+  users?: { some?: Omit<UserWhere, '$raw'>; every?: Omit<UserWhere, '$raw'>; none?: Omit<UserWhere, '$raw'> };
+  $raw?: SqlFragment;
   AND?: TagWhere[];
   OR?: TagWhere[];
   NOT?: TagWhere;
@@ -1041,6 +1047,7 @@ export interface TagModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1227,7 +1234,7 @@ export interface UserWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  profile?: null | ProfileWhere;
+  profile?: null | Omit<ProfileWhere, '$raw'>;
   tagIds?:
     | RecordIdInput<string>[]
     | {
@@ -1236,10 +1243,16 @@ export interface UserWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  tags?: { some?: TagWhere; every?: TagWhere; none?: TagWhere };
+  tags?: { some?: Omit<TagWhere, '$raw'>; every?: Omit<TagWhere, '$raw'>; none?: Omit<TagWhere, '$raw'> };
   posts?:
-    | { some?: PostWhere; every?: PostWhere; none?: PostWhere; isEmpty?: boolean }
-    | Omit<PostWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<PostWhere, '$raw'>;
+        every?: Omit<PostWhere, '$raw'>;
+        none?: Omit<PostWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<PostWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: UserWhere[];
   OR?: UserWhere[];
   NOT?: UserWhere;

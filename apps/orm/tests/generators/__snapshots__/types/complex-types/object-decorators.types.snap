@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -82,6 +83,7 @@ export interface ObjDecUserWhere {
   contact?: ContactInfoWhere;
   location?: LocationInfoWhere;
   altLocation?: LocationInfoWhere;
+  $raw?: SqlFragment;
   AND?: ObjDecUserWhere[];
   OR?: ObjDecUserWhere[];
   NOT?: ObjDecUserWhere;

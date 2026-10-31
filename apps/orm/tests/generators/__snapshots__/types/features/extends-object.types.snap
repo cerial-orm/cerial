@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -91,6 +92,7 @@ export interface ExtAddressUserWhere {
   homeAddress?: ExtAddressWhere;
   workAddress?: ExtDetailedAddressWhere;
   previousAddresses?: { some?: ExtGeoAddressWhere; every?: ExtGeoAddressWhere; none?: ExtGeoAddressWhere };
+  $raw?: SqlFragment;
   AND?: ExtAddressUserWhere[];
   OR?: ExtAddressUserWhere[];
   NOT?: ExtAddressUserWhere;
@@ -332,6 +334,7 @@ export interface ExtAddressUserModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -387,6 +390,7 @@ export interface ExtChainModelWhere {
       } & {});
   pickThenOmit?: ExtChainPickedThenOmittedWhere;
   omitThenPick?: ExtChainOmittedThenPickedWhere;
+  $raw?: SqlFragment;
   AND?: ExtChainModelWhere[];
   OR?: ExtChainModelWhere[];
   NOT?: ExtChainModelWhere;

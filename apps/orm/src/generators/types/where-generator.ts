@@ -339,7 +339,8 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
     if (field.type === 'relation') {
       // Relation fields get nested where type
       if (field.relationInfo) {
-        const targetWhere = `${field.relationInfo.targetModel}Where`;
+        // A raw fragment is refused inside a relation filter, so the target's `$raw` key is dropped here
+        const targetWhere = `Omit<${field.relationInfo.targetModel}Where, '$raw'>`;
 
         if (field.isArray) {
           // Array relations support some/every/none operators
@@ -347,7 +348,7 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
           if (field.relationInfo.isReverse) {
             // A plain target filter is shorthand for `some`; a bare AND/OR/NOT stays refused, so it is omitted
             fields.push(
-              `  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; isEmpty?: boolean; } | Omit<${targetWhere}, 'AND' | 'OR' | 'NOT'>;`,
+              `  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; isEmpty?: boolean; } | Omit<${field.relationInfo.targetModel}Where, 'AND' | 'OR' | 'NOT' | '$raw'>;`,
             );
           } else {
             fields.push(`  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; };`);
@@ -419,6 +420,7 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
 
   return `export interface ${model.name}Where {
 ${fields.join('\n')}
+  $raw?: SqlFragment;
   AND?: ${model.name}Where[];
   OR?: ${model.name}Where[];
   NOT?: ${model.name}Where;

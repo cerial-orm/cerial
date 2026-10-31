@@ -97,7 +97,7 @@ checks([
 checks([
   check<
     keyof TimestampTestWhere,
-    'id' | 'name' | 'createdAt' | 'updatedAt' | 'meta' | 'AND' | 'OR' | 'NOT',
+    'id' | 'name' | 'createdAt' | 'updatedAt' | 'meta' | '$raw' | 'AND' | 'OR' | 'NOT',
     Test.Pass
   >(),
   check<

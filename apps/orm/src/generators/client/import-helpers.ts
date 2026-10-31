@@ -43,6 +43,9 @@ export const CERIAL_ANY_IMPORT = `import type { CerialAny } from 'cerial';`;
 
 export const CERIAL_SET_IMPORT = `import type { CerialSet } from 'cerial';`;
 
+/** SqlFragment import for the `$raw` where key */
+export const SQL_FRAGMENT_IMPORT = `import type { SqlFragment } from 'cerial';`;
+
 /** NONE sentinel import for nullable/optional update types */
 export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 

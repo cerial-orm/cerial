@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -112,6 +113,7 @@ export interface ArrayDecoratorTestWhere {
         hasAny?: number[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: ArrayDecoratorTestWhere[];
   OR?: ArrayDecoratorTestWhere[];
   NOT?: ArrayDecoratorTestWhere;
@@ -454,6 +456,7 @@ export interface ArrayDecoratorTestModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -509,6 +512,7 @@ export interface ScalarArraysWhere {
         hasAny?: boolean[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: ScalarArraysWhere[];
   OR?: ScalarArraysWhere[];
   NOT?: ScalarArraysWhere;

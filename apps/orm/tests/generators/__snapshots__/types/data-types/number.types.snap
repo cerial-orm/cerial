@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -124,6 +125,7 @@ export interface NumberBasicWhere {
         hasAny?: number[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: NumberBasicWhere[];
   OR?: NumberBasicWhere[];
   NOT?: NumberBasicWhere;
@@ -319,6 +321,7 @@ export interface NumberBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -406,6 +409,7 @@ export interface NumberDecoratedWhere {
         isNone?: boolean;
         between?: [number, number];
       });
+  $raw?: SqlFragment;
   AND?: NumberDecoratedWhere[];
   OR?: NumberDecoratedWhere[];
   NOT?: NumberDecoratedWhere;
@@ -593,6 +597,7 @@ export interface NumberDecoratedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -658,6 +663,7 @@ export interface NumberWithObjectWhere {
       } & {});
   stats?: NumberInfoWhere;
   optStats?: NumberInfoWhere;
+  $raw?: SqlFragment;
   AND?: NumberWithObjectWhere[];
   OR?: NumberWithObjectWhere[];
   NOT?: NumberWithObjectWhere;
@@ -856,6 +862,7 @@ export interface NumberWithObjectModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -920,6 +927,7 @@ export interface NumberWithTupleWhere {
       } & {});
   coord?: NumberCoordWhere;
   optCoord?: NumberCoordWhere;
+  $raw?: SqlFragment;
   AND?: NumberWithTupleWhere[];
   OR?: NumberWithTupleWhere[];
   NOT?: NumberWithTupleWhere;

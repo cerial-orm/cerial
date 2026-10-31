@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -103,7 +104,8 @@ export interface BookWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  publisher?: null | PublisherWhere;
+  publisher?: null | Omit<PublisherWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: BookWhere[];
   OR?: BookWhere[];
   NOT?: BookWhere;
@@ -356,6 +358,7 @@ export interface BookModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -416,8 +419,14 @@ export interface PublisherWhere {
         notIn?: string[];
       } & {});
   books?:
-    | { some?: BookWhere; every?: BookWhere; none?: BookWhere; isEmpty?: boolean }
-    | Omit<BookWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<BookWhere, '$raw'>;
+        every?: Omit<BookWhere, '$raw'>;
+        none?: Omit<BookWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<BookWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: PublisherWhere[];
   OR?: PublisherWhere[];
   NOT?: PublisherWhere;

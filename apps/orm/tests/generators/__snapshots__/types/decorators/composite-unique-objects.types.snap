@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -66,6 +67,7 @@ export interface DepotWhere {
    * @@index("labelDockBay") — Part of composite index (with: label)
    */
   dock?: DockWhere;
+  $raw?: SqlFragment;
   AND?: DepotWhere[];
   OR?: DepotWhere[];
   NOT?: DepotWhere;
@@ -243,6 +245,7 @@ export interface DepotModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -325,6 +328,7 @@ export interface WarehouseWhere {
         isNone?: boolean;
         between?: [number, number];
       });
+  $raw?: SqlFragment;
   AND?: WarehouseWhere[];
   OR?: WarehouseWhere[];
   NOT?: WarehouseWhere;

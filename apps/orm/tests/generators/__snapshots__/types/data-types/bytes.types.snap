@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import { CerialBytes } from 'cerial';
 import type { CerialBytesInput } from 'cerial';
@@ -110,6 +111,7 @@ export interface BytesBasicWhere {
         hasAny?: CerialBytesInput[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: BytesBasicWhere[];
   OR?: BytesBasicWhere[];
   NOT?: BytesBasicWhere;
@@ -305,6 +307,7 @@ export interface BytesBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -365,6 +368,7 @@ export interface BytesWithObjectWhere {
         notIn?: string[];
       } & {});
   details?: BytesInfoWhere;
+  $raw?: SqlFragment;
   AND?: BytesWithObjectWhere[];
   OR?: BytesWithObjectWhere[];
   NOT?: BytesWithObjectWhere;
@@ -552,6 +556,7 @@ export interface BytesWithObjectModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -606,6 +611,7 @@ export interface BytesWithTupleWhere {
         notIn?: string[];
       } & {});
   pair?: BytesPairWhere;
+  $raw?: SqlFragment;
   AND?: BytesWithTupleWhere[];
   OR?: BytesWithTupleWhere[];
   NOT?: BytesWithTupleWhere;

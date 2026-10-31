@@ -52,7 +52,9 @@ describe('the $raw key is reserved in every schema frontend', () => {
       const where = generateWhereInterface(modelMetadata('M', 'm', [field({ name })]));
 
       expect(where).toContain(`${name}?:`);
-      expect(where).not.toContain('$raw');
+      // The only `$raw` key is the fragment slot; the field never collapses into it
+      expect(where.match(/\$raw/g)).toHaveLength(1);
+      expect(where).toContain('$raw?: SqlFragment;');
     });
   });
 });

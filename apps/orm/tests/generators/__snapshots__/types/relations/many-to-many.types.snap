@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -92,7 +93,12 @@ export interface CourseWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  students?: { some?: StudentWhere; every?: StudentWhere; none?: StudentWhere };
+  students?: {
+    some?: Omit<StudentWhere, '$raw'>;
+    every?: Omit<StudentWhere, '$raw'>;
+    none?: Omit<StudentWhere, '$raw'>;
+  };
+  $raw?: SqlFragment;
   AND?: CourseWhere[];
   OR?: CourseWhere[];
   NOT?: CourseWhere;
@@ -355,6 +361,7 @@ export interface CourseModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -440,7 +447,8 @@ export interface StudentWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  courses?: { some?: CourseWhere; every?: CourseWhere; none?: CourseWhere };
+  courses?: { some?: Omit<CourseWhere, '$raw'>; every?: Omit<CourseWhere, '$raw'>; none?: Omit<CourseWhere, '$raw'> };
+  $raw?: SqlFragment;
   AND?: StudentWhere[];
   OR?: StudentWhere[];
   NOT?: StudentWhere;

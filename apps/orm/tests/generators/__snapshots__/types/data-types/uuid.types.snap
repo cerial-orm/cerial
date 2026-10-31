@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import { CerialUuid } from 'cerial';
 import type { CerialUuidInput } from 'cerial';
@@ -123,6 +124,7 @@ export interface UuidBasicWhere {
         hasAny?: CerialUuidInput[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: UuidBasicWhere[];
   OR?: UuidBasicWhere[];
   NOT?: UuidBasicWhere;
@@ -319,6 +321,7 @@ export interface UuidBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import { CerialUuid } from 'cerial';
 import type { CerialUuidInput } from 'cerial';
@@ -444,6 +447,7 @@ export interface UuidDecoratedWhere {
         not?: string;
         isNone?: boolean;
       });
+  $raw?: SqlFragment;
   AND?: UuidDecoratedWhere[];
   OR?: UuidDecoratedWhere[];
   NOT?: UuidDecoratedWhere;
@@ -643,6 +647,7 @@ export interface UuidDecoratedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -708,6 +713,7 @@ export interface UuidWithObjectWhere {
       } & {});
   meta?: UuidInfoWhere;
   optMeta?: UuidInfoWhere;
+  $raw?: SqlFragment;
   AND?: UuidWithObjectWhere[];
   OR?: UuidWithObjectWhere[];
   NOT?: UuidWithObjectWhere;
@@ -905,6 +911,7 @@ export interface UuidWithObjectModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -963,6 +970,7 @@ export interface UuidWithTupleWhere {
       } & {});
   pair?: UuidPairWhere;
   optPair?: UuidPairWhere;
+  $raw?: SqlFragment;
   AND?: UuidWithTupleWhere[];
   OR?: UuidWithTupleWhere[];
   NOT?: UuidWithTupleWhere;

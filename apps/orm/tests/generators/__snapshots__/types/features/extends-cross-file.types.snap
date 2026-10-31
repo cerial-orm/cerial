@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -192,6 +193,7 @@ export interface ExtCrossAdminWhere {
         isNone?: boolean;
         between?: [number, number];
       });
+  $raw?: SqlFragment;
   AND?: ExtCrossAdminWhere[];
   OR?: ExtCrossAdminWhere[];
   NOT?: ExtCrossAdminWhere;
@@ -460,6 +462,7 @@ export interface ExtCrossAdminModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -582,6 +585,7 @@ export interface ExtCrossModeratorWhere {
         isNone?: boolean;
         between?: [Date, Date];
       });
+  $raw?: SqlFragment;
   AND?: ExtCrossModeratorWhere[];
   OR?: ExtCrossModeratorWhere[];
   NOT?: ExtCrossModeratorWhere;
@@ -783,6 +787,7 @@ export interface ExtCrossModeratorModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -965,6 +970,7 @@ export interface ExtCrossPremiumWhere {
         not?: string;
         isNone?: boolean;
       });
+  $raw?: SqlFragment;
   AND?: ExtCrossPremiumWhere[];
   OR?: ExtCrossPremiumWhere[];
   NOT?: ExtCrossPremiumWhere;
@@ -1230,6 +1236,7 @@ export interface ExtCrossPremiumModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1350,6 +1357,7 @@ export interface ExtCrossPrivateWhere {
         in?: string[];
         notIn?: string[];
       } & {});
+  $raw?: SqlFragment;
   AND?: ExtCrossPrivateWhere[];
   OR?: ExtCrossPrivateWhere[];
   NOT?: ExtCrossPrivateWhere;
@@ -1548,6 +1556,7 @@ export interface ExtCrossPrivateModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1737,6 +1746,7 @@ export interface ExtCrossProfileWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: ExtCrossProfileWhere[];
   OR?: ExtCrossProfileWhere[];
   NOT?: ExtCrossProfileWhere;
@@ -2066,6 +2076,7 @@ export interface ExtCrossProfileModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2205,6 +2216,7 @@ export interface ExtCrossUserWhere {
         not?: string;
         isNone?: boolean;
       });
+  $raw?: SqlFragment;
   AND?: ExtCrossUserWhere[];
   OR?: ExtCrossUserWhere[];
   NOT?: ExtCrossUserWhere;

@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import {
   CerialGeometry,
@@ -158,6 +159,7 @@ export interface GeometryBasicWhere {
         hasAny?: CerialPointInput[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: GeometryBasicWhere[];
   OR?: GeometryBasicWhere[];
   NOT?: GeometryBasicWhere;
@@ -369,6 +371,7 @@ export interface GeometryBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import {
   CerialGeometry,
   CerialPoint,
@@ -483,6 +486,7 @@ export interface GeometryMultiWhere {
         in?: CerialGeometryCollectionInput[];
         notIn?: CerialGeometryCollectionInput[];
       } & {});
+  $raw?: SqlFragment;
   AND?: GeometryMultiWhere[];
   OR?: GeometryMultiWhere[];
   NOT?: GeometryMultiWhere;
@@ -663,6 +667,7 @@ export interface GeometryMultiModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -717,6 +722,7 @@ export interface GeometryWithObjectWhere {
         notIn?: string[];
       } & {});
   geo?: GeoInfoWhere;
+  $raw?: SqlFragment;
   AND?: GeometryWithObjectWhere[];
   OR?: GeometryWithObjectWhere[];
   NOT?: GeometryWithObjectWhere;
@@ -904,6 +910,7 @@ export interface GeometryWithObjectModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -958,6 +965,7 @@ export interface GeometryWithTupleWhere {
         notIn?: string[];
       } & {});
   pair?: GeoPairWhere;
+  $raw?: SqlFragment;
   AND?: GeometryWithTupleWhere[];
   OR?: GeometryWithTupleWhere[];
   NOT?: GeometryWithTupleWhere;

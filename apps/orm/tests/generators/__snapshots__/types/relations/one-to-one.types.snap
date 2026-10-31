@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -90,7 +91,8 @@ export interface ProfileOptionalWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | UserOptionalWhere;
+  user?: null | Omit<UserOptionalWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileOptionalWhere[];
   OR?: ProfileOptionalWhere[];
   NOT?: ProfileOptionalWhere;
@@ -355,6 +357,7 @@ export interface ProfileOptionalModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -451,7 +454,8 @@ export interface ProfileRequiredWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  user?: UserRequiredWhere;
+  user?: Omit<UserRequiredWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileRequiredWhere[];
   OR?: ProfileRequiredWhere[];
   NOT?: ProfileRequiredWhere;
@@ -721,6 +725,7 @@ export interface ProfileRequiredModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -802,7 +807,8 @@ export interface ProfileSingleSidedWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | UserSingleSidedWhere;
+  user?: null | Omit<UserSingleSidedWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ProfileSingleSidedWhere[];
   OR?: ProfileSingleSidedWhere[];
   NOT?: ProfileSingleSidedWhere;
@@ -1058,6 +1064,7 @@ export interface ProfileSingleSidedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1133,7 +1140,8 @@ export interface UserOptionalWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  profile?: ProfileOptionalWhere;
+  profile?: Omit<ProfileOptionalWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: UserOptionalWhere[];
   OR?: UserOptionalWhere[];
   NOT?: UserOptionalWhere;
@@ -1391,6 +1399,7 @@ export interface UserOptionalModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1466,7 +1475,8 @@ export interface UserRequiredWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  profile?: ProfileRequiredWhere;
+  profile?: Omit<ProfileRequiredWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: UserRequiredWhere[];
   OR?: UserRequiredWhere[];
   NOT?: UserRequiredWhere;
@@ -1724,6 +1734,7 @@ export interface UserRequiredModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1774,6 +1785,7 @@ export interface UserSingleSidedWhere {
         in?: string[];
         notIn?: string[];
       } & {});
+  $raw?: SqlFragment;
   AND?: UserSingleSidedWhere[];
   OR?: UserSingleSidedWhere[];
   NOT?: UserSingleSidedWhere;

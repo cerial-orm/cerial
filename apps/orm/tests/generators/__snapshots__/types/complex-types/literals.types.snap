@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -79,6 +80,7 @@ export interface LiteralBasicWhere {
   nullStatus?: null | Status | StatusWhere;
   statuses?: { has?: Status; hasAll?: Status[]; hasAny?: Status[]; isEmpty?: boolean };
   mixed?: Mixed | MixedWhere;
+  $raw?: SqlFragment;
   AND?: LiteralBasicWhere[];
   OR?: LiteralBasicWhere[];
   NOT?: LiteralBasicWhere;
@@ -289,6 +291,7 @@ export interface LiteralBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -331,6 +334,7 @@ export interface LiteralBroadWhere {
       } & {});
   payload?: Broad | BroadWhere;
   values?: { has?: Broad; hasAll?: Broad[]; hasAny?: Broad[]; isEmpty?: boolean };
+  $raw?: SqlFragment;
   AND?: LiteralBroadWhere[];
   OR?: LiteralBroadWhere[];
   NOT?: LiteralBroadWhere;
@@ -514,6 +518,7 @@ export interface LiteralBroadModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -572,6 +577,7 @@ export interface LiteralDefaultsWhere {
       } & {});
   status?: Status | StatusWhere;
   priority?: Priority | PriorityWhere;
+  $raw?: SqlFragment;
   AND?: LiteralDefaultsWhere[];
   OR?: LiteralDefaultsWhere[];
   NOT?: LiteralDefaultsWhere;
@@ -753,6 +759,7 @@ export interface LiteralDefaultsModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -792,6 +799,7 @@ export interface LiteralExtendedWhere {
         notIn?: RecordIdInput<string>[];
       } & {});
   status?: ExtendedStatus | ExtendedStatusWhere;
+  $raw?: SqlFragment;
   AND?: LiteralExtendedWhere[];
   OR?: LiteralExtendedWhere[];
   NOT?: LiteralExtendedWhere;
@@ -970,6 +978,7 @@ export interface LiteralExtendedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1017,6 +1026,7 @@ export interface LiteralNumberKindsWhere {
   ratio?: Ratio | RatioWhere;
   amount?: FloatOrText | FloatOrTextWhere;
   moment?: DateOrFlag | DateOrFlagWhere;
+  $raw?: SqlFragment;
   AND?: LiteralNumberKindsWhere[];
   OR?: LiteralNumberKindsWhere[];
   NOT?: LiteralNumberKindsWhere;
@@ -1197,6 +1207,7 @@ export interface LiteralNumberKindsModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1240,6 +1251,7 @@ export interface LiteralNumericWhere {
       } & {});
   rank?: NumericOnly | NumericOnlyWhere;
   optRank?: NumericOnly | NumericOnlyWhere;
+  $raw?: SqlFragment;
   AND?: LiteralNumericWhere[];
   OR?: LiteralNumericWhere[];
   NOT?: LiteralNumericWhere;
@@ -1420,6 +1432,7 @@ export interface LiteralNumericModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1465,6 +1478,7 @@ export interface LiteralObjectArrayWhere {
         notIn?: RecordIdInput<string>[];
       } & {});
   tagged?: LiteralTaggedWhere;
+  $raw?: SqlFragment;
   AND?: LiteralObjectArrayWhere[];
   OR?: LiteralObjectArrayWhere[];
   NOT?: LiteralObjectArrayWhere;
@@ -1646,6 +1660,7 @@ export interface LiteralObjectArrayModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1686,6 +1701,7 @@ export interface LiteralUniqueWhere {
       } & {});
   /** @unique — Unique indexed field */
   status?: Status | StatusWhere;
+  $raw?: SqlFragment;
   AND?: LiteralUniqueWhere[];
   OR?: LiteralUniqueWhere[];
   NOT?: LiteralUniqueWhere;
@@ -1863,6 +1879,7 @@ export interface LiteralUniqueModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1906,6 +1923,7 @@ export interface LiteralWithBothWhere {
       } & {});
   data?: WithBoth | WithBothWhere;
   optData?: WithBoth | WithBothWhere;
+  $raw?: SqlFragment;
   AND?: LiteralWithBothWhere[];
   OR?: LiteralWithBothWhere[];
   NOT?: LiteralWithBothWhere;
@@ -2089,6 +2107,7 @@ export interface LiteralWithBothModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2153,6 +2172,7 @@ export interface LiteralWithObjectWhere {
       } & {});
   address?: LiteralAddressWhere;
   optAddress?: LiteralAddressWhere;
+  $raw?: SqlFragment;
   AND?: LiteralWithObjectWhere[];
   OR?: LiteralWithObjectWhere[];
   NOT?: LiteralWithObjectWhere;
@@ -2357,6 +2377,7 @@ export interface LiteralWithObjectModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2400,6 +2421,7 @@ export interface LiteralWithObjectOptWhere {
       } & {});
   payload?: WithObjectOpt | WithObjectOptWhere;
   optPayload?: WithObjectOpt | WithObjectOptWhere;
+  $raw?: SqlFragment;
   AND?: LiteralWithObjectOptWhere[];
   OR?: LiteralWithObjectOptWhere[];
   NOT?: LiteralWithObjectOptWhere;
@@ -2583,6 +2605,7 @@ export interface LiteralWithObjectOptModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2629,6 +2652,7 @@ export interface LiteralWithObjectVariantWhere {
   payload?: WithObject | WithObjectWhere;
   optPayload?: WithObject | WithObjectWhere;
   payloads?: { has?: WithObject; hasAll?: WithObject[]; hasAny?: WithObject[]; isEmpty?: boolean };
+  $raw?: SqlFragment;
   AND?: LiteralWithObjectVariantWhere[];
   OR?: LiteralWithObjectVariantWhere[];
   NOT?: LiteralWithObjectVariantWhere;
@@ -2830,6 +2854,7 @@ export interface LiteralWithObjectVariantModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2876,6 +2901,7 @@ export interface LiteralWithTupleWhere {
   payload?: WithTuple | WithTupleWhere;
   optPayload?: WithTuple | WithTupleWhere;
   payloads?: { has?: WithTuple; hasAll?: WithTuple[]; hasAny?: WithTuple[]; isEmpty?: boolean };
+  $raw?: SqlFragment;
   AND?: LiteralWithTupleWhere[];
   OR?: LiteralWithTupleWhere[];
   NOT?: LiteralWithTupleWhere;

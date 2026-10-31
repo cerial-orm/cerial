@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import { CerialUuid } from 'cerial';
 import type { CerialUuidInput } from 'cerial';
@@ -264,10 +265,15 @@ export interface NcDocWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  groups?: { some?: NcGroupWhere; every?: NcGroupWhere; none?: NcGroupWhere };
+  groups?: { some?: Omit<NcGroupWhere, '$raw'>; every?: Omit<NcGroupWhere, '$raw'>; none?: Omit<NcGroupWhere, '$raw'> };
   singleHolders?:
-    | { some?: NcHolderWhere; every?: NcHolderWhere; none?: NcHolderWhere; isEmpty?: boolean }
-    | Omit<NcHolderWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<NcHolderWhere, '$raw'>;
+        every?: Omit<NcHolderWhere, '$raw'>;
+        none?: Omit<NcHolderWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<NcHolderWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
   revHolderId?:
     | RecordIdInput<string>
     | ({
@@ -284,7 +290,8 @@ export interface NcDocWhere {
         not?: string;
         isNone?: boolean;
       });
-  revHolder?: NcHolderWhere;
+  revHolder?: Omit<NcHolderWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: NcDocWhere[];
   OR?: NcDocWhere[];
   NOT?: NcDocWhere;
@@ -948,6 +955,7 @@ export interface NcDocModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1017,7 +1025,8 @@ export interface NcGroupWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  docs?: { some?: NcDocWhere; every?: NcDocWhere; none?: NcDocWhere };
+  docs?: { some?: Omit<NcDocWhere, '$raw'>; every?: Omit<NcDocWhere, '$raw'>; none?: Omit<NcDocWhere, '$raw'> };
+  $raw?: SqlFragment;
   AND?: NcGroupWhere[];
   OR?: NcGroupWhere[];
   NOT?: NcGroupWhere;
@@ -1283,6 +1292,7 @@ export interface NcGroupModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1361,10 +1371,16 @@ export interface NcHolderWhere {
         not?: string;
         isNone?: boolean;
       });
-  doc?: NcDocWhere;
+  doc?: Omit<NcDocWhere, '$raw'>;
   reverseDocs?:
-    | { some?: NcDocWhere; every?: NcDocWhere; none?: NcDocWhere; isEmpty?: boolean }
-    | Omit<NcDocWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<NcDocWhere, '$raw'>;
+        every?: Omit<NcDocWhere, '$raw'>;
+        none?: Omit<NcDocWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<NcDocWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: NcHolderWhere[];
   OR?: NcHolderWhere[];
   NOT?: NcHolderWhere;

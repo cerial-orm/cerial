@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -72,6 +73,7 @@ export interface TupleBasicWhere {
   backup?: CoordinateWhere;
   history?: { some?: CoordinateWhere; every?: CoordinateWhere; none?: CoordinateWhere };
   entry?: EntryWhere;
+  $raw?: SqlFragment;
   AND?: TupleBasicWhere[];
   OR?: TupleBasicWhere[];
   NOT?: TupleBasicWhere;
@@ -265,6 +267,7 @@ export interface TupleBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -325,6 +328,7 @@ export interface TupleDecoratedNestWhere {
       } & {});
   outer?: StampedOuterWhere;
   maybe?: StampedWhere;
+  $raw?: SqlFragment;
   AND?: TupleDecoratedNestWhere[];
   OR?: TupleDecoratedNestWhere[];
   NOT?: TupleDecoratedNestWhere;
@@ -511,6 +515,7 @@ export interface TupleDecoratedNestModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -576,6 +581,7 @@ export interface TupleDeepNestWhere {
       } & {});
   deep?: DeepOuterTupleWhere;
   deepOpt?: DeepOuterTupleWhere;
+  $raw?: SqlFragment;
   AND?: TupleDeepNestWhere[];
   OR?: TupleDeepNestWhere[];
   NOT?: TupleDeepNestWhere;
@@ -758,6 +764,7 @@ export interface TupleDeepNestModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -812,6 +819,7 @@ export interface TupleDefaultedWhere {
         notIn?: string[];
       } & {});
   meta?: DefaultedWhere;
+  $raw?: SqlFragment;
   AND?: TupleDefaultedWhere[];
   OR?: TupleDefaultedWhere[];
   NOT?: TupleDefaultedWhere;
@@ -991,6 +999,7 @@ export interface TupleDefaultedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1036,6 +1045,7 @@ export interface TupleInObjWhere {
         notIn?: RecordIdInput<string>[];
       } & {});
   details?: TupleHolderWhere;
+  $raw?: SqlFragment;
   AND?: TupleInObjWhere[];
   OR?: TupleInObjWhere[];
   NOT?: TupleInObjWhere;
@@ -1218,6 +1228,7 @@ export interface TupleInObjModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1279,6 +1290,7 @@ export interface TupleLiteralElementWhere {
   status?: StatusPairWhere;
   role?: RolePairWhere;
   history?: { some?: StatusPairWhere; every?: StatusPairWhere; none?: StatusPairWhere };
+  $raw?: SqlFragment;
   AND?: TupleLiteralElementWhere[];
   OR?: TupleLiteralElementWhere[];
   NOT?: TupleLiteralElementWhere;
@@ -1472,6 +1484,7 @@ export interface TupleLiteralElementModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1512,6 +1525,7 @@ export interface TupleNestedWhere {
         notIn?: RecordIdInput<string>[];
       } & {});
   payload?: OuterWhere;
+  $raw?: SqlFragment;
   AND?: TupleNestedWhere[];
   OR?: TupleNestedWhere[];
   NOT?: TupleNestedWhere;
@@ -1689,6 +1703,7 @@ export interface TupleNestedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1769,6 +1784,7 @@ export interface TupleNullableWhere {
   pair?: NullablePairWhere;
   optNull?: OptNullPairWhere;
   mixed?: MixedNullabilityWhere;
+  $raw?: SqlFragment;
   AND?: TupleNullableWhere[];
   OR?: TupleNullableWhere[];
   NOT?: TupleNullableWhere;
@@ -1956,6 +1972,7 @@ export interface TupleNullableModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -2002,6 +2019,7 @@ export interface TupleObjInTupleWhere {
         notIn?: RecordIdInput<string>[];
       } & {});
   place?: LocatedWhere;
+  $raw?: SqlFragment;
   AND?: TupleObjInTupleWhere[];
   OR?: TupleObjInTupleWhere[];
   NOT?: TupleObjInTupleWhere;
@@ -2182,6 +2200,7 @@ export interface TupleObjInTupleModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2261,7 +2280,8 @@ export interface TupleRelatedPostWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  author?: TupleWithRelationWhere;
+  author?: Omit<TupleWithRelationWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: TupleRelatedPostWhere[];
   OR?: TupleRelatedPostWhere[];
   NOT?: TupleRelatedPostWhere;
@@ -2528,6 +2548,7 @@ export interface TupleRelatedPostModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -2582,6 +2603,7 @@ export interface TupleStampedWhere {
         notIn?: string[];
       } & {});
   stamp?: StampedWhere;
+  $raw?: SqlFragment;
   AND?: TupleStampedWhere[];
   OR?: TupleStampedWhere[];
   NOT?: TupleStampedWhere;
@@ -2761,6 +2783,7 @@ export interface TupleStampedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -2825,8 +2848,14 @@ export interface TupleWithRelationWhere {
       } & {});
   location?: CoordinateWhere;
   posts?:
-    | { some?: TupleRelatedPostWhere; every?: TupleRelatedPostWhere; none?: TupleRelatedPostWhere; isEmpty?: boolean }
-    | Omit<TupleRelatedPostWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<TupleRelatedPostWhere, '$raw'>;
+        every?: Omit<TupleRelatedPostWhere, '$raw'>;
+        none?: Omit<TupleRelatedPostWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<TupleRelatedPostWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: TupleWithRelationWhere[];
   OR?: TupleWithRelationWhere[];
   NOT?: TupleWithRelationWhere;

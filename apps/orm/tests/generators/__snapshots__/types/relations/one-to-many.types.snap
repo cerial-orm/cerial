@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -57,6 +58,7 @@ export interface ArticleWhere {
         in?: string[];
         notIn?: string[];
       } & {});
+  $raw?: SqlFragment;
   AND?: ArticleWhere[];
   OR?: ArticleWhere[];
   NOT?: ArticleWhere;
@@ -233,6 +235,7 @@ export interface ArticleModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -309,8 +312,14 @@ export interface AuthorWhere {
         notIn?: string[];
       } & {});
   posts?:
-    | { some?: PostRequiredWhere; every?: PostRequiredWhere; none?: PostRequiredWhere; isEmpty?: boolean }
-    | Omit<PostRequiredWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<PostRequiredWhere, '$raw'>;
+        every?: Omit<PostRequiredWhere, '$raw'>;
+        none?: Omit<PostRequiredWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<PostRequiredWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: AuthorWhere[];
   OR?: AuthorWhere[];
   NOT?: AuthorWhere;
@@ -563,6 +572,7 @@ export interface AuthorModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -635,7 +645,8 @@ export interface CommentWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  article?: null | ArticleWhere;
+  article?: null | Omit<ArticleWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: CommentWhere[];
   OR?: CommentWhere[];
   NOT?: CommentWhere;
@@ -879,6 +890,7 @@ export interface CommentModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -976,7 +988,7 @@ export interface PostRequiredWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  author?: AuthorWhere;
+  author?: Omit<AuthorWhere, '$raw'>;
   createdAt?:
     | Date
     | ({
@@ -994,6 +1006,7 @@ export interface PostRequiredWhere {
         isNone?: boolean;
         between?: [Date, Date];
       });
+  $raw?: SqlFragment;
   AND?: PostRequiredWhere[];
   OR?: PostRequiredWhere[];
   NOT?: PostRequiredWhere;

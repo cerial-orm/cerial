@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -64,6 +65,7 @@ export interface ObjectTestOrderWhere {
   shippingAddress?: AddressWhere;
   items?: { some?: OrderItemWhere; every?: OrderItemWhere; none?: OrderItemWhere };
   metadata?: TreeNodeWhere;
+  $raw?: SqlFragment;
   AND?: ObjectTestOrderWhere[];
   OR?: ObjectTestOrderWhere[];
   NOT?: ObjectTestOrderWhere;
@@ -304,6 +306,7 @@ export interface ObjectTestOrderModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -369,6 +372,7 @@ export interface ObjectTestUserWhere {
   shipping?: AddressWhere;
   locations?: { some?: GeoPointWhere; every?: GeoPointWhere; none?: GeoPointWhere };
   primaryLocation?: GeoPointWhere;
+  $raw?: SqlFragment;
   AND?: ObjectTestUserWhere[];
   OR?: ObjectTestUserWhere[];
   NOT?: ObjectTestUserWhere;

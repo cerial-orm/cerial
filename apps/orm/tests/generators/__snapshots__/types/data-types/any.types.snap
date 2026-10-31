@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialAny } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -89,6 +90,7 @@ export interface AnyBasicWhere {
         hasAny?: CerialAny[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: AnyBasicWhere[];
   OR?: AnyBasicWhere[];
   NOT?: AnyBasicWhere;
@@ -274,6 +276,7 @@ export interface AnyBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type { CerialAny } from 'cerial';
 import type {
@@ -418,6 +421,7 @@ export interface AnyDecoratedWhere {
         hasAny?: CerialAny[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: AnyDecoratedWhere[];
   OR?: AnyDecoratedWhere[];
   NOT?: AnyDecoratedWhere;
@@ -636,6 +640,7 @@ export interface AnyDecoratedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialAny } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -694,6 +699,7 @@ export interface AnyUniqueWhere {
       } & {
         between?: [CerialAny, CerialAny];
       });
+  $raw?: SqlFragment;
   AND?: AnyUniqueWhere[];
   OR?: AnyUniqueWhere[];
   NOT?: AnyUniqueWhere;
@@ -871,6 +877,7 @@ export interface AnyUniqueModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -925,6 +932,7 @@ export interface AnyWithObjectWhere {
         notIn?: string[];
       } & {});
   meta?: AnyMetaWhere;
+  $raw?: SqlFragment;
   AND?: AnyWithObjectWhere[];
   OR?: AnyWithObjectWhere[];
   NOT?: AnyWithObjectWhere;

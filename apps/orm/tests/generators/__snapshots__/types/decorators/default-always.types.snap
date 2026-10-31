@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -151,6 +152,7 @@ export interface ContentItemWhere {
         between?: [number, number];
       });
   meta?: ReviewMetaWhere;
+  $raw?: SqlFragment;
   AND?: ContentItemWhere[];
   OR?: ContentItemWhere[];
   NOT?: ContentItemWhere;

@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -154,6 +155,7 @@ export interface ExtL4AltConcreteWhere {
         isNone?: boolean;
         between?: [Date, Date];
       });
+  $raw?: SqlFragment;
   AND?: ExtL4AltConcreteWhere[];
   OR?: ExtL4AltConcreteWhere[];
   NOT?: ExtL4AltConcreteWhere;
@@ -377,6 +379,7 @@ export interface ExtL4AltConcreteModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -526,6 +529,7 @@ export interface ExtL4ConcreteWhere {
       } & {
         between?: [number, number];
       });
+  $raw?: SqlFragment;
   AND?: ExtL4ConcreteWhere[];
   OR?: ExtL4ConcreteWhere[];
   NOT?: ExtL4ConcreteWhere;
@@ -752,6 +756,7 @@ export interface ExtL4ConcreteModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -872,6 +877,7 @@ export interface ExtL4OmitConcreteWhere {
       } & {
         between?: [number, number];
       });
+  $raw?: SqlFragment;
   AND?: ExtL4OmitConcreteWhere[];
   OR?: ExtL4OmitConcreteWhere[];
   NOT?: ExtL4OmitConcreteWhere;
@@ -1068,6 +1074,7 @@ export interface ExtL4OmitConcreteModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1208,6 +1215,7 @@ export interface ExtL4PickConcreteWhere {
         isNone?: boolean;
         between?: [number, number];
       });
+  $raw?: SqlFragment;
   AND?: ExtL4PickConcreteWhere[];
   OR?: ExtL4PickConcreteWhere[];
   NOT?: ExtL4PickConcreteWhere;
@@ -1429,6 +1437,7 @@ export interface ExtL4PickConcreteModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1586,6 +1595,7 @@ export interface ExtL5VeryDeepWhere {
         eq?: boolean;
         neq?: boolean;
       } & {});
+  $raw?: SqlFragment;
   AND?: ExtL5VeryDeepWhere[];
   OR?: ExtL5VeryDeepWhere[];
   NOT?: ExtL5VeryDeepWhere;
@@ -1816,6 +1826,7 @@ export interface ExtL5VeryDeepModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2010,6 +2021,7 @@ export interface ExtL6UltraDeepWhere {
         isNone?: boolean;
         between?: [Date, Date];
       });
+  $raw?: SqlFragment;
   AND?: ExtL6UltraDeepWhere[];
   OR?: ExtL6UltraDeepWhere[];
   NOT?: ExtL6UltraDeepWhere;
@@ -2402,6 +2414,7 @@ export interface ExtL6UltraDeepModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2536,6 +2549,7 @@ export interface ExtP4ConcreteWhere {
         not?: string;
         isNone?: boolean;
       });
+  $raw?: SqlFragment;
   AND?: ExtP4ConcreteWhere[];
   OR?: ExtP4ConcreteWhere[];
   NOT?: ExtP4ConcreteWhere;

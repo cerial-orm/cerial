@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -67,8 +68,14 @@ export interface AgentWhere {
         notIn?: string[];
       } & {});
   assignedOrders?:
-    | { some?: PurchaseOrderWhere; every?: PurchaseOrderWhere; none?: PurchaseOrderWhere; isEmpty?: boolean }
-    | Omit<PurchaseOrderWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<PurchaseOrderWhere, '$raw'>;
+        every?: Omit<PurchaseOrderWhere, '$raw'>;
+        none?: Omit<PurchaseOrderWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<PurchaseOrderWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: AgentWhere[];
   OR?: AgentWhere[];
   NOT?: AgentWhere;
@@ -317,6 +324,7 @@ export interface AgentModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -377,8 +385,14 @@ export interface CustomerWhere {
         notIn?: string[];
       } & {});
   orders?:
-    | { some?: PurchaseOrderWhere; every?: PurchaseOrderWhere; none?: PurchaseOrderWhere; isEmpty?: boolean }
-    | Omit<PurchaseOrderWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<PurchaseOrderWhere, '$raw'>;
+        every?: Omit<PurchaseOrderWhere, '$raw'>;
+        none?: Omit<PurchaseOrderWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<PurchaseOrderWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: CustomerWhere[];
   OR?: CustomerWhere[];
   NOT?: CustomerWhere;
@@ -637,6 +651,7 @@ export interface CustomerModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -724,7 +739,7 @@ export interface PurchaseOrderWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  customer?: CustomerWhere;
+  customer?: Omit<CustomerWhere, '$raw'>;
   assigneeId?:
     | null
     | RecordIdInput<string>
@@ -743,7 +758,8 @@ export interface PurchaseOrderWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  assignee?: null | AgentWhere;
+  assignee?: null | Omit<AgentWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: PurchaseOrderWhere[];
   OR?: PurchaseOrderWhere[];
   NOT?: PurchaseOrderWhere;

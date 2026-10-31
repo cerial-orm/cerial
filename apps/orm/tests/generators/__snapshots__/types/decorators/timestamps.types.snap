@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -109,6 +110,7 @@ export interface TimestampTestWhere {
         between?: [Date, Date];
       });
   meta?: TimestampInfoWhere;
+  $raw?: SqlFragment;
   AND?: TimestampTestWhere[];
   OR?: TimestampTestWhere[];
   NOT?: TimestampTestWhere;

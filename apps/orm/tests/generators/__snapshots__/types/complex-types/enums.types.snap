@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -72,6 +73,7 @@ export interface EnumBasicWhere {
   optRole?: RoleEnumType | RoleEnumWhere;
   nullRole?: null | RoleEnumType | RoleEnumWhere;
   roles?: { has?: RoleEnumType; hasAll?: RoleEnumType[]; hasAny?: RoleEnumType[]; isEmpty?: boolean };
+  $raw?: SqlFragment;
   AND?: EnumBasicWhere[];
   OR?: EnumBasicWhere[];
   NOT?: EnumBasicWhere;
@@ -268,6 +270,7 @@ export interface EnumBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -328,6 +331,7 @@ export interface EnumDefaultsWhere {
       } & {});
   role?: RoleEnumType | RoleEnumWhere;
   severity?: SeverityEnumType | SeverityEnumWhere;
+  $raw?: SqlFragment;
   AND?: EnumDefaultsWhere[];
   OR?: EnumDefaultsWhere[];
   NOT?: EnumDefaultsWhere;
@@ -508,6 +512,7 @@ export interface EnumDefaultsModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -547,6 +552,7 @@ export interface EnumLiteralRefWhere {
         notIn?: RecordIdInput<string>[];
       } & {});
   visibility?: RoleOrCustom | RoleOrCustomWhere;
+  $raw?: SqlFragment;
   AND?: EnumLiteralRefWhere[];
   OR?: EnumLiteralRefWhere[];
   NOT?: EnumLiteralRefWhere;
@@ -722,6 +728,7 @@ export interface EnumLiteralRefModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -787,6 +794,7 @@ export interface EnumMultipleWhere {
   role?: RoleEnumType | RoleEnumWhere;
   color?: ColorEnumType | ColorEnumWhere;
   severity?: SeverityEnumType | SeverityEnumWhere;
+  $raw?: SqlFragment;
   AND?: EnumMultipleWhere[];
   OR?: EnumMultipleWhere[];
   NOT?: EnumMultipleWhere;
@@ -969,6 +977,7 @@ export interface EnumMultipleModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1010,6 +1019,7 @@ export interface EnumUniqueWhere {
       } & {});
   /** @unique — Unique indexed field */
   role?: RoleEnumType | RoleEnumWhere;
+  $raw?: SqlFragment;
   AND?: EnumUniqueWhere[];
   OR?: EnumUniqueWhere[];
   NOT?: EnumUniqueWhere;
@@ -1188,6 +1198,7 @@ export interface EnumUniqueModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1252,6 +1263,7 @@ export interface EnumWithObjectWhere {
       } & {});
   address?: EnumAddressWhere;
   optAddress?: EnumAddressWhere;
+  $raw?: SqlFragment;
   AND?: EnumWithObjectWhere[];
   OR?: EnumWithObjectWhere[];
   NOT?: EnumWithObjectWhere;

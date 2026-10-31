@@ -105,7 +105,18 @@ checks([
 checks([
   check<
     keyof ContentItemWhere,
-    'id' | 'title' | 'body' | 'reviewed' | 'syncStatus' | 'retryCount' | 'score' | 'meta' | 'AND' | 'OR' | 'NOT',
+    | 'id'
+    | 'title'
+    | 'body'
+    | 'reviewed'
+    | 'syncStatus'
+    | 'retryCount'
+    | 'score'
+    | 'meta'
+    | '$raw'
+    | 'AND'
+    | 'OR'
+    | 'NOT',
     Test.Pass
   >(),
   // A @defaultAlways field filters by the type of its value

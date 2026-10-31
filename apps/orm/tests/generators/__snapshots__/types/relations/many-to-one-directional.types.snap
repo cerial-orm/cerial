@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -68,7 +69,8 @@ export interface BloggerWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  labels?: { some?: LabelWhere; every?: LabelWhere; none?: LabelWhere };
+  labels?: { some?: Omit<LabelWhere, '$raw'>; every?: Omit<LabelWhere, '$raw'>; none?: Omit<LabelWhere, '$raw'> };
+  $raw?: SqlFragment;
   AND?: BloggerWhere[];
   OR?: BloggerWhere[];
   NOT?: BloggerWhere;
@@ -325,6 +327,7 @@ export interface BloggerModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -376,6 +379,7 @@ export interface LabelWhere {
         in?: string[];
         notIn?: string[];
       } & {});
+  $raw?: SqlFragment;
   AND?: LabelWhere[];
   OR?: LabelWhere[];
   NOT?: LabelWhere;

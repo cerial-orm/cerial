@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -82,7 +83,8 @@ export interface ReadonlyRecordWhere {
         not?: string;
         isNone?: boolean;
       });
-  author?: ReadonlyTestWhere;
+  author?: Omit<ReadonlyTestWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ReadonlyRecordWhere[];
   OR?: ReadonlyRecordWhere[];
   NOT?: ReadonlyRecordWhere;
@@ -325,6 +327,7 @@ export interface ReadonlyRecordModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -455,6 +458,7 @@ export interface ReadonlyTestWhere {
       } & {});
   address?: ReadonlyAddressWhere;
   meta?: ReadonlyMetaWhere;
+  $raw?: SqlFragment;
   AND?: ReadonlyTestWhere[];
   OR?: ReadonlyTestWhere[];
   NOT?: ReadonlyTestWhere;

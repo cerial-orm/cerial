@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -140,8 +141,14 @@ export interface ExtRelBlogAuthorWhere {
         isNone?: boolean;
       });
   posts?:
-    | { some?: ExtRelBlogPostWhere; every?: ExtRelBlogPostWhere; none?: ExtRelBlogPostWhere; isEmpty?: boolean }
-    | Omit<ExtRelBlogPostWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<ExtRelBlogPostWhere, '$raw'>;
+        every?: Omit<ExtRelBlogPostWhere, '$raw'>;
+        none?: Omit<ExtRelBlogPostWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<ExtRelBlogPostWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: ExtRelBlogAuthorWhere[];
   OR?: ExtRelBlogAuthorWhere[];
   NOT?: ExtRelBlogAuthorWhere;
@@ -430,6 +437,7 @@ export interface ExtRelBlogAuthorModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -561,7 +569,8 @@ export interface ExtRelBlogPostWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  author?: ExtRelBlogAuthorWhere;
+  author?: Omit<ExtRelBlogAuthorWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ExtRelBlogPostWhere[];
   OR?: ExtRelBlogPostWhere[];
   NOT?: ExtRelBlogPostWhere;
@@ -842,6 +851,7 @@ export interface ExtRelBlogPostModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -916,7 +926,7 @@ export interface ExtRelBlogPostTagWhere {
         not?: string;
         isNone?: boolean;
       });
-  post?: ExtRelBlogPostWhere;
+  post?: Omit<ExtRelBlogPostWhere, '$raw'>;
   tagId?:
     | RecordIdInput<string>
     | ({
@@ -930,7 +940,8 @@ export interface ExtRelBlogPostTagWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  tag?: ExtRelBlogTagWhere;
+  tag?: Omit<ExtRelBlogTagWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ExtRelBlogPostTagWhere[];
   OR?: ExtRelBlogPostTagWhere[];
   NOT?: ExtRelBlogPostTagWhere;
@@ -1227,6 +1238,7 @@ export interface ExtRelBlogPostTagModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1328,12 +1340,13 @@ export interface ExtRelBlogTagWhere {
       } & {});
   postTags?:
     | {
-        some?: ExtRelBlogPostTagWhere;
-        every?: ExtRelBlogPostTagWhere;
-        none?: ExtRelBlogPostTagWhere;
+        some?: Omit<ExtRelBlogPostTagWhere, '$raw'>;
+        every?: Omit<ExtRelBlogPostTagWhere, '$raw'>;
+        none?: Omit<ExtRelBlogPostTagWhere, '$raw'>;
         isEmpty?: boolean;
       }
-    | Omit<ExtRelBlogPostTagWhere, 'AND' | 'OR' | 'NOT'>;
+    | Omit<ExtRelBlogPostTagWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: ExtRelBlogTagWhere[];
   OR?: ExtRelBlogTagWhere[];
   NOT?: ExtRelBlogTagWhere;
@@ -1610,6 +1623,7 @@ export interface ExtRelBlogTagModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1717,7 +1731,8 @@ export interface ExtRelCommentWhere {
         not?: string;
         isNone?: boolean;
       });
-  parentComment?: ExtRelCommentWhere;
+  parentComment?: Omit<ExtRelCommentWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ExtRelCommentWhere[];
   OR?: ExtRelCommentWhere[];
   NOT?: ExtRelCommentWhere;
@@ -1995,6 +2010,7 @@ export interface ExtRelCommentModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2124,7 +2140,7 @@ export interface ExtRelCommentModeratedWhere {
         not?: string;
         isNone?: boolean;
       });
-  parentComment?: ExtRelCommentWhere;
+  parentComment?: Omit<ExtRelCommentWhere, '$raw'>;
   isApproved?:
     | boolean
     | ({
@@ -2147,7 +2163,8 @@ export interface ExtRelCommentModeratedWhere {
         not?: string;
         isNone?: boolean;
       });
-  approver?: ExtRelBlogAuthorWhere;
+  approver?: Omit<ExtRelBlogAuthorWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ExtRelCommentModeratedWhere[];
   OR?: ExtRelCommentModeratedWhere[];
   NOT?: ExtRelCommentModeratedWhere;
@@ -2483,6 +2500,7 @@ export interface ExtRelCommentModeratedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2609,6 +2627,7 @@ export interface ExtRelPostArchiveWhere {
         not?: string;
         isNone?: boolean;
       });
+  $raw?: SqlFragment;
   AND?: ExtRelPostArchiveWhere[];
   OR?: ExtRelPostArchiveWhere[];
   NOT?: ExtRelPostArchiveWhere;
@@ -2814,6 +2833,7 @@ export interface ExtRelPostArchiveModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -2958,6 +2978,7 @@ export interface ExtRelPostSummaryWhere {
         isNone?: boolean;
         between?: [number, number];
       });
+  $raw?: SqlFragment;
   AND?: ExtRelPostSummaryWhere[];
   OR?: ExtRelPostSummaryWhere[];
   NOT?: ExtRelPostSummaryWhere;
@@ -3169,6 +3190,7 @@ export interface ExtRelPostSummaryModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -3303,7 +3325,8 @@ export interface ExtRelProjectWhere {
         not?: string;
         isNone?: boolean;
       });
-  owner?: ExtRelBlogAuthorWhere;
+  owner?: Omit<ExtRelBlogAuthorWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: ExtRelProjectWhere[];
   OR?: ExtRelProjectWhere[];
   NOT?: ExtRelProjectWhere;

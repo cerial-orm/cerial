@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -58,6 +59,7 @@ export interface KitchenSinkBadgeWhere {
         in?: string[];
         notIn?: string[];
       } & {});
+  $raw?: SqlFragment;
   AND?: KitchenSinkBadgeWhere[];
   OR?: KitchenSinkBadgeWhere[];
   NOT?: KitchenSinkBadgeWhere;
@@ -239,6 +241,7 @@ export interface KitchenSinkBadgeModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -313,7 +316,8 @@ export interface KitchenSinkPostWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  author?: KitchenSinkUserWhere;
+  author?: Omit<KitchenSinkUserWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: KitchenSinkPostWhere[];
   OR?: KitchenSinkPostWhere[];
   NOT?: KitchenSinkPostWhere;
@@ -572,6 +576,7 @@ export interface KitchenSinkPostModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -650,7 +655,8 @@ export interface KitchenSinkProfileWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  user?: KitchenSinkUserWhere;
+  user?: Omit<KitchenSinkUserWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: KitchenSinkProfileWhere[];
   OR?: KitchenSinkProfileWhere[];
   NOT?: KitchenSinkProfileWhere;
@@ -916,6 +922,7 @@ export interface KitchenSinkProfileModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -996,7 +1003,8 @@ export interface KitchenSinkSettingsWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  user?: null | KitchenSinkUserWhere;
+  user?: null | Omit<KitchenSinkUserWhere, '$raw'>;
+  $raw?: SqlFragment;
   AND?: KitchenSinkSettingsWhere[];
   OR?: KitchenSinkSettingsWhere[];
   NOT?: KitchenSinkSettingsWhere;
@@ -1259,6 +1267,7 @@ export interface KitchenSinkSettingsModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1329,7 +1338,12 @@ export interface KitchenSinkTagWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  users?: { some?: KitchenSinkUserWhere; every?: KitchenSinkUserWhere; none?: KitchenSinkUserWhere };
+  users?: {
+    some?: Omit<KitchenSinkUserWhere, '$raw'>;
+    every?: Omit<KitchenSinkUserWhere, '$raw'>;
+    none?: Omit<KitchenSinkUserWhere, '$raw'>;
+  };
+  $raw?: SqlFragment;
   AND?: KitchenSinkTagWhere[];
   OR?: KitchenSinkTagWhere[];
   NOT?: KitchenSinkTagWhere;
@@ -1607,6 +1621,7 @@ export interface KitchenSinkTagModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -1723,10 +1738,15 @@ export interface KitchenSinkUserWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  profile?: KitchenSinkProfileWhere;
+  profile?: Omit<KitchenSinkProfileWhere, '$raw'>;
   posts?:
-    | { some?: KitchenSinkPostWhere; every?: KitchenSinkPostWhere; none?: KitchenSinkPostWhere; isEmpty?: boolean }
-    | Omit<KitchenSinkPostWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<KitchenSinkPostWhere, '$raw'>;
+        every?: Omit<KitchenSinkPostWhere, '$raw'>;
+        none?: Omit<KitchenSinkPostWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<KitchenSinkPostWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
   tagIds?:
     | RecordIdInput<string>[]
     | {
@@ -1735,7 +1755,11 @@ export interface KitchenSinkUserWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  tags?: { some?: KitchenSinkTagWhere; every?: KitchenSinkTagWhere; none?: KitchenSinkTagWhere };
+  tags?: {
+    some?: Omit<KitchenSinkTagWhere, '$raw'>;
+    every?: Omit<KitchenSinkTagWhere, '$raw'>;
+    none?: Omit<KitchenSinkTagWhere, '$raw'>;
+  };
   settingsId?:
     | null
     | RecordIdInput<string>
@@ -1754,7 +1778,7 @@ export interface KitchenSinkUserWhere {
         isNull?: boolean;
         isNone?: boolean;
       });
-  settings?: null | KitchenSinkSettingsWhere;
+  settings?: null | Omit<KitchenSinkSettingsWhere, '$raw'>;
   badgeIds?:
     | RecordIdInput<string>[]
     | {
@@ -1763,7 +1787,12 @@ export interface KitchenSinkUserWhere {
         hasAny?: RecordIdInput<string>[];
         isEmpty?: boolean;
       };
-  badges?: { some?: KitchenSinkBadgeWhere; every?: KitchenSinkBadgeWhere; none?: KitchenSinkBadgeWhere };
+  badges?: {
+    some?: Omit<KitchenSinkBadgeWhere, '$raw'>;
+    every?: Omit<KitchenSinkBadgeWhere, '$raw'>;
+    none?: Omit<KitchenSinkBadgeWhere, '$raw'>;
+  };
+  $raw?: SqlFragment;
   AND?: KitchenSinkUserWhere[];
   OR?: KitchenSinkUserWhere[];
   NOT?: KitchenSinkUserWhere;

@@ -37,6 +37,7 @@ import {
   modelHasSetFields,
   modelHasUuidFields,
   NONE_IMPORT,
+  SQL_FRAGMENT_IMPORT,
   needsCerialNone,
   TS_TOOLBELT_IMPORT,
   UNIQUE_TYPES_IMPORT,
@@ -135,7 +136,8 @@ export async function writeModelTypes(
  */
 
 ${TS_TOOLBELT_IMPORT}
-${CERIAL_ID_IMPORT}${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${geometryImport}${anyImport}${setImport}
+${CERIAL_ID_IMPORT}
+${SQL_FRAGMENT_IMPORT}${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${geometryImport}${anyImport}${setImport}
 ${UNIQUE_TYPES_IMPORT}
 ${relatedImports}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 

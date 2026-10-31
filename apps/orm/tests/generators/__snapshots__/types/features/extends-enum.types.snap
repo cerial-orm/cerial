@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -70,6 +71,7 @@ export interface ExtEnumContainerWhere {
       } & {});
   details?: ExtEnumInfoWhere;
   detailsList?: { some?: ExtEnumInfoWhere; every?: ExtEnumInfoWhere; none?: ExtEnumInfoWhere };
+  $raw?: SqlFragment;
   AND?: ExtEnumContainerWhere[];
   OR?: ExtEnumContainerWhere[];
   NOT?: ExtEnumContainerWhere;
@@ -286,6 +288,7 @@ export interface ExtEnumContainerModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -358,6 +361,7 @@ export interface ExtEnumModelWhere {
     hasAny?: ExtDetailedStatusEnumType[];
     isEmpty?: boolean;
   };
+  $raw?: SqlFragment;
   AND?: ExtEnumModelWhere[];
   OR?: ExtEnumModelWhere[];
   NOT?: ExtEnumModelWhere;

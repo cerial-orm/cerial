@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -85,14 +86,30 @@ export interface AttendeeWhere {
         notIn?: string[];
       } & {});
   registrations?:
-    | { some?: RegistrationWhere; every?: RegistrationWhere; none?: RegistrationWhere; isEmpty?: boolean }
-    | Omit<RegistrationWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<RegistrationWhere, '$raw'>;
+        every?: Omit<RegistrationWhere, '$raw'>;
+        none?: Omit<RegistrationWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<RegistrationWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
   tickets?:
-    | { some?: TicketWhere; every?: TicketWhere; none?: TicketWhere; isEmpty?: boolean }
-    | Omit<TicketWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<TicketWhere, '$raw'>;
+        every?: Omit<TicketWhere, '$raw'>;
+        none?: Omit<TicketWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<TicketWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
   bookings?:
-    | { some?: BookingWhere; every?: BookingWhere; none?: BookingWhere; isEmpty?: boolean }
-    | Omit<BookingWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<BookingWhere, '$raw'>;
+        every?: Omit<BookingWhere, '$raw'>;
+        none?: Omit<BookingWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<BookingWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: AttendeeWhere[];
   OR?: AttendeeWhere[];
   NOT?: AttendeeWhere;
@@ -427,6 +444,7 @@ export interface AttendeeModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -493,12 +511,13 @@ export interface BookingWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  attendee?: AttendeeWhere;
+  attendee?: Omit<AttendeeWhere, '$raw'>;
   /**
    * @@index("bookingAttendeeRow") — Part of composite index (with: attendeeId)
    * @@unique("bookingAttendeeRowUnique") — Part of composite unique (with: attendeeId)
    */
   slot?: SlotWhere;
+  $raw?: SqlFragment;
   AND?: BookingWhere[];
   OR?: BookingWhere[];
   NOT?: BookingWhere;
@@ -756,6 +775,7 @@ export interface BookingModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -844,8 +864,8 @@ export interface RegistrationWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  attendee?: AttendeeWhere;
-  workshop?: WorkshopWhere;
+  attendee?: Omit<AttendeeWhere, '$raw'>;
+  workshop?: Omit<WorkshopWhere, '$raw'>;
   role?:
     | string
     | ({
@@ -862,6 +882,7 @@ export interface RegistrationWhere {
         not?: string;
         isNone?: boolean;
       });
+  $raw?: SqlFragment;
   AND?: RegistrationWhere[];
   OR?: RegistrationWhere[];
   NOT?: RegistrationWhere;
@@ -1160,6 +1181,7 @@ export interface RegistrationModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1253,8 +1275,8 @@ export interface TicketWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  attendee?: AttendeeWhere;
-  workshop?: WorkshopWhere;
+  attendee?: Omit<AttendeeWhere, '$raw'>;
+  workshop?: Omit<WorkshopWhere, '$raw'>;
   /**
    * @@index("ticketAttendeeSeat") — Part of composite index (with: attendeeId)
    * @@unique("ticketWorkshopSeat") — Part of composite unique (with: workshopId)
@@ -1272,6 +1294,7 @@ export interface TicketWhere {
         in?: string[];
         notIn?: string[];
       } & {});
+  $raw?: SqlFragment;
   AND?: TicketWhere[];
   OR?: TicketWhere[];
   NOT?: TicketWhere;
@@ -1553,6 +1576,7 @@ export interface TicketModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -1622,11 +1646,22 @@ export interface WorkshopWhere {
         notIn?: string[];
       } & {});
   registrations?:
-    | { some?: RegistrationWhere; every?: RegistrationWhere; none?: RegistrationWhere; isEmpty?: boolean }
-    | Omit<RegistrationWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<RegistrationWhere, '$raw'>;
+        every?: Omit<RegistrationWhere, '$raw'>;
+        none?: Omit<RegistrationWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<RegistrationWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
   tickets?:
-    | { some?: TicketWhere; every?: TicketWhere; none?: TicketWhere; isEmpty?: boolean }
-    | Omit<TicketWhere, 'AND' | 'OR' | 'NOT'>;
+    | {
+        some?: Omit<TicketWhere, '$raw'>;
+        every?: Omit<TicketWhere, '$raw'>;
+        none?: Omit<TicketWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<TicketWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
   AND?: WorkshopWhere[];
   OR?: WorkshopWhere[];
   NOT?: WorkshopWhere;

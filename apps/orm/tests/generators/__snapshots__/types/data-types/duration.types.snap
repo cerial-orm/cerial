@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import { CerialDuration } from 'cerial';
 import type { CerialDurationInput } from 'cerial';
@@ -126,6 +127,7 @@ export interface DurationBasicWhere {
         hasAny?: CerialDurationInput[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: DurationBasicWhere[];
   OR?: DurationBasicWhere[];
   NOT?: DurationBasicWhere;
@@ -321,6 +323,7 @@ export interface DurationBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import { CerialDuration } from 'cerial';
 import type { CerialDurationInput } from 'cerial';
@@ -410,6 +413,7 @@ export interface DurationDecoratedWhere {
         isNone?: boolean;
         between?: [CerialDurationInput, CerialDurationInput];
       });
+  $raw?: SqlFragment;
   AND?: DurationDecoratedWhere[];
   OR?: DurationDecoratedWhere[];
   NOT?: DurationDecoratedWhere;
@@ -597,6 +601,7 @@ export interface DurationDecoratedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -657,6 +662,7 @@ export interface DurationWithObjectWhere {
         notIn?: string[];
       } & {});
   timing?: DurationInfoWhere;
+  $raw?: SqlFragment;
   AND?: DurationWithObjectWhere[];
   OR?: DurationWithObjectWhere[];
   NOT?: DurationWithObjectWhere;
@@ -844,6 +850,7 @@ export interface DurationWithObjectModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -904,6 +911,7 @@ export interface DurationWithTupleWhere {
         notIn?: string[];
       } & {});
   pair?: DurationPairWhere;
+  $raw?: SqlFragment;
   AND?: DurationWithTupleWhere[];
   OR?: DurationWithTupleWhere[];
   NOT?: DurationWithTupleWhere;

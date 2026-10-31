@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -60,6 +61,7 @@ export interface ExtTupleByNameWhere {
       } & {});
   picked?: ExtPickedNameWhere;
   omitted?: ExtOmittedAgeWhere;
+  $raw?: SqlFragment;
   AND?: ExtTupleByNameWhere[];
   OR?: ExtTupleByNameWhere[];
   NOT?: ExtTupleByNameWhere;
@@ -239,6 +241,7 @@ export interface ExtTupleByNameModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import type {
   DeleteUniqueReturn,
@@ -317,6 +320,7 @@ export interface ExtTupleModelWhere {
   quad?: ExtQuadWhere;
   coordPair?: ExtCoordPairWhere;
   optionalTriple?: ExtOptionalTripleWhere;
+  $raw?: SqlFragment;
   AND?: ExtTupleModelWhere[];
   OR?: ExtTupleModelWhere[];
   NOT?: ExtTupleModelWhere;

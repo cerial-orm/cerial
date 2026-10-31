@@ -7,6 +7,7 @@
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import { CerialDecimal } from 'cerial';
 import type { CerialDecimalInput } from 'cerial';
@@ -126,6 +127,7 @@ export interface DecimalBasicWhere {
         hasAny?: CerialDecimalInput[];
         isEmpty?: boolean;
       };
+  $raw?: SqlFragment;
   AND?: DecimalBasicWhere[];
   OR?: DecimalBasicWhere[];
   NOT?: DecimalBasicWhere;
@@ -321,6 +323,7 @@ export interface DecimalBasicModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type { CerialNone } from 'cerial';
 import { CerialDecimal } from 'cerial';
 import type { CerialDecimalInput } from 'cerial';
@@ -410,6 +413,7 @@ export interface DecimalDecoratedWhere {
         isNone?: boolean;
         between?: [CerialDecimalInput, CerialDecimalInput];
       });
+  $raw?: SqlFragment;
   AND?: DecimalDecoratedWhere[];
   OR?: DecimalDecoratedWhere[];
   NOT?: DecimalDecoratedWhere;
@@ -597,6 +601,7 @@ export interface DecimalDecoratedModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -657,6 +662,7 @@ export interface DecimalWithObjectWhere {
         notIn?: string[];
       } & {});
   pricing?: DecimalInfoWhere;
+  $raw?: SqlFragment;
   AND?: DecimalWithObjectWhere[];
   OR?: DecimalWithObjectWhere[];
   NOT?: DecimalWithObjectWhere;
@@ -844,6 +850,7 @@ export interface DecimalWithObjectModel {
 import type { Object as O, Any as A } from 'ts-toolbelt';
 import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -904,6 +911,7 @@ export interface DecimalWithTupleWhere {
         notIn?: string[];
       } & {});
   pair?: DecimalPairWhere;
+  $raw?: SqlFragment;
   AND?: DecimalWithTupleWhere[];
   OR?: DecimalWithTupleWhere[];
   NOT?: DecimalWithTupleWhere;
