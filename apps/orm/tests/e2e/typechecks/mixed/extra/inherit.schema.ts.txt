@@ -1,0 +1,12 @@
+import { f, model } from 'cerial/schema';
+import { CBase, Meta } from './cerial/handles';
+
+// Abstract parent on the TypeScript side, extended by a .cerial model; its meta is a .cerial object
+export const TBase = model(
+  'TBase',
+  { id: f.record('int').id(), tag: f.string(), meta: f.object(Meta) },
+  { abstract: true },
+);
+
+// Extends the abstract .cerial model CBase through its handle
+export const TFromC = model('TFromC', { note: f.string() }, { extends: CBase });

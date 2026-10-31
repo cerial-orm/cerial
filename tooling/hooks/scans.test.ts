@@ -206,6 +206,7 @@ describe('schema setup in an end-to-end file', () => {
     'apps/orm/tests/e2e/preload.ts',
     'apps/orm/tests/e2e/test-helper.ts',
     'apps/orm/tests/e2e/generated/client.ts',
+    'apps/orm/tests/e2e/typechecks/mixed/generated/client.ts',
     'apps/orm/tests/e2e/schemas/a.cerial',
     'apps/orm/tests/unit/a.test.ts',
     'apps/orm/src/a.ts',

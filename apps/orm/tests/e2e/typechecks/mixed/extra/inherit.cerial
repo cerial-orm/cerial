@@ -1,0 +1,11 @@
+# Abstract parent on the .cerial side, extended by a TypeScript model; its address is a TypeScript object
+abstract model CBase {
+  id Record(int) @id
+  label String
+  address Address
+}
+
+# Extends the abstract TypeScript model TBase by name
+model CFromTs extends TBase {
+  note String
+}

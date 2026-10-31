@@ -264,8 +264,10 @@ export function scanSuppressions(path: string, content: string): Refusal[] {
 export function isE2eSpecPath(path: string): boolean {
   if (!isCodePath(path) || !path.startsWith('apps/orm/tests/e2e/')) return false;
   // The generated client emits migration statements, and it is not a spec. It is
-  // ignored by git so it is never staged, but a whole-tree scan reads it off disk.
+  // ignored by git so it is never staged, but a whole-tree scan reads it off disk. The mixed type-check
+  // client is the same kind of file, written under typechecks/mixed/generated.
   if (path.startsWith('apps/orm/tests/e2e/generated/')) return false;
+  if (path.startsWith('apps/orm/tests/e2e/typechecks/mixed/generated/')) return false;
 
   return !E2E_SETUP_EXEMPT_PATHS.includes(path);
 }
