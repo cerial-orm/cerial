@@ -22,6 +22,7 @@ import { validateTypedRecordId } from '../../utils/validation-utils';
 import { isOperatorObject, resolveTupleElementKey } from '../filters/condition-builder';
 import { splitArrayRelationFilter } from '../filters/nested-condition-builder';
 import { isRegisteredOperator } from '../filters/registry';
+import { isSqlFragment } from '../compile/sql-fragment';
 
 function isDirectValue(value: unknown): boolean {
   return (
@@ -291,6 +292,15 @@ function validateTargetWhere(
   const errors: CerialValidationIssue[] = [];
 
   for (const [key, value] of Object.entries(where)) {
+    // A fragment's bare names would resolve against the wrong row here, branded or not
+    if (key === '$raw') {
+      errors.push({
+        path: `${path}.$raw`,
+        message: `${path}.$raw is not allowed in the filter on relation '${fieldPath}'; put the fragment in the where of the model that owns the field`,
+      });
+      continue;
+    }
+
     if (value === undefined) continue;
 
     if (LOGICAL_KEYS.includes(key)) {
@@ -394,6 +404,17 @@ export function validateFieldFilter(
   return errors;
 }
 
+/** The message for a `$raw` value that is not a fragment built by the `sql` tag */
+function rawValueIssue(path: string, value: unknown): CerialValidationIssue {
+  return {
+    path,
+    message:
+      value === undefined
+        ? `${path} is undefined, which would drop the filter and widen the statement; omit the key or pass a fragment built by the sql tag`
+        : `${path} must be a fragment built by the sql tag`,
+  };
+}
+
 /** Validate a where clause recursively */
 export function validateWhereClause(
   where: WhereClause,
@@ -404,6 +425,12 @@ export function validateWhereClause(
   const errors: CerialValidationIssue[] = [];
 
   for (const [key, value] of Object.entries(where)) {
+    // Ahead of the undefined skip: a conditional fragment that came out undefined must refuse, not vanish
+    if (key === '$raw') {
+      if (!isSqlFragment(value)) errors.push(rawValueIssue(`${path}.$raw`, value));
+      continue;
+    }
+
     if (value === undefined) continue;
 
     // Handle logical operators

@@ -19,7 +19,9 @@ import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { quoteSubKey } from '../../utils/string-utils';
 import { isObject } from '../../utils/type-utils';
-import { joinFragments } from '../compile/fragment';
+import { CerialValidationError } from '../../errors';
+import { joinFragments, wrapParens } from '../compile/fragment';
+import { compileFragment, isSqlFragment } from '../compile/sql-fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 import { transformOrValidateRecordId } from '../transformers';
@@ -607,6 +609,13 @@ function resolveDotNotationField(dotPath: string, model: ModelMetadata): FieldMe
   return resolvedField;
 }
 
+/** The refusal for a `$raw` value that is not a fragment built by the `sql` tag */
+export function rawRefusal(value: unknown): string {
+  return value === undefined
+    ? 'where.$raw is undefined, which would drop the filter and widen the statement; omit the key or pass a fragment built by the sql tag'
+    : 'where.$raw must be a fragment built by the sql tag';
+}
+
 /** Build conditions from a where clause */
 export function buildConditions(
   ctx: FilterCompileContext,
@@ -619,6 +628,14 @@ export function buildConditions(
   // A composite key names no column of its own; expanded here it filters in every position (top level,
   // AND/OR/NOT, relation targets) instead of compiling to nothing.
   for (const [key, value] of Object.entries(expandCompositeKeys(where, model))) {
+    // Ahead of the undefined skip so a missing fragment refuses instead of widening the filter. Parentheses
+    // keep the fragment's own OR/AND from changing precedence; they are not a security boundary.
+    if (key === '$raw') {
+      if (!isSqlFragment(value)) throw new CerialValidationError(rawRefusal(value), { model: model.name });
+      conditions.push(wrapParens(compileFragment(value, ctx)));
+      continue;
+    }
+
     if (value === undefined) continue;
 
     // Handle logical operators

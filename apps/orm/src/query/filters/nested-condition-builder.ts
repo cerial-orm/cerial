@@ -12,6 +12,14 @@ import { isOperatorObject } from './condition-builder';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { getOperatorHandler } from './registry';
 
+/** A fragment's bare names would resolve against the wrong row inside a relation filter, so it never compiles there */
+function assertNoRaw(key: string): void {
+  if (key === '$raw')
+    throw new CerialValidationError(
+      '$raw is not allowed in a relation filter; put the fragment in the where of the model that owns the field',
+    );
+}
+
 /** Relation filter operators for array relations */
 type RelationFilterOperator = 'some' | 'every' | 'none';
 
@@ -72,6 +80,7 @@ function buildSubqueryConditions(
   const conditions: QueryFragment[] = [];
 
   for (const [fieldName, value] of Object.entries(nestedWhere)) {
+    assertNoRaw(fieldName);
     if (value === undefined) continue;
 
     // A logical operator inside a quantifier body composes sibling conditions on the same target
@@ -170,6 +179,7 @@ function compileForwardNested(
 
   // Build conditions for each nested field
   for (const [nestedField, value] of Object.entries(nestedWhere)) {
+    assertNoRaw(nestedField);
     if (value === undefined) continue;
 
     // Logical operators compose branches that are themselves relation filters, so each branch
@@ -296,6 +306,7 @@ function compileReverseNested(
 
   // Check for relation filter operators (some, every, none) and the existence check isEmpty
   for (const [key, value] of Object.entries(nestedWhere)) {
+    assertNoRaw(key);
     if (value === undefined) continue;
 
     if (key === 'isEmpty') {
