@@ -108,6 +108,7 @@ Refusals, all `CerialValidationError`:
 - A value that is not a fragment built by `sql`. A string, a spread copy, a JSON round trip or a `structuredClone` of a fragment loses its brand and is refused, so `where: req.body` cannot smuggle SurrealQL in.
 - A fragment anywhere except the `$raw` key, such as ``{ age: sql`1` }`` or inside a create or update body.
 - `$raw` in a relation filter. `{ author: { $raw: ... } }` and `{ posts: { some: { $raw: ... } } }` are refused. Put the fragment in the where of the model that owns the field.
+- An `upsert` whose `where` holds only a `$raw` key, or a `$raw` beside a filter that narrows nothing such as `notIn: []`. The fragment is not a unique key, so there is no record to look up; add the unique field.
 
 The same key works wherever a where does, such as `findMany`, `deleteMany` and `$live`.
 
@@ -160,7 +161,11 @@ await client.$transaction([
 ]);
 ```
 
-A statement the database rejects, including a typo in your fragment, throws a `CerialDatabaseError`. There is no compile-time check of the text.
+A statement the database rejects, including a typo in your fragment, throws a `CerialDatabaseError`. There is no compile-time check of the text. This holds in an array `$transaction` as well: a rejected `$raw` item, or a typed item that the database rejects, throws a `CerialDatabaseError` with the driver error as its `cause`, in the same way as in callback mode. A unique-constraint violation is a `CerialUniqueConstraintError`.
+
+The statement and its bound values are attached to that error only when the client sets `includeStatementInErrors`, for `client.$raw`, `tx.$raw` and a model's `$raw` alike.
+
+Do not put your own `BEGIN TRANSACTION` and `COMMIT TRANSACTION` inside a `$raw` fragment. The result of such a block differs between `client.$raw`, a `$transaction` item and `tx.$raw`, and `tx.$raw` refuses it because it is already inside a transaction. Use `$transaction` to group statements.
 
 ### Graph edges, vectors and time series
 

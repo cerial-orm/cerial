@@ -361,6 +361,17 @@ development branch and is not available on npm.
 
 ### Fixed
 
+- A database error from an item of an array `$transaction` now throws a
+  `CerialDatabaseError` (or `CerialUniqueConstraintError`), as callback mode
+  does. Before, it reached your code as the raw driver error, so a check such as
+  `error instanceof ValidationError` needs to read `error.cause` instead.
+
+- `deleteUnique` by `id` now honours the other keys in its `where`. Before, an
+  `id` beside another key (`{ id, name }`, or `{ id, $raw: ... }`) took the id
+  shortcut and the other keys were dropped, so the row was deleted whatever
+  they said. A call that relied on that now deletes only when every key
+  matches, and with `return: true` it gives `false` when nothing was deleted.
+
 - `cerial generate` named the wrong schema file in some validation errors. It
   picked the first file whose text contained `model <Name>`, so an error on
   `model User` in `b.cerial` was reported against `a.cerial` when that file held
