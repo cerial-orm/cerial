@@ -23,6 +23,7 @@ import {
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import {
   type SchemaValidationError,
+  formatOrigin,
   validateDuplicateNames,
   validateExtends,
   validateResolvedTypes,
@@ -82,24 +83,33 @@ function findBlockByName(ast: SchemaAST, name: string): SourceRange | null {
 }
 
 /**
- * Duplicate declarations of one name, reported on the file that holds the later declaration.
+ * Duplicate declarations of one name, whether of one kind or of two, reported on the file that
+ * holds the later declaration.
  *
  * Runs on the merged AST before inheritance resolution: the resolver keys types by name, so a
  * duplicate is gone by the time the resolved AST is validated. Only the files up to and including
- * this one are merged, so the earlier file is never flagged. The validator reports a line and no
- * model, and lines are only unique within one file, so each error is matched to a declaration in
- * this file by its start line and name before it is kept.
+ * this one are merged, and an error the files before it already produce is not this file's. A
+ * cross-kind error is positioned by kind, not by file, so its line can sit in the earlier file;
+ * each error is therefore matched to the declaration in this file it names (by name and origin)
+ * and moved to that declaration's line.
  */
 export function getDuplicateNameErrors(fileAST: SchemaAST, groupASTs: Iterable<SchemaAST>): SchemaValidationError[] {
-  const merged: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
+  const merge = (asts: SchemaAST[]): SchemaAST => ({
+    models: asts.flatMap((a) => a.models),
+    objects: asts.flatMap((a) => a.objects),
+    tuples: asts.flatMap((a) => a.tuples),
+    literals: asts.flatMap((a) => a.literals),
+    enums: asts.flatMap((a) => a.enums),
+    source: '',
+  });
+  const upToFile: SchemaAST[] = [];
   for (const ast of groupASTs) {
-    merged.models.push(...ast.models);
-    merged.objects.push(...ast.objects);
-    merged.tuples.push(...ast.tuples);
-    merged.literals.push(...ast.literals);
-    merged.enums.push(...ast.enums);
+    upToFile.push(ast);
     if (ast === fileAST) break;
   }
+  const earlier = new Set(
+    validateDuplicateNames(merge(upToFile.filter((ast) => ast !== fileAST))).map((e) => e.message),
+  );
 
   const declarations = [
     ...fileAST.models,
@@ -109,9 +119,15 @@ export function getDuplicateNameErrors(fileAST: SchemaAST, groupASTs: Iterable<S
     ...fileAST.literals,
   ];
 
-  return validateDuplicateNames(merged).filter((error) =>
-    declarations.some((d) => d.range.start.line === error.line && error.message.includes(`: ${d.name} (declared in `)),
-  );
+  return validateDuplicateNames(merge(upToFile)).flatMap((error) => {
+    if (earlier.has(error.message)) return [];
+    const named = declarations.filter(
+      (d) => error.message.includes(`: ${d.name} (declared `) && error.message.includes(formatOrigin(d.origin)),
+    );
+    const latest = named.sort((a, b) => b.range.start.line - a.range.start.line)[0];
+
+    return latest ? [{ ...error, line: latest.range.start.line }] : [];
+  });
 }
 
 // ---------------------------------------------------------------------------

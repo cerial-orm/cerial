@@ -439,7 +439,6 @@ export function validateTimestampFields(ast: SchemaAST): SchemaValidationError[]
 export function validateObjectNames(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
   const objectNames = new Set<string>();
-  const modelNames = new Set(ast.models.map((m) => m.name));
 
   for (const object of ast.objects) {
     // Check valid name format (PascalCase)
@@ -454,14 +453,6 @@ export function validateObjectNames(ast: SchemaAST): SchemaValidationError[] {
     if (objectNames.has(object.name)) {
       errors.push({
         message: `Duplicate object name: ${object.name}`,
-        line: originLine(object.origin),
-      });
-    }
-
-    // Check for name collision with model names
-    if (modelNames.has(object.name)) {
-      errors.push({
-        message: `Object name '${object.name}' conflicts with model name`,
         line: originLine(object.origin),
       });
     }

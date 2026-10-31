@@ -28,24 +28,26 @@ describe('Enum Validator', () => {
 
   describe('name collisions', () => {
     test('rejects an enum named like a model', () => {
-      expect(messages(`enum Host { A, B }\n${MODEL}`)).toContain("Enum name 'Host' conflicts with model name");
+      expect(messages(`enum Host { A, B }\n${MODEL}`)).toContain(
+        'Duplicate name: Host (declared as model in <input>:2 and as enum in <input>:1)',
+      );
     });
 
     test('rejects an enum named like an object', () => {
       expect(messages('enum Geo { A, B }\nobject Geo {\n  lat Float\n}')).toContain(
-        "Enum name 'Geo' conflicts with object name",
+        'Duplicate name: Geo (declared as object in <input>:2 and as enum in <input>:1)',
       );
     });
 
     test('rejects an enum named like a tuple', () => {
       expect(messages('enum Pair { A, B }\ntuple Pair {\n  Int,\n  Int\n}')).toContain(
-        "Enum name 'Pair' conflicts with tuple name",
+        'Duplicate name: Pair (declared as tuple in <input>:2 and as enum in <input>:1)',
       );
     });
 
     test('rejects an enum named like a literal', () => {
       expect(messages("enum Level { A, B }\nliteral Level { 'x', 'y' }")).toContain(
-        "Enum name 'Level' conflicts with literal name",
+        'Duplicate name: Level (declared as literal in <input>:2 and as enum in <input>:1)',
       );
     });
 

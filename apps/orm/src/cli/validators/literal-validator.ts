@@ -1,5 +1,5 @@
 /**
- * Literal validator - name collisions, variants, references and circularity
+ * Literal validator - variants, references and circularity
  */
 
 import type { ASTLiteral, ASTLiteralVariant, SchemaAST } from '../../types';
@@ -39,19 +39,9 @@ function hasCircularRef(ast: SchemaAST, name: string, visited: Set<string>): boo
 /** Validate literal definitions */
 export function validateLiterals(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
-  const collisions: Array<[string, Set<string>]> = [
-    ['model', new Set(ast.models.map((m) => m.name))],
-    ['object', new Set(ast.objects.map((o) => o.name))],
-    ['tuple', new Set(ast.tuples.map((t) => t.name))],
-  ];
-
   for (const literal of ast.literals) {
     const line = originLine(literal.origin);
     const push = (message: string) => errors.push({ message, line });
-
-    for (const [kind, names] of collisions) {
-      if (names.has(literal.name)) push(`Literal name '${literal.name}' conflicts with ${kind} name`);
-    }
 
     const seen = new Set<string>();
     for (const variant of literal.variants) {

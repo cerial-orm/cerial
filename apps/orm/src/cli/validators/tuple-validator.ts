@@ -1,5 +1,5 @@
 /**
- * Tuple validator - name collisions, element rules and references
+ * Tuple validator - element rules and references
  */
 
 import type { SchemaAST } from '../../types';
@@ -9,7 +9,6 @@ import type { SchemaValidationError } from './schema-validator';
 /** Validate tuple definitions */
 export function validateTuples(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
-  const modelNames = new Set(ast.models.map((m) => m.name));
   const objectNames = new Set(ast.objects.map((o) => o.name));
   const tupleNames = new Set(ast.tuples.map((t) => t.name));
   const literalOrEnumNames = new Set([...ast.literals.map((l) => l.name), ...ast.enums.map((e) => e.name)]);
@@ -17,9 +16,6 @@ export function validateTuples(ast: SchemaAST): SchemaValidationError[] {
   for (const tuple of ast.tuples) {
     const line = originLine(tuple.origin);
     const push = (message: string) => errors.push({ message, line });
-
-    if (modelNames.has(tuple.name)) push(`Tuple name '${tuple.name}' conflicts with model name`);
-    if (objectNames.has(tuple.name)) push(`Tuple name '${tuple.name}' conflicts with object name`);
 
     const elementNames = new Set<string>();
     for (const element of tuple.elements) {

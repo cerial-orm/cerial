@@ -42,7 +42,9 @@ tuple User {
 `;
       const { ast } = parse(schema);
       const errors = validateAll(ast);
-      expect(errors.some((e) => e.message.includes("Tuple name 'User' conflicts with model name"))).toBe(true);
+      expect(errors.map((e) => e.message)).toContain(
+        'Duplicate name: User (declared as model in <input>:2 and as tuple in <input>:7)',
+      );
     });
 
     test('should error on tuple name conflicting with object name', () => {
@@ -58,7 +60,9 @@ tuple Address {
 `;
       const { ast } = parse(schema);
       const errors = validateAll(ast);
-      expect(errors.some((e) => e.message.includes("Tuple name 'Address' conflicts with object name"))).toBe(true);
+      expect(errors.map((e) => e.message)).toContain(
+        'Duplicate name: Address (declared as object in <input>:2 and as tuple in <input>:6)',
+      );
     });
 
     test('should error on empty tuple (no elements)', () => {

@@ -112,12 +112,12 @@ const REFUSED: Array<{ name: string; files: Record<string, string>; message: str
   {
     name: 'a tuple named like a model',
     files: { 'a.cerial': `tuple Host {\n  Int,\n  Int\n}\n${HOST}` },
-    message: "Tuple name 'Host' conflicts with model name",
+    message: 'Duplicate name: Host (declared as model in a.cerial:6 and as tuple in a.cerial:1)',
   },
   {
     name: 'a tuple named like an object',
     files: { 'a.cerial': `tuple Geo {\n  Int,\n  Int\n}\nobject Geo {\n  lat Float\n}\n${HOST}` },
-    message: "Tuple name 'Geo' conflicts with object name",
+    message: 'Duplicate name: Geo (declared as object in a.cerial:5 and as tuple in a.cerial:1)',
   },
   {
     name: 'a tuple with a duplicate element name',
@@ -143,22 +143,22 @@ const REFUSED: Array<{ name: string; files: Record<string, string>; message: str
   {
     name: 'an enum named like a model',
     files: { 'a.cerial': `enum Host { A, B }\n${HOST}` },
-    message: "Enum name 'Host' conflicts with model name",
+    message: 'Duplicate name: Host (declared as model in a.cerial:3 and as enum in a.cerial:1)',
   },
   {
     name: 'an enum named like an object',
     files: { 'a.cerial': `enum Geo { A, B }\nobject Geo {\n  lat Float\n}\n${HOST}` },
-    message: "Enum name 'Geo' conflicts with object name",
+    message: 'Duplicate name: Geo (declared as object in a.cerial:2 and as enum in a.cerial:1)',
   },
   {
     name: 'an enum named like a tuple',
     files: { 'a.cerial': `enum Pair { A, B }\ntuple Pair {\n  Int,\n  Int\n}\n${HOST}` },
-    message: "Enum name 'Pair' conflicts with tuple name",
+    message: 'Duplicate name: Pair (declared as tuple in a.cerial:2 and as enum in a.cerial:1)',
   },
   {
     name: 'an enum named like a literal',
     files: { 'a.cerial': `enum Level { A, B }\nliteral Level { 'x', 'y' }\n${HOST}` },
-    message: "Enum name 'Level' conflicts with literal name",
+    message: 'Duplicate name: Level (declared as literal in a.cerial:2 and as enum in a.cerial:1)',
   },
   // literals
   {
@@ -169,17 +169,17 @@ const REFUSED: Array<{ name: string; files: Record<string, string>; message: str
   {
     name: 'a literal named like a model',
     files: { 'a.cerial': `literal Host { 'a', 'b' }\n${HOST}` },
-    message: "Literal name 'Host' conflicts with model name",
+    message: 'Duplicate name: Host (declared as model in a.cerial:3 and as literal in a.cerial:1)',
   },
   {
     name: 'a literal named like an object',
     files: { 'a.cerial': `literal Geo { 'a', 'b' }\nobject Geo {\n  lat Float\n}\n${HOST}` },
-    message: "Literal name 'Geo' conflicts with object name",
+    message: 'Duplicate name: Geo (declared as object in a.cerial:2 and as literal in a.cerial:1)',
   },
   {
     name: 'a literal named like a tuple',
     files: { 'a.cerial': `literal Pair { 'a', 'b' }\ntuple Pair {\n  Int,\n  Int\n}\n${HOST}` },
-    message: "Literal name 'Pair' conflicts with tuple name",
+    message: 'Duplicate name: Pair (declared as tuple in a.cerial:2 and as literal in a.cerial:1)',
   },
   {
     name: 'a literal with a repeated variant',
@@ -271,7 +271,8 @@ describe('cerial generate refuses invalid schemas', () => {
       const result = await generateFrom(files);
 
       expect(result.success).toBe(false);
-      expect(result.errors.some((e) => e.includes(message))).toBe(true);
+      // Origins are absolute paths into a temporary directory; compare them relative to the schema folder
+      expect(result.errors.some((e) => e.replaceAll(/\S*\/schemas\//g, '').includes(message))).toBe(true);
     });
   }
 });

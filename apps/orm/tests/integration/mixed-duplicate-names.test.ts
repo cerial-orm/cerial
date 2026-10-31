@@ -150,31 +150,35 @@ describe('one name shared by two kinds', () => {
       label: 'a .cerial model and a TypeScript object',
       a: ['dsl', 'model'],
       b: ['ts', 'object'],
-      message: "Object name 'Dup' conflicts with model name",
+      message:
+        'Duplicate name: Dup (declared as model in decl0.cerial:1 and as object in decl1.schema.ts (export Dup))',
     },
     {
       label: 'a TypeScript model and a .cerial object',
       a: ['ts', 'model'],
       b: ['dsl', 'object'],
-      message: "Object name 'Dup' conflicts with model name",
+      message:
+        'Duplicate name: Dup (declared as model in decl0.schema.ts (export Dup) and as object in decl1.cerial:1)',
     },
     {
       label: 'a TypeScript enum and a .cerial literal',
       a: ['ts', 'enum'],
       b: ['dsl', 'literal'],
-      message: "Enum name 'Dup' conflicts with literal name",
+      message:
+        'Duplicate name: Dup (declared as literal in decl1.cerial:1 and as enum in decl0.schema.ts (export Dup))',
     },
     {
       label: 'a .cerial enum and a TypeScript literal',
       a: ['dsl', 'enum'],
       b: ['ts', 'literal'],
-      message: "Enum name 'Dup' conflicts with literal name",
+      message:
+        'Duplicate name: Dup (declared as literal in decl1.schema.ts (export Dup) and as enum in decl0.cerial:1)',
     },
     {
       label: 'a TypeScript tuple and a .cerial model',
       a: ['ts', 'tuple'],
       b: ['dsl', 'model'],
-      message: "Tuple name 'Dup' conflicts with model name",
+      message: 'Duplicate name: Dup (declared as model in decl1.cerial:1 and as tuple in decl0.schema.ts (export Dup))',
     },
   ];
 
@@ -186,10 +190,11 @@ describe('one name shared by two kinds', () => {
       ]);
 
       const result = await generateIn(dir);
-      const text = result.errors.join('\n');
+      // Origins are absolute paths into a temporary directory; compare them relative to it
+      const found = result.errors.map((e) => e.replaceAll(/\S*\/(decl\d)/g, '$1')).filter((e) => e.includes('Dup'));
 
       expect(result.success).toBe(false);
-      expect(text).toContain(message);
+      expect(found).toEqual([message]);
       expect(existsSync(join(dir, 'out'))).toBe(false);
     });
   }

@@ -8,6 +8,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import { validateDuplicateNames } from '../../../src/cli/validators';
+import { validateAll } from './helpers';
 import { parse } from '../../../src/parser/parser';
 import { resolveInheritance } from '../../../src/resolver';
 import type { SchemaAST } from '../../../src/types';
@@ -74,10 +75,6 @@ describe('Duplicate Name Validator', () => {
     expect(messages(merge(user, 'model Guest {\n  id Record @id\n}'))).toEqual([]);
   });
 
-  test('does not treat one name used by two different kinds as a duplicate', () => {
-    expect(messages(merge(user, 'object User {\n  x Int\n}'))).toEqual([]);
-  });
-
   describe('origins of every kind', () => {
     const sources: Record<'models' | 'objects' | 'tuples' | 'literals' | 'enums', string> = {
       models: 'model Dup {\n  id Record @id\n}',
@@ -115,7 +112,74 @@ describe('Duplicate Name Validator', () => {
     }
   });
 
-  test('a name shared across kinds is the business of the per-kind collision checks, not this one', () => {
-    expect(messages(merge('enum Status { A }', 'literal Status { "a" }'))).toEqual([]);
+  describe('a name shared by two kinds', () => {
+    const sources = {
+      model: 'model Dup {\n  id Record @id\n}',
+      object: 'object Dup {\n  x Int\n}',
+      tuple: 'tuple Dup {\n  Int,\n  Int\n}',
+      literal: "literal Dup { 'a' }",
+      enum: 'enum Dup { A }',
+    } as const;
+    type Kind = keyof typeof sources;
+    const kinds = Object.keys(sources) as Kind[];
+    // Models come first, then objects, tuples, literals and enums: the later kind is the one reported
+    const pairs = kinds.flatMap((a, i) => kinds.slice(i + 1).map((b): [Kind, Kind] => [a, b]));
+
+    test('there are ten forbidden pairs, one for every two kinds', () => {
+      expect(pairs).toHaveLength(10);
+    });
+
+    for (const [first, second] of pairs) {
+      test(`${first} and ${second}: one error naming both kinds and both origins`, () => {
+        const found = validateAll(merge(sources[first], sources[second]));
+        const expected = `Duplicate name: Dup (declared as ${first} in <input>:1 and as ${second} in <input>:1)`;
+
+        expect(found.map((e) => e.message)).toEqual([expected]);
+      });
+
+      test(`${second} and ${first}: the same single error whichever file comes first`, () => {
+        const found = validateAll(merge(sources[second], sources[first]));
+
+        expect(found.map((e) => e.message)).toEqual([
+          `Duplicate name: Dup (declared as ${first} in <input>:1 and as ${second} in <input>:1)`,
+        ]);
+      });
+    }
+
+    test('names a TypeScript origin by file and export', () => {
+      const [dsl] = merge(sources.model).models;
+      const ts = {
+        ...merge(sources.object).objects[0]!,
+        origin: { kind: 'ts' as const, file: '/app/o.ts', export: 'Dup' },
+      };
+      const ast: SchemaAST = { ...merge(), models: [dsl!], objects: [ts] };
+
+      expect(messages(ast)).toEqual([
+        'Duplicate name: Dup (declared as model in <input>:1 and as object in /app/o.ts (export Dup))',
+      ]);
+    });
+
+    test('each later declaration is one error against the first', () => {
+      expect(messages(merge(sources.model, sources.object, sources.tuple))).toHaveLength(2);
+    });
+
+    test('distinct names across all five kinds raise nothing', () => {
+      const ast = merge(
+        'model A {\n  id Record @id\n}',
+        'object B {\n  x Int\n}',
+        'tuple C {\n  Int,\n  Int\n}',
+        "literal D { 'a' }",
+        'enum E { A }',
+      );
+
+      expect(validateAll(ast)).toEqual([]);
+    });
+
+    test('an abstract model leaves no type behind, so an object may reuse its name and still resolves', () => {
+      const ast = merge('abstract model Dup {\n  id Record @id\n}', sources.object);
+
+      expect(validateAll(ast)).toEqual([]);
+      expect(resolveInheritance(ast).objects).toHaveLength(1);
+    });
   });
 });

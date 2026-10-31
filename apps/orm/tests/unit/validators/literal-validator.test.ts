@@ -454,19 +454,19 @@ literal Extended { Base, 'b' }
 
     test('rejects a literal named like a model', () => {
       expect(messages(`literal Host { 'a', 'b' }\n${MODEL}`)).toContain(
-        "Literal name 'Host' conflicts with model name",
+        'Duplicate name: Host (declared as model in <input>:2 and as literal in <input>:1)',
       );
     });
 
     test('rejects a literal named like an object', () => {
       expect(messages("literal Geo { 'a', 'b' }\nobject Geo {\n  lat Float\n}")).toContain(
-        "Literal name 'Geo' conflicts with object name",
+        'Duplicate name: Geo (declared as object in <input>:2 and as literal in <input>:1)',
       );
     });
 
     test('rejects a literal named like a tuple', () => {
       expect(messages("literal Pair { 'a', 'b' }\ntuple Pair {\n  Int,\n  Int\n}")).toContain(
-        "Literal name 'Pair' conflicts with tuple name",
+        'Duplicate name: Pair (declared as tuple in <input>:2 and as literal in <input>:1)',
       );
     });
 

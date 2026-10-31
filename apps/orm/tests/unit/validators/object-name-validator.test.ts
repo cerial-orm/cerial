@@ -130,60 +130,6 @@ describe('Object Name Validator', () => {
       });
     });
 
-    describe('negative tests - collision with model names', () => {
-      test('should fail when object name collides with model name', () => {
-        const ast = createAST(
-          [
-            createModel({
-              name: 'User',
-              range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
-            }),
-          ],
-          [
-            createObject({
-              name: 'User',
-              range: { start: { line: 10, column: 1, offset: 0 }, end: { line: 10, column: 1, offset: 0 } },
-            }),
-          ],
-        );
-
-        const errors = validateObjectNames(ast);
-        expect(errors).toHaveLength(1);
-        expect(errors[0]!.message).toContain("Object name 'User' conflicts with model name");
-        expect(errors[0]!.line).toBe(10);
-      });
-
-      test('should fail when multiple objects collide with model names', () => {
-        const ast = createAST(
-          [
-            createModel({
-              name: 'User',
-              range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
-            }),
-            createModel({
-              name: 'Post',
-              range: { start: { line: 5, column: 1, offset: 0 }, end: { line: 5, column: 1, offset: 0 } },
-            }),
-          ],
-          [
-            createObject({
-              name: 'User',
-              range: { start: { line: 10, column: 1, offset: 0 }, end: { line: 10, column: 1, offset: 0 } },
-            }),
-            createObject({
-              name: 'Post',
-              range: { start: { line: 20, column: 1, offset: 0 }, end: { line: 20, column: 1, offset: 0 } },
-            }),
-          ],
-        );
-
-        const errors = validateObjectNames(ast);
-        expect(errors).toHaveLength(2);
-        expect(errors[0]!.message).toContain("Object name 'User' conflicts with model name");
-        expect(errors[1]!.message).toContain("Object name 'Post' conflicts with model name");
-      });
-    });
-
     describe('positive tests - valid object names', () => {
       test('should pass for valid PascalCase object name', () => {
         const ast = createAST(
@@ -301,7 +247,6 @@ describe('Object Name Validator', () => {
         const errors = validateObjectNames(ast);
         expect(errors.length).toBeGreaterThanOrEqual(1);
         expect(errors.some((e) => e.message.includes('Invalid object name'))).toBe(true);
-        expect(errors.some((e) => e.message.includes('conflicts with model name'))).toBe(true);
       });
     });
   });

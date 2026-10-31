@@ -98,11 +98,6 @@ describe('Diagnostics Logic', () => {
       ['a self-referencing tuple', 'tuple Node {\n  Int,\n  Node\n}', 'Self-referencing tuple element'],
       ['a duplicate enum value', 'enum Role { A, B, A }', "Duplicate value 'A'"],
       ['a literal cycle', "literal A { B, 'x' }\nliteral B { A, 'y' }", 'Circular literal reference'],
-      [
-        'a tuple named like a model',
-        'model T {\n  id Record @id\n}\ntuple T {\n  Int,\n  Int\n}',
-        'conflicts with model name',
-      ],
     ])('restored check for %s carries a location', (_name, source, message) => {
       const { ast } = parse(source);
       const found = validateSchema(ast).errors.filter((e) => e.message.includes(message));
@@ -676,6 +671,38 @@ describe('duplicate declaration diagnostics', () => {
     const unrelated = parse('model Other {\n  id Record @id\n}').ast;
 
     expect(getDuplicateNameErrors(unrelated, [first, second, unrelated])).toEqual([]);
+  });
+
+  test('an object named like a model is reported on the object, in its own file only', () => {
+    const model = parse(HOST).ast;
+    const object = parse('object Pad {\n  x Int\n}\n\nobject Host {\n  y Int\n}').ast;
+    const message = 'Duplicate name: Host (declared as model in <input>:1 and as object in <input>:5)';
+
+    expect(getDuplicateNameErrors(model, [model, object])).toEqual([]);
+    const errors = getDuplicateNameErrors(object, [model, object]);
+
+    expect(errors.map((e) => e.message)).toEqual([message]);
+    expect(errors[0]!.line).toBe(5);
+  });
+
+  test('a cross-kind clash is reported on the later file even when its kind sorts first', () => {
+    const object = parse('object Host {\n  y Int\n}').ast;
+    const model = parse(`object Pad {\n  x Int\n}\n\n${HOST}`).ast;
+    const message = 'Duplicate name: Host (declared as model in <input>:5 and as object in <input>:1)';
+
+    expect(getDuplicateNameErrors(object, [object, model])).toEqual([]);
+    const errors = getDuplicateNameErrors(model, [object, model]);
+
+    expect(errors.map((e) => e.message)).toEqual([message]);
+    expect(errors[0]!.line).toBe(5);
+  });
+
+  test('a cross-kind clash inside one file is reported once', () => {
+    const { ast } = parse(`${HOST}\n\nenum Host { A }`);
+
+    expect(getDuplicateNameErrors(ast, [ast]).map((e) => e.message)).toEqual([
+      'Duplicate name: Host (declared as model in <input>:1 and as enum in <input>:5)',
+    ]);
   });
 
   test('unique names produce no errors', () => {

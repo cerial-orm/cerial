@@ -246,7 +246,9 @@ object User {
 `;
       const { ast } = parse(schema);
       const errors = validateAll(ast);
-      expect(errors.some((e) => e.message.includes("Object name 'User' conflicts with model name"))).toBe(true);
+      expect(errors.map((e) => e.message)).toContain(
+        'Duplicate name: User (declared as model in <input>:2 and as object in <input>:7)',
+      );
     });
 
     test('should error on required self-referencing field', () => {
