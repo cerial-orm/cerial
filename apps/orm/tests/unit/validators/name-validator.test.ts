@@ -77,4 +77,45 @@ describe('Duplicate Name Validator', () => {
   test('does not treat one name used by two different kinds as a duplicate', () => {
     expect(messages(merge(user, 'object User {\n  x Int\n}'))).toEqual([]);
   });
+
+  describe('origins of every kind', () => {
+    const sources: Record<'models' | 'objects' | 'tuples' | 'literals' | 'enums', string> = {
+      models: 'model Dup {\n  id Record @id\n}',
+      objects: 'object Dup {\n  x Int\n}',
+      tuples: 'tuple Dup {\n  Int,\n  Int\n}',
+      literals: 'literal Dup { "a" }',
+      enums: 'enum Dup { A }',
+    };
+
+    for (const [key, source] of Object.entries(sources) as Array<[keyof typeof sources, string]>) {
+      const fromTs = (file: string, name: string) => {
+        const [node] = merge(source)[key];
+
+        return { ...node!, origin: { kind: 'ts' as const, file, export: name } };
+      };
+
+      test(`${key}: two TypeScript declarations name both exports`, () => {
+        const ast: SchemaAST = { ...merge(), [key]: [fromTs('/app/a.ts', 'DupA'), fromTs('/app/b.ts', 'DupB')] };
+        const [message] = messages(ast);
+
+        expect(message).toContain('/app/a.ts (export DupA) and in /app/b.ts (export DupB)');
+      });
+
+      test(`${key}: a .cerial and a TypeScript declaration name a line and an export`, () => {
+        const [dsl] = merge(source)[key];
+        const ast: SchemaAST = { ...merge(), [key]: [dsl!, fromTs('/app/b.ts', 'Dup')] };
+        const [message] = messages(ast);
+
+        expect(message).toMatch(/declared in .+:\d+ and in \/app\/b\.ts \(export Dup\)/);
+      });
+
+      test(`${key}: a repeated source is still a duplicate here, so deduplication must happen before the merge`, () => {
+        expect(messages(merge(source, source))).toHaveLength(1);
+      });
+    }
+  });
+
+  test('a name shared across kinds is the business of the per-kind collision checks, not this one', () => {
+    expect(messages(merge('enum Status { A }', 'literal Status { "a" }'))).toEqual([]);
+  });
 });
