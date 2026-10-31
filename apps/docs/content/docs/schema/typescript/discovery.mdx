@@ -112,12 +112,14 @@ Exclusion lives in one place. The `ignore`, `exclude` and `include` fields and `
 
 Exclusion beats registration. If `defineSchema` lists a model whose module is excluded, the model is left out, and so is whatever only that module imports. The excluded module still runs when an entry imports it, because importing executes it. It just contributes nothing.
 
-`cerial/handles.ts` is a reserved path. Discovery never treats it as a schema under any mode, whether found by a path, listed in `files` or imported by an entry. Cerial does not generate that file yet.
+`cerial/handles.ts` is generated when a schema mixes `.cerial` files and TypeScript modules. Discovery never treats it as a schema under any mode, whether found by a path, listed in `files` or imported by an entry.
 
 ## Generation runs your code
 
 Every mode imports your TypeScript and executes it during `cerial generate`, as `cerial.config.ts` does. An entry module widens that: every module it imports runs too, not just the schema files. Generate only from schemas you trust. The note on [the config loader](/cli/configuration#config-file-formats) has the details.
 
-## Current limit: TypeScript beside `.cerial` files
+## TypeScript beside `.cerial` files
 
-A schema folder that holds `.cerial` files imports no TypeScript modules: a `*.schema.ts` file beside them is ignored, and Cerial logs that it was not imported. An explicit `entry` or a listed `.ts` file in the same schema as `.cerial` files is refused, naming the module. Use only `.cerial` files or only TypeScript modules in one schema.
+A `*.schema.ts` file, an `entry` or a listed `.ts` file can sit in the same schema as `.cerial` files. Cerial imports the TypeScript modules, parses the `.cerial` files, and generates one client from both. A module that declares nothing, such as a validation schema that happens to end in `.schema.ts`, contributes nothing, though it still runs. A module that throws on import is refused, naming its path.
+
+A `.cerial` field may be typed by a name a TypeScript module declares, and the other way round. Declarations from both forms share one namespace, so a name declared twice is an error whichever form declared it.

@@ -139,6 +139,12 @@ development branch and is not available on npm.
   `cerial.config.ts`, and an entry module also runs every module it imports, so generate
   only from schemas you trust. See [Finding Your Schemas](/schema/typescript/discovery).
 
+- A `*.schema.ts` file, an entry or a listed `.ts` file can sit beside `.cerial` files in one
+  schema, and Cerial generates one client from both. A `.cerial` field can be typed by an
+  object, tuple, literal or enum a TypeScript module declares, and the reverse. A module
+  with no declaration contributes nothing. See
+  [Finding Your Schemas](/schema/typescript/discovery).
+
 - `schemas[].entry` points a schema at an entry module, and `schemas[].files` lists
   TypeScript modules by path (literal paths, no globs). Either can replace `path` or sit
   beside it. The `ignore`, `exclude` and `include` fields and `.cerialignore` apply to
