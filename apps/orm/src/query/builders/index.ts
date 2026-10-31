@@ -53,6 +53,7 @@ export {
   buildOrderBy,
   buildSelectFields,
   buildSelectQuery,
+  type ComputeClause,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
   findCompositeUniqueKey,

@@ -301,6 +301,14 @@ function buildRelationSelectFieldsInternal(
 
     const options = typeof includeValue === 'object' ? includeValue : undefined;
 
+    // A JavaScript caller can still pass it: the projection belongs to the queried model, not to an include
+    if (options && (options as { compute?: unknown }).compute !== undefined) {
+      throw new CerialValidationError(
+        `Invalid include: 'compute' is not an option of include '${relationName}' on model ${model.name}; put it on the find call`,
+        { model: model.name, field: relationName, operation: 'include' },
+      );
+    }
+
     if (relationField.relationInfo!.isReverse) {
       const selectField = buildReverseRelationSelectInternal(relationField, model, registry, options, ctx);
       if (selectField) fields.push(selectField);

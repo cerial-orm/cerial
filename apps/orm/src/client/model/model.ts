@@ -22,8 +22,9 @@ import {
   type FindManyOptionsWithInclude,
   type FindOneOptionsWithInclude,
   QueryBuilderStatic,
+  refuseCompute,
 } from '../../query/builder';
-import { collectRelatedModelNames, type IncludeClause } from '../../query/builders';
+import { collectRelatedModelNames, type ComputeClause, type IncludeClause } from '../../query/builders';
 import { CerialQueryPromise } from '../../query/cerial-query-promise';
 import type { CompiledQuery } from '../../query/compile/types';
 import type {
@@ -50,6 +51,7 @@ export interface FindUniqueOptionsWithInclude {
   where: Record<string, unknown>;
   select?: Record<string, boolean>;
   include?: Record<string, boolean | object>;
+  compute?: ComputeClause;
 }
 
 /** Callback type for before-query hook (receives the queried model plus every related model the operation touches) */
@@ -279,6 +281,8 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     txn?: CerialTransaction;
   }): CerialQueryPromise<UpdateUniqueResult<T, R>> {
     const { txn, ...queryOptions } = options;
+    // The compile call below is handed a rebuilt options object, which would drop the key unseen
+    refuseCompute(queryOptions, this.metadata, 'updateUnique');
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
       data: [queryOptions.data as Record<string, unknown>],
       include: queryOptions.include,
@@ -434,6 +438,8 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     txn?: CerialTransaction;
   }): CerialQueryPromise<UpsertReturnType<T, R> | UpsertArrayReturnType<T, R>> {
     const { txn, ...queryOptions } = options;
+    // The compile call below is handed a rebuilt options object, which would drop the key unseen
+    refuseCompute(queryOptions, this.metadata, 'upsert');
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
       data: [queryOptions.create, queryOptions.update],
       include: queryOptions.include,

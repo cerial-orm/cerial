@@ -26,6 +26,7 @@ import {
   compileUpdateUnique,
   compileUpsert,
 } from '../../../src/query/builder';
+import { sql } from '../../../src/query';
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../../src/types';
 import { registry } from './select-validation-helpers';
 
@@ -44,6 +45,7 @@ type Slot =
   | 'where'
   | 'select'
   | 'orderBy'
+  | 'compute'
   | 'data'
   | 'unset'
   | 'include'
@@ -96,17 +98,17 @@ function sampleCreate(model: ModelMetadata): Record<string, unknown> {
 const METHODS: Record<string, Method> = {
   findOne: {
     compile: (m, o, r) => compileFindOne(m, o as never, r),
-    slots: ['where', 'select', 'orderBy', 'include', 'includeWhere', 'includeOrderBy', 'includeSelect'],
+    slots: ['where', 'select', 'orderBy', 'compute', 'include', 'includeWhere', 'includeOrderBy', 'includeSelect'],
     base: () => ({}),
   },
   findMany: {
     compile: (m, o, r) => compileFindMany(m, o as never, r),
-    slots: ['where', 'select', 'orderBy', 'include', 'includeWhere', 'includeOrderBy', 'includeSelect'],
+    slots: ['where', 'select', 'orderBy', 'compute', 'include', 'includeWhere', 'includeOrderBy', 'includeSelect'],
     base: () => ({}),
   },
   findUnique: {
     compile: (m, o, r) => compileFindUnique(m, o as never, r),
-    slots: ['where', 'select', 'include', 'includeWhere', 'includeOrderBy', 'includeSelect'],
+    slots: ['where', 'select', 'compute', 'include', 'includeWhere', 'includeOrderBy', 'includeSelect'],
     base: () => ({ where: idWhere }),
   },
   create: {
@@ -184,6 +186,8 @@ function optionsFor(slot: Slot, key: string, model: ModelMetadata): Options | nu
       return { select: { [key]: true } };
     case 'orderBy':
       return { orderBy: { [key]: 'asc' } };
+    case 'compute':
+      return { compute: { [key]: sql`1` } };
     case 'data':
       return { data: { [key]: 'x' } };
     case 'unset':
@@ -242,8 +246,10 @@ describe('unknown keys are refused by name at every option of every method', () 
             thrown = error;
           }
 
-          // include.select is type-level only: the runtime ignores it, so the key must simply not reach the text
-          if (slot === 'includeSelect' && !thrown) return expect(unquoted(text)).not.toContain(key);
+          // include.select is type-level only: the runtime ignores it, so the key must simply not reach the text.
+          // A compute key that is a plain identifier is legitimate and lands as a quoted alias.
+          if ((slot === 'includeSelect' || slot === 'compute') && !thrown)
+            return expect(unquoted(text)).not.toContain(key);
 
           expect(thrown).toBeInstanceOf(Error);
           expect((thrown as Error).message).toContain(key);

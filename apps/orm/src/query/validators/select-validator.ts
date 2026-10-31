@@ -4,6 +4,7 @@
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry, TupleFieldMetadata } from '../../types';
 import { isObject } from '../../utils/type-utils';
+import { isSqlFragment } from '../compile/sql-fragment';
 import { resolveElementBySelectKey } from '../builders/select-builder';
 
 /** Validation error */
@@ -124,12 +125,25 @@ function validateOrderByLevel(
   prefix: string,
   model: ModelMetadata,
   registry: ModelRegistry | undefined,
+  computeKeys?: readonly string[],
 ): SelectValidationError[] {
   const errors: SelectValidationError[] = [];
 
   for (const [key, value] of Object.entries(orderBy)) {
     const path = prefix ? `${prefix}.${key}` : key;
     const field = fields.find((f) => f.name === key);
+
+    // A compute key never names a field (validateCompute), so it cannot shadow one; it sorts through its alias
+    if (!field && computeKeys?.includes(key)) {
+      if (value === undefined) continue;
+      if (typeof value !== 'string' || !['asc', 'desc'].includes(value.toLowerCase())) {
+        errors.push({
+          path,
+          message: `Order direction for compute key '${path}' must be 'asc' or 'desc', got ${JSON.stringify(value)}`,
+        });
+      }
+      continue;
+    }
 
     if (!field) {
       if (!isFlexible) {
@@ -224,10 +238,64 @@ export function validateOrderBy(
   orderBy: object | undefined,
   model: ModelMetadata,
   registry?: ModelRegistry,
+  computeKeys?: readonly string[],
 ): SelectValidationError[] {
   if (!orderBy) return [];
 
-  return validateOrderByLevel(orderBy as Record<string, unknown>, model.fields, false, '', model, registry);
+  return validateOrderByLevel(
+    orderBy as Record<string, unknown>,
+    model.fields,
+    false,
+    '',
+    model,
+    registry,
+    computeKeys,
+  );
+}
+
+/** A compute key becomes a quoted alias, so it must be a plain identifier that overwrites nothing in the row. */
+const COMPUTE_KEY_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const INTERNAL_ALIAS_PREFIX = '__cerial_';
+
+/**
+ * Reject a `compute` that is not a non-empty record of `sql` fragments, or whose keys could collide with the
+ * row (`SELECT *, 1 AS name` overwrites the stored value) or with Cerial's own aliases.
+ */
+export function validateCompute(compute: unknown, model: ModelMetadata): SelectValidationError[] {
+  if (compute === undefined) return [];
+  if (!isObject(compute) || Array.isArray(compute)) {
+    return [{ path: 'compute', message: 'compute must be an object of fragments built by the sql tag' }];
+  }
+
+  const entries = Object.entries(compute);
+  if (!entries.length) {
+    return [{ path: 'compute', message: 'compute is empty — name at least one key or leave compute out' }];
+  }
+
+  const errors: SelectValidationError[] = [];
+
+  for (const [key, value] of entries) {
+    const path = `compute.${key}`;
+
+    if (!COMPUTE_KEY_PATTERN.test(key)) {
+      errors.push({ path, message: `compute key '${key}' on model ${model.name} must match ${COMPUTE_KEY_PATTERN}` });
+    } else if (key.startsWith(INTERNAL_ALIAS_PREFIX)) {
+      errors.push({
+        path,
+        message: `compute key '${key}' on model ${model.name} cannot start with '${INTERNAL_ALIAS_PREFIX}'`,
+      });
+    } else if (key === 'id' || model.fields.some((f) => f.name === key)) {
+      errors.push({
+        path,
+        message: `compute key '${key}' names a field of model ${model.name} and would overwrite its value — pick another name`,
+      });
+    }
+    if (!isSqlFragment(value)) {
+      errors.push({ path, message: `compute.${key} must be a fragment built by the sql tag` });
+    }
+  }
+
+  return errors;
 }
 
 function validatePageValue(name: 'limit' | 'offset', value: unknown): SelectValidationError[] {

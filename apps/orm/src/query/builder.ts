@@ -44,6 +44,7 @@ import {
   buildUpdateWithNestedTransaction,
   buildUpsertQuery,
   buildUpsertWithNestedTransaction,
+  type ComputeClause,
   extractNestedOperations,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
@@ -63,6 +64,7 @@ import { mapResult, mapSingleResult } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import {
   validateCreateData,
+  validateCompute,
   validateDataUnsetOverlap,
   validateOrderBy,
   validatePagination,
@@ -88,7 +90,7 @@ const UNSUPPORTED_READ_OPTIONS: Record<string, readonly ('orderBy' | 'limit' | '
 function assertValidReadOptions(
   model: ModelMetadata,
   operation: string,
-  options: { select?: object; orderBy?: object; limit?: number; offset?: number },
+  options: { select?: object; orderBy?: object; limit?: number; offset?: number; compute?: unknown },
   registry?: ModelRegistry,
 ): void {
   for (const option of UNSUPPORTED_READ_OPTIONS[operation] ?? []) {
@@ -104,7 +106,16 @@ function assertValidReadOptions(
 
   const checks = [
     ['select', validateSelect(options.select, model)],
-    ['orderBy', validateOrderBy(options.orderBy, model, registry)],
+    ['compute', validateCompute(options.compute, model)],
+    [
+      'orderBy',
+      validateOrderBy(
+        options.orderBy,
+        model,
+        registry,
+        isObject(options.compute) ? Object.keys(options.compute) : undefined,
+      ),
+    ],
     ['limit/offset', validatePagination(options.limit, options.offset)],
   ] as const;
 
@@ -116,11 +127,28 @@ function assertValidReadOptions(
 /** Extended find options with include support */
 export interface FindOneOptionsWithInclude extends FindOneOptions {
   include?: Record<string, boolean | object>;
+  compute?: ComputeClause;
 }
 
 /** Extended find many options with include support */
 export interface FindManyOptionsWithInclude extends FindManyOptions {
   include?: Record<string, boolean | object>;
+  compute?: ComputeClause;
+}
+
+/**
+ * Only the find methods project computed keys. A JavaScript caller can still pass `compute` to a write,
+ * where it would otherwise be dropped without a word.
+ */
+export function refuseCompute(options: object, model: ModelMetadata, operation: string): void {
+  if ((options as { compute?: unknown }).compute === undefined) return;
+
+  throw validationFailure(
+    'compute',
+    [{ message: `${operation} does not accept compute; only findMany, findOne and findUnique do`, field: 'compute' }],
+    model,
+    operation,
+  );
 }
 
 /** Compiled query descriptor with result type metadata */
@@ -817,6 +845,7 @@ export function compileCreate(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { data, select, include } = options;
+  refuseCompute(options, model, 'create');
   assertValidReadOptions(model, 'create', { select });
 
   refuseFragmentInValue(data, 'data', { model: model.name, operation: 'create' });
@@ -847,6 +876,7 @@ export function compileUpdateMany(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, data, select, include, unset } = options;
+  refuseCompute(options, model, 'updateMany');
   assertValidReadOptions(model, 'updateMany', { select });
 
   const whereValidation = validateWhere(where, model, registry);
@@ -902,6 +932,7 @@ export function compileUpdateUnique(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, data, select, include, return: returnOption, unset } = options;
+  refuseCompute(options, model, 'updateUnique');
   assertValidReadOptions(model, 'updateUnique', { select });
 
   const whereValidation = validateWhere(where, model, registry);
@@ -967,6 +998,7 @@ export function compileDeleteMany(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where } = options;
+  refuseCompute(options, model, 'deleteMany');
 
   const validation = validateWhere(where, model, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'deleteMany');
@@ -991,6 +1023,7 @@ export function compileDeleteUnique(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, return: returnOption } = options;
+  refuseCompute(options, model, 'deleteUnique');
 
   const validation = validateWhere(where, model, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'deleteUnique');
@@ -1139,6 +1172,7 @@ export function compileUpsert(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
+  refuseCompute(options, model, 'upsert');
   assertValidReadOptions(model, 'upsert', { select });
 
   const whereValidation = validateWhere(where, model, registry);

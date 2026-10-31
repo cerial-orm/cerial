@@ -18,6 +18,7 @@ import type {
   WhereClause,
 } from '../../types';
 import { quoteSubKey } from '../../utils/string-utils';
+import { compileFragment, type SqlFragment } from '../compile/sql-fragment';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { expandCompositeKey, findCompositeUniqueKey } from '../filters/composite-key';
@@ -28,14 +29,33 @@ import { combineSelectWithIncludes, type IncludeClause } from './relation-builde
 
 export { expandCompositeKey, findCompositeUniqueKey };
 
+/** Computed projections: each key becomes a result key holding the fragment's value */
+export type ComputeClause = Record<string, SqlFragment>;
+
 /** Extended find options with include support */
 export interface FindOptionsWithInclude extends FindOptions {
   include?: IncludeClause;
+  compute?: ComputeClause;
 }
 
 /** Extended find unique options with include support */
 export interface FindUniqueOptionsWithInclude extends FindUniqueOptions {
   include?: IncludeClause;
+  compute?: ComputeClause;
+}
+
+/**
+ * ``expr AS `key` `` for each compute key. The alias is always backtick-quoted, so a keyword key stays a
+ * name; validateCompute has already limited keys to plain identifiers. Values bind through `ctx`, the
+ * context include uses, so their names cannot collide with it.
+ */
+function buildComputeFields(compute: ComputeClause, ctx: FilterCompileContext): string[] {
+  return Object.entries(compute).map(([key, fragment]) => {
+    const compiled = compileFragment(fragment, ctx);
+    ctx.collect(compiled.vars);
+
+    return `${compiled.text} AS \`${key}\``;
+  });
 }
 
 /**
@@ -212,6 +232,7 @@ export function buildSelectFields(
   include?: IncludeClause,
   registry?: ModelRegistry,
   ctx?: FilterCompileContext,
+  compute?: ComputeClause,
 ): string {
   let baseSelect: string;
 
@@ -236,6 +257,16 @@ export function buildSelectFields(
       });
 
     baseSelect = fields.length === 0 ? '*' : fields.join(', ');
+  }
+
+  if (compute) {
+    if (!ctx) {
+      throw new CerialValidationError('compute needs a compile context, and none was supplied', {
+        model: model.name,
+        field: 'compute',
+      });
+    }
+    baseSelect = [baseSelect, ...buildComputeFields(compute, ctx)].join(', ');
   }
 
   // Add relation fields from include
@@ -288,6 +319,8 @@ export interface OrderByPlan {
 
 interface OrderByContext {
   registry?: ModelRegistry;
+  /** Compute keys, sortable at the top level through their alias */
+  computeKeys?: readonly string[];
   parts: string[];
   projections: string[];
   aliases: string[];
@@ -307,6 +340,12 @@ function buildOrderByParts(
 ): void {
   for (const [key, directionOrNested] of Object.entries(orderBy)) {
     const fieldMeta = fields?.find((f) => f.name === key);
+
+    // The alias is quoted because an expression cannot sit in ORDER BY
+    if (!prefix && !fieldMeta && ctx.computeKeys?.includes(key) && typeof directionOrNested === 'string') {
+      ctx.parts.push(`\`${key}\` ${directionOrNested.toUpperCase()}`);
+      continue;
+    }
 
     if (fieldMeta?.type === 'relation' && fieldMeta.relationInfo) {
       const { fieldRef, targetModel, isReverse } = fieldMeta.relationInfo;
@@ -352,8 +391,9 @@ export function buildOrderByPlan(
   orderBy: OrderByClause | undefined,
   model?: ModelMetadata,
   registry?: ModelRegistry,
+  computeKeys?: readonly string[],
 ): OrderByPlan {
-  const ctx: OrderByContext = { registry, parts: [], projections: [], aliases: [] };
+  const ctx: OrderByContext = { registry, computeKeys, parts: [], projections: [], aliases: [] };
   if (orderBy) buildOrderByParts('', orderBy as Record<string, unknown>, model?.fields, false, ctx);
 
   return {
@@ -391,13 +431,13 @@ export function buildSelectQuery(
   fromSingle: boolean = false,
   registry?: ModelRegistry,
 ): CompiledQuery {
-  const { where, select, orderBy, limit, offset, include } = options;
+  const { where, select, orderBy, limit, offset, include, compute } = options;
 
   const includeCtx = createCompileContext('inc_');
-  const fields = buildSelectFields(select, model, include, registry, includeCtx);
+  const fields = buildSelectFields(select, model, include, registry, includeCtx, compute);
   const whereClause = transformWhereClause(where, model, registry);
   const vars = { ...whereClause.vars, ...includeCtx.getCollected() };
-  const orderPlan = buildOrderByPlan(orderBy, model, registry);
+  const orderPlan = buildOrderByPlan(orderBy, model, registry, compute && Object.keys(compute));
   const limitClause = buildLimit(limit);
   const offsetClause = buildOffset(offset);
   const source = fromSingle ? 'FROM ONLY' : 'FROM';
@@ -613,6 +653,7 @@ function buildFindUniqueByIdQuery(
   idField: FieldMetadata,
   include?: IncludeClause,
   registry?: ModelRegistry,
+  compute?: ComputeClause,
 ): CompiledQuery {
   const idValue = where[idField.name] as string;
   const recordId = transformOrValidateRecordId(model.tableName, idValue);
@@ -622,7 +663,7 @@ function buildFindUniqueByIdQuery(
   delete whereWithoutId[idField.name];
 
   const includeCtx = createCompileContext('inc_');
-  const fields = buildSelectFields(select, model, include, registry, includeCtx);
+  const fields = buildSelectFields(select, model, include, registry, includeCtx, compute);
   const whereClause = transformWhereClause(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, model);
   const limitClause = buildLimit(1);
 
@@ -642,7 +683,7 @@ export function buildFindUniqueQuery(
   options: FindUniqueOptionsWithInclude,
   registry?: ModelRegistry,
 ): CompiledQuery {
-  const { where, select, include } = options;
+  const { where, select, include, compute } = options;
 
   // Validate at least one unique field is present
   hasUniqueField(where, model);
@@ -657,9 +698,9 @@ export function buildFindUniqueQuery(
 
   if (hasId) {
     // Use FROM ONLY table:id (optimized)
-    return buildFindUniqueByIdQuery(model, expandedWhere, select, idField!, include, registry);
+    return buildFindUniqueByIdQuery(model, expandedWhere, select, idField!, include, registry, compute);
   }
 
   // Use FROM ONLY tableName (reuse existing buildFindOneQuery)
-  return buildFindOneQuery(model, { where: expandedWhere, select, include }, registry);
+  return buildFindOneQuery(model, { where: expandedWhere, select, include, compute }, registry);
 }
