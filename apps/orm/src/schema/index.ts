@@ -5,6 +5,8 @@ export type {
   Element,
   ElementBuilder,
   FieldBuilder,
+  DslHandleInfo,
+  DslHandleKind,
   Handle,
   LiteralHandle,
   ModelFields,
@@ -16,4 +18,17 @@ export type {
   TupleElements,
   VariantSpec,
 } from '../parser/builder';
-export { defineSchema, e, enum, f, literal, model, object, tuple, variant } from '../parser/builder';
+export {
+  defineSchema,
+  dslHandleInfo,
+  e,
+  enum,
+  f,
+  handle,
+  isDslHandle,
+  literal,
+  model,
+  object,
+  tuple,
+  variant,
+} from '../parser/builder';

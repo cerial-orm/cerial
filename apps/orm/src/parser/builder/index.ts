@@ -7,8 +7,8 @@ export type { ChainOptions } from './chain';
 export { BUILDER_RANGE, createChain } from './chain';
 export type { BuildOptionsConfig } from './options';
 export { buildOptions } from './options';
-export type { Handle, PrivateKeys, Reference } from './handle';
-export { referenceName } from './handle';
+export type { DslHandleInfo, DslHandleKind, Handle, PrivateKeys, Reference } from './handle';
+export { dslHandleInfo, handle, isDslHandle, referenceName } from './handle';
 export type {
   AnyFieldBuilder,
   FieldBuilder,
