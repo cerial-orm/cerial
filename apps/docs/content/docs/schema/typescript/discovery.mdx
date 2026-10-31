@@ -1,0 +1,123 @@
+---
+title: Finding Your Schemas
+description: The three ways Cerial finds TypeScript schemas, how they combine, how to exclude a module, and why generation runs your code.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Cerial finds TypeScript schemas three ways: by the `*.schema.ts` file suffix, through an entry module that calls `defineSchema`, and through a list of files in `cerial.config.ts`. They add up. Use one, or mix them.
+
+With no config and no entry module, the suffix alone is enough: put `*.schema.ts` files in a `schemas` or `schema` folder (or anywhere under a path you point `cerial generate` at) and run `cerial generate`.
+
+## The three modes
+
+| Mode | Reach for it when | You write |
+|---|---|---|
+| Suffix | Schemas live together in one folder | `user.schema.ts` files |
+| Entry module | Schemas live beside the code that uses them | A module with `export default defineSchema({ models: [...] })` |
+| Listed files | You keep a manifest of schema files | `files: [...]` in `cerial.config.ts` |
+
+### The suffix
+
+Name each file `<thing>.schema.ts` and keep them in a schema folder:
+
+```
+schemas/
+  user.schema.ts
+  post.schema.ts
+```
+
+```typescript
+// schemas/user.schema.ts
+import { model, f } from 'cerial/schema';
+
+export const User = model('User', {
+  id: f.record().id(),
+  email: f.email().unique(),
+  name: f.string(),
+});
+```
+
+Every `*.schema.ts` under the schema folder is imported and its exported declarations are registered. Declaration files (`*.schema.d.ts`) and anything under `node_modules` are skipped. What a suffix file imports is not registered unless it carries the suffix itself.
+
+### The entry module
+
+Feature folders keep a model beside its controller and service, so no folder holds only schemas:
+
+```
+src/
+  users/
+    user.controller.ts
+    user.service.ts
+    user.schema.ts
+  posts/
+    post.controller.ts
+    post.service.ts
+    post.schema.ts
+  schema.ts
+```
+
+```typescript
+// src/schema.ts
+import { defineSchema } from 'cerial/schema';
+import { User } from './users/user.schema';
+import { Post } from './posts/post.schema';
+
+export default defineSchema({ models: [User, Post] });
+```
+
+```typescript
+// cerial.config.ts
+import { defineConfig } from 'cerial';
+
+export default defineConfig({
+  schemas: {
+    app: { entry: './src/schema.ts', output: './src/db' },
+  },
+});
+```
+
+List models as exported bindings (`export const User = model(...)`). A `model()` call written inline in the `models` list is refused. Objects, tuples, enums and literals are not listed: they register by being imported. With no config at all, a `cerial.schema.ts` at the project root is the entry. The [entry module reference](/cli/configuration#entry-modules) has the full rules.
+
+### Listed files
+
+Name the files yourself when neither a folder nor an import graph describes your layout:
+
+```typescript
+// cerial.config.ts
+import { defineConfig } from 'cerial';
+
+export default defineConfig({
+  schemas: {
+    app: { files: ['./src/users/user.ts', './src/posts/post.ts'], output: './src/db' },
+  },
+});
+```
+
+A listed `.ts` file is imported whatever it is called. Paths are literal, with no globs. See [listed files](/cli/configuration#listed-files).
+
+## How the modes combine
+
+No mode switches another off. A schema entry can have a `path`, an `entry` and a `files` list at once, and Cerial generates the union of what they find.
+
+- A declaration reached by more than one mode is generated once. A file found by its suffix, listed in `files` and imported by the entry is fine.
+- Two different declarations with the same name are refused. The error names the file of each, and no client is written. Rename one.
+- Everything an entry module imports counts as registered, with or without the suffix. A `*.schema.ts` file that is not an entry keeps its imports unregistered.
+
+## Excluding a module
+
+Exclusion lives in one place. The `ignore`, `exclude` and `include` fields and `.cerialignore` files apply the same way under all three modes, to suffix files, listed files, the entry and every module the entry imports. Patterns work as described in [Path Filtering](/cli/filtering).
+
+Exclusion beats registration. If `defineSchema` lists a model whose module is excluded, the model is left out, and so is whatever only that module imports. The excluded module still runs when an entry imports it, because importing executes it. It just contributes nothing.
+
+`cerial/handles.ts` is a reserved path. Discovery never treats it as a schema under any mode, whether found by a path, listed in `files` or imported by an entry. Cerial does not generate that file yet.
+
+## Generation runs your code
+
+Every mode imports your TypeScript and executes it during `cerial generate`, as `cerial.config.ts` does. An entry module widens that: every module it imports runs too, not just the schema files. Generate only from schemas you trust. The note on [the config loader](/cli/configuration#config-file-formats) has the details.
+
+## Current limit: TypeScript beside `.cerial` files
+
+A schema folder that holds `.cerial` files imports no TypeScript modules: a `*.schema.ts` file beside them is ignored, and Cerial logs that it was not imported. An explicit `entry` or a listed `.ts` file in the same schema as `.cerial` files is refused, naming the module. Use only `.cerial` files or only TypeScript modules in one schema.

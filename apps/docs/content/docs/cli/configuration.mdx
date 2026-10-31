@@ -16,6 +16,8 @@ If both exist, the TypeScript config takes priority.
 
 :::warning
 `cerial.config.ts` loads under **Bun** and under **Node.js 22.12 or newer**, where Cerial brings its own TypeScript loader. On an older Node, use `cerial.config.json` or upgrade.
+
+This note covers more than the config. Every way of finding a TypeScript schema (the `*.schema.ts` suffix, an [entry module](#entry-modules), listed [`files`](#listed-files)) imports and runs your code during generation, just as `cerial.config.ts` does. An entry module widens that, because every module it imports runs too. Generate only from schemas you trust. See [Finding Your Schemas](/schema/typescript/discovery).
 :::
 
 ### TypeScript Config
@@ -144,12 +146,12 @@ This feature is not yet available in the current release. It will ship in an upc
 :::
 
 :::warning
-An entry module is ordinary code and runs when you generate, just as `cerial.config.ts` does. So does every module it imports. Generating from a schema you did not write runs that code.
+An entry module runs when you generate, and so does every module it imports. See [the note on the config loader](#config-file-formats).
 :::
 
 ### Listed Files
 
-To name schema files one by one, list them in `files`. Each is a literal path (no globs), relative to the config's directory:
+To name schema files one by one, list them in `files`. Each is a literal path (no globs), relative to the config's directory. [Finding Your Schemas](/schema/typescript/discovery) explains how this combines with the suffix and entry modules:
 
 ```typescript
 // cerial.config.ts
