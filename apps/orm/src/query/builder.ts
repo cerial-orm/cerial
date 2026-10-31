@@ -68,6 +68,7 @@ import {
   validateSelect,
   validateUnset,
   validateUpdateData,
+  refuseFragmentInValue,
   validateWhere,
   validationFailure,
 } from './validators';
@@ -189,6 +190,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const { data, select, include } = options;
     assertValidReadOptions(this.model, 'create', { select });
 
+    refuseFragmentInValue(data, 'data', { model: this.model.name, operation: 'create' });
+
     // Extract nested operations from the data
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
 
@@ -229,6 +232,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid)
       throw validationFailure('where clause', whereValidation.errors, this.model, 'updateMany');
+
+    refuseFragmentInValue(data, 'data', { model: this.model.name, operation: 'updateMany' });
 
     // Extract nested operations from the data
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
@@ -306,6 +311,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Validate unique field requirement and expand composite keys
     const { hasId, expandedWhere } = getRecordIdFromWhere(where, this.model, 'updateUnique');
+
+    refuseFragmentInValue(data, 'data', { model: this.model.name, operation: 'updateUnique' });
 
     // Extract nested operations from the data
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
@@ -530,6 +537,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Validate where clause
     const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, this.model, 'upsert');
+    refuseFragmentInValue(createData, 'create', { model: this.model.name, operation: 'upsert' });
+    refuseFragmentInValue(updateData, 'update', { model: this.model.name, operation: 'upsert' });
 
     // Extract nested operations from create and update data
     const { cleanData: cleanCreateData, nestedOps: createNestedOps } = extractNestedOperations(createData, this.model);
@@ -807,6 +816,7 @@ export function compileCreate(
   const { data, select, include } = options;
   assertValidReadOptions(model, 'create', { select });
 
+  refuseFragmentInValue(data, 'data', { model: model.name, operation: 'create' });
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
   const dataWithDefaults = applyFieldDefaults(cleanData, model);
   const validation = validateCreateData(dataWithDefaults, model, nestedOps);
@@ -839,6 +849,7 @@ export function compileUpdateMany(
   const whereValidation = validateWhere(where, model, registry);
   if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, model, 'updateMany');
 
+  refuseFragmentInValue(data, 'data', { model: model.name, operation: 'updateMany' });
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
   const transformedData = transformData(cleanData, model, 'update');
 
@@ -895,6 +906,7 @@ export function compileUpdateUnique(
 
   const { hasId, expandedWhere } = getRecordIdFromWhere(where, model, 'updateUnique');
 
+  refuseFragmentInValue(data, 'data', { model: model.name, operation: 'updateUnique' });
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
   const transformedData = transformData(cleanData, model, 'update');
 
@@ -1093,6 +1105,8 @@ export function compileUpsert(
 
   const whereValidation = validateWhere(where, model, registry);
   if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, model, 'upsert');
+  refuseFragmentInValue(createData, 'create', { model: model.name, operation: 'upsert' });
+  refuseFragmentInValue(updateData, 'update', { model: model.name, operation: 'upsert' });
 
   // Extract nested ops and transform data
   const { cleanData: cleanCreateData, nestedOps: createNestedOps } = extractNestedOperations(createData, model);

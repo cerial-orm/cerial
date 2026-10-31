@@ -10,6 +10,7 @@ export {
   validateUnset,
   validateUpdateData,
 } from './data-validator';
+export { refuseFragmentInValue } from './fragment-value';
 export type { ValidationProblem } from './failure';
 export { validationFailure } from './failure';
 export type { SelectValidationError } from './select-validator';

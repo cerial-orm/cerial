@@ -23,6 +23,7 @@ import { isOperatorObject, resolveTupleElementKey } from '../filters/condition-b
 import { splitArrayRelationFilter } from '../filters/nested-condition-builder';
 import { isRegisteredOperator } from '../filters/registry';
 import { isSqlFragment } from '../compile/sql-fragment';
+import { refuseFragmentInValue } from './fragment-value';
 
 function isDirectValue(value: unknown): boolean {
   return (
@@ -458,8 +459,13 @@ export function validateWhereClause(
       continue;
     }
 
-    // Validate field filter
-    errors.push(...validateFieldFilter(key, value, model, `${path}.${key}`, registry));
+    // Validate field filter. A `$raw` inside a relation filter keeps its own message, so that check goes first there.
+    const refuse = () => refuseFragmentInValue(value, `${path}.${key}`, { model: model.name });
+    const isRelation = model.fields.some((f) => f.name === key && f.type === 'relation');
+    if (!isRelation) refuse();
+    const issues = validateFieldFilter(key, value, model, `${path}.${key}`, registry);
+    errors.push(...issues);
+    if (isRelation && !issues.length) refuse();
   }
 
   return errors;
