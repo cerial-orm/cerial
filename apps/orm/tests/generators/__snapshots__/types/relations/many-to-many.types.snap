@@ -366,6 +366,8 @@ export interface CourseModel {
 
   exists(where?: CourseWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -737,6 +739,8 @@ export interface StudentModel {
   count(where?: StudentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: StudentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

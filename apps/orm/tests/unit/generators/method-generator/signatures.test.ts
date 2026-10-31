@@ -15,6 +15,7 @@ import {
   generateFindOneMethod,
   generateFindUniqueMethod,
   generateIntrospectionMethods,
+  generateRawMethod,
   generateMethodSignatures,
   generateUpdateMethod,
   generateUpdateUniqueMethod,
@@ -349,6 +350,12 @@ describe('count, exists and introspection signatures', () => {
     );
   });
 
+  test('$raw takes a fragment and an optional txn and returns an array of the claimed row type', () => {
+    expect(generateRawMethod()).toBe(
+      '$raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;',
+    );
+  });
+
   test('introspection methods are blank-line separated', () => {
     expect(generateIntrospectionMethods()).toBe(
       'getMetadata(): ModelMetadata;\n\n  getName(): string;\n\n  getTableName(): string;',
@@ -362,7 +369,7 @@ describe('count, exists and introspection signatures', () => {
 });
 
 describe('generateMethodSignatures', () => {
-  test('returns the twelve signatures in declaration order', () => {
+  test('returns the thirteen signatures in declaration order', () => {
     expect(generateMethodSignatures(related)).toEqual([
       generateFindOneMethod(related),
       generateFindManyMethod(related),
@@ -375,6 +382,7 @@ describe('generateMethodSignatures', () => {
       generateDeleteUniqueMethod(related),
       generateCountMethod(related),
       generateExistsMethod(related),
+      generateRawMethod(),
       generateIntrospectionMethods(),
     ]);
   });

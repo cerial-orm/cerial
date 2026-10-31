@@ -290,6 +290,8 @@ export interface ExtEnumContainerModel {
 
   exists(where?: ExtEnumContainerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -595,6 +597,8 @@ export interface ExtEnumModelModel {
   count(where?: ExtEnumModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtEnumModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

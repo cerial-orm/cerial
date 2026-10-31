@@ -159,6 +159,8 @@ const NOT_QUERY_METHODS = new Set([
   'beforeQuery',
   'run',
   'resolveDb',
+  // Takes a whole fragment, not option keys
+  '$raw',
   'getMetadata',
   'getName',
   'getTableName',

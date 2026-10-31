@@ -293,6 +293,8 @@ export interface LiteralBasicModel {
 
   exists(where?: LiteralBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -537,6 +539,8 @@ export interface LiteralBroadModel {
   count(where?: LiteralBroadWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: LiteralBroadWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -797,6 +801,8 @@ export interface LiteralDefaultsModel {
 
   exists(where?: LiteralDefaultsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1033,6 +1039,8 @@ export interface LiteralExtendedModel {
   count(where?: LiteralExtendedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: LiteralExtendedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1281,6 +1289,8 @@ export interface LiteralNumberKindsModel {
 
   exists(where?: LiteralNumberKindsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1523,6 +1533,8 @@ export interface LiteralNumericModel {
   count(where?: LiteralNumericWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: LiteralNumericWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1770,6 +1782,8 @@ export interface LiteralObjectArrayModel {
 
   exists(where?: LiteralObjectArrayWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2006,6 +2020,8 @@ export interface LiteralUniqueModel {
   count(where?: LiteralUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: LiteralUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2252,6 +2268,8 @@ export interface LiteralWithBothModel {
   count(where?: LiteralWithBothWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: LiteralWithBothWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2541,6 +2559,8 @@ export interface LiteralWithObjectModel {
 
   exists(where?: LiteralWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2786,6 +2806,8 @@ export interface LiteralWithObjectOptModel {
   count(where?: LiteralWithObjectOptWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: LiteralWithObjectOptWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -3054,6 +3076,8 @@ export interface LiteralWithObjectVariantModel {
 
   exists(where?: LiteralWithObjectVariantWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -3309,6 +3333,8 @@ export interface LiteralWithTupleModel {
   count(where?: LiteralWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: LiteralWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

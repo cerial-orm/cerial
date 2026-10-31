@@ -323,6 +323,8 @@ export interface NumberBasicModel {
 
   exists(where?: NumberBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -617,6 +619,8 @@ export interface NumberDecoratedModel {
 
   exists(where?: NumberDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -900,6 +904,8 @@ export interface NumberWithObjectModel {
 
   exists(where?: NumberWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1170,6 +1176,8 @@ export interface NumberWithTupleModel {
   count(where?: NumberWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: NumberWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

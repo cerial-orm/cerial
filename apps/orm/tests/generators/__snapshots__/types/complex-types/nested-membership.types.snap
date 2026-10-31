@@ -363,6 +363,8 @@ export interface NmObjectDocModel {
 
   exists(where?: NmObjectDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -801,6 +803,8 @@ export interface NmTupleDocModel {
   count(where?: NmTupleDocWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: NmTupleDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

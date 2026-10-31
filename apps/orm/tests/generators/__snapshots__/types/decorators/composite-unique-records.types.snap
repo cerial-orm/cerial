@@ -440,6 +440,8 @@ export interface AttendeeModel {
 
   exists(where?: AttendeeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -785,6 +787,8 @@ export interface BookingModel {
   count(where?: BookingWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: BookingWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1204,6 +1208,8 @@ export interface RegistrationModel {
 
   exists(where?: RegistrationWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1620,6 +1626,8 @@ export interface TicketModel {
 
   exists(where?: TicketWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2013,6 +2021,8 @@ export interface WorkshopModel {
   count(where?: WorkshopWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: WorkshopWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

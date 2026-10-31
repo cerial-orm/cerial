@@ -325,6 +325,8 @@ export interface DecimalBasicModel {
 
   exists(where?: DecimalBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -621,6 +623,8 @@ export interface DecimalDecoratedModel {
 
   exists(where?: DecimalDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -888,6 +892,8 @@ export interface DecimalWithObjectModel {
 
   exists(where?: DecimalWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1151,6 +1157,8 @@ export interface DecimalWithTupleModel {
   count(where?: DecimalWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: DecimalWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

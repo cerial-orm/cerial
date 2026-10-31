@@ -11,7 +11,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientRawStatement, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -404,6 +404,21 @@ ${generateResolveConnection(connectConfigName, databasePins)}
     if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: 'query' });
     const result = await surreal.query<T[]>(query, vars);
     return result.flat() as T[];
+  }
+
+  /**
+   * Run a whole raw SurrealQL statement built with the sql tag. Returns the last statement's result as an
+   * array, unmapped, because a client-level statement belongs to no model. Use a model's own $raw to map rows.
+   * @param fragment - A fragment from the sql tag; a plain string is refused
+   */
+  $raw<T = unknown>(fragment: SqlFragment<T>): CerialQueryPromise<T[]> {
+    return createClientRawStatement<T>(fragment, async () => {
+      await this.ensureMigrated();
+      const surreal = this.connectionManager.getQuerySurreal();
+      if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: '$raw' });
+
+      return surreal;
+    });
   }
 
   /**

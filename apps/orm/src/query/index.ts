@@ -101,7 +101,8 @@ export {
   transformWhereClause,
 } from './filters';
 // Mappers
-export { mapFieldValue, mapRecord, mapResult, mapSingleResult } from './mappers';
+export { mapFieldValue, mapRawResult, mapRecord, mapResult, mapSingleResult } from './mappers';
+export { compileRawStatement, executeRawStatement } from './raw-statement';
 // Transformers
 export {
   applyFieldDefaults,

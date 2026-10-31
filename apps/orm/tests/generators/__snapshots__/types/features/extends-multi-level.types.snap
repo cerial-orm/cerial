@@ -381,6 +381,8 @@ export interface ExtL4AltConcreteModel {
 
   exists(where?: ExtL4AltConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -776,6 +778,8 @@ export interface ExtL4ConcreteModel {
 
   exists(where?: ExtL4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1111,6 +1115,8 @@ export interface ExtL4OmitConcreteModel {
   count(where?: ExtL4OmitConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtL4OmitConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1492,6 +1498,8 @@ export interface ExtL4PickConcreteModel {
   count(where?: ExtL4PickConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtL4PickConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1899,6 +1907,8 @@ export interface ExtL5VeryDeepModel {
   count(where?: ExtL5VeryDeepWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtL5VeryDeepWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2506,6 +2516,8 @@ export interface ExtL6UltraDeepModel {
 
   exists(where?: ExtL6UltraDeepWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2851,6 +2863,8 @@ export interface ExtP4ConcreteModel {
   count(where?: ExtP4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtP4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

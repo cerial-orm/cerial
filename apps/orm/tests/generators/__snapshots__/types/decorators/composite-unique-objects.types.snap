@@ -245,6 +245,8 @@ export interface DepotModel {
 
   exists(where?: DepotWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -541,6 +543,8 @@ export interface WarehouseModel {
   count(where?: WarehouseWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: WarehouseWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

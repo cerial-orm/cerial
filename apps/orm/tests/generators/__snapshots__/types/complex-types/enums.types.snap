@@ -272,6 +272,8 @@ export interface EnumBasicModel {
 
   exists(where?: EnumBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -532,6 +534,8 @@ export interface EnumDefaultsModel {
 
   exists(where?: EnumDefaultsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -765,6 +769,8 @@ export interface EnumLiteralRefModel {
   count(where?: EnumLiteralRefWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: EnumLiteralRefWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1033,6 +1039,8 @@ export interface EnumMultipleModel {
 
   exists(where?: EnumMultipleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1271,6 +1279,8 @@ export interface EnumUniqueModel {
   count(where?: EnumUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: EnumUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1556,6 +1566,8 @@ export interface EnumWithObjectModel {
   count(where?: EnumWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: EnumWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

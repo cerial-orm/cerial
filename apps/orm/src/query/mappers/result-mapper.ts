@@ -416,3 +416,14 @@ export function mapSingleResult<T>(result: unknown, model: ModelMetadata, select
   const mapped = mapResult<T>(result, model, select);
   return mapped[0] ?? null;
 }
+
+/**
+ * Map the rows of a raw statement bound to a model. Object rows take the normal path; anything else
+ * (`SELECT VALUE name`, `RETURN 1`) passes through, where `mapResult` would drop it.
+ */
+export function mapRawResult<T>(rows: unknown[], model: ModelMetadata): T[] {
+  return rows.map((row) =>
+    // Plain objects only: a RecordId, Date or Decimal from `SELECT VALUE` is a value, not a row
+    row && Object.getPrototypeOf(row) === Object.prototype ? mapRecord(row as Record<string, unknown>, model) : row,
+  ) as T[];
+}

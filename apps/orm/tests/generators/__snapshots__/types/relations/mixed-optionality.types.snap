@@ -329,6 +329,8 @@ export interface AgentModel {
 
   exists(where?: AgentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -667,6 +669,8 @@ export interface CustomerModel {
   count(where?: CustomerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: CustomerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1081,6 +1085,8 @@ export interface PurchaseOrderModel {
   count(where?: PurchaseOrderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: PurchaseOrderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

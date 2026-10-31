@@ -960,6 +960,8 @@ export interface NcDocModel {
 
   exists(where?: NcDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1311,6 +1313,8 @@ export interface NcGroupModel {
   count(where?: NcGroupWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: NcGroupWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1705,6 +1709,8 @@ export interface NcHolderModel {
   count(where?: NcHolderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: NcHolderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

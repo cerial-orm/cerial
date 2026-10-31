@@ -390,6 +390,8 @@ export interface DocumentModel {
 
   exists(where?: DocumentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -776,6 +778,8 @@ export interface WriterModel {
   count(where?: WriterWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: WriterWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

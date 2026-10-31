@@ -326,6 +326,8 @@ export interface BloggerModel {
 
   exists(where?: BloggerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -569,6 +571,8 @@ export interface LabelModel {
   count(where?: LabelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: LabelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

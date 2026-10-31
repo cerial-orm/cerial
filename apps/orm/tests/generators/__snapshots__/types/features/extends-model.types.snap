@@ -348,6 +348,8 @@ export interface ExtAdminModel {
 
   exists(where?: ExtAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -625,6 +627,8 @@ export interface ExtEmptyChildModel {
   count(where?: ExtEmptyChildWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtEmptyChildWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -962,6 +966,8 @@ export interface ExtModeratorModel {
   count(where?: ExtModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1466,6 +1472,8 @@ export interface ExtPremiumUserModel {
 
   exists(where?: ExtPremiumUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1807,6 +1815,8 @@ export interface ExtPrivateUserModel {
   count(where?: ExtPrivateUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtPrivateUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2212,6 +2222,8 @@ export interface ExtProfileModel {
 
   exists(where?: ExtProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2606,6 +2618,8 @@ export interface ExtSuperAdminModel {
   count(where?: ExtSuperAdminWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtSuperAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -3019,6 +3033,8 @@ export interface ExtSystemAdminModel {
 
   exists(where?: ExtSystemAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -3402,6 +3418,8 @@ export interface ExtUserModel {
   count(where?: ExtUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

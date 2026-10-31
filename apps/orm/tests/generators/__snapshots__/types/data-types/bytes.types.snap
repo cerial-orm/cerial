@@ -309,6 +309,8 @@ export interface BytesBasicModel {
 
   exists(where?: BytesBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -576,6 +578,8 @@ export interface BytesWithObjectModel {
 
   exists(where?: BytesWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -830,6 +834,8 @@ export interface BytesWithTupleModel {
   count(where?: BytesWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: BytesWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

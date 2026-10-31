@@ -269,6 +269,8 @@ export interface TupleBasicModel {
 
   exists(where?: TupleBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -534,6 +536,8 @@ export interface TupleDecoratedNestModel {
   count(where?: TupleDecoratedNestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: TupleDecoratedNestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -802,6 +806,8 @@ export interface TupleDeepNestModel {
 
   exists(where?: TupleDeepNestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1055,6 +1061,8 @@ export interface TupleDefaultedModel {
 
   exists(where?: TupleDefaultedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1301,6 +1309,8 @@ export interface TupleInObjModel {
   count(where?: TupleInObjWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: TupleInObjWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1576,6 +1586,8 @@ export interface TupleLiteralElementModel {
 
   exists(where?: TupleLiteralElementWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1812,6 +1824,8 @@ export interface TupleNestedModel {
   count(where?: TupleNestedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: TupleNestedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2100,6 +2114,8 @@ export interface TupleNullableModel {
 
   exists(where?: TupleNullableWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2345,6 +2361,8 @@ export interface TupleObjInTupleModel {
   count(where?: TupleObjInTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: TupleObjInTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2706,6 +2724,8 @@ export interface TupleRelatedPostModel {
 
   exists(where?: TupleRelatedPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2958,6 +2978,8 @@ export interface TupleStampedModel {
   count(where?: TupleStampedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: TupleStampedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -3308,6 +3330,8 @@ export interface TupleWithRelationModel {
   count(where?: TupleWithRelationWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: TupleWithRelationWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

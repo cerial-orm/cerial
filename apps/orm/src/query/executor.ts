@@ -19,7 +19,7 @@ export interface ExecuteOptions {
 /** A single item in a client transaction batch */
 export interface TransactionItem {
   compiledQuery: CompiledQuery;
-  metadata: ModelMetadata;
+  metadata?: ModelMetadata;
   resultType: QueryResultType;
   registry?: ModelRegistry;
   select?: SelectClause;
@@ -281,9 +281,12 @@ function extractAndStripReturn(text: string): { text: string; returnExpr: string
 function mapTransactionResult(
   rawResult: unknown,
   resultType: QueryResultType,
-  metadata: ModelMetadata,
+  metadata?: ModelMetadata,
   select?: SelectClause,
 ): unknown {
+  // Only a client-level raw statement has no model, and nothing here can map its rows
+  if (!metadata) return rawResult;
+
   switch (resultType) {
     case 'single': {
       if (rawResult === null || rawResult === undefined) return null;

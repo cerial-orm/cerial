@@ -355,6 +355,8 @@ export interface PostModel {
 
   exists(where?: PostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -734,6 +736,8 @@ export interface ProfileModel {
 
   exists(where?: ProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1085,6 +1089,8 @@ export interface TagModel {
   count(where?: TagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: TagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1809,6 +1815,8 @@ export interface UserModel {
   count(where?: UserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: UserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

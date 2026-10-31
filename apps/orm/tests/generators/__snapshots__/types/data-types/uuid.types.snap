@@ -323,6 +323,8 @@ export interface UuidBasicModel {
 
   exists(where?: UuidBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -667,6 +669,8 @@ export interface UuidDecoratedModel {
 
   exists(where?: UuidDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -949,6 +953,8 @@ export interface UuidWithObjectModel {
 
   exists(where?: UuidWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1209,6 +1215,8 @@ export interface UuidWithTupleModel {
   count(where?: UuidWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: UuidWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

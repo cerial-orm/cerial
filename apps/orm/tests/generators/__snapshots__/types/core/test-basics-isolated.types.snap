@@ -362,6 +362,8 @@ export interface BasicsPostModel {
 
   exists(where?: BasicsPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -749,6 +751,8 @@ export interface BasicsProfileModel {
 
   exists(where?: BasicsProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1110,6 +1114,8 @@ export interface BasicsTagModel {
   count(where?: BasicsTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: BasicsTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1853,6 +1859,8 @@ export interface BasicsUserModel {
   count(where?: BasicsUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: BasicsUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

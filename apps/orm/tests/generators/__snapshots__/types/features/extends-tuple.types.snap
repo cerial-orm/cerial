@@ -243,6 +243,8 @@ export interface ExtTupleByNameModel {
 
   exists(where?: ExtTupleByNameWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -575,6 +577,8 @@ export interface ExtTupleModelModel {
   count(where?: ExtTupleModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtTupleModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

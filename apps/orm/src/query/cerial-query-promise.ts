@@ -16,7 +16,7 @@ import type { ModelMetadata, ModelRegistry, SelectClause } from '../types';
 import type { CompiledQuery } from './compile/types';
 
 /** Result type classification for transaction result mapping */
-export type QueryResultType = 'single' | 'array' | 'count' | 'boolean' | 'number' | 'void';
+export type QueryResultType = 'single' | 'array' | 'count' | 'boolean' | 'number' | 'void' | 'raw';
 
 /** Symbol used to identify CerialQueryPromise instances */
 const CERIAL_QUERY_SYMBOL = Symbol.for('cerial.query');
@@ -44,10 +44,10 @@ export class CerialQueryPromise<T> implements PromiseLike<T> {
   constructor(
     private readonly _executor: () => Promise<T>,
     private readonly _compiledQuery: CompiledQuery,
-    private readonly _metadata: ModelMetadata,
+    private readonly _metadata: ModelMetadata | undefined,
     private readonly _resultType: QueryResultType,
     private readonly _registry?: ModelRegistry,
-    private readonly _modelNames: string[] = [_metadata.name],
+    private readonly _modelNames: string[] = _metadata ? [_metadata.name] : [],
     private readonly _select?: SelectClause,
   ) {}
 
@@ -93,8 +93,8 @@ export class CerialQueryPromise<T> implements PromiseLike<T> {
     return this._compiledQuery;
   }
 
-  /** Get the model metadata (used by $transaction for result mapping) */
-  get metadata(): ModelMetadata {
+  /** Get the model metadata (used by $transaction for result mapping); absent for a client-level statement */
+  get metadata(): ModelMetadata | undefined {
     return this._metadata;
   }
 

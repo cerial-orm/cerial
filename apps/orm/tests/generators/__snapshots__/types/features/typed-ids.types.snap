@@ -337,6 +337,8 @@ export interface FkChildModelModel {
 
   exists(where?: FkChildModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -679,6 +681,8 @@ export interface FkTargetIntIdModel {
 
   exists(where?: FkTargetIntIdWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -924,6 +928,8 @@ export interface IntIdModelModel {
   count(where?: IntIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: IntIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1174,6 +1180,8 @@ export interface IntUnionIdModelModel {
 
   exists(where?: IntUnionIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1419,6 +1427,8 @@ export interface NumberIdModelModel {
   count(where?: NumberIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: NumberIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1677,6 +1687,8 @@ export interface ObjectIdModelModel {
   count(where?: ObjectIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ObjectIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1963,6 +1975,8 @@ export interface StandaloneRefModelModel {
 
   exists(where?: StandaloneRefModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2208,6 +2222,8 @@ export interface StringIdModelModel {
   count(where?: StringIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: StringIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2456,6 +2472,8 @@ export interface TupleIdModelModel {
 
   exists(where?: TupleIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2702,6 +2720,8 @@ export interface UnionIdModelModel {
 
   exists(where?: UnionIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2947,6 +2967,8 @@ export interface UuidIdModelModel {
   count(where?: UuidIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: UuidIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

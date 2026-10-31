@@ -464,6 +464,8 @@ export interface ExtCrossAdminModel {
 
   exists(where?: ExtCrossAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -806,6 +808,8 @@ export interface ExtCrossModeratorModel {
   count(where?: ExtCrossModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtCrossModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1274,6 +1278,8 @@ export interface ExtCrossPremiumModel {
 
   exists(where?: ExtCrossPremiumWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1611,6 +1617,8 @@ export interface ExtCrossPrivateModel {
   count(where?: ExtCrossPrivateWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtCrossPrivateWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2150,6 +2158,8 @@ export interface ExtCrossProfileModel {
 
   exists(where?: ExtCrossProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2528,6 +2538,8 @@ export interface ExtCrossUserModel {
   count(where?: ExtCrossUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtCrossUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

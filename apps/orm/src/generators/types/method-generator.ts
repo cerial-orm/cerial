@@ -700,6 +700,11 @@ export function generateExistsMethod(model: ModelMetadata): string {
   return `exists(where?: ${model.name}Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;`;
 }
 
+/** Generate the whole-statement `$raw` method signature */
+export function generateRawMethod(): string {
+  return `$raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;`;
+}
+
 /** Generate introspection method signatures (getMetadata, getName, getTableName) */
 export function generateIntrospectionMethods(): string {
   return ['getMetadata(): ModelMetadata;', 'getName(): string;', 'getTableName(): string;'].join('\n\n  ');
@@ -719,6 +724,7 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
     generateDeleteUniqueMethod(model),
     generateCountMethod(model),
     generateExistsMethod(model),
+    generateRawMethod(),
     generateIntrospectionMethods(),
   ];
 }

@@ -237,6 +237,8 @@ export interface ArticleModel {
 
   exists(where?: ArticleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -595,6 +597,8 @@ export interface AuthorModel {
 
   exists(where?: AuthorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -927,6 +931,8 @@ export interface CommentModel {
   count(where?: CommentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: CommentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1323,6 +1329,8 @@ export interface PostRequiredModel {
   count(where?: PostRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: PostRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

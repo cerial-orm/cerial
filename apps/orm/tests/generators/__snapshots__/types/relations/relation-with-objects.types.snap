@@ -364,6 +364,8 @@ export interface RelObjCompanyModel {
 
   exists(where?: RelObjCompanyWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -722,6 +724,8 @@ export interface RelObjEmployeeModel {
   count(where?: RelObjEmployeeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: RelObjEmployeeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

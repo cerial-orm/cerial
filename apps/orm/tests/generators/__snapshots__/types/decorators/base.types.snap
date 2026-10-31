@@ -458,6 +458,8 @@ export interface ArrayDecoratorTestModel {
 
   exists(where?: ArrayDecoratorTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -723,6 +725,8 @@ export interface ScalarArraysModel {
   count(where?: ScalarArraysWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ScalarArraysWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

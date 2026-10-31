@@ -353,6 +353,8 @@ export interface ProfileOptionalModel {
 
   exists(where?: ProfileOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -733,6 +735,8 @@ export interface ProfileRequiredModel {
 
   exists(where?: ProfileRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1084,6 +1088,8 @@ export interface ProfileSingleSidedModel {
 
   exists(where?: ProfileSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1430,6 +1436,8 @@ export interface UserOptionalModel {
   count(where?: UserOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: UserOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1778,6 +1786,8 @@ export interface UserRequiredModel {
 
   exists(where?: UserRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2026,6 +2036,8 @@ export interface UserSingleSidedModel {
   count(where?: UserSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: UserSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

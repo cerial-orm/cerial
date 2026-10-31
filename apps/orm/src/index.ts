@@ -166,6 +166,7 @@ export {
   CerialTransaction,
   ConnectionManager,
   createCerialTransactionProxy,
+  createClientRawStatement,
   createConnectionManager,
   guardUnknownModels,
   Model,

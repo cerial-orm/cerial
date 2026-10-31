@@ -26,7 +26,10 @@ import {
 } from '../../query/builder';
 import { collectRelatedModelNames, type ComputeClause, type IncludeClause } from '../../query/builders';
 import { CerialQueryPromise } from '../../query/cerial-query-promise';
+import type { SqlFragment } from '../../query/compile';
 import type { CompiledQuery } from '../../query/compile/types';
+import { mapRawResult } from '../../query/mappers';
+import { compileRawStatement, executeRawStatement } from '../../query/raw-statement';
 import type {
   CreateOptions,
   DeleteManyOptions,
@@ -125,6 +128,30 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /** Get table name */
   getTableName(): string {
     return this.metadata.tableName;
+  }
+
+  /**
+   * Run a whole raw statement and return the last statement's result as an array. Object rows are mapped
+   * as this model's rows; any other value (`SELECT VALUE name`, `RETURN 1`) is returned as it is.
+   */
+  $raw<R = unknown>(fragment: SqlFragment<R>, options: { txn?: CerialTransaction } = {}): CerialQueryPromise<R[]> {
+    const compiled = compileRawStatement(fragment);
+    const modelNames = [this.metadata.name];
+
+    return new CerialQueryPromise<R[]>(
+      async () => {
+        await this.beforeQuery(modelNames);
+        const db = this.resolveDb(options.txn);
+        const rows = await this.run('$raw', compiled, () => executeRawStatement<R>(db, compiled));
+
+        return mapRawResult<R>(rows, this.metadata);
+      },
+      compiled,
+      this.metadata,
+      'raw',
+      this.registry,
+      modelNames,
+    );
   }
 
   /** Find a single record */

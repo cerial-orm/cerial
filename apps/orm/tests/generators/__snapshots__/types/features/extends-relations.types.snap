@@ -433,6 +433,8 @@ export interface ExtRelBlogAuthorModel {
 
   exists(where?: ExtRelBlogAuthorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -859,6 +861,8 @@ export interface ExtRelBlogPostModel {
 
   exists(where?: ExtRelBlogPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1258,6 +1262,8 @@ export interface ExtRelBlogPostTagModel {
 
   exists(where?: ExtRelBlogPostTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1654,6 +1660,8 @@ export interface ExtRelBlogTagModel {
   count(where?: ExtRelBlogTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtRelBlogTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2053,6 +2061,8 @@ export interface ExtRelCommentModel {
   count(where?: ExtRelCommentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtRelCommentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2558,6 +2568,8 @@ export interface ExtRelCommentModeratedModel {
 
   exists(where?: ExtRelCommentModeratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2908,6 +2920,8 @@ export interface ExtRelPostArchiveModel {
   count(where?: ExtRelPostArchiveWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtRelPostArchiveWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -3283,6 +3297,8 @@ export interface ExtRelPostSummaryModel {
   count(where?: ExtRelPostSummaryWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtRelPostSummaryWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -3713,6 +3729,8 @@ export interface ExtRelProjectModel {
   count(where?: ExtRelProjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: ExtRelProjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

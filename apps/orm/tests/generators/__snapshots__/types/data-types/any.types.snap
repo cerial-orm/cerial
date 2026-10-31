@@ -278,6 +278,8 @@ export interface AnyBasicModel {
 
   exists(where?: AnyBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -660,6 +662,8 @@ export interface AnyDecoratedModel {
 
   exists(where?: AnyDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -915,6 +919,8 @@ export interface AnyUniqueModel {
 
   exists(where?: AnyUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1168,6 +1174,8 @@ export interface AnyWithObjectModel {
   count(where?: AnyWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: AnyWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

@@ -63,8 +63,8 @@ describe('CerialQueryPromise', () => {
     const promise = new CerialQueryPromise(() => Promise.resolve(null), mockQuery, mockMetadata, 'single');
 
     expect(promise.metadata).toBe(mockMetadata);
-    expect(promise.metadata.name).toBe('User');
-    expect(promise.metadata.tableName).toBe('user');
+    expect(promise.metadata?.name).toBe('User');
+    expect(promise.metadata?.tableName).toBe('user');
   });
 
   test('exposes resultType getter', () => {

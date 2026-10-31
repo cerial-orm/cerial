@@ -369,6 +369,8 @@ export interface AssistantModel {
 
   exists(where?: AssistantWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -765,6 +767,8 @@ export interface CategoryTreeModel {
 
   exists(where?: CategoryTreeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1115,6 +1119,8 @@ export interface EmployeeSingleSidedModel {
   count(where?: EmployeeSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: EmployeeSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1521,6 +1527,8 @@ export interface EmployeeWithReportsModel {
 
   exists(where?: EmployeeWithReportsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1863,6 +1871,8 @@ export interface FriendModel {
 
   exists(where?: FriendWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -2202,6 +2212,8 @@ export interface PersonModel {
   count(where?: PersonWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: PersonWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2555,6 +2567,8 @@ export interface SocialUserModel {
   count(where?: SocialUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: SocialUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

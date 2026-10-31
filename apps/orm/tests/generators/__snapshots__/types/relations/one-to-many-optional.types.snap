@@ -363,6 +363,8 @@ export interface BookModel {
 
   exists(where?: BookWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -701,6 +703,8 @@ export interface PublisherModel {
   count(where?: PublisherWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: PublisherWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 

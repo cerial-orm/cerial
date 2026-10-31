@@ -243,6 +243,8 @@ export interface KitchenSinkBadgeModel {
 
   exists(where?: KitchenSinkBadgeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -589,6 +591,8 @@ export interface KitchenSinkPostModel {
   count(where?: KitchenSinkPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: KitchenSinkPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -948,6 +952,8 @@ export interface KitchenSinkProfileModel {
 
   exists(where?: KitchenSinkProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
   getMetadata(): ModelMetadata;
 
   getName(): string;
@@ -1304,6 +1310,8 @@ export interface KitchenSinkSettingsModel {
   count(where?: KitchenSinkSettingsWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: KitchenSinkSettingsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -1670,6 +1678,8 @@ export interface KitchenSinkTagModel {
   count(where?: KitchenSinkTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: KitchenSinkTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
@@ -2294,6 +2304,8 @@ export interface KitchenSinkUserModel {
   count(where?: KitchenSinkUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
   exists(where?: KitchenSinkUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
 
   getMetadata(): ModelMetadata;
 
