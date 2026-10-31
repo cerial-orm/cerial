@@ -176,14 +176,12 @@ describe('vacuous logical shapes', () => {
     expect(transformWhereClause({ NOT: {} }, place).text).toBe('WHERE false');
   });
 
-  test('OR: [] beside another condition ANDs with false', () => {
-    expect(transformWhereClause({ name: 'a', OR: [] }, place).text).toBe('WHERE name = $name_eq_0 AND false');
+  test('OR: [] beside another condition folds the conjunction to false', () => {
+    expect(transformWhereClause({ name: 'a', OR: [] }, place).text).toBe('WHERE false');
   });
 
   test('a nested OR: [] is false inside its parent', () => {
-    expect(transformWhereClause({ AND: [{ name: 'a' }, { OR: [] }] }, place).text).toBe(
-      'WHERE (name = $name_eq_0 AND false)',
-    );
+    expect(transformWhereClause({ AND: [{ name: 'a' }, { OR: [] }] }, place).text).toBe('WHERE false');
   });
 
   test('AND: [] stays vacuously true: no condition at all', () => {

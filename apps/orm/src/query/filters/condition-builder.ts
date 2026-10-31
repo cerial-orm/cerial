@@ -756,6 +756,8 @@ export function buildConditions(
     return conditions[0]!;
   }
 
-  // Multiple field conditions = AND them together
+  // Multiple field conditions = AND them together. A constant false folds the lot, as in handleAnd.
+  if (conditions.some((c) => c.text === 'false')) return { text: 'false', vars: {} };
+
   return joinFragments(conditions, ' AND ');
 }

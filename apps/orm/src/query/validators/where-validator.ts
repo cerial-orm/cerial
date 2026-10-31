@@ -11,6 +11,7 @@ import type {
   TupleFieldMetadata,
   WhereClause,
 } from '../../types';
+import { CerialValidationError } from '../../errors';
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
@@ -416,11 +417,52 @@ function rawValueIssue(path: string, value: unknown): CerialValidationIssue {
   };
 }
 
+/**
+ * Deepest object nesting a where may have. The server already refuses a `NOT` or `OR` chain near depth 20, so
+ * real queries stay far below this; the cap only stops hostile input from overflowing the call stack in the
+ * recursive walks below and in the compiler, which would surface as a bare RangeError.
+ */
+export const MAX_WHERE_DEPTH = 128;
+
+/** Refuse a value nested deeper than the cap. Iterative, so the check itself cannot overflow the stack. */
+function assertWhereDepth(where: unknown, path: string): void {
+  const stack: Array<[unknown, number]> = [[where, 1]];
+
+  while (stack.length) {
+    const [node, depth] = stack.pop()!;
+    if (Array.isArray(node)) {
+      for (const child of node) stack.push([child, depth]);
+      continue;
+    }
+    if (!isObject(node)) continue;
+    const proto = Object.getPrototypeOf(node);
+    if (proto !== Object.prototype && proto !== null) continue;
+
+    if (depth > MAX_WHERE_DEPTH)
+      throw new CerialValidationError(
+        `${path} is nested deeper than ${MAX_WHERE_DEPTH} levels (reached depth ${depth}); flatten the filter`,
+        { operation: 'where' },
+      );
+    for (const child of Object.values(node)) stack.push([child, depth + 1]);
+  }
+}
+
 /** Validate a where clause recursively */
 export function validateWhereClause(
   where: WhereClause,
   model: ModelMetadata,
   path: string = 'where',
+  registry?: ModelRegistry,
+): CerialValidationIssue[] {
+  assertWhereDepth(where, path);
+
+  return walkWhereClause(where, model, path, registry);
+}
+
+function walkWhereClause(
+  where: WhereClause,
+  model: ModelMetadata,
+  path: string,
   registry?: ModelRegistry,
 ): CerialValidationIssue[] {
   const errors: CerialValidationIssue[] = [];
@@ -443,9 +485,11 @@ export function validateWhereClause(
 
       for (let i = 0; i < value.length; i++) {
         const item = value[i];
-        if (isObject(item)) {
-          errors.push(...validateWhereClause(item as WhereClause, model, `${path}.${key}[${i}]`, registry));
+        if (!isObject(item)) {
+          errors.push({ path: `${path}.${key}[${i}]`, message: `${key} items must be objects` });
+          continue;
         }
+        errors.push(...walkWhereClause(item as WhereClause, model, `${path}.${key}[${i}]`, registry));
       }
       continue;
     }
@@ -455,7 +499,7 @@ export function validateWhereClause(
         errors.push({ path: `${path}.NOT`, message: 'NOT must be an object' });
         continue;
       }
-      errors.push(...validateWhereClause(value as WhereClause, model, `${path}.NOT`, registry));
+      errors.push(...walkWhereClause(value as WhereClause, model, `${path}.NOT`, registry));
       continue;
     }
 

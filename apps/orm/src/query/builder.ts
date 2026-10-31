@@ -1106,6 +1106,14 @@ function recordIdFromWhere(model: ModelMetadata, where: WhereClause): RecordId |
   return transformOrValidateRecordId(model.tableName, id as string);
 }
 
+/** A field filter that matches every row: only `notIn` with an empty list, which narrows nothing */
+function isVacuousFilter(value: unknown): boolean {
+  if (!isObject(value)) return false;
+  const entries = Object.entries(value).filter(([, v]) => v !== undefined);
+
+  return entries.length > 0 && entries.every(([k, v]) => k === 'notIn' && Array.isArray(v) && !v.length);
+}
+
 /** The shape of a where once `$raw` is set aside: whether it held one, and whether anything else is left to filter on */
 function scanRaw(where: WhereClause): { hasRaw: boolean; hasCondition: boolean } {
   let hasRaw = false;
@@ -1118,7 +1126,7 @@ function scanRaw(where: WhereClause): { hasRaw: boolean; hasCondition: boolean }
         if (Array.isArray(value)) for (const item of value) if (isObject(item)) visit(item);
       } else if (key === 'NOT') {
         if (isObject(value)) visit(value);
-      } else hasCondition = true;
+      } else if (!isVacuousFilter(value)) hasCondition = true;
     }
   };
   visit(where as Record<string, unknown>);
