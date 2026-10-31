@@ -162,6 +162,7 @@
     "test": "bun test tests/unit/ tests/generators/ tests/parser/ tests/query/ tests/client/ tests/validators/ tests/utils/",
     "test:integration": "bun test tests/integration/",
     "test:e2e": "bun test tests/e2e/ --preload ./tests/e2e/preload.ts",
+    "test:e2e:ts": "bun test tests/e2e/ --preload ./tests/e2e/preload-ts.ts",
     "test:e2e:parallel": "bun test tests/e2e/ --preload ./tests/e2e/preload.ts --parallel=${CERIAL_E2E_WORKERS:-4}",
     "test:full": "bun run generate:test-client && bun run typecheck && bun run test && bun run test:integration && bun run test:e2e",
     "snapshot:update": "UPDATE_GOLDEN=1 bun test tests/generators/golden-snapshot.test.ts",
