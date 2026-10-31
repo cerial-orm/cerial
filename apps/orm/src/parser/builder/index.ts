@@ -36,7 +36,15 @@ export type { CompositeFieldPath } from './composite';
 export { compositeDirectives } from './composite';
 export type { ExportedDeclaration } from './materialise';
 export { materialise } from './materialise';
-export type { LoadOptions, ModuleImporter } from './load';
-export { assertSupportedNode, importSchemaModule, loadDeclarations, MINIMUM_NODE_VERSION } from './load';
+export type { ImportReader, LoadOptions, ModuleImporter } from './load';
+export {
+  assertSupportedNode,
+  importSchemaModule,
+  loadDeclarations,
+  MINIMUM_NODE_VERSION,
+  readModuleImports,
+} from './load';
+export type { SchemaRegistration } from './define-schema';
+export { defineSchema, isSchemaRegistration } from './define-schema';
 export type { BuilderMethod, BuilderRoute } from './method-table';
 export { BUILDER_METHODS, DECLARATION_METHODS, LITERAL_VARIANT_METHODS } from './method-table';

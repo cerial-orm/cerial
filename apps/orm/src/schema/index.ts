@@ -12,7 +12,8 @@ export type {
   ObjectFields,
   ObjectOptions,
   Reference,
+  SchemaRegistration,
   TupleElements,
   VariantSpec,
 } from '../parser/builder';
-export { e, enum, f, literal, model, object, tuple, variant } from '../parser/builder';
+export { defineSchema, e, enum, f, literal, model, object, tuple, variant } from '../parser/builder';
