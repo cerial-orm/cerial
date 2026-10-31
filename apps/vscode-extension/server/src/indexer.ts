@@ -142,6 +142,9 @@ export class WorkspaceIndexer {
       if (config?.schemas) {
         // Multi-schema mode: one group per schema entry
         for (const [name, schemaEntry] of Object.entries(config.schemas)) {
+          // A schema with only `entry` or `files` has no folder to scan
+          if (!schemaEntry.path) continue;
+
           const schemaPath = path.resolve(folderPath, schemaEntry.path);
           const folderCerialIgnore = loadCerialIgnoreSync(schemaPath) ?? undefined;
           const fc = loadFolderConfig(schemaPath);
