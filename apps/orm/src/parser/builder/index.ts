@@ -37,6 +37,6 @@ export { compositeDirectives } from './composite';
 export type { ExportedDeclaration } from './materialise';
 export { materialise } from './materialise';
 export type { LoadOptions, ModuleImporter } from './load';
-export { importSchemaModule, loadDeclarations } from './load';
+export { assertSupportedNode, importSchemaModule, loadDeclarations, MINIMUM_NODE_VERSION } from './load';
 export type { BuilderMethod, BuilderRoute } from './method-table';
 export { BUILDER_METHODS, DECLARATION_METHODS, LITERAL_VARIANT_METHODS } from './method-table';

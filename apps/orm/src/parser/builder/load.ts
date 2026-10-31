@@ -14,11 +14,56 @@ export interface LoadOptions {
   readonly importModule?: ModuleImporter;
 }
 
+/** The oldest Node release the TypeScript loader supports: the first 22.x with unflagged `require(esm)`. */
+export const MINIMUM_NODE_VERSION = '22.12.0';
+
+function atLeast(version: string, minimum: string): boolean {
+  const have = version.split('.').map(Number);
+  const need = minimum.split('.').map(Number);
+  for (let i = 0; i < need.length; i++) {
+    const a = have[i] ?? 0;
+    if (a !== need[i]) return a > need[i]!;
+  }
+
+  return true;
+}
+
+/** Refuses a Node below the supported range with the release to upgrade to, before any `.ts` import fails obscurely. */
+export function assertSupportedNode(version: string = process.versions.node): void {
+  if (atLeast(version, MINIMUM_NODE_VERSION)) return;
+
+  throw new CerialGenerationError(
+    `Loading TypeScript schemas and config needs Node ${MINIMUM_NODE_VERSION} or newer (Node 22 LTS); this is Node ${version}. Upgrade to Node 22 LTS, or run cerial with Bun.`,
+  );
+}
+
+interface Jiti {
+  import(id: string): Promise<unknown>;
+}
+let jiti: Promise<Jiti> | undefined;
+
+// Node strips types natively only from 22.18, and then rejects extensionless relative imports and
+// enums, which TypeScript schemas use, so Node goes through jiti. The module cache stays on: a module
+// reached from two files must be one instance, or its handles would not compare equal.
+function loader(): Promise<Jiti> {
+  jiti ??= import('jiti').then(({ createJiti }) => createJiti(`${process.cwd()}/`, { fsCache: false }));
+
+  return jiti;
+}
+
 /**
- * The one place a schema module is imported. A `?v=` query would re-evaluate only the module it names, not
- * the modules it imports, so a watcher gets a fresh module graph from a new process instead.
+ * The one place a schema or config module is imported, under Bun natively and under Node through jiti.
+ * A `?v=` query would re-evaluate only the module it names, not the modules it imports, so a watcher gets
+ * a fresh module graph from a new process instead.
  */
-export const importSchemaModule: ModuleImporter = (path) => import(path);
+export const importSchemaModule: ModuleImporter = async (path) => {
+  if (process.versions.bun) return import(path);
+
+  assertSupportedNode();
+  const namespace = await (await loader()).import(path);
+
+  return namespace as Record<string, unknown>;
+};
 
 function isDeclaration(value: unknown): value is object {
   if (typeof value !== 'object' || value === null) return false;

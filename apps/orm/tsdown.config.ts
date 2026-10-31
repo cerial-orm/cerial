@@ -20,7 +20,7 @@ export default defineConfig([
     clean: true,
     outDir: 'dist',
     platform: 'node',
-    target: 'node20',
+    target: 'node22',
     unbundle: true,
   },
   // CLI binary (ESM-only — citty is ESM-only)
@@ -30,7 +30,7 @@ export default defineConfig([
     fixedExtension: true,
     outDir: 'dist',
     platform: 'node',
-    target: 'node20',
+    target: 'node22',
     banner: { js: '#!/usr/bin/env node' },
   },
 ]);

@@ -6,6 +6,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import fg from 'fast-glob';
+import { importSchemaModule } from '../../parser/builder/load';
 import { CerialConfigNotFolderConfigError, CerialGenerationError } from '../../errors';
 import { toFilterPath } from '../filters/path-utils';
 import type { PathFilter } from '../filters/types';
@@ -59,7 +60,7 @@ async function loadConfigFile(filePath: string): Promise<CerialConfig | null> {
 
 async function loadTypeScriptConfig(filePath: string): Promise<CerialConfig | null> {
   try {
-    const module = await import(filePath);
+    const module = await importSchemaModule(filePath);
     const config = module.default;
 
     if (!config) {
