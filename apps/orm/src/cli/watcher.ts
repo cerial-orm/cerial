@@ -5,8 +5,9 @@
 
 import { spawn } from 'node:child_process';
 import { type FSWatcher, watch } from 'node:fs';
-import { basename, isAbsolute, relative, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { resolveConfig as resolveFormatConfig } from '../formatter/rules';
+import { type ImportReader, moduleGraph } from '../parser/builder/load';
 import type { FormatConfig } from '../formatter/types';
 import type { PathFilter } from './filters/types';
 import { formatSingleFile } from './format';
@@ -142,6 +143,55 @@ export function createDebouncer(delayMs: number): Debouncer {
   };
 }
 
+/** True when `file` lies inside `dir`, which the recursive watch of `dir` already covers */
+function isInside(dir: string, file: string): boolean {
+  const path = relative(dir, file);
+
+  return path !== '' && path !== '..' && !path.startsWith(`..${sep}`) && !isAbsolute(path);
+}
+
+/** The directories of `files` that the recursive watch of `schemaPath` does not reach */
+export function directoriesOutside(files: Iterable<string>, schemaPath: string): Set<string> {
+  const root = resolve(schemaPath);
+  const directories = new Set<string>();
+  for (const file of files) {
+    if (!isInside(root, file)) directories.add(dirname(file));
+  }
+
+  return directories;
+}
+
+/**
+ * The files whose change regenerates a target with an `entry` or listed `files`: the modules the entry and
+ * listed TypeScript files import, plus the listed files themselves. Reads imports only. A file the target's
+ * filter excludes is left out; `undefined` when the target names no entry and no files.
+ */
+export async function computeWatchSet(
+  target: WatchTarget,
+  readImports?: ImportReader,
+): Promise<Set<string> | undefined> {
+  const listed = target.files ?? [];
+  if (!target.entry && !listed.length) return undefined;
+
+  const { filter } = target;
+  const bases = [resolve(target.schemaPath), process.cwd()];
+  const isExcluded = (file: string): boolean => {
+    if (!filter) return false;
+    // Patterns cannot escape their scope, so a file outside every base is kept
+    const base = bases.find((b) => isInside(b, file));
+
+    return !!base && !filter.shouldInclude(relative(base, file).replace(/\\/g, '/'));
+  };
+
+  const roots = [...(target.entry ? [target.entry] : []), ...listed].filter((file) => file.endsWith('.ts'));
+  const graph = await moduleGraph(roots, { readImports, excludes: isExcluded });
+  const files = [...(target.entry ? [target.entry] : []), ...listed].filter(
+    (file) => !isExcluded(file) && !/(^|\/)cerial\/handles\.ts$/.test(file.replace(/\\/g, '/')),
+  );
+
+  return new Set([...graph, ...files]);
+}
+
 /**
  * Generic file watcher: watches schema directories and calls the provided callback on .cerial file changes.
  * Reuses debounce and filter logic. Returns a Promise that resolves when stopped via SIGINT.
@@ -149,17 +199,33 @@ export function createDebouncer(delayMs: number): Debouncer {
 export async function startWatcherWithCallback<T extends WatchTargetBase>(
   targets: T[],
   onFileChange: WatchCallback<T>,
-  options?: { label?: string; shouldTrigger?: (target: T, filename: string | null) => boolean },
+  options?: {
+    label?: string;
+    shouldTrigger?: (target: T, filename: string | null) => boolean;
+    /**
+     * The absolute files whose change regenerates a target, beyond what its recursive watch sees. Called at
+     * start and again after each regeneration, so directories are watched as the set grows and shrinks.
+     */
+    watchSet?: (target: T) => Promise<ReadonlySet<string> | undefined>;
+  },
 ): Promise<void> {
   if (!targets.length) return;
 
   const label = options?.label ?? 'watch';
   const watchers: FSWatcher[] = [];
   const debouncer = createDebouncer(DEBOUNCE_MS);
+  // Per target index: the current file set and one non-recursive watcher per outside directory
+  const sets = new Map<number, ReadonlySet<string>>();
+  const extraWatchers = new Map<number, Map<string, FSWatcher>>();
+  let stopped = false;
 
   function cleanup(): void {
+    stopped = true;
     for (const watcher of watchers) {
       watcher.close();
+    }
+    for (const group of extraWatchers.values()) {
+      for (const watcher of group.values()) watcher.close();
     }
     debouncer.cancelAll();
     process.off('SIGINT', onSigint);
@@ -172,6 +238,64 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
     resolveStopped();
   };
 
+  function schedule(index: number, target: T, filename: string): void {
+    debouncer.schedule(String(index), () => {
+      void (async () => {
+        try {
+          await onFileChange(target, filename);
+        } finally {
+          await refreshWatchSet(index, target);
+        }
+      })();
+    });
+  }
+
+  // Recompute the target's file set and open or close directory watches to match. A failure keeps the old set.
+  async function refreshWatchSet(index: number, target: T): Promise<void> {
+    if (!options?.watchSet) return;
+
+    let files: ReadonlySet<string> | undefined;
+    try {
+      files = await options.watchSet(target);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[${label}] Could not follow the imports of '${getSchemaLabel(target)}': ${message}`);
+
+      return;
+    }
+    if (stopped || !files) return;
+
+    sets.set(index, files);
+    const group = extraWatchers.get(index) ?? new Map<string, FSWatcher>();
+    extraWatchers.set(index, group);
+    const wanted = directoriesOutside(files, target.schemaPath);
+
+    for (const [directory, watcher] of group) {
+      if (wanted.has(directory)) continue;
+      watcher.close();
+      group.delete(directory);
+    }
+    for (const directory of wanted) {
+      if (group.has(directory)) continue;
+      try {
+        // `filename` is relative to this directory, not to the schema path
+        group.set(
+          directory,
+          watch(directory, (_event, filename) => {
+            if (!filename) return;
+            const file = resolve(directory, filename.toString());
+            if (!sets.get(index)?.has(file)) return;
+
+            schedule(index, target, relative(resolve(target.schemaPath), file));
+          }),
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`[${label}] Failed to watch '${directory}': ${message}`);
+      }
+    }
+  }
+
   // Targets can share a schemaPath, so the index is the only key unique to each target
   for (const [index, target] of targets.entries()) {
     try {
@@ -179,9 +303,7 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
         const triggers = options?.shouldTrigger ?? ((t, f) => shouldTriggerRegeneration(f, t.filter));
         if (!triggers(target, filename)) return;
 
-        debouncer.schedule(String(index), () => {
-          void onFileChange(target, filename!);
-        });
+        schedule(index, target, filename!);
       });
 
       watchers.push(watcher);
@@ -197,11 +319,15 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
     return;
   }
 
-  console.log(`[${label}] Watching ${targets.length} schema(s) for changes...`);
+  const announce = (): void => console.log(`[${label}] Watching ${targets.length} schema(s) for changes...`);
 
   return new Promise<void>((resolvePromise) => {
     resolveStopped = resolvePromise;
     process.once('SIGINT', onSigint);
+
+    if (!options?.watchSet) return announce();
+    // Announced once the first file sets are in place, so a change right after the message is not missed
+    void Promise.all(targets.map((target, index) => refreshWatchSet(index, target))).then(announce);
   });
 }
 
@@ -218,6 +344,8 @@ export interface WatcherOptions {
   formatConfig?: FormatConfig;
   /** Defaults to the running process: `process.execPath` and `process.argv[1]` */
   cli?: CliInvocation;
+  /** Replaces the reader of a module's imports when following an entry's graph; tests inject one */
+  readImports?: ImportReader;
 }
 
 /** True when the entry's TypeScript modules are what generation imports: some exist and no `.cerial` file does */
@@ -376,6 +504,7 @@ export async function startWatcher(schemas: WatchTarget[], options?: WatcherOpti
     },
     {
       label: 'watch',
+      watchSet: (target) => computeWatchSet(target, options?.readImports),
       shouldTrigger: (target, filename) =>
         shouldTriggerRegeneration(
           filename,

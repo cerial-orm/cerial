@@ -409,3 +409,217 @@ export const User = model('User', {
     await stop(done);
   }, 60_000);
 });
+
+describe('watching the imports of an entry outside its folder', () => {
+  let logSpy: ReturnType<typeof spyOn>;
+  let errorSpy: ReturnType<typeof spyOn>;
+
+  beforeEach(async () => {
+    await mkdir(ROOT, { recursive: true });
+    logSpy = spyOn(console, 'log');
+    errorSpy = spyOn(console, 'error');
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
+  });
+
+  const SURFACE = '../../../../src/schema';
+  const moduleText = (name: string, field = 'name') =>
+    `import { f, model } from '${SURFACE}';\n\nexport const ${name} = model('${name}', {\n  id: f.record().id(),\n  ${field}: f.string(),\n});\n`;
+  const entryText = (names: string[]) =>
+    `import { defineSchema } from '${SURFACE}';\n${names.map((n) => `import { ${n} } from '../shared/${n.toLowerCase()}';`).join('\n')}\n\nexport default defineSchema({ models: [${names.join(', ')}] });\n`;
+
+  /** A project whose entry lives in schema/ and imports modules from the sibling folder shared/ */
+  async function outsideProject(names: string[]) {
+    const target = await makeProject({ 'entry.schema.ts': entryText(names) });
+    await mkdir(join(project, 'shared'), { recursive: true });
+    for (const name of names) await writeFile(join(project, 'shared', `${name.toLowerCase()}.ts`), moduleText(name));
+    const entry = join(target.schemaPath, 'entry.schema.ts');
+    expect(await runGenerateChild(target, CLI)).toBeNull();
+
+    return { ...target, entry, shared: join(project, 'shared') };
+  }
+
+  const detected = (): number =>
+    logSpy.mock.calls.filter((call: unknown[]) => String(call[0]).includes('Change detected')).length;
+  const quiet = (): Promise<void> => new Promise((done) => setTimeout(done, 1_200));
+
+  /** Rewrites `file` until `ready()` holds, for a watch that opens after a regeneration with no event to wait on */
+  async function rewriteUntil(file: string, text: (n: number) => string, ready: () => Promise<boolean>): Promise<void> {
+    for (let n = 0; n < 40; n++) {
+      await writeFile(file, text(n));
+      await new Promise((done) => setTimeout(done, 750));
+      if (await ready()) return;
+    }
+    throw new Error(`no regeneration after rewriting ${file}`);
+  }
+
+  async function stop(done: Promise<void>): Promise<void> {
+    process.emit('SIGINT');
+    await done;
+  }
+
+  it('a change to a module outside the entry folder regenerates; a sibling not in the graph does not', async () => {
+    const { schemaPath, outputDir, entry, shared } = await outsideProject(['User']);
+    await writeFile(join(shared, 'unrelated.ts'), 'export const x = 1;\n');
+    const logged = logWaiter(logSpy);
+    const done = startWatcher([{ schemaPath, outputDir, entry, entryOnly: true }], { cli: CLI });
+    await logged('Watching 1 schema');
+
+    await writeFile(join(shared, 'unrelated.ts'), 'export const x = 2;\n');
+    await quiet();
+    expect(detected()).toBe(0);
+
+    await writeFile(join(shared, 'user.ts'), moduleText('User', 'nickname'));
+    await logged('regenerated in');
+    expect(await generatedText(outputDir)).toContain('nickname');
+    expect(detected()).toBe(1);
+
+    await stop(done);
+  }, 60_000);
+
+  it('output, handles.ts and node_modules never trigger', async () => {
+    const { schemaPath, outputDir, entry, shared } = await outsideProject(['User']);
+    const logged = logWaiter(logSpy);
+    const done = startWatcher([{ schemaPath, outputDir, entry, entryOnly: true }], { cli: CLI });
+    await logged('Watching 1 schema');
+
+    for (const dir of [schemaPath, shared]) {
+      await mkdir(join(dir, 'cerial'), { recursive: true });
+      await mkdir(join(dir, 'node_modules/pkg'), { recursive: true });
+      await writeFile(join(dir, 'cerial/handles.ts'), 'export {};\n');
+      await writeFile(join(dir, 'node_modules/pkg/index.ts'), 'export {};\n');
+    }
+    await writeFile(join(outputDir, 'touched.ts'), 'export {};\n');
+    await quiet();
+
+    expect(detected()).toBe(0);
+    await stop(done);
+  }, 60_000);
+
+  it('a module newly imported after a regeneration is then watched', async () => {
+    const { schemaPath, outputDir, entry, shared } = await outsideProject(['User']);
+    await writeFile(join(shared, 'post.ts'), moduleText('Post'));
+    const logged = logWaiter(logSpy);
+    const done = startWatcher([{ schemaPath, outputDir, entry, entryOnly: true }], { cli: CLI });
+    await logged('Watching 1 schema');
+
+    await writeFile(entry, entryText(['User', 'Post']));
+    await logged('regenerated in');
+    await rewriteUntil(
+      join(shared, 'post.ts'),
+      (n) => moduleText('Post', `title${n}`),
+      async () => (await generatedText(outputDir)).includes('title'),
+    );
+
+    await stop(done);
+  }, 120_000);
+
+  it('a module removed from the graph stops triggering', async () => {
+    const { schemaPath, outputDir, entry, shared } = await outsideProject(['User', 'Post']);
+    const logged = logWaiter(logSpy);
+    const done = startWatcher([{ schemaPath, outputDir, entry, entryOnly: true }], { cli: CLI });
+    await logged('Watching 1 schema');
+
+    await writeFile(entry, entryText(['User']));
+    await logged('regenerated in');
+    await quiet();
+    const before = detected();
+
+    await writeFile(join(shared, 'post.ts'), moduleText('Post', 'ignored'));
+    await quiet();
+    expect(detected()).toBe(before);
+
+    await writeFile(join(shared, 'user.ts'), moduleText('User', 'stillwatched'));
+    await logged('regenerated in', 2);
+    expect(await generatedText(outputDir)).toContain('stillwatched');
+    await stop(done);
+  }, 120_000);
+
+  it('an entry outside path triggers', async () => {
+    const target = await makeProject({ 'README.md': 'no schema here\n' });
+    const elsewhere = join(project, 'elsewhere');
+    await mkdir(elsewhere, { recursive: true });
+    const entry = join(elsewhere, 'entry.ts');
+    await writeFile(join(elsewhere, 'user.ts'), moduleText('User'));
+    await writeFile(
+      entry,
+      `import { defineSchema } from '${SURFACE}';\nimport { User } from './user';\n\nexport default defineSchema({ models: [User] });\n`,
+    );
+    const configPath = join(project, 'cerial.config.json');
+    await writeFile(
+      configPath,
+      JSON.stringify({ schemas: { blog: { path: target.schemaPath, entry, output: target.outputDir } } }),
+    );
+    const watchTarget: WatchTarget = {
+      name: 'blog',
+      clientClassName: toClientClassName('blog'),
+      ...target,
+      configPath,
+      entry,
+    };
+    expect(await runGenerateChild(watchTarget, CLI)).toBeNull();
+    const logged = logWaiter(logSpy);
+    const done = startWatcher([watchTarget], { cli: CLI });
+    await logged('Watching 1 schema');
+
+    await writeFile(join(elsewhere, 'user.ts'), moduleText('User', 'viaentry'));
+    await logged('regenerated in');
+    expect(await generatedText(target.outputDir)).toContain('viaentry');
+
+    await stop(done);
+  }, 60_000);
+
+  it('a listed file outside the folder triggers', async () => {
+    const target = await makeProject({ 'README.md': 'no schema here\n' });
+    const listedDir = join(project, 'listed');
+    await mkdir(listedDir, { recursive: true });
+    const file = join(listedDir, 'user.schema.ts');
+    await writeFile(file, moduleText('User'));
+    const configPath = join(project, 'cerial.config.json');
+    await writeFile(configPath, JSON.stringify({ schemas: { blog: { files: [file], output: target.outputDir } } }));
+    const watchTarget: WatchTarget = {
+      name: 'blog',
+      clientClassName: toClientClassName('blog'),
+      ...target,
+      configPath,
+      files: [file],
+      entryOnly: true,
+    };
+    expect(await runGenerateChild(watchTarget, CLI)).toBeNull();
+    const logged = logWaiter(logSpy);
+    const done = startWatcher([watchTarget], { cli: CLI });
+    await logged('Watching 1 schema');
+
+    await writeFile(join(listedDir, 'other.ts'), 'export {};\n');
+    await quiet();
+    expect(detected()).toBe(0);
+
+    await writeFile(file, moduleText('User', 'listedfield'));
+    await logged('regenerated in');
+    expect(await generatedText(target.outputDir)).toContain('listedfield');
+
+    await stop(done);
+  }, 60_000);
+
+  it('a broken module during the recompute keeps the watcher alive', async () => {
+    const { schemaPath, outputDir, entry, shared } = await outsideProject(['User']);
+    const logged = logWaiter(logSpy);
+    const done = startWatcher([{ schemaPath, outputDir, entry, entryOnly: true }], { cli: CLI });
+    await logged('Watching 1 schema');
+
+    await writeFile(join(shared, 'user.ts'), 'export const User = ;\n');
+    await logged('Change detected');
+    await quiet();
+    await writeFile(join(shared, 'user.ts'), moduleText('User', 'recovered'));
+    await rewriteUntil(
+      join(shared, 'user.ts'),
+      () => moduleText('User', 'recovered'),
+      async () => (await generatedText(outputDir)).includes('recovered'),
+    );
+
+    await stop(done);
+  }, 120_000);
+});

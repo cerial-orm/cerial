@@ -187,6 +187,29 @@ export const readModuleImports: ImportReader = async (file) => {
   return [...found];
 };
 
+/**
+ * Every TypeScript module reachable from `roots` through static imports and re-exports, as absolute paths,
+ * roots included. Only reads imports: nothing is imported or run, so a watcher can call it without taking
+ * user modules into its own process. A module `excludes` names is left out and not followed; the reader
+ * already skips `node_modules`, declaration files and the generated handles.
+ */
+export async function moduleGraph(
+  roots: readonly string[],
+  options: Pick<LoadOptions, 'readImports' | 'excludes'> = {},
+): Promise<string[]> {
+  const { readImports = readModuleImports, excludes } = options;
+  const seen = new Set<string>();
+  const queue = roots.filter(isWalkable);
+  for (let next = 0; next < queue.length; next++) {
+    const module = queue[next]!;
+    if (seen.has(module) || excludes?.(module)) continue;
+    seen.add(module);
+    queue.push(...(await readImports(module)));
+  }
+
+  return [...seen];
+}
+
 function registrationsOf(namespace: Record<string, unknown>): SchemaRegistration[] {
   return Object.values(namespace).filter(isSchemaRegistration);
 }
