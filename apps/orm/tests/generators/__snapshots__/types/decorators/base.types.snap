@@ -324,27 +324,45 @@ export type GetArrayDecoratorTestPayload<
 >;
 
 export interface ArrayDecoratorTestModel {
-  findOne<S extends ArrayDecoratorTestSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ArrayDecoratorTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ArrayDecoratorTestWhere;
     select?: S;
-    orderBy?: ArrayDecoratorTestOrderBy;
+    compute?: C & { [K in keyof C & (keyof ArrayDecoratorTest | keyof ArrayDecoratorTestWhere)]?: never };
+    orderBy?: ArrayDecoratorTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetArrayDecoratorTestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetArrayDecoratorTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ArrayDecoratorTestSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ArrayDecoratorTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ArrayDecoratorTestWhere;
     select?: S;
-    orderBy?: ArrayDecoratorTestOrderBy;
+    compute?: C & { [K in keyof C & (keyof ArrayDecoratorTest | keyof ArrayDecoratorTestWhere)]?: never };
+    orderBy?: ArrayDecoratorTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetArrayDecoratorTestPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetArrayDecoratorTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ArrayDecoratorTestSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ArrayDecoratorTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ArrayDecoratorTestFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ArrayDecoratorTest | keyof ArrayDecoratorTestWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetArrayDecoratorTestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetArrayDecoratorTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ArrayDecoratorTestSelect | undefined = undefined>(options: {
     data: ArrayDecoratorTestCreateInput;
@@ -572,27 +590,45 @@ export type GetScalarArraysPayload<S extends ScalarArraysSelect | undefined = un
 >;
 
 export interface ScalarArraysModel {
-  findOne<S extends ScalarArraysSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ScalarArraysSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ScalarArraysWhere;
     select?: S;
-    orderBy?: ScalarArraysOrderBy;
+    compute?: C & { [K in keyof C & (keyof ScalarArrays | keyof ScalarArraysWhere)]?: never };
+    orderBy?: ScalarArraysOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetScalarArraysPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetScalarArraysPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ScalarArraysSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ScalarArraysSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ScalarArraysWhere;
     select?: S;
-    orderBy?: ScalarArraysOrderBy;
+    compute?: C & { [K in keyof C & (keyof ScalarArrays | keyof ScalarArraysWhere)]?: never };
+    orderBy?: ScalarArraysOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetScalarArraysPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetScalarArraysPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ScalarArraysSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ScalarArraysSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ScalarArraysFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ScalarArrays | keyof ScalarArraysWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetScalarArraysPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetScalarArraysPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ScalarArraysSelect | undefined = undefined>(options: {
     data: ScalarArraysCreateInput;

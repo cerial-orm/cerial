@@ -156,27 +156,45 @@ export type GetExtEnumContainerPayload<
 >;
 
 export interface ExtEnumContainerModel {
-  findOne<S extends ExtEnumContainerSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtEnumContainerSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtEnumContainerWhere;
     select?: S;
-    orderBy?: ExtEnumContainerOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtEnumContainer | keyof ExtEnumContainerWhere)]?: never };
+    orderBy?: ExtEnumContainerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEnumContainerPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtEnumContainerPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtEnumContainerSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtEnumContainerSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtEnumContainerWhere;
     select?: S;
-    orderBy?: ExtEnumContainerOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtEnumContainer | keyof ExtEnumContainerWhere)]?: never };
+    orderBy?: ExtEnumContainerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEnumContainerPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtEnumContainerPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtEnumContainerSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtEnumContainerSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtEnumContainerFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtEnumContainer | keyof ExtEnumContainerWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEnumContainerPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtEnumContainerPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtEnumContainerSelect | undefined = undefined>(options: {
     data: ExtEnumContainerCreateInput;
@@ -444,27 +462,45 @@ export type GetExtEnumModelPayload<S extends ExtEnumModelSelect | undefined = un
 >;
 
 export interface ExtEnumModelModel {
-  findOne<S extends ExtEnumModelSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtEnumModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtEnumModelWhere;
     select?: S;
-    orderBy?: ExtEnumModelOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtEnumModel | keyof ExtEnumModelWhere)]?: never };
+    orderBy?: ExtEnumModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEnumModelPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtEnumModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtEnumModelSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtEnumModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtEnumModelWhere;
     select?: S;
-    orderBy?: ExtEnumModelOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtEnumModel | keyof ExtEnumModelWhere)]?: never };
+    orderBy?: ExtEnumModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEnumModelPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtEnumModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtEnumModelSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtEnumModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtEnumModelFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtEnumModel | keyof ExtEnumModelWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEnumModelPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtEnumModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtEnumModelSelect | undefined = undefined>(options: {
     data: ExtEnumModelCreateInput;

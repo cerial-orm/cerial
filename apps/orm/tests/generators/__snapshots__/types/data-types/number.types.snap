@@ -189,27 +189,45 @@ export type GetNumberBasicPayload<S extends NumberBasicSelect | undefined = unde
 >;
 
 export interface NumberBasicModel {
-  findOne<S extends NumberBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends NumberBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NumberBasicWhere;
     select?: S;
-    orderBy?: NumberBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof NumberBasic | keyof NumberBasicWhere)]?: never };
+    orderBy?: NumberBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNumberBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends NumberBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends NumberBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NumberBasicWhere;
     select?: S;
-    orderBy?: NumberBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof NumberBasic | keyof NumberBasicWhere)]?: never };
+    orderBy?: NumberBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetNumberBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends NumberBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends NumberBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: NumberBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof NumberBasic | keyof NumberBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNumberBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NumberBasicSelect | undefined = undefined>(options: {
     data: NumberBasicCreateInput;
@@ -465,27 +483,45 @@ export type GetNumberDecoratedPayload<
 >;
 
 export interface NumberDecoratedModel {
-  findOne<S extends NumberDecoratedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends NumberDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NumberDecoratedWhere;
     select?: S;
-    orderBy?: NumberDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof NumberDecorated | keyof NumberDecoratedWhere)]?: never };
+    orderBy?: NumberDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNumberDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends NumberDecoratedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends NumberDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NumberDecoratedWhere;
     select?: S;
-    orderBy?: NumberDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof NumberDecorated | keyof NumberDecoratedWhere)]?: never };
+    orderBy?: NumberDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberDecoratedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetNumberDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends NumberDecoratedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends NumberDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: NumberDecoratedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof NumberDecorated | keyof NumberDecoratedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNumberDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NumberDecoratedSelect | undefined = undefined>(options: {
     data: NumberDecoratedCreateInput;
@@ -730,27 +766,45 @@ export type GetNumberWithObjectPayload<
 >;
 
 export interface NumberWithObjectModel {
-  findOne<S extends NumberWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends NumberWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NumberWithObjectWhere;
     select?: S;
-    orderBy?: NumberWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof NumberWithObject | keyof NumberWithObjectWhere)]?: never };
+    orderBy?: NumberWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNumberWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends NumberWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends NumberWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NumberWithObjectWhere;
     select?: S;
-    orderBy?: NumberWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof NumberWithObject | keyof NumberWithObjectWhere)]?: never };
+    orderBy?: NumberWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetNumberWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends NumberWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends NumberWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: NumberWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof NumberWithObject | keyof NumberWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNumberWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NumberWithObjectSelect | undefined = undefined>(options: {
     data: NumberWithObjectCreateInput;
@@ -983,27 +1037,45 @@ export type GetNumberWithTuplePayload<
 >;
 
 export interface NumberWithTupleModel {
-  findOne<S extends NumberWithTupleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends NumberWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NumberWithTupleWhere;
     select?: S;
-    orderBy?: NumberWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof NumberWithTuple | keyof NumberWithTupleWhere)]?: never };
+    orderBy?: NumberWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNumberWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends NumberWithTupleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends NumberWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NumberWithTupleWhere;
     select?: S;
-    orderBy?: NumberWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof NumberWithTuple | keyof NumberWithTupleWhere)]?: never };
+    orderBy?: NumberWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberWithTuplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetNumberWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends NumberWithTupleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends NumberWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: NumberWithTupleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof NumberWithTuple | keyof NumberWithTupleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNumberWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNumberWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NumberWithTupleSelect | undefined = undefined>(options: {
     data: NumberWithTupleCreateInput;

@@ -161,27 +161,45 @@ export type GetSetBasicPayload<S extends SetBasicSelect | undefined = undefined,
 >;
 
 export interface SetBasicModel {
-  findOne<S extends SetBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends SetBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: SetBasicWhere;
     select?: S;
-    orderBy?: SetBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof SetBasic | keyof SetBasicWhere)]?: never };
+    orderBy?: SetBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetSetBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetSetBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends SetBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends SetBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: SetBasicWhere;
     select?: S;
-    orderBy?: SetBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof SetBasic | keyof SetBasicWhere)]?: never };
+    orderBy?: SetBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetSetBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetSetBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends SetBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends SetBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: SetBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof SetBasic | keyof SetBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetSetBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetSetBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends SetBasicSelect | undefined = undefined>(options: {
     data: SetBasicCreateInput;

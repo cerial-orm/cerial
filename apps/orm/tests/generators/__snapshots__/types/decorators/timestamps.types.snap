@@ -218,27 +218,45 @@ export type GetTimestampTestPayload<S extends TimestampTestSelect | undefined = 
 >;
 
 export interface TimestampTestModel {
-  findOne<S extends TimestampTestSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TimestampTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TimestampTestWhere;
     select?: S;
-    orderBy?: TimestampTestOrderBy;
+    compute?: C & { [K in keyof C & (keyof TimestampTest | keyof TimestampTestWhere)]?: never };
+    orderBy?: TimestampTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTimestampTestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTimestampTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TimestampTestSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TimestampTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TimestampTestWhere;
     select?: S;
-    orderBy?: TimestampTestOrderBy;
+    compute?: C & { [K in keyof C & (keyof TimestampTest | keyof TimestampTestWhere)]?: never };
+    orderBy?: TimestampTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTimestampTestPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTimestampTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TimestampTestSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TimestampTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TimestampTestFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TimestampTest | keyof TimestampTestWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTimestampTestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTimestampTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TimestampTestSelect | undefined = undefined>(options: {
     data: TimestampTestCreateInput;

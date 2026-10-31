@@ -116,27 +116,43 @@ export type GetDepotPayload<S extends DepotSelect | undefined = undefined, I = u
 >;
 
 export interface DepotModel {
-  findOne<S extends DepotSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DepotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DepotWhere;
     select?: S;
-    orderBy?: DepotOrderBy;
+    compute?: C & { [K in keyof C & (keyof Depot | keyof DepotWhere)]?: never };
+    orderBy?: DepotOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDepotPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDepotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DepotSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DepotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DepotWhere;
     select?: S;
-    orderBy?: DepotOrderBy;
+    compute?: C & { [K in keyof C & (keyof Depot | keyof DepotWhere)]?: never };
+    orderBy?: DepotOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDepotPayload<S>[]>;
+  }): CerialQueryPromise<(GetDepotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;
 
-  findUnique<S extends DepotSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DepotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DepotFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof Depot | keyof DepotWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDepotPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDepotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DepotSelect | undefined = undefined>(options: {
     data: DepotCreateInput;
@@ -392,27 +408,45 @@ export type GetWarehousePayload<S extends WarehouseSelect | undefined = undefine
 >;
 
 export interface WarehouseModel {
-  findOne<S extends WarehouseSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends WarehouseSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: WarehouseWhere;
     select?: S;
-    orderBy?: WarehouseOrderBy;
+    compute?: C & { [K in keyof C & (keyof Warehouse | keyof WarehouseWhere)]?: never };
+    orderBy?: WarehouseOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetWarehousePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetWarehousePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends WarehouseSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends WarehouseSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: WarehouseWhere;
     select?: S;
-    orderBy?: WarehouseOrderBy;
+    compute?: C & { [K in keyof C & (keyof Warehouse | keyof WarehouseWhere)]?: never };
+    orderBy?: WarehouseOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetWarehousePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetWarehousePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends WarehouseSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends WarehouseSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: WarehouseFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof Warehouse | keyof WarehouseWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetWarehousePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetWarehousePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends WarehouseSelect | undefined = undefined>(options: {
     data: WarehouseCreateInput;

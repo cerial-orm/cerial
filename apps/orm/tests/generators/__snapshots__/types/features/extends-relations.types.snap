@@ -284,36 +284,48 @@ export interface ExtRelBlogAuthorModel {
   findOne<
     S extends ExtRelBlogAuthorSelect | undefined = undefined,
     I extends ExtRelBlogAuthorInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelBlogAuthorWhere;
     select?: S;
     include?: I;
-    orderBy?: ExtRelBlogAuthorOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogAuthor | keyof ExtRelBlogAuthorWhere)]?: never };
+    orderBy?: ExtRelBlogAuthorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogAuthorPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends ExtRelBlogAuthorSelect | undefined = undefined,
     I extends ExtRelBlogAuthorInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelBlogAuthorWhere;
     select?: S;
-    orderBy?: ExtRelBlogAuthorOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogAuthor | keyof ExtRelBlogAuthorWhere)]?: never };
+    orderBy?: ExtRelBlogAuthorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogAuthorPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends ExtRelBlogAuthorSelect | undefined = undefined,
     I extends ExtRelBlogAuthorInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtRelBlogAuthorFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogAuthor | keyof ExtRelBlogAuthorWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogAuthorPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends ExtRelBlogAuthorSelect | undefined = undefined,
@@ -698,36 +710,48 @@ export interface ExtRelBlogPostModel {
   findOne<
     S extends ExtRelBlogPostSelect | undefined = undefined,
     I extends ExtRelBlogPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelBlogPostWhere;
     select?: S;
     include?: I;
-    orderBy?: ExtRelBlogPostOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogPost | keyof ExtRelBlogPostWhere)]?: never };
+    orderBy?: ExtRelBlogPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends ExtRelBlogPostSelect | undefined = undefined,
     I extends ExtRelBlogPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelBlogPostWhere;
     select?: S;
-    orderBy?: ExtRelBlogPostOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogPost | keyof ExtRelBlogPostWhere)]?: never };
+    orderBy?: ExtRelBlogPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends ExtRelBlogPostSelect | undefined = undefined,
     I extends ExtRelBlogPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtRelBlogPostFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogPost | keyof ExtRelBlogPostWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends ExtRelBlogPostSelect | undefined = undefined,
@@ -1085,36 +1109,48 @@ export interface ExtRelBlogPostTagModel {
   findOne<
     S extends ExtRelBlogPostTagSelect | undefined = undefined,
     I extends ExtRelBlogPostTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelBlogPostTagWhere;
     select?: S;
     include?: I;
-    orderBy?: ExtRelBlogPostTagOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogPostTag | keyof ExtRelBlogPostTagWhere)]?: never };
+    orderBy?: ExtRelBlogPostTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogPostTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends ExtRelBlogPostTagSelect | undefined = undefined,
     I extends ExtRelBlogPostTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelBlogPostTagWhere;
     select?: S;
-    orderBy?: ExtRelBlogPostTagOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogPostTag | keyof ExtRelBlogPostTagWhere)]?: never };
+    orderBy?: ExtRelBlogPostTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogPostTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends ExtRelBlogPostTagSelect | undefined = undefined,
     I extends ExtRelBlogPostTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtRelBlogPostTagFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogPostTag | keyof ExtRelBlogPostTagWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogPostTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends ExtRelBlogPostTagSelect | undefined = undefined,
@@ -1470,36 +1506,48 @@ export interface ExtRelBlogTagModel {
   findOne<
     S extends ExtRelBlogTagSelect | undefined = undefined,
     I extends ExtRelBlogTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelBlogTagWhere;
     select?: S;
     include?: I;
-    orderBy?: ExtRelBlogTagOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogTag | keyof ExtRelBlogTagWhere)]?: never };
+    orderBy?: ExtRelBlogTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends ExtRelBlogTagSelect | undefined = undefined,
     I extends ExtRelBlogTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelBlogTagWhere;
     select?: S;
-    orderBy?: ExtRelBlogTagOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogTag | keyof ExtRelBlogTagWhere)]?: never };
+    orderBy?: ExtRelBlogTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends ExtRelBlogTagSelect | undefined = undefined,
     I extends ExtRelBlogTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtRelBlogTagFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof ExtRelBlogTag | keyof ExtRelBlogTagWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelBlogTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends ExtRelBlogTagSelect | undefined = undefined,
@@ -1857,36 +1905,48 @@ export interface ExtRelCommentModel {
   findOne<
     S extends ExtRelCommentSelect | undefined = undefined,
     I extends ExtRelCommentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelCommentWhere;
     select?: S;
     include?: I;
-    orderBy?: ExtRelCommentOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelComment | keyof ExtRelCommentWhere)]?: never };
+    orderBy?: ExtRelCommentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelCommentPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelCommentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends ExtRelCommentSelect | undefined = undefined,
     I extends ExtRelCommentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelCommentWhere;
     select?: S;
-    orderBy?: ExtRelCommentOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelComment | keyof ExtRelCommentWhere)]?: never };
+    orderBy?: ExtRelCommentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelCommentPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelCommentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends ExtRelCommentSelect | undefined = undefined,
     I extends ExtRelCommentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtRelCommentFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof ExtRelComment | keyof ExtRelCommentWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelCommentPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelCommentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends ExtRelCommentSelect | undefined = undefined,
@@ -2347,36 +2407,50 @@ export interface ExtRelCommentModeratedModel {
   findOne<
     S extends ExtRelCommentModeratedSelect | undefined = undefined,
     I extends ExtRelCommentModeratedInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelCommentModeratedWhere;
     select?: S;
     include?: I;
-    orderBy?: ExtRelCommentModeratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelCommentModerated | keyof ExtRelCommentModeratedWhere)]?: never };
+    orderBy?: ExtRelCommentModeratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    | (GetExtRelCommentModeratedPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })
+    | null
+  >;
 
   findMany<
     S extends ExtRelCommentModeratedSelect | undefined = undefined,
     I extends ExtRelCommentModeratedInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelCommentModeratedWhere;
     select?: S;
-    orderBy?: ExtRelCommentModeratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelCommentModerated | keyof ExtRelCommentModeratedWhere)]?: never };
+    orderBy?: ExtRelCommentModeratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelCommentModeratedPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends ExtRelCommentModeratedSelect | undefined = undefined,
     I extends ExtRelCommentModeratedInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtRelCommentModeratedFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof ExtRelCommentModerated | keyof ExtRelCommentModeratedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    | (GetExtRelCommentModeratedPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })
+    | null
+  >;
 
   create<
     S extends ExtRelCommentModeratedSelect | undefined = undefined,
@@ -2701,27 +2775,45 @@ export type GetExtRelPostArchivePayload<
 >;
 
 export interface ExtRelPostArchiveModel {
-  findOne<S extends ExtRelPostArchiveSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtRelPostArchiveSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtRelPostArchiveWhere;
     select?: S;
-    orderBy?: ExtRelPostArchiveOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelPostArchive | keyof ExtRelPostArchiveWhere)]?: never };
+    orderBy?: ExtRelPostArchiveOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelPostArchivePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelPostArchivePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtRelPostArchiveSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtRelPostArchiveSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtRelPostArchiveWhere;
     select?: S;
-    orderBy?: ExtRelPostArchiveOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelPostArchive | keyof ExtRelPostArchiveWhere)]?: never };
+    orderBy?: ExtRelPostArchiveOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelPostArchivePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelPostArchivePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtRelPostArchiveSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtRelPostArchiveSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtRelPostArchiveFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtRelPostArchive | keyof ExtRelPostArchiveWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelPostArchivePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelPostArchivePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtRelPostArchiveSelect | undefined = undefined>(options: {
     data: ExtRelPostArchiveCreateInput;
@@ -3058,27 +3150,45 @@ export type GetExtRelPostSummaryPayload<
 >;
 
 export interface ExtRelPostSummaryModel {
-  findOne<S extends ExtRelPostSummarySelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtRelPostSummarySelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtRelPostSummaryWhere;
     select?: S;
-    orderBy?: ExtRelPostSummaryOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelPostSummary | keyof ExtRelPostSummaryWhere)]?: never };
+    orderBy?: ExtRelPostSummaryOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelPostSummaryPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelPostSummaryPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtRelPostSummarySelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtRelPostSummarySelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtRelPostSummaryWhere;
     select?: S;
-    orderBy?: ExtRelPostSummaryOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelPostSummary | keyof ExtRelPostSummaryWhere)]?: never };
+    orderBy?: ExtRelPostSummaryOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelPostSummaryPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelPostSummaryPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtRelPostSummarySelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtRelPostSummarySelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtRelPostSummaryFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtRelPostSummary | keyof ExtRelPostSummaryWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelPostSummaryPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelPostSummaryPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtRelPostSummarySelect | undefined = undefined>(options: {
     data: ExtRelPostSummaryCreateInput;
@@ -3455,36 +3565,48 @@ export interface ExtRelProjectModel {
   findOne<
     S extends ExtRelProjectSelect | undefined = undefined,
     I extends ExtRelProjectInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelProjectWhere;
     select?: S;
     include?: I;
-    orderBy?: ExtRelProjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelProject | keyof ExtRelProjectWhere)]?: never };
+    orderBy?: ExtRelProjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelProjectPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelProjectPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends ExtRelProjectSelect | undefined = undefined,
     I extends ExtRelProjectInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtRelProjectWhere;
     select?: S;
-    orderBy?: ExtRelProjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtRelProject | keyof ExtRelProjectWhere)]?: never };
+    orderBy?: ExtRelProjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelProjectPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetExtRelProjectPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends ExtRelProjectSelect | undefined = undefined,
     I extends ExtRelProjectInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtRelProjectFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof ExtRelProject | keyof ExtRelProjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtRelProjectPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetExtRelProjectPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends ExtRelProjectSelect | undefined = undefined,

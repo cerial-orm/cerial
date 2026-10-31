@@ -294,27 +294,45 @@ export type GetContentItemPayload<S extends ContentItemSelect | undefined = unde
 >;
 
 export interface ContentItemModel {
-  findOne<S extends ContentItemSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ContentItemSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ContentItemWhere;
     select?: S;
-    orderBy?: ContentItemOrderBy;
+    compute?: C & { [K in keyof C & (keyof ContentItem | keyof ContentItemWhere)]?: never };
+    orderBy?: ContentItemOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetContentItemPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetContentItemPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ContentItemSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ContentItemSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ContentItemWhere;
     select?: S;
-    orderBy?: ContentItemOrderBy;
+    compute?: C & { [K in keyof C & (keyof ContentItem | keyof ContentItemWhere)]?: never };
+    orderBy?: ContentItemOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetContentItemPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetContentItemPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ContentItemSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ContentItemSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ContentItemFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ContentItem | keyof ContentItemWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetContentItemPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetContentItemPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ContentItemSelect | undefined = undefined>(options: {
     data: ContentItemCreateInput;

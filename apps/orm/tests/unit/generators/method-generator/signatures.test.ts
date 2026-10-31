@@ -29,25 +29,29 @@ const danglingRelation = model('User', [field({ name: 'posts', type: 'relation' 
 
 describe('generateFindOneMethod', () => {
   test('without relations', () => {
-    expect(generateFindOneMethod(plain)).toBe(`findOne<S extends UserSelect | undefined = undefined>(options?: {
+    expect(generateFindOneMethod(plain))
+      .toBe(`findOne<S extends UserSelect | undefined = undefined, C extends Record<string, SqlFragment> = Record<never, never>>(options?: {
     where?: UserWhere;
     select?: S;
-    orderBy?: UserOrderBy;
+    compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
+    orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUserPayload<S> | null>;`);
+  }): CerialQueryPromise<(GetUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null>;`);
   });
 
   test('with relations', () => {
     expect(generateFindOneMethod(related)).toBe(`findOne<
     S extends UserSelect | undefined = undefined,
     I extends UserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserWhere;
     select?: S;
     include?: I;
-    orderBy?: UserOrderBy;
+    compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
+    orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUserPayload<S, I> | null>;`);
+  }): CerialQueryPromise<(GetUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null>;`);
   });
 
   test('a relation field without relationInfo takes the plain form', () => {
@@ -57,51 +61,59 @@ describe('generateFindOneMethod', () => {
 
 describe('generateFindManyMethod', () => {
   test('without relations', () => {
-    expect(generateFindManyMethod(plain)).toBe(`findMany<S extends UserSelect | undefined = undefined>(options?: {
+    expect(generateFindManyMethod(plain))
+      .toBe(`findMany<S extends UserSelect | undefined = undefined, C extends Record<string, SqlFragment> = Record<never, never>>(options?: {
     where?: UserWhere;
     select?: S;
-    orderBy?: UserOrderBy;
+    compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
+    orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUserPayload<S>[]>;`);
+  }): CerialQueryPromise<(GetUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;`);
   });
 
   test('with relations', () => {
     expect(generateFindManyMethod(related)).toBe(`findMany<
     S extends UserSelect | undefined = undefined,
     I extends UserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserWhere;
     select?: S;
-    orderBy?: UserOrderBy;
+    compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
+    orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUserPayload<S, I>[]>;`);
+  }): CerialQueryPromise<(GetUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;`);
   });
 });
 
 describe('generateFindUniqueMethod', () => {
   test('without relations', () => {
-    expect(generateFindUniqueMethod(plain)).toBe(`findUnique<S extends UserSelect | undefined = undefined>(options: {
+    expect(generateFindUniqueMethod(plain))
+      .toBe(`findUnique<S extends UserSelect | undefined = undefined, C extends Record<string, SqlFragment> = Record<never, never>>(options: {
     where: UserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUserPayload<S> | null>;`);
+  }): CerialQueryPromise<(GetUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null>;`);
   });
 
   test('with relations', () => {
     expect(generateFindUniqueMethod(related)).toBe(`findUnique<
     S extends UserSelect | undefined = undefined,
     I extends UserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UserFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUserPayload<S, I> | null>;`);
+  }): CerialQueryPromise<(GetUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null>;`);
   });
 });
 

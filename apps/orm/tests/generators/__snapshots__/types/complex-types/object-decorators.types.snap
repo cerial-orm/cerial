@@ -174,27 +174,45 @@ export type GetObjDecUserPayload<S extends ObjDecUserSelect | undefined = undefi
 >;
 
 export interface ObjDecUserModel {
-  findOne<S extends ObjDecUserSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ObjDecUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ObjDecUserWhere;
     select?: S;
-    orderBy?: ObjDecUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ObjDecUser | keyof ObjDecUserWhere)]?: never };
+    orderBy?: ObjDecUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjDecUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetObjDecUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ObjDecUserSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ObjDecUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ObjDecUserWhere;
     select?: S;
-    orderBy?: ObjDecUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ObjDecUser | keyof ObjDecUserWhere)]?: never };
+    orderBy?: ObjDecUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjDecUserPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetObjDecUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ObjDecUserSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ObjDecUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ObjDecUserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ObjDecUser | keyof ObjDecUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjDecUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetObjDecUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ObjDecUserSelect | undefined = undefined>(options: {
     data: ObjDecUserCreateInput;

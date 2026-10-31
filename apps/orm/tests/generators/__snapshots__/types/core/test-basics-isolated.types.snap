@@ -213,36 +213,48 @@ export interface BasicsPostModel {
   findOne<
     S extends BasicsPostSelect | undefined = undefined,
     I extends BasicsPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BasicsPostWhere;
     select?: S;
     include?: I;
-    orderBy?: BasicsPostOrderBy;
+    compute?: C & { [K in keyof C & (keyof BasicsPost | keyof BasicsPostWhere)]?: never };
+    orderBy?: BasicsPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsPostPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBasicsPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends BasicsPostSelect | undefined = undefined,
     I extends BasicsPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BasicsPostWhere;
     select?: S;
-    orderBy?: BasicsPostOrderBy;
+    compute?: C & { [K in keyof C & (keyof BasicsPost | keyof BasicsPostWhere)]?: never };
+    orderBy?: BasicsPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsPostPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetBasicsPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends BasicsPostSelect | undefined = undefined,
     I extends BasicsPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BasicsPostFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof BasicsPost | keyof BasicsPostWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsPostPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBasicsPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends BasicsPostSelect | undefined = undefined,
@@ -588,36 +600,48 @@ export interface BasicsProfileModel {
   findOne<
     S extends BasicsProfileSelect | undefined = undefined,
     I extends BasicsProfileInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BasicsProfileWhere;
     select?: S;
     include?: I;
-    orderBy?: BasicsProfileOrderBy;
+    compute?: C & { [K in keyof C & (keyof BasicsProfile | keyof BasicsProfileWhere)]?: never };
+    orderBy?: BasicsProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsProfilePayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBasicsProfilePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends BasicsProfileSelect | undefined = undefined,
     I extends BasicsProfileInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BasicsProfileWhere;
     select?: S;
-    orderBy?: BasicsProfileOrderBy;
+    compute?: C & { [K in keyof C & (keyof BasicsProfile | keyof BasicsProfileWhere)]?: never };
+    orderBy?: BasicsProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsProfilePayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetBasicsProfilePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends BasicsProfileSelect | undefined = undefined,
     I extends BasicsProfileInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BasicsProfileFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof BasicsProfile | keyof BasicsProfileWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsProfilePayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBasicsProfilePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends BasicsProfileSelect | undefined = undefined,
@@ -938,36 +962,48 @@ export interface BasicsTagModel {
   findOne<
     S extends BasicsTagSelect | undefined = undefined,
     I extends BasicsTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BasicsTagWhere;
     select?: S;
     include?: I;
-    orderBy?: BasicsTagOrderBy;
+    compute?: C & { [K in keyof C & (keyof BasicsTag | keyof BasicsTagWhere)]?: never };
+    orderBy?: BasicsTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsTagPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBasicsTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends BasicsTagSelect | undefined = undefined,
     I extends BasicsTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BasicsTagWhere;
     select?: S;
-    orderBy?: BasicsTagOrderBy;
+    compute?: C & { [K in keyof C & (keyof BasicsTag | keyof BasicsTagWhere)]?: never };
+    orderBy?: BasicsTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsTagPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetBasicsTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends BasicsTagSelect | undefined = undefined,
     I extends BasicsTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BasicsTagFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof BasicsTag | keyof BasicsTagWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsTagPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBasicsTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends BasicsTagSelect | undefined = undefined,
@@ -1669,36 +1705,48 @@ export interface BasicsUserModel {
   findOne<
     S extends BasicsUserSelect | undefined = undefined,
     I extends BasicsUserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BasicsUserWhere;
     select?: S;
     include?: I;
-    orderBy?: BasicsUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof BasicsUser | keyof BasicsUserWhere)]?: never };
+    orderBy?: BasicsUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsUserPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBasicsUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends BasicsUserSelect | undefined = undefined,
     I extends BasicsUserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BasicsUserWhere;
     select?: S;
-    orderBy?: BasicsUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof BasicsUser | keyof BasicsUserWhere)]?: never };
+    orderBy?: BasicsUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsUserPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetBasicsUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends BasicsUserSelect | undefined = undefined,
     I extends BasicsUserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BasicsUserFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof BasicsUser | keyof BasicsUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBasicsUserPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBasicsUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends BasicsUserSelect | undefined = undefined,

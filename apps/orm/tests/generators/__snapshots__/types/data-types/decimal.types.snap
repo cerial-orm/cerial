@@ -191,27 +191,45 @@ export type GetDecimalBasicPayload<S extends DecimalBasicSelect | undefined = un
 >;
 
 export interface DecimalBasicModel {
-  findOne<S extends DecimalBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DecimalBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DecimalBasicWhere;
     select?: S;
-    orderBy?: DecimalBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof DecimalBasic | keyof DecimalBasicWhere)]?: never };
+    orderBy?: DecimalBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDecimalBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DecimalBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DecimalBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DecimalBasicWhere;
     select?: S;
-    orderBy?: DecimalBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof DecimalBasic | keyof DecimalBasicWhere)]?: never };
+    orderBy?: DecimalBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetDecimalBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends DecimalBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DecimalBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DecimalBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof DecimalBasic | keyof DecimalBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDecimalBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DecimalBasicSelect | undefined = undefined>(options: {
     data: DecimalBasicCreateInput;
@@ -469,27 +487,45 @@ export type GetDecimalDecoratedPayload<
 >;
 
 export interface DecimalDecoratedModel {
-  findOne<S extends DecimalDecoratedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DecimalDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DecimalDecoratedWhere;
     select?: S;
-    orderBy?: DecimalDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof DecimalDecorated | keyof DecimalDecoratedWhere)]?: never };
+    orderBy?: DecimalDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDecimalDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DecimalDecoratedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DecimalDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DecimalDecoratedWhere;
     select?: S;
-    orderBy?: DecimalDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof DecimalDecorated | keyof DecimalDecoratedWhere)]?: never };
+    orderBy?: DecimalDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalDecoratedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetDecimalDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends DecimalDecoratedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DecimalDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DecimalDecoratedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof DecimalDecorated | keyof DecimalDecoratedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDecimalDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DecimalDecoratedSelect | undefined = undefined>(options: {
     data: DecimalDecoratedCreateInput;
@@ -718,27 +754,45 @@ export type GetDecimalWithObjectPayload<
 >;
 
 export interface DecimalWithObjectModel {
-  findOne<S extends DecimalWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DecimalWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DecimalWithObjectWhere;
     select?: S;
-    orderBy?: DecimalWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof DecimalWithObject | keyof DecimalWithObjectWhere)]?: never };
+    orderBy?: DecimalWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDecimalWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DecimalWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DecimalWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DecimalWithObjectWhere;
     select?: S;
-    orderBy?: DecimalWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof DecimalWithObject | keyof DecimalWithObjectWhere)]?: never };
+    orderBy?: DecimalWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetDecimalWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends DecimalWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DecimalWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DecimalWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof DecimalWithObject | keyof DecimalWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDecimalWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DecimalWithObjectSelect | undefined = undefined>(options: {
     data: DecimalWithObjectCreateInput;
@@ -964,27 +1018,45 @@ export type GetDecimalWithTuplePayload<
 >;
 
 export interface DecimalWithTupleModel {
-  findOne<S extends DecimalWithTupleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DecimalWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DecimalWithTupleWhere;
     select?: S;
-    orderBy?: DecimalWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof DecimalWithTuple | keyof DecimalWithTupleWhere)]?: never };
+    orderBy?: DecimalWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDecimalWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DecimalWithTupleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DecimalWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DecimalWithTupleWhere;
     select?: S;
-    orderBy?: DecimalWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof DecimalWithTuple | keyof DecimalWithTupleWhere)]?: never };
+    orderBy?: DecimalWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalWithTuplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetDecimalWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends DecimalWithTupleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DecimalWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DecimalWithTupleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof DecimalWithTuple | keyof DecimalWithTupleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDecimalWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDecimalWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DecimalWithTupleSelect | undefined = undefined>(options: {
     data: DecimalWithTupleCreateInput;

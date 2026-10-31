@@ -217,30 +217,51 @@ export type GetCoursePayload<
 >;
 
 export interface CourseModel {
-  findOne<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options?: {
+  findOne<
+    S extends CourseSelect | undefined = undefined,
+    I extends CourseInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: CourseWhere;
     select?: S;
     include?: I;
-    orderBy?: CourseOrderBy;
+    compute?: C & { [K in keyof C & (keyof Course | keyof CourseWhere)]?: never };
+    orderBy?: CourseOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetCoursePayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetCoursePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options?: {
+  findMany<
+    S extends CourseSelect | undefined = undefined,
+    I extends CourseInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: CourseWhere;
     select?: S;
-    orderBy?: CourseOrderBy;
+    compute?: C & { [K in keyof C & (keyof Course | keyof CourseWhere)]?: never };
+    orderBy?: CourseOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetCoursePayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetCoursePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options: {
+  findUnique<
+    S extends CourseSelect | undefined = undefined,
+    I extends CourseInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: CourseFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof Course | keyof CourseWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetCoursePayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetCoursePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options: {
     data: CourseCreateInput;
@@ -568,36 +589,51 @@ export type GetStudentPayload<
 >;
 
 export interface StudentModel {
-  findOne<S extends StudentSelect | undefined = undefined, I extends StudentInclude | undefined = undefined>(options?: {
+  findOne<
+    S extends StudentSelect | undefined = undefined,
+    I extends StudentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: StudentWhere;
     select?: S;
     include?: I;
-    orderBy?: StudentOrderBy;
+    compute?: C & { [K in keyof C & (keyof Student | keyof StudentWhere)]?: never };
+    orderBy?: StudentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetStudentPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetStudentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends StudentSelect | undefined = undefined,
     I extends StudentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: StudentWhere;
     select?: S;
-    orderBy?: StudentOrderBy;
+    compute?: C & { [K in keyof C & (keyof Student | keyof StudentWhere)]?: never };
+    orderBy?: StudentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetStudentPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetStudentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends StudentSelect | undefined = undefined,
     I extends StudentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: StudentFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof Student | keyof StudentWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetStudentPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetStudentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends StudentSelect | undefined = undefined, I extends StudentInclude | undefined = undefined>(options: {
     data: StudentCreateInput;

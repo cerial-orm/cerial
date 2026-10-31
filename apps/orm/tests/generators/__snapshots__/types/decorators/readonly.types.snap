@@ -174,36 +174,48 @@ export interface ReadonlyRecordModel {
   findOne<
     S extends ReadonlyRecordSelect | undefined = undefined,
     I extends ReadonlyRecordInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ReadonlyRecordWhere;
     select?: S;
     include?: I;
-    orderBy?: ReadonlyRecordOrderBy;
+    compute?: C & { [K in keyof C & (keyof ReadonlyRecord | keyof ReadonlyRecordWhere)]?: never };
+    orderBy?: ReadonlyRecordOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetReadonlyRecordPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetReadonlyRecordPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends ReadonlyRecordSelect | undefined = undefined,
     I extends ReadonlyRecordInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ReadonlyRecordWhere;
     select?: S;
-    orderBy?: ReadonlyRecordOrderBy;
+    compute?: C & { [K in keyof C & (keyof ReadonlyRecord | keyof ReadonlyRecordWhere)]?: never };
+    orderBy?: ReadonlyRecordOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetReadonlyRecordPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetReadonlyRecordPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends ReadonlyRecordSelect | undefined = undefined,
     I extends ReadonlyRecordInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ReadonlyRecordFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof ReadonlyRecord | keyof ReadonlyRecordWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetReadonlyRecordPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetReadonlyRecordPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends ReadonlyRecordSelect | undefined = undefined,
@@ -595,27 +607,45 @@ export type GetReadonlyTestPayload<S extends ReadonlyTestSelect | undefined = un
 >;
 
 export interface ReadonlyTestModel {
-  findOne<S extends ReadonlyTestSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ReadonlyTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ReadonlyTestWhere;
     select?: S;
-    orderBy?: ReadonlyTestOrderBy;
+    compute?: C & { [K in keyof C & (keyof ReadonlyTest | keyof ReadonlyTestWhere)]?: never };
+    orderBy?: ReadonlyTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetReadonlyTestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetReadonlyTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ReadonlyTestSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ReadonlyTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ReadonlyTestWhere;
     select?: S;
-    orderBy?: ReadonlyTestOrderBy;
+    compute?: C & { [K in keyof C & (keyof ReadonlyTest | keyof ReadonlyTestWhere)]?: never };
+    orderBy?: ReadonlyTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetReadonlyTestPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetReadonlyTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ReadonlyTestSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ReadonlyTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ReadonlyTestFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ReadonlyTest | keyof ReadonlyTestWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetReadonlyTestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetReadonlyTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ReadonlyTestSelect | undefined = undefined>(options: {
     data: ReadonlyTestCreateInput;

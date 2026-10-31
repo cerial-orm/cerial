@@ -214,27 +214,45 @@ export type GetExtAdminPayload<S extends ExtAdminSelect | undefined = undefined,
 >;
 
 export interface ExtAdminModel {
-  findOne<S extends ExtAdminSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtAdminWhere;
     select?: S;
-    orderBy?: ExtAdminOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtAdmin | keyof ExtAdminWhere)]?: never };
+    orderBy?: ExtAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtAdminPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtAdminSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtAdminWhere;
     select?: S;
-    orderBy?: ExtAdminOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtAdmin | keyof ExtAdminWhere)]?: never };
+    orderBy?: ExtAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtAdminPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtAdminSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtAdminFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtAdmin | keyof ExtAdminWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtAdminPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtAdminSelect | undefined = undefined>(options: {
     data: ExtAdminCreateInput;
@@ -474,27 +492,45 @@ export type GetExtEmptyChildPayload<S extends ExtEmptyChildSelect | undefined = 
 >;
 
 export interface ExtEmptyChildModel {
-  findOne<S extends ExtEmptyChildSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtEmptyChildSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtEmptyChildWhere;
     select?: S;
-    orderBy?: ExtEmptyChildOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtEmptyChild | keyof ExtEmptyChildWhere)]?: never };
+    orderBy?: ExtEmptyChildOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEmptyChildPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtEmptyChildPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtEmptyChildSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtEmptyChildSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtEmptyChildWhere;
     select?: S;
-    orderBy?: ExtEmptyChildOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtEmptyChild | keyof ExtEmptyChildWhere)]?: never };
+    orderBy?: ExtEmptyChildOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEmptyChildPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtEmptyChildPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtEmptyChildSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtEmptyChildSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtEmptyChildFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtEmptyChild | keyof ExtEmptyChildWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtEmptyChildPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtEmptyChildPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtEmptyChildSelect | undefined = undefined>(options: {
     data: ExtEmptyChildCreateInput;
@@ -793,27 +829,45 @@ export type GetExtModeratorPayload<S extends ExtModeratorSelect | undefined = un
 >;
 
 export interface ExtModeratorModel {
-  findOne<S extends ExtModeratorSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtModeratorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtModeratorWhere;
     select?: S;
-    orderBy?: ExtModeratorOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtModerator | keyof ExtModeratorWhere)]?: never };
+    orderBy?: ExtModeratorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtModeratorPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtModeratorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtModeratorSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtModeratorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtModeratorWhere;
     select?: S;
-    orderBy?: ExtModeratorOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtModerator | keyof ExtModeratorWhere)]?: never };
+    orderBy?: ExtModeratorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtModeratorPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtModeratorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtModeratorSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtModeratorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtModeratorFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtModerator | keyof ExtModeratorWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtModeratorPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtModeratorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtModeratorSelect | undefined = undefined>(options: {
     data: ExtModeratorCreateInput;
@@ -1278,27 +1332,45 @@ export type GetExtPremiumUserPayload<S extends ExtPremiumUserSelect | undefined 
 >;
 
 export interface ExtPremiumUserModel {
-  findOne<S extends ExtPremiumUserSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtPremiumUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtPremiumUserWhere;
     select?: S;
-    orderBy?: ExtPremiumUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtPremiumUser | keyof ExtPremiumUserWhere)]?: never };
+    orderBy?: ExtPremiumUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtPremiumUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtPremiumUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtPremiumUserSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtPremiumUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtPremiumUserWhere;
     select?: S;
-    orderBy?: ExtPremiumUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtPremiumUser | keyof ExtPremiumUserWhere)]?: never };
+    orderBy?: ExtPremiumUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtPremiumUserPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtPremiumUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtPremiumUserSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtPremiumUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtPremiumUserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtPremiumUser | keyof ExtPremiumUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtPremiumUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtPremiumUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtPremiumUserSelect | undefined = undefined>(options: {
     data: ExtPremiumUserCreateInput;
@@ -1602,27 +1674,45 @@ export type GetExtPrivateUserPayload<S extends ExtPrivateUserSelect | undefined 
 >;
 
 export interface ExtPrivateUserModel {
-  findOne<S extends ExtPrivateUserSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtPrivateUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtPrivateUserWhere;
     select?: S;
-    orderBy?: ExtPrivateUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtPrivateUser | keyof ExtPrivateUserWhere)]?: never };
+    orderBy?: ExtPrivateUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtPrivateUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtPrivateUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtPrivateUserSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtPrivateUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtPrivateUserWhere;
     select?: S;
-    orderBy?: ExtPrivateUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtPrivateUser | keyof ExtPrivateUserWhere)]?: never };
+    orderBy?: ExtPrivateUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtPrivateUserPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtPrivateUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtPrivateUserSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtPrivateUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtPrivateUserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtPrivateUser | keyof ExtPrivateUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtPrivateUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtPrivateUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtPrivateUserSelect | undefined = undefined>(options: {
     data: ExtPrivateUserCreateInput;
@@ -1988,27 +2078,45 @@ export type GetExtProfilePayload<S extends ExtProfileSelect | undefined = undefi
 >;
 
 export interface ExtProfileModel {
-  findOne<S extends ExtProfileSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtProfileSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtProfileWhere;
     select?: S;
-    orderBy?: ExtProfileOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtProfile | keyof ExtProfileWhere)]?: never };
+    orderBy?: ExtProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtProfilePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtProfilePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtProfileSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtProfileSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtProfileWhere;
     select?: S;
-    orderBy?: ExtProfileOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtProfile | keyof ExtProfileWhere)]?: never };
+    orderBy?: ExtProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtProfilePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtProfilePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtProfileSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtProfileSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtProfileFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtProfile | keyof ExtProfileWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtProfilePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtProfilePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtProfileSelect | undefined = undefined>(options: {
     data: ExtProfileCreateInput;
@@ -2365,27 +2473,45 @@ export type GetExtSuperAdminPayload<S extends ExtSuperAdminSelect | undefined = 
 >;
 
 export interface ExtSuperAdminModel {
-  findOne<S extends ExtSuperAdminSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtSuperAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtSuperAdminWhere;
     select?: S;
-    orderBy?: ExtSuperAdminOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtSuperAdmin | keyof ExtSuperAdminWhere)]?: never };
+    orderBy?: ExtSuperAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtSuperAdminPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtSuperAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtSuperAdminSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtSuperAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtSuperAdminWhere;
     select?: S;
-    orderBy?: ExtSuperAdminOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtSuperAdmin | keyof ExtSuperAdminWhere)]?: never };
+    orderBy?: ExtSuperAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtSuperAdminPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtSuperAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtSuperAdminSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtSuperAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtSuperAdminFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtSuperAdmin | keyof ExtSuperAdminWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtSuperAdminPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtSuperAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtSuperAdminSelect | undefined = undefined>(options: {
     data: ExtSuperAdminCreateInput;
@@ -2759,27 +2885,45 @@ export type GetExtSystemAdminPayload<S extends ExtSystemAdminSelect | undefined 
 >;
 
 export interface ExtSystemAdminModel {
-  findOne<S extends ExtSystemAdminSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtSystemAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtSystemAdminWhere;
     select?: S;
-    orderBy?: ExtSystemAdminOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtSystemAdmin | keyof ExtSystemAdminWhere)]?: never };
+    orderBy?: ExtSystemAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtSystemAdminPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtSystemAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtSystemAdminSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtSystemAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtSystemAdminWhere;
     select?: S;
-    orderBy?: ExtSystemAdminOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtSystemAdmin | keyof ExtSystemAdminWhere)]?: never };
+    orderBy?: ExtSystemAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtSystemAdminPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtSystemAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtSystemAdminSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtSystemAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtSystemAdminFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtSystemAdmin | keyof ExtSystemAdminWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtSystemAdminPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtSystemAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtSystemAdminSelect | undefined = undefined>(options: {
     data: ExtSystemAdminCreateInput;
@@ -3125,27 +3269,45 @@ export type GetExtUserPayload<S extends ExtUserSelect | undefined = undefined, I
 >;
 
 export interface ExtUserModel {
-  findOne<S extends ExtUserSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtUserWhere;
     select?: S;
-    orderBy?: ExtUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtUser | keyof ExtUserWhere)]?: never };
+    orderBy?: ExtUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtUserSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtUserWhere;
     select?: S;
-    orderBy?: ExtUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtUser | keyof ExtUserWhere)]?: never };
+    orderBy?: ExtUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtUserPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtUserSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtUserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtUser | keyof ExtUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtUserSelect | undefined = undefined>(options: {
     data: ExtUserCreateInput;

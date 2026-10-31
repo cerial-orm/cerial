@@ -159,27 +159,45 @@ export type GetLiteralBasicPayload<S extends LiteralBasicSelect | undefined = un
 >;
 
 export interface LiteralBasicModel {
-  findOne<S extends LiteralBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralBasicWhere;
     select?: S;
-    orderBy?: LiteralBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralBasic | keyof LiteralBasicWhere)]?: never };
+    orderBy?: LiteralBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralBasicWhere;
     select?: S;
-    orderBy?: LiteralBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralBasic | keyof LiteralBasicWhere)]?: never };
+    orderBy?: LiteralBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralBasic | keyof LiteralBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralBasicSelect | undefined = undefined>(options: {
     data: LiteralBasicCreateInput;
@@ -386,27 +404,45 @@ export type GetLiteralBroadPayload<S extends LiteralBroadSelect | undefined = un
 >;
 
 export interface LiteralBroadModel {
-  findOne<S extends LiteralBroadSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralBroadSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralBroadWhere;
     select?: S;
-    orderBy?: LiteralBroadOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralBroad | keyof LiteralBroadWhere)]?: never };
+    orderBy?: LiteralBroadOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralBroadPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralBroadPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralBroadSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralBroadSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralBroadWhere;
     select?: S;
-    orderBy?: LiteralBroadOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralBroad | keyof LiteralBroadWhere)]?: never };
+    orderBy?: LiteralBroadOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralBroadPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralBroadPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralBroadSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralBroadSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralBroadFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralBroad | keyof LiteralBroadWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralBroadPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralBroadPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralBroadSelect | undefined = undefined>(options: {
     data: LiteralBroadCreateInput;
@@ -627,27 +663,45 @@ export type GetLiteralDefaultsPayload<
 >;
 
 export interface LiteralDefaultsModel {
-  findOne<S extends LiteralDefaultsSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralDefaultsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralDefaultsWhere;
     select?: S;
-    orderBy?: LiteralDefaultsOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralDefaults | keyof LiteralDefaultsWhere)]?: never };
+    orderBy?: LiteralDefaultsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralDefaultsPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralDefaultsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralDefaultsSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralDefaultsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralDefaultsWhere;
     select?: S;
-    orderBy?: LiteralDefaultsOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralDefaults | keyof LiteralDefaultsWhere)]?: never };
+    orderBy?: LiteralDefaultsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralDefaultsPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralDefaultsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralDefaultsSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralDefaultsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralDefaultsFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralDefaults | keyof LiteralDefaultsWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralDefaultsPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralDefaultsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralDefaultsSelect | undefined = undefined>(options: {
     data: LiteralDefaultsCreateInput;
@@ -846,27 +900,45 @@ export type GetLiteralExtendedPayload<
 >;
 
 export interface LiteralExtendedModel {
-  findOne<S extends LiteralExtendedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralExtendedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralExtendedWhere;
     select?: S;
-    orderBy?: LiteralExtendedOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralExtended | keyof LiteralExtendedWhere)]?: never };
+    orderBy?: LiteralExtendedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralExtendedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralExtendedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralExtendedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralExtendedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralExtendedWhere;
     select?: S;
-    orderBy?: LiteralExtendedOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralExtended | keyof LiteralExtendedWhere)]?: never };
+    orderBy?: LiteralExtendedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralExtendedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralExtendedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralExtendedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralExtendedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralExtendedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralExtended | keyof LiteralExtendedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralExtendedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralExtendedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralExtendedSelect | undefined = undefined>(options: {
     data: LiteralExtendedCreateInput;
@@ -1075,27 +1147,45 @@ export type GetLiteralNumberKindsPayload<
 >;
 
 export interface LiteralNumberKindsModel {
-  findOne<S extends LiteralNumberKindsSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralNumberKindsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralNumberKindsWhere;
     select?: S;
-    orderBy?: LiteralNumberKindsOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralNumberKinds | keyof LiteralNumberKindsWhere)]?: never };
+    orderBy?: LiteralNumberKindsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralNumberKindsPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralNumberKindsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralNumberKindsSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralNumberKindsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralNumberKindsWhere;
     select?: S;
-    orderBy?: LiteralNumberKindsOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralNumberKinds | keyof LiteralNumberKindsWhere)]?: never };
+    orderBy?: LiteralNumberKindsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralNumberKindsPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralNumberKindsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralNumberKindsSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralNumberKindsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralNumberKindsFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralNumberKinds | keyof LiteralNumberKindsWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralNumberKindsPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralNumberKindsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralNumberKindsSelect | undefined = undefined>(options: {
     data: LiteralNumberKindsCreateInput;
@@ -1300,27 +1390,45 @@ export type GetLiteralNumericPayload<S extends LiteralNumericSelect | undefined 
 >;
 
 export interface LiteralNumericModel {
-  findOne<S extends LiteralNumericSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralNumericSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralNumericWhere;
     select?: S;
-    orderBy?: LiteralNumericOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralNumeric | keyof LiteralNumericWhere)]?: never };
+    orderBy?: LiteralNumericOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralNumericPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralNumericPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralNumericSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralNumericSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralNumericWhere;
     select?: S;
-    orderBy?: LiteralNumericOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralNumeric | keyof LiteralNumericWhere)]?: never };
+    orderBy?: LiteralNumericOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralNumericPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralNumericPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralNumericSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralNumericSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralNumericFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralNumeric | keyof LiteralNumericWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralNumericPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralNumericPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralNumericSelect | undefined = undefined>(options: {
     data: LiteralNumericCreateInput;
@@ -1528,27 +1636,45 @@ export type GetLiteralObjectArrayPayload<
 >;
 
 export interface LiteralObjectArrayModel {
-  findOne<S extends LiteralObjectArraySelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralObjectArraySelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralObjectArrayWhere;
     select?: S;
-    orderBy?: LiteralObjectArrayOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralObjectArray | keyof LiteralObjectArrayWhere)]?: never };
+    orderBy?: LiteralObjectArrayOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralObjectArrayPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralObjectArrayPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralObjectArraySelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralObjectArraySelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralObjectArrayWhere;
     select?: S;
-    orderBy?: LiteralObjectArrayOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralObjectArray | keyof LiteralObjectArrayWhere)]?: never };
+    orderBy?: LiteralObjectArrayOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralObjectArrayPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralObjectArrayPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralObjectArraySelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralObjectArraySelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralObjectArrayFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralObjectArray | keyof LiteralObjectArrayWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralObjectArrayPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralObjectArrayPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralObjectArraySelect | undefined = undefined>(options: {
     data: LiteralObjectArrayCreateInput;
@@ -1747,27 +1873,45 @@ export type GetLiteralUniquePayload<S extends LiteralUniqueSelect | undefined = 
 >;
 
 export interface LiteralUniqueModel {
-  findOne<S extends LiteralUniqueSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralUniqueWhere;
     select?: S;
-    orderBy?: LiteralUniqueOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralUnique | keyof LiteralUniqueWhere)]?: never };
+    orderBy?: LiteralUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralUniquePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralUniqueSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralUniqueWhere;
     select?: S;
-    orderBy?: LiteralUniqueOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralUnique | keyof LiteralUniqueWhere)]?: never };
+    orderBy?: LiteralUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralUniquePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralUniqueSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralUniqueFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralUnique | keyof LiteralUniqueWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralUniquePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralUniqueSelect | undefined = undefined>(options: {
     data: LiteralUniqueCreateInput;
@@ -1975,27 +2119,45 @@ export type GetLiteralWithBothPayload<
 >;
 
 export interface LiteralWithBothModel {
-  findOne<S extends LiteralWithBothSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralWithBothSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithBothWhere;
     select?: S;
-    orderBy?: LiteralWithBothOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithBoth | keyof LiteralWithBothWhere)]?: never };
+    orderBy?: LiteralWithBothOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithBothPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithBothPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralWithBothSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralWithBothSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithBothWhere;
     select?: S;
-    orderBy?: LiteralWithBothOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithBoth | keyof LiteralWithBothWhere)]?: never };
+    orderBy?: LiteralWithBothOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithBothPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralWithBothPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralWithBothSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralWithBothSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralWithBothFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralWithBoth | keyof LiteralWithBothWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithBothPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithBothPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralWithBothSelect | undefined = undefined>(options: {
     data: LiteralWithBothCreateInput;
@@ -2245,27 +2407,45 @@ export type GetLiteralWithObjectPayload<
 >;
 
 export interface LiteralWithObjectModel {
-  findOne<S extends LiteralWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithObjectWhere;
     select?: S;
-    orderBy?: LiteralWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObject | keyof LiteralWithObjectWhere)]?: never };
+    orderBy?: LiteralWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithObjectWhere;
     select?: S;
-    orderBy?: LiteralWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObject | keyof LiteralWithObjectWhere)]?: never };
+    orderBy?: LiteralWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObject | keyof LiteralWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralWithObjectSelect | undefined = undefined>(options: {
     data: LiteralWithObjectCreateInput;
@@ -2473,27 +2653,45 @@ export type GetLiteralWithObjectOptPayload<
 >;
 
 export interface LiteralWithObjectOptModel {
-  findOne<S extends LiteralWithObjectOptSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralWithObjectOptSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithObjectOptWhere;
     select?: S;
-    orderBy?: LiteralWithObjectOptOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObjectOpt | keyof LiteralWithObjectOptWhere)]?: never };
+    orderBy?: LiteralWithObjectOptOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectOptPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectOptPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralWithObjectOptSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralWithObjectOptSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithObjectOptWhere;
     select?: S;
-    orderBy?: LiteralWithObjectOptOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObjectOpt | keyof LiteralWithObjectOptWhere)]?: never };
+    orderBy?: LiteralWithObjectOptOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectOptPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectOptPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralWithObjectOptSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralWithObjectOptSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralWithObjectOptFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObjectOpt | keyof LiteralWithObjectOptWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectOptPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectOptPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralWithObjectOptSelect | undefined = undefined>(options: {
     data: LiteralWithObjectOptCreateInput;
@@ -2722,27 +2920,45 @@ export type GetLiteralWithObjectVariantPayload<
 >;
 
 export interface LiteralWithObjectVariantModel {
-  findOne<S extends LiteralWithObjectVariantSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralWithObjectVariantSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithObjectVariantWhere;
     select?: S;
-    orderBy?: LiteralWithObjectVariantOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObjectVariant | keyof LiteralWithObjectVariantWhere)]?: never };
+    orderBy?: LiteralWithObjectVariantOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectVariantPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectVariantPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralWithObjectVariantSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralWithObjectVariantSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithObjectVariantWhere;
     select?: S;
-    orderBy?: LiteralWithObjectVariantOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObjectVariant | keyof LiteralWithObjectVariantWhere)]?: never };
+    orderBy?: LiteralWithObjectVariantOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectVariantPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectVariantPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralWithObjectVariantSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralWithObjectVariantSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralWithObjectVariantFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralWithObjectVariant | keyof LiteralWithObjectVariantWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithObjectVariantPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithObjectVariantPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralWithObjectVariantSelect | undefined = undefined>(options: {
     data: LiteralWithObjectVariantCreateInput;
@@ -2960,27 +3176,45 @@ export type GetLiteralWithTuplePayload<
 >;
 
 export interface LiteralWithTupleModel {
-  findOne<S extends LiteralWithTupleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LiteralWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithTupleWhere;
     select?: S;
-    orderBy?: LiteralWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithTuple | keyof LiteralWithTupleWhere)]?: never };
+    orderBy?: LiteralWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LiteralWithTupleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LiteralWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LiteralWithTupleWhere;
     select?: S;
-    orderBy?: LiteralWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof LiteralWithTuple | keyof LiteralWithTupleWhere)]?: never };
+    orderBy?: LiteralWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithTuplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetLiteralWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends LiteralWithTupleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LiteralWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LiteralWithTupleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof LiteralWithTuple | keyof LiteralWithTupleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLiteralWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLiteralWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LiteralWithTupleSelect | undefined = undefined>(options: {
     data: LiteralWithTupleCreateInput;

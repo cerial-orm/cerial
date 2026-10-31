@@ -109,27 +109,45 @@ export type GetKitchenSinkBadgePayload<
 >;
 
 export interface KitchenSinkBadgeModel {
-  findOne<S extends KitchenSinkBadgeSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends KitchenSinkBadgeSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: KitchenSinkBadgeWhere;
     select?: S;
-    orderBy?: KitchenSinkBadgeOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkBadge | keyof KitchenSinkBadgeWhere)]?: never };
+    orderBy?: KitchenSinkBadgeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkBadgePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkBadgePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends KitchenSinkBadgeSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends KitchenSinkBadgeSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: KitchenSinkBadgeWhere;
     select?: S;
-    orderBy?: KitchenSinkBadgeOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkBadge | keyof KitchenSinkBadgeWhere)]?: never };
+    orderBy?: KitchenSinkBadgeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkBadgePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkBadgePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends KitchenSinkBadgeSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends KitchenSinkBadgeSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: KitchenSinkBadgeFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkBadge | keyof KitchenSinkBadgeWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkBadgePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkBadgePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends KitchenSinkBadgeSelect | undefined = undefined>(options: {
     data: KitchenSinkBadgeCreateInput;
@@ -423,36 +441,48 @@ export interface KitchenSinkPostModel {
   findOne<
     S extends KitchenSinkPostSelect | undefined = undefined,
     I extends KitchenSinkPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkPostWhere;
     select?: S;
     include?: I;
-    orderBy?: KitchenSinkPostOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkPost | keyof KitchenSinkPostWhere)]?: never };
+    orderBy?: KitchenSinkPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends KitchenSinkPostSelect | undefined = undefined,
     I extends KitchenSinkPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkPostWhere;
     select?: S;
-    orderBy?: KitchenSinkPostOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkPost | keyof KitchenSinkPostWhere)]?: never };
+    orderBy?: KitchenSinkPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends KitchenSinkPostSelect | undefined = undefined,
     I extends KitchenSinkPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: KitchenSinkPostFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkPost | keyof KitchenSinkPostWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends KitchenSinkPostSelect | undefined = undefined,
@@ -769,36 +799,48 @@ export interface KitchenSinkProfileModel {
   findOne<
     S extends KitchenSinkProfileSelect | undefined = undefined,
     I extends KitchenSinkProfileInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkProfileWhere;
     select?: S;
     include?: I;
-    orderBy?: KitchenSinkProfileOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkProfile | keyof KitchenSinkProfileWhere)]?: never };
+    orderBy?: KitchenSinkProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkProfilePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends KitchenSinkProfileSelect | undefined = undefined,
     I extends KitchenSinkProfileInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkProfileWhere;
     select?: S;
-    orderBy?: KitchenSinkProfileOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkProfile | keyof KitchenSinkProfileWhere)]?: never };
+    orderBy?: KitchenSinkProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkProfilePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends KitchenSinkProfileSelect | undefined = undefined,
     I extends KitchenSinkProfileInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: KitchenSinkProfileFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkProfile | keyof KitchenSinkProfileWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkProfilePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends KitchenSinkProfileSelect | undefined = undefined,
@@ -1114,36 +1156,48 @@ export interface KitchenSinkSettingsModel {
   findOne<
     S extends KitchenSinkSettingsSelect | undefined = undefined,
     I extends KitchenSinkSettingsInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkSettingsWhere;
     select?: S;
     include?: I;
-    orderBy?: KitchenSinkSettingsOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkSettings | keyof KitchenSinkSettingsWhere)]?: never };
+    orderBy?: KitchenSinkSettingsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkSettingsPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends KitchenSinkSettingsSelect | undefined = undefined,
     I extends KitchenSinkSettingsInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkSettingsWhere;
     select?: S;
-    orderBy?: KitchenSinkSettingsOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkSettings | keyof KitchenSinkSettingsWhere)]?: never };
+    orderBy?: KitchenSinkSettingsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkSettingsPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends KitchenSinkSettingsSelect | undefined = undefined,
     I extends KitchenSinkSettingsInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: KitchenSinkSettingsFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkSettings | keyof KitchenSinkSettingsWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkSettingsPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends KitchenSinkSettingsSelect | undefined = undefined,
@@ -1468,36 +1522,48 @@ export interface KitchenSinkTagModel {
   findOne<
     S extends KitchenSinkTagSelect | undefined = undefined,
     I extends KitchenSinkTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkTagWhere;
     select?: S;
     include?: I;
-    orderBy?: KitchenSinkTagOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkTag | keyof KitchenSinkTagWhere)]?: never };
+    orderBy?: KitchenSinkTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends KitchenSinkTagSelect | undefined = undefined,
     I extends KitchenSinkTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkTagWhere;
     select?: S;
-    orderBy?: KitchenSinkTagOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkTag | keyof KitchenSinkTagWhere)]?: never };
+    orderBy?: KitchenSinkTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends KitchenSinkTagSelect | undefined = undefined,
     I extends KitchenSinkTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: KitchenSinkTagFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkTag | keyof KitchenSinkTagWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends KitchenSinkTagSelect | undefined = undefined,
@@ -2080,36 +2146,48 @@ export interface KitchenSinkUserModel {
   findOne<
     S extends KitchenSinkUserSelect | undefined = undefined,
     I extends KitchenSinkUserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkUserWhere;
     select?: S;
     include?: I;
-    orderBy?: KitchenSinkUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkUser | keyof KitchenSinkUserWhere)]?: never };
+    orderBy?: KitchenSinkUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends KitchenSinkUserSelect | undefined = undefined,
     I extends KitchenSinkUserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: KitchenSinkUserWhere;
     select?: S;
-    orderBy?: KitchenSinkUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkUser | keyof KitchenSinkUserWhere)]?: never };
+    orderBy?: KitchenSinkUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends KitchenSinkUserSelect | undefined = undefined,
     I extends KitchenSinkUserInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: KitchenSinkUserFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof KitchenSinkUser | keyof KitchenSinkUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetKitchenSinkUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends KitchenSinkUserSelect | undefined = undefined,

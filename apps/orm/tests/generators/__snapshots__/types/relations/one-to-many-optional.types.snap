@@ -214,30 +214,51 @@ export type GetBookPayload<
 >;
 
 export interface BookModel {
-  findOne<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options?: {
+  findOne<
+    S extends BookSelect | undefined = undefined,
+    I extends BookInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BookWhere;
     select?: S;
     include?: I;
-    orderBy?: BookOrderBy;
+    compute?: C & { [K in keyof C & (keyof Book | keyof BookWhere)]?: never };
+    orderBy?: BookOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBookPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBookPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options?: {
+  findMany<
+    S extends BookSelect | undefined = undefined,
+    I extends BookInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BookWhere;
     select?: S;
-    orderBy?: BookOrderBy;
+    compute?: C & { [K in keyof C & (keyof Book | keyof BookWhere)]?: never };
+    orderBy?: BookOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBookPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetBookPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options: {
+  findUnique<
+    S extends BookSelect | undefined = undefined,
+    I extends BookInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: BookFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof Book | keyof BookWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBookPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBookPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options: {
     data: BookCreateInput;
@@ -532,36 +553,48 @@ export interface PublisherModel {
   findOne<
     S extends PublisherSelect | undefined = undefined,
     I extends PublisherInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: PublisherWhere;
     select?: S;
     include?: I;
-    orderBy?: PublisherOrderBy;
+    compute?: C & { [K in keyof C & (keyof Publisher | keyof PublisherWhere)]?: never };
+    orderBy?: PublisherOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetPublisherPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetPublisherPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends PublisherSelect | undefined = undefined,
     I extends PublisherInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: PublisherWhere;
     select?: S;
-    orderBy?: PublisherOrderBy;
+    compute?: C & { [K in keyof C & (keyof Publisher | keyof PublisherWhere)]?: never };
+    orderBy?: PublisherOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetPublisherPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetPublisherPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends PublisherSelect | undefined = undefined,
     I extends PublisherInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: PublisherFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof Publisher | keyof PublisherWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetPublisherPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetPublisherPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends PublisherSelect | undefined = undefined,

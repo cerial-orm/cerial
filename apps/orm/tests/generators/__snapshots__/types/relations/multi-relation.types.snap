@@ -244,36 +244,48 @@ export interface DocumentModel {
   findOne<
     S extends DocumentSelect | undefined = undefined,
     I extends DocumentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DocumentWhere;
     select?: S;
     include?: I;
-    orderBy?: DocumentOrderBy;
+    compute?: C & { [K in keyof C & (keyof Document | keyof DocumentWhere)]?: never };
+    orderBy?: DocumentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDocumentPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetDocumentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends DocumentSelect | undefined = undefined,
     I extends DocumentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DocumentWhere;
     select?: S;
-    orderBy?: DocumentOrderBy;
+    compute?: C & { [K in keyof C & (keyof Document | keyof DocumentWhere)]?: never };
+    orderBy?: DocumentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDocumentPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetDocumentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends DocumentSelect | undefined = undefined,
     I extends DocumentInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DocumentFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof Document | keyof DocumentWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDocumentPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetDocumentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DocumentSelect | undefined = undefined, I extends DocumentInclude | undefined = undefined>(options: {
     data: DocumentCreateInput;
@@ -616,30 +628,51 @@ export type GetWriterPayload<
 >;
 
 export interface WriterModel {
-  findOne<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options?: {
+  findOne<
+    S extends WriterSelect | undefined = undefined,
+    I extends WriterInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: WriterWhere;
     select?: S;
     include?: I;
-    orderBy?: WriterOrderBy;
+    compute?: C & { [K in keyof C & (keyof Writer | keyof WriterWhere)]?: never };
+    orderBy?: WriterOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetWriterPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetWriterPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options?: {
+  findMany<
+    S extends WriterSelect | undefined = undefined,
+    I extends WriterInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: WriterWhere;
     select?: S;
-    orderBy?: WriterOrderBy;
+    compute?: C & { [K in keyof C & (keyof Writer | keyof WriterWhere)]?: never };
+    orderBy?: WriterOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetWriterPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetWriterPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options: {
+  findUnique<
+    S extends WriterSelect | undefined = undefined,
+    I extends WriterInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: WriterFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof Writer | keyof WriterWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetWriterPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetWriterPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options: {
     data: WriterCreateInput;

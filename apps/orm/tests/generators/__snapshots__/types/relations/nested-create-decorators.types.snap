@@ -811,30 +811,51 @@ export type GetNcDocPayload<
 >;
 
 export interface NcDocModel {
-  findOne<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options?: {
+  findOne<
+    S extends NcDocSelect | undefined = undefined,
+    I extends NcDocInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NcDocWhere;
     select?: S;
     include?: I;
-    orderBy?: NcDocOrderBy;
+    compute?: C & { [K in keyof C & (keyof NcDoc | keyof NcDocWhere)]?: never };
+    orderBy?: NcDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcDocPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetNcDocPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options?: {
+  findMany<
+    S extends NcDocSelect | undefined = undefined,
+    I extends NcDocInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NcDocWhere;
     select?: S;
-    orderBy?: NcDocOrderBy;
+    compute?: C & { [K in keyof C & (keyof NcDoc | keyof NcDocWhere)]?: never };
+    orderBy?: NcDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcDocPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetNcDocPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options: {
+  findUnique<
+    S extends NcDocSelect | undefined = undefined,
+    I extends NcDocInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: NcDocFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof NcDoc | keyof NcDocWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcDocPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetNcDocPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options: {
     data: NcDocCreateInput;
@@ -1142,36 +1163,51 @@ export type GetNcGroupPayload<
 >;
 
 export interface NcGroupModel {
-  findOne<S extends NcGroupSelect | undefined = undefined, I extends NcGroupInclude | undefined = undefined>(options?: {
+  findOne<
+    S extends NcGroupSelect | undefined = undefined,
+    I extends NcGroupInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NcGroupWhere;
     select?: S;
     include?: I;
-    orderBy?: NcGroupOrderBy;
+    compute?: C & { [K in keyof C & (keyof NcGroup | keyof NcGroupWhere)]?: never };
+    orderBy?: NcGroupOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcGroupPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetNcGroupPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends NcGroupSelect | undefined = undefined,
     I extends NcGroupInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NcGroupWhere;
     select?: S;
-    orderBy?: NcGroupOrderBy;
+    compute?: C & { [K in keyof C & (keyof NcGroup | keyof NcGroupWhere)]?: never };
+    orderBy?: NcGroupOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcGroupPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetNcGroupPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends NcGroupSelect | undefined = undefined,
     I extends NcGroupInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: NcGroupFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof NcGroup | keyof NcGroupWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcGroupPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetNcGroupPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NcGroupSelect | undefined = undefined, I extends NcGroupInclude | undefined = undefined>(options: {
     data: NcGroupCreateInput;
@@ -1524,36 +1560,48 @@ export interface NcHolderModel {
   findOne<
     S extends NcHolderSelect | undefined = undefined,
     I extends NcHolderInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NcHolderWhere;
     select?: S;
     include?: I;
-    orderBy?: NcHolderOrderBy;
+    compute?: C & { [K in keyof C & (keyof NcHolder | keyof NcHolderWhere)]?: never };
+    orderBy?: NcHolderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcHolderPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetNcHolderPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends NcHolderSelect | undefined = undefined,
     I extends NcHolderInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NcHolderWhere;
     select?: S;
-    orderBy?: NcHolderOrderBy;
+    compute?: C & { [K in keyof C & (keyof NcHolder | keyof NcHolderWhere)]?: never };
+    orderBy?: NcHolderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcHolderPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetNcHolderPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends NcHolderSelect | undefined = undefined,
     I extends NcHolderInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: NcHolderFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof NcHolder | keyof NcHolderWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNcHolderPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetNcHolderPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NcHolderSelect | undefined = undefined, I extends NcHolderInclude | undefined = undefined>(options: {
     data: NcHolderCreateInput;

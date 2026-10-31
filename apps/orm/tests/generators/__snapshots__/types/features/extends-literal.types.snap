@@ -156,27 +156,45 @@ export type GetExtLiteralContainerPayload<
 >;
 
 export interface ExtLiteralContainerModel {
-  findOne<S extends ExtLiteralContainerSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtLiteralContainerSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtLiteralContainerWhere;
     select?: S;
-    orderBy?: ExtLiteralContainerOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralContainer | keyof ExtLiteralContainerWhere)]?: never };
+    orderBy?: ExtLiteralContainerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralContainerPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtLiteralContainerPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtLiteralContainerSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtLiteralContainerSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtLiteralContainerWhere;
     select?: S;
-    orderBy?: ExtLiteralContainerOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralContainer | keyof ExtLiteralContainerWhere)]?: never };
+    orderBy?: ExtLiteralContainerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralContainerPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtLiteralContainerPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtLiteralContainerSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtLiteralContainerSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtLiteralContainerFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralContainer | keyof ExtLiteralContainerWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralContainerPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtLiteralContainerPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtLiteralContainerSelect | undefined = undefined>(options: {
     data: ExtLiteralContainerCreateInput;
@@ -429,27 +447,45 @@ export type GetExtLiteralModelPayload<
 >;
 
 export interface ExtLiteralModelModel {
-  findOne<S extends ExtLiteralModelSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtLiteralModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtLiteralModelWhere;
     select?: S;
-    orderBy?: ExtLiteralModelOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralModel | keyof ExtLiteralModelWhere)]?: never };
+    orderBy?: ExtLiteralModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralModelPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtLiteralModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtLiteralModelSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtLiteralModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtLiteralModelWhere;
     select?: S;
-    orderBy?: ExtLiteralModelOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralModel | keyof ExtLiteralModelWhere)]?: never };
+    orderBy?: ExtLiteralModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralModelPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtLiteralModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtLiteralModelSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtLiteralModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtLiteralModelFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralModel | keyof ExtLiteralModelWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralModelPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtLiteralModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtLiteralModelSelect | undefined = undefined>(options: {
     data: ExtLiteralModelCreateInput;
@@ -653,27 +689,45 @@ export type GetExtLiteralQuotedPayload<
 >;
 
 export interface ExtLiteralQuotedModel {
-  findOne<S extends ExtLiteralQuotedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtLiteralQuotedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtLiteralQuotedWhere;
     select?: S;
-    orderBy?: ExtLiteralQuotedOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralQuoted | keyof ExtLiteralQuotedWhere)]?: never };
+    orderBy?: ExtLiteralQuotedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralQuotedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtLiteralQuotedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtLiteralQuotedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtLiteralQuotedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtLiteralQuotedWhere;
     select?: S;
-    orderBy?: ExtLiteralQuotedOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralQuoted | keyof ExtLiteralQuotedWhere)]?: never };
+    orderBy?: ExtLiteralQuotedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralQuotedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtLiteralQuotedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtLiteralQuotedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtLiteralQuotedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtLiteralQuotedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtLiteralQuoted | keyof ExtLiteralQuotedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtLiteralQuotedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtLiteralQuotedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtLiteralQuotedSelect | undefined = undefined>(options: {
     data: ExtLiteralQuotedCreateInput;

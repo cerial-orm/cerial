@@ -189,27 +189,45 @@ export type GetUuidBasicPayload<S extends UuidBasicSelect | undefined = undefine
 >;
 
 export interface UuidBasicModel {
-  findOne<S extends UuidBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends UuidBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UuidBasicWhere;
     select?: S;
-    orderBy?: UuidBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof UuidBasic | keyof UuidBasicWhere)]?: never };
+    orderBy?: UuidBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUuidBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends UuidBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends UuidBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UuidBasicWhere;
     select?: S;
-    orderBy?: UuidBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof UuidBasic | keyof UuidBasicWhere)]?: never };
+    orderBy?: UuidBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetUuidBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends UuidBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends UuidBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: UuidBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof UuidBasic | keyof UuidBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUuidBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends UuidBasicSelect | undefined = undefined>(options: {
     data: UuidBasicCreateInput;
@@ -515,27 +533,45 @@ export type GetUuidDecoratedPayload<S extends UuidDecoratedSelect | undefined = 
 >;
 
 export interface UuidDecoratedModel {
-  findOne<S extends UuidDecoratedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends UuidDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UuidDecoratedWhere;
     select?: S;
-    orderBy?: UuidDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof UuidDecorated | keyof UuidDecoratedWhere)]?: never };
+    orderBy?: UuidDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUuidDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends UuidDecoratedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends UuidDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UuidDecoratedWhere;
     select?: S;
-    orderBy?: UuidDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof UuidDecorated | keyof UuidDecoratedWhere)]?: never };
+    orderBy?: UuidDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidDecoratedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetUuidDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends UuidDecoratedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends UuidDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: UuidDecoratedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof UuidDecorated | keyof UuidDecoratedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUuidDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends UuidDecoratedSelect | undefined = undefined>(options: {
     data: UuidDecoratedCreateInput;
@@ -779,27 +815,45 @@ export type GetUuidWithObjectPayload<S extends UuidWithObjectSelect | undefined 
 >;
 
 export interface UuidWithObjectModel {
-  findOne<S extends UuidWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends UuidWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UuidWithObjectWhere;
     select?: S;
-    orderBy?: UuidWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof UuidWithObject | keyof UuidWithObjectWhere)]?: never };
+    orderBy?: UuidWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUuidWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends UuidWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends UuidWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UuidWithObjectWhere;
     select?: S;
-    orderBy?: UuidWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof UuidWithObject | keyof UuidWithObjectWhere)]?: never };
+    orderBy?: UuidWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetUuidWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends UuidWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends UuidWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: UuidWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof UuidWithObject | keyof UuidWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUuidWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends UuidWithObjectSelect | undefined = undefined>(options: {
     data: UuidWithObjectCreateInput;
@@ -1022,27 +1076,45 @@ export type GetUuidWithTuplePayload<S extends UuidWithTupleSelect | undefined = 
 >;
 
 export interface UuidWithTupleModel {
-  findOne<S extends UuidWithTupleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends UuidWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UuidWithTupleWhere;
     select?: S;
-    orderBy?: UuidWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof UuidWithTuple | keyof UuidWithTupleWhere)]?: never };
+    orderBy?: UuidWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUuidWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends UuidWithTupleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends UuidWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UuidWithTupleWhere;
     select?: S;
-    orderBy?: UuidWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof UuidWithTuple | keyof UuidWithTupleWhere)]?: never };
+    orderBy?: UuidWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidWithTuplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetUuidWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends UuidWithTupleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends UuidWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: UuidWithTupleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof UuidWithTuple | keyof UuidWithTupleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUuidWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUuidWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends UuidWithTupleSelect | undefined = undefined>(options: {
     data: UuidWithTupleCreateInput;

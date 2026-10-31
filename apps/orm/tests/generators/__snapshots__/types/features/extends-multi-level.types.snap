@@ -247,27 +247,45 @@ export type GetExtL4AltConcretePayload<
 >;
 
 export interface ExtL4AltConcreteModel {
-  findOne<S extends ExtL4AltConcreteSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtL4AltConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL4AltConcreteWhere;
     select?: S;
-    orderBy?: ExtL4AltConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL4AltConcrete | keyof ExtL4AltConcreteWhere)]?: never };
+    orderBy?: ExtL4AltConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4AltConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL4AltConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtL4AltConcreteSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtL4AltConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL4AltConcreteWhere;
     select?: S;
-    orderBy?: ExtL4AltConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL4AltConcrete | keyof ExtL4AltConcreteWhere)]?: never };
+    orderBy?: ExtL4AltConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4AltConcretePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtL4AltConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtL4AltConcreteSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtL4AltConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtL4AltConcreteFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtL4AltConcrete | keyof ExtL4AltConcreteWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4AltConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL4AltConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtL4AltConcreteSelect | undefined = undefined>(options: {
     data: ExtL4AltConcreteCreateInput;
@@ -624,27 +642,45 @@ export type GetExtL4ConcretePayload<S extends ExtL4ConcreteSelect | undefined = 
 >;
 
 export interface ExtL4ConcreteModel {
-  findOne<S extends ExtL4ConcreteSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtL4ConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL4ConcreteWhere;
     select?: S;
-    orderBy?: ExtL4ConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL4Concrete | keyof ExtL4ConcreteWhere)]?: never };
+    orderBy?: ExtL4ConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4ConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL4ConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtL4ConcreteSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtL4ConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL4ConcreteWhere;
     select?: S;
-    orderBy?: ExtL4ConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL4Concrete | keyof ExtL4ConcreteWhere)]?: never };
+    orderBy?: ExtL4ConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4ConcretePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtL4ConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtL4ConcreteSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtL4ConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtL4ConcreteFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtL4Concrete | keyof ExtL4ConcreteWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4ConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL4ConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtL4ConcreteSelect | undefined = undefined>(options: {
     data: ExtL4ConcreteCreateInput;
@@ -942,27 +978,45 @@ export type GetExtL4OmitConcretePayload<
 >;
 
 export interface ExtL4OmitConcreteModel {
-  findOne<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtL4OmitConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL4OmitConcreteWhere;
     select?: S;
-    orderBy?: ExtL4OmitConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL4OmitConcrete | keyof ExtL4OmitConcreteWhere)]?: never };
+    orderBy?: ExtL4OmitConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4OmitConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL4OmitConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtL4OmitConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL4OmitConcreteWhere;
     select?: S;
-    orderBy?: ExtL4OmitConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL4OmitConcrete | keyof ExtL4OmitConcreteWhere)]?: never };
+    orderBy?: ExtL4OmitConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4OmitConcretePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtL4OmitConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtL4OmitConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtL4OmitConcreteFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtL4OmitConcrete | keyof ExtL4OmitConcreteWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4OmitConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL4OmitConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options: {
     data: ExtL4OmitConcreteCreateInput;
@@ -1305,27 +1359,45 @@ export type GetExtL4PickConcretePayload<
 >;
 
 export interface ExtL4PickConcreteModel {
-  findOne<S extends ExtL4PickConcreteSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtL4PickConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL4PickConcreteWhere;
     select?: S;
-    orderBy?: ExtL4PickConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL4PickConcrete | keyof ExtL4PickConcreteWhere)]?: never };
+    orderBy?: ExtL4PickConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4PickConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL4PickConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtL4PickConcreteSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtL4PickConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL4PickConcreteWhere;
     select?: S;
-    orderBy?: ExtL4PickConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL4PickConcrete | keyof ExtL4PickConcreteWhere)]?: never };
+    orderBy?: ExtL4PickConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4PickConcretePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtL4PickConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtL4PickConcreteSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtL4PickConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtL4PickConcreteFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtL4PickConcrete | keyof ExtL4PickConcreteWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL4PickConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL4PickConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtL4PickConcreteSelect | undefined = undefined>(options: {
     data: ExtL4PickConcreteCreateInput;
@@ -1694,27 +1766,45 @@ export type GetExtL5VeryDeepPayload<S extends ExtL5VeryDeepSelect | undefined = 
 >;
 
 export interface ExtL5VeryDeepModel {
-  findOne<S extends ExtL5VeryDeepSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtL5VeryDeepSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL5VeryDeepWhere;
     select?: S;
-    orderBy?: ExtL5VeryDeepOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL5VeryDeep | keyof ExtL5VeryDeepWhere)]?: never };
+    orderBy?: ExtL5VeryDeepOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL5VeryDeepPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL5VeryDeepPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtL5VeryDeepSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtL5VeryDeepSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL5VeryDeepWhere;
     select?: S;
-    orderBy?: ExtL5VeryDeepOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL5VeryDeep | keyof ExtL5VeryDeepWhere)]?: never };
+    orderBy?: ExtL5VeryDeepOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL5VeryDeepPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtL5VeryDeepPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtL5VeryDeepSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtL5VeryDeepSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtL5VeryDeepFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtL5VeryDeep | keyof ExtL5VeryDeepWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL5VeryDeepPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL5VeryDeepPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtL5VeryDeepSelect | undefined = undefined>(options: {
     data: ExtL5VeryDeepCreateInput;
@@ -2282,27 +2372,45 @@ export type GetExtL6UltraDeepPayload<S extends ExtL6UltraDeepSelect | undefined 
 >;
 
 export interface ExtL6UltraDeepModel {
-  findOne<S extends ExtL6UltraDeepSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtL6UltraDeepSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL6UltraDeepWhere;
     select?: S;
-    orderBy?: ExtL6UltraDeepOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL6UltraDeep | keyof ExtL6UltraDeepWhere)]?: never };
+    orderBy?: ExtL6UltraDeepOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL6UltraDeepPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL6UltraDeepPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtL6UltraDeepSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtL6UltraDeepSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtL6UltraDeepWhere;
     select?: S;
-    orderBy?: ExtL6UltraDeepOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtL6UltraDeep | keyof ExtL6UltraDeepWhere)]?: never };
+    orderBy?: ExtL6UltraDeepOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL6UltraDeepPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtL6UltraDeepPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtL6UltraDeepSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtL6UltraDeepSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtL6UltraDeepFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtL6UltraDeep | keyof ExtL6UltraDeepWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtL6UltraDeepPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtL6UltraDeepPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtL6UltraDeepSelect | undefined = undefined>(options: {
     data: ExtL6UltraDeepCreateInput;
@@ -2610,27 +2718,45 @@ export type GetExtP4ConcretePayload<S extends ExtP4ConcreteSelect | undefined = 
 >;
 
 export interface ExtP4ConcreteModel {
-  findOne<S extends ExtP4ConcreteSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtP4ConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtP4ConcreteWhere;
     select?: S;
-    orderBy?: ExtP4ConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtP4Concrete | keyof ExtP4ConcreteWhere)]?: never };
+    orderBy?: ExtP4ConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtP4ConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtP4ConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtP4ConcreteSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtP4ConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtP4ConcreteWhere;
     select?: S;
-    orderBy?: ExtP4ConcreteOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtP4Concrete | keyof ExtP4ConcreteWhere)]?: never };
+    orderBy?: ExtP4ConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtP4ConcretePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtP4ConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtP4ConcreteSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtP4ConcreteSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtP4ConcreteFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtP4Concrete | keyof ExtP4ConcreteWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtP4ConcretePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtP4ConcretePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtP4ConcreteSelect | undefined = undefined>(options: {
     data: ExtP4ConcreteCreateInput;

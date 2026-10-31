@@ -215,36 +215,48 @@ export interface RelObjCompanyModel {
   findOne<
     S extends RelObjCompanySelect | undefined = undefined,
     I extends RelObjCompanyInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: RelObjCompanyWhere;
     select?: S;
     include?: I;
-    orderBy?: RelObjCompanyOrderBy;
+    compute?: C & { [K in keyof C & (keyof RelObjCompany | keyof RelObjCompanyWhere)]?: never };
+    orderBy?: RelObjCompanyOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetRelObjCompanyPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetRelObjCompanyPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends RelObjCompanySelect | undefined = undefined,
     I extends RelObjCompanyInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: RelObjCompanyWhere;
     select?: S;
-    orderBy?: RelObjCompanyOrderBy;
+    compute?: C & { [K in keyof C & (keyof RelObjCompany | keyof RelObjCompanyWhere)]?: never };
+    orderBy?: RelObjCompanyOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetRelObjCompanyPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetRelObjCompanyPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends RelObjCompanySelect | undefined = undefined,
     I extends RelObjCompanyInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: RelObjCompanyFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof RelObjCompany | keyof RelObjCompanyWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetRelObjCompanyPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetRelObjCompanyPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends RelObjCompanySelect | undefined = undefined,
@@ -562,36 +574,48 @@ export interface RelObjEmployeeModel {
   findOne<
     S extends RelObjEmployeeSelect | undefined = undefined,
     I extends RelObjEmployeeInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: RelObjEmployeeWhere;
     select?: S;
     include?: I;
-    orderBy?: RelObjEmployeeOrderBy;
+    compute?: C & { [K in keyof C & (keyof RelObjEmployee | keyof RelObjEmployeeWhere)]?: never };
+    orderBy?: RelObjEmployeeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetRelObjEmployeePayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetRelObjEmployeePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends RelObjEmployeeSelect | undefined = undefined,
     I extends RelObjEmployeeInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: RelObjEmployeeWhere;
     select?: S;
-    orderBy?: RelObjEmployeeOrderBy;
+    compute?: C & { [K in keyof C & (keyof RelObjEmployee | keyof RelObjEmployeeWhere)]?: never };
+    orderBy?: RelObjEmployeeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetRelObjEmployeePayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetRelObjEmployeePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends RelObjEmployeeSelect | undefined = undefined,
     I extends RelObjEmployeeInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: RelObjEmployeeFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof RelObjEmployee | keyof RelObjEmployeeWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetRelObjEmployeePayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetRelObjEmployeePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends RelObjEmployeeSelect | undefined = undefined,

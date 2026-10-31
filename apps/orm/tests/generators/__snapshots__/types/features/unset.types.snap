@@ -565,27 +565,45 @@ export type GetUnsetTestPayload<S extends UnsetTestSelect | undefined = undefine
 >;
 
 export interface UnsetTestModel {
-  findOne<S extends UnsetTestSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends UnsetTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UnsetTestWhere;
     select?: S;
-    orderBy?: UnsetTestOrderBy;
+    compute?: C & { [K in keyof C & (keyof UnsetTest | keyof UnsetTestWhere)]?: never };
+    orderBy?: UnsetTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUnsetTestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUnsetTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends UnsetTestSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends UnsetTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: UnsetTestWhere;
     select?: S;
-    orderBy?: UnsetTestOrderBy;
+    compute?: C & { [K in keyof C & (keyof UnsetTest | keyof UnsetTestWhere)]?: never };
+    orderBy?: UnsetTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUnsetTestPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetUnsetTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends UnsetTestSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends UnsetTestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: UnsetTestFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof UnsetTest | keyof UnsetTestWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetUnsetTestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetUnsetTestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends UnsetTestSelect | undefined = undefined>(options: {
     data: UnsetTestCreateInput;

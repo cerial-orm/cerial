@@ -330,27 +330,45 @@ export type GetExtCrossAdminPayload<S extends ExtCrossAdminSelect | undefined = 
 >;
 
 export interface ExtCrossAdminModel {
-  findOne<S extends ExtCrossAdminSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtCrossAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossAdminWhere;
     select?: S;
-    orderBy?: ExtCrossAdminOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossAdmin | keyof ExtCrossAdminWhere)]?: never };
+    orderBy?: ExtCrossAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossAdminPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtCrossAdminSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtCrossAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossAdminWhere;
     select?: S;
-    orderBy?: ExtCrossAdminOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossAdmin | keyof ExtCrossAdminWhere)]?: never };
+    orderBy?: ExtCrossAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossAdminPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtCrossAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtCrossAdminSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtCrossAdminSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtCrossAdminFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtCrossAdmin | keyof ExtCrossAdminWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossAdminPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossAdminPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtCrossAdminSelect | undefined = undefined>(options: {
     data: ExtCrossAdminCreateInput;
@@ -655,27 +673,45 @@ export type GetExtCrossModeratorPayload<
 >;
 
 export interface ExtCrossModeratorModel {
-  findOne<S extends ExtCrossModeratorSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtCrossModeratorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossModeratorWhere;
     select?: S;
-    orderBy?: ExtCrossModeratorOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossModerator | keyof ExtCrossModeratorWhere)]?: never };
+    orderBy?: ExtCrossModeratorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossModeratorPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossModeratorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtCrossModeratorSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtCrossModeratorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossModeratorWhere;
     select?: S;
-    orderBy?: ExtCrossModeratorOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossModerator | keyof ExtCrossModeratorWhere)]?: never };
+    orderBy?: ExtCrossModeratorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossModeratorPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtCrossModeratorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtCrossModeratorSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtCrossModeratorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtCrossModeratorFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtCrossModerator | keyof ExtCrossModeratorWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossModeratorPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossModeratorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtCrossModeratorSelect | undefined = undefined>(options: {
     data: ExtCrossModeratorCreateInput;
@@ -1104,27 +1140,45 @@ export type GetExtCrossPremiumPayload<
 >;
 
 export interface ExtCrossPremiumModel {
-  findOne<S extends ExtCrossPremiumSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtCrossPremiumSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossPremiumWhere;
     select?: S;
-    orderBy?: ExtCrossPremiumOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossPremium | keyof ExtCrossPremiumWhere)]?: never };
+    orderBy?: ExtCrossPremiumOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossPremiumPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossPremiumPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtCrossPremiumSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtCrossPremiumSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossPremiumWhere;
     select?: S;
-    orderBy?: ExtCrossPremiumOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossPremium | keyof ExtCrossPremiumWhere)]?: never };
+    orderBy?: ExtCrossPremiumOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossPremiumPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtCrossPremiumPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtCrossPremiumSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtCrossPremiumSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtCrossPremiumFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtCrossPremium | keyof ExtCrossPremiumWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossPremiumPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossPremiumPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtCrossPremiumSelect | undefined = undefined>(options: {
     data: ExtCrossPremiumCreateInput;
@@ -1424,27 +1478,45 @@ export type GetExtCrossPrivatePayload<
 >;
 
 export interface ExtCrossPrivateModel {
-  findOne<S extends ExtCrossPrivateSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtCrossPrivateSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossPrivateWhere;
     select?: S;
-    orderBy?: ExtCrossPrivateOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossPrivate | keyof ExtCrossPrivateWhere)]?: never };
+    orderBy?: ExtCrossPrivateOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossPrivatePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossPrivatePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtCrossPrivateSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtCrossPrivateSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossPrivateWhere;
     select?: S;
-    orderBy?: ExtCrossPrivateOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossPrivate | keyof ExtCrossPrivateWhere)]?: never };
+    orderBy?: ExtCrossPrivateOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossPrivatePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtCrossPrivatePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtCrossPrivateSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtCrossPrivateSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtCrossPrivateFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtCrossPrivate | keyof ExtCrossPrivateWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossPrivatePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossPrivatePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtCrossPrivateSelect | undefined = undefined>(options: {
     data: ExtCrossPrivateCreateInput;
@@ -1944,27 +2016,45 @@ export type GetExtCrossProfilePayload<
 >;
 
 export interface ExtCrossProfileModel {
-  findOne<S extends ExtCrossProfileSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtCrossProfileSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossProfileWhere;
     select?: S;
-    orderBy?: ExtCrossProfileOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossProfile | keyof ExtCrossProfileWhere)]?: never };
+    orderBy?: ExtCrossProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossProfilePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossProfilePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtCrossProfileSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtCrossProfileSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossProfileWhere;
     select?: S;
-    orderBy?: ExtCrossProfileOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossProfile | keyof ExtCrossProfileWhere)]?: never };
+    orderBy?: ExtCrossProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossProfilePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtCrossProfilePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtCrossProfileSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtCrossProfileSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtCrossProfileFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtCrossProfile | keyof ExtCrossProfileWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossProfilePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossProfilePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtCrossProfileSelect | undefined = undefined>(options: {
     data: ExtCrossProfileCreateInput;
@@ -2305,27 +2395,45 @@ export type GetExtCrossUserPayload<S extends ExtCrossUserSelect | undefined = un
 >;
 
 export interface ExtCrossUserModel {
-  findOne<S extends ExtCrossUserSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtCrossUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossUserWhere;
     select?: S;
-    orderBy?: ExtCrossUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossUser | keyof ExtCrossUserWhere)]?: never };
+    orderBy?: ExtCrossUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtCrossUserSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtCrossUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtCrossUserWhere;
     select?: S;
-    orderBy?: ExtCrossUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtCrossUser | keyof ExtCrossUserWhere)]?: never };
+    orderBy?: ExtCrossUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossUserPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtCrossUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtCrossUserSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtCrossUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtCrossUserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtCrossUser | keyof ExtCrossUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtCrossUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtCrossUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtCrossUserSelect | undefined = undefined>(options: {
     data: ExtCrossUserCreateInput;

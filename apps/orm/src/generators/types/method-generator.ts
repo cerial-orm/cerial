@@ -21,58 +21,84 @@ function hasRelations(model: ModelMetadata): boolean {
   return model.fields.some((f) => f.type === 'relation' && f.relationInfo);
 }
 
+/**
+ * `compute` typing, shared by the three read methods. `C` is inferred from the argument; the intersection with a
+ * `never` map refuses a key that names a field (or a relation, or a where key). The caller's `T` on each fragment
+ * is an unchecked claim: a wrong `T` compiles, and nothing throws if the row disagrees.
+ */
+function computeOption(model: ModelMetadata): string {
+  return `compute?: C & { [K in keyof C & (keyof ${model.name} | keyof ${model.name}Where)]?: never };`;
+}
+
+/** Generic parameter `C`, the compute record, defaulting to no keys */
+const COMPUTE_GENERIC = 'C extends Record<string, SqlFragment> = Record<never, never>';
+
+/** The compute keys of a result row, each typed by its fragment's `T` */
+const COMPUTE_RESULT = '{ [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }';
+
+/** An orderBy that also takes the compute keys; NoInfer keeps `C` coming from `compute` alone */
+function computeOrderBy(model: ModelMetadata): string {
+  return `orderBy?: ${model.name}OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;`;
+}
+
 /** Generate findOne method signature with full type inference */
 export function generateFindOneMethod(model: ModelMetadata): string {
   if (!hasRelations(model)) {
     // No relations - simpler generic signature
-    return `findOne<S extends ${model.name}Select | undefined = undefined>(options?: {
+    return `findOne<S extends ${model.name}Select | undefined = undefined, ${COMPUTE_GENERIC}>(options?: {
     where?: ${model.name}Where;
     select?: S;
-    orderBy?: ${model.name}OrderBy;
+    ${computeOption(model)}
+    ${computeOrderBy(model)}
     txn?: CerialTransaction;
-  }): CerialQueryPromise<Get${model.name}Payload<S> | null>;`;
+  }): CerialQueryPromise<(Get${model.name}Payload<S> & ${COMPUTE_RESULT}) | null>;`;
   }
 
   // With relations - full generic signature
   return `findOne<
     S extends ${model.name}Select | undefined = undefined,
     I extends ${model.name}Include | undefined = undefined,
+    ${COMPUTE_GENERIC},
   >(options?: {
     where?: ${model.name}Where;
     select?: S;
     include?: I;
-    orderBy?: ${model.name}OrderBy;
+    ${computeOption(model)}
+    ${computeOrderBy(model)}
     txn?: CerialTransaction;
-  }): CerialQueryPromise<Get${model.name}Payload<S, I> | null>;`;
+  }): CerialQueryPromise<(Get${model.name}Payload<S, I> & ${COMPUTE_RESULT}) | null>;`;
 }
 
 /** Generate findMany method signature with full type inference */
 export function generateFindManyMethod(model: ModelMetadata): string {
   if (!hasRelations(model)) {
     // No relations - simpler generic signature
-    return `findMany<S extends ${model.name}Select | undefined = undefined>(options?: {
+    return `findMany<S extends ${model.name}Select | undefined = undefined, ${COMPUTE_GENERIC}>(options?: {
     where?: ${model.name}Where;
     select?: S;
-    orderBy?: ${model.name}OrderBy;
+    ${computeOption(model)}
+    ${computeOrderBy(model)}
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<Get${model.name}Payload<S>[]>;`;
+  }): CerialQueryPromise<(Get${model.name}Payload<S> & ${COMPUTE_RESULT})[]>;`;
   }
 
   // With relations - full generic signature
   return `findMany<
     S extends ${model.name}Select | undefined = undefined,
     I extends ${model.name}Include | undefined = undefined,
+    ${COMPUTE_GENERIC},
   >(options?: {
     where?: ${model.name}Where;
     select?: S;
-    orderBy?: ${model.name}OrderBy;
+    ${computeOption(model)}
+    ${computeOrderBy(model)}
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<Get${model.name}Payload<S, I>[]>;`;
+  }): CerialQueryPromise<(Get${model.name}Payload<S, I> & ${COMPUTE_RESULT})[]>;`;
 }
 
 /** Get input type for a field (RecordIdInput for ID/Record, object type for objects, regular type for primitives) */
@@ -406,22 +432,25 @@ export function generateFindUniqueWhereType(
 /** Generate findUnique method signature with full type inference */
 export function generateFindUniqueMethod(model: ModelMetadata): string {
   if (!hasRelations(model)) {
-    return `findUnique<S extends ${model.name}Select | undefined = undefined>(options: {
+    return `findUnique<S extends ${model.name}Select | undefined = undefined, ${COMPUTE_GENERIC}>(options: {
     where: ${model.name}FindUniqueWhere;
     select?: S;
+    ${computeOption(model)}
     txn?: CerialTransaction;
-  }): CerialQueryPromise<Get${model.name}Payload<S> | null>;`;
+  }): CerialQueryPromise<(Get${model.name}Payload<S> & ${COMPUTE_RESULT}) | null>;`;
   }
 
   return `findUnique<
     S extends ${model.name}Select | undefined = undefined,
     I extends ${model.name}Include | undefined = undefined,
+    ${COMPUTE_GENERIC},
   >(options: {
     where: ${model.name}FindUniqueWhere;
     select?: S;
     include?: I;
+    ${computeOption(model)}
     txn?: CerialTransaction;
-  }): CerialQueryPromise<Get${model.name}Payload<S, I> | null>;`;
+  }): CerialQueryPromise<(Get${model.name}Payload<S, I> & ${COMPUTE_RESULT}) | null>;`;
 }
 
 /** Generate create method signature with full type inference */

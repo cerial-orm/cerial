@@ -239,27 +239,45 @@ export type GetGeometryBasicPayload<S extends GeometryBasicSelect | undefined = 
 >;
 
 export interface GeometryBasicModel {
-  findOne<S extends GeometryBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends GeometryBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: GeometryBasicWhere;
     select?: S;
-    orderBy?: GeometryBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof GeometryBasic | keyof GeometryBasicWhere)]?: never };
+    orderBy?: GeometryBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetGeometryBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends GeometryBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends GeometryBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: GeometryBasicWhere;
     select?: S;
-    orderBy?: GeometryBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof GeometryBasic | keyof GeometryBasicWhere)]?: never };
+    orderBy?: GeometryBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetGeometryBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends GeometryBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends GeometryBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: GeometryBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof GeometryBasic | keyof GeometryBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetGeometryBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends GeometryBasicSelect | undefined = undefined>(options: {
     data: GeometryBasicCreateInput;
@@ -535,27 +553,45 @@ export type GetGeometryMultiPayload<S extends GeometryMultiSelect | undefined = 
 >;
 
 export interface GeometryMultiModel {
-  findOne<S extends GeometryMultiSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends GeometryMultiSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: GeometryMultiWhere;
     select?: S;
-    orderBy?: GeometryMultiOrderBy;
+    compute?: C & { [K in keyof C & (keyof GeometryMulti | keyof GeometryMultiWhere)]?: never };
+    orderBy?: GeometryMultiOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryMultiPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetGeometryMultiPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends GeometryMultiSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends GeometryMultiSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: GeometryMultiWhere;
     select?: S;
-    orderBy?: GeometryMultiOrderBy;
+    compute?: C & { [K in keyof C & (keyof GeometryMulti | keyof GeometryMultiWhere)]?: never };
+    orderBy?: GeometryMultiOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryMultiPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetGeometryMultiPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends GeometryMultiSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends GeometryMultiSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: GeometryMultiFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof GeometryMulti | keyof GeometryMultiWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryMultiPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetGeometryMultiPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends GeometryMultiSelect | undefined = undefined>(options: {
     data: GeometryMultiCreateInput;
@@ -778,27 +814,45 @@ export type GetGeometryWithObjectPayload<
 >;
 
 export interface GeometryWithObjectModel {
-  findOne<S extends GeometryWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends GeometryWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: GeometryWithObjectWhere;
     select?: S;
-    orderBy?: GeometryWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof GeometryWithObject | keyof GeometryWithObjectWhere)]?: never };
+    orderBy?: GeometryWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetGeometryWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends GeometryWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends GeometryWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: GeometryWithObjectWhere;
     select?: S;
-    orderBy?: GeometryWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof GeometryWithObject | keyof GeometryWithObjectWhere)]?: never };
+    orderBy?: GeometryWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetGeometryWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends GeometryWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends GeometryWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: GeometryWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof GeometryWithObject | keyof GeometryWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetGeometryWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends GeometryWithObjectSelect | undefined = undefined>(options: {
     data: GeometryWithObjectCreateInput;
@@ -1018,27 +1072,45 @@ export type GetGeometryWithTuplePayload<
 >;
 
 export interface GeometryWithTupleModel {
-  findOne<S extends GeometryWithTupleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends GeometryWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: GeometryWithTupleWhere;
     select?: S;
-    orderBy?: GeometryWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof GeometryWithTuple | keyof GeometryWithTupleWhere)]?: never };
+    orderBy?: GeometryWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetGeometryWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends GeometryWithTupleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends GeometryWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: GeometryWithTupleWhere;
     select?: S;
-    orderBy?: GeometryWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof GeometryWithTuple | keyof GeometryWithTupleWhere)]?: never };
+    orderBy?: GeometryWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryWithTuplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetGeometryWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends GeometryWithTupleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends GeometryWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: GeometryWithTupleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof GeometryWithTuple | keyof GeometryWithTupleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetGeometryWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetGeometryWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends GeometryWithTupleSelect | undefined = undefined>(options: {
     data: GeometryWithTupleCreateInput;

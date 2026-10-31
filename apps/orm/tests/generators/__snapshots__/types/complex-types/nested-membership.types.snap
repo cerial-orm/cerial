@@ -229,27 +229,45 @@ export type GetNmObjectDocPayload<S extends NmObjectDocSelect | undefined = unde
 >;
 
 export interface NmObjectDocModel {
-  findOne<S extends NmObjectDocSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends NmObjectDocSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NmObjectDocWhere;
     select?: S;
-    orderBy?: NmObjectDocOrderBy;
+    compute?: C & { [K in keyof C & (keyof NmObjectDoc | keyof NmObjectDocWhere)]?: never };
+    orderBy?: NmObjectDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNmObjectDocPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNmObjectDocPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends NmObjectDocSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends NmObjectDocSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NmObjectDocWhere;
     select?: S;
-    orderBy?: NmObjectDocOrderBy;
+    compute?: C & { [K in keyof C & (keyof NmObjectDoc | keyof NmObjectDocWhere)]?: never };
+    orderBy?: NmObjectDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNmObjectDocPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetNmObjectDocPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends NmObjectDocSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends NmObjectDocSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: NmObjectDocFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof NmObjectDoc | keyof NmObjectDocWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNmObjectDocPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNmObjectDocPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NmObjectDocSelect | undefined = undefined>(options: {
     data: NmObjectDocCreateInput;
@@ -650,27 +668,45 @@ export type GetNmTupleDocPayload<S extends NmTupleDocSelect | undefined = undefi
 >;
 
 export interface NmTupleDocModel {
-  findOne<S extends NmTupleDocSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends NmTupleDocSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NmTupleDocWhere;
     select?: S;
-    orderBy?: NmTupleDocOrderBy;
+    compute?: C & { [K in keyof C & (keyof NmTupleDoc | keyof NmTupleDocWhere)]?: never };
+    orderBy?: NmTupleDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNmTupleDocPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNmTupleDocPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends NmTupleDocSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends NmTupleDocSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: NmTupleDocWhere;
     select?: S;
-    orderBy?: NmTupleDocOrderBy;
+    compute?: C & { [K in keyof C & (keyof NmTupleDoc | keyof NmTupleDocWhere)]?: never };
+    orderBy?: NmTupleDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNmTupleDocPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetNmTupleDocPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends NmTupleDocSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends NmTupleDocSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: NmTupleDocFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof NmTupleDoc | keyof NmTupleDocWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetNmTupleDocPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetNmTupleDocPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends NmTupleDocSelect | undefined = undefined>(options: {
     data: NmTupleDocCreateInput;

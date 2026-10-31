@@ -192,27 +192,43 @@ export type GetStaffPayload<S extends StaffSelect | undefined = undefined, I = u
 >;
 
 export interface StaffModel {
-  findOne<S extends StaffSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends StaffSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: StaffWhere;
     select?: S;
-    orderBy?: StaffOrderBy;
+    compute?: C & { [K in keyof C & (keyof Staff | keyof StaffWhere)]?: never };
+    orderBy?: StaffOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetStaffPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetStaffPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends StaffSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends StaffSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: StaffWhere;
     select?: S;
-    orderBy?: StaffOrderBy;
+    compute?: C & { [K in keyof C & (keyof Staff | keyof StaffWhere)]?: never };
+    orderBy?: StaffOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetStaffPayload<S>[]>;
+  }): CerialQueryPromise<(GetStaffPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;
 
-  findUnique<S extends StaffSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends StaffSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: StaffFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof Staff | keyof StaffWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetStaffPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetStaffPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends StaffSelect | undefined = undefined>(options: {
     data: StaffCreateInput;

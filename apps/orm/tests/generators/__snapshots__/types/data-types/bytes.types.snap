@@ -175,27 +175,45 @@ export type GetBytesBasicPayload<S extends BytesBasicSelect | undefined = undefi
 >;
 
 export interface BytesBasicModel {
-  findOne<S extends BytesBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends BytesBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BytesBasicWhere;
     select?: S;
-    orderBy?: BytesBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof BytesBasic | keyof BytesBasicWhere)]?: never };
+    orderBy?: BytesBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetBytesBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends BytesBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends BytesBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BytesBasicWhere;
     select?: S;
-    orderBy?: BytesBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof BytesBasic | keyof BytesBasicWhere)]?: never };
+    orderBy?: BytesBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetBytesBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends BytesBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends BytesBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: BytesBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof BytesBasic | keyof BytesBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetBytesBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends BytesBasicSelect | undefined = undefined>(options: {
     data: BytesBasicCreateInput;
@@ -424,27 +442,45 @@ export type GetBytesWithObjectPayload<
 >;
 
 export interface BytesWithObjectModel {
-  findOne<S extends BytesWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends BytesWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BytesWithObjectWhere;
     select?: S;
-    orderBy?: BytesWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof BytesWithObject | keyof BytesWithObjectWhere)]?: never };
+    orderBy?: BytesWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetBytesWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends BytesWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends BytesWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BytesWithObjectWhere;
     select?: S;
-    orderBy?: BytesWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof BytesWithObject | keyof BytesWithObjectWhere)]?: never };
+    orderBy?: BytesWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetBytesWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends BytesWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends BytesWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: BytesWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof BytesWithObject | keyof BytesWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetBytesWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends BytesWithObjectSelect | undefined = undefined>(options: {
     data: BytesWithObjectCreateInput;
@@ -661,27 +697,45 @@ export type GetBytesWithTuplePayload<S extends BytesWithTupleSelect | undefined 
 >;
 
 export interface BytesWithTupleModel {
-  findOne<S extends BytesWithTupleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends BytesWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BytesWithTupleWhere;
     select?: S;
-    orderBy?: BytesWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof BytesWithTuple | keyof BytesWithTupleWhere)]?: never };
+    orderBy?: BytesWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetBytesWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends BytesWithTupleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends BytesWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BytesWithTupleWhere;
     select?: S;
-    orderBy?: BytesWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof BytesWithTuple | keyof BytesWithTupleWhere)]?: never };
+    orderBy?: BytesWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesWithTuplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetBytesWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends BytesWithTupleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends BytesWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: BytesWithTupleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof BytesWithTuple | keyof BytesWithTupleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBytesWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetBytesWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends BytesWithTupleSelect | undefined = undefined>(options: {
     data: BytesWithTupleCreateInput;

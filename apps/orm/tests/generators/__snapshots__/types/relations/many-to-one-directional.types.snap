@@ -177,36 +177,51 @@ export type GetBloggerPayload<
 >;
 
 export interface BloggerModel {
-  findOne<S extends BloggerSelect | undefined = undefined, I extends BloggerInclude | undefined = undefined>(options?: {
+  findOne<
+    S extends BloggerSelect | undefined = undefined,
+    I extends BloggerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: BloggerWhere;
     select?: S;
     include?: I;
-    orderBy?: BloggerOrderBy;
+    compute?: C & { [K in keyof C & (keyof Blogger | keyof BloggerWhere)]?: never };
+    orderBy?: BloggerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBloggerPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBloggerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends BloggerSelect | undefined = undefined,
     I extends BloggerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BloggerWhere;
     select?: S;
-    orderBy?: BloggerOrderBy;
+    compute?: C & { [K in keyof C & (keyof Blogger | keyof BloggerWhere)]?: never };
+    orderBy?: BloggerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBloggerPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetBloggerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends BloggerSelect | undefined = undefined,
     I extends BloggerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BloggerFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof Blogger | keyof BloggerWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetBloggerPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetBloggerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends BloggerSelect | undefined = undefined, I extends BloggerInclude | undefined = undefined>(options: {
     data: BloggerCreateInput;
@@ -426,27 +441,43 @@ export type GetLabelPayload<S extends LabelSelect | undefined = undefined, I = u
 >;
 
 export interface LabelModel {
-  findOne<S extends LabelSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends LabelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LabelWhere;
     select?: S;
-    orderBy?: LabelOrderBy;
+    compute?: C & { [K in keyof C & (keyof Label | keyof LabelWhere)]?: never };
+    orderBy?: LabelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLabelPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLabelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends LabelSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends LabelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: LabelWhere;
     select?: S;
-    orderBy?: LabelOrderBy;
+    compute?: C & { [K in keyof C & (keyof Label | keyof LabelWhere)]?: never };
+    orderBy?: LabelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLabelPayload<S>[]>;
+  }): CerialQueryPromise<(GetLabelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;
 
-  findUnique<S extends LabelSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends LabelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: LabelFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof Label | keyof LabelWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetLabelPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetLabelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends LabelSelect | undefined = undefined>(options: {
     data: LabelCreateInput;

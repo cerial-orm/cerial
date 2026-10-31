@@ -191,27 +191,45 @@ export type GetDurationBasicPayload<S extends DurationBasicSelect | undefined = 
 >;
 
 export interface DurationBasicModel {
-  findOne<S extends DurationBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DurationBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DurationBasicWhere;
     select?: S;
-    orderBy?: DurationBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof DurationBasic | keyof DurationBasicWhere)]?: never };
+    orderBy?: DurationBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDurationBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DurationBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DurationBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DurationBasicWhere;
     select?: S;
-    orderBy?: DurationBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof DurationBasic | keyof DurationBasicWhere)]?: never };
+    orderBy?: DurationBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetDurationBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends DurationBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DurationBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DurationBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof DurationBasic | keyof DurationBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDurationBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DurationBasicSelect | undefined = undefined>(options: {
     data: DurationBasicCreateInput;
@@ -469,27 +487,45 @@ export type GetDurationDecoratedPayload<
 >;
 
 export interface DurationDecoratedModel {
-  findOne<S extends DurationDecoratedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DurationDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DurationDecoratedWhere;
     select?: S;
-    orderBy?: DurationDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof DurationDecorated | keyof DurationDecoratedWhere)]?: never };
+    orderBy?: DurationDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDurationDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DurationDecoratedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DurationDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DurationDecoratedWhere;
     select?: S;
-    orderBy?: DurationDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof DurationDecorated | keyof DurationDecoratedWhere)]?: never };
+    orderBy?: DurationDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationDecoratedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetDurationDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends DurationDecoratedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DurationDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DurationDecoratedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof DurationDecorated | keyof DurationDecoratedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDurationDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DurationDecoratedSelect | undefined = undefined>(options: {
     data: DurationDecoratedCreateInput;
@@ -718,27 +754,45 @@ export type GetDurationWithObjectPayload<
 >;
 
 export interface DurationWithObjectModel {
-  findOne<S extends DurationWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DurationWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DurationWithObjectWhere;
     select?: S;
-    orderBy?: DurationWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof DurationWithObject | keyof DurationWithObjectWhere)]?: never };
+    orderBy?: DurationWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDurationWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DurationWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DurationWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DurationWithObjectWhere;
     select?: S;
-    orderBy?: DurationWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof DurationWithObject | keyof DurationWithObjectWhere)]?: never };
+    orderBy?: DurationWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetDurationWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends DurationWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DurationWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DurationWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof DurationWithObject | keyof DurationWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDurationWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DurationWithObjectSelect | undefined = undefined>(options: {
     data: DurationWithObjectCreateInput;
@@ -964,27 +1018,45 @@ export type GetDurationWithTuplePayload<
 >;
 
 export interface DurationWithTupleModel {
-  findOne<S extends DurationWithTupleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends DurationWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DurationWithTupleWhere;
     select?: S;
-    orderBy?: DurationWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof DurationWithTuple | keyof DurationWithTupleWhere)]?: never };
+    orderBy?: DurationWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDurationWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends DurationWithTupleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends DurationWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: DurationWithTupleWhere;
     select?: S;
-    orderBy?: DurationWithTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof DurationWithTuple | keyof DurationWithTupleWhere)]?: never };
+    orderBy?: DurationWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationWithTuplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetDurationWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends DurationWithTupleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends DurationWithTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: DurationWithTupleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof DurationWithTuple | keyof DurationWithTupleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetDurationWithTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetDurationWithTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends DurationWithTupleSelect | undefined = undefined>(options: {
     data: DurationWithTupleCreateInput;

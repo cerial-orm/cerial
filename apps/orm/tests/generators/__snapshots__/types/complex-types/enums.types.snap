@@ -138,27 +138,45 @@ export type GetEnumBasicPayload<S extends EnumBasicSelect | undefined = undefine
 >;
 
 export interface EnumBasicModel {
-  findOne<S extends EnumBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends EnumBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumBasicWhere;
     select?: S;
-    orderBy?: EnumBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumBasic | keyof EnumBasicWhere)]?: never };
+    orderBy?: EnumBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends EnumBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends EnumBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumBasicWhere;
     select?: S;
-    orderBy?: EnumBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumBasic | keyof EnumBasicWhere)]?: never };
+    orderBy?: EnumBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetEnumBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends EnumBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends EnumBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: EnumBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof EnumBasic | keyof EnumBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends EnumBasicSelect | undefined = undefined>(options: {
     data: EnumBasicCreateInput;
@@ -380,27 +398,45 @@ export type GetEnumDefaultsPayload<S extends EnumDefaultsSelect | undefined = un
 >;
 
 export interface EnumDefaultsModel {
-  findOne<S extends EnumDefaultsSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends EnumDefaultsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumDefaultsWhere;
     select?: S;
-    orderBy?: EnumDefaultsOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumDefaults | keyof EnumDefaultsWhere)]?: never };
+    orderBy?: EnumDefaultsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumDefaultsPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumDefaultsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends EnumDefaultsSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends EnumDefaultsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumDefaultsWhere;
     select?: S;
-    orderBy?: EnumDefaultsOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumDefaults | keyof EnumDefaultsWhere)]?: never };
+    orderBy?: EnumDefaultsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumDefaultsPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetEnumDefaultsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends EnumDefaultsSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends EnumDefaultsSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: EnumDefaultsFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof EnumDefaults | keyof EnumDefaultsWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumDefaultsPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumDefaultsPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends EnumDefaultsSelect | undefined = undefined>(options: {
     data: EnumDefaultsCreateInput;
@@ -596,27 +632,45 @@ export type GetEnumLiteralRefPayload<S extends EnumLiteralRefSelect | undefined 
 >;
 
 export interface EnumLiteralRefModel {
-  findOne<S extends EnumLiteralRefSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends EnumLiteralRefSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumLiteralRefWhere;
     select?: S;
-    orderBy?: EnumLiteralRefOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumLiteralRef | keyof EnumLiteralRefWhere)]?: never };
+    orderBy?: EnumLiteralRefOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumLiteralRefPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumLiteralRefPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends EnumLiteralRefSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends EnumLiteralRefSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumLiteralRefWhere;
     select?: S;
-    orderBy?: EnumLiteralRefOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumLiteralRef | keyof EnumLiteralRefWhere)]?: never };
+    orderBy?: EnumLiteralRefOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumLiteralRefPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetEnumLiteralRefPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends EnumLiteralRefSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends EnumLiteralRefSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: EnumLiteralRefFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof EnumLiteralRef | keyof EnumLiteralRefWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumLiteralRefPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumLiteralRefPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends EnumLiteralRefSelect | undefined = undefined>(options: {
     data: EnumLiteralRefCreateInput;
@@ -845,27 +899,45 @@ export type GetEnumMultiplePayload<S extends EnumMultipleSelect | undefined = un
 >;
 
 export interface EnumMultipleModel {
-  findOne<S extends EnumMultipleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends EnumMultipleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumMultipleWhere;
     select?: S;
-    orderBy?: EnumMultipleOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumMultiple | keyof EnumMultipleWhere)]?: never };
+    orderBy?: EnumMultipleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumMultiplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumMultiplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends EnumMultipleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends EnumMultipleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumMultipleWhere;
     select?: S;
-    orderBy?: EnumMultipleOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumMultiple | keyof EnumMultipleWhere)]?: never };
+    orderBy?: EnumMultipleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumMultiplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetEnumMultiplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends EnumMultipleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends EnumMultipleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: EnumMultipleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof EnumMultiple | keyof EnumMultipleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumMultiplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumMultiplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends EnumMultipleSelect | undefined = undefined>(options: {
     data: EnumMultipleCreateInput;
@@ -1066,27 +1138,45 @@ export type GetEnumUniquePayload<S extends EnumUniqueSelect | undefined = undefi
 >;
 
 export interface EnumUniqueModel {
-  findOne<S extends EnumUniqueSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends EnumUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumUniqueWhere;
     select?: S;
-    orderBy?: EnumUniqueOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumUnique | keyof EnumUniqueWhere)]?: never };
+    orderBy?: EnumUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumUniquePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends EnumUniqueSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends EnumUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumUniqueWhere;
     select?: S;
-    orderBy?: EnumUniqueOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumUnique | keyof EnumUniqueWhere)]?: never };
+    orderBy?: EnumUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumUniquePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetEnumUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends EnumUniqueSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends EnumUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: EnumUniqueFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof EnumUnique | keyof EnumUniqueWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumUniquePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends EnumUniqueSelect | undefined = undefined>(options: {
     data: EnumUniqueCreateInput;
@@ -1333,27 +1423,45 @@ export type GetEnumWithObjectPayload<S extends EnumWithObjectSelect | undefined 
 >;
 
 export interface EnumWithObjectModel {
-  findOne<S extends EnumWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends EnumWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumWithObjectWhere;
     select?: S;
-    orderBy?: EnumWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumWithObject | keyof EnumWithObjectWhere)]?: never };
+    orderBy?: EnumWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends EnumWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends EnumWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: EnumWithObjectWhere;
     select?: S;
-    orderBy?: EnumWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof EnumWithObject | keyof EnumWithObjectWhere)]?: never };
+    orderBy?: EnumWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetEnumWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends EnumWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends EnumWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: EnumWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof EnumWithObject | keyof EnumWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetEnumWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetEnumWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends EnumWithObjectSelect | undefined = undefined>(options: {
     data: EnumWithObjectCreateInput;

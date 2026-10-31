@@ -233,27 +233,45 @@ export type GetFlexUserPayload<S extends FlexUserSelect | undefined = undefined,
 >;
 
 export interface FlexUserModel {
-  findOne<S extends FlexUserSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends FlexUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: FlexUserWhere;
     select?: S;
-    orderBy?: FlexUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof FlexUser | keyof FlexUserWhere)]?: never };
+    orderBy?: FlexUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetFlexUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetFlexUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends FlexUserSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends FlexUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: FlexUserWhere;
     select?: S;
-    orderBy?: FlexUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof FlexUser | keyof FlexUserWhere)]?: never };
+    orderBy?: FlexUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetFlexUserPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetFlexUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends FlexUserSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends FlexUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: FlexUserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof FlexUser | keyof FlexUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetFlexUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetFlexUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends FlexUserSelect | undefined = undefined>(options: {
     data: FlexUserCreateInput;

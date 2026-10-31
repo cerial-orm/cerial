@@ -202,27 +202,45 @@ export type GetExtAddressUserPayload<S extends ExtAddressUserSelect | undefined 
 >;
 
 export interface ExtAddressUserModel {
-  findOne<S extends ExtAddressUserSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtAddressUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtAddressUserWhere;
     select?: S;
-    orderBy?: ExtAddressUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtAddressUser | keyof ExtAddressUserWhere)]?: never };
+    orderBy?: ExtAddressUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtAddressUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtAddressUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtAddressUserSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtAddressUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtAddressUserWhere;
     select?: S;
-    orderBy?: ExtAddressUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtAddressUser | keyof ExtAddressUserWhere)]?: never };
+    orderBy?: ExtAddressUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtAddressUserPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtAddressUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtAddressUserSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtAddressUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtAddressUserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtAddressUser | keyof ExtAddressUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtAddressUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtAddressUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtAddressUserSelect | undefined = undefined>(options: {
     data: ExtAddressUserCreateInput;
@@ -456,27 +474,45 @@ export type GetExtChainModelPayload<S extends ExtChainModelSelect | undefined = 
 >;
 
 export interface ExtChainModelModel {
-  findOne<S extends ExtChainModelSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ExtChainModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtChainModelWhere;
     select?: S;
-    orderBy?: ExtChainModelOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtChainModel | keyof ExtChainModelWhere)]?: never };
+    orderBy?: ExtChainModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtChainModelPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtChainModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ExtChainModelSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ExtChainModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ExtChainModelWhere;
     select?: S;
-    orderBy?: ExtChainModelOrderBy;
+    compute?: C & { [K in keyof C & (keyof ExtChainModel | keyof ExtChainModelWhere)]?: never };
+    orderBy?: ExtChainModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtChainModelPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetExtChainModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ExtChainModelSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ExtChainModelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ExtChainModelFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ExtChainModel | keyof ExtChainModelWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetExtChainModelPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetExtChainModelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ExtChainModelSelect | undefined = undefined>(options: {
     data: ExtChainModelCreateInput;

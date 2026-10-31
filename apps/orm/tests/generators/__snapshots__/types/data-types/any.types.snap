@@ -144,27 +144,45 @@ export type GetAnyBasicPayload<S extends AnyBasicSelect | undefined = undefined,
 >;
 
 export interface AnyBasicModel {
-  findOne<S extends AnyBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends AnyBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: AnyBasicWhere;
     select?: S;
-    orderBy?: AnyBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof AnyBasic | keyof AnyBasicWhere)]?: never };
+    orderBy?: AnyBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetAnyBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends AnyBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends AnyBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: AnyBasicWhere;
     select?: S;
-    orderBy?: AnyBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof AnyBasic | keyof AnyBasicWhere)]?: never };
+    orderBy?: AnyBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetAnyBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends AnyBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends AnyBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: AnyBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof AnyBasic | keyof AnyBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetAnyBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends AnyBasicSelect | undefined = undefined>(options: {
     data: AnyBasicCreateInput;
@@ -508,27 +526,45 @@ export type GetAnyDecoratedPayload<S extends AnyDecoratedSelect | undefined = un
 >;
 
 export interface AnyDecoratedModel {
-  findOne<S extends AnyDecoratedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends AnyDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: AnyDecoratedWhere;
     select?: S;
-    orderBy?: AnyDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof AnyDecorated | keyof AnyDecoratedWhere)]?: never };
+    orderBy?: AnyDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetAnyDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends AnyDecoratedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends AnyDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: AnyDecoratedWhere;
     select?: S;
-    orderBy?: AnyDecoratedOrderBy;
+    compute?: C & { [K in keyof C & (keyof AnyDecorated | keyof AnyDecoratedWhere)]?: never };
+    orderBy?: AnyDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyDecoratedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetAnyDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends AnyDecoratedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends AnyDecoratedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: AnyDecoratedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof AnyDecorated | keyof AnyDecoratedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyDecoratedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetAnyDecoratedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends AnyDecoratedSelect | undefined = undefined>(options: {
     data: AnyDecoratedCreateInput;
@@ -745,27 +781,45 @@ export type GetAnyUniquePayload<S extends AnyUniqueSelect | undefined = undefine
 >;
 
 export interface AnyUniqueModel {
-  findOne<S extends AnyUniqueSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends AnyUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: AnyUniqueWhere;
     select?: S;
-    orderBy?: AnyUniqueOrderBy;
+    compute?: C & { [K in keyof C & (keyof AnyUnique | keyof AnyUniqueWhere)]?: never };
+    orderBy?: AnyUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyUniquePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetAnyUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends AnyUniqueSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends AnyUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: AnyUniqueWhere;
     select?: S;
-    orderBy?: AnyUniqueOrderBy;
+    compute?: C & { [K in keyof C & (keyof AnyUnique | keyof AnyUniqueWhere)]?: never };
+    orderBy?: AnyUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyUniquePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetAnyUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends AnyUniqueSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends AnyUniqueSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: AnyUniqueFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof AnyUnique | keyof AnyUniqueWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyUniquePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetAnyUniquePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends AnyUniqueSelect | undefined = undefined>(options: {
     data: AnyUniqueCreateInput;
@@ -981,27 +1035,45 @@ export type GetAnyWithObjectPayload<S extends AnyWithObjectSelect | undefined = 
 >;
 
 export interface AnyWithObjectModel {
-  findOne<S extends AnyWithObjectSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends AnyWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: AnyWithObjectWhere;
     select?: S;
-    orderBy?: AnyWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof AnyWithObject | keyof AnyWithObjectWhere)]?: never };
+    orderBy?: AnyWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetAnyWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends AnyWithObjectSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends AnyWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: AnyWithObjectWhere;
     select?: S;
-    orderBy?: AnyWithObjectOrderBy;
+    compute?: C & { [K in keyof C & (keyof AnyWithObject | keyof AnyWithObjectWhere)]?: never };
+    orderBy?: AnyWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyWithObjectPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetAnyWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends AnyWithObjectSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends AnyWithObjectSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: AnyWithObjectFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof AnyWithObject | keyof AnyWithObjectWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetAnyWithObjectPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetAnyWithObjectPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends AnyWithObjectSelect | undefined = undefined>(options: {
     data: AnyWithObjectCreateInput;

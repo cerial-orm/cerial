@@ -135,27 +135,45 @@ export type GetTupleBasicPayload<S extends TupleBasicSelect | undefined = undefi
 >;
 
 export interface TupleBasicModel {
-  findOne<S extends TupleBasicSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleBasicWhere;
     select?: S;
-    orderBy?: TupleBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleBasic | keyof TupleBasicWhere)]?: never };
+    orderBy?: TupleBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleBasicSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleBasicWhere;
     select?: S;
-    orderBy?: TupleBasicOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleBasic | keyof TupleBasicWhere)]?: never };
+    orderBy?: TupleBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleBasicPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleBasicSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleBasicSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleBasicFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleBasic | keyof TupleBasicWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleBasicPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleBasicPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleBasicSelect | undefined = undefined>(options: {
     data: TupleBasicCreateInput;
@@ -383,27 +401,45 @@ export type GetTupleDecoratedNestPayload<
 >;
 
 export interface TupleDecoratedNestModel {
-  findOne<S extends TupleDecoratedNestSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleDecoratedNestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleDecoratedNestWhere;
     select?: S;
-    orderBy?: TupleDecoratedNestOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleDecoratedNest | keyof TupleDecoratedNestWhere)]?: never };
+    orderBy?: TupleDecoratedNestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDecoratedNestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleDecoratedNestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleDecoratedNestSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleDecoratedNestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleDecoratedNestWhere;
     select?: S;
-    orderBy?: TupleDecoratedNestOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleDecoratedNest | keyof TupleDecoratedNestWhere)]?: never };
+    orderBy?: TupleDecoratedNestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDecoratedNestPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleDecoratedNestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleDecoratedNestSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleDecoratedNestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleDecoratedNestFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleDecoratedNest | keyof TupleDecoratedNestWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDecoratedNestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleDecoratedNestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleDecoratedNestSelect | undefined = undefined>(options: {
     data: TupleDecoratedNestCreateInput;
@@ -632,27 +668,45 @@ export type GetTupleDeepNestPayload<S extends TupleDeepNestSelect | undefined = 
 >;
 
 export interface TupleDeepNestModel {
-  findOne<S extends TupleDeepNestSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleDeepNestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleDeepNestWhere;
     select?: S;
-    orderBy?: TupleDeepNestOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleDeepNest | keyof TupleDeepNestWhere)]?: never };
+    orderBy?: TupleDeepNestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDeepNestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleDeepNestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleDeepNestSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleDeepNestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleDeepNestWhere;
     select?: S;
-    orderBy?: TupleDeepNestOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleDeepNest | keyof TupleDeepNestWhere)]?: never };
+    orderBy?: TupleDeepNestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDeepNestPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleDeepNestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleDeepNestSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleDeepNestSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleDeepNestFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleDeepNest | keyof TupleDeepNestWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDeepNestPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleDeepNestPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleDeepNestSelect | undefined = undefined>(options: {
     data: TupleDeepNestCreateInput;
@@ -867,27 +921,45 @@ export type GetTupleDefaultedPayload<S extends TupleDefaultedSelect | undefined 
 >;
 
 export interface TupleDefaultedModel {
-  findOne<S extends TupleDefaultedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleDefaultedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleDefaultedWhere;
     select?: S;
-    orderBy?: TupleDefaultedOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleDefaulted | keyof TupleDefaultedWhere)]?: never };
+    orderBy?: TupleDefaultedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDefaultedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleDefaultedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleDefaultedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleDefaultedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleDefaultedWhere;
     select?: S;
-    orderBy?: TupleDefaultedOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleDefaulted | keyof TupleDefaultedWhere)]?: never };
+    orderBy?: TupleDefaultedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDefaultedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleDefaultedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleDefaultedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleDefaultedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleDefaultedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleDefaulted | keyof TupleDefaultedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleDefaultedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleDefaultedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleDefaultedSelect | undefined = undefined>(options: {
     data: TupleDefaultedCreateInput;
@@ -1096,27 +1168,45 @@ export type GetTupleInObjPayload<S extends TupleInObjSelect | undefined = undefi
 >;
 
 export interface TupleInObjModel {
-  findOne<S extends TupleInObjSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleInObjSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleInObjWhere;
     select?: S;
-    orderBy?: TupleInObjOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleInObj | keyof TupleInObjWhere)]?: never };
+    orderBy?: TupleInObjOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleInObjPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleInObjPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleInObjSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleInObjSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleInObjWhere;
     select?: S;
-    orderBy?: TupleInObjOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleInObj | keyof TupleInObjWhere)]?: never };
+    orderBy?: TupleInObjOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleInObjPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleInObjPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleInObjSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleInObjSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleInObjFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleInObj | keyof TupleInObjWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleInObjPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleInObjPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleInObjSelect | undefined = undefined>(options: {
     data: TupleInObjCreateInput;
@@ -1352,27 +1442,45 @@ export type GetTupleLiteralElementPayload<
 >;
 
 export interface TupleLiteralElementModel {
-  findOne<S extends TupleLiteralElementSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleLiteralElementSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleLiteralElementWhere;
     select?: S;
-    orderBy?: TupleLiteralElementOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleLiteralElement | keyof TupleLiteralElementWhere)]?: never };
+    orderBy?: TupleLiteralElementOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleLiteralElementPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleLiteralElementPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleLiteralElementSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleLiteralElementSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleLiteralElementWhere;
     select?: S;
-    orderBy?: TupleLiteralElementOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleLiteralElement | keyof TupleLiteralElementWhere)]?: never };
+    orderBy?: TupleLiteralElementOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleLiteralElementPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleLiteralElementPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleLiteralElementSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleLiteralElementSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleLiteralElementFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleLiteralElement | keyof TupleLiteralElementWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleLiteralElementPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleLiteralElementPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleLiteralElementSelect | undefined = undefined>(options: {
     data: TupleLiteralElementCreateInput;
@@ -1571,27 +1679,45 @@ export type GetTupleNestedPayload<S extends TupleNestedSelect | undefined = unde
 >;
 
 export interface TupleNestedModel {
-  findOne<S extends TupleNestedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleNestedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleNestedWhere;
     select?: S;
-    orderBy?: TupleNestedOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleNested | keyof TupleNestedWhere)]?: never };
+    orderBy?: TupleNestedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleNestedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleNestedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleNestedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleNestedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleNestedWhere;
     select?: S;
-    orderBy?: TupleNestedOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleNested | keyof TupleNestedWhere)]?: never };
+    orderBy?: TupleNestedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleNestedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleNestedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleNestedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleNestedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleNestedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleNested | keyof TupleNestedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleNestedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleNestedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleNestedSelect | undefined = undefined>(options: {
     data: TupleNestedCreateInput;
@@ -1840,27 +1966,45 @@ export type GetTupleNullablePayload<S extends TupleNullableSelect | undefined = 
 >;
 
 export interface TupleNullableModel {
-  findOne<S extends TupleNullableSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleNullableSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleNullableWhere;
     select?: S;
-    orderBy?: TupleNullableOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleNullable | keyof TupleNullableWhere)]?: never };
+    orderBy?: TupleNullableOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleNullablePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleNullablePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleNullableSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleNullableSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleNullableWhere;
     select?: S;
-    orderBy?: TupleNullableOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleNullable | keyof TupleNullableWhere)]?: never };
+    orderBy?: TupleNullableOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleNullablePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleNullablePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleNullableSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleNullableSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleNullableFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleNullable | keyof TupleNullableWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleNullablePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleNullablePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleNullableSelect | undefined = undefined>(options: {
     data: TupleNullableCreateInput;
@@ -2068,27 +2212,45 @@ export type GetTupleObjInTuplePayload<
 >;
 
 export interface TupleObjInTupleModel {
-  findOne<S extends TupleObjInTupleSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleObjInTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleObjInTupleWhere;
     select?: S;
-    orderBy?: TupleObjInTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleObjInTuple | keyof TupleObjInTupleWhere)]?: never };
+    orderBy?: TupleObjInTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleObjInTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleObjInTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleObjInTupleSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleObjInTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleObjInTupleWhere;
     select?: S;
-    orderBy?: TupleObjInTupleOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleObjInTuple | keyof TupleObjInTupleWhere)]?: never };
+    orderBy?: TupleObjInTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleObjInTuplePayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleObjInTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleObjInTupleSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleObjInTupleSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleObjInTupleFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleObjInTuple | keyof TupleObjInTupleWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleObjInTuplePayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleObjInTuplePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleObjInTupleSelect | undefined = undefined>(options: {
     data: TupleObjInTupleCreateInput;
@@ -2395,36 +2557,48 @@ export interface TupleRelatedPostModel {
   findOne<
     S extends TupleRelatedPostSelect | undefined = undefined,
     I extends TupleRelatedPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: TupleRelatedPostWhere;
     select?: S;
     include?: I;
-    orderBy?: TupleRelatedPostOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleRelatedPost | keyof TupleRelatedPostWhere)]?: never };
+    orderBy?: TupleRelatedPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleRelatedPostPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetTupleRelatedPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends TupleRelatedPostSelect | undefined = undefined,
     I extends TupleRelatedPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: TupleRelatedPostWhere;
     select?: S;
-    orderBy?: TupleRelatedPostOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleRelatedPost | keyof TupleRelatedPostWhere)]?: never };
+    orderBy?: TupleRelatedPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleRelatedPostPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetTupleRelatedPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends TupleRelatedPostSelect | undefined = undefined,
     I extends TupleRelatedPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: TupleRelatedPostFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof TupleRelatedPost | keyof TupleRelatedPostWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleRelatedPostPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetTupleRelatedPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends TupleRelatedPostSelect | undefined = undefined,
@@ -2651,27 +2825,45 @@ export type GetTupleStampedPayload<S extends TupleStampedSelect | undefined = un
 >;
 
 export interface TupleStampedModel {
-  findOne<S extends TupleStampedSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends TupleStampedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleStampedWhere;
     select?: S;
-    orderBy?: TupleStampedOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleStamped | keyof TupleStampedWhere)]?: never };
+    orderBy?: TupleStampedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleStampedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleStampedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends TupleStampedSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends TupleStampedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: TupleStampedWhere;
     select?: S;
-    orderBy?: TupleStampedOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleStamped | keyof TupleStampedWhere)]?: never };
+    orderBy?: TupleStampedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleStampedPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetTupleStampedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends TupleStampedSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends TupleStampedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: TupleStampedFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof TupleStamped | keyof TupleStampedWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleStampedPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetTupleStampedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends TupleStampedSelect | undefined = undefined>(options: {
     data: TupleStampedCreateInput;
@@ -2968,36 +3160,48 @@ export interface TupleWithRelationModel {
   findOne<
     S extends TupleWithRelationSelect | undefined = undefined,
     I extends TupleWithRelationInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: TupleWithRelationWhere;
     select?: S;
     include?: I;
-    orderBy?: TupleWithRelationOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleWithRelation | keyof TupleWithRelationWhere)]?: never };
+    orderBy?: TupleWithRelationOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleWithRelationPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetTupleWithRelationPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   findMany<
     S extends TupleWithRelationSelect | undefined = undefined,
     I extends TupleWithRelationInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: TupleWithRelationWhere;
     select?: S;
-    orderBy?: TupleWithRelationOrderBy;
+    compute?: C & { [K in keyof C & (keyof TupleWithRelation | keyof TupleWithRelationWhere)]?: never };
+    orderBy?: TupleWithRelationOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     include?: I;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleWithRelationPayload<S, I>[]>;
+  }): CerialQueryPromise<
+    (GetTupleWithRelationPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
   findUnique<
     S extends TupleWithRelationSelect | undefined = undefined,
     I extends TupleWithRelationInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: TupleWithRelationFindUniqueWhere;
     select?: S;
     include?: I;
+    compute?: C & { [K in keyof C & (keyof TupleWithRelation | keyof TupleWithRelationWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetTupleWithRelationPayload<S, I> | null>;
+  }): CerialQueryPromise<
+    (GetTupleWithRelationPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<
     S extends TupleWithRelationSelect | undefined = undefined,

@@ -174,27 +174,45 @@ export type GetObjectTestOrderPayload<
 >;
 
 export interface ObjectTestOrderModel {
-  findOne<S extends ObjectTestOrderSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ObjectTestOrderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ObjectTestOrderWhere;
     select?: S;
-    orderBy?: ObjectTestOrderOrderBy;
+    compute?: C & { [K in keyof C & (keyof ObjectTestOrder | keyof ObjectTestOrderWhere)]?: never };
+    orderBy?: ObjectTestOrderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjectTestOrderPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetObjectTestOrderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ObjectTestOrderSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ObjectTestOrderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ObjectTestOrderWhere;
     select?: S;
-    orderBy?: ObjectTestOrderOrderBy;
+    compute?: C & { [K in keyof C & (keyof ObjectTestOrder | keyof ObjectTestOrderWhere)]?: never };
+    orderBy?: ObjectTestOrderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjectTestOrderPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetObjectTestOrderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ObjectTestOrderSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ObjectTestOrderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ObjectTestOrderFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ObjectTestOrder | keyof ObjectTestOrderWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjectTestOrderPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetObjectTestOrderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ObjectTestOrderSelect | undefined = undefined>(options: {
     data: ObjectTestOrderCreateInput;
@@ -499,27 +517,45 @@ export type GetObjectTestUserPayload<S extends ObjectTestUserSelect | undefined 
 >;
 
 export interface ObjectTestUserModel {
-  findOne<S extends ObjectTestUserSelect | undefined = undefined>(options?: {
+  findOne<
+    S extends ObjectTestUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ObjectTestUserWhere;
     select?: S;
-    orderBy?: ObjectTestUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ObjectTestUser | keyof ObjectTestUserWhere)]?: never };
+    orderBy?: ObjectTestUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjectTestUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetObjectTestUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
-  findMany<S extends ObjectTestUserSelect | undefined = undefined>(options?: {
+  findMany<
+    S extends ObjectTestUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
     where?: ObjectTestUserWhere;
     select?: S;
-    orderBy?: ObjectTestUserOrderBy;
+    compute?: C & { [K in keyof C & (keyof ObjectTestUser | keyof ObjectTestUserWhere)]?: never };
+    orderBy?: ObjectTestUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjectTestUserPayload<S>[]>;
+  }): CerialQueryPromise<
+    (GetObjectTestUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
 
-  findUnique<S extends ObjectTestUserSelect | undefined = undefined>(options: {
+  findUnique<
+    S extends ObjectTestUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
     where: ObjectTestUserFindUniqueWhere;
     select?: S;
+    compute?: C & { [K in keyof C & (keyof ObjectTestUser | keyof ObjectTestUserWhere)]?: never };
     txn?: CerialTransaction;
-  }): CerialQueryPromise<GetObjectTestUserPayload<S> | null>;
+  }): CerialQueryPromise<
+    (GetObjectTestUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
 
   create<S extends ObjectTestUserSelect | undefined = undefined>(options: {
     data: ObjectTestUserCreateInput;
