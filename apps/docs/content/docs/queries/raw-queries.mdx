@@ -211,7 +211,7 @@ Each notification is `{ action, recordId, value }`. Only rows matching the where
 Limits:
 
 - `ORDER BY` is not valid in a live query, and there is no computed projection.
-- A where that resolves to nothing is refused rather than watching every row.
+- Leave the `where` out to watch every row (`$live()`). A `where` key that is present but holds `undefined`, or `{}` on a model, is refused rather than watching every row.
 - `$live` is not available inside a transaction. `tx.$live` throws a `CerialTransactionError`.
 - The `where` of `client.$live` must be a fragment built by `sql`.
 
@@ -226,12 +226,15 @@ Measured against a real database, not assumed:
 | Reconnect attempts exhausted | The iterator ends with a `CerialConnectionError`. |
 | `kill()`, a server-side `KILL`, or a deliberate `disconnect()` | The iterator ends cleanly, with no error. |
 
-`$live` does not survive a server restart. A handle never goes silent: it either delivers or ends. So wrap a long-lived subscription, catch `CerialConnectionError`, and resubscribe. After a restart the old connection's session is gone, so resubscribe through a fresh connection, and treat anything written while you were not subscribed as missed. Read the current state again after resubscribing.
+`$live` does not survive a server restart. A handle never goes silent: it either delivers or ends. So wrap a long-lived subscription, catch `CerialConnectionError`, and resubscribe. After a restart the old connection's session is gone, so resubscribe through a fresh connection: `disconnect()` then `connect()` on the same client. `connect()` alone does nothing while the client still holds the dead connection, and `$live` keeps failing. Treat anything written while you were not subscribed as missed, and read the current state again after resubscribing.
 
 ```typescript
-import { CerialConnectionError } from 'cerial';
+import { CerialConnectionError, type ConnectionConfig } from 'cerial';
+import type { CerialClient } from './db-client'; // your generated client
 
-async function watch(subscribe: () => Promise<AsyncIterable<{ action: string }>>): Promise<void> {
+async function watch(client: CerialClient, config: ConnectionConfig): Promise<void> {
+  const subscribe = () => client.$live<{ name: string }>('user');
+
   for (;;) {
     try {
       for await (const change of await subscribe()) handle(change);
@@ -239,11 +242,15 @@ async function watch(subscribe: () => Promise<AsyncIterable<{ action: string }>>
       return; // ended cleanly: killed or disconnected on purpose
     } catch (error) {
       if (!(error instanceof CerialConnectionError)) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // back off, then resubscribe
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // back off
+      await client.disconnect(); // drop the dead connection, then open a fresh one
+      await client.connect(config);
     }
   }
 }
 ```
+
+A failed `$live` call (the subscribe itself) is classified like any other query: a lost session is a `CerialSessionLostError` and an unreachable server a `CerialConnectionError`, both caught above, while a bad fragment is a `CerialDatabaseError` and is rethrown.
 
 ## What a fragment skips
 
