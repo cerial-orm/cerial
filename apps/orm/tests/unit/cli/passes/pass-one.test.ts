@@ -2,7 +2,8 @@ import { afterAll, describe, expect, it } from 'bun:test';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { handlesPath } from '../../../../src/generators/handles';
-import { runPassOne } from '../../../../src/cli/passes';
+import { NO_NAMES, runPassOne, runPassThree } from '../../../../src/cli/passes';
+import { parse, parseForHandles } from '../../../../src/parser/parser';
 import { removeTempProjects, tempProject } from '../../../registration-project';
 
 afterAll(removeTempProjects);
@@ -105,5 +106,62 @@ describe('runPassOne', () => {
     expect(text).toContain('export const Article');
     expect(text).not.toContain('export const Post');
     expect(existsSync(handlesPath(root))).toBe(true);
+  });
+
+  describe('a reference to a name only TypeScript declares', () => {
+    // One model per kind, so a kind that stopped being tolerated drops only its own model
+    const BY_KIND: Array<[string, string, string]> = [
+      ['object', 'Address', 'model ObjUser {\n  id Record(int) @id\n  home Address\n}\n'],
+      ['tuple', 'Point', 'model TupUser {\n  id Record(int) @id\n  spot Point\n}\n'],
+      ['literal', 'Level', 'model LitUser {\n  id Record(int) @id\n  tier Level\n}\n'],
+      ['enum', 'Role', 'model EnumUser {\n  id Record(int) @id\n  role Role\n}\n'],
+    ];
+
+    it.each(BY_KIND)('raises no parse error for a %s, and keeps the model', async (_kind, _name, content) => {
+      const root = await tempProject({});
+
+      const ast = await runPassOne([{ path: 'a.cerial', content }], root);
+      const parsed = parseForHandles(content, new Set(), new Set(), new Set(), new Set(), 'a.cerial');
+
+      expect(parsed.errors).toEqual([]);
+      expect(ast.models.map((m) => m.fields.map((f) => f.name))).toEqual([['id', expect.any(String)]]);
+    });
+
+    it('is reported by pass 3 when nobody declares it, with the position and message the parser gives', async () => {
+      const root = await tempProject({});
+      const sources = [{ path: 'a.cerial', content: 'model A {\n  id Record(int) @id\n  total Moneyy\n}\n' }];
+
+      const ast = await runPassOne(sources, root);
+      const { errors } = runPassThree(sources, NO_NAMES);
+
+      expect(ast.models.map((m) => m.name)).toEqual(['A']);
+      const direct = parse(sources[0]!.content, new Set(), new Set(), new Set(), new Set(), 'a.cerial').errors[0]!;
+      expect(direct.message).toContain('Invalid field type: Moneyy');
+      expect(direct.position.line).toBe(3);
+      expect(errors).toEqual([`a.cerial:3: ${direct.message}`]);
+    });
+
+    it('is accepted by pass 3 once TypeScript declares it', () => {
+      const content = 'model A {\n  id Record(int) @id\n  total Money\n}\n';
+      const declared = { ...NO_NAMES, objects: new Set(['Money']) };
+
+      expect(runPassThree([{ path: 'a.cerial', content }], declared).errors).toEqual([]);
+    });
+  });
+
+  describe('the handles it writes', () => {
+    it('carry member names and ID types, the model with an unresolved field listing that field', async () => {
+      const root = await tempProject({});
+      const content =
+        'model Order {\n  id Record(int) @id\n  total Money\n  tags Tag[]\n}\nmodel User {\n  id Record(string) @id\n  name String\n}\nmodel Plain {\n  id Record @id\n}\nobject Tag {\n  label String\n}\n';
+
+      await runPassOne([{ path: 'a.cerial', content }], root);
+
+      const text = await readFile(handlesPath(root), 'utf-8');
+      expect(text).toContain("handle.model('Order', { members: ['id', 'total', 'tags'], id: ['int'] })");
+      expect(text).toContain("handle.model('User', { members: ['id', 'name'], id: ['string'] })");
+      expect(text).toContain("handle.model('Plain', { members: ['id'], id: [] })");
+      expect(text).toContain("handle.object('Tag', { members: ['label'] })");
+    });
   });
 });
