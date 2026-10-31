@@ -172,7 +172,8 @@ This feature is not yet available in the current release. It will ship in an upc
 - A list of `.cerial` files works like a folder of them. A listed `.ts` module cannot be combined with `.cerial` files in the same schema; Cerial refuses it and names the module.
 - A listed file that does not exist is refused, naming the path. `cerial/handles.ts`, the file Cerial generates, is ignored if you list it.
 - With no `path`, the schema's folder is the folder its listed files and entry share, and the client goes to `client` there.
-- `ignore`, `exclude`, `include` and `.cerialignore` do not apply to listed files.
+- `ignore`, `exclude`, `include` and `.cerialignore` apply to listed files, to the entry, and to every module the entry imports, exactly as they do to `.cerial` files. Patterns are relative to the schema's folder; a module outside it is matched by a pattern relative to the config's directory.
+- Exclusion beats registration. A model that `defineSchema()` lists is left out when its module is excluded, and so is whatever only that module imports. The excluded module still runs, because the module that imports it imports it. If the entry itself, or every listed file, is excluded, generation says so and names it.
 
 ### Output Directory Defaults
 
