@@ -1,0 +1,23 @@
+object Address {
+  street String
+  city String
+}
+
+tuple Point {
+  x Float,
+  y Float
+}
+
+literal Level { 'basic', 'premium' }
+
+enum Role { ADMIN, USER }
+
+model Purchase {
+  id Record(int) @id
+  accountId Record
+  account Relation @field(accountId) @model(Account)
+  meta Meta
+  pair Pair
+  priority Priority
+  status Status
+}

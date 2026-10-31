@@ -1,0 +1,30 @@
+model Account {
+  id Record(int) @id
+  name String
+  address Address
+  spot Point
+  tier Level
+  role Role
+  purchases Relation[] @model(Purchase)
+}
+
+object Meta {
+  note String
+  weight Int
+}
+
+tuple Pair {
+  Int,
+  Int
+}
+
+literal Priority { 'low', 'high' }
+
+enum Status { OPEN, CLOSED }
+
+model Ticket {
+  id Record(int) @id
+  title String
+  purchaseId Record?
+  purchase Relation? @field(purchaseId) @model(Purchase)
+}
