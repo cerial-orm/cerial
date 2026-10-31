@@ -22,11 +22,20 @@ const SIMPLE = [...FIELD_TYPE_REGISTRY.values()].filter((e) => e.fieldType !== '
 
 describe('field factories', () => {
   test('there is one factory per registry field type, and f.relation comes from the relation helper', () => {
-    const expected = [...SIMPLE.map((e) => e.fieldType), 'record', 'object', 'relation', 'reverse'].sort();
+    const expected = [
+      ...SIMPLE.map((e) => e.fieldType),
+      'record',
+      'object',
+      'tuple',
+      'literal',
+      'enum',
+      'relation',
+      'reverse',
+    ].sort();
 
     expect(Object.keys(f).sort()).toEqual(expected);
-    // 13 non-relation types besides Record, plus record, the object reference and the two relation helpers
-    expect(expected).toHaveLength(17);
+    // 13 non-relation types besides Record, plus record, the four reference factories and the two relation helpers
+    expect(expected).toHaveLength(20);
   });
 
   test.each(SIMPLE.map((e) => [e.name, e.fieldType] as const))(
@@ -207,5 +216,50 @@ describe('exclusivity survives the field chain', () => {
     expect(f.string().field).toBeUndefined();
     // @ts-expect-error @model has no public method
     expect(f.string().model).toBeUndefined();
+  });
+});
+
+describe('reference factories', () => {
+  const DECLARATIONS = 'tuple P {\n  a Int\n}\nliteral L {\n  1\n}\nenum R {\n  A\n}\nobject O {\n  a Int\n}\n';
+
+  function parsedWith(line: string): ASTField {
+    const { ast, errors } = parse(`${DECLARATIONS}model M {\n  x ${line}\n}\n`);
+    expect(errors).toHaveLength(0);
+
+    return ast.models[0]!.fields[0]!;
+  }
+
+  test.each([
+    ['tuple', 'P', 'P', f.tuple],
+    ['literal', 'L', 'L', f.literal],
+    ['enum', 'R', 'R', f.enum],
+  ] as const)('f.%s(ref) matches the parser: plain, optional and array', (_kind, name, line, make) => {
+    for (const [built, text] of [
+      [make(name), line],
+      [make(name).optional(), `${line}?`],
+      [make(name).array(), `${line}[]`],
+    ] as const) {
+      expect(withoutPosition(fieldNode(built, 'x'))).toEqual(withoutPosition(parsedWith(text)));
+    }
+  });
+
+  test('f.tuple sets tupleName directly, with no object name', () => {
+    const node = fieldNode(f.tuple('P'), 'x');
+
+    expect(node).toMatchObject({ type: 'tuple', tupleName: 'P' });
+    expect('objectName' in node).toBe(false);
+  });
+
+  test('a tuple field takes no @nullable, like an object field, but a literal and an enum do', () => {
+    expect(f.tuple('P')).not.toHaveProperty('nullable');
+    expect(f.object('O')).not.toHaveProperty('nullable');
+    expect(typeof f.literal('L').nullable).toBe('function');
+    expect(typeof f.enum('R').nullable).toBe('function');
+    expect(withoutPosition(fieldNode(f.literal('L').nullable(), 'x'))).toEqual(
+      withoutPosition(parsedWith('L @nullable')),
+    );
+    expect(withoutPosition(fieldNode(f.enum('R').optional().nullable(), 'x'))).toEqual(
+      withoutPosition(parsedWith('R? @nullable')),
+    );
   });
 });

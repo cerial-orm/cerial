@@ -1,16 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { CerialGenerationError } from '../../../../src/errors';
-import {
-  e,
-  enum as enumeration,
-  f,
-  literal,
-  literalField,
-  model,
-  object,
-  tuple,
-  variant,
-} from '../../../../src/parser/builder';
+import { e, enum as enumeration, f, literal, model, object, tuple, variant } from '../../../../src/parser/builder';
 import { materialise } from '../../../../src/parser/builder/materialise';
 import type { ExportedDeclaration } from '../../../../src/parser/builder/materialise';
 import { parse } from '../../../../src/parser/parser';
@@ -61,14 +51,14 @@ describe('materialise: shape', () => {
   });
 
   test('matches the parser for the same schema, ignoring position and origin', () => {
-    const Address = object('Address', { city: f.string(), tag: literalField('Tag') });
+    const Address = object('Address', { city: f.string(), tag: f.literal('Tag') });
     const Coord = tuple('Coord', { x: e.float(), y: e.float() });
     const Tag = literal('Tag', [variant.string('a'), variant.tuple(Coord)]);
     const Role = enumeration('Role', ['ADMIN', 'USER']);
     const User = model('User', {
       id: f.record().id(),
       address: f.object(() => Address),
-      role: literalField(Role),
+      role: f.enum(Role),
       at: f.object('Address').optional(),
     });
     const ast = materialise(
@@ -122,7 +112,7 @@ describe('materialise: references', () => {
   test('an enum is reachable through a literal field and is type literal', () => {
     const ast = materialise([
       declare(enumeration('Role', ['A']), 'Role'),
-      declare(model('User', { role: literalField('Role') }), 'User'),
+      declare(model('User', { role: f.enum('Role') }), 'User'),
     ]);
 
     expect(ast.models[0]!.fields[0]).toMatchObject({ type: 'literal', literalName: 'Role' });

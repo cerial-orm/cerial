@@ -49,7 +49,6 @@ export type BuilderExport =
   | 'tuple'
   | 'enum'
   | 'literal'
-  | 'literalField'
   | 'materialise'
   | 'loadDeclarations'
   | 'BUILDER_RANGE'
@@ -157,9 +156,9 @@ const HAND_ROWS: Record<HandId, BuilderMethod> = {
   'complex.record-array': how('f.record', 'followed by .array()'),
   'complex.relation-array': how('f.relation', 'followed by .array()'),
   'ref.object': 'f.object',
-  'ref.tuple': how('f.object', 'materialise re-types the reference by the kind of handle it names'),
-  'ref.literal': 'literalField',
-  'ref.enum': how('literalField', 'an enum is a literal to the parser, so the same field'),
+  'ref.tuple': 'f.tuple',
+  'ref.literal': 'f.literal',
+  'ref.enum': how('f.enum', 'an enum is a literal to the parser, so the same field'),
 
   'array.string': how(ARRAY, 'f.string().array()'),
   'array.email': how(ARRAY, 'f.email().array()'),
@@ -175,9 +174,9 @@ const HAND_ROWS: Record<HandId, BuilderMethod> = {
   'array.geometry': how(ARRAY, 'f.geometry().array()'),
   'array.any': how(ARRAY, 'f.any().array()'),
   'array.object': how(ARRAY, 'f.object(ref).array()'),
-  'array.tuple': how(ARRAY, 'f.object(tupleRef).array()'),
-  'array.literal': how(ARRAY, 'literalField(ref).array()'),
-  'array.enum': how(ARRAY, 'literalField(enumRef).array()'),
+  'array.tuple': how(ARRAY, 'f.tuple(ref).array()'),
+  'array.literal': how(ARRAY, 'f.literal(ref).array()'),
+  'array.enum': how(ARRAY, 'f.enum(ref).array()'),
   'array.optional-rejected': { outside: `Type[]? is ${AFTER_MATERIALISE}` },
 
   'decorator.onDelete.Cascade': how('.onDelete@relation', ".onDelete('Cascade')"),

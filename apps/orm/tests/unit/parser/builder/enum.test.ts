@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { enumNode, enumeration } from '../../../../src/parser/builder/enum';
-import { f, fieldNode, literalField } from '../../../../src/parser/builder/field';
+import { f, fieldNode } from '../../../../src/parser/builder/field';
 import { literal, literalNode, variant } from '../../../../src/parser/builder/literal';
 import type { LiteralHandle, SimpleLiteralReference } from '../../../../src/parser/builder/literal';
 import { parse } from '../../../../src/parser/parser';
@@ -38,20 +38,20 @@ describe('enum builder', () => {
     const { ast } = parse('enum Role {\n  A\n}\nmodel M {\n  x Role\n}\n');
     const expected = withoutPosition(ast.models[0]!.fields[0]);
 
-    expect(withoutPosition(fieldNode(literalField(Role), 'x'))).toEqual(expected);
+    expect(withoutPosition(fieldNode(f.enum(Role), 'x'))).toEqual(expected);
     expect(
       withoutPosition(
         fieldNode(
-          literalField(() => Role),
+          f.enum(() => Role),
           'x',
         ),
       ),
     ).toEqual(expected);
-    expect(withoutPosition(fieldNode(literalField('Role'), 'x'))).toEqual(expected);
+    expect(withoutPosition(fieldNode(f.enum('Role'), 'x'))).toEqual(expected);
   });
 
-  test('the field builder still has no literal factory of its own', () => {
-    expect('literal' in f).toBe(false);
+  test('f.enum and f.literal give the same node for the same name', () => {
+    expect(withoutPosition(fieldNode(f.enum('Role'), 'x'))).toEqual(withoutPosition(fieldNode(f.literal('Role'), 'x')));
   });
 
   test('an enum is a simple literal handle and a literal can reference it', () => {

@@ -87,7 +87,7 @@ export type RecordIdValue<Ids extends readonly RecordIdType[]> = Ids extends rea
   ? string
   : IdTypeValue<Ids[number]>;
 
-/** An object-typed field takes `?` and `[]` but not `@nullable`: SurrealDB cannot define sub-fields on a nullable parent. */
+/** An object- or tuple-typed field takes `?` and `[]` but not `@nullable`: SurrealDB cannot define sub-fields on a nullable parent. */
 export type ObjectFieldBuilder = FieldBuilder<Exclude<RegisteredDecorator, { readonly name: '@nullable' }>>;
 
 type SimpleFieldType = Exclude<SchemaFieldType, 'record' | 'relation' | 'object' | 'tuple' | 'literal'>;
@@ -101,6 +101,12 @@ export type FieldFactories = {
   ) => FieldBuilder<RegisteredDecorator, true, RecordIdValue<Ids>>;
   /** A field typed as an object definition, named by handle, thunk or bare name. */
   readonly object: (reference: Reference) => ObjectFieldBuilder;
+  /** A field typed as a tuple definition, named by handle, thunk or bare name. */
+  readonly tuple: (reference: Reference) => ObjectFieldBuilder;
+  /** A field typed as a literal definition. Takes `@nullable`, unlike an object or tuple. */
+  readonly literal: (reference: Reference) => FieldBuilder;
+  /** A field typed as an enum, which the parser records as a literal field. */
+  readonly enum: (reference: Reference) => FieldBuilder;
   /** A forward to-one relation; its backing `Record` is derived. Models only. */
   readonly relation: (target: Reference) => RelationBuilder;
   /** The reverse side of a relation: no foreign key, since the forward side owns it. Models only. */
@@ -113,6 +119,7 @@ interface FieldSpec {
   /** Set for a field typed by a literal or an enum, which the parser records the same way. */
   readonly literalName?: Reference;
   readonly objectReference?: Reference;
+  readonly tupleReference?: Reference;
   /** `Any` rejects `?` and `@nullable`. */
   readonly any: boolean;
 }
@@ -142,7 +149,8 @@ function builderOf(state: FieldState): object {
   if (!spec.any) methods.optional = () => builderOf({ ...state, isOptional: true });
   for (const entry of chainEntries('modelField')) {
     const name = bareName(entry.name);
-    if ((spec.any || spec.objectReference !== undefined) && name === 'nullable') continue;
+    if ((spec.any || spec.objectReference !== undefined || spec.tupleReference !== undefined) && name === 'nullable')
+      continue;
     methods[name] = (...args: unknown[]) => builderOf({ ...state, chain: state.chain[name]!(...args) as ChainRuntime });
   }
   const builder = Object.freeze(methods);
@@ -178,16 +186,16 @@ export function fieldNode(builder: object, name: string): ASTField {
     BUILDER_RANGE,
     state.isArray,
     spec.objectReference === undefined ? undefined : referenceName(spec.objectReference),
-    undefined,
+    spec.tupleReference === undefined ? undefined : referenceName(spec.tupleReference),
     spec.literalName === undefined ? undefined : referenceName(spec.literalName),
     recordIdTypes,
     state.isPrivate || undefined,
   );
 }
 
-/** A field typed by a literal or an enum; the reference may be a handle, a thunk or a bare name. */
-export function literalField(reference: Reference): FieldBuilder {
-  return start({ type: 'literal', literalName: reference, any: false }) as FieldBuilder;
+/** A field typed by a literal or an enum, which the parser records the same way. */
+function literalField(reference: Reference): object {
+  return start({ type: 'literal', literalName: reference, any: false });
 }
 
 const SPECIAL: readonly SchemaFieldType[] = ['record', 'relation'];
@@ -207,6 +215,9 @@ export const f = Object.freeze({
   ...simpleFactories(),
   record: (...idTypes: readonly RecordIdType[]) => start({ type: 'record', recordIdTypes: idTypes, any: false }),
   object: (reference: Reference) => start({ type: 'object', objectReference: reference, any: false }),
+  tuple: (reference: Reference) => start({ type: 'tuple', tupleReference: reference, any: false }),
+  literal: literalField,
+  enum: literalField,
   relation,
   reverse,
 }) as unknown as FieldFactories;

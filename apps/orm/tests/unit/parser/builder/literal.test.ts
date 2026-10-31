@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { enumeration } from '../../../../src/parser/builder/enum';
-import { fieldNode, literalField } from '../../../../src/parser/builder/field';
+import { f, fieldNode } from '../../../../src/parser/builder/field';
 import { referenceName } from '../../../../src/parser/builder/handle';
 import type { Handle } from '../../../../src/parser/builder/handle';
 import { literal, literalNode, variant } from '../../../../src/parser/builder/literal';
@@ -112,16 +112,16 @@ describe('literal builder', () => {
     const expected = withoutPosition(ast.models[0]!.fields[0]);
     const L = literal('L', [variant.int(1)]);
 
-    expect(withoutPosition(fieldNode(literalField(L), 'x'))).toEqual(expected);
+    expect(withoutPosition(fieldNode(f.literal(L), 'x'))).toEqual(expected);
     expect(
       withoutPosition(
         fieldNode(
-          literalField(() => L),
+          f.literal(() => L),
           'x',
         ),
       ),
     ).toEqual(expected);
-    expect(withoutPosition(fieldNode(literalField('L'), 'x'))).toEqual(expected);
+    expect(withoutPosition(fieldNode(f.literal('L'), 'x'))).toEqual(expected);
     expect(referenceName(L)).toBe('L');
   });
 

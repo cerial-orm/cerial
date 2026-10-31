@@ -19,6 +19,7 @@ import {
   optionEntries,
   tuple,
   bareName,
+  fieldNode,
 } from '../../../../src/parser/builder';
 import {
   BUILDER_METHODS,
@@ -148,6 +149,27 @@ describe('builder method table', () => {
     expect(BUILDER_METHODS['directive.index']).toBe('{ index }');
     expect(BUILDER_METHODS['type.string']).toBe('f.string');
     expect(BUILDER_METHODS['recordid.untyped']).toBe('f.record');
+  });
+
+  test('the reference rows route to the factory that yields that kind of field', () => {
+    const rows = {
+      'ref.object': 'object',
+      'ref.tuple': 'tuple',
+      'ref.literal': 'literal',
+      'ref.enum': 'literal',
+    } as const;
+    const factories = { 'ref.object': f.object, 'ref.tuple': f.tuple, 'ref.literal': f.literal, 'ref.enum': f.enum };
+
+    for (const [id, type] of Object.entries(rows)) {
+      const row = BUILDER_METHODS[id as keyof typeof rows];
+      const route = routeOf(row)!;
+      const factory = factories[id as keyof typeof factories];
+
+      expect(resolves(route)).toBe(true);
+      expect(Reflect.get(f, route.replace('f.', ''))).toBe(factory);
+      expect(fieldNode(factory('X'), 'x').type).toBe(type);
+    }
+    expect(fieldNode(f.tuple('X'), 'x').tupleName).toBe('X');
   });
 
   test('every row outside the builder is listed', () => {

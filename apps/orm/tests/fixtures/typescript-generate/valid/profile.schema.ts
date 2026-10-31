@@ -1,7 +1,7 @@
-import { f, literalField, model } from '../../../../src/schema';
+import { f, model } from '../../../../src/schema';
 
 export const Profile = model('Profile', {
   id: f.record().id(),
-  role: literalField('Role'),
+  role: f.enum('Role'),
   age: f.int().optional(),
 });

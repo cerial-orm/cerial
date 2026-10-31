@@ -15,4 +15,4 @@ export type {
   TupleElements,
   VariantSpec,
 } from '../parser/builder';
-export { e, enum, f, literal, literalField, model, object, tuple, variant } from '../parser/builder';
+export { e, enum, f, literal, model, object, tuple, variant } from '../parser/builder';

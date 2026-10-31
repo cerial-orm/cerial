@@ -73,7 +73,7 @@ function kindOf(declaration: ExportedDeclaration): Kind {
 
 /**
  * Pick the kind a name resolves to, as the parser would for the same bare name. A builder states its
- * kind (`f.object`, `e.tuple`, `literalField`), but the schema text cannot, so when the name is also
+ * kind (`f.object`, `f.tuple`, `f.literal`), but the schema text cannot, so when the name is also
  * declared as a kind the parser tries first, that kind wins. A name that is not declared as the kind
  * the builder states is refused: the text form would have produced a different type than was written.
  */

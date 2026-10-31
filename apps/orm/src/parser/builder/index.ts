@@ -18,7 +18,7 @@ export type {
   RecordIdType,
   RecordIdValue,
 } from './field';
-export { f, fieldNode, literalField } from './field';
+export { f, fieldNode } from './field';
 export type { NamedMark, NamedOf, RelationBuilder, ReverseBuilder } from './relation';
 export { foreignKeyOf, isRelationBuilder, relation, relationNodes, reverse } from './relation';
 export type { ObjectFields, ObjectOptions } from './object';
