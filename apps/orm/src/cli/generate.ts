@@ -74,6 +74,10 @@ export interface SingleSchemaOptions {
   clean?: boolean;
   clientClassName?: string;
   filter?: PathFilter;
+  /** Scope directory the filter's patterns are relative to; defaults to `schemaPath` */
+  filterBase?: string;
+  /** Directory a file outside that scope is matched from; defaults to the cwd */
+  filterRoot?: string;
   /** Resolved connection of the config entry; absent for -s, folder discovery and conventions */
   connection?: ConnectionConfig;
   /** Tables this entry shares with another entry; the client refuses to connect to any other database */
@@ -82,6 +86,8 @@ export interface SingleSchemaOptions {
 
 /** Options for generating multiple schemas */
 export interface MultiSchemaOptions {
+  /** Directory a file outside an entry's scope is matched from; the config's directory, else the cwd */
+  filterRoot?: string;
   logLevel?: LogOutputLevel;
   verbose?: boolean;
   clean?: boolean;
@@ -261,6 +267,8 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       entry: options.entry,
       files: options.files,
       filter: options.filter,
+      filterBase: options.filterBase,
+      filterRoot: options.filterRoot,
       verbose: options.verbose,
     });
 
@@ -483,8 +491,17 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
 }
 
 /** Where a resolved entry's declarations come from: its path, its entry module, its listed files, or any mix */
-function schemaSource(entry: ResolvedSchemaEntry): Pick<SingleSchemaOptions, 'schemaPath' | 'entry' | 'files'> {
-  return { schemaPath: entry.entryOnly ? undefined : entry.path, entry: entry.entry, files: entry.files };
+function schemaSource(
+  entry: ResolvedSchemaEntry,
+  filterRoot?: string,
+): Pick<SingleSchemaOptions, 'schemaPath' | 'entry' | 'files' | 'filterBase' | 'filterRoot'> {
+  return {
+    schemaPath: entry.entryOnly ? undefined : entry.path,
+    entry: entry.entry,
+    files: entry.files,
+    filterBase: entry.path,
+    filterRoot,
+  };
 }
 
 /** Generate multiple schemas sequentially */
@@ -502,7 +519,7 @@ export async function generateMultiSchema(
   const entryModels: EntryModels[] = [];
   for (const entry of entries) {
     const { resolvedAST } = await buildResolvedSchemaAst({
-      ...schemaSource(entry),
+      ...schemaSource(entry, options.filterRoot),
       filter: filters?.get(entry.name),
     });
     if (resolvedAST)
@@ -515,7 +532,7 @@ export async function generateMultiSchema(
     logger.progress(`Generating schema '${entry.name}' (${i + 1} of ${entries.length})...`);
 
     const singleResult = await generateSingleSchema({
-      ...schemaSource(entry),
+      ...schemaSource(entry, options.filterRoot),
       outputDir: entry.output,
       clientClassName: entry.clientClassName,
       logLevel: options.logLevel,
@@ -708,6 +725,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
           logLevel: options.log,
           verbose: options.verbose,
           clean: options.clean,
+          filterRoot: configDir,
         },
         filters,
       );

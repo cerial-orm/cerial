@@ -23,6 +23,11 @@ export interface LoadOptions {
   readonly readImports?: ImportReader;
   /** Modules that must export a `defineSchema` result; one that does not refuses naming its path. */
   readonly entries?: readonly string[];
+  /**
+   * True for a module the filter cascade excludes. Such a module still runs, because its importer imports it,
+   * but contributes nothing: its declarations are not harvested and the walk stops there.
+   */
+  readonly excludes?: (path: string) => boolean;
 }
 
 /** The oldest Node release the TypeScript loader supports: the first 22.x with unflagged `require(esm)`. */
@@ -199,7 +204,8 @@ export async function loadDeclarations(
   files: readonly string[],
   options: LoadOptions = {},
 ): Promise<ExportedDeclaration[]> {
-  const { importModule = importSchemaModule, readImports = readModuleImports, entries = [] } = options;
+  const { importModule = importSchemaModule, readImports = readModuleImports, entries = [], excludes } = options;
+  const excludedHandles = new Set<object>();
   const declarations: ExportedDeclaration[] = [];
   const registered: Array<{ entry: string; registration: SchemaRegistration }> = [];
 
@@ -214,8 +220,11 @@ export async function loadDeclarations(
       );
     }
 
+    const excluded = !!excludes?.(module);
     for (const [exportName, value] of Object.entries(namespace)) {
-      if (isDeclaration(value)) declarations.push({ handle: value, module, exportName });
+      if (!isDeclaration(value)) continue;
+      if (excluded) excludedHandles.add(value);
+      else declarations.push({ handle: value, module, exportName });
     }
 
     return namespace;
@@ -232,6 +241,10 @@ export async function loadDeclarations(
 
     if (!seen.has(module)) {
       seen.add(module);
+      if (excludes?.(module)) {
+        await harvest(module);
+        continue;
+      }
       const registrations = registrationsOf(await harvest(module));
       if (entries.includes(module) && !registrations.length) {
         throw new CerialGenerationError(
@@ -252,7 +265,8 @@ export async function loadDeclarations(
   const harvestedHandles = new Set(declarations.map((d) => d.handle));
   for (const { entry, registration } of registered) {
     for (const handle of registration.models) {
-      if (harvestedHandles.has(handle)) continue;
+      // Exclusion is the reason it is missing, so it is not refused as unbound
+      if (harvestedHandles.has(handle) || excludedHandles.has(handle)) continue;
 
       throw new CerialGenerationError(
         `${entry}: defineSchema lists model ${handle.name}, but no module the entry imports exports it. Declare it as an exported binding (export const ${handle.name} = model(...)); a model written inline in the list cannot be traced.`,

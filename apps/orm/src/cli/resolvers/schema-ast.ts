@@ -1,5 +1,6 @@
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { dirname, isAbsolute, resolve } from 'node:path';
 import { CerialGenerationError } from '../../errors';
 import {
   collectEnumNames,
@@ -12,6 +13,7 @@ import { loadDeclarations, materialise } from '../../parser/builder';
 import { resolveInheritance } from '../../resolver';
 import type { SchemaAST } from '../../types';
 import type { PathFilter } from '../filters';
+import { toFilterPath } from '../filters/path-utils';
 import { logger } from '../utils';
 import type { SchemaValidationError } from '../validators';
 import { validateDuplicateNames, validateExtends } from '../validators';
@@ -23,9 +25,13 @@ export interface SchemaAstOptions {
   schemaPath?: string;
   /** Absolute path of a module exporting `defineSchema()`; with no `schemaPath`, nothing else is searched */
   entry?: string;
-  /** Absolute paths of the config's listed `files`; each is a schema source and the filter does not apply */
+  /** Absolute paths of the config's listed `files`; each is a schema source, and the filter applies to each */
   files?: readonly string[];
   filter?: PathFilter;
+  /** The scope directory (or a file in it) filter patterns are relative to; defaults to `schemaPath` */
+  filterBase?: string;
+  /** Where a file outside the scope is matched from instead: the config's directory, else the cwd */
+  filterRoot?: string;
   verbose?: boolean;
 }
 
@@ -45,18 +51,46 @@ export interface SchemaAstResult {
   resolvedAST: SchemaAST | null;
 }
 
+/**
+ * The path the filter sees for `file`: relative to the scope directory, as discovered files are, so one file
+ * matches one pattern however it was reached. A file outside the scope is matched from `root` instead, because
+ * a `../` path never matches a pattern and would silently escape every one. Outside both it is undefined, and
+ * such a file is kept: patterns cannot escape their scope.
+ */
+function filterPathOf(file: string, bases: readonly string[]): string | undefined {
+  for (const base of bases) {
+    const path = toFilterPath(file, base);
+    if (path && path !== '..' && !path.startsWith('../') && !isAbsolute(path)) return path;
+  }
+
+  return undefined;
+}
+
 /** Resolve an entry's schema files, parse them with cross-file name context, validate extends and resolve inheritance */
 export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise<SchemaAstResult> {
   logger.progress('Finding schema files...');
 
-  const { entry } = options;
-  if (entry && !existsSync(entry)) {
-    throw new CerialGenerationError(`Schema entry ${entry} does not exist. Check 'entry' in the config.`);
+  const declaredEntry = options.entry;
+  if (declaredEntry && !existsSync(declaredEntry)) {
+    throw new CerialGenerationError(`Schema entry ${declaredEntry} does not exist. Check 'entry' in the config.`);
   }
 
+  // The cascade is the one place a file is kept out, for discovered, listed and imported sources alike
+  const scopeInput = options.filterBase ?? options.schemaPath;
+  const scope = scopeInput && resolve(scopeInput);
+  const scopeDir = scope && (existsSync(scope) && statSync(scope).isFile() ? dirname(scope) : scope);
+  const bases = [...(scopeDir ? [scopeDir] : []), resolve(options.filterRoot ?? process.cwd())];
+  const { filter } = options;
+  const isExcluded = (file: string): boolean => {
+    if (!filter) return false;
+    const path = filterPathOf(file, bases);
+
+    return path !== undefined && !filter.shouldInclude(path);
+  };
+
   // The generated handles are output, never a schema module, so listing them contributes nothing
-  const listed = (options.files ?? []).filter((file) => !HANDLES_MODULE.test(file.replace(/\\/g, '/')));
-  for (const file of listed) {
+  const allListed = (options.files ?? []).filter((file) => !HANDLES_MODULE.test(file.replace(/\\/g, '/')));
+  for (const file of allListed) {
     if (!existsSync(file)) {
       throw new CerialGenerationError(`Schema file ${file} does not exist. Check 'files' in the config.`);
     }
@@ -67,8 +101,12 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     }
   }
 
+  const listed = allListed.filter((file) => !isExcluded(file));
+  const entry = declaredEntry && !isExcluded(declaredEntry) ? declaredEntry : undefined;
+  const excludedSources = [...(declaredEntry && !entry ? [declaredEntry] : []), ...allListed.filter(isExcluded)];
+
   // An entry or a file list with no path owns the schema, so there is no root for convention to search
-  const explicit = !!entry || !!options.files?.length;
+  const explicit = !!declaredEntry || !!options.files?.length;
   const resolvedFiles: string[] = options.schemaPath
     ? await resolveSinglePath(options.schemaPath, process.cwd(), options.filter)
     : explicit
@@ -85,6 +123,12 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   const listedTypescript = listed.filter((f) => f.endsWith('.ts'));
   const typescriptFiles = [...new Set([...resolvedFiles.filter(isTypescriptSchemaFile), ...listedTypescript])];
   if (entry && !typescriptFiles.includes(entry)) typescriptFiles.push(entry);
+
+  if (excludedSources.length && !schemaFiles.length && !typescriptFiles.length) {
+    throw new CerialGenerationError(
+      `Every schema source is excluded by the ignore, exclude and .cerialignore patterns: ${excludedSources.join(', ')}. Remove the matching pattern, or add an include pattern for it (an ignore pattern cannot be overridden).`,
+    );
+  }
 
   const explicitTypescript = [...(entry ? [entry] : []), ...listedTypescript];
   if (explicitTypescript.length && schemaFiles.length) {
@@ -114,7 +158,12 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
 
     // A TypeScript-only entry becomes the same AST the parser yields, so everything below runs unchanged
     logger.progress('Loading TypeScript schema modules...');
-    combinedAST = materialise(await loadDeclarations(typescriptFiles, { entries: entry ? [entry] : [] }));
+    combinedAST = materialise(
+      await loadDeclarations(typescriptFiles, {
+        entries: entry ? [entry] : [],
+        excludes: filter ? isExcluded : undefined,
+      }),
+    );
     result.combinedAST = combinedAST;
 
     if (!hasDeclarations(combinedAST)) {
