@@ -13,6 +13,7 @@ const main = defineCommand({
   subCommands: {
     generate: () => import('../src/cli/commands/generate').then((m) => m.generateCommand),
     format: () => import('../src/cli/commands/format').then((m) => m.formatCommand),
+    convert: () => import('../src/cli/commands/convert').then((m) => m.convertCommand),
     init: () => import('../src/cli/commands/init').then((m) => m.initCommand),
   },
 });

@@ -485,7 +485,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
 }
 
 /** Where a resolved entry's declarations come from: its path, its entry module, its listed files, or any mix */
-function schemaSource(
+export function schemaSource(
   entry: ResolvedSchemaEntry,
   filterRoot?: string,
 ): Pick<SingleSchemaOptions, 'schemaPath' | 'entry' | 'files' | 'filterBase' | 'filterRoot'> {

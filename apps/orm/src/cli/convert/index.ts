@@ -8,3 +8,4 @@ export * from './check-printable';
 export * from './lossy-cases';
 export * from './emit-ts';
 export * from './scan-module';
+export * from './run';
