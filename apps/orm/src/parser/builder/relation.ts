@@ -247,6 +247,11 @@ export function foreignKeyOf(builder: object, name: string): string | undefined 
   return state && (state.foreignKey ?? derivedKey(name, state.isArray));
 }
 
+/** Whether a forward relation named its key with `.field(name)`, which binds to a declared field when one has that name. */
+export function isBound(builder: object): boolean {
+  return STATES.get(builder)?.foreignKey !== undefined;
+}
+
 /**
  * The nodes a forward relation declares. The foreign key comes first: the parser's corpus puts the key
  * directly before its relation in 60 of 64 hand-written forward relations. It carries no `Record(Type)`,

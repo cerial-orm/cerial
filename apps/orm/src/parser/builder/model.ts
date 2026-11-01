@@ -4,7 +4,7 @@ import { BUILDER_RANGE } from './chain';
 import { checkedIdentifier, checkedKeys } from './identifier';
 import { fieldNode } from './field';
 import type { IdOf } from './field';
-import { foreignKeyOf, isRelationBuilder, relationNodes } from './relation';
+import { foreignKeyOf, isBound, isRelationBuilder, relationNodes } from './relation';
 import type { NamedOf } from './relation';
 import type { RegisteredDecorator } from '../registry';
 import { compositeDirectives } from './composite';
@@ -130,6 +130,22 @@ function inheritedNames(handle: object, seen: ReadonlySet<object> = new Set()): 
   }
 
   return names;
+}
+
+/**
+ * The foreign keys `handle` derived: forward relations whose key the model neither declares nor inherits.
+ * An inherited relation's key belongs to the parent that derived it, so a child reports none for it.
+ */
+export function derivedForeignKeys(handle: object): string[] {
+  const declared = NODES.get(handle);
+  if (!declared) return [];
+  const bindable = new Set([...Object.keys(declared.fields), ...inheritedNames(handle)]);
+
+  return Object.entries(declared.fields).flatMap(([key, builder]) => {
+    const foreignKey = foreignKeyOf(builder, key);
+
+    return foreignKey && !(isBound(builder) && bindable.has(foreignKey)) ? [foreignKey] : [];
+  });
 }
 
 /** Materialise a model handle as the node the parser gives for the same declaration. */

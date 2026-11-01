@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve, sep } from 'node:path';
 import { CerialGenerationError } from '../../errors';
 import { materialise } from '../../parser/builder';
+import type { ExportedDeclaration } from '../../parser/builder';
 import { syncHandles } from '../../generators/handles';
 import { resolveInheritance } from '../../resolver';
 import type { SchemaAST } from '../../types';
@@ -53,6 +54,8 @@ export interface SchemaAstResult {
   extendsErrors: SchemaValidationError[];
   /** Inheritance-resolved AST, or null when parsing or extends validation failed */
   resolvedAST: SchemaAST | null;
+  /** The TypeScript declarations as loaded, with their handles, which the AST does not keep; empty without a TypeScript module */
+  declarations: ExportedDeclaration[];
 }
 
 /**
@@ -164,6 +167,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     combinedAST,
     extendsErrors: [],
     resolvedAST: null,
+    declarations: [],
   };
 
   if (typescriptFiles.length) {
@@ -176,12 +180,11 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
 
     // A TypeScript-only entry becomes the same AST the parser yields, so everything below runs unchanged
     logger.progress('Loading TypeScript schema modules...');
-    combinedAST = materialise(
-      await runPassTwo(typescriptFiles, {
-        entries: entry ? [entry] : [],
-        excludes: filter ? isExcluded : undefined,
-      }),
-    );
+    result.declarations = await runPassTwo(typescriptFiles, {
+      entries: entry ? [entry] : [],
+      excludes: filter ? isExcluded : undefined,
+    });
+    combinedAST = materialise(result.declarations);
     result.combinedAST = combinedAST;
 
     if (!hasDeclarations(combinedAST)) {
@@ -220,14 +223,16 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   if (mixing) {
     logger.progress('Loading TypeScript schema modules...');
     const dsl = collectDslNames(schemaContents);
-    typescriptAST = materialise(
-      await runPassTwo(typescriptFiles, {
-        entries: entry ? [entry] : [],
-        excludes: filter ? isExcluded : undefined,
-        handles: { root, ast: handlesAst },
-      }),
-      { object: dsl.objects, tuple: dsl.tuples, literal: [...dsl.literals, ...dsl.enums] },
-    );
+    result.declarations = await runPassTwo(typescriptFiles, {
+      entries: entry ? [entry] : [],
+      excludes: filter ? isExcluded : undefined,
+      handles: { root, ast: handlesAst },
+    });
+    typescriptAST = materialise(result.declarations, {
+      object: dsl.objects,
+      tuple: dsl.tuples,
+      literal: [...dsl.literals, ...dsl.enums],
+    });
     declared = {
       objects: new Set(typescriptAST.objects.map((o) => o.name)),
       tuples: new Set(typescriptAST.tuples.map((t) => t.name)),
