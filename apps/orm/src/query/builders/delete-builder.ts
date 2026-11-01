@@ -55,6 +55,64 @@ export function buildDeleteQueryWithReturn(
   };
 }
 
+type Dependent = ReturnType<typeof findDependentRelations>[number];
+
+/**
+ * Push the Restrict checks, then the cascade and cleanup statements, for every dependent of a model.
+ * `target` is the expression holding the ids being deleted: `$to_delete.id` where the variable is a
+ * list of rows, `$to_delete` where it is already a list of ids.
+ */
+function emitDependentStatements(
+  statements: string[],
+  model: ModelMetadata,
+  cascadeDeps: Dependent[],
+  target: string,
+): void {
+  // Restrict: count referencing rows and use IF to conditionally fail
+  for (const dep of cascadeDeps) {
+    if (!dep.recordField || dep.onDelete !== 'Restrict') continue;
+
+    const recordFieldName = dep.recordField.name;
+    const checkVarName = `$has_${dep.model.tableName}_deps`;
+    const match = dep.isArray ? 'CONTAINSANY' : 'IN';
+
+    statements.push(
+      `LET ${checkVarName} = (SELECT count() as cnt FROM ${dep.model.tableName} WHERE ${recordFieldName} ${match} ${target} GROUP ALL)[0].cnt ?? 0`,
+    );
+    statements.push(
+      `IF ${checkVarName} > 0 { THROW "Cannot delete ${model.name}: ${dep.model.name} records with @onDelete(Restrict) reference this record" }`,
+    );
+  }
+
+  for (const dep of cascadeDeps) {
+    if (!dep.recordField || dep.onDelete === 'Restrict') continue;
+
+    const recordFieldName = dep.recordField.name;
+    const table = dep.model.tableName;
+    const match = dep.isArray ? 'CONTAINSANY' : 'IN';
+
+    switch (dep.onDelete) {
+      case 'Cascade':
+        statements.push(`DELETE FROM ${table} WHERE ${recordFieldName} ${match} ${target}`);
+        break;
+
+      // SetNull stores a queryable null (@nullable fields); SetNone leaves the field absent. Array
+      // foreign keys have no null state, so both just remove the id.
+      case 'SetNull':
+      case 'SetNone': {
+        const assignment = dep.isArray
+          ? `${recordFieldName} -= ${target}`
+          : `${recordFieldName} = ${dep.onDelete === 'SetNull' ? 'NULL' : 'NONE'}`;
+        statements.push(`UPDATE ${table} SET ${assignment} WHERE ${recordFieldName} ${match} ${target}`);
+        break;
+      }
+
+      case 'NoAction':
+        break;
+    }
+  }
+}
+
 /**
  * Build DELETE query with cascade support
  * Handles @onDelete behavior for all dependent relations
@@ -77,9 +135,6 @@ export function buildDeleteWithCascade(
   const dependents = findDependentRelations(model.name, registry);
   const cascadeDeps = dependents.filter((d) => d.recordField && d.onDelete !== 'NoAction');
 
-  // Check for Restrict - needs special handling at query level
-  const restrictDeps = cascadeDeps.filter((d) => d.onDelete === 'Restrict');
-
   // If no explicit cascade operations needed, use simple delete
   if (cascadeDeps.length === 0) {
     return buildDeleteQueryWithReturn(model, where, registry);
@@ -93,76 +148,7 @@ export function buildDeleteWithCascade(
   // Get records to be deleted first
   statements.push(`LET $to_delete = (SELECT id FROM ${model.tableName} ${whereClause.text})`);
 
-  // For Restrict: check if there are dependent records and use IF to conditionally fail
-  for (const dep of restrictDeps) {
-    if (!dep.recordField) continue;
-
-    const recordFieldName = dep.recordField.name;
-    const checkVarName = `$has_${dep.model.tableName}_deps`;
-
-    if (dep.isArray) {
-      statements.push(
-        `LET ${checkVarName} = (SELECT count() as cnt FROM ${dep.model.tableName} WHERE ${recordFieldName} CONTAINSANY $to_delete.id GROUP ALL)[0].cnt ?? 0`,
-      );
-    } else {
-      statements.push(
-        `LET ${checkVarName} = (SELECT count() as cnt FROM ${dep.model.tableName} WHERE ${recordFieldName} IN $to_delete.id GROUP ALL)[0].cnt ?? 0`,
-      );
-    }
-
-    // Use IF to throw error if dependencies exist
-    statements.push(
-      `IF ${checkVarName} > 0 { THROW "Cannot delete ${model.name}: ${dep.model.name} records with @onDelete(Restrict) reference this record" }`,
-    );
-  }
-
-  // Process cascade and cleanup for non-Restrict deps
-  for (const dep of cascadeDeps) {
-    if (!dep.recordField || dep.onDelete === 'Restrict') continue;
-
-    const recordFieldName = dep.recordField.name;
-
-    switch (dep.onDelete) {
-      case 'Cascade':
-        // Delete dependent records
-        if (dep.isArray) {
-          statements.push(`DELETE FROM ${dep.model.tableName} WHERE ${recordFieldName} CONTAINSANY $to_delete.id`);
-        } else {
-          statements.push(`DELETE FROM ${dep.model.tableName} WHERE ${recordFieldName} IN $to_delete.id`);
-        }
-        break;
-
-      case 'SetNull':
-        // Set FK to null (for @nullable fields — stores queryable null value)
-        if (dep.isArray) {
-          statements.push(
-            `UPDATE ${dep.model.tableName} SET ${recordFieldName} -= $to_delete.id WHERE ${recordFieldName} CONTAINSANY $to_delete.id`,
-          );
-        } else {
-          statements.push(
-            `UPDATE ${dep.model.tableName} SET ${recordFieldName} = NULL WHERE ${recordFieldName} IN $to_delete.id`,
-          );
-        }
-        break;
-
-      case 'SetNone':
-        // Set FK to NONE (for non-@nullable optional fields — field absent)
-        if (dep.isArray) {
-          statements.push(
-            `UPDATE ${dep.model.tableName} SET ${recordFieldName} -= $to_delete.id WHERE ${recordFieldName} CONTAINSANY $to_delete.id`,
-          );
-        } else {
-          statements.push(
-            `UPDATE ${dep.model.tableName} SET ${recordFieldName} = NONE WHERE ${recordFieldName} IN $to_delete.id`,
-          );
-        }
-        break;
-
-      case 'NoAction':
-        // Do nothing - leave dangling references
-        break;
-    }
-  }
+  emitDependentStatements(statements, model, cascadeDeps, '$to_delete.id');
 
   // Delete by the ids captured above, not by re-running the filter: the cascade statements have already
   // removed the children a relation filter such as posts: { some } looks at, so it would match nothing
@@ -279,7 +265,6 @@ export function buildDeleteUniqueWithCascade(
   // Find dependent relations
   const dependents = findDependentRelations(model.name, registry);
   const cascadeDeps = dependents.filter((d) => d.recordField && d.onDelete !== 'NoAction');
-  const restrictDeps = cascadeDeps.filter((d) => d.onDelete === 'Restrict');
 
   // Simple case: no cascade dependencies needed
   if (cascadeDeps.length === 0) {
@@ -318,71 +303,7 @@ export function buildDeleteUniqueWithCascade(
     idAlone ? 'LET $to_delete = [$deleteId]' : 'LET $to_delete = IF $deleteId IS NONE { [] } ELSE { [$deleteId] }',
   );
 
-  // Handle Restrict checks
-  for (const dep of restrictDeps) {
-    if (!dep.recordField) continue;
-
-    const recordFieldName = dep.recordField.name;
-    const checkVarName = `$has_${dep.model.tableName}_deps`;
-
-    if (dep.isArray) {
-      statements.push(
-        `LET ${checkVarName} = (SELECT count() as cnt FROM ${dep.model.tableName} WHERE ${recordFieldName} CONTAINSANY $to_delete GROUP ALL)[0].cnt ?? 0`,
-      );
-    } else {
-      statements.push(
-        `LET ${checkVarName} = (SELECT count() as cnt FROM ${dep.model.tableName} WHERE ${recordFieldName} IN $to_delete GROUP ALL)[0].cnt ?? 0`,
-      );
-    }
-
-    statements.push(
-      `IF ${checkVarName} > 0 { THROW "Cannot delete ${model.name}: ${dep.model.name} records with @onDelete(Restrict) reference this record" }`,
-    );
-  }
-
-  // Process cascade and cleanup for non-Restrict deps
-  for (const dep of cascadeDeps) {
-    if (!dep.recordField || dep.onDelete === 'Restrict') continue;
-
-    const recordFieldName = dep.recordField.name;
-
-    switch (dep.onDelete) {
-      case 'Cascade':
-        if (dep.isArray) {
-          statements.push(`DELETE FROM ${dep.model.tableName} WHERE ${recordFieldName} CONTAINSANY $to_delete`);
-        } else {
-          statements.push(`DELETE FROM ${dep.model.tableName} WHERE ${recordFieldName} IN $to_delete`);
-        }
-        break;
-
-      case 'SetNull':
-        if (dep.isArray) {
-          statements.push(
-            `UPDATE ${dep.model.tableName} SET ${recordFieldName} -= $to_delete WHERE ${recordFieldName} CONTAINSANY $to_delete`,
-          );
-        } else {
-          statements.push(
-            `UPDATE ${dep.model.tableName} SET ${recordFieldName} = NULL WHERE ${recordFieldName} IN $to_delete`,
-          );
-        }
-        break;
-
-      case 'SetNone':
-        if (dep.isArray) {
-          statements.push(
-            `UPDATE ${dep.model.tableName} SET ${recordFieldName} -= $to_delete WHERE ${recordFieldName} CONTAINSANY $to_delete`,
-          );
-        } else {
-          statements.push(
-            `UPDATE ${dep.model.tableName} SET ${recordFieldName} = NONE WHERE ${recordFieldName} IN $to_delete`,
-          );
-        }
-        break;
-
-      case 'NoAction':
-        break;
-    }
-  }
+  emitDependentStatements(statements, model, cascadeDeps, '$to_delete');
 
   // Delete the record (using DELETE $recordId for variable reference)
   const returnClause = returnBefore ? 'RETURN BEFORE' : 'RETURN NONE';
