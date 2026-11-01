@@ -46,9 +46,9 @@ function collectFromInclude(
   }
 }
 
-/** Models a delete statement names directly; NoAction and FK-less dependents emit no statement */
+/** Every model a transitive delete names: cascades descend, other actions stop at their dependent, NoAction is absent */
 function collectFromDependents(model: ModelMetadata, registry: ModelRegistry, names: Set<string>): void {
-  for (const dep of walkCascade(model, registry).edges.filter((e) => e.depth === 1)) names.add(dep.model.name);
+  for (const edge of walkCascade(model, registry).edges) names.add(edge.model.name);
 }
 
 /** Names of the queried model plus every relation target reachable via nested writes, includes and cascading deletes */

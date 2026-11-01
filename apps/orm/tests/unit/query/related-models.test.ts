@@ -153,17 +153,17 @@ describe('collectRelatedModelNames for deletes', () => {
     const names = collectRelatedModelNames(onDeleteRegistry.Parent!, onDeleteRegistry, { isDelete: true });
 
     expect(new Set(names)).toEqual(
-      new Set(['Parent', 'CascadeChild', 'SetNullChild', 'SetNoneChild', 'RestrictChild']),
+      new Set(['Parent', 'CascadeChild', 'Grandchild', 'SetNullChild', 'SetNoneChild', 'RestrictChild']),
     );
   });
 
-  test('is not transitive: the builder does not emit statements for grandchildren', () => {
+  test('is transitive: collects the dependents of a cascading dependent', () => {
     const names = collectRelatedModelNames(onDeleteRegistry.Parent!, onDeleteRegistry, { isDelete: true });
 
-    expect(names).not.toContain('Grandchild');
+    expect(names).toContain('Grandchild');
   });
 
-  test('adds the dependents of the queried model only', () => {
+  test('collects a chain below the queried model', () => {
     expect(collectRelatedModelNames(onDeleteRegistry.CascadeChild!, onDeleteRegistry, { isDelete: true })).toEqual([
       'CascadeChild',
       'Grandchild',
@@ -191,8 +191,59 @@ describe('collectRelatedModelNames for deletes', () => {
     ]) {
       const names = await hookedNames(run, registry.Author!);
 
-      expect(new Set(names)).toEqual(new Set(['Author', 'Post']));
+      expect(new Set(names)).toEqual(new Set(['Author', 'Post', 'Comment']));
     }
+  });
+});
+
+const chainRegistry = parseModelRegistry(`
+model Root {
+  id Record @id
+  mids Relation[] @model(NullMid)
+  cycles Relation[] @model(CycA)
+}
+
+model NullMid {
+  id Record @id
+  rootId Record? @nullable
+  root Relation? @field(rootId) @model(Root) @onDelete(SetNull)
+  leaves Relation[] @model(Leaf)
+}
+
+model Leaf {
+  id Record @id
+  midId Record
+  mid Relation @field(midId) @model(NullMid)
+}
+
+model CycA {
+  id Record @id
+  rootId Record
+  root Relation @field(rootId) @model(Root)
+  bs Relation[] @model(CycB)
+}
+
+model CycB {
+  id Record @id
+  aId Record
+  a Relation @field(aId) @model(CycA)
+  as Relation[] @model(CycA)
+}
+`);
+
+describe('collectRelatedModelNames past SetNull and around cycles', () => {
+  test('a SetNull edge collects its dependent and stops', () => {
+    const names = collectRelatedModelNames(chainRegistry.Root!, chainRegistry, { isDelete: true });
+
+    expect(names).toContain('NullMid');
+    expect(names).not.toContain('Leaf');
+  });
+
+  test('a cascade cycle terminates and collects each model once', () => {
+    const names = collectRelatedModelNames(chainRegistry.Root!, chainRegistry, { isDelete: true });
+
+    expect(names.filter((n) => n === 'CycA')).toHaveLength(1);
+    expect(names).toContain('CycB');
   });
 });
 
