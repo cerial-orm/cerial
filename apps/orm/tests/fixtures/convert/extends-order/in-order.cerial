@@ -1,0 +1,7 @@
+object First {
+  a Int
+}
+
+object Second extends First {
+  b Int
+}

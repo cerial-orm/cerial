@@ -1,0 +1,8 @@
+model Child extends Base {
+  name String
+}
+
+abstract model Base {
+  id Record @id
+  createdAt Date @createdAt
+}

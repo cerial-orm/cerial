@@ -1,0 +1,7 @@
+object Left {
+  right Right?
+}
+
+object Plain {
+  n Int
+}

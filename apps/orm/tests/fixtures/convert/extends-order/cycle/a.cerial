@@ -1,0 +1,7 @@
+object Parent {
+  p Int
+}
+
+object Child extends Base {
+  c Int
+}

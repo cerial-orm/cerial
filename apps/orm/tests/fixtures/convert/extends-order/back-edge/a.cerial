@@ -1,0 +1,7 @@
+object Marker {
+  n Int
+}
+
+object Child extends Base {
+  extra Int
+}

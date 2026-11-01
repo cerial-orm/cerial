@@ -24,3 +24,11 @@ export function quote(value: string): string {
 
   return `'${escaped}'`;
 }
+
+// JavaScript ends a `//` comment at each of these, and U+2028 and U+2029 are the two a text editor hides
+const LINE_BREAK = /\r\n|[\n\r\p{Zl}\p{Zp}]/u;
+
+/** Text split at every character that ends a `//` comment, so each piece can be written as a comment of its own. */
+export function splitLines(text: string): string[] {
+  return text.split(LINE_BREAK);
+}

@@ -1,0 +1,11 @@
+object Top extends Middle {
+  c Int
+}
+
+object Middle extends Bottom {
+  b Int
+}
+
+object Bottom {
+  a Int
+}

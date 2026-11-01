@@ -1,0 +1,7 @@
+object Base {
+  b Int
+}
+
+object Other extends Parent {
+  o Int
+}
