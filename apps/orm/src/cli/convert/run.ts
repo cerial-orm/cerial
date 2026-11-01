@@ -13,6 +13,8 @@ import { emitTypescript } from './emit-ts';
 import type { EmittedModule } from './emit-ts';
 import { isInside, planOutputs } from './output-paths';
 import type { OutputPlan } from './output-paths';
+import { removeSources } from './remove-sources';
+import type { SourceClaim } from './remove-sources';
 import { writeOutputs } from './write-output';
 import type { StagedTree } from './write-output';
 import { buildResolvedSchemaAst } from '../resolvers/schema-ast';
@@ -38,6 +40,10 @@ export interface ConvertOptions {
   readonly output?: string;
   readonly force?: boolean;
   readonly dryRun?: boolean;
+  /** `--remove-source`: delete the `.cerial` files that were fully converted, after the output is committed. */
+  readonly removeSource?: boolean;
+  /** Replaces the deletion of one source so a removal failure can be injected. */
+  readonly removeFile?: (path: string) => Promise<void>;
   /** What the emitted modules import the builder from. Defaults to `cerial/schema`. */
   readonly schemaImport?: string;
   /** Replaces `fs.rename` in the writer so a commit failure can be injected. */
@@ -50,6 +56,8 @@ export interface ConvertResult {
   /** Targets written; empty for a dry run. */
   readonly written: readonly string[];
   readonly warnings: readonly string[];
+  /** Sources `--remove-source` could not delete; the run exits 1 when any. */
+  readonly failures: readonly string[];
   /** What to print on success: one line per file, then the next step. */
   readonly lines: readonly string[];
 }
@@ -326,12 +334,54 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
   });
 
   const pairs = plan.outputs.map(({ source, target }) => `${source} -> ${target}`);
+  const sources = plan.outputs.map((o) => o.source);
   const lines = options.dryRun
     ? [...pairs.map((p) => `would write ${p}`), 'Dry run: nothing was written.']
-    : [
-        ...pairs.map((p) => `wrote ${p}`),
-        `The .cerial sources were left in place. Remove them once generate works from the new modules: ${plan.outputs.map((o) => o.source).join(', ')}`,
-      ];
+    : pairs.map((p) => `wrote ${p}`);
 
-  return { dryRun: written.dryRun, plan, written: written.written, warnings, lines };
+  let failures: readonly string[] = [];
+  if (options.removeSource) {
+    const claims: SourceClaim[] = analysed.map(({ target, result }) => ({
+      name: target.name,
+      sources: [...result.schemaFiles, ...result.typescriptFiles],
+      listed:
+        target.name === undefined
+          ? []
+          : [
+              ...(target.files ?? []).map((file) => ({ key: 'files' as const, file })),
+              ...(target.entry ? [{ key: 'entry' as const, file: target.entry }] : []),
+              ...(isFile(target.schemaPath) ? [{ key: 'path' as const, file: target.schemaPath }] : []),
+            ],
+    }));
+    const declaring = new Set(
+      groups.flatMap(({ result: { combinedAST: ast } }) =>
+        [...ast.models, ...ast.objects, ...ast.tuples, ...ast.literals, ...ast.enums].map((d) => d.origin.file),
+      ),
+    );
+    const report = await removeSources(
+      {
+        inputs: groups.flatMap((g) => g.result.schemaFiles),
+        outputs: plan.outputs.filter((o) => declaring.has(o.source)),
+        written: written.written,
+        claims,
+      },
+      { dryRun: options.dryRun, remove: options.removeFile },
+    );
+    lines.push(...report.lines);
+    failures = report.failed;
+    if (failures.length)
+      lines.push(
+        `${failures.length} source(s) could not be removed; the converted modules are in place. Remove them by hand: ${failures.join(', ')}`,
+      );
+  } else if (!options.dryRun) {
+    lines.push(
+      `The .cerial sources were left in place. Rerun with --remove-source to delete them, or remove them once generate works from the new modules: ${sources.join(', ')}`,
+    );
+  }
+
+  return { dryRun: written.dryRun, plan, written: written.written, warnings, failures, lines };
+}
+
+function isFile(path: string): boolean {
+  return existsSync(path) && statSync(path).isFile();
 }
