@@ -141,7 +141,7 @@ describe('options', () => {
     expect(result.differences).toEqual([]);
     expect(result.text).not.toContain('abstract');
     expect(result.text).not.toContain('extends');
-    expect(result.text).toMatch(/model\(\n {2}'User',\n {2}\{\n {4}id: f\.record\(\)\.id\(\),\n {2}\},\n\);/);
+    expect(result.text).toContain("model('User', { id: f.record().id() });");
   });
 
   test('keeps private fields', async () => {
@@ -170,7 +170,9 @@ describe('options', () => {
       ].join('\n'),
     );
     expect(result.differences).toEqual([]);
-    expect(result.text).toContain("index: [{ name: 'byA', fields: ['a'] }, { name: 'byAB', fields: ['a', 'b'] }]");
+    expect(result.text).toContain(
+      "index: [\n      { name: 'byA', fields: ['a'] },\n      { name: 'byAB', fields: ['a', 'b'] },\n    ],",
+    );
     expect(result.text).toContain("unique: { name: 'onlyA', fields: ['a'] }");
     expect(result.built.models[0]!.directives!.map((d) => d.name)).toEqual(['byA', 'byAB', 'uniqueSlot']);
   });
@@ -186,7 +188,7 @@ describe('options', () => {
       ].join('\n'),
     );
     expect(result.differences).toEqual([]);
-    expect(result.text).toContain("tuple(\n  'Coord',\n  {\n    lat: e.float(),\n    lng: e.float(),\n  },\n)");
+    expect(result.text).toContain("tuple('Coord', { lat: e.float(), lng: e.float() })");
     expect(result.text).toContain("[e.string().named('label'), e.int(), e.bool()]");
     expect(result.text).toContain('[e.int(), e.int()]');
     expect(result.text).not.toContain("'lat'");
@@ -393,7 +395,7 @@ describe('identifier safety', () => {
       const result = await roundTripText(`model ${name} {\n  id Record @id\n  label String\n}\n`);
       expect(result.differences, name).toEqual([]);
       const text = declarationOf(result, name).text;
-      expect(text, name).toContain(`const _${name} = model(\n  '${name}',`);
+      expect(text, name).toContain(`const _${name} = model('${name}', {`);
       expect(text, name).toContain(`export { _${name} as ${name} };`);
       expect(result.built.models[0]!.name).toBe(name);
     }

@@ -1,6 +1,6 @@
 import type { CommentMap } from '../../../formatter';
 import type { CerialToken } from '../../../types';
-import { propertyKey } from './names';
+
 import { splitLines } from './strings';
 
 /** A comment token as `//` lines: the text keeps its spacing, and no line can continue into code. */
@@ -67,49 +67,6 @@ export function declarationComments(
   }
 
   return { above, fieldAbove, fieldAfter };
-}
-
-const ENTRY = /^ {4}\S/;
-
-/**
- * Put the comments into a printed declaration. A field's comments go beside its entry in the fields
- * block; one whose entry is not written (a derived foreign key) goes above the declaration instead.
- */
-export function applyComments(text: string, comments: DeclarationComments): string {
-  const { fieldAbove, fieldAfter } = comments;
-  const above = [...comments.above];
-  const rows = text.split('\n');
-  const open = rows.indexOf('  {');
-  const close = open === -1 ? -1 : rows.indexOf('  },', open);
-  const placed = new Set<string>();
-  const out: string[] = [];
-  const names = [...new Set([...fieldAbove.keys(), ...fieldAfter.keys()])];
-
-  if (open !== -1 && close !== -1 && names.length) {
-    const starts: number[] = [];
-    for (let i = open + 1; i < close; i++) if (ENTRY.test(rows[i]!)) starts.push(i);
-    out.push(...rows.slice(0, open + 1));
-    starts.forEach((start, n) => {
-      const end = (starts[n + 1] ?? close) - 1;
-      const name = names.find((candidate) => rows[start]!.startsWith(`    ${propertyKey(candidate)}: `));
-      const entry = rows.slice(start, end + 1);
-      if (name) {
-        placed.add(name);
-        out.push(...(fieldAbove.get(name) ?? []).map((line) => `    ${line}`));
-        const after = fieldAfter.get(name) ?? [];
-        if (after.length) entry[entry.length - 1] += ` ${after[0]}`;
-        out.push(...entry, ...after.slice(1).map((line) => `    ${line}`));
-      } else out.push(...entry);
-    });
-    out.push(...rows.slice(close));
-  } else out.push(...rows);
-
-  for (const name of names) {
-    if (placed.has(name)) continue;
-    above.push(...(fieldAbove.get(name) ?? []), ...(fieldAfter.get(name) ?? []));
-  }
-
-  return [...above, ...out].join('\n');
 }
 
 /** The comments that belong to no declaration: the header, the footer, and any left unclaimed. */

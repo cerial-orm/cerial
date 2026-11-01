@@ -11,8 +11,11 @@ import type {
   ASTTuple,
   ExtendsFilter,
 } from '../../../types';
+import type { DeclarationComments } from './comments';
 import { emitElement, emitField, emitVariant } from './field';
 import type { EmitContext, ReferenceKind } from './field';
+import { arrayOf, objectOf, printCall } from './layout';
+import type { Entry, Layout } from './layout';
 import { BUILDER_CALLEES, bindingFor, exportStatement, propertyKey } from './names';
 import { isForwardRelation, planRelations } from './relation';
 import { quote } from './strings';
@@ -22,6 +25,8 @@ export interface DeclarationContext {
   readonly reference?: EmitContext['reference'];
   /** The `const` a declaration is bound to, for `extends` and for its own export; its own name when absent. */
   readonly binding?: (name: string) => string;
+  /** The declaration's comments, written into the text where they belong. */
+  readonly comments?: DeclarationComments;
 }
 
 export interface EmittedDeclaration {
@@ -39,21 +44,6 @@ export interface EmittedDeclaration {
 }
 
 const INTEGER_KEY = /^(0|[1-9]\d*)$/;
-
-function indent(text: string): string {
-  return text
-    .split('\n')
-    .map((line) => `  ${line}`)
-    .join('\n');
-}
-
-function block(entries: readonly string[]): string {
-  return entries.length ? `{\n${entries.map((entry) => `${indent(entry)},`).join('\n')}\n}` : '{}';
-}
-
-function call(callee: string, args: readonly string[]): string {
-  return `${callee}(\n${args.map((arg) => `${indent(arg)},`).join('\n')}\n)`;
-}
 
 function referencing(context: DeclarationContext): EmitContext['reference'] {
   const { reference } = context;
@@ -83,16 +73,20 @@ function extendsText(
 function emitted(
   name: string,
   context: DeclarationContext,
-  init: string,
+  callee: string,
+  args: readonly Layout[],
   uses: readonly string[],
-  extra: Partial<Pick<EmittedDeclaration, 'warnings' | 'directiveKindOrder'>> = {},
+  extra: Partial<Pick<EmittedDeclaration, 'warnings' | 'directiveKindOrder'>> & { stray?: readonly string[] } = {},
 ): EmittedDeclaration {
   const binding = bound(context, name);
+  const lead = binding === name ? 'export const ' : 'const ';
+  const init = printCall(lead.length + binding.length + ' = '.length, callee, args);
+  const above = [...(context.comments?.above ?? []), ...(extra.stray ?? [])];
 
   return {
     name,
     binding,
-    text: exportStatement(name, binding, init),
+    text: [...above, exportStatement(name, binding, init)].join('\n'),
     uses,
     warnings: extra.warnings ?? [],
     directiveKindOrder: extra.directiveKindOrder ?? false,
@@ -109,12 +103,15 @@ function optionKey(kind: ASTCompositeDirective['kind']): string {
   return key;
 }
 
-function directiveText(directive: ASTCompositeDirective): string {
-  return `{ name: ${quote(directive.name)}, fields: [${directive.fields.map(quote).join(', ')}] }`;
+function directiveLayout(directive: ASTCompositeDirective): Layout {
+  return objectOf([
+    { key: 'name', value: quote(directive.name) },
+    { key: 'fields', value: arrayOf(directive.fields.map(quote)) },
+  ]);
 }
 
 interface Directives {
-  readonly entries: string[];
+  readonly entries: Entry[];
   readonly alternating: boolean;
 }
 
@@ -135,13 +132,19 @@ function directiveEntries(directives: readonly ASTCompositeDirective[]): Directi
     }
     groups.set(directive.kind, [...(groups.get(directive.kind) ?? []), directive]);
   }
-  const entries = [...groups].map(([kind, list]) => {
-    const texts = list.map(directiveText);
+  const entries = [...groups].map(([kind, list]): Entry => {
+    const layouts = list.map(directiveLayout);
 
-    return `${optionKey(kind)}: ${texts.length === 1 ? texts[0] : `[${texts.join(', ')}]`}`;
+    return { key: optionKey(kind), value: layouts.length === 1 ? layouts[0]! : arrayOf(layouts) };
   });
 
   return { entries, alternating };
+}
+
+interface FieldEntries {
+  readonly entries: Entry[];
+  /** Comments of fields whose entry is not written (a derived foreign key), which go above the declaration. */
+  readonly stray: string[];
 }
 
 function fieldEntries(
@@ -149,16 +152,29 @@ function fieldEntries(
   declaration: string,
   context: DeclarationContext,
   derivation?: ReturnType<typeof planRelations>,
-): string[] {
+): FieldEntries {
   const reference = referencing(context);
-  const entries: string[] = [];
+  const above = context.comments?.fieldAbove;
+  const after = context.comments?.fieldAfter;
+  const entries: Entry[] = [];
+  const placed = new Set<string>();
   fields.forEach((field, index) => {
     if (derivation?.consumed.has(index)) return;
     const derivedForeignKey = derivation?.derived.has(index) || undefined;
-    entries.push(`${propertyKey(field.name)}: ${emitField(field, { declaration, reference, derivedForeignKey })}`);
+    placed.add(field.name);
+    entries.push({
+      key: propertyKey(field.name),
+      value: emitField(field, { declaration, reference, derivedForeignKey }),
+      above: above?.get(field.name),
+      after: after?.get(field.name),
+    });
   });
+  const names = new Set([...(above?.keys() ?? []), ...(after?.keys() ?? [])]);
+  const stray = [...names].flatMap((name) =>
+    placed.has(name) ? [] : [...(above?.get(name) ?? []), ...(after?.get(name) ?? [])],
+  );
 
-  return entries;
+  return { entries, stray };
 }
 
 /** A model as `model('Name', { ... }, { ... })`. */
@@ -167,32 +183,24 @@ export function emitModel(node: ASTModel, context: DeclarationContext = {}): Emi
   const derivation = planRelations(node.fields);
   const { entries: directives, alternating } = directiveEntries(node.directives ?? []);
   const parent = extendsText(node.extends, node.extendsFilter, context, false);
-  const options = [
-    ...(node.abstract ? ['abstract: true'] : []),
-    ...(parent ? [`extends: ${parent}`] : []),
+  const options: Entry[] = [
+    ...(node.abstract ? [{ key: 'abstract', value: 'true' }] : []),
+    ...(parent ? [{ key: 'extends', value: parent }] : []),
     ...directives,
   ];
-  const args = [
-    quote(node.name),
-    block(fieldEntries(node.fields, declaration, context, derivation)),
-    ...(options.length ? [`{ ${options.join(', ')} }`] : []),
-  ];
+  const { entries, stray } = fieldEntries(node.fields, declaration, context, derivation);
+  const args = [quote(node.name), objectOf(entries, true), ...(options.length ? [objectOf(options)] : [])];
   const warnings = alternating
     ? [
         `${declaration} interleaves @@index and @@unique; the TypeScript groups them by kind, which changes only the order of its index definitions`,
       ]
     : [];
 
-  return emitted(
-    node.name,
-    context,
-    call(BUILDER_CALLEES.model, args),
-    ['model', ...(node.fields.length ? ['f'] : [])],
-    {
-      warnings,
-      directiveKindOrder: alternating,
-    },
-  );
+  return emitted(node.name, context, BUILDER_CALLEES.model, args, ['model', ...(node.fields.length ? ['f'] : [])], {
+    warnings,
+    directiveKindOrder: alternating,
+    stray,
+  });
 }
 
 /** An object as `object('Name', { ... })`. */
@@ -205,16 +213,16 @@ export function emitObject(node: ASTObject, context: DeclarationContext = {}): E
     );
   }
   const parent = extendsText(node.extends, node.extendsFilter, context, false);
+  const { entries, stray } = fieldEntries(node.fields, declaration, context);
   const args = [
     quote(node.name),
-    block(fieldEntries(node.fields, declaration, context)),
-    ...(parent ? [`{ extends: ${parent} }`] : []),
+    objectOf(entries, true),
+    ...(parent ? [objectOf([{ key: 'extends', value: parent }])] : []),
   ];
 
-  return emitted(node.name, context, call(BUILDER_CALLEES.object, args), [
-    'object',
-    ...(node.fields.length ? ['f'] : []),
-  ]);
+  return emitted(node.name, context, BUILDER_CALLEES.object, args, ['object', ...(node.fields.length ? ['f'] : [])], {
+    stray,
+  });
 }
 
 /**
@@ -225,19 +233,17 @@ export function emitTuple(node: ASTTuple, context: DeclarationContext = {}): Emi
   const declaration = `tuple ${node.name}`;
   const reference = referencing(context);
   const keyed = !!node.elements.length && node.elements.every((element) => element.name !== undefined);
-  const elements = node.elements.map((element) => {
-    const text = emitElement(element, { declaration, reference, keyed });
-
-    return keyed ? `${propertyKey(element.name!)}: ${text}` : text;
-  });
-  const body = keyed ? block(elements) : `[${elements.join(', ')}]`;
+  const elements = node.elements.map((element) => emitElement(element, { declaration, reference, keyed }));
+  const body = keyed
+    ? objectOf(
+        elements.map((value, i) => ({ key: propertyKey(node.elements[i]!.name!), value })),
+        true,
+      )
+    : arrayOf(elements);
   const parent = extendsText(node.extends, node.extendsFilter, context, true);
-  const args = [quote(node.name), body, ...(parent ? [`{ extends: ${parent} }`] : [])];
+  const args = [quote(node.name), body, ...(parent ? [objectOf([{ key: 'extends', value: parent }])] : [])];
 
-  return emitted(node.name, context, call(BUILDER_CALLEES.tuple, args), [
-    'tuple',
-    ...(node.elements.length ? ['e'] : []),
-  ]);
+  return emitted(node.name, context, BUILDER_CALLEES.tuple, args, ['tuple', ...(node.elements.length ? ['e'] : [])]);
 }
 
 /** A literal as `literal('Name', [variant.string('a'), ...])`. */
@@ -246,9 +252,13 @@ export function emitLiteral(node: ASTLiteral, context: DeclarationContext = {}):
   const reference = referencing(context);
   const variants = node.variants.map((item) => emitVariant(item, { declaration, reference }));
   const parent = extendsText(node.extends, node.extendsFilter, context, false);
-  const args = [quote(node.name), `[${variants.join(', ')}]`, ...(parent ? [`{ extends: ${parent} }`] : [])];
+  const args = [
+    quote(node.name),
+    arrayOf(variants),
+    ...(parent ? [objectOf([{ key: 'extends', value: parent }])] : []),
+  ];
 
-  return emitted(node.name, context, call(BUILDER_CALLEES.literal, args), [
+  return emitted(node.name, context, BUILDER_CALLEES.literal, args, [
     'literal',
     ...(variants.length ? ['variant'] : []),
   ]);
@@ -259,9 +269,9 @@ export function emitEnum(node: ASTEnum, context: DeclarationContext = {}): Emitt
   const parent = extendsText(node.extends, node.extendsFilter, context, false);
   const args = [
     quote(node.name),
-    `[${node.values.map(quote).join(', ')}]`,
-    ...(parent ? [`{ extends: ${parent} }`] : []),
+    arrayOf(node.values.map(quote)),
+    ...(parent ? [objectOf([{ key: 'extends', value: parent }])] : []),
   ];
 
-  return emitted(node.name, context, call(BUILDER_CALLEES.enum, args), [BUILDER_CALLEES.enum]);
+  return emitted(node.name, context, BUILDER_CALLEES.enum, args, [BUILDER_CALLEES.enum]);
 }

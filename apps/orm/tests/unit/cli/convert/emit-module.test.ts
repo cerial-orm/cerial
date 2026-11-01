@@ -307,7 +307,7 @@ describe('comments', () => {
 
     expect(text.startsWith('// header\n\nimport {')).toBe(true);
     expect(text).toContain('// about User\n// open\nexport const User = model(');
-    expect(text).toContain('    // about name\n    name: f.string(), // trailing name\n');
+    expect(text).toContain('  // about name\n  name: f.string(), // trailing name\n');
     expect(text).toContain('// about\n// Role\nexport const Role = enumeration(');
     expect(text.trimEnd().endsWith('// footer')).toBe(true);
     expect(await loadAndCompare(p, result)).toEqual([]);

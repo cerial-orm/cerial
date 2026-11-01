@@ -1,10 +1,11 @@
 import { dirname, relative, sep } from 'node:path';
 import type { CommentMap } from '../../../formatter';
 import type { ASTEnum, ASTLiteral, ASTModel, ASTObject, ASTTuple, SchemaAST } from '../../../types';
-import { applyComments, declarationComments, fileComments } from './comments';
+import { declarationComments, fileComments } from './comments';
 import { emitEnum, emitLiteral, emitModel, emitObject, emitTuple } from './declaration';
 import type { DeclarationContext, EmittedDeclaration } from './declaration';
 import type { ReferenceKind } from './field';
+import { printImport } from './layout';
 import { assignBindings, bindingFor } from './names';
 import { quote } from './strings';
 
@@ -320,7 +321,6 @@ function emitFile(
 
       return plan.thunk.has(edge) ? `() => ${local}` : local;
     };
-    const result = emitDeclaration(declaration, { reference, binding: handleOf });
     const node = declaration.node as ASTModel | ASTObject;
     const comments = declarationComments(
       commentMap,
@@ -332,21 +332,22 @@ function emitFile(
       },
       claimed,
     );
+    const result = emitDeclaration(declaration, { reference, binding: handleOf, comments });
 
-    return { declaration, result, text: applyComments(result.text, comments) };
+    return { declaration, result, text: result.text };
   });
 
   const { top, bottom } = fileComments(commentMap, claimed);
   const uses = [...new Set(emitted.flatMap(({ result }) => result.uses))].sort();
   const builder = uses.map((name) => (name === 'enumeration' ? 'enum as enumeration' : name));
   const importLines = [
-    ...(builder.length ? [`import { ${builder.join(', ')} } from ${quote(options.schemaImport)};`] : []),
+    ...(builder.length ? [printImport(builder, quote(options.schemaImport))] : []),
     ...[...imports]
       .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
       .map(([specifier, names]) => {
         const parts = [...names].map(([exported, local]) => (exported === local ? local : `${exported} as ${local}`));
 
-        return `import { ${parts.join(', ')} } from ${quote(specifier)};`;
+        return printImport(parts, quote(specifier));
       }),
   ];
   const text = [
