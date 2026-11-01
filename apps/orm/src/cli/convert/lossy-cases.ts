@@ -10,6 +10,8 @@ export interface LossyCase {
   readonly reason: string;
   /** The comment written above the converted output, or null when the output carries none. */
   readonly comment: string | null;
+  /** A sentence `--help` carries for a case that writes no comment, so the loss is stated where a user looks first. */
+  readonly notice?: string;
 }
 
 /** Every construct whose conversion is not a plain copy. Refusal messages, `--help` and the docs check read this table. */
@@ -148,6 +150,8 @@ export const LOSSY_CASES: readonly LossyCase[] = [
     reason:
       'The DSL names declarations, not bindings, so importers of `UserModel` break once the source is removed; conversion never edits them. The run report lists each rename.',
     comment: null,
+    notice:
+      'A binding whose name differs from its declaration (`UserModel` for `User`, `default`, an alias) has no .cerial form: the run warns with each `binding -> declaration`, and importers of the binding break once the TypeScript module is removed.',
   },
   {
     id: 'default-export',
@@ -221,6 +225,8 @@ export const LOSSY_CASES: readonly LossyCase[] = [
     reason:
       'The schema holds no trace of it; only the declarations convert, and --remove-source keeps such a module. --help and the report say it is not converted.',
     comment: null,
+    notice:
+      'Only declarations are converted: other exports, helpers and code in a module are not, and the report names each module that holds any.',
   },
   {
     id: 'module-fails-to-load',

@@ -1,0 +1,8 @@
+model Item {
+  id Record @id
+  a String
+  b String
+  @@index(first, [a])
+  @@unique(second, [b])
+  @@index(third, [a, b])
+}

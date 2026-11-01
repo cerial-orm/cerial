@@ -6,6 +6,7 @@ import { handlesPath } from '../../generators/handles';
 import { attachComments } from '../../formatter';
 import type { CommentMap } from '../../formatter';
 import { loadDeclarations, materialise } from '../../parser/builder';
+import type { ExportedDeclaration } from '../../parser/builder';
 import { tokenize } from '../../parser/tokenizer';
 import type { SchemaAST } from '../../types';
 import { checkPrintable } from './check-printable';
@@ -26,6 +27,8 @@ import type { StagedTree } from './write-output';
 import { buildResolvedSchemaAst } from '../resolvers/schema-ast';
 import type { SchemaAstResult } from '../resolvers/schema-ast';
 import { buildWatchTargets } from '../commands/generate';
+import { formatOrigin, validateLiteralFieldReferences } from '../validators';
+import { validateObjectReferences, validateRelations } from '../validators/schema-validator';
 import { schemaSource } from '../generate';
 import type { WatchTarget } from '../watcher';
 
@@ -109,7 +112,9 @@ export function droppedNotice(): string {
     (entry) => entry.direction === 'to-cerial' && entry.action === 'expand' && entry.comment !== null,
   ).map((entry) => entry.id.replace(/-/g, ' '));
 
-  return `--to cerial does not preserve TypeScript comments. These are written out in full and marked with a comment, and the .cerial no longer follows their TypeScript source: ${expanded.join(', ')}. Constructs that cannot be written as .cerial are refused, all in one report.`;
+  const notices = LOSSY_CASES.flatMap((entry) => (entry.notice ? [entry.notice] : []));
+
+  return `--to cerial does not preserve TypeScript comments. These are written out in full and marked with a comment, and the .cerial no longer follows their TypeScript source: ${expanded.join(', ')}. Constructs that cannot be written as .cerial are refused, all in one report. ${notices.join(' ')}`;
 }
 
 function commonDir(dirs: readonly string[]): string {
@@ -495,6 +500,72 @@ function expandComments(ast: SchemaAST, hits: readonly ScanHit[]): CommentMap {
   return comments;
 }
 
+/** Every binding a declaration was exported under whose name is not the declaration's own, which the .cerial cannot carry. */
+function droppedBindings(declarations: readonly ExportedDeclaration[]): string[] {
+  const seen = new Set<string>();
+  const warnings: string[] = [];
+  for (const { handle, module, exportName } of declarations) {
+    const name = (handle as { name: string }).name;
+    const key = `${module}\0${exportName}\0${name}`;
+    if (exportName === name || seen.has(key)) continue;
+    seen.add(key);
+    warnings.push(
+      `${module}: the binding '${exportName}' is not in the .cerial (${exportName} -> ${name}); importers of '${exportName}' break once the TypeScript module is removed`,
+    );
+  }
+
+  return warnings;
+}
+
+/** The modules that export or run something other than a declaration, which a .cerial cannot hold. */
+async function modulesWithOtherCode(
+  files: readonly string[],
+  declarations: readonly ExportedDeclaration[],
+): Promise<string[]> {
+  const imported = (await import('typescript')) as typeof import('typescript') & {
+    default?: typeof import('typescript');
+  };
+  const ts = imported.default ?? imported;
+  const exported = new Map<string, Set<string>>();
+  for (const { module, exportName } of declarations)
+    exported.set(module, (exported.get(module) ?? new Set()).add(exportName));
+
+  const found: string[] = [];
+  for (const file of files) {
+    const source = ts.createSourceFile(file, await readFile(file, 'utf8'), ts.ScriptTarget.Latest, true);
+    const own = exported.get(file) ?? new Set<string>();
+    const isExported = (node: import('typescript').Node): boolean =>
+      ts.canHaveModifiers(node) && !!ts.getModifiers(node)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+    const names = (name: import('typescript').BindingName): string[] =>
+      ts.isIdentifier(name)
+        ? [name.text]
+        : name.elements.flatMap((el) => (ts.isOmittedExpression(el) ? [] : names(el.name)));
+
+    const other = source.statements.some((statement) => {
+      if (ts.isExpressionStatement(statement)) return true;
+      if (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement)) return true;
+      if (ts.isVariableStatement(statement))
+        return (
+          isExported(statement) &&
+          statement.declarationList.declarations.some((d) => names(d.name).some((n) => !own.has(n)))
+        );
+      if (ts.isExportAssignment(statement)) return !own.has('default');
+      if (
+        ts.isExportDeclaration(statement) &&
+        !statement.moduleSpecifier &&
+        statement.exportClause &&
+        ts.isNamedExports(statement.exportClause)
+      )
+        return statement.exportClause.elements.some((el) => !own.has(el.name.text));
+
+      return false;
+    });
+    if (other) found.push(file);
+  }
+
+  return found;
+}
+
 function groupedByModule(entries: ReadonlyArray<{ module: string; text: string }>): string {
   const byModule = new Map<string, string[]>();
   for (const { module, text } of entries) byModule.set(module, [...(byModule.get(module) ?? []), text]);
@@ -524,6 +595,8 @@ async function convertToCerial(
   const groups: CerialGroup[] = [];
   const refusals: Array<{ module: string; text: string }> = [];
   const verboseLines: string[] = [];
+  const warnings: string[] = [];
+  const otherCode: string[] = [];
 
   for (const { target, result } of selected) {
     const label = target.name ? ` in schema '${target.name}'` : '';
@@ -546,10 +619,28 @@ async function convertToCerial(
       else if (options.verbose)
         verboseLines.push(`expanded ${hit.id} (${entry.construct.split(':')[0]}) in ${hit.declaration ?? hit.file}`);
     }
+    // The validators `generate` runs on the resolved schema, so a reference to a declaration that was never
+    // exported (and so is not in the AST) is refused here instead of printed as a dangling name
+    const resolved = result.resolvedAST;
+    if (resolved) {
+      const concrete = { ...resolved, models: resolved.models.filter((m) => !m.abstract) };
+      for (const error of [
+        ...validateRelations(concrete),
+        ...validateObjectReferences(concrete),
+        ...validateLiteralFieldReferences(concrete),
+      ]) {
+        refusals.push({
+          module: error.origin?.file ?? target.schemaPath,
+          text: `unexported-declaration: ${error.origin ? `${formatOrigin(error.origin)}: ` : ''}${error.message}`,
+        });
+      }
+    }
     if (refusals.length) continue;
 
     const files = printCerial(ast, result.declarations, expandComments(ast, hits));
     const kept = result.schemaContents.map(({ path, content }) => ({ from: path, path, text: content }));
+    warnings.push(...droppedBindings(result.declarations));
+    otherCode.push(...(await modulesWithOtherCode(result.typescriptFiles, result.declarations)));
     groups.push({ name: target.name, root: rootOf(target), merged: result.combinedAST, kept, ast, files });
   }
   if (refusals.length)
@@ -596,5 +687,10 @@ async function convertToCerial(
     );
   }
 
-  return { dryRun: written.dryRun, plan, written: written.written, warnings: [], failures: [], lines };
+  if (otherCode.length)
+    lines.push(
+      `Other exports and code in these modules are not converted: ${[...new Set(otherCode)].sort().join(', ')}`,
+    );
+
+  return { dryRun: written.dryRun, plan, written: written.written, warnings, failures: [], lines };
 }

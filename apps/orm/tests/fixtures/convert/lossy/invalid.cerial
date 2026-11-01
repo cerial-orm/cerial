@@ -1,0 +1,6 @@
+model Good {
+  id Record @id
+}
+model Bad {
+  id Record @id
+  x Wat

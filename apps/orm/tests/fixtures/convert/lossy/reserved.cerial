@@ -1,0 +1,8 @@
+model class {
+  id Record @id
+  label String
+}
+
+model f {
+  id Record @id
+}

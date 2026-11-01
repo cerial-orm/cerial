@@ -1,0 +1,4 @@
+model Twin {
+  id Record @id
+  b String
+}

@@ -1,0 +1,8 @@
+object Holder {
+  name String
+  owner Relation @model(User)
+}
+
+model User {
+  id Record @id
+}

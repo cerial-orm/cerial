@@ -1,0 +1,4 @@
+model Doc {
+  id Record @id
+  __proto__ String
+}

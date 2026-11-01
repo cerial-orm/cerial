@@ -1,0 +1,10 @@
+model User {
+  id Record @id
+}
+
+model Post {
+  id Record @id
+  ownerRef Record
+  note String
+  owner Relation @field(ownerRef) @model(User)
+}

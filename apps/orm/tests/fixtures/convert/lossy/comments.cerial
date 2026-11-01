@@ -1,0 +1,10 @@
+# header
+
+# about User
+/* about the model */
+model User { # open
+  id Record @id
+  // about name
+  name String # trailing name
+}
+# footer

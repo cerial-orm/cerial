@@ -1,0 +1,13 @@
+model   User{
+    id   Record   @id
+
+
+  name String
+      age Int?
+}
+
+
+
+object Address {
+ city String
+}
