@@ -11,6 +11,13 @@ export {
   isArrayUpdateOps,
 } from './array-update-builder';
 export {
+  type CascadeEdge,
+  type CascadeGraph,
+  type DependentRelation,
+  findDependentRelations,
+  walkCascade,
+} from './cascade-graph';
+export {
   buildDeleteQuery,
   buildDeleteQueryWithReturn,
   buildDeleteUniqueQuery,

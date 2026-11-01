@@ -9,11 +9,12 @@
  */
 
 import { getUniqueFields } from '../../parser/model-metadata';
-import type { ModelMetadata, ModelRegistry, OnDeleteAction, WhereClause } from '../../types';
+import type { ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
+import { findDependentRelations } from './cascade-graph';
 import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
 
 /** Build DELETE query */
@@ -52,74 +53,6 @@ export function buildDeleteQueryWithReturn(
     text: parts.join(' '),
     vars: whereClause.vars,
   };
-}
-
-/**
- * Find all models that have relations pointing to the given model
- * Returns info about how to handle deletion for each relation
- */
-export function findDependentRelations(
-  targetModelName: string,
-  registry: ModelRegistry,
-): Array<{
-  model: ModelMetadata;
-  relationField: ModelMetadata['fields'][0];
-  recordField: ModelMetadata['fields'][0] | undefined;
-  isRequired: boolean;
-  isArray: boolean;
-  onDelete: OnDeleteAction;
-}> {
-  const dependents: Array<{
-    model: ModelMetadata;
-    relationField: ModelMetadata['fields'][0];
-    recordField: ModelMetadata['fields'][0] | undefined;
-    isRequired: boolean;
-    isArray: boolean;
-    onDelete: OnDeleteAction;
-  }> = [];
-
-  for (const model of Object.values(registry)) {
-    for (const field of model.fields) {
-      if (field.type !== 'relation' || !field.relationInfo) continue;
-      if (field.relationInfo.targetModel !== targetModelName) continue;
-
-      // This relation points to our target model
-      const recordFieldName = field.relationInfo.fieldRef;
-      const recordField = recordFieldName ? model.fields.find((f) => f.name === recordFieldName) : undefined;
-
-      const isArray = field.isArray || recordField?.isArray || false;
-      // For array relations, the parent record doesn't "require" the deleted item to exist
-      // So we never cascade for array relations - just clean up the array
-      const isRequired = !isArray && field.isRequired && !field.relationInfo.isReverse;
-
-      // Determine onDelete action
-      let onDelete: OnDeleteAction;
-      if (field.relationInfo.onDelete) {
-        // Explicit @onDelete decorator (only allowed on optional relations per validator)
-        onDelete = field.relationInfo.onDelete;
-      } else if (isRequired) {
-        // Required relations auto-cascade
-        onDelete = 'Cascade';
-      } else if (recordField?.isNullable) {
-        // @nullable optional relations: SetNull (store null for queryability)
-        onDelete = 'SetNull';
-      } else {
-        // Non-nullable optional relations and array relations: SetNone (clear the field)
-        onDelete = 'SetNone';
-      }
-
-      dependents.push({
-        model,
-        relationField: field,
-        recordField,
-        isRequired,
-        isArray,
-        onDelete,
-      });
-    }
-  }
-
-  return dependents;
 }
 
 /**
