@@ -16,12 +16,12 @@ import type { CerialFile } from './emit-cerial';
 import { emitTypescript } from './emit-ts';
 import type { EmittedModule } from './emit-ts';
 import { LOSSY_CASES, lossyCase } from './lossy-cases';
-import { nonLiteralExports, planPartial, renderUnresolved, withoutNames } from './partial';
-import type { ConvertedDeclaration, HeldBack, PartialRefusal } from './partial';
+import { nonLiteralExports, planPartial, referencesOf, renderUnresolved, withoutNames } from './partial';
+import type { ConvertedDeclaration, HeldBack, Item, PartialRefusal } from './partial';
 import { isInside, planOutputs } from './output-paths';
 import type { OutputPlan } from './output-paths';
-import { removeSources } from './remove-sources';
-import type { SourceClaim } from './remove-sources';
+import { moduleEdges, pureModules, removeSources } from './remove-sources';
+import type { ConvertedSources, RemovalReport, SourceClaim } from './remove-sources';
 import { scanModules } from './scan-module';
 import type { ScanHit } from './scan-module';
 import { writeOutputs } from './write-output';
@@ -51,7 +51,7 @@ export interface ConvertOptions {
   readonly output?: string;
   readonly force?: boolean;
   readonly dryRun?: boolean;
-  /** `--remove-source`: delete the `.cerial` files that were fully converted, after the output is committed. */
+  /** `--remove-source`: delete the sources that were fully converted, after the output is committed. */
   readonly removeSource?: boolean;
   /** `--partial`: write what converts, hold back what reaches a refused declaration, and report the rest. */
   readonly partial?: boolean;
@@ -100,14 +100,6 @@ function validateOptions(options: ConvertOptions): ConvertTarget {
     throw new CerialValidationError(`--to is required. Choose one of: ${choices}`);
   if (!(CONVERT_TARGETS as readonly string[]).includes(options.to))
     throw new CerialValidationError(`--to '${options.to}' is not a direction. Choose one of: ${choices}`);
-  if (options.partial && options.removeSource)
-    throw new CerialValidationError(
-      '--remove-source cannot be combined with --partial yet, so no source is deleted. Remove the converted sources by hand once generate works',
-    );
-  if (options.to === 'cerial' && options.removeSource)
-    throw new CerialValidationError(
-      '--remove-source is not available with --to cerial yet, so no TypeScript module is deleted. Remove them by hand once generate works from the .cerial files',
-    );
   if (blank(options.name)) throw new CerialValidationError('-n needs a schema name');
   if (blank(options.output)) throw new CerialValidationError('-o needs a directory');
   if (blank(options.schema)) throw new CerialValidationError('-s needs a schema file or directory');
@@ -397,46 +389,37 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
   if (options.verbose) lines.push(...countLines(groups.map((g) => g.result.combinedAST)));
 
   let failures: readonly string[] = [];
+  let removed: readonly string[] = [];
   if (options.removeSource) {
-    const claims: SourceClaim[] = analysed.map(({ target, result }) => ({
-      name: target.name,
-      sources: [...result.schemaFiles, ...result.typescriptFiles],
-      listed:
-        target.name === undefined
-          ? []
-          : [
-              ...(target.files ?? []).map((file) => ({ key: 'files' as const, file })),
-              ...(target.entry ? [{ key: 'entry' as const, file: target.entry }] : []),
-              ...(isFile(target.schemaPath) ? [{ key: 'path' as const, file: target.schemaPath }] : []),
-            ],
-    }));
+    const blocked = new Map<string, string>();
+    for (const r of [...refused, ...held]) blocked.set(r.module, UNCONVERTED);
+    for (const { result, excluded } of groups) {
+      for (const file of filesOf(result.combinedAST, excluded)) blocked.set(file, UNCONVERTED);
+      if (!insideEntry(plan))
+        for (const [file, reason] of referencedFiles(result.combinedAST, excluded))
+          if (!blocked.has(file)) blocked.set(file, reason);
+    }
     const declaring = new Set(
       groups.flatMap(({ result: { combinedAST: ast } }) =>
         [...ast.models, ...ast.objects, ...ast.tuples, ...ast.literals, ...ast.enums].map((d) => d.origin.file),
       ),
     );
-    const report = await removeSources(
-      {
-        inputs: groups.flatMap((g) => g.result.schemaFiles),
-        outputs: plan.outputs.filter((o) => declaring.has(o.source)),
-        written: written.written,
-        claims,
-      },
-      { dryRun: options.dryRun, remove: options.removeFile },
-    );
+    const report = await removeConverted(options, analysed, {
+      inputs: groups.flatMap((g) => g.result.schemaFiles),
+      outputs: plan.outputs.filter((o) => declaring.has(o.source)),
+      written: written.written,
+      blocked,
+    });
     lines.push(...report.lines);
     failures = report.failed;
-    if (failures.length)
-      lines.push(
-        `${failures.length} source(s) could not be removed; the converted modules are in place. Remove them by hand: ${failures.join(', ')}`,
-      );
+    removed = options.dryRun ? [] : report.removed;
   } else if (!options.dryRun) {
     lines.push(
       `The .cerial sources were left in place. Rerun with --remove-source to delete them, or remove them once generate works from the new modules: ${sources.join(', ')}`,
     );
   }
 
-  if (options.partial) lines.push(...renderUnresolved({ refused, held, duplicated }));
+  if (options.partial) lines.push(...(await closingLines(options, selected, { refused, held, duplicated }, removed)));
 
   return {
     dryRun: written.dryRun,
@@ -452,6 +435,100 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
 /** True when the converted files land where `generate` reads, so a source left in place is read beside them. */
 function insideEntry(plan: OutputPlan): boolean {
   return !plan.outDir || isInside(plan.entryRoot, plan.outDir);
+}
+
+/** The files declaring something in `names`, which a partial run leaves in its source. */
+function filesOf(ast: SchemaAST, names: ReadonlySet<string>): Set<string> {
+  return new Set(
+    KINDS.flatMap(([list]) => ast[list] as Item[])
+      .filter((item) => names.has(item.name))
+      .map((item) => item.origin.file),
+  );
+}
+
+/** The files that declare something a kept declaration refers to by name, each with the declaration that does. */
+function referencedFiles(ast: SchemaAST, kept: ReadonlySet<string>): Map<string, string> {
+  const items = KINDS.flatMap(([list]) => ast[list] as Item[]);
+  const files = new Map<string, string>();
+  for (const item of items) {
+    if (!kept.has(item.name)) continue;
+    for (const name of referencesOf(item)) {
+      const target = items.find((other) => other.name === name && !kept.has(name));
+      if (target && !files.has(target.origin.file))
+        files.set(target.origin.file, `the declaration ${item.name}, which stays, refers to ${name}`);
+    }
+  }
+
+  return files;
+}
+
+function claimsOf(analysed: Awaited<ReturnType<typeof analyse>>): SourceClaim[] {
+  return analysed.map(({ target, result }) => ({
+    name: target.name,
+    sources: [...result.schemaFiles, ...result.typescriptFiles],
+    listed:
+      target.name === undefined
+        ? []
+        : [
+            ...(target.files ?? []).map((file) => ({ key: 'files' as const, file })),
+            ...(target.entry ? [{ key: 'entry' as const, file: target.entry }] : []),
+            ...(isFile(target.schemaPath) ? [{ key: 'path' as const, file: target.schemaPath }] : []),
+          ],
+  }));
+}
+
+async function removeConverted(
+  options: ConvertOptions,
+  analysed: Awaited<ReturnType<typeof analyse>>,
+  converted: Omit<ConvertedSources, 'claims'>,
+): Promise<RemovalReport> {
+  const report = await removeSources(
+    { ...converted, claims: claimsOf(analysed) },
+    { dryRun: options.dryRun, remove: options.removeFile },
+  );
+  if (!report.failed.length) return report;
+
+  return {
+    ...report,
+    lines: [
+      ...report.lines,
+      `${report.failed.length} source(s) could not be removed; the converted output is in place. Remove them by hand: ${report.failed.join(', ')}`,
+    ],
+  };
+}
+
+/**
+ * The closing section of a `--partial` run. After a removal the claim that the project generates is measured by
+ * reading the entry again, since a removed source is no longer a duplicate and a removed entry module is no longer there.
+ */
+async function closingLines(
+  options: ConvertOptions,
+  selected: Awaited<ReturnType<typeof analyse>>,
+  report: { refused: PartialRefusal[]; held: HeldBack[]; duplicated: ConvertedDeclaration[] },
+  removed: readonly string[],
+): Promise<string[]> {
+  const gone = new Set(removed);
+  const lines = renderUnresolved({ ...report, duplicated: report.duplicated.filter((d) => !gone.has(d.source)) });
+  if (!removed.length) return lines;
+
+  let problems: string[];
+  try {
+    const filterRoot = options.config ? dirname(resolve(options.config)) : process.cwd();
+    const again = await analyse(
+      selected.map((s) => s.target),
+      filterRoot,
+    );
+    problems = again.flatMap(({ target, result }) =>
+      sourceErrors(again.length > 1 && target.name ? `[${target.name}] ` : '', result),
+    );
+  } catch (error) {
+    problems = [error instanceof Error ? error.message : String(error)];
+  }
+  lines[lines.length - 1] = problems.length
+    ? `The project does not generate as it stands: ${problems.join('; ')}`
+    : 'The project generates as it stands.';
+
+  return lines;
 }
 
 function declarationsOf(ast: SchemaAST, kind: 'dsl' | 'ts'): ConvertedDeclaration[] {
@@ -617,6 +694,8 @@ async function modulesWithOtherCode(
   return found;
 }
 
+const UNCONVERTED = 'it holds a declaration that was refused or held back';
+
 function groupedByModule(entries: ReadonlyArray<{ module: string; text: string }>): string {
   const byModule = new Map<string, string[]>();
   for (const { module, text } of entries) byModule.set(module, [...(byModule.get(module) ?? []), text]);
@@ -636,6 +715,9 @@ interface CerialGroup {
   readonly kept: readonly CerialFile[];
   readonly ast: SchemaAST;
   readonly files: readonly CerialFile[];
+  /** Every TypeScript declaration of the entry, and the names a partial run left in their modules. */
+  readonly whole: SchemaAST;
+  readonly excluded: ReadonlySet<string>;
 }
 
 async function convertToCerial(
@@ -650,6 +732,7 @@ async function convertToCerial(
   const verboseLines: string[] = [];
   const warnings: string[] = [];
   const otherCode: string[] = [];
+  const blocked = new Map<string, string>();
 
   for (const { target, result } of selected) {
     const label = target.name ? ` in schema '${target.name}'` : '';
@@ -742,7 +825,9 @@ async function convertToCerial(
     const kept = result.schemaContents.map(({ path, content }) => ({ from: path, path, text: content }));
     warnings.push(...droppedBindings(result.declarations));
     otherCode.push(...(await modulesWithOtherCode(result.typescriptFiles, result.declarations)));
-    groups.push({ name: target.name, root: rootOf(target), merged, kept, ast, files });
+    groups.push({ name: target.name, root: rootOf(target), merged, kept, ast, files, whole, excluded });
+    for (const refusal of refusals.slice(groupStart)) blocked.set(refusal.module, UNCONVERTED);
+    for (const file of filesOf(whole, excluded)) blocked.set(file, UNCONVERTED);
   }
   if (refusals.length && !options.partial)
     throw new CerialGenerationError(
@@ -767,6 +852,22 @@ async function convertToCerial(
     protectedSources: analysed.flatMap(({ result }) => [...result.schemaFiles, ...result.typescriptFiles]),
   });
 
+  // Read before the commit, so a module that cannot be read refuses the run with nothing written
+  let removal: Omit<ConvertedSources, 'claims' | 'written'> | undefined;
+  if (options.removeSource) {
+    // An entry lists the modules it imports, so a converted module need not be among the discovered files
+    const inputs = [
+      ...new Set([...selected.flatMap(({ result }) => result.typescriptFiles), ...plan.outputs.map((o) => o.source)]),
+    ];
+    const imports = await moduleEdges(inputs);
+    for (const file of otherCode) blocked.set(file, 'it holds code other than imports and declarations');
+    if (!insideEntry(plan))
+      for (const { whole, excluded } of groups)
+        for (const [file, reason] of referencedFiles(whole, excluded))
+          if (!blocked.has(file)) blocked.set(file, reason);
+    removal = { inputs, outputs: plan.outputs, blocked, imports, pure: await pureModules([...imports.keys()]) };
+  }
+
   const written = await writeOutputs(plan, {
     contents: new Map(files.map((file) => [file.from, file.text])),
     force: options.force,
@@ -788,7 +889,18 @@ async function convertToCerial(
     ? [...pairs.map((p) => `would write ${p}`), 'Dry run: nothing was written.']
     : pairs.map((p) => `wrote ${p}`);
   if (options.verbose) lines.push(...verboseLines, ...countLines(groups.map((g) => g.ast)));
-  if (!options.dryRun) {
+  let failures: readonly string[] = [];
+  let removed: readonly string[] = [];
+  if (removal) {
+    const report = await removeConverted(options, analysed, { ...removal, written: written.written });
+    lines.push(...report.lines);
+    failures = report.failed;
+    removed = options.dryRun ? [] : report.removed;
+    if (report.removed.length)
+      warnings.push(
+        `comments in the TypeScript modules ${options.dryRun ? 'that would be removed' : 'that were removed'} are gone: the .cerial files do not carry them`,
+      );
+  } else if (!options.dryRun) {
     lines.push(
       `The TypeScript modules were left in place. Move them away before generate, since each declaration now exists in both forms, and list the .cerial entry in the config instead of defineSchema: ${plan.outputs.map((o) => o.source).join(', ')}`,
     );
@@ -801,7 +913,7 @@ async function convertToCerial(
 
   if (options.partial) {
     const duplicated = insideEntry(plan) ? groups.flatMap((g) => declarationsOf(g.ast, 'ts')) : [];
-    lines.push(...renderUnresolved({ refused, held, duplicated }));
+    lines.push(...(await closingLines(options, selected, { refused, held, duplicated }, removed)));
   }
 
   return {
@@ -809,7 +921,7 @@ async function convertToCerial(
     plan,
     written: written.written,
     warnings,
-    failures: [],
+    failures,
     refused: refused.length + held.length,
     lines,
   };

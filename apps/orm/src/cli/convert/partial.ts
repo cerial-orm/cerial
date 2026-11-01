@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { ASTEnum, ASTLiteral, ASTModel, ASTObject, ASTTuple, SchemaAST } from '../../types';
 
-type Item = ASTEnum | ASTLiteral | ASTObject | ASTTuple | ASTModel;
+export type Item = ASTEnum | ASTLiteral | ASTObject | ASTTuple | ASTModel;
 
 const LISTS = ['models', 'objects', 'tuples', 'literals', 'enums'] as const;
 
@@ -33,7 +33,7 @@ function itemsOf(ast: SchemaAST): Item[] {
 }
 
 /** Every declaration name `item` needs to exist: `extends`, relation targets, and object, tuple, literal and enum references. */
-function referencesOf(item: Item): Set<string> {
+export function referencesOf(item: Item): Set<string> {
   const names = new Set<string>();
   const add = (name: string | undefined): void => {
     if (name) names.add(name);

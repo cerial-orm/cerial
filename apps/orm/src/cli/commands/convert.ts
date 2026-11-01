@@ -37,7 +37,8 @@ export const convertCommand = defineCommand({
     },
     'remove-source': {
       type: 'boolean',
-      description: 'Delete the .cerial files that were fully converted, after the output is written',
+      description:
+        'Delete the sources that were fully converted, after the output is written: the .cerial files with --to ts, the TypeScript modules with --to cerial. With --partial, only a file whose every declaration converted. Comments in removed TypeScript modules are lost',
     },
     partial: {
       type: 'boolean',

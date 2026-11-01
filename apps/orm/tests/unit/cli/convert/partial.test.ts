@@ -9,7 +9,7 @@ import { planPartial, renderUnresolved, runConvert } from '../../../../src/cli/c
 import type { ConvertOptions, PartialRefusal } from '../../../../src/cli/convert';
 import { runPassThree } from '../../../../src/cli/passes/pass-three';
 import { buildResolvedSchemaAst } from '../../../../src/cli/resolvers';
-import { CerialError, CerialGenerationError, CerialValidationError } from '../../../../src/errors';
+import { CerialError, CerialGenerationError } from '../../../../src/errors';
 
 const SCHEMA_MODULE = resolve(import.meta.dir, '../../../../src/schema');
 const extras: string[] = [];
@@ -407,14 +407,14 @@ describe('--partial to ts', () => {
 });
 
 describe('--partial and --remove-source', () => {
-  it('refuses the pair by naming both flags, in either direction', async () => {
-    for (const to of ['ts', 'cerial']) {
-      const error = await refused(() => runConvert({ to, schema: root, partial: true, removeSource: true }));
+  it('is accepted in both directions and removes only a wholly converted source', async () => {
+    await project({ 'lone.cerial': 'model Lone {\n  id Record @id\n}\n', ...CYCLE_PROJECT });
 
-      expect(error).toBeInstanceOf(CerialValidationError);
-      expect(error.message).toContain('--remove-source');
-      expect(error.message).toContain('--partial');
-    }
+    const result = await toTs({ output: await outDir(), removeSource: true });
+
+    expect(existsSync(join(root, 'lone.cerial'))).toBe(false);
+    for (const name of ['a', 'b', 'c']) expect(existsSync(join(root, `${name}.cerial`))).toBe(true);
+    expect(result.failures).toEqual([]);
   });
 });
 

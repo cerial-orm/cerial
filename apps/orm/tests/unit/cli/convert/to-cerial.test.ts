@@ -285,15 +285,14 @@ describe('flags', () => {
     expect(error.message).toContain("--to 'yaml'");
   });
 
-  it('refuses --remove-source under --to cerial, naming the flag, and deletes nothing', async () => {
+  it('accepts --remove-source under --to cerial and removes the converted module', async () => {
     await project({ 'user.schema.ts': USER });
 
-    const error = await refused({ removeSource: true });
+    const result = await convert({ removeSource: true });
 
-    expect(error).toBeInstanceOf(CerialValidationError);
-    expect(error.message).toContain('--remove-source');
-    expect(error.message).toContain('--to cerial');
-    expect(await cerialFiles(root)).toEqual([]);
+    expect(result.failures).toEqual([]);
+    expect(await cerialFiles(root)).toEqual(['user.cerial']);
+    expect(await readdir(root)).not.toContain('user.schema.ts');
   });
 });
 
