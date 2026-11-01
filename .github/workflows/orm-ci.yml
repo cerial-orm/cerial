@@ -82,7 +82,7 @@ jobs:
       - run: bun test tooling/hooks
 
   node-typescript:
-    name: TypeScript schemas on Node ${{ matrix.node }}
+    name: TypeScript schemas and convert on Node ${{ matrix.node }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -98,7 +98,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run build
         working-directory: apps/orm
-      - run: bun test tests/integration/typescript-node.test.ts
+      - run: bun test tests/integration/typescript-node.test.ts tests/integration/convert-bin.test.ts
         working-directory: apps/orm
 
   e2e-tests:
