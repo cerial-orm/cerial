@@ -158,6 +158,52 @@ describe('REMOVE FIELD on a parent object', () => {
   });
 });
 
+describe('removing a parent object and its children in one transaction', () => {
+  const SEED_P = `DEFINE TABLE t SCHEMAFULL;
+    DEFINE FIELD a ON t TYPE string;
+    DEFINE FIELD p ON t TYPE object;
+    DEFINE FIELD p.x ON t TYPE string;
+    CREATE t:1 SET a = 'x', p = { x: 'y' };`;
+
+  const fieldNames = async (db: ScratchDatabase) =>
+    Object.keys(((await ok(db, 'INFO FOR TABLE t;')) as { fields: Record<string, string> }).fields).sort();
+
+  test('child, parent, then UNSET: the row loses p, stays writable and SELECT * no longer shows p', async () => {
+    const db = await scratch('parent_full_txn');
+    await run(db, SEED_P);
+
+    const results = await run(db, 'BEGIN; REMOVE FIELD p.x ON t; REMOVE FIELD p ON t; UPDATE t:1 UNSET p; COMMIT;');
+    expect(results.map((r) => r.status)).toEqual(['OK', 'OK', 'OK', 'OK', 'OK']);
+    expect(await fieldNames(db)).toEqual(['a']);
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x' }]);
+
+    await ok(db, "UPDATE t:1 SET a = 'z';");
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z' }]);
+  });
+
+  test('the same removals without the UNSET leave p in the row and block every write', async () => {
+    const db = await scratch('parent_txn_no_unset');
+    await run(db, SEED_P);
+
+    await run(db, 'BEGIN; REMOVE FIELD p.x ON t; REMOVE FIELD p ON t; COMMIT;');
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', p: { x: 'y' } }]);
+    expect(await err(db, "UPDATE t:1 SET a = 'z';")).toContain("Found field 'p', but no such field exists");
+  });
+
+  test('removing only p.x with UNSET p.x keeps p, as an empty object, and the row stays writable', async () => {
+    const db = await scratch('nested_path_only');
+    await run(db, SEED_P);
+
+    const results = await run(db, 'BEGIN; REMOVE FIELD p.x ON t; UPDATE t:1 UNSET p.x; COMMIT;');
+    expect(results.map((r) => r.status)).toEqual(['OK', 'OK', 'OK', 'OK']);
+    expect(await fieldNames(db)).toEqual(['a', 'p']);
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', p: {} }]);
+
+    await ok(db, "UPDATE t:1 SET a = 'z';");
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z', p: {} }]);
+  });
+});
+
 describe('DEFINE FIELD OVERWRITE with a new type over stored data', () => {
   test('succeeds, reads return the old value, and a write fails with a coercion error', async () => {
     const db = await scratch('type_change');
