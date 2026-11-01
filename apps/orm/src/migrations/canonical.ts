@@ -46,6 +46,7 @@ function split(text: string, separator: string): string[] {
 }
 
 const GENERIC = /^([A-Za-z_][A-Za-z0-9_]*)<([\s\S]*)>$/;
+const TUPLE = /^\[([\s\S]*)\]$/;
 
 function members(text: string): string[] {
   const result: string[] = [];
@@ -57,6 +58,10 @@ function members(text: string): string[] {
     } else if (generic) {
       const inner = split(generic[2]!, ',').map(canonicalMembers);
       result.push(`${generic[1]}<${inner.join(', ')}>`);
+    } else if (TUPLE.test(member)) {
+      // Element order is the tuple's shape, so only each element's own union is canonicalised.
+      const elements = split(TUPLE.exec(member)![1]!, ',').map(canonicalMembers);
+      result.push(`[${elements.join(', ')}]`);
     } else result.push(member);
   }
 
@@ -77,6 +82,13 @@ export function canonicalType(type: string): string {
   if (!text || !scan(text, '|').balanced) return type;
 
   return canonicalMembers(text);
+}
+
+/** Whether a type admits an absent value, which is what makes a field optional: `none` or `any` is a member. */
+export function acceptsNone(type: string): boolean {
+  const members = split(canonicalType(type), '|');
+
+  return members.includes('none') || members.includes('any');
 }
 
 function hasOuterParens(text: string): boolean {

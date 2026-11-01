@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { buildFieldModel, canonicalExpression, canonicalType } from '../../../src/migrations';
+import { acceptsNone, buildFieldModel, canonicalExpression, canonicalType } from '../../../src/migrations';
 
 describe('canonicalType', () => {
   test('option<string | null> and none | string | null are one form', () => {
@@ -39,7 +39,30 @@ describe('canonicalType', () => {
     expect(canonicalType("'a|b' | 'c'")).toBe("'a|b' | 'c'");
   });
 
+  test('an optional tuple element reads back as the server renders it', () => {
+    // INFO FOR TABLE ... STRUCTURE on 3.3.0 returns `[float, none | float]` for `[float, option<float>]`
+    expect(canonicalType('[float, option<float>]')).toBe(canonicalType('[float, none | float]'));
+    expect(canonicalType('[float, option<float>]')).toBe('[float, float | none]');
+  });
+
+  test('tuples canonicalise inside unions, generics and other tuples', () => {
+    expect(canonicalType('option<[option<int>, string]>')).toBe(canonicalType('none | [none | int, string]'));
+    expect(canonicalType('array<[int, option<string>]>')).toBe(canonicalType('array<[int, none | string]>'));
+    expect(canonicalType('[[option<int>], string]')).toBe(canonicalType('[[none | int], string]'));
+  });
+
+  test('tuple element order is kept, a required and an optional element stay different', () => {
+    expect(canonicalType('[int, string]')).not.toBe(canonicalType('[string, int]'));
+    expect(canonicalType('[float, option<float>]')).not.toBe(canonicalType('[float, float]'));
+    expect(canonicalType('[float, option<float>]')).not.toBe(canonicalType('[option<float>, float]'));
+  });
+
+  test('a comma or bracket inside a quoted literal element is not a boundary', () => {
+    expect(canonicalType("['a,b', option<int>]")).toBe("['a,b', int | none]");
+  });
+
   test('an unknown shape is returned unchanged', () => {
+    expect(canonicalType('[int, option<string>')).toBe('[int, option<string>');
     expect(canonicalType('option<string')).toBe('option<string');
     expect(canonicalType("'open | string")).toBe("'open | string");
     expect(canonicalType('')).toBe('');
@@ -146,5 +169,20 @@ describe('buildFieldModel', () => {
 
   test('a default_always without a default is dropped', () => {
     expect('defaultAlways' in buildFieldModel({ path: ['a'], kind: 'string', defaultAlways: true })).toBe(false);
+  });
+});
+
+describe('acceptsNone', () => {
+  test('a type with none or any as a member is optional', () => {
+    expect(acceptsNone('none | string')).toBe(true);
+    expect(acceptsNone('option<string>')).toBe(true);
+    expect(acceptsNone('any')).toBe(true);
+  });
+
+  test('a required type is not, including a tuple or array that holds an optional element', () => {
+    expect(acceptsNone('string')).toBe(false);
+    expect(acceptsNone('string | null')).toBe(false);
+    expect(acceptsNone('[float, option<float>]')).toBe(false);
+    expect(acceptsNone('array<option<string>>')).toBe(false);
   });
 });

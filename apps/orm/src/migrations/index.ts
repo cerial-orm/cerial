@@ -1,4 +1,4 @@
-export { buildFieldModel, canonicalExpression, canonicalType, type FieldInput } from './canonical';
+export { acceptsNone, buildFieldModel, canonicalExpression, canonicalType, type FieldInput } from './canonical';
 export type {
   DifferenceClass,
   FieldModel,
@@ -12,3 +12,4 @@ export type {
 export { buildDesiredSchema } from './desired';
 export { parseFieldIdiom, quoteFieldPath, quoteIdent } from './quote';
 export { readLiveSchema } from './reader';
+export { classifyDifference, diffSchema, type DiffOptions, type DifferenceKind, type SchemaDifference } from './diff';

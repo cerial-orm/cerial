@@ -96,6 +96,7 @@
   "src/generators/migrations/writer.ts::writeMigrationFile::template::internalDir": 1,
   "src/generators/migrations/writer.ts::writeMigrationFile::template::outputDir": 1,
   "src/migrations/canonical.ts::canonicalExpression::template::quoted[1]": 1,
+  "src/migrations/canonical.ts::members::template::elements.join(', ')": 1,
   "src/migrations/canonical.ts::members::template::generic[1]": 1,
   "src/migrations/canonical.ts::members::template::inner.join(', ')": 1,
   "src/migrations/desired.ts::buildTable::template::field.isUnique ? 'unique' : 'index'": 1,
