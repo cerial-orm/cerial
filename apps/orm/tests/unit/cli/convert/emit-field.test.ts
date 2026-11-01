@@ -156,6 +156,8 @@ describe('quote', () => {
     "'); process.exit(1); //",
     "'; process.exit(1); '",
     "\\'); process.exit(1); //",
+    `''"); process.exit(1); //`,
+    `\\''\\"); process.exit(1); //`,
   ];
 
   /** Evaluates `String(<quoted>)` with a `process` that records any call, so a run is visible. */
@@ -202,9 +204,12 @@ describe('quote', () => {
     expect(evaluate(`'${payload}`).exits).toBe(1);
   });
 
-  test('the result is single quoted', () => {
-    expect(quote("a'b")).toBe("'a\\'b'");
+  test('the quote kind follows the formatter', () => {
+    expect(quote('ab')).toBe(`'ab'`);
     expect(quote('a"b')).toBe(`'a"b'`);
+    expect(quote("a'b")).toBe(`"a'b"`);
+    expect(quote(`a'b"c`)).toBe(`'a\\'b"c'`);
+    expect(quote(`a''b"c`)).toBe(`"a''b\\"c"`);
   });
 });
 
@@ -315,7 +320,7 @@ describe('decorators', () => {
   });
 
   test('a default is written as the value the parser read, quotes and all', () => {
-    expect(roundTrip('String @default("it\'s")')).toBe("f.string().default('it\\'s')");
+    expect(roundTrip('String @default("it\'s")')).toBe(`f.string().default("it's")`);
     expect(roundTrip('String @default(\'say "hi"\')')).toBe(`f.string().default('say "hi"')`);
     expect(roundTrip('Duration @default(1h30m)')).toBe("f.duration().default('1h30m')");
     expect(roundTrip('Int @default(-3)')).toBe('f.int().default(-3)');
@@ -334,7 +339,7 @@ describe('decorators', () => {
     const expression = emitField(hostile, CTX);
 
     expect(withoutPosition(nodeOf(runBuilder(expression)))).toEqual(withoutPosition(hostile));
-    expect(expression).toBe("f.string().default('\\'); process.exit(1); //')");
+    expect(expression).toBe(`f.string().default("'); process.exit(1); //")`);
   });
 
   test('several decorators keep their order when it type-checks', () => {
