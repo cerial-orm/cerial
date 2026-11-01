@@ -4,3 +4,5 @@ export * from './output-paths';
 export * from './write-output';
 export type { CerialFile } from './emit-cerial';
 export { cerialPathOf, emitCerial, verifyCerial } from './emit-cerial';
+export * from './check-printable';
+export * from './lossy-cases';
