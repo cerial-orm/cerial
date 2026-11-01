@@ -4,7 +4,8 @@
  */
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
+import { emitCerial } from '../../src/cli/convert';
 import type { SchemaAST } from '../../src/types';
 import {
   cleanScratch,
@@ -15,11 +16,14 @@ import {
   fixtureProjects,
   formatCheck,
   loadModules,
+  runTwins,
   scratch,
+  TWINS_DIR,
   typecheck,
   writeModules,
 } from './convert-helpers';
-import type { Emitted } from './convert-helpers';
+import { findSchemaFiles } from './parity-corpus';
+import type { Emitted, TwinRun } from './convert-helpers';
 
 const CORPUS = corpusSources();
 const DROPPABLE = /\.(?:unique|optional|nullable|array)\(\)/;
@@ -155,4 +159,79 @@ describe('the extends-order fixtures', () => {
     expect(output).toContain(`on ${written} files`);
     expect(status).toBe(0);
   }, 120_000);
+});
+
+function firstDifference(first: ReadonlyMap<string, string>, second: ReadonlyMap<string, string>): string[] {
+  const found: string[] = [];
+  for (const name of new Set([...first.keys(), ...second.keys()])) {
+    const a = first.get(name)?.split('\n') ?? [];
+    const b = second.get(name)?.split('\n') ?? [];
+    const line = a.findIndex((text, i) => text !== b[i]);
+    if (line >= 0 || a.length !== b.length) {
+      const at = line >= 0 ? line : a.length;
+      found.push(`${name}:${at + 1}: '${a[at] ?? ''}' became '${b[at] ?? ''}'`);
+    }
+  }
+
+  return found;
+}
+
+describe('the twins: TypeScript to .cerial to TypeScript, then a second pass', () => {
+  let run: TwinRun;
+
+  beforeAll(async () => {
+    run = await runTwins();
+  });
+
+  test('the harness finds files', () => {
+    expect(run.differences.size).toBeGreaterThan(0);
+    expect(run.cerial.size).toBe(run.differences.size);
+  });
+
+  test('a twins directory with no files fails rather than passing', async () => {
+    await expect(runTwins(undefined, scratch())).rejects.toThrow('no schema files');
+  });
+
+  test('every twin is a file of the first pass', () => {
+    expect(run.differences.size).toBe(findSchemaFiles(TWINS_DIR, '.schema.ts').length);
+  });
+
+  describe("against the twin's own AST", () => {
+    for (const name of findSchemaFiles(TWINS_DIR, '.schema.ts').map((path) => relative(TWINS_DIR, path))) {
+      test(name, () => {
+        expect(run.differences.get(name.replace(/\.schema\.ts$/, '.cerial'))).toEqual([]);
+      });
+    }
+  });
+
+  test('the .cerial text of a second pass equals the first, byte for byte', () => {
+    expect(firstDifference(run.cerial, run.cerialAgain)).toEqual([]);
+  });
+
+  test('the TypeScript text of a second pass equals the first, byte for byte', () => {
+    expect(firstDifference(run.typescript, run.typescriptAgain)).toEqual([]);
+  });
+});
+
+describe('the second-pass check is separate from the AST check', () => {
+  test('an emitter that orders fields differently on alternate passes still loads to the twins, and is caught', async () => {
+    let calls = 0;
+    const alternating: typeof emitCerial = (ast, declarations, extra) => {
+      calls += 1;
+      if (calls % 2) return emitCerial(ast, declarations, extra);
+      const sorted: SchemaAST = {
+        ...ast,
+        models: ast.models.map((model) => ({
+          ...model,
+          fields: [...model.fields].sort((a, b) => a.name.localeCompare(b.name)),
+        })),
+      };
+
+      return emitCerial(sorted, declarations, extra);
+    };
+    const run = await runTwins({ cerial: alternating });
+
+    expect([...run.differences.values()].flat()).toEqual([]);
+    expect(firstDifference(run.cerial, run.cerialAgain)).not.toEqual([]);
+  });
 });

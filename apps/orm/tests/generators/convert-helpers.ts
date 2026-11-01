@@ -199,3 +199,71 @@ export async function compareRoundTrip(emitted: Emitted, name: string): Promise<
     tolerate: { declarationOrder: module.hoisted, directiveKindOrder: module.directiveKindOrder },
   });
 }
+
+export const TWINS_DIR = join(ORM_ROOT, 'tests', 'e2e', 'schemas-ts');
+
+export interface TwinEmitters {
+  readonly cerial: typeof emitCerial;
+}
+
+export interface TwinRun {
+  /** Per file, keyed by its `.cerial` path under the twins: the twin's AST against the AST the round trip loaded. */
+  readonly differences: ReadonlyMap<string, string[]>;
+  readonly cerial: ReadonlyMap<string, string>;
+  readonly typescript: ReadonlyMap<string, string>;
+  /** The same two texts after a second pass, keyed the same way. */
+  readonly cerialAgain: ReadonlyMap<string, string>;
+  readonly typescriptAgain: ReadonlyMap<string, string>;
+}
+
+function relativeSources(files: readonly { path: string; text: string }[], base: string): Map<string, string> {
+  return new Map(files.map((file) => [relative(base, file.path), file.text]));
+}
+
+function modulesByName(result: EmitTypescriptResult, dir: string): Map<string, string> {
+  return new Map(result.modules.map((module) => [relative(dir, module.path), module.text]));
+}
+
+/**
+ * The hand-written twins, all together, through `.cerial` and TypeScript and again: `emitCerial`, parse,
+ * `emitTypescript`, load, then the same two steps over what that produced. Nothing is written beside the twins.
+ */
+export async function runTwins(
+  emitters: TwinEmitters = { cerial: emitCerial },
+  twinsDir: string = TWINS_DIR,
+): Promise<TwinRun> {
+  const twinFiles = findSchemaFiles(twinsDir, '.schema.ts');
+  if (!twinFiles.length) throw new Error('the twins directory holds no schema files');
+  const declarations = await loadDeclarations(twinFiles);
+  const twin = materialise(declarations);
+
+  const first = emitters.cerial(twin, declarations);
+  const firstSources = relativeSources(first, twinsDir);
+  const one = emitSet(firstSources);
+  writeModules(one.result);
+  const built = await loadModules(one.result);
+
+  const differences = new Map<string, string[]>();
+  for (const module of one.result.modules) {
+    const name = relative(one.dir, module.file);
+    differences.set(
+      name,
+      compareStructure(only(twin, join(twinsDir, name.replace(/\.cerial$/, '.schema.ts'))), only(built, module.path), {
+        tolerate: { declarationOrder: module.hoisted, directiveKindOrder: module.directiveKindOrder },
+      }),
+    );
+  }
+
+  const loaded = await loadDeclarations(one.result.modules.map((module) => module.path));
+  const second = emitters.cerial(materialise(loaded), loaded);
+  const secondSources = relativeSources(second, one.dir);
+  const two = emitSet(secondSources);
+
+  return {
+    differences,
+    cerial: firstSources,
+    typescript: modulesByName(one.result, one.dir),
+    cerialAgain: secondSources,
+    typescriptAgain: modulesByName(two.result, two.dir),
+  };
+}
