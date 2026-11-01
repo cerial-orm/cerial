@@ -77,6 +77,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Watch mode** — Auto-regenerate on schema changes with per-schema isolation
 - **Configuration** — `cerial.config.ts` / `cerial.config.json` with `defineConfig()` helper
 - **CLI init** — `cerial init` scaffolds config from detected schemas
+- **Convert** — `cerial convert` rewrites a schema between `.cerial` files and TypeScript modules, in either direction. See the [convert docs](https://cerial-orm.github.io/cerial/cli/convert) (0.3.0)
 - **Path filtering** — `ignore`/`exclude`/`include` config fields with `.cerialignore` support
 
 ## Installation

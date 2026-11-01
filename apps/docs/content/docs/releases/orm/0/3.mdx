@@ -211,6 +211,18 @@ development branch and is not available on npm.
   completion from the VS Code extension; these work on `.cerial` files only. See
   [Choosing a Schema Form](/schema/typescript/choosing).
 
+- `cerial convert --to ts` rewrites `.cerial` files as TypeScript modules, and
+  `cerial convert --to cerial` rewrites TypeScript modules back into `.cerial`
+  files. Each run is verified before it writes: the converted files must rebuild
+  the same schema, or nothing is written and the report says why. A schema source
+  is never overwritten, and `--force` only replaces earlier output.
+  `--partial` converts what it can, holds back declarations that depend on a
+  refused one and lists them, and still exits 1. `--remove-source` deletes the
+  sources that were fully converted, after the output is written. Conversion to
+  `.cerial` drops TypeScript comments and carries only declarations, not helpers
+  or other code in a module; the report names each module that holds some. See
+  [Convert](/cli/convert).
+
 - `parse()` and `parseWithLexer()` take an optional last argument, the path of the
   schema file being parsed, and every node in the returned AST records it in a new
   `origin` field (`{ kind: 'dsl', file, range }`). Calls that leave it out keep
