@@ -13,90 +13,11 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { loadDeclarations, materialise } from '../../src/parser/builder';
-import { parse } from '../../src/parser/parser';
+import { compareExact } from '../../src/cli/convert';
 import type { SchemaAST } from '../../src/types';
 import { findSchemaFiles, loadCorpus, SCHEMAS_DIR } from './parity-corpus';
 
 const TWINS_DIR = join(import.meta.dir, '..', 'e2e', 'schemas-ts');
-const LISTS = ['models', 'objects', 'tuples', 'literals', 'enums'] as const;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-/**
- * Drop `range` and `origin` at every depth and nothing else. A node the builder makes has no position in
- * any source text and its origin names a module export, so neither can equal the parser's.
- */
-export function withoutPosition(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(withoutPosition);
-  if (!isRecord(value)) return value;
-
-  const kept: Record<string, unknown> = {};
-  for (const key of Object.keys(value)) {
-    if (key !== 'range' && key !== 'origin') kept[key] = withoutPosition(value[key]);
-  }
-
-  return kept;
-}
-
-/**
- * Every difference between two values as a path and a reason. It walks own keys itself because
- * `expect().toEqual` treats `{ a: undefined }` as equal to `{}`, which would hide a builder that sets a
- * key the parser leaves out. Arrays compare positionally.
- */
-export function differences(left: unknown, right: unknown, path = '$'): string[] {
-  if (Array.isArray(left) || Array.isArray(right)) {
-    if (!Array.isArray(left) || !Array.isArray(right)) return [`${path}: array against non-array`];
-    const found = left.length === right.length ? [] : [`${path}: length ${left.length} against ${right.length}`];
-    for (let i = 0; i < Math.min(left.length, right.length); i++) {
-      found.push(...differences(left[i], right[i], `${path}[${i}]`));
-    }
-
-    return found;
-  }
-  if (isRecord(left) && isRecord(right)) {
-    const found: string[] = [];
-    for (const key of Object.keys(left)) {
-      if (!Object.hasOwn(right, key)) found.push(`${path}.${key}: only in the first`);
-      else found.push(...differences(left[key], right[key], `${path}.${key}`));
-    }
-    for (const key of Object.keys(right)) {
-      if (!Object.hasOwn(left, key)) found.push(`${path}.${key}: only in the second`);
-    }
-
-    return found;
-  }
-
-  return Object.is(left, right) ? [] : [`${path}: ${JSON.stringify(left)} against ${JSON.stringify(right)}`];
-}
-
-/**
- * Compare two raw ASTs, every array positionally: a materialised AST keeps the parser's file-then-declaration
- * order, and the generated client follows that order. `source` is left out of both sides: it is the schema
- * text, which a built AST does not have.
- */
-export function compareAsts(parsed: SchemaAST, built: SchemaAST): string[] {
-  const { source: _parsedSource, ...parsedRest } = parsed;
-  const { source: _builtSource, ...builtRest } = built;
-  const found = differences(Object.keys(parsedRest).sort(), Object.keys(builtRest).sort(), '$ keys');
-
-  for (const list of LISTS) {
-    const left = parsed[list];
-    const right = built[list];
-    const names = (items: readonly { readonly name: string }[]): string[] => items.map((item) => item.name);
-    const same = differences(names(left), names(right), `${list} names`);
-    if (same.length) {
-      found.push(...same);
-      continue;
-    }
-    left.forEach((item, i) =>
-      found.push(...differences(withoutPosition(item), withoutPosition(right[i]), `${list}.${item.name}`)),
-    );
-  }
-
-  return found;
-}
 
 /** The twin of `schemas/<dir>/<name>.cerial` is `schemas-ts/<dir>/<name>.schema.ts`. */
 export function twinPathOf(cerialPath: string): string {
@@ -156,61 +77,8 @@ export async function differentialOf(cerialPath: string): Promise<string[]> {
   const twin = twinPathOf(cerialPath);
   if (!existsSync(twin)) return [`no twin at ${twin}`];
 
-  return compareAsts(parsedAst(cerialPath), await builtAst(twin));
+  return compareExact(parsedAst(cerialPath), await builtAst(twin));
 }
-
-describe('the comparison itself', () => {
-  test('toEqual cannot see an own key set to undefined, and differences can', () => {
-    const withKey: Record<string, unknown> = { a: undefined };
-
-    expect(withKey).toEqual({});
-    expect(differences({ a: undefined }, {})).toEqual(['$.a: only in the first']);
-    expect(differences({}, { a: undefined })).toEqual(['$.a: only in the second']);
-  });
-
-  test('an extra isArray: false fails, and an equal value passes', () => {
-    expect(differences({ isArray: false, name: 'x' }, { name: 'x' })).toEqual(['$.isArray: only in the first']);
-    expect(differences({ name: 'x', list: [1, { k: 2 }] }, { name: 'x', list: [1, { k: 2 }] })).toEqual([]);
-  });
-
-  test('arrays inside a declaration are positional, and values and lengths are compared', () => {
-    expect(differences([1, 2], [2, 1])).toHaveLength(2);
-    expect(differences([1], [1, 2])).toEqual(['$: length 1 against 2']);
-    expect(differences({ a: 1 }, { a: '1' })).toHaveLength(1);
-    expect(differences({ a: [] }, { a: {} })).toEqual(['$.a: array against non-array']);
-  });
-
-  test('only range and origin are dropped, at every depth', () => {
-    const value = { range: 1, origin: 2, rangeless: 3, list: [{ range: 4, kept: undefined }] };
-
-    expect(withoutPosition(value)).toStrictEqual({ rangeless: 3, list: [{ kept: undefined }] });
-  });
-
-  const source = (names: string[]) => names.map((name) => `model ${name} {\n  id Record @id\n}`).join('\n');
-
-  test('top-level arrays are compared by position, so a different order fails', () => {
-    expect(compareAsts(parse(source(['A', 'B'])).ast, parse(source(['A', 'B'])).ast)).toEqual([]);
-    expect(compareAsts(parse(source(['A', 'B'])).ast, parse(source(['B', 'A'])).ast)).not.toEqual([]);
-  });
-
-  test('a different set of names fails, as does a different count', () => {
-    expect(compareAsts(parse(source(['A', 'B'])).ast, parse(source(['A', 'C'])).ast)).not.toEqual([]);
-    expect(compareAsts(parse(source(['A', 'B'])).ast, parse(source(['A'])).ast)).not.toEqual([]);
-  });
-
-  test('fields inside a declaration are positional', () => {
-    const one = parse('model A {\n  id Record @id\n  x Int\n  y Int\n}').ast;
-    const other = parse('model A {\n  id Record @id\n  y Int\n  x Int\n}').ast;
-
-    expect(compareAsts(one, other)).not.toEqual([]);
-  });
-
-  test('source never decides the result', () => {
-    const one = parse(source(['A'])).ast;
-
-    expect(compareAsts(one, { ...one, source: '' })).toEqual([]);
-  });
-});
 
 /** The `.cerial` file a twin stands for: the inverse of `twinPathOf`. */
 function cerialPathOf(twinPath: string, schemasDir: string, twinsDir: string): string {
@@ -308,7 +176,7 @@ describe('the comparison', () => {
     const field = twin.models.find((model) => model.name === 'Post')!.fields[1]!;
     (field as unknown as Record<string, unknown>).isArray = false;
 
-    expect(compareAsts(parsed, twin)).toEqual(['models.Post.fields[1].isArray: only in the second']);
+    expect(compareExact(parsed, twin)).toEqual(['models.Post.fields[1].isArray: only in the second']);
   });
 
   test('a missing twin is reported by path', async () => {

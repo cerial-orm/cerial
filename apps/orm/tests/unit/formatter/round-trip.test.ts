@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { compareStructure } from '../../../src/cli/convert';
 import { printSchema } from '../../../src/formatter';
 import { attachComments } from '../../../src/formatter/comment-attacher';
 import { buildSourceLayout } from '../../../src/formatter/layout';
@@ -16,25 +17,6 @@ import type { SchemaAST } from '../../../src/types';
 import { loadCorpus, SCHEMAS_DIR } from '../../generators/parity-corpus';
 
 const corpus = loadCorpus();
-
-/** Position and provenance are not structure; comments are not on the AST at all. */
-const NOT_STRUCTURE = new Set(['range', 'origin', 'source', 'position']);
-
-/**
- * The printer writes decorators in `DECORATOR_ORDER`, not source order, and no decorator's meaning depends
- * on its neighbours' position. So decorator lists compare as sets; everything else compares in order.
- */
-function structure(ast: SchemaAST): unknown {
-  return JSON.parse(
-    JSON.stringify(ast, (key, value) => {
-      if (NOT_STRUCTURE.has(key)) return undefined;
-      if (key === 'decorators' && Array.isArray(value))
-        return [...value].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
-
-      return value;
-    }),
-  );
-}
 
 /** Parses with the name sets the generator collects across every file, so sibling-file refs resolve. */
 function parseWithCorpusNames(source: string): SchemaAST {
@@ -80,7 +62,7 @@ describe('round trip over the schema corpus', () => {
       const printed = printSchema(ast);
       const again = parseWithCorpusNames(printed);
 
-      expect(structure(again)).toEqual(structure(ast));
+      expect(compareStructure(again, ast)).toEqual([]);
       expect(printSchema(again)).toBe(printed);
     });
 
@@ -92,7 +74,7 @@ describe('round trip over the schema corpus', () => {
       const again = parseWithCorpusNames(printed);
 
       expect(commentTexts(printed)).toEqual(commentTexts(source));
-      expect(structure(again)).toEqual(structure(ast));
+      expect(compareStructure(again, ast)).toEqual([]);
       expect(
         printSchema(again, {
           comments: attachComments(tokenize(printed), again),
