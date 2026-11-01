@@ -14,7 +14,7 @@ import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
-import { findDependentRelations } from './cascade-graph';
+import { type CascadeEdge, walkCascade } from './cascade-graph';
 import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
 
 /** Build DELETE query */
@@ -55,62 +55,86 @@ export function buildDeleteQueryWithReturn(
   };
 }
 
-type Dependent = ReturnType<typeof findDependentRelations>[number];
-
 /**
- * Push the Restrict checks, then the cascade and cleanup statements, for every dependent of a model.
- * `target` is the expression holding the ids being deleted: `$to_delete.id` where the variable is a
+ * Push the statements for every edge a delete reaches: ids of each cascading level are captured first,
+ * then all `Restrict` checks run, then `SetNull`/`SetNone` cleanup, then deletes from the deepest level up.
+ * `rootTarget` is the expression holding the ids being deleted: `$to_delete.id` where the variable is a
  * list of rows, `$to_delete` where it is already a list of ids.
+ *
+ * Returns the guard to wrap around the root target of the final delete. Inside an SDK transaction a THROW
+ * does not stop the script, so when any `Restrict` edge exists every write targets an empty set while
+ * `$blocked` is set.
  */
 function emitDependentStatements(
   statements: string[],
-  model: ModelMetadata,
-  cascadeDeps: Dependent[],
-  target: string,
-): void {
+  edges: readonly CascadeEdge[],
+  rootTarget: string,
+): (target: string) => string {
+  const parentTarget: string[] = [];
+  const captured: Array<string | undefined> = [];
+  const lastCaptured: string[] = [];
+
+  edges.forEach((edge, i) => {
+    parentTarget[i] = edge.depth === 1 ? rootTarget : lastCaptured[edge.depth - 1]!;
+    if (edge.onDelete !== 'Cascade' || !((edges[i + 1]?.depth ?? 0) > edge.depth)) return;
+
+    captured[i] = `$cd_${i + 1}`;
+    lastCaptured[edge.depth] = captured[i]!;
+    const match = edge.isArray ? 'CONTAINSANY' : 'IN';
+    statements.push(
+      `LET ${captured[i]} = (SELECT VALUE id FROM ${edge.model.tableName} WHERE ${edge.recordField!.name} ${match} ${parentTarget[i]})`,
+    );
+  });
+
   // Restrict: count referencing rows and use IF to conditionally fail
-  for (const dep of cascadeDeps) {
-    if (!dep.recordField || dep.onDelete !== 'Restrict') continue;
+  const checkVars: string[] = [];
+  edges.forEach((edge, i) => {
+    if (edge.onDelete !== 'Restrict') return;
 
-    const recordFieldName = dep.recordField.name;
-    const checkVarName = `$has_${dep.model.tableName}_deps`;
-    const match = dep.isArray ? 'CONTAINSANY' : 'IN';
+    const table = edge.model.tableName;
+    const base = `$has_${table}_deps`;
+    const checkVarName = checkVars.includes(base) ? `${base}_${i + 1}` : base;
+    const match = edge.isArray ? 'CONTAINSANY' : 'IN';
+    checkVars.push(checkVarName);
 
     statements.push(
-      `LET ${checkVarName} = (SELECT count() as cnt FROM ${dep.model.tableName} WHERE ${recordFieldName} ${match} ${target} GROUP ALL)[0].cnt ?? 0`,
+      `LET ${checkVarName} = (SELECT count() as cnt FROM ${table} WHERE ${edge.recordField!.name} ${match} ${parentTarget[i]} GROUP ALL)[0].cnt ?? 0`,
     );
     statements.push(
-      `IF ${checkVarName} > 0 { THROW "Cannot delete ${model.name}: ${dep.model.name} records with @onDelete(Restrict) reference this record" }`,
+      `IF ${checkVarName} > 0 { THROW "Cannot delete ${edge.parent}: ${edge.model.name} records with @onDelete(Restrict) reference this record" }`,
+    );
+  });
+
+  const guarded = checkVars.length > 0;
+  if (guarded) statements.push(`LET $blocked = ${checkVars.map((v) => `${v} > 0`).join(' OR ')}`);
+  const guard = (target: string): string => (guarded ? `(IF $blocked { [] } ELSE { ${target} })` : target);
+
+  edges.forEach((edge, i) => {
+    if (edge.onDelete !== 'SetNull' && edge.onDelete !== 'SetNone') return;
+
+    const fieldName = edge.recordField!.name;
+    const match = edge.isArray ? 'CONTAINSANY' : 'IN';
+    // SetNull stores a queryable null (@nullable fields); SetNone leaves the field absent. Array
+    // foreign keys have no null state, so both just remove the id.
+    const assignment = edge.isArray
+      ? `${fieldName} -= ${parentTarget[i]}`
+      : `${fieldName} = ${edge.onDelete === 'SetNull' ? 'NULL' : 'NONE'}`;
+    statements.push(
+      `UPDATE ${edge.model.tableName} SET ${assignment} WHERE ${fieldName} ${match} ${guard(parentTarget[i]!)}`,
+    );
+  });
+
+  for (let i = edges.length - 1; i >= 0; i--) {
+    const edge = edges[i]!;
+    if (edge.onDelete !== 'Cascade') continue;
+
+    const match = edge.isArray ? 'CONTAINSANY' : 'IN';
+    statements.push(
+      `DELETE FROM ${edge.model.tableName} WHERE ${edge.recordField!.name} ${match} ${guard(parentTarget[i]!)}`,
     );
   }
 
-  for (const dep of cascadeDeps) {
-    if (!dep.recordField || dep.onDelete === 'Restrict') continue;
-
-    const recordFieldName = dep.recordField.name;
-    const table = dep.model.tableName;
-    const match = dep.isArray ? 'CONTAINSANY' : 'IN';
-
-    switch (dep.onDelete) {
-      case 'Cascade':
-        statements.push(`DELETE FROM ${table} WHERE ${recordFieldName} ${match} ${target}`);
-        break;
-
-      // SetNull stores a queryable null (@nullable fields); SetNone leaves the field absent. Array
-      // foreign keys have no null state, so both just remove the id.
-      case 'SetNull':
-      case 'SetNone': {
-        const assignment = dep.isArray
-          ? `${recordFieldName} -= ${target}`
-          : `${recordFieldName} = ${dep.onDelete === 'SetNull' ? 'NULL' : 'NONE'}`;
-        statements.push(`UPDATE ${table} SET ${assignment} WHERE ${recordFieldName} ${match} ${target}`);
-        break;
-      }
-
-      case 'NoAction':
-        break;
-    }
-  }
+  return guard;
 }
 
 /**
@@ -130,13 +154,12 @@ export function buildDeleteWithCascade(
   // Build where clause
   const whereClause = transformDestructiveWhere(where, model, 'deleteMany', registry);
 
-  // Find all dependent relations and filter out NoAction
+  // Every edge the delete reaches, NoAction and FK-less relations left out
   // Required relations cascade, optional relations SetNull (or their explicit @onDelete action)
-  const dependents = findDependentRelations(model.name, registry);
-  const cascadeDeps = dependents.filter((d) => d.recordField && d.onDelete !== 'NoAction');
+  const { edges } = walkCascade(model, registry);
 
   // If no explicit cascade operations needed, use simple delete
-  if (cascadeDeps.length === 0) {
+  if (!edges.length) {
     return buildDeleteQueryWithReturn(model, where, registry);
   }
 
@@ -148,11 +171,11 @@ export function buildDeleteWithCascade(
   // Get records to be deleted first
   statements.push(`LET $to_delete = (SELECT id FROM ${model.tableName} ${whereClause.text})`);
 
-  emitDependentStatements(statements, model, cascadeDeps, '$to_delete.id');
+  const guard = emitDependentStatements(statements, edges, '$to_delete.id');
 
   // Delete by the ids captured above, not by re-running the filter: the cascade statements have already
   // removed the children a relation filter such as posts: { some } looks at, so it would match nothing
-  statements.push(`DELETE FROM ${model.tableName} WHERE id IN $to_delete.id RETURN BEFORE`);
+  statements.push(`DELETE FROM ${model.tableName} WHERE id IN ${guard('$to_delete.id')} RETURN BEFORE`);
 
   // Commit transaction
   if (!transactionMode) statements.push('COMMIT TRANSACTION');
@@ -262,12 +285,10 @@ export function buildDeleteUniqueWithCascade(
 ): CompiledQuery {
   const { idAlone, id, expandedWhere } = getRecordIdFromWhere(where, model);
 
-  // Find dependent relations
-  const dependents = findDependentRelations(model.name, registry);
-  const cascadeDeps = dependents.filter((d) => d.recordField && d.onDelete !== 'NoAction');
+  const { edges } = walkCascade(model, registry);
 
   // Simple case: no cascade dependencies needed
-  if (cascadeDeps.length === 0) {
+  if (!edges.length) {
     if (idAlone) return buildDeleteUniqueQuery(model, id!, returnBefore);
 
     // Non-ID lookup without cascade - use simple WHERE-based delete
@@ -303,14 +324,14 @@ export function buildDeleteUniqueWithCascade(
     idAlone ? 'LET $to_delete = [$deleteId]' : 'LET $to_delete = IF $deleteId IS NONE { [] } ELSE { [$deleteId] }',
   );
 
-  emitDependentStatements(statements, model, cascadeDeps, '$to_delete');
+  const guard = emitDependentStatements(statements, edges, '$to_delete');
 
   // Delete the record (using DELETE $recordId for variable reference)
   const returnClause = returnBefore ? 'RETURN BEFORE' : 'RETURN NONE';
   statements.push(
     idAlone
-      ? `DELETE $deleteId ${returnClause}`
-      : `DELETE (IF $deleteId IS NONE { [] } ELSE { $deleteId }) ${returnClause}`,
+      ? `DELETE ${guard('$deleteId')} ${returnClause}`
+      : `DELETE (IF $deleteId IS NONE { [] } ELSE { ${guard('$deleteId')} }) ${returnClause}`,
   );
 
   // Commit transaction

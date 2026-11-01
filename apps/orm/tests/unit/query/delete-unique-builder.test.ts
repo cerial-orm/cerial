@@ -246,7 +246,8 @@ describe('delete-unique-builder', () => {
         expect(query.text).toContain('SELECT count() as cnt FROM purchase_order WHERE userId IN $to_delete');
         expect(query.text).toContain('IF $has_purchase_order_deps > 0 { THROW');
         expect(query.text).toContain('@onDelete(Restrict)');
-        expect(query.text).toContain('DELETE $deleteId');
+        expect(query.text).toContain('LET $blocked = $has_purchase_order_deps > 0');
+        expect(query.text).toContain('DELETE (IF $blocked { [] } ELSE { $deleteId }) RETURN NONE');
         expect(query.text).toContain('COMMIT TRANSACTION');
       });
     });
