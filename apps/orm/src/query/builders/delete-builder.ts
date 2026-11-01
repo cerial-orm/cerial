@@ -12,9 +12,10 @@ import { getUniqueFields } from '../../parser/model-metadata';
 import type { ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
+import { CerialValidationError } from '../../errors';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
-import { type CascadeEdge, walkCascade } from './cascade-graph';
+import { type CascadeEdge, type DependentRelation, findDependentRelations, walkCascade } from './cascade-graph';
 import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
 
 /** Build DELETE query */
@@ -55,6 +56,58 @@ export function buildDeleteQueryWithReturn(
   };
 }
 
+/** Deepest level of a cascade a delete follows; a cascade that reaches further is refused */
+const CASCADE_DEPTH_LIMIT = 16;
+
+interface LevelEdge extends CascadeEdge {
+  /** Reached by following a cycle level by level, so its rows exclude those an earlier level already holds */
+  readonly unrolled: boolean;
+  /** Relations that would sit one level past the limit: any row they find refuses the delete */
+  readonly beyondLimit: readonly DependentRelation[];
+}
+
+function reachableDependents(modelName: string, registry: ModelRegistry): DependentRelation[] {
+  return findDependentRelations(modelName, registry).filter((dep) => dep.recordField && dep.onDelete !== 'NoAction');
+}
+
+function depthMessage(root: string, model: string, path: readonly string[]): string {
+  return `Cannot delete ${root}: cascade deeper than ${CASCADE_DEPTH_LIMIT} levels at ${model} (${path.join(' > ')})`;
+}
+
+/**
+ * The walk stops at the first repeat of a model on a cycle, which would strand the rows below it. Each
+ * cyclic edge is unrolled into one edge per level up to the limit instead, and a graph that is deeper than
+ * the limit without a cycle is refused here, before any statement exists.
+ */
+function unrollCycles(edges: readonly CascadeEdge[], registry: ModelRegistry): LevelEdge[] {
+  const out: LevelEdge[] = [];
+
+  const descend = (edge: CascadeEdge): void => {
+    const cascades = edge.onDelete === 'Cascade';
+    const atLimit = cascades && edge.depth >= CASCADE_DEPTH_LIMIT;
+    const dependents = cascades ? reachableDependents(edge.model.name, registry) : [];
+    out.push({ ...edge, cyclic: false, unrolled: true, beyondLimit: atLimit ? dependents : [] });
+    if (!cascades || atLimit) return;
+
+    const path = [...edge.path, edge.model.name];
+    for (const dep of dependents)
+      descend({ ...dep, parent: edge.model.name, depth: edge.depth + 1, path, cyclic: false });
+  };
+
+  for (const edge of edges) {
+    if (edge.cyclic) {
+      descend(edge);
+      continue;
+    }
+    if (edge.depth > CASCADE_DEPTH_LIMIT) {
+      throw new CerialValidationError(depthMessage(edge.path[0]!, edge.model.name, [...edge.path, edge.model.name]));
+    }
+    out.push({ ...edge, unrolled: false, beyondLimit: [] });
+  }
+
+  return out;
+}
+
 /**
  * Push the statements for every edge a delete reaches: ids of each cascading level are captured first,
  * then all `Restrict` checks run, then `SetNull`/`SetNone` cleanup, then deletes from the deepest level up.
@@ -62,27 +115,45 @@ export function buildDeleteQueryWithReturn(
  * list of rows, `$to_delete` where it is already a list of ids.
  *
  * Returns the guard to wrap around the root target of the final delete. Inside an SDK transaction a THROW
- * does not stop the script, so when any `Restrict` edge exists every write targets an empty set while
- * `$blocked` is set.
+ * does not stop the script, so when any `Restrict` edge or depth check exists every write targets an empty
+ * set while `$blocked` is set.
  */
 function emitDependentStatements(
   statements: string[],
-  edges: readonly CascadeEdge[],
+  walked: readonly CascadeEdge[],
   rootTarget: string,
+  registry: ModelRegistry,
 ): (target: string) => string {
+  const edges = unrollCycles(walked, registry);
+  const rootName = walked[0]!.path[0]!;
   const parentTarget: string[] = [];
   const captured: Array<string | undefined> = [];
   const lastCaptured: string[] = [];
 
+  const rootTable = registry[rootName]!.tableName;
+
+  // Ids a row of `table` must not be captured again from: the root rows and every earlier capture of the
+  // table. Without it a cycle in the data would look as deep as the limit
+  const seen = (table: string, upTo: number): string => {
+    const holders = edges
+      .slice(0, upTo)
+      .flatMap((e, j) => (e.model.tableName === table && captured[j] ? [captured[j]!] : []));
+    if (table === rootTable) holders.unshift(rootTarget);
+
+    return holders.map((h) => ` AND id NOT IN ${h}`).join('');
+  };
+
   edges.forEach((edge, i) => {
     parentTarget[i] = edge.depth === 1 ? rootTarget : lastCaptured[edge.depth - 1]!;
-    if (edge.onDelete !== 'Cascade' || !((edges[i + 1]?.depth ?? 0) > edge.depth)) return;
+    const descends = (edges[i + 1]?.depth ?? 0) > edge.depth || edge.beyondLimit.length > 0;
+    if (edge.onDelete !== 'Cascade' || !descends) return;
 
     captured[i] = `$cd_${i + 1}`;
     lastCaptured[edge.depth] = captured[i]!;
     const match = edge.isArray ? 'CONTAINSANY' : 'IN';
+    const exclude = edge.unrolled ? seen(edge.model.tableName, i) : '';
     statements.push(
-      `LET ${captured[i]} = (SELECT VALUE id FROM ${edge.model.tableName} WHERE ${edge.recordField!.name} ${match} ${parentTarget[i]})`,
+      `LET ${captured[i]} = (SELECT VALUE id FROM ${edge.model.tableName} WHERE ${edge.recordField!.name} ${match} ${parentTarget[i]}${exclude})`,
     );
   });
 
@@ -103,6 +174,21 @@ function emitDependentStatements(
     statements.push(
       `IF ${checkVarName} > 0 { THROW "Cannot delete ${edge.parent}: ${edge.model.name} records with @onDelete(Restrict) reference this record" }`,
     );
+  });
+
+  edges.forEach((edge, i) => {
+    edge.beyondLimit.forEach((dep) => {
+      const checkVarName = `$deep_${checkVars.length + 1}`;
+      const match = dep.isArray ? 'CONTAINSANY' : 'IN';
+      checkVars.push(checkVarName);
+
+      statements.push(
+        `LET ${checkVarName} = (SELECT count() as cnt FROM ${dep.model.tableName} WHERE ${dep.recordField!.name} ${match} ${captured[i]}${seen(dep.model.tableName, i + 1)} GROUP ALL)[0].cnt ?? 0`,
+      );
+      statements.push(
+        `IF ${checkVarName} > 0 { THROW "${depthMessage(walked[0]!.path[0]!, dep.model.name, [...edge.path, edge.model.name, dep.model.name])}" }`,
+      );
+    });
   });
 
   const guarded = checkVars.length > 0;
@@ -171,7 +257,7 @@ export function buildDeleteWithCascade(
   // Get records to be deleted first
   statements.push(`LET $to_delete = (SELECT id FROM ${model.tableName} ${whereClause.text})`);
 
-  const guard = emitDependentStatements(statements, edges, '$to_delete.id');
+  const guard = emitDependentStatements(statements, edges, '$to_delete.id', registry);
 
   // Delete by the ids captured above, not by re-running the filter: the cascade statements have already
   // removed the children a relation filter such as posts: { some } looks at, so it would match nothing
@@ -324,7 +410,7 @@ export function buildDeleteUniqueWithCascade(
     idAlone ? 'LET $to_delete = [$deleteId]' : 'LET $to_delete = IF $deleteId IS NONE { [] } ELSE { [$deleteId] }',
   );
 
-  const guard = emitDependentStatements(statements, edges, '$to_delete');
+  const guard = emitDependentStatements(statements, edges, '$to_delete', registry);
 
   // Delete the record (using DELETE $recordId for variable reference)
   const returnClause = returnBefore ? 'RETURN BEFORE' : 'RETURN NONE';
