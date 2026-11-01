@@ -1,15 +1,15 @@
 import { defineCommand } from 'citty';
-import { runConvert } from '../convert/run';
+import { droppedNotice, runConvert } from '../convert/run';
 
 export const convertCommand = defineCommand({
   meta: {
     name: 'convert',
-    description: 'Convert .cerial schemas to TypeScript modules; comments are kept',
+    description: `Convert between .cerial schemas and TypeScript modules. --to ts keeps comments. ${droppedNotice()}`,
   },
   args: {
     to: {
       type: 'string',
-      description: 'Direction to convert: ts',
+      description: 'Direction to convert: ts (.cerial to TypeScript) or cerial (TypeScript to .cerial)',
     },
     schema: {
       type: 'string',
@@ -39,6 +39,11 @@ export const convertCommand = defineCommand({
       type: 'boolean',
       description: 'Delete the .cerial files that were fully converted, after the output is written',
     },
+    verbose: {
+      type: 'boolean',
+      alias: 'v',
+      description: 'List each expanded case per declaration, and the declarations written per file',
+    },
     'dry-run': {
       type: 'boolean',
       description: 'Check the conversion and list the files without writing them',
@@ -55,6 +60,7 @@ export const convertCommand = defineCommand({
         force: args.force,
         dryRun: args['dry-run'],
         removeSource: args['remove-source'],
+        verbose: args.verbose,
       });
       for (const warning of result.warnings) console.warn(`warning: ${warning}`);
       for (const line of result.lines) console.log(line);

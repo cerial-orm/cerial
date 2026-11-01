@@ -1,5 +1,5 @@
 import { existsSync, statSync } from 'node:fs';
-import { rm, rmdir } from 'node:fs/promises';
+import { readFile, rm, rmdir } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { CerialGenerationError, CerialValidationError } from '../../errors';
 import { handlesPath } from '../../generators/handles';
@@ -8,13 +8,19 @@ import type { CommentMap } from '../../formatter';
 import { loadDeclarations, materialise } from '../../parser/builder';
 import { tokenize } from '../../parser/tokenizer';
 import type { SchemaAST } from '../../types';
+import { checkPrintable } from './check-printable';
 import { compareExact } from './compare';
+import { commentToken, printCerial, verifyCerial } from './emit-cerial';
+import type { CerialFile } from './emit-cerial';
 import { emitTypescript } from './emit-ts';
 import type { EmittedModule } from './emit-ts';
+import { LOSSY_CASES, lossyCase } from './lossy-cases';
 import { isInside, planOutputs } from './output-paths';
 import type { OutputPlan } from './output-paths';
 import { removeSources } from './remove-sources';
 import type { SourceClaim } from './remove-sources';
+import { scanModules } from './scan-module';
+import type { ScanHit } from './scan-module';
 import { writeOutputs } from './write-output';
 import type { StagedTree } from './write-output';
 import { buildResolvedSchemaAst } from '../resolvers/schema-ast';
@@ -24,7 +30,7 @@ import { schemaSource } from '../generate';
 import type { WatchTarget } from '../watcher';
 
 /** The directions `convert` can write. */
-export const CONVERT_TARGETS = ['ts'] as const;
+export const CONVERT_TARGETS = ['ts', 'cerial'] as const;
 export type ConvertTarget = (typeof CONVERT_TARGETS)[number];
 
 export interface ConvertOptions {
@@ -42,6 +48,8 @@ export interface ConvertOptions {
   readonly dryRun?: boolean;
   /** `--remove-source`: delete the `.cerial` files that were fully converted, after the output is committed. */
   readonly removeSource?: boolean;
+  /** `-v`: list each expanded case per declaration and the declarations written per file. */
+  readonly verbose?: boolean;
   /** Replaces the deletion of one source so a removal failure can be injected. */
   readonly removeFile?: (path: string) => Promise<void>;
   /** What the emitted modules import the builder from. Defaults to `cerial/schema`. */
@@ -81,6 +89,10 @@ function validateOptions(options: ConvertOptions): ConvertTarget {
     throw new CerialValidationError(`--to is required. Choose one of: ${choices}`);
   if (!(CONVERT_TARGETS as readonly string[]).includes(options.to))
     throw new CerialValidationError(`--to '${options.to}' is not a direction. Choose one of: ${choices}`);
+  if (options.to === 'cerial' && options.removeSource)
+    throw new CerialValidationError(
+      '--remove-source is not available with --to cerial yet, so no TypeScript module is deleted. Remove them by hand once generate works from the .cerial files',
+    );
   if (blank(options.name)) throw new CerialValidationError('-n needs a schema name');
   if (blank(options.output)) throw new CerialValidationError('-o needs a directory');
   if (blank(options.schema)) throw new CerialValidationError('-s needs a schema file or directory');
@@ -89,6 +101,15 @@ function validateOptions(options: ConvertOptions): ConvertTarget {
     throw new CerialValidationError(`-o ${options.output} is a file, not a directory`);
 
   return options.to as ConvertTarget;
+}
+
+/** What `--help` says conversion drops, read from the table so the text cannot drift from the rows. */
+export function droppedNotice(): string {
+  const expanded = LOSSY_CASES.filter(
+    (entry) => entry.direction === 'to-cerial' && entry.action === 'expand' && entry.comment !== null,
+  ).map((entry) => entry.id.replace(/-/g, ' '));
+
+  return `--to cerial does not preserve TypeScript comments. These are written out in full and marked with a comment, and the .cerial no longer follows their TypeScript source: ${expanded.join(', ')}. Constructs that cannot be written as .cerial are refused, all in one report.`;
 }
 
 function commonDir(dirs: readonly string[]): string {
@@ -270,6 +291,8 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
       `Nothing was written. The schema has errors:\n${problems.map((p) => `  ${p}`).join('\n')}`,
     );
 
+  if (options.to === 'cerial') return convertToCerial(options, selected, analysed);
+
   const groups: Group[] = [];
   const refusals: string[] = [];
   for (const { target, result } of selected) {
@@ -338,6 +361,7 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
   const lines = options.dryRun
     ? [...pairs.map((p) => `would write ${p}`), 'Dry run: nothing was written.']
     : pairs.map((p) => `wrote ${p}`);
+  if (options.verbose) lines.push(...countLines(groups.map((g) => g.result.combinedAST)));
 
   let failures: readonly string[] = [];
   if (options.removeSource) {
@@ -384,4 +408,188 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
 
 function isFile(path: string): boolean {
   return existsSync(path) && statSync(path).isFile();
+}
+
+const KINDS = [
+  ['models', 'model'],
+  ['objects', 'object'],
+  ['tuples', 'tuple'],
+  ['literals', 'literal'],
+  ['enums', 'enum'],
+] as const;
+
+interface Placed {
+  readonly kind: string;
+  readonly name: string;
+  readonly exportName: string | undefined;
+  readonly file: string;
+  readonly fields: readonly string[];
+}
+
+function placed(ast: SchemaAST): Placed[] {
+  return KINDS.flatMap(([list, kind]) =>
+    ast[list].map((item) => ({
+      kind,
+      name: item.name,
+      exportName: item.origin.kind === 'ts' ? item.origin.export : undefined,
+      file: item.origin.file,
+      fields: 'fields' in item ? item.fields.map((field) => field.name) : [],
+    })),
+  );
+}
+
+function countLines(asts: readonly SchemaAST[]): string[] {
+  const counts = new Map<string, number>();
+  for (const item of asts.flatMap(placed)) counts.set(item.file, (counts.get(item.file) ?? 0) + 1);
+
+  return [...counts].sort(([a], [b]) => a.localeCompare(b)).map(([file, n]) => `${file}: ${n} declaration(s)`);
+}
+
+function onlyTypescript(ast: SchemaAST): SchemaAST {
+  const own = <T extends { origin: { kind: string } }>(items: T[]): T[] =>
+    items.filter((item) => item.origin.kind === 'ts');
+
+  return {
+    models: own(ast.models),
+    objects: own(ast.objects),
+    tuples: own(ast.tuples),
+    literals: own(ast.literals),
+    enums: own(ast.enums),
+    source: '',
+  };
+}
+
+/** The row's comment, with the name it asks for filled in. */
+function commentText(template: string, hit: ScanHit): string {
+  return template.replace('<callee>', hit.subject ?? 'a function').replace('<name>', hit.subject ?? 'a field set');
+}
+
+/**
+ * A comment above each declaration (or field) an `expand` row rewrote, so the `.cerial` does not read as
+ * hand-written. A hit inside a helper body no declaration owns goes above the first declaration of its module.
+ */
+function expandComments(ast: SchemaAST, hits: readonly ScanHit[]): CommentMap {
+  const comments: CommentMap = new Map();
+  const items = placed(ast);
+  const add = (key: string, text: string): void => {
+    const entry = comments.get(key) ?? { leading: [], trailing: [] };
+    if (!entry.leading.some((token) => token.value === text)) entry.leading.push(commentToken(text));
+    comments.set(key, entry);
+  };
+
+  for (const hit of hits) {
+    const template = lossyCase(hit.id).comment;
+    if (lossyCase(hit.id).action !== 'expand' || template === null) continue;
+    const text = commentText(template, hit);
+    const names = hit.declaration?.split(', ');
+    const owners = items.filter((item) =>
+      names ? item.file === hit.file && item.exportName !== undefined && names.includes(item.exportName) : false,
+    );
+    const targets = names ? owners : items.filter((item) => item.file === hit.file).slice(0, 1);
+    for (const owner of targets) {
+      const onField = hit.field !== null && owner.fields.includes(hit.field);
+      add(onField ? `field:${owner.name}.${hit.field}` : `${owner.kind}:${owner.name}`, text);
+    }
+  }
+
+  return comments;
+}
+
+function groupedByModule(entries: ReadonlyArray<{ module: string; text: string }>): string {
+  const byModule = new Map<string, string[]>();
+  for (const { module, text } of entries) byModule.set(module, [...(byModule.get(module) ?? []), text]);
+
+  return [...byModule]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([module, texts]) => `  ${module}\n${texts.map((t) => `    ${t}`).join('\n')}`)
+    .join('\n');
+}
+
+interface CerialGroup {
+  readonly name: string | undefined;
+  readonly root: string;
+  readonly ast: SchemaAST;
+  readonly files: readonly CerialFile[];
+}
+
+async function convertToCerial(
+  options: ConvertOptions,
+  selected: Awaited<ReturnType<typeof analyse>>,
+  analysed: Awaited<ReturnType<typeof analyse>>,
+): Promise<ConvertResult> {
+  const groups: CerialGroup[] = [];
+  const refusals: Array<{ module: string; text: string }> = [];
+  const verboseLines: string[] = [];
+
+  for (const { target, result } of selected) {
+    const label = target.name ? ` in schema '${target.name}'` : '';
+    if (!result.typescriptFiles.length)
+      throw new CerialGenerationError(`Nothing to convert${label}: it has no TypeScript schema modules.`);
+
+    const ast = onlyTypescript(result.combinedAST);
+    const hits = await scanModules(result.typescriptFiles);
+    for (const finding of checkPrintable(ast)) {
+      if (lossyCase(finding.id).action === 'refuse')
+        refusals.push({ module: finding.module, text: `${finding.id}: ${finding.message}` });
+    }
+    for (const hit of hits) {
+      const entry = lossyCase(hit.id);
+      if (entry.action === 'refuse')
+        refusals.push({
+          module: hit.file,
+          text: `${hit.id}: ${hit.message} (${hit.line}:${hit.column}): ${entry.reason}`,
+        });
+      else if (options.verbose)
+        verboseLines.push(`expanded ${hit.id} (${entry.construct.split(':')[0]}) in ${hit.declaration ?? hit.file}`);
+    }
+    if (refusals.length) continue;
+
+    const files = printCerial(ast, result.declarations, expandComments(ast, hits));
+    groups.push({ name: target.name, root: rootOf(target), ast, files });
+  }
+  if (refusals.length)
+    throw new CerialGenerationError(
+      `Nothing was written. ${refusals.length} construct(s) cannot be converted to .cerial:\n${groupedByModule(refusals)}`,
+    );
+
+  const files = groups.flatMap((g) => g.files);
+  if (!files.length) throw new CerialGenerationError('Nothing to convert: the selected sources hold no declarations.');
+
+  const plan = planOutputs({
+    sources: files.map((file) => file.from),
+    entryRoot: commonDir(groups.map((g) => g.root)),
+    toExtension: '.cerial',
+    outDir: options.output,
+    // Every config entry guards its sources, not only the ones converted now
+    protectedSources: analysed.flatMap(({ result }) => [...result.schemaFiles, ...result.typescriptFiles]),
+  });
+
+  const written = await writeOutputs(plan, {
+    contents: new Map(files.map((file) => [file.from, file.text])),
+    force: options.force,
+    dryRun: options.dryRun,
+    rename: options.rename,
+    verify: async (tree) => {
+      for (const group of groups) {
+        const own = new Set(group.files.map((file) => file.from));
+        const staged: CerialFile[] = [];
+        for (const file of tree.files.filter((f) => own.has(f.source)))
+          staged.push({ from: file.source, path: file.path, text: await readFile(file.path, 'utf8') });
+        verifyCerial(group.ast, staged);
+      }
+    },
+  });
+
+  const pairs = plan.outputs.map(({ source, target }) => `${source} -> ${target}`);
+  const lines = options.dryRun
+    ? [...pairs.map((p) => `would write ${p}`), 'Dry run: nothing was written.']
+    : pairs.map((p) => `wrote ${p}`);
+  if (options.verbose) lines.push(...verboseLines, ...countLines(groups.map((g) => g.ast)));
+  if (!options.dryRun) {
+    lines.push(
+      `The TypeScript modules were left in place. Move them away before generate, since each declaration now exists in both forms, and list the .cerial entry in the config instead of defineSchema: ${plan.outputs.map((o) => o.source).join(', ')}`,
+    );
+  }
+
+  return { dryRun: written.dryRun, plan, written: written.written, warnings: [], failures: [], lines };
 }

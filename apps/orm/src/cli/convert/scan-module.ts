@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
-import { existsSync } from 'node:fs';
-import { dirname, join, sep } from 'node:path';
+import { createRequire } from 'node:module';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, resolve as resolvePath, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { moduleGraph } from '../../parser/builder/load';
 import type { ImportReader } from '../../parser/builder/load';
@@ -24,6 +24,8 @@ export interface ScanHit {
   readonly line: number;
   /** 1-based. */
   readonly column: number;
+  /** What the row's comment names: the helper called, or the shared field set. */
+  readonly subject: string | null;
   readonly message: string;
 }
 
@@ -98,14 +100,51 @@ function ownSources(): string[] {
   return [join(dir, 'src') + sep, join(dir, 'dist') + sep];
 }
 
-function defaultResolve(specifier: string, from: string): string | undefined {
+const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts'] as const;
+
+function isFile(path: string): boolean {
   try {
-    if (process.versions.bun) return Bun.resolveSync(specifier, dirname(from));
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
+/** A relative specifier as the TypeScript compiler reads it: a source extension, a `.js` spelling of one, or an index. */
+function resolveRelative(specifier: string, from: string): string | undefined {
+  const base = resolvePath(dirname(from), specifier);
+  const stem = base.replace(/\.[cm]?jsx?$/, '');
+  const candidates = [
+    base,
+    ...SOURCE_EXTENSIONS.map((ext) => base + ext),
+    ...SOURCE_EXTENSIONS.map((ext) => stem + ext),
+    ...SOURCE_EXTENSIONS.map((ext) => join(base, `index${ext}`)),
+  ];
+
+  return candidates.find(isFile);
+}
+
+/**
+ * Node's own resolution, for a runtime without `Bun.resolveSync`. A package resolves to a path under
+ * `node_modules`; a specifier it cannot resolve, such as a tsconfig path alias, is undefined and is then
+ * treated as a package, which refuses rather than guesses.
+ */
+export function nodeResolve(specifier: string, from: string): string | undefined {
+  if (specifier.startsWith('.')) return resolveRelative(specifier, from);
+  try {
+    return createRequire(from).resolve(specifier);
   } catch {
     return undefined;
   }
+}
 
-  return undefined;
+function defaultResolve(specifier: string, from: string): string | undefined {
+  if (!process.versions.bun) return nodeResolve(specifier, from);
+  try {
+    return Bun.resolveSync(specifier, dirname(from));
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -123,8 +162,17 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
   if (!graph.length) return [];
   const imported = (await import('typescript')) as TypeScript & { default?: TypeScript };
   const ts = imported.default ?? imported;
-  const isBuilder = options.isBuilderSpecifier ?? ((specifier: string) => specifier === 'cerial/schema');
   const resolveSpecifier = options.resolve ?? defaultResolve;
+  const ownSchema = own.map((root) => join(root, 'schema'));
+  // A linked checkout or a relative path to the library's own builder is the builder too
+  const isBuilder =
+    options.isBuilderSpecifier ??
+    ((specifier: string, from: string) => {
+      if (specifier === 'cerial/schema') return true;
+      const resolved = resolveSpecifier(specifier, from);
+
+      return !!resolved && ownSchema.some((root) => resolved === root || resolved.startsWith(root + sep));
+    });
 
   const infos = new Map<string, FileInfo>();
   const hits: ScanHit[] = [];
@@ -401,7 +449,14 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
     return { line: position.line + 1, column: position.character + 1 };
   }
 
-  function hit(context: Context, id: string, node: Node, detail: string, field = context.field): void {
+  function hit(
+    context: Context,
+    id: string,
+    node: Node,
+    detail: string,
+    field = context.field,
+    subject: string | null = null,
+  ): void {
     const { line, column } = place(node, context.info);
     const key = `${id}\0${context.info.file}\0${line}:${column}`;
     if (seenHits.has(key)) return;
@@ -414,6 +469,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
       file: context.info.file,
       line,
       column,
+      subject,
       message: `${lossyCase(id).construct.split(':')[0]} (${detail})${where}${field ? `, field '${field}'` : ''}`,
     });
   }
@@ -427,7 +483,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
     if (kind === 'declaration') return;
     if (kind === 'literal' && found.t === 'bound' && found.info === context.info) return;
     if (kind === 'field' || kind === 'fieldset') {
-      return hit(context, 'shared-field-set', node, `shared: ${name}`);
+      return hit(context, 'shared-field-set', node, `shared: ${name}`, context.field, name);
     }
     hit(context, 'computed-value', node, snippet(node, context.info));
   }
@@ -503,7 +559,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
         const kind = found.t === 'bound' ? kindOf(found.info, found.name) : undefined;
         if (found.t === 'package') hit(context, 'npm-field-set', property, `spread from a package: ${name}`, null);
         else if (kind === 'fieldset' || (ts.isCallExpression(target) && kind === 'function')) {
-          hit(context, 'shared-field-set', property, `spread: ${name}`, null);
+          hit(context, 'shared-field-set', property, `spread: ${name}`, null, name);
         } else hit(context, 'computed-value', property, snippet(property, context.info), null);
         continue;
       }
@@ -516,7 +572,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
         key = property.name.text;
         value = property.name;
       } else if (ts.isPropertyAssignment(property)) {
-        hit(context, 'shared-field-set', property, 'computed key', null);
+        hit(context, 'shared-field-set', property, 'computed key', null, 'computed key');
         key = property.name.getText(context.info.source);
         value = property.initializer;
       } else {
@@ -542,7 +598,8 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
       const found = resolveName(context.info, chain.rootName);
       if (found.t === 'package') return hit(context, 'npm-field-set', e, `from a package: ${chain.rootName}`);
       const kind = found.t === 'bound' ? kindOf(found.info, found.name) : undefined;
-      if (kind === 'field') return hit(context, 'shared-field-set', e, `shared: ${chain.rootName}`);
+      if (kind === 'field')
+        return hit(context, 'shared-field-set', e, `shared: ${chain.rootName}`, context.field, chain.rootName);
     }
     hit(context, 'computed-value', e, snippet(e, context.info));
   }
@@ -682,7 +739,15 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
         chain?.steps.length === 1 &&
         hasChainBody(root.info, root.name);
       const inline = isFunctionLike(callee) && containsChain(info, callee);
-      if (!iterates && (helper || inline)) hit(context, 'helper-built-declaration', e, snippet(e, info));
+      if (!iterates && (helper || inline))
+        hit(
+          context,
+          'helper-built-declaration',
+          e,
+          snippet(e, info),
+          context.field,
+          chain?.rootName ?? 'an inline function',
+        );
     }
     scan(e, context);
   }

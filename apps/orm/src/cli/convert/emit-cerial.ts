@@ -76,7 +76,7 @@ export function verifyCerial(ast: SchemaAST, files: readonly CerialFile[]): void
   }
 }
 
-function commentToken(text: string): CerialToken {
+export function commentToken(text: string): CerialToken {
   return { type: 'comment', value: text, position: { line: 0, column: 0, offset: 0 } };
 }
 
@@ -109,18 +109,47 @@ function derivedKeyComments(ast: SchemaAST, declarations: readonly ExportedDecla
   return comments;
 }
 
+function mergeComments(base: CommentMap, extra: CommentMap | undefined): CommentMap {
+  if (!extra) return base;
+  const merged: CommentMap = new Map(base);
+  for (const [key, value] of extra) {
+    const own = merged.get(key);
+    merged.set(
+      key,
+      own ? { leading: [...own.leading, ...value.leading], trailing: [...own.trailing, ...value.trailing] } : value,
+    );
+  }
+
+  return merged;
+}
+
 /**
  * Print one `.cerial` per module that declared something, from the AST as materialised (before
- * `resolveInheritance`, so `extends` survives), and gate the result by reparsing it. `declarations` are the
- * handles the AST came from; with them, a foreign key the TypeScript side derived is marked by a comment.
+ * `resolveInheritance`, so `extends` survives). `declarations` are the handles the AST came from; with them, a
+ * foreign key the TypeScript side derived is marked by a comment. `extra` carries any further comments, keyed
+ * as the formatter keys them. Nothing here checks the text: `verifyCerial` does.
  */
-export function emitCerial(ast: SchemaAST, declarations: readonly ExportedDeclaration[] = []): CerialFile[] {
-  const comments = derivedKeyComments(ast, declarations);
-  const files = originFiles(ast).map((from) => ({
+export function printCerial(
+  ast: SchemaAST,
+  declarations: readonly ExportedDeclaration[] = [],
+  extra?: CommentMap,
+): CerialFile[] {
+  const comments = mergeComments(derivedKeyComments(ast, declarations), extra);
+
+  return originFiles(ast).map((from) => ({
     from,
     path: cerialPathOf(from),
     text: printSchema(onlyFrom(ast, from), { comments }),
   }));
+}
+
+/** `printCerial`, gated by reparsing the result. */
+export function emitCerial(
+  ast: SchemaAST,
+  declarations: readonly ExportedDeclaration[] = [],
+  extra?: CommentMap,
+): CerialFile[] {
+  const files = printCerial(ast, declarations, extra);
   verifyCerial(ast, files);
 
   return files;
