@@ -9,6 +9,7 @@ import type { SchemaAST } from '../../src/types';
 import {
   cleanScratch,
   compareFile,
+  compareRoundTrip,
   corpusSources,
   emitSet,
   fixtureProjects,
@@ -51,6 +52,18 @@ describe('differential: parse() against the emitted modules', () => {
   for (const name of CORPUS.keys()) {
     test(name, () => {
       expect(compareFile(emitted, built, name)).toEqual([]);
+    });
+  }
+});
+
+describe('round trip: .cerial to TypeScript and back, compared as structures', () => {
+  test('the harness finds files', () => {
+    expect(CORPUS.size).toBeGreaterThan(0);
+  });
+
+  for (const name of CORPUS.keys()) {
+    test(name, async () => {
+      expect(await compareRoundTrip(emitted, name)).toEqual([]);
     });
   }
 });

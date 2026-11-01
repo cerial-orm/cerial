@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
-import { compareExact } from '../../src/cli/convert';
+import { compareExact, compareStructure, emitCerial } from '../../src/cli/convert';
 import { emitTypescript, moduleFileOf } from '../../src/cli/convert/emit-ts';
 import type { EmitTypescriptResult } from '../../src/cli/convert/emit-ts';
 import { runPassThree } from '../../src/cli/passes/pass-three';
@@ -155,4 +155,47 @@ export function formatCheck(dir: string): Run {
     ['oxfmt', '--check', '-c', join(REPO_ROOT, '.oxfmtrc.json'), ...findSchemaFiles(dir, '.ts')],
     REPO_ROOT,
   );
+}
+
+interface Reverse {
+  readonly ast: SchemaAST;
+  /** The emitted `.cerial` paths, keyed by the module they came from. */
+  readonly cerialOf: ReadonlyMap<string, string>;
+}
+
+const reversed = new WeakMap<Emitted, Promise<Reverse>>();
+
+/** Loads the written modules, prints them back to `.cerial` and parses that text as one set. The modules must be written. */
+function reverse(emitted: Emitted): Promise<Reverse> {
+  let done = reversed.get(emitted);
+  if (!done) {
+    done = (async () => {
+      const declarations = await loadDeclarations(emitted.result.modules.map((module) => module.path));
+      const files = emitCerial(materialise(declarations), declarations);
+      const { ast, errors } = runPassThree(files.map((file) => ({ path: file.path, content: file.text })));
+      if (errors.length) throw new Error(`the printed .cerial does not parse: ${JSON.stringify(errors)}`);
+
+      return { ast, cerialOf: new Map(files.map((file) => [file.from, file.path])) };
+    })();
+    reversed.set(emitted, done);
+  }
+
+  return done;
+}
+
+/**
+ * The differences between one source file and what it becomes going `.cerial`, TypeScript, `.cerial`: compared as
+ * structures, so comments and blank lines may differ. The modules must already be written.
+ */
+export async function compareRoundTrip(emitted: Emitted, name: string): Promise<string[]> {
+  const file = join(emitted.dir, name);
+  const module = emitted.result.modules.find((m) => m.file === file);
+  if (!module) return [`${name}: no module was emitted`];
+  const { ast, cerialOf } = await reverse(emitted);
+  const printed = cerialOf.get(moduleFileOf(file));
+  if (!printed) return [`${name}: no .cerial was printed`];
+
+  return compareStructure(only(emitted.ast, file), only(ast, printed), {
+    tolerate: { declarationOrder: module.hoisted, directiveKindOrder: module.directiveKindOrder },
+  });
 }
