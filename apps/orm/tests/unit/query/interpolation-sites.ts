@@ -136,6 +136,8 @@ export function inScope(path: string): boolean {
   return (
     path.startsWith('src/query/') ||
     path.startsWith('src/generators/migrations/') ||
+    path.startsWith('src/migrations/') ||
+    path.startsWith('src/cli/migrate/') ||
     path === 'src/generators/client/template.ts'
   );
 }

@@ -9,3 +9,4 @@ export type {
   TableModel,
   UnmanagedItem,
 } from './types';
+export { parseFieldIdiom, quoteFieldPath, quoteIdent } from './quote';
