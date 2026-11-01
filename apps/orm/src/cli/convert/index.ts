@@ -2,3 +2,5 @@ export { compareExact, compareStructure, differences, withoutPosition } from './
 export type { CompareOptions, CompareTolerance, ToleranceScope } from './compare';
 export * from './output-paths';
 export * from './write-output';
+export type { CerialFile } from './emit-cerial';
+export { cerialPathOf, emitCerial, verifyCerial } from './emit-cerial';
