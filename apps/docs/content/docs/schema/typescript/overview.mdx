@@ -103,6 +103,10 @@ export const Category: Handle<'Category', string> = model('Category', {
 
 `Handle<Name, IdType>` takes the declaration name and the type of its id (`string` for a plain `Record`). Relations can still point at an annotated const, but it can no longer be the parent in an `extends`, so leave the annotation off a declaration you extend.
 
+## Moving an existing schema
+
+`cerial convert` rewrites a schema between the two forms in either direction and reports what it had to change. See [Convert](/cli/convert).
+
 ## Where to go next
 
 | Page | Covers |
@@ -113,3 +117,4 @@ export const Category: Handle<'Category', string> = model('Category', {
 | [Objects and tuples](/schema/typescript/objects-tuples) | Embedded types and positional types |
 | [Enums and literals](/schema/typescript/enums-literals) | Enums, literal unions and their variants |
 | [Extends](/schema/typescript/extends) | Inheritance with `pick` and `omit` |
+| [Convert](/cli/convert) | Moving a schema between `.cerial` and TypeScript |

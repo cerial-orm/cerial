@@ -1,0 +1,285 @@
+---
+title: Convert
+description: Convert a schema between .cerial files and TypeScript modules in either direction, with a report of what is refused, expanded or dropped.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+`cerial convert` rewrites a schema from `.cerial` files into [TypeScript modules](/schema/typescript), or from TypeScript modules back into `.cerial` files. It writes the converted files, checks that they rebuild the same schema, and reports anything it had to refuse or change.
+
+```bash
+bunx cerial convert --to ts
+bunx cerial convert --to cerial
+```
+
+## CLI Usage
+
+```bash
+bunx cerial convert --to <ts|cerial> [options]
+```
+
+| Flag | Description |
+| --- | --- |
+| `--to <ts\|cerial>` | Direction to convert: `ts` (.cerial to TypeScript) or `cerial` (TypeScript to .cerial). Required |
+| `-s, --schema <path>` | Path to schema file or directory |
+| `-C, --config <path>` | Path to config file |
+| `-n, --name <name>` | Convert only a specific schema by name |
+| `-o, --output <dir>` | Write the converted files under this directory instead of beside the sources |
+| `--force` | Replace existing output files; a schema source is never replaced |
+| `--remove-source` | Delete the sources that were fully converted, after the output is written |
+| `--partial` | Convert what can be converted, hold back declarations that reach a refused one, and report what is unresolved. Exits 1 when anything was refused |
+| `-v, --verbose` | List each expanded case per declaration, and the declarations written per file |
+| `--dry-run` | Check the conversion and list the files without writing them |
+
+Without `-s`, convert finds your schemas the same way [`cerial generate`](/cli/generate) does. `--to` has no default.
+
+## Converting to TypeScript
+
+Given `schemas/user.cerial` and `schemas/post.cerial`:
+
+```cerial
+// schemas/post.cerial
+// A blog post
+model Post {
+  id Record @id
+  title String
+  authorId Record
+  author Relation @field(authorId) @model(User)
+}
+```
+
+```bash
+bunx cerial convert --to ts -s schemas
+```
+
+```text
+wrote schemas/post.cerial -> schemas/post.schema.ts
+wrote schemas/user.cerial -> schemas/user.schema.ts
+The .cerial sources were left in place. Rerun with --remove-source to delete them, or remove them once generate works from the new modules: schemas/post.cerial, schemas/user.cerial
+```
+
+Each `name.cerial` becomes `name.schema.ts`, the suffix [schema discovery](/schema/typescript/discovery) looks for:
+
+```typescript
+// schemas/post.schema.ts
+import { f, model } from 'cerial/schema';
+
+// A blog post
+export const Post = model('Post', {
+  id: f.record().id(),
+  title: f.string(),
+  authorId: f.record(),
+  author: f.relation('User').field('authorId'),
+});
+```
+
+Comments in the `.cerial` come along as `//` comments.
+
+## Converting to .cerial
+
+```typescript
+// schemas/blog.schema.ts
+import { f, model } from 'cerial/schema';
+
+export const User = model('User', {
+  id: f.record().id(),
+  name: f.string(),
+  posts: f.reverse(() => Post).array(),
+});
+
+export const Post = model('Post', {
+  id: f.record().id(),
+  title: f.string(),
+  author: f.relation(() => User),
+});
+```
+
+```bash
+bunx cerial convert --to cerial -s schemas
+```
+
+```text
+wrote schemas/blog.schema.ts -> schemas/blog.cerial
+The TypeScript modules were left in place. Move them away before generate, since each declaration now exists in both forms, and list the .cerial entry in the config instead of defineSchema: schemas/blog.schema.ts
+```
+
+```cerial
+// schemas/blog.cerial
+model User {
+  id    Record     @id
+  name  String
+  posts Relation[] @model(Post)
+}
+
+model Post {
+  id       Record   @id
+  title    String
+  // derived by cerial convert from the TypeScript relation 'author': the key was not declared there
+  authorId Record
+  author   Relation @field(authorId) @model(User)
+}
+```
+
+`Post` declared no key in TypeScript, because the relation derives it. `.cerial` needs the field, so convert writes `authorId` and marks it with a comment.
+
+That comment is how the two directions agree. A key you declared by hand in TypeScript stays declared when you convert to TypeScript. Only a key carrying this comment becomes a bare relation again. So a `.cerial` converted from TypeScript converts back to the same TypeScript, and a second conversion in either direction is byte-identical.
+
+## What is written where
+
+- Output goes beside its source by default. `-o <dir>` writes under that directory instead and mirrors the folder layout.
+- An output file that already exists is an error: `out/blog.schema.ts: already exists (pass --force to replace it)`. `--force` replaces output files. It never replaces a schema source.
+- A refused or failed run writes nothing and leaves your tree as it was. Output is built and checked first, and a message beginning `Nothing was written.` names every problem in one report.
+- `--dry-run` runs the same checks and prints `would write source -> target` lines. It writes nothing and leaves no file behind.
+- Two declarations with one name, in both forms, are refused as a duplicate. This is the same rule `generate` applies.
+
+After a successful run both forms of each model exist, and `generate` refuses two forms of one model. The run tells you the next step: move the originals away, or pass `--remove-source`. When you converted to `.cerial`, also list the `.cerial` entry in your config instead of `defineSchema`.
+
+## Partial conversion
+
+`--partial` converts every declaration it can and holds back the rest. A declaration is held back when it reaches a refused one, for example through a relation or `extends`. It prints what is left as an Unresolved section:
+
+```text
+Unresolved:
+  refused: Bad (schemas/b.schema.ts): computed-value: A non-literal argument in a value position (Date.now()) in 'Bad', field 'n'
+  held back: Purchase -> Bad (schemas/c.schema.ts): it reaches a refused declaration
+  in both a source and the output: Fine; remove it from schemas/b.schema.ts
+```
+
+- `refused` names a declaration convert could not express, with the case and the reason.
+- `held back` shows the chain from a declaration to the refused one it depends on.
+- `in both a source and the output` names a declaration that now exists in its source and in the converted file. Remove it from the source, or the project does not generate.
+
+The last line says whether the project generates as it stands. A `--partial` run exits 1 whenever anything was refused or held back, even though it wrote the rest. Without `--partial`, one refusal stops the whole run and nothing is written.
+
+## Removing the sources
+
+`--remove-source` deletes the sources that were fully converted, but only after every output file is written. A refused run, a failed check or a rollback never reaches it. Deletion is permanent: commit first, so version control can bring a file back.
+
+```text
+wrote schemas/blog.cerial -> schemas/blog.schema.ts
+removed schemas/blog.cerial
+```
+
+It keeps a file more often than you might expect, and says why for each:
+
+```text
+kept schemas/a.schema.ts: schemas/b.schema.ts stays and imports it
+kept schemas/b.schema.ts: it holds a declaration that was refused or held back
+```
+
+A file is kept when:
+
+- a kept file imports it, so nothing left behind imports a deleted module
+- it holds other code or exports that were not converted
+- another schema entry also reads it
+- it holds no declaration, such as a file of only comments
+- it is also an output of this run
+- with `--partial`, any of its declarations was refused or held back. Only a file whose every declaration converted is removed.
+
+A declaration re-exported through a barrel is written in the module that declared it, and that module can sort first, ahead of the barrel. A barrel named `index.ts` can then leave the declaring modules in place. This keeps files; it never deletes more than it should.
+
+If a deletion fails, the rest go on, the converted output stays, the failures are listed, and the run exits 1. Remove those files by hand. When a config file named a removed file, the run prints a `change '<key>' ...` line saying what to point it at.
+
+`--remove-source` works with the other flags as you would expect. `--dry-run` prints `would remove <file>` and removes nothing. `--force` only affects whether existing output is replaced, and removal still happens after the write. `--partial` narrows removal as above. Comments in removed TypeScript modules are lost.
+
+## What conversion drops
+
+Conversion to `.cerial` does not preserve TypeScript comments. It also converts only declarations: helpers, a controller, other exports, `console.log` and any other code in a module are not carried over, and the report names each module that holds some. Conversion to TypeScript keeps comments.
+
+`--help` states the same thing:
+
+> --to cerial does not preserve TypeScript comments. These are written out in full and marked with a comment, and the .cerial no longer follows their TypeScript source: loop built model, helper built declaration, shared field set, derived foreign key, inherited derived key. Constructs that cannot be written as .cerial are refused, all in one report. A binding whose name differs from its declaration (`UserModel` for `User`, `default`, an alias) has no .cerial form: the run warns with each `binding -> declaration`, and importers of the binding break once the TypeScript module is removed. Only declarations are converted: other exports, helpers and code in a module are not, and the report names each module that holds any.
+
+A renamed export is dropped, and the run says so, naming each one:
+
+```text
+warning: schemas/a.schema.ts: the binding 'UserModel' is not in the .cerial (UserModel -> User); importers of 'UserModel' break once the TypeScript module is removed
+```
+
+Convert never edits importers. Update them yourself before you remove the module.
+
+`-v` lists each expanded case for each declaration it applied to:
+
+```text
+expanded loop-built-model (Models built in a loop) in A, B
+```
+
+## Constructs that change
+
+Every construct convert treats specially is listed here. Each is either **converted** (written out, with whatever the target cannot say lost) or **refused** (nothing is written, or with `--partial` the declaration is held back). The Construct column is the wording the tool uses.
+
+A package-provided field set is refused rather than expanded. Convert does not look inside installed packages, so inline the fields in your module first.
+
+### Converting to .cerial
+
+| Construct | Result | What happens |
+|---|---|---|
+| Models built in a loop: `export const [A, B, C] = names.map((n) => model(n, ...))` or a `for` filling exported bindings | Converted | Every model in the loop is written out. The loop itself is gone, so the `.cerial` is longer and no longer follows the loop. |
+| A declaration bound to a call of a function that is not the builder: `export const User = makeModel('User')`, in the same file or another project file | Converted | The declaration is written out as the function produced it. The function has no `.cerial` form and is not carried over. |
+| Fields reused inside the project: `{ ...timestamps, name: f.string() }`, a field builder held in a variable, a partial chain such as `const base = f.string().default('x')` then `base.optional()`, a computed key `{ [k]: ... }` | Converted | Each field is written into every model that used the set. The sharing is lost, and the copies no longer follow the original. |
+| A field set, field builder or declaration helper imported from an installed package and spread or called in a model | Refused | Refused. Convert cannot see inside an installed package, and writing out its fields would silently end the sharing. Inline the fields in your module first, or use `--partial`. |
+| A choice made at conversion time: `cond ? model(...) : model(...)`, `a && f.string()`, `a ?? b`, an `if` or `switch` inside a helper that adds or drops a field | Refused | Refused. The `.cerial` would hold only the branch taken at conversion time, so the result would depend on the environment you ran it in. |
+| A non-literal argument in a value position: `.default(compute())`, `.default(CONFIG.x)`, `.default(Date.now())`, a template string with a substitution, `.defaultAlways`, a tuple element default, `variant.*(x)`, `.sort(x)`, `.onDelete(x)`, in any module of the graph including loop and helper bodies | Refused | Refused. The `.cerial` would hold a frozen value that looks hand-written. There is no override, and `--force` does not bypass it. |
+| A value position given an identifier bound, in the same file, to a `const` whose initialiser is only literals (`.default(LIMIT)`, `enum('Role', ROLES)` with `const ROLES = ['a', 'b'] as const`) | Converted | Written as the literal. Only the constant's name is lost. An imported or computed constant is refused as a computed value. |
+| The key of a forward `f.relation(...)` declared only as a relation, including an array relation (`tagIds`), `onDelete('SetNull')` (nullable key), `onDelete('SetNone')` (optional key) and `.field('name')` naming a new key | Converted | The key is written as a `Record` field with a comment above it saying convert added it. The relation then uses that key. |
+| A derived key on a parent model that a child reaches through `extends` | Converted | The parent carries the key and its comment. The child writes only `extends`. |
+| `.field('declared')` binding to a field the model declares or inherits, and `f.reverse(...)` | Converted | Nothing is lost. A bound key is the field you declared, and a reverse side stores nothing. |
+| Comments in a TypeScript module | Converted | Dropped. TypeScript comments do not reach the `.cerial`. |
+| `export const UserModel = model('User')`: the `.cerial` keeps `User`; the binding `UserModel`, which importers use, has no DSL form | Converted | The `.cerial` keeps the declaration name (`User`). The binding importers use (`UserModel`) is dropped and the run names it. Importers break once the module is removed. |
+| `export default model('User', ...)`, exported as `default` | Converted | The declaration keeps its name and `default` is dropped, as for any renamed export. The run names it. |
+| One handle exported under several names, or re-exported under an alias | Converted | One declaration is written. The extra export names are dropped and the run lists them. |
+| A declaration re-exported through a barrel module | Converted | The declaration is written where it was declared, not in the barrel. Only the file layout differs. |
+| The builder reached through an alias or a project re-export: `import { f as fields }`, `import * as s from 'cerial/schema'`, `export { model } from 'cerial/schema'` in a project barrel | Converted | Nothing is lost. Aliases and re-exports of `cerial/schema` are followed to the same builder. |
+| A reference written as a handle, a thunk, a bare string or a handle from `cerial/handles.ts` | Converted | All four print as the declaration's name, because `.cerial` has one reference form. |
+| `Parent.pick(...)` and `Parent.omit(...)` in `extends`, chained | Converted | Nothing is lost. They print as `extends Parent[a, b]` and `extends Parent[!a]`. |
+| `defineSchema({ models: [...] })`, its list, and a model exported but not listed | Converted | Not converted, because registration is not schema content. Every exported declaration converts, listed or not, and the run prints the config line to change. |
+| Anything else in a module: helpers, a controller, other exports, `console.log`, side effects | Converted | Not converted. Only declarations are, and the report names each module holding other code. |
+| A module that throws on import, or a handle from `cerial/handles.ts` naming a declaration the `.cerial` no longer has | Refused | Refused with the module path, and nothing is written. |
+| `export let X; X = model(...)`, or any export bound without a single initialiser | Refused | Refused, because an export with no single initialiser cannot be classified. |
+| A declaration that is not exported but is referenced by an exported one, by handle or by `extends` | Refused | Refused. An unexported declaration is never part of the schema, so the exported one that points at it has a dangling reference. |
+| A declaration, field, foreign key, element or enum value that is not an identifier, such as `model('a b')` | Refused | Refused by name. The builder rejects these at declaration, so the module usually fails to load first. |
+| A bare id type name that is not an identifier: `f.record('a b')` | Refused | Refused by name, because it would read back as a different id type. |
+| A declaration, field or element name in the SurrealDB reserved keyword set, such as `model('select')` or a field `value` | Refused | Refused, because `cerial generate` refuses a reserved keyword as a name. |
+| A string holding both quote kinds, as a default: `it's "x"` | Converted | Written as is, and reads back equal. Nothing is lost. |
+| A `@default` or `@defaultAlways` string that does not reparse equal; measured: any `)`, any `//`, U+2028, and a leading quote with trailing whitespace. A newline is already refused by the builder | Refused | Refused. `.cerial` has no escape for these, so the default would read back as a different value. |
+| A `variant.string` value that does not reparse equal; measured: a comma, CR or LF, and a quote followed by `#` | Refused | Refused for the same reason: the value would split or change when read back. |
+
+### Converting to TypeScript
+
+| Construct | Result | What happens |
+|---|---|---|
+| Comments in a `.cerial` file | Converted | Kept. `#`, `//` and `/* */` comments are written as `//` comments in the module. |
+| A `.cerial` that fails to parse or whose `extends` does not resolve | Refused | Refused before any conversion. Fix the parse or `extends` error first. |
+| A parsed construct with no builder method | Refused | Refused by name. This is a defect to report, not something to work around. |
+| A `.cerial` key without convert's own derived comment, including one the builder could derive from its relation | Converted | The key is written as a declared field and the relation binds to it with `.field(...)`. Only a key carrying convert's own derived comment becomes a bare relation. |
+| A `.cerial` parent declared after its child, in one file | Converted | The parent is moved above the child, and the run names it. |
+| A cycle made purely of `extends` across files | Refused | Refused by name, because no load order of `extends` across those files exists. |
+| A cycle of one `extends` and a relation or reference back to the child | Converted | The back reference is written as a bare name string, which the builder accepts for cyclic graphs. |
+| `@@index` and `@@unique` interleaved on one model, which a builder option object cannot order | Converted | Indexes and uniques are grouped by kind, with a warning naming the model. Only their order changes. |
+| A declaration named like a reserved word or a builder import (`class`, `f`, `model`) | Converted | The module uses a safe binding with an aliased export. The `.cerial` name is kept in the first argument. |
+| A field named `__proto__` | Converted | Written as a computed key so it is a normal field. |
+
+### Both directions
+
+| Construct | Result | What happens |
+|---|---|---|
+| Blank lines, alignment and comment style of the source | Converted | Layout may differ from your source. The converted schema is the same schema. |
+| Two declarations with one name, in one form or across a mixed entry's `.cerial` and TypeScript | Refused | Refused as a duplicate model name. `--force` does not get past it. |
+| Anything not listed whose output reparses to a different schema | Refused | Refused. Every output is parsed again and compared with the source, and a shape nobody listed still fails by declaration and path. |
+
+## Hoisted parents, grouped directives and cycles
+
+- A `.cerial` parent declared after its child is moved above the child in the TypeScript, because `extends` takes the parent eagerly. The report names each hoisted declaration.
+- `@@index` and `@@unique` interleaved on one model are grouped by kind, with a warning naming the model.
+- A cycle made only of `extends` across files is refused. No load order exists for it. A cycle of one `extends` plus a relation back to the child converts, with the back reference as a name string.
+
+## Conversion runs your code
+
+`--to cerial` imports your TypeScript modules and executes them, as `cerial generate` and `cerial.config.ts` do. Convert only schemas you trust. See [Finding Your Schemas](/schema/typescript/discovery#generation-runs-your-code) and the note on [the config loader](/cli/configuration#config-file-formats).
+
+## Exit codes
+
+- `0`: the conversion succeeded
+- `1`: a refusal, an invalid flag, a `--partial` run that left anything refused or held back, or a source `--remove-source` could not delete
