@@ -3,6 +3,8 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { compareExact } from '../../../../src/cli/convert/compare';
+import { derivedKeyComment } from '../../../../src/cli/convert/lossy-cases';
+import type { DeclarationComments } from '../../../../src/cli/convert/emit-ts/comments';
 import {
   emitEnum,
   emitLiteral,
@@ -32,7 +34,18 @@ function parsed(source: string): SchemaAST {
   return ast;
 }
 
-function emitAll(ast: SchemaAST): EmittedDeclaration[] {
+/** The marker `--to cerial` writes above every key that sits directly before its forward relation. */
+function markerComments(node: SchemaAST['models'][number]): DeclarationComments {
+  const fieldAbove = new Map<string, string[]>();
+  node.fields.forEach((field, index) => {
+    if (field.type === 'relation' && index)
+      fieldAbove.set(node.fields[index - 1]!.name, [derivedKeyComment(field.name)]);
+  });
+
+  return { above: [], fieldAbove, fieldAfter: new Map() };
+}
+
+function emitAll(ast: SchemaAST, marked = false): EmittedDeclaration[] {
   const bindings = assignBindings(
     [...ast.enums, ...ast.literals, ...ast.objects, ...ast.tuples, ...ast.models].map((node) => node.name),
   );
@@ -43,7 +56,7 @@ function emitAll(ast: SchemaAST): EmittedDeclaration[] {
     ...ast.literals.map((node) => emitLiteral(node, context)),
     ...ast.objects.map((node) => emitObject(node, context)),
     ...ast.tuples.map((node) => emitTuple(node, context)),
-    ...ast.models.map((node) => emitModel(node, context)),
+    ...ast.models.map((node) => emitModel(node, marked ? { ...context, comments: markerComments(node) } : context)),
   ];
 }
 
@@ -64,8 +77,8 @@ interface Built {
 }
 
 /** Emits the AST, loads the module against the real builder, and compares the result with the source. */
-async function roundTrip(source: SchemaAST): Promise<Built> {
-  const declarations = emitAll(source);
+async function roundTrip(source: SchemaAST, marked = false): Promise<Built> {
+  const declarations = emitAll(source, marked);
   const text = moduleText(declarations);
   const dir = mkdtempSync(join(tmpdir(), 'cerial-emit-decl-'));
   dirs.push(dir);
@@ -83,8 +96,8 @@ async function roundTrip(source: SchemaAST): Promise<Built> {
   };
 }
 
-async function roundTripText(cerial: string): Promise<Built> {
-  return roundTrip(parsed(cerial));
+async function roundTripText(cerial: string, marked = false): Promise<Built> {
+  return roundTrip(parsed(cerial), marked);
 }
 
 function declarationOf(built: Built, name: string): EmittedDeclaration {
@@ -222,6 +235,7 @@ describe('relations', () => {
         '}',
         '',
       ].join('\n'),
+      true,
     );
     expect(result.differences).toEqual([]);
     const text = declarationOf(result, 'Post').text;
@@ -253,6 +267,7 @@ describe('relations', () => {
         '}',
         '',
       ].join('\n'),
+      true,
     );
     expect(result.differences).toEqual([]);
     for (const name of ['A', 'B', 'C']) expect(declarationOf(result, name).text).not.toContain('userId');
@@ -282,6 +297,55 @@ describe('relations', () => {
       expect(text, label).toContain(".field('owner");
       expect(text, label).toMatch(/owner(Id|Ref): f\.record\(\)/);
     }
+  });
+
+  test('keeps a key declared when nothing marks it, even where the builder could derive it', async () => {
+    const result = await roundTripText(
+      `${USER}model Post {\n  id Record @id\n  authorId Record\n  author Relation @field(authorId) @model(User)\n}\n`,
+    );
+    expect(result.differences).toEqual([]);
+    const text = declarationOf(result, 'Post').text;
+    expect(text).toContain('authorId: f.record()');
+    expect(text).toContain(".field('authorId')");
+  });
+
+  test('keeps a key declared, and its comment, when the comment is not the marker', async () => {
+    const ast = parsed(
+      `${USER}model Post {\n  id Record @id\n  authorId Record\n  author Relation @field(authorId) @model(User)\n}\n`,
+    );
+    const comments: DeclarationComments = {
+      above: [],
+      fieldAbove: new Map([
+        [
+          'authorId',
+          ["// derived by cerial convert from the TypeScript relation 'other': the key was not declared there"],
+        ],
+      ]),
+      fieldAfter: new Map(),
+    };
+    const post = emitModel(ast.models[1]!, { comments });
+    expect(post.text).toContain('authorId: f.record()');
+    expect(post.text).toContain(".field('authorId')");
+    expect(post.text).toContain("// derived by cerial convert from the TypeScript relation 'other'");
+  });
+
+  test('drops only the marker above a derived key, leaving no stray comment', async () => {
+    const result = await roundTripText(
+      `${USER}model Post {\n  id Record @id\n  authorId Record\n  author Relation @field(authorId) @model(User)\n}\n`,
+      true,
+    );
+    expect(result.differences).toEqual([]);
+    expect(declarationOf(result, 'Post').text).not.toContain('derived by');
+    expect(declarationOf(result, 'Post').text).toContain("author: f.relation('User')");
+  });
+
+  test('keeps an override binding declared even when marked', async () => {
+    const result = await roundTripText(
+      `${USER}model Post {\n  id Record @id\n  ownerRef Record\n  owner Relation @field(ownerRef) @model(User)\n}\n`,
+      true,
+    );
+    expect(result.differences).toEqual([]);
+    expect(declarationOf(result, 'Post').text).toContain(".field('ownerRef')");
   });
 
   test('binds a key inherited from a parent', async () => {

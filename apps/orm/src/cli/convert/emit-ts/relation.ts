@@ -1,5 +1,6 @@
 import { f, relationNodes } from '../../../parser/builder';
 import type { ASTField } from '../../../types';
+import { derivedKeyComment } from '../lossy-cases';
 import { differences, withoutPosition } from '../compare';
 
 type Step = (arg?: unknown) => Step;
@@ -38,6 +39,11 @@ function derivesKey(relation: ASTField, key: ASTField | undefined): boolean {
   }
 }
 
+/** Whether the comment lines include the exact marker for the relation; an ordinary comment never matches. */
+export function isMarked(lines: readonly string[] | undefined, relationName: string): boolean {
+  return !!lines?.includes(derivedKeyComment(relationName));
+}
+
 export interface RelationPlan {
   /** Indexes of forward relations written without `.field(...)`, because the key before them is derived. */
   readonly derived: ReadonlySet<number>;
@@ -47,14 +53,20 @@ export interface RelationPlan {
 
 /**
  * Decide, per forward relation, between the derived form and a declared key bound with `.field(name)`.
- * The derived form is used only when the field directly before the relation is exactly the key the
+ * The derived form is used only when the field directly before the relation carries convert's own
+ * derived comment (`keyComments` holds the comment lines per field name) and is exactly the key the
  * builder would derive; any other key stays a declared field and the relation binds to it.
  */
-export function planRelations(fields: readonly ASTField[]): RelationPlan {
+export function planRelations(
+  fields: readonly ASTField[],
+  keyComments?: ReadonlyMap<string, readonly string[]>,
+): RelationPlan {
   const derived = new Set<number>();
   const consumed = new Set<number>();
   fields.forEach((field, index) => {
-    if (!isForwardRelation(field) || !derivesKey(field, fields[index - 1])) return;
+    const key = fields[index - 1];
+    if (!isForwardRelation(field) || !key || !isMarked(keyComments?.get(key.name), field.name)) return;
+    if (!derivesKey(field, key)) return;
     derived.add(index);
     consumed.add(index - 1);
   });

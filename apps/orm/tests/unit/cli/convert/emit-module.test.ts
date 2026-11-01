@@ -1,4 +1,5 @@
 import { afterAll, describe, expect, test } from 'bun:test';
+import { derivedKeyComment } from '../../../../src/cli/convert/lossy-cases';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -313,7 +314,7 @@ describe('comments', () => {
     expect(await loadAndCompare(p, result)).toEqual([]);
   });
 
-  test('a comment on a derived foreign key is kept above its declaration', async () => {
+  test('a comment on a key that is not marked stays above that key', async () => {
     const p = project(scratch(), {
       'post.cerial': [
         'model User {',
@@ -333,7 +334,33 @@ describe('comments', () => {
     const text = textOf(result, 'post.cerial');
 
     expect(text).toContain('// the key');
-    expect(text).not.toContain('authorId:');
+    expect(text).toContain('authorId: f.record()');
+    expect(text).toContain(".field('authorId')");
+    expect(await loadAndCompare(p, result)).toEqual([]);
+  });
+
+  test('a marked derived key becomes f.relation and leaves no comment behind', async () => {
+    const p = project(scratch(), {
+      'post.cerial': [
+        'model User {',
+        '  id Record @id',
+        '}',
+        '',
+        'model Post {',
+        '  id Record @id',
+        `  ${derivedKeyComment('author')}`,
+        '  authorId Record',
+        '  author Relation @field(authorId) @model(User)',
+        '}',
+        '',
+      ].join('\n'),
+    });
+    const result = emit(p);
+    const text = textOf(result, 'post.cerial');
+
+    expect(text).toContain("author: f.relation('User')");
+    expect(text).not.toContain('authorId');
+    expect(text).not.toContain('derived by');
     expect(await loadAndCompare(p, result)).toEqual([]);
   });
 

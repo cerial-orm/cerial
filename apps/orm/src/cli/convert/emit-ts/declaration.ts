@@ -17,7 +17,7 @@ import type { EmitContext, ReferenceKind } from './field';
 import { arrayOf, objectOf, printCall } from './layout';
 import type { Entry, Layout } from './layout';
 import { BUILDER_CALLEES, bindingFor, exportStatement, propertyKey } from './names';
-import { isForwardRelation, planRelations } from './relation';
+import { isForwardRelation, isMarked, planRelations } from './relation';
 import { quote } from './strings';
 
 export interface DeclarationContext {
@@ -147,6 +147,24 @@ interface FieldEntries {
   readonly stray: string[];
 }
 
+/** The marker above a consumed key is dropped: the next `--to cerial` writes it again, so keeping it would stack copies. */
+function withoutMarkers(
+  fields: readonly ASTField[],
+  above: ReadonlyMap<string, readonly string[]> | undefined,
+  derivation: ReturnType<typeof planRelations> | undefined,
+): ReadonlyMap<string, readonly string[]> | undefined {
+  if (!above || !derivation) return above;
+  const kept = new Map(above);
+  for (const index of derivation.derived) {
+    const key = fields[index - 1]!;
+    const lines = (above.get(key.name) ?? []).filter((line) => !isMarked([line], fields[index]!.name));
+    if (lines.length) kept.set(key.name, lines);
+    else kept.delete(key.name);
+  }
+
+  return kept;
+}
+
 function fieldEntries(
   fields: readonly ASTField[],
   declaration: string,
@@ -154,7 +172,7 @@ function fieldEntries(
   derivation?: ReturnType<typeof planRelations>,
 ): FieldEntries {
   const reference = referencing(context);
-  const above = context.comments?.fieldAbove;
+  const above = withoutMarkers(fields, context.comments?.fieldAbove, derivation);
   const after = context.comments?.fieldAfter;
   const entries: Entry[] = [];
   const placed = new Set<string>();
@@ -180,7 +198,7 @@ function fieldEntries(
 /** A model as `model('Name', { ... }, { ... })`. */
 export function emitModel(node: ASTModel, context: DeclarationContext = {}): EmittedDeclaration {
   const declaration = `model ${node.name}`;
-  const derivation = planRelations(node.fields);
+  const derivation = planRelations(node.fields, context.comments?.fieldAbove);
   const { entries: directives, alternating } = directiveEntries(node.directives ?? []);
   const parent = extendsText(node.extends, node.extendsFilter, context, false);
   const options: Entry[] = [

@@ -14,6 +14,11 @@ export interface LossyCase {
   readonly notice?: string;
 }
 
+/** The comment `--to cerial` writes above a key the TypeScript side derived; `--to ts` reads it back as the marker. */
+export function derivedKeyComment(relationName: string): string {
+  return `// derived by cerial convert from the TypeScript relation '${relationName}': the key was not declared there`;
+}
+
 /** Every construct whose conversion is not a plain copy. Refusal messages, `--help` and the docs check read this table. */
 export const LOSSY_CASES: readonly LossyCase[] = [
   {
@@ -95,7 +100,7 @@ export const LOSSY_CASES: readonly LossyCase[] = [
     action: 'expand',
     reason:
       'Always expanded, never refused: the TypeScript side declares one field and the DSL needs two (`Record` plus `Relation @field(...)`). The `Record` field is already in the schema, so the output is complete; what is lost is the fact that the key was derived.',
-    comment: "// derived by cerial convert from the TypeScript relation '<name>': the key was not declared there",
+    comment: derivedKeyComment('<name>'),
   },
   {
     id: 'inherited-derived-key',
@@ -351,11 +356,11 @@ export const LOSSY_CASES: readonly LossyCase[] = [
   {
     id: 'declared-foreign-key-to-ts',
     construct:
-      'A `.cerial` key that is not exactly what the relation would derive: not directly before its relation, a different name, or other decorators',
+      "A `.cerial` key without convert's own derived comment, including one the builder could derive from its relation",
     direction: 'to-ts',
     action: 'expand',
     reason:
-      'The key is emitted as a declared field and `.field(name)` binds to it, which keeps the schema equal; the derived form is used only when it produces exactly the source node.',
+      'The key is emitted as a declared field and `.field(name)` binds to it, which keeps the schema equal. The derived form is used only for a key carrying the derived comment that `--to cerial` writes, so a second pass in either direction is byte-identical; the comment itself is not kept in the TypeScript.',
     comment: null,
   },
   {

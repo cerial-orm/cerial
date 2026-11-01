@@ -7,6 +7,7 @@ import type { CommentMap } from '../../formatter';
 import { derivedForeignKeys, modelNode } from '../../parser/builder/model';
 import type { ExportedDeclaration } from '../../parser/builder';
 import { compareStructure } from './compare';
+import { derivedKeyComment } from './lossy-cases';
 
 const LISTS = ['models', 'objects', 'tuples', 'literals', 'enums'] as const;
 
@@ -98,11 +99,7 @@ function derivedKeyComments(ast: SchemaAST, declarations: readonly ExportedDecla
       );
       if (!model || !relation) continue;
       comments.set(`field:${model.name}.${key}`, {
-        leading: [
-          commentToken(
-            `// derived by cerial convert from the TypeScript relation '${relation.name}': the key was not declared there`,
-          ),
-        ],
+        leading: [commentToken(derivedKeyComment(relation.name))],
         trailing: [],
       });
     }
