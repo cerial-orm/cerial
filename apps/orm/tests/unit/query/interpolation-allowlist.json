@@ -100,6 +100,7 @@
   "src/migrations/canonical.ts::members::template::inner.join(', ')": 1,
   "src/migrations/quote.ts::escapeChar::template::char.codePointAt(0)!.toString(16)": 1,
   "src/migrations/quote.ts::quoteIdent::template::name.replace(NEEDS_ESCAPE, escapeChar)": 1,
+  "src/migrations/reader.ts::readLiveSchema::template::quoteIdent(row.name)": 1,
   "src/query/builder.ts::QueryBuilder.readExisting::template::fields": 2,
   "src/query/builder.ts::QueryBuilder.readExisting::template::idBinding.placeholder": 1,
   "src/query/builder.ts::QueryBuilder.readExisting::template::this.model.tableName": 1,

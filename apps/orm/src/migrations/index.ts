@@ -10,3 +10,4 @@ export type {
   UnmanagedItem,
 } from './types';
 export { parseFieldIdiom, quoteFieldPath, quoteIdent } from './quote';
+export { readLiveSchema } from './reader';
