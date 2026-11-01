@@ -508,6 +508,10 @@ function groupedByModule(entries: ReadonlyArray<{ module: string; text: string }
 interface CerialGroup {
   readonly name: string | undefined;
   readonly root: string;
+  /** What the printed files are checked against: the whole merged entry, `.cerial` declarations included. */
+  readonly merged: SchemaAST;
+  /** The entry's own `.cerial` files, which stay byte for byte and which the converted text may refer to. */
+  readonly kept: readonly CerialFile[];
   readonly ast: SchemaAST;
   readonly files: readonly CerialFile[];
 }
@@ -545,7 +549,8 @@ async function convertToCerial(
     if (refusals.length) continue;
 
     const files = printCerial(ast, result.declarations, expandComments(ast, hits));
-    groups.push({ name: target.name, root: rootOf(target), ast, files });
+    const kept = result.schemaContents.map(({ path, content }) => ({ from: path, path, text: content }));
+    groups.push({ name: target.name, root: rootOf(target), merged: result.combinedAST, kept, ast, files });
   }
   if (refusals.length)
     throw new CerialGenerationError(
@@ -575,7 +580,7 @@ async function convertToCerial(
         const staged: CerialFile[] = [];
         for (const file of tree.files.filter((f) => own.has(f.source)))
           staged.push({ from: file.source, path: file.path, text: await readFile(file.path, 'utf8') });
-        verifyCerial(group.ast, staged);
+        verifyCerial(group.merged, staged, group.kept);
       }
     },
   });

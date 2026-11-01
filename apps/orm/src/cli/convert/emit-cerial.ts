@@ -55,10 +55,11 @@ function describe(ast: SchemaAST, difference: string): string {
 /**
  * Parse the printed files together, each against the names of all of them as `generate` does, and refuse
  * unless the result has the structure of `ast`. A printer that writes text the parser reads differently
- * (a name with a space, say) would otherwise convert a schema into a different one without a sign.
+ * (a name with a space, say) would otherwise convert a schema into a different one without a sign. `kept` are
+ * `.cerial` files that stay as they are: parsed with the rest so a reference to their names resolves.
  */
-export function verifyCerial(ast: SchemaAST, files: readonly CerialFile[]): void {
-  const sources: SchemaSource[] = files.map((file) => ({ path: file.path, content: file.text }));
+export function verifyCerial(ast: SchemaAST, files: readonly CerialFile[], kept: readonly CerialFile[] = []): void {
+  const sources: SchemaSource[] = [...files, ...kept].map((file) => ({ path: file.path, content: file.text }));
   const { ast: reparsed, errors } = runPassThree(sources);
   if (errors.length) {
     throw new CerialGenerationError(
@@ -66,7 +67,8 @@ export function verifyCerial(ast: SchemaAST, files: readonly CerialFile[]): void
     );
   }
 
-  const found = compareStructure(ast, reparsed);
+  // Files are read in path order, so with kept files in the entry the order of declarations is the files', not the source's
+  const found = compareStructure(ast, reparsed, kept.length ? { tolerate: { declarationOrder: true } } : undefined);
   if (found.length) {
     throw new CerialGenerationError(
       `The printed .cerial reparses to a different schema, so nothing was converted:\n${found
