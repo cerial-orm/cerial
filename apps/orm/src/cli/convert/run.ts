@@ -16,6 +16,8 @@ import type { CerialFile } from './emit-cerial';
 import { emitTypescript } from './emit-ts';
 import type { EmittedModule } from './emit-ts';
 import { LOSSY_CASES, lossyCase } from './lossy-cases';
+import { nonLiteralExports, planPartial, renderUnresolved, withoutNames } from './partial';
+import type { ConvertedDeclaration, HeldBack, PartialRefusal } from './partial';
 import { isInside, planOutputs } from './output-paths';
 import type { OutputPlan } from './output-paths';
 import { removeSources } from './remove-sources';
@@ -51,6 +53,8 @@ export interface ConvertOptions {
   readonly dryRun?: boolean;
   /** `--remove-source`: delete the `.cerial` files that were fully converted, after the output is committed. */
   readonly removeSource?: boolean;
+  /** `--partial`: write what converts, hold back what reaches a refused declaration, and report the rest. */
+  readonly partial?: boolean;
   /** `-v`: list each expanded case per declaration and the declarations written per file. */
   readonly verbose?: boolean;
   /** Replaces the deletion of one source so a removal failure can be injected. */
@@ -69,6 +73,8 @@ export interface ConvertResult {
   readonly warnings: readonly string[];
   /** Sources `--remove-source` could not delete; the run exits 1 when any. */
   readonly failures: readonly string[];
+  /** Refused and held-back declarations; a `--partial` run that left any exits 1. */
+  readonly refused: number;
   /** What to print on success: one line per file, then the next step. */
   readonly lines: readonly string[];
 }
@@ -79,6 +85,8 @@ interface Group {
   readonly root: string;
   readonly modules: readonly EmittedModule[];
   readonly kept: readonly string[];
+  /** Refused and held-back names, which the converted modules are not compared against. */
+  readonly excluded: ReadonlySet<string>;
 }
 
 function blank(value: string | undefined): boolean {
@@ -92,6 +100,10 @@ function validateOptions(options: ConvertOptions): ConvertTarget {
     throw new CerialValidationError(`--to is required. Choose one of: ${choices}`);
   if (!(CONVERT_TARGETS as readonly string[]).includes(options.to))
     throw new CerialValidationError(`--to '${options.to}' is not a direction. Choose one of: ${choices}`);
+  if (options.partial && options.removeSource)
+    throw new CerialValidationError(
+      '--remove-source cannot be combined with --partial yet, so no source is deleted. Remove the converted sources by hand once generate works',
+    );
   if (options.to === 'cerial' && options.removeSource)
     throw new CerialValidationError(
       '--remove-source is not available with --to cerial yet, so no TypeScript module is deleted. Remove them by hand once generate works from the .cerial files',
@@ -194,7 +206,7 @@ async function verifyGroup(group: Group, tree: StagedTree): Promise<void> {
   const kept = group.kept.map((k) => join(tree.dir, relative(group.root, k)));
   const built = materialise(await loadDeclarations([...staged, ...kept]));
 
-  const expected = group.result.combinedAST;
+  const expected = withoutNames(group.result.combinedAST, group.excluded);
   const written = new Set(
     [...expected.models, ...expected.objects, ...expected.tuples, ...expected.literals, ...expected.enums]
       .filter((d) => d.origin.kind === 'dsl')
@@ -300,15 +312,23 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
 
   const groups: Group[] = [];
   const refusals: string[] = [];
+  const refused: PartialRefusal[] = [];
+  const held: HeldBack[] = [];
   for (const { target, result } of selected) {
     const label = target.name ? ` in schema '${target.name}'` : '';
     if (!result.schemaFiles.length)
       throw new CerialGenerationError(`Nothing to convert${label}: it has no .cerial source files.`);
 
-    const emitted = emitTypescript(result.combinedAST, {
-      schemaImport: options.schemaImport,
-      comments: commentsOf(result),
-    });
+    const emitOptions = { schemaImport: options.schemaImport, comments: commentsOf(result) };
+    let emitted = emitTypescript(result.combinedAST, emitOptions);
+    let excluded: ReadonlySet<string> = new Set();
+    if (options.partial && emitted.refusals.length) {
+      const plan = planPartial(result.combinedAST, emitted.refusals);
+      emitted = emitTypescript(plan.kept, emitOptions);
+      excluded = plan.excluded;
+      refused.push(...plan.refused);
+      held.push(...plan.held);
+    }
     for (const r of emitted.refusals)
       refusals.push(`${r.caseId}: ${r.declaration} (module ${r.module})${label}: ${r.reason}`);
 
@@ -322,7 +342,7 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
         return m.text.includes(`'${spec}'`) || m.text.includes(`"${spec}"`);
       });
     });
-    groups.push({ name: target.name, result, root: rootOf(target), modules: emitted.modules, kept });
+    groups.push({ name: target.name, result, root: rootOf(target), modules: emitted.modules, kept, excluded });
   }
   if (refusals.length)
     throw new CerialGenerationError(
@@ -330,8 +350,13 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
     );
 
   const modules = groups.flatMap((g) => g.modules);
-  if (!modules.length)
+  if (!modules.length) {
+    if (refused.length)
+      throw new CerialGenerationError(
+        `Nothing was written. Every declaration is refused or held back:\n${renderUnresolved({ refused, held, duplicated: [] }).join('\n')}`,
+      );
     throw new CerialGenerationError('Nothing to convert: the selected sources hold no declarations.');
+  }
 
   // Every config entry guards its sources, not only the ones converted now
   const protectedSources = analysed.flatMap(({ result }) => [...result.schemaFiles, ...result.typescriptFiles]);
@@ -363,6 +388,9 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
 
   const pairs = plan.outputs.map(({ source, target }) => `${source} -> ${target}`);
   const sources = plan.outputs.map((o) => o.source);
+  const duplicated = insideEntry(plan)
+    ? groups.flatMap(({ result: { combinedAST: ast }, excluded }) => declarationsOf(withoutNames(ast, excluded), 'dsl'))
+    : [];
   const lines = options.dryRun
     ? [...pairs.map((p) => `would write ${p}`), 'Dry run: nothing was written.']
     : pairs.map((p) => `wrote ${p}`);
@@ -408,7 +436,30 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
     );
   }
 
-  return { dryRun: written.dryRun, plan, written: written.written, warnings, failures, lines };
+  if (options.partial) lines.push(...renderUnresolved({ refused, held, duplicated }));
+
+  return {
+    dryRun: written.dryRun,
+    plan,
+    written: written.written,
+    warnings,
+    failures,
+    refused: refused.length + held.length,
+    lines,
+  };
+}
+
+/** True when the converted files land where `generate` reads, so a source left in place is read beside them. */
+function insideEntry(plan: OutputPlan): boolean {
+  return !plan.outDir || isInside(plan.entryRoot, plan.outDir);
+}
+
+function declarationsOf(ast: SchemaAST, kind: 'dsl' | 'ts'): ConvertedDeclaration[] {
+  return KINDS.flatMap(([list]) =>
+    ast[list]
+      .filter((item) => item.origin.kind === kind)
+      .map((item) => ({ name: item.name, source: item.origin.file })),
+  );
 }
 
 function isFile(path: string): boolean {
@@ -594,6 +645,8 @@ async function convertToCerial(
 ): Promise<ConvertResult> {
   const groups: CerialGroup[] = [];
   const refusals: Array<{ module: string; text: string }> = [];
+  const refused: PartialRefusal[] = [];
+  const held: HeldBack[] = [];
   const verboseLines: string[] = [];
   const warnings: string[] = [];
   const otherCode: string[] = [];
@@ -603,20 +656,35 @@ async function convertToCerial(
     if (!result.typescriptFiles.length)
       throw new CerialGenerationError(`Nothing to convert${label}: it has no TypeScript schema modules.`);
 
-    const ast = onlyTypescript(result.combinedAST);
+    const whole = onlyTypescript(result.combinedAST);
     const hits = await scanModules(result.typescriptFiles);
-    for (const finding of checkPrintable(ast)) {
+    const groupStart = refusals.length;
+    // What each refusal names, for `--partial`: declarations by AST name, and files whose helper no declaration owns
+    const named: PartialRefusal[] = [];
+    const unowned: Array<{ file: string; reason: string }> = [];
+    const refuse = (module: string, text: string, names: readonly string[], reason: string): void => {
+      refusals.push({ module, text });
+      for (const declaration of names) named.push({ declaration, module, reason });
+      if (!names.length) unowned.push({ file: module, reason });
+    };
+    for (const finding of checkPrintable(whole)) {
       if (lossyCase(finding.id).action === 'refuse')
-        refusals.push({ module: finding.module, text: `${finding.id}: ${finding.message}` });
+        refuse(finding.module, `${finding.id}: ${finding.message}`, [finding.declaration], finding.message);
     }
     for (const hit of hits) {
       const entry = lossyCase(hit.id);
-      if (entry.action === 'refuse')
-        refusals.push({
-          module: hit.file,
-          text: `${hit.id}: ${hit.message} (${hit.line}:${hit.column}): ${entry.reason}`,
-        });
-      else if (options.verbose)
+      if (entry.action === 'refuse') {
+        const exports = hit.declaration?.split(', ') ?? [];
+        const owners = placed(whole)
+          .filter((d) => d.file === hit.file && d.exportName !== undefined && exports.includes(d.exportName))
+          .map((d) => d.name);
+        refuse(
+          hit.file,
+          `${hit.id}: ${hit.message} (${hit.line}:${hit.column}): ${entry.reason}`,
+          owners,
+          `${hit.id}: ${hit.message}`,
+        );
+      } else if (options.verbose)
         verboseLines.push(`expanded ${hit.id} (${entry.construct.split(':')[0]}) in ${hit.declaration ?? hit.file}`);
     }
     // The validators `generate` runs on the resolved schema, so a reference to a declaration that was never
@@ -629,27 +697,66 @@ async function convertToCerial(
         ...validateObjectReferences(concrete),
         ...validateLiteralFieldReferences(concrete),
       ]) {
-        refusals.push({
-          module: error.origin?.file ?? target.schemaPath,
-          text: `unexported-declaration: ${error.origin ? `${formatOrigin(error.origin)}: ` : ''}${error.message}`,
-        });
+        const module = error.origin?.file ?? target.schemaPath;
+        const owners = whole.models.filter((m) => m.name === error.model).map((m) => m.name);
+        refuse(
+          module,
+          `unexported-declaration: ${error.origin ? `${formatOrigin(error.origin)}: ` : ''}${error.message}`,
+          owners.length
+            ? owners
+            : placed(whole)
+                .filter((d) => d.file === module)
+                .map((d) => d.name),
+          error.message,
+        );
       }
     }
-    if (refusals.length) continue;
+    if (refusals.length && !options.partial) continue;
+
+    let excluded: ReadonlySet<string> = new Set();
+    if (refusals.length > groupStart) {
+      // A computed value in a helper no declaration owns could change any declaration that is not a plain builder chain
+      if (unowned.length) {
+        const declared = placed(whole).filter((d) => d.exportName !== undefined);
+        for (const module of new Set(declared.map((d) => d.file))) {
+          const own = declared.filter((d) => d.file === module);
+          const risky = new Set(
+            await nonLiteralExports(
+              module,
+              own.map((d) => d.exportName!),
+            ),
+          );
+          for (const d of own)
+            if (risky.has(d.exportName!)) named.push({ declaration: d.name, module, reason: unowned[0]!.reason });
+        }
+      }
+      const plan = planPartial(whole, named);
+      excluded = plan.excluded;
+      refused.push(...plan.refused);
+      held.push(...plan.held);
+    }
+    const ast = withoutNames(whole, excluded);
+    const merged = withoutNames(result.combinedAST, excluded);
 
     const files = printCerial(ast, result.declarations, expandComments(ast, hits));
     const kept = result.schemaContents.map(({ path, content }) => ({ from: path, path, text: content }));
     warnings.push(...droppedBindings(result.declarations));
     otherCode.push(...(await modulesWithOtherCode(result.typescriptFiles, result.declarations)));
-    groups.push({ name: target.name, root: rootOf(target), merged: result.combinedAST, kept, ast, files });
+    groups.push({ name: target.name, root: rootOf(target), merged, kept, ast, files });
   }
-  if (refusals.length)
+  if (refusals.length && !options.partial)
     throw new CerialGenerationError(
       `Nothing was written. ${refusals.length} construct(s) cannot be converted to .cerial:\n${groupedByModule(refusals)}`,
     );
 
   const files = groups.flatMap((g) => g.files);
-  if (!files.length) throw new CerialGenerationError('Nothing to convert: the selected sources hold no declarations.');
+  if (!files.length) {
+    if (refusals.length)
+      throw new CerialGenerationError(
+        `Nothing was written. Every declaration is refused or held back:\n${renderUnresolved({ refused, held, duplicated: [] }).join('\n')}`,
+      );
+    throw new CerialGenerationError('Nothing to convert: the selected sources hold no declarations.');
+  }
 
   const plan = planOutputs({
     sources: files.map((file) => file.from),
@@ -692,5 +799,18 @@ async function convertToCerial(
       `Other exports and code in these modules are not converted: ${[...new Set(otherCode)].sort().join(', ')}`,
     );
 
-  return { dryRun: written.dryRun, plan, written: written.written, warnings, failures: [], lines };
+  if (options.partial) {
+    const duplicated = insideEntry(plan) ? groups.flatMap((g) => declarationsOf(g.ast, 'ts')) : [];
+    lines.push(...renderUnresolved({ refused, held, duplicated }));
+  }
+
+  return {
+    dryRun: written.dryRun,
+    plan,
+    written: written.written,
+    warnings,
+    failures: [],
+    refused: refused.length + held.length,
+    lines,
+  };
 }

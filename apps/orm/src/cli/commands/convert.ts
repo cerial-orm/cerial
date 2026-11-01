@@ -39,6 +39,11 @@ export const convertCommand = defineCommand({
       type: 'boolean',
       description: 'Delete the .cerial files that were fully converted, after the output is written',
     },
+    partial: {
+      type: 'boolean',
+      description:
+        'Convert what can be converted, hold back declarations that reach a refused one, and report what is unresolved. Exits 1 when anything was refused',
+    },
     verbose: {
       type: 'boolean',
       alias: 'v',
@@ -60,11 +65,12 @@ export const convertCommand = defineCommand({
         force: args.force,
         dryRun: args['dry-run'],
         removeSource: args['remove-source'],
+        partial: args.partial,
         verbose: args.verbose,
       });
       for (const warning of result.warnings) console.warn(`warning: ${warning}`);
       for (const line of result.lines) console.log(line);
-      if (result.failures.length) process.exit(1);
+      if (result.failures.length || result.refused) process.exit(1);
     } catch (error) {
       console.error(error instanceof Error ? error.message : String(error));
       process.exit(1);
