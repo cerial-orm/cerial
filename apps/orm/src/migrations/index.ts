@@ -9,5 +9,6 @@ export type {
   TableModel,
   UnmanagedItem,
 } from './types';
+export { buildDesiredSchema } from './desired';
 export { parseFieldIdiom, quoteFieldPath, quoteIdent } from './quote';
 export { readLiveSchema } from './reader';
