@@ -61,6 +61,18 @@ describe('canonicalType', () => {
     expect(canonicalType("['a,b', option<int>]")).toBe("['a,b', int | none]");
   });
 
+  test("the server's rendering of a uuid default and an any-typed closure equals the emitted one", () => {
+    expect(canonicalExpression('`rand`::uuid::v7()')).toBe(canonicalExpression('rand::uuid::v7()'));
+    expect(canonicalExpression('$value.all(|$v: any| string::is_email($v))')).toBe(
+      canonicalExpression('$value.all(|$v| string::is_email($v))'),
+    );
+  });
+
+  test('a different function or closure body still differs', () => {
+    expect(canonicalExpression('`rand`::uuid::v7()')).not.toBe(canonicalExpression('rand::uuid::v4()'));
+    expect(canonicalExpression('|$v: int| $v')).not.toBe(canonicalExpression('|$v| $v'));
+  });
+
   test('an unknown shape is returned unchanged', () => {
     expect(canonicalType('[int, option<string>')).toBe('[int, option<string>');
     expect(canonicalType('option<string')).toBe('option<string');
@@ -107,6 +119,36 @@ describe('canonicalExpression', () => {
 
   test("an assert survives the server's rendering", () => {
     expect(canonicalExpression("$value != 'z'")).toBe("$value != 'z'");
+  });
+});
+
+describe('canonicalType object literals', () => {
+  test('the server key order and option form read back equal to the emitted type', () => {
+    expect(canonicalType('{ label: string, count: option<int> }')).toBe(
+      canonicalType('{ count: none | int, label: string }'),
+    );
+  });
+
+  test('nested literals, unions and arrays of literals are ordered too', () => {
+    expect(canonicalType('{ z: string, a: { y: int, b: int } } | string')).toBe(
+      canonicalType('string | { a: { b: int, y: int }, z: string }'),
+    );
+    expect(canonicalType('array<{ b: int, a: int }>')).toBe(canonicalType('array<{ a: int, b: int }>'));
+  });
+
+  test('a differing key or type is not equal', () => {
+    expect(canonicalType('{ a: int, b: string }')).not.toBe(canonicalType('{ a: int, c: string }'));
+    expect(canonicalType('{ a: int, b: string }')).not.toBe(canonicalType('{ a: int, b: int }'));
+    expect(canonicalType('{ a: int }')).not.toBe(canonicalType('{ a: int, b: int }'));
+  });
+
+  test('a float literal type equals its suffixed server form, and a different number does not', () => {
+    expect(canonicalType('0.5 | 1.5')).toBe(canonicalType('0.5f | 1.5f'));
+    expect(canonicalType('0.5f')).not.toBe(canonicalType('0.6'));
+  });
+
+  test('a comma or colon inside a quoted value does not split an entry', () => {
+    expect(canonicalType("{ b: 'x, y: z', a: int }")).toBe("{ a: int, b: 'x, y: z' }");
   });
 });
 

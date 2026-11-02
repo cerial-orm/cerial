@@ -47,6 +47,9 @@ function split(text: string, separator: string): string[] {
 
 const GENERIC = /^([A-Za-z_][A-Za-z0-9_]*)<([\s\S]*)>$/;
 const TUPLE = /^\[([\s\S]*)\]$/;
+// The server writes a float literal type with its `f` suffix (`0.5f`), which the emitted type does not carry.
+const FLOAT_LITERAL = /^(-?\d+(?:\.\d+)?)f$/;
+const OBJECT_LITERAL = /^\{([\s\S]*)\}$/;
 
 function members(text: string): string[] {
   const result: string[] = [];
@@ -62,10 +65,27 @@ function members(text: string): string[] {
       // Element order is the tuple's shape, so only each element's own union is canonicalised.
       const elements = split(TUPLE.exec(member)![1]!, ',').map(canonicalMembers);
       result.push(`[${elements.join(', ')}]`);
-    } else result.push(member);
+    } else if (OBJECT_LITERAL.test(member)) {
+      result.push(canonicalObjectLiteral(OBJECT_LITERAL.exec(member)![1]!));
+    } else result.push(member.replace(FLOAT_LITERAL, '$1'));
   }
 
   return result;
+}
+
+/** The server sorts an inline object type's keys, so both sides are written in key order. */
+function canonicalObjectLiteral(body: string): string {
+  if (!body.trim()) return '{}';
+  const entries = split(body, ',').map((entry) => {
+    const colon = scan(entry, ':').cuts[0];
+    if (colon === undefined) return { key: entry, text: entry };
+    const key = entry.slice(0, colon).trim();
+
+    return { key, text: `${key}: ${canonicalMembers(entry.slice(colon + 1))}` };
+  });
+  entries.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+
+  return `{ ${entries.map((entry) => entry.text).join(', ')} }`;
 }
 
 function canonicalMembers(text: string): string {
@@ -98,12 +118,14 @@ function hasOuterParens(text: string): boolean {
   return scan(inner, '\0').balanced;
 }
 
-const FLOAT_SUFFIX = /^(-?\d+(?:\.\d+)?)f$/;
+const QUOTED_FUNCTION_NAMESPACE = /`([A-Za-z_]\w*)`(?=::)/g;
+const ANY_CLOSURE_PARAMETER = /(\$\w+)\s*:\s*any(?=\s*[,|])/g;
 const SIMPLE_DOUBLE_QUOTED = /^"([^"'\\]*)"$/;
 
 /**
  * One form for a DEFAULT, VALUE or ASSERT expression: outer parentheses stripped, a numeric `f` suffix
- * dropped and a plain double-quoted string written with single quotes. Anything with unbalanced
+ * dropped, a plain double-quoted string written with single quotes, backticks around a function namespace
+ * and an `: any` closure parameter type removed. Anything with unbalanced
  * brackets or quotes is returned unchanged.
  */
 export function canonicalExpression(expression: string): string {
@@ -111,8 +133,10 @@ export function canonicalExpression(expression: string): string {
   if (!text || !scan(text, '\0').balanced) return expression;
 
   while (hasOuterParens(text)) text = text.slice(1, -1).trim();
+  // The server writes `rand::uuid()` as `` `rand`::uuid() `` and a closure `|$v|` as `|$v: any|`.
+  text = text.replace(QUOTED_FUNCTION_NAMESPACE, '$1').replace(ANY_CLOSURE_PARAMETER, '$1');
 
-  const float = FLOAT_SUFFIX.exec(text);
+  const float = FLOAT_LITERAL.exec(text);
   if (float) return float[1]!;
   const quoted = SIMPLE_DOUBLE_QUOTED.exec(text);
   if (quoted) return `'${quoted[1]}'`;
