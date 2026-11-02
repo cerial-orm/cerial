@@ -1,5 +1,5 @@
 import { basename } from 'node:path';
-import { detectNestedSchemaRoots, findFolderConfigs } from './config';
+import { detectNestedSchemaRoots, findFolderConfigs, toClientClassName } from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { findSchemaRoots } from './resolvers';
@@ -15,6 +15,15 @@ export interface DiscoveredRoot {
 export interface DiscoveredRoots {
   readonly source: 'folder-config' | 'marker';
   readonly roots: DiscoveredRoot[];
+}
+
+/**
+ * The client class a discovered root is generated under. A lone root is generated without a name, so it keeps the
+ * writer's default; with several, each is named for its folder. `generate` and `migrate` both use this, because
+ * the class name is the key the client reads its migration state under.
+ */
+export function discoveredClientClassName(roots: readonly DiscoveredRoot[], root: DiscoveredRoot): string {
+  return toClientClassName(roots.length === 1 ? undefined : root.name);
 }
 
 /**

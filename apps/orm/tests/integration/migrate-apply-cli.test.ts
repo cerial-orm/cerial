@@ -462,3 +462,29 @@ describe('the state rows are the ones the generated client reads', () => {
     expect((await apply(dir, name)).stdout).toContain('Nothing to do');
   });
 });
+
+describe('a zero-config project with a single schema root', () => {
+  test('records state under the name the generated client reads, CerialClient', async () => {
+    const dir = await mixedProject({ 'app/schema.cerial': NOTE });
+    const { db, name } = await scratch('zeroone');
+
+    const result = await apply(dir, name);
+
+    expect(result.exitCode).toBe(0);
+    const expected = await generatedFingerprints(join(dir, 'app'));
+    const state = await readState(db, 'CerialClient');
+    expect(state.models.get('Note')?.fingerprint).toBe(expected.Note!);
+    expect(state.schema?.managedTables).toEqual(['note']);
+    expect((await readState(db, 'AppCerialClient')).models.size).toBe(0);
+  });
+
+  test('with two roots each keeps the name of its folder', async () => {
+    const dir = await mixedProject({ 'alpha/schema.cerial': NOTE, 'beta/schema.cerial': AUDIT });
+    const { db, name } = await scratch('zerotwo');
+
+    expect((await apply(dir, name)).exitCode).toBe(0);
+
+    expect([...(await readState(db, 'AlphaCerialClient')).models.keys()]).toEqual(['Note']);
+    expect([...(await readState(db, 'BetaCerialClient')).models.keys()]).toEqual(['AuditEntry']);
+  });
+});

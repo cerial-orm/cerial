@@ -173,6 +173,20 @@ describe('a project with no config file', () => {
     expect(targets[0]!.desired.tables.map((t) => t.name)).toEqual(['gamma']);
   });
 
+  it('names a lone root CerialClient, the class generate writes for it, not for its folder', async () => {
+    const dir = await mixedProject({ 'app/schema.cerial': model('Alpha') });
+    const targets = await loadDesired({ flags: {}, env: ZERO_ENV, cwd: dir });
+
+    expect(targets[0]!.entryModels.map((e) => e.schemaName)).toEqual(['CerialClient']);
+  });
+
+  it('names each of several roots for its folder, as generate does', async () => {
+    const dir = await mixedProject({ 'one/schema.cerial': model('Alpha'), 'two-x/schema.cerial': model('Beta') });
+    const targets = await loadDesired({ flags: {}, env: ZERO_ENV, cwd: dir });
+
+    expect(targets[0]!.entryModels.map((e) => e.schemaName).sort()).toEqual(['OneCerialClient', 'TwoXCerialClient']);
+  });
+
   it('takes the connection from flags and env only, refusing when there is none', async () => {
     const dir = await mixedProject({ 'app/schema.cerial': model('Alpha') });
 

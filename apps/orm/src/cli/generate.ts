@@ -18,10 +18,10 @@ import type {
   TupleRegistry,
 } from '../types';
 import type { CerialConfig, ResolvedSchemaEntry } from './config';
-import { loadConfig, resolveConfig, toClientClassName, validateCombinedEntries } from './config';
+import { loadConfig, resolveConfig, validateCombinedEntries } from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
-import { discoverSchemaRoots } from './discover-roots';
+import { discoveredClientClassName, discoverSchemaRoots } from './discover-roots';
 import type { DiscoveredRoot } from './discover-roots';
 import { buildResolvedSchemaAst } from './resolvers';
 import { buildSchemaMetadata } from './schema-metadata';
@@ -730,7 +730,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
         name: root.name,
         path: root.dir,
         output: outputOf(root),
-        clientClassName: toClientClassName(root.name),
+        clientClassName: discoveredClientClassName(found.roots, root),
       }));
 
       // Check for duplicate names/outputs among discovered markers

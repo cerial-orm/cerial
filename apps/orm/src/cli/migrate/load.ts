@@ -4,9 +4,9 @@ import { generateRegistryDefineStatements } from '../../generators/migrations';
 import { buildDesiredSchema, fingerprint, schemaFingerprint } from '../../migrations';
 import type { SchemaModel } from '../../migrations';
 import type { ConnectionConfig, SchemaAST } from '../../types';
-import { loadConfig, resolveConfig, toClientClassName } from '../config';
+import { loadConfig, resolveConfig } from '../config';
 import { applyFolderOverridesAndDiscover } from '../discovery';
-import { discoverSchemaRoots } from '../discover-roots';
+import { discoveredClientClassName, discoverSchemaRoots } from '../discover-roots';
 import type { PathFilter } from '../filters';
 import { buildConfigRootFilter, buildRootFilter, buildSchemaFilters, schemaSource } from '../generate';
 import { buildSchemaMetadata } from '../schema-metadata';
@@ -127,7 +127,7 @@ async function resolveSources(configPath: string | undefined, cwd: string): Prom
   if (found) {
     return found.roots.map((root) => ({
       name: root.name,
-      clientClassName: toClientClassName(root.name),
+      clientClassName: discoveredClientClassName(found.roots, root),
       ast: { schemaPath: root.dir, filter: root.filter },
     }));
   }
