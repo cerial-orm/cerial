@@ -17,6 +17,7 @@ interface TableRow {
   readonly drop?: boolean;
   readonly schemafull?: boolean;
   readonly kind?: { readonly kind?: string };
+  readonly view?: unknown;
   readonly permissions?: Permissions;
 }
 
@@ -111,7 +112,18 @@ function isImpliedElement(row: FieldRow, path: FieldPath, parents: ReadonlyMap<s
   );
 }
 
-function readTable(name: string, info: TableInfo, unmanaged: UnmanagedItem[]): TableModel {
+/** The table's definition when it is not the ordinary SCHEMAFULL normal table Cerial defines; undefined for that one. */
+function tableMode(row: TableRow): string | undefined {
+  const kind = row.kind?.kind ?? 'NORMAL';
+  if (!row.drop && row.schemafull !== false && kind === 'NORMAL' && !row.view) return undefined;
+
+  return [kind, row.schemafull === false ? 'SCHEMALESS' : 'SCHEMAFULL', row.drop && 'DROP', row.view && 'VIEW']
+    .filter(Boolean)
+    .join(' ');
+}
+
+function readTable(row: TableRow, info: TableInfo, unmanaged: UnmanagedItem[]): TableModel {
+  const name = row.name;
   const rows = info.fields ?? [];
   const parsed = rows.map((row) => ({ row, path: parseFieldIdiom(row.name) }));
   const byPath = new Map(parsed.map(({ row, path }) => [pathKey(path), row]));
@@ -146,7 +158,9 @@ function readTable(name: string, info: TableInfo, unmanaged: UnmanagedItem[]): T
     value.forEach((item, index) => unmanaged.push({ kind: key, name: itemName(item, index), table: name }));
   }
 
-  return { name, fields, indexes };
+  const mode = tableMode(row);
+
+  return { name, ...(mode !== undefined && { mode }), fields, indexes };
 }
 
 /**
@@ -173,7 +187,7 @@ export async function readLiveSchema(surreal: Surreal): Promise<SchemaModel> {
     if (Object.values(row.permissions ?? {}).some((value) => value !== false)) {
       unmanaged.push({ kind: 'table-permissions', name: row.name });
     }
-    if (row.drop || row.schemafull === false || (row.kind?.kind ?? 'NORMAL') !== 'NORMAL') {
+    if (row.drop || row.schemafull === false || (row.kind?.kind ?? 'NORMAL') !== 'NORMAL' || row.view) {
       unmanaged.push({ kind: 'table-kind', name: row.name });
     }
   }
@@ -184,7 +198,7 @@ export async function readLiveSchema(surreal: Surreal): Promise<SchemaModel> {
     surreal,
     managed.map((row) => `INFO FOR TABLE ${quoteIdent(row.name)} STRUCTURE`),
   );
-  const tables = managed.map((row, index) => readTable(row.name, infos[index] as TableInfo, unmanaged));
+  const tables = managed.map((row, index) => readTable(row, infos[index] as TableInfo, unmanaged));
 
   return { tables, unmanaged };
 }

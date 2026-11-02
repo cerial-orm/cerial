@@ -5,6 +5,7 @@ import type { DifferenceClass, FieldModel, FieldPath, IndexModel, SchemaModel, T
 /** Every kind of difference the differ can produce; a kind outside this list is refused, never defaulted. */
 export type DifferenceKind =
   | 'table-missing'
+  | 'table-mode-changed'
   | 'field-missing'
   | 'field-missing-required'
   | 'index-missing'
@@ -50,6 +51,12 @@ const CLASSIFICATIONS: Readonly<Record<DifferenceKind, Classification>> = {
     class: 'additive',
     construct: 'table',
     reason: 'defining a table creates it and touches nothing stored',
+  },
+  'table-mode-changed': {
+    class: 'destructive',
+    construct: 'table',
+    reason:
+      'the live table is defined differently from the schema (schema mode, kind or view), so its rows are held to other rules',
   },
   'field-missing': {
     class: 'additive',
@@ -196,6 +203,7 @@ function diffIndex(table: string, desired: IndexModel, live: IndexModel): Schema
 function diffTable(desired: TableModel, live: TableModel): SchemaDifference[] {
   const result: SchemaDifference[] = [];
   const table = desired.name;
+  if (desired.mode !== live.mode) result.push(difference('table-mode-changed', { table }));
   const liveFields = indexBy(live.fields, (f) => pathKey(f.path), 'field', table);
   const desiredFields = indexBy(desired.fields, (f) => pathKey(f.path), 'field', table);
   const liveIndexes = indexBy(live.indexes, (i) => i.name, 'index', table);

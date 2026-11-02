@@ -33,6 +33,7 @@ function canonicalField(field: FieldModel): FieldModel {
 function canonicalTable(table: TableModel): TableModel {
   return {
     name: table.name,
+    mode: table.mode,
     fields: byKey(table.fields.map(canonicalField), (field) => JSON.stringify(field.path)),
     indexes: byKey<IndexModel>(table.indexes, (index) => index.name),
   };

@@ -34,6 +34,11 @@ export interface IndexModel {
 
 export interface TableModel {
   readonly name: string;
+  /**
+   * How a live table is defined when it is not an ordinary SCHEMAFULL normal table (`SCHEMALESS`, `DROP`, a relation,
+   * a view). Absent for the table Cerial defines, so the desired side never carries it.
+   */
+  readonly mode?: string;
   readonly fields: readonly FieldModel[];
   readonly indexes: readonly IndexModel[];
 }

@@ -222,3 +222,20 @@ describe('equality across the two sides', () => {
     expect(diffSchema(same, same, NONE)).toEqual([]);
   });
 });
+
+describe('computed fields and table mode', () => {
+  test('a declared table that is live with another mode differs, destructively', () => {
+    const found = one(
+      schema([table('t', [field('a', 'string')])]),
+      schema([{ ...table('t', [field('a', 'string')]), mode: 'ANY SCHEMALESS' }]),
+    );
+
+    expect(found).toMatchObject({ kind: 'table-mode-changed', class: 'destructive', construct: 'table', table: 't' });
+  });
+
+  test('near miss: the same mode on both sides is no difference', () => {
+    const same = { ...table('t', [field('a', 'string')]), mode: 'ANY SCHEMALESS' };
+
+    expect(diffSchema(schema([same]), schema([same]), NONE)).toEqual([]);
+  });
+});

@@ -154,3 +154,13 @@ describe('fingerprint: module graph', () => {
     expect(code).not.toContain('oxfmt');
   });
 });
+
+describe('fingerprint: table mode', () => {
+  test('moves when the table is not the ordinary schemafull one', () => {
+    expect(fingerprint({ ...base(), mode: 'ANY SCHEMALESS' })).not.toBe(fingerprint(base()));
+  });
+
+  test('near miss: an absent mode hashes as it did before the field existed', () => {
+    expect(fingerprint({ ...base(), mode: undefined })).toBe(fingerprint(base()));
+  });
+});

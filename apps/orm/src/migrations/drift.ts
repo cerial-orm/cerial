@@ -26,6 +26,7 @@ const DRIFT_KINDS: Readonly<Partial<Record<DifferenceKind, DriftItem['change']>>
   'field-extra': 'extra',
   'index-extra': 'extra',
   'table-extra-managed': 'extra',
+  'table-mode-changed': 'changed',
   'field-changed': 'changed',
   'index-changed': 'changed',
   'index-unique-added': 'changed',

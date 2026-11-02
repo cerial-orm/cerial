@@ -176,6 +176,11 @@ export function buildMigrationPlan(
         }
         break;
       }
+      case 'table-mode-changed': {
+        const [table, t] = tableOf(d);
+        stages[2]!.push({ at: order(table, '', 'fields'), item: forward(d, t.define) });
+        break;
+      }
       case 'field-missing':
       case 'field-missing-required':
       case 'field-changed': {
