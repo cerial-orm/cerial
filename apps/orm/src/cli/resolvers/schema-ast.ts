@@ -1,10 +1,10 @@
 import { existsSync, statSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve, sep } from 'node:path';
 import { CerialGenerationError } from '../../errors';
 import { materialise } from '../../parser/builder';
 import type { ExportedDeclaration } from '../../parser/builder';
-import { syncHandles } from '../../generators/handles';
+import { handlesPath, syncHandles } from '../../generators/handles';
 import { resolveInheritance } from '../../resolver';
 import type { SchemaAST } from '../../types';
 import type { PathFilter } from '../filters';
@@ -38,6 +38,12 @@ export interface SchemaAstOptions {
   /** Where a file outside the scope is matched from instead: the config's directory, else the cwd */
   filterRoot?: string;
   verbose?: boolean;
+  /**
+   * Leave the generated handles module as it was found. A mixed entry still needs it on disk while its
+   * TypeScript modules are imported, so it is written for that moment and put back before this returns.
+   * For read-only callers; `generate` leaves it unset and keeps the file.
+   */
+  preserveHandles?: boolean;
 }
 
 export interface SchemaAstResult {
@@ -156,7 +162,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   // Handles exist only while the entry mixes both forms; any other entry drops a stale one this generator wrote
   const mixing = !!schemaFiles.length && !!typescriptFiles.length;
   const root = handlesRoot(scopeDir, [...schemaFiles, ...typescriptFiles]);
-  if (!mixing) await syncHandles(root, null);
+  if (!mixing && !options.preserveHandles) await syncHandles(root, null);
 
   let combinedAST: SchemaAST = emptyAst();
   const result: SchemaAstResult = {
@@ -216,29 +222,39 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   result.schemaContents = schemaContents;
 
   // Pass 1 writes the handles the TypeScript modules may import, so it runs before they are imported
-  const handlesAst = mixing ? await runPassOne(schemaContents, root) : emptyAst();
-
+  const handlesFile = handlesPath(root);
+  const priorHandles =
+    options.preserveHandles && mixing && existsSync(handlesFile) ? await readFile(handlesFile) : undefined;
   let declared: NameSets = NO_NAMES;
   let typescriptAST = emptyAst();
-  if (mixing) {
-    logger.progress('Loading TypeScript schema modules...');
-    const dsl = collectDslNames(schemaContents);
-    result.declarations = await runPassTwo(typescriptFiles, {
-      entries: entry ? [entry] : [],
-      excludes: filter ? isExcluded : undefined,
-      handles: { root, ast: handlesAst },
-    });
-    typescriptAST = materialise(result.declarations, {
-      object: dsl.objects,
-      tuple: dsl.tuples,
-      literal: [...dsl.literals, ...dsl.enums],
-    });
-    declared = {
-      objects: new Set(typescriptAST.objects.map((o) => o.name)),
-      tuples: new Set(typescriptAST.tuples.map((t) => t.name)),
-      literals: new Set(typescriptAST.literals.map((l) => l.name)),
-      enums: new Set(typescriptAST.enums.map((e) => e.name)),
-    };
+  try {
+    const handlesAst = mixing ? await runPassOne(schemaContents, root) : emptyAst();
+
+    if (mixing) {
+      logger.progress('Loading TypeScript schema modules...');
+      const dsl = collectDslNames(schemaContents);
+      result.declarations = await runPassTwo(typescriptFiles, {
+        entries: entry ? [entry] : [],
+        excludes: filter ? isExcluded : undefined,
+        handles: { root, ast: handlesAst },
+      });
+      typescriptAST = materialise(result.declarations, {
+        object: dsl.objects,
+        tuple: dsl.tuples,
+        literal: [...dsl.literals, ...dsl.enums],
+      });
+      declared = {
+        objects: new Set(typescriptAST.objects.map((o) => o.name)),
+        tuples: new Set(typescriptAST.tuples.map((t) => t.name)),
+        literals: new Set(typescriptAST.literals.map((l) => l.name)),
+        enums: new Set(typescriptAST.enums.map((e) => e.name)),
+      };
+    }
+  } finally {
+    if (options.preserveHandles && mixing) {
+      if (priorHandles) await writeFile(handlesFile, priorHandles);
+      else await syncHandles(root, null);
+    }
   }
 
   const parsed = runPassThree(schemaContents, declared);
