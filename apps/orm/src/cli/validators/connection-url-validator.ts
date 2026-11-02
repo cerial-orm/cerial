@@ -26,12 +26,14 @@ function hasUserinfo(url: string): boolean {
  *
  * The generated client embeds the resolved `url` verbatim so the output directory can be committed, which
  * would write the credentials into it. Detection reads the parsed username and password, so an `@` in the
- * path or query is not userinfo. The message never includes any part of the url, because it reaches CI
+ * path or query is not userinfo. `refusal` lets a caller supply its own error, which must not echo the url either. The message never includes any part of the url, because it reaches CI
  * logs. Must run before any entry is generated.
  */
-export function validateConnectionUrls(entries: EntryConnection[]): void {
+export function validateConnectionUrls(entries: EntryConnection[], refusal?: (entryNames: string[]) => Error): void {
   const names = entries.filter((e) => e.connection && hasUserinfo(e.connection.url)).map((e) => `'${e.name}'`);
   if (!names.length) return;
+  // A caller other than generate words the refusal itself; the default below is generate's
+  if (refusal) throw refusal(names);
 
   throw new CerialGenerationError(
     `Schema ${names.length > 1 ? 'entries' : 'entry'} ${names.join(', ')} ${names.length > 1 ? 'have' : 'has'} a connection url that carries credentials (user or password before the host). ` +
