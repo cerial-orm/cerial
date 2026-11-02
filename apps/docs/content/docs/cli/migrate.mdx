@@ -160,6 +160,8 @@ bunx cerial migrate apply cerial/migrations/20261103T101500Z-default.surql
 
 `apply --from-schema` re-reads the live database, works out what is pending right now and applies it. It is the unattended path for a deploy step. Nothing is applied until every step has the flag it needs: if one step is refused for a missing flag, the additive steps beside it are not applied either, and the refusal names each flag, construct and table. On a terminal, a plan with a destructive step asks `[y/N]` before it runs. Without a terminal, the flags are the authorisation.
 
+Both forms check the live schema again once the migration lock is held. If something changed it after the plan was made, `apply` exits 1, names the table, and applies nothing.
+
 ### From a plan file
 
 `apply <file>` applies a file you reviewed. It is stricter than running the file through another tool:

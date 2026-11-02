@@ -10,6 +10,7 @@ import {
   bootstrapStateTables,
   buildMigrationPlan,
   diffSchema,
+  fingerprint,
   indexDesiredStatements,
   liveFingerprint,
   quoteIdent,
@@ -47,6 +48,8 @@ export interface ApplyOptions {
   /** Where the confirmation answer is read from, and where its question is written (stderr by default) */
   readonly input?: Readable;
   readonly prompt?: Writable;
+  /** Called after planning and confirmation, before the lease is taken; tests use it to move the database in between */
+  readonly beforeApply?: () => Promise<void>;
 }
 
 type Flags = Pick<MigrateArgs, 'allow-destructive' | 'allow-data-loss'>;
@@ -174,7 +177,42 @@ function toApplyEntry(
   };
 }
 
-async function applyTarget(planned: PlannedTarget): Promise<number> {
+/** The tables that appeared, vanished or changed between two reads of the live schema, one line each */
+function movedTables(before: SchemaModel, after: SchemaModel): string[] {
+  const was = new Map(before.tables.map((t) => [t.name, fingerprint(t)]));
+  const is = new Map(after.tables.map((t) => [t.name, fingerprint(t)]));
+  const lines: string[] = [];
+  for (const name of [...new Set([...was.keys(), ...is.keys()])].sort()) {
+    if (!is.has(name)) lines.push(join('table ', quoteIdent(name), ' is gone'));
+    else if (!was.has(name)) lines.push(join('table ', quoteIdent(name), ' appeared'));
+    else if (was.get(name) !== is.get(name)) lines.push(join('table ', quoteIdent(name), ' changed'));
+  }
+
+  return lines;
+}
+
+/**
+ * Re-reads live under the lease and refuses when it is not what the plan was made from. Anything written between
+ * the plan and the lease (another apply, a person) would make the plan's statements wrong for the database.
+ */
+async function assertUnchanged(surreal: Surreal, planned: PlannedTarget): Promise<void> {
+  const now = await readLiveTarget(surreal, planned.target);
+  const sameState = JSON.stringify([...planned.managed]) === JSON.stringify([...now.managed]);
+  if (liveFingerprint(now.live) === liveFingerprint(planned.live) && sameState) return;
+
+  const moved = movedTables(planned.live, now.live);
+  throw new Refused(
+    join(
+      'the live schema of ',
+      where(planned.target),
+      ' changed after it was planned (',
+      moved.length ? moved.join('; ') : 'the migration state or an unmanaged object changed',
+      '), so nothing was applied. Plan again.',
+    ),
+  );
+}
+
+async function applyTarget(planned: PlannedTarget, beforeApply: (() => Promise<void>) | undefined): Promise<number> {
   const surreal = await connect(planned.target.credentials(), 'migrate apply');
   try {
     if (!(await databaseExists(surreal))) await createDatabase(surreal, planned.target.connection.database);
@@ -184,9 +222,11 @@ async function applyTarget(planned: PlannedTarget): Promise<number> {
       const entry = entryOf(item, planned);
       byEntry.set(entry, [...(byEntry.get(entry) ?? []), item]);
     }
+    await beforeApply?.();
 
     // One call for every entry on this connection: they are one transaction, so a failure in any rolls back all
     return await withLease(surreal, async (lease) => {
+      await assertUnchanged(surreal, planned);
       const result = await applyPlan(surreal, [...byEntry.values()].flat(), {
         cerialVersion: pkg.version,
         lease,
@@ -416,7 +456,7 @@ export async function migrateApply(options: ApplyOptions): Promise<ApplyResult> 
     const applied: string[] = [];
     for (const p of pending) {
       try {
-        const count = await applyTarget(p);
+        const count = await applyTarget(p, options.beforeApply);
         applied.push(join('Applied ', String(count), ' statement(s) to ', where(p.target), '.'));
       } catch (error) {
         // Another database's transaction already committed; the output must say so rather than read as all-or-nothing

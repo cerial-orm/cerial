@@ -561,6 +561,49 @@ describe('several schema entries on one database', () => {
   });
 });
 
+describe('the live schema moving between the plan and the lease', () => {
+  test('is refused naming the table, with nothing applied and the other change left alone', async () => {
+    const dir = await mixedProject({ 'app/schema.cerial': NOTE });
+    const { db, name } = await scratch('moved');
+    const moved = await migrateApply({
+      argv: FLAGS,
+      env: envFor(name),
+      cwd: dir,
+      isTTY: false,
+      beforeApply: async () => {
+        await db.query('DEFINE TABLE note SCHEMAFULL; DEFINE FIELD stray ON note TYPE string').collect();
+      },
+    });
+
+    expect(moved.exitCode).toBe(1);
+    expect(moved.stdout).toBe('');
+    expect(moved.stderr).toContain('changed after it was planned');
+    expect(moved.stderr).toContain('table `note` appeared');
+    expect(moved.stderr).toContain('nothing was applied');
+    expect(await fieldsOf(db, 'note')).toEqual(['stray']);
+    expect((await readState(db, await schemaNameOf(dir, name))).schema).toBeUndefined();
+  });
+
+  test('an unchanged database applies as before', async () => {
+    const dir = await mixedProject({ 'app/schema.cerial': NOTE });
+    const { name } = await scratch('unmoved');
+    let called = 0;
+
+    const result = await migrateApply({
+      argv: FLAGS,
+      env: envFor(name),
+      cwd: dir,
+      isTTY: false,
+      beforeApply: async () => {
+        called++;
+      },
+    });
+
+    expect(called).toBe(1);
+    expect(result.exitCode).toBe(0);
+  });
+});
+
 describe('a zero-config project with a single schema root', () => {
   test('records state under the name the generated client reads, CerialClient', async () => {
     const dir = await mixedProject({ 'app/schema.cerial': NOTE });

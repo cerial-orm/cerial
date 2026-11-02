@@ -607,3 +607,25 @@ describe('a removal in the file must be one the fresh plan makes', () => {
   });
 });
 
+describe('a file whose database moves between the check and the lease', () => {
+  test('is refused naming the change, and nothing is applied', async () => {
+    const fixture = await planned('lease', { 'app/schema.cerial': NOTE }, { 'app/schema.cerial': NOTE_TAG_NO_BODY });
+
+    const result = await migrateApply({
+      argv: [fixture.file],
+      env: envFor(fixture.name),
+      cwd: fixture.dir,
+      isTTY: false,
+      beforeApply: async () => {
+        await fixture.db.query('DEFINE TABLE sneaky SCHEMAFULL').collect();
+      },
+    });
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('changed after it was planned');
+    expect(result.stderr).toContain('table `sneaky` appeared');
+    expect(result.stdout).toBe('');
+    expect(await fieldsOf(fixture.db, 'note')).not.toContain('tag');
+    await expectNoteRowsIntact(fixture.db);
+  });
+});
