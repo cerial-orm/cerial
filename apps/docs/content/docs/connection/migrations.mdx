@@ -85,6 +85,90 @@ await client.db.Post.findMany();
 
 If you disconnect and reconnect, migrations will run again on the next query or `migrate()` call.
 
+:::caution
+The migration modes, change classes and state tables below are not yet available in the current release. They will ship in an upcoming version.
+:::
+
+## Migration Modes
+
+The `migrations` client option sets how a client treats the schema. It takes `'auto'`, `'verify'` or `'off'`.
+
+| Mode | On connect and first use | `migrate()` |
+|---|---|---|
+| `'auto'` (default) | Applies a model's definitions the first time it is used | Applies every model |
+| `'verify'` | Compares the live schema with the generated one and applies nothing | Applies every model |
+| `'off'` | Applies nothing, checks nothing, and reads or writes no migration state | Applies every model |
+
+`'auto'` is the default through 0.x, so existing applications behave as before. Under `NODE_ENV=production` it logs a one-time warning that it applies schema changes on first use, and it logs the plan before it changes a schema that differs from the generated one. `resetMigrationState()` makes an `'auto'` client apply every model again on next use.
+
+**Use `'verify'` in production.** Migrate in a deploy step (`cerial migrate apply`, or `client.migrate()` from a release script), and let the running application only check:
+
+```typescript
+const client = new CerialClient({ migrations: 'verify' });
+
+await client.connect({
+  url: process.env.DB_URL!,
+  namespace: 'main',
+  database: 'main',
+  auth: { username: process.env.DB_USER!, password: process.env.DB_PASSWORD! },
+});
+```
+
+If the database does not match the generated schema, `connect()` throws a [`CerialMigrationError`](/errors) naming each construct that differs, and the client stays disconnected. The error's `plan` holds what would bring the database to the generated schema. Nothing was applied. Events, functions and tables Cerial did not create are ignored, so a database you share with other tools still verifies.
+
+`'off'` is for a database whose schema something else owns. The client sends no definitions and no state queries on any query, `$raw`, `$live` or `$transaction` call. An explicit `migrate()` still runs:
+
+```typescript
+const client = new CerialClient({ migrations: 'off' });
+
+await client.connect({ url: 'http://localhost:8000', namespace: 'main', database: 'main' });
+
+// The schema is not touched until you ask
+await client.migrate();
+```
+
+`'auto'` needs no configuration. To set it explicitly:
+
+```typescript
+const client = new CerialClient({ migrations: 'auto' });
+```
+
+For deploys that review changes before they run, use the [`cerial migrate`](/cli/migrate) command.
+
+## Classes of Change
+
+Every difference between the generated schema and the database belongs to one class. The class decides what [`cerial migrate apply`](/cli/migrate#what-needs-approval) asks for, and each line of a `'verify'` refusal and an `'auto'` warning is labelled with it.
+
+| Class | Meaning | Schema change that causes it |
+|---|---|---|
+| `additive` | Adds a structure and cannot affect existing rows | A new `phone String?` field on `User`, a new model, a new `@unique` |
+| `destructive` | Drops a structure, or can leave existing rows unable to be written | Removing `nickname` from `User`, changing `age Int` to `age String`, adding a required `String` field with no default |
+| `data-loss` | Destroys rows with no separate step | Deleting `model Post` from the schema |
+| `unmanaged` | Something Cerial has no concept for, or did not create | An event or function you defined by hand, a table the schema never declared |
+
+An unmanaged item is reported and never changed, and it never fails `'verify'`. A table is only proposed for removal when Cerial created it.
+
+Cerial does not detect renames. Renaming `nickname` to `handle` is a destructive removal plus an additive new field, and the stored values are not carried across.
+
+## Rolling Back
+
+There are no `down` migrations and no command that undoes an applied change. Your schema is declarative, so the way forward is always derived from the schema, and a generated inverse would be a guess about data that may no longer exist.
+
+To roll back, restore the database from a backup, then fix forward: change the schema, regenerate, and migrate again. Take a backup before any destructive or data-loss change.
+
+## Atomicity
+
+A failed apply rolls back as a unit on the memory backend of SurrealDB 3.3.0, which is the only backend this behaviour has been measured on. Other backends have not been measured, so atomicity is not promised for them. After a failed apply, check the database with `cerial migrate status` before retrying.
+
+## Migration State
+
+Cerial records what it has applied in two tables in your own database:
+
+- `_cerial_migrations` holds one row per model and a row for the schema as a whole, so a later client can skip definitions that are already applied.
+- `_cerial_migration_lease` holds a single record that stops two migrations running against one database at the same time.
+
+Cerial defines both tables itself, so the connected user needs the right to define tables. Do not edit, delete or write to them. A changed row makes Cerial believe the database is in a different state than it is, which can skip a needed change or reapply one. Back them up with the rest of the database. If the state is lost, `cerial migrate baseline` records the live schema again.
+
 ## Generated Migration Statements
 
 The migration generator produces SurrealQL statements based on your schema. Here's what gets generated for different schema constructs.

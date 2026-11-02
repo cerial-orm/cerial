@@ -46,7 +46,7 @@ try {
 | `CerialConnectionError` | `C1001` | A connection cannot be found, configured, opened or kept, or drops while a call is running. `cause` holds the driver error |
 | `CerialUnknownModelError` | `C2000` | A model name is not in the schema, such as `client.db.Uesr` |
 | `CerialUnknownFieldError` | `C2001` | A field name is not on the model, in `where`, `select`, `orderBy`, `include` or `data` |
-| `CerialMigrationError` | `C2002` | A model's lazy migration fails. `model` names it and `cause` holds the database error |
+| `CerialMigrationError` | `C2002` | A migration fails: a model's lazy migration, a `cerial migrate` run, or a `migrations: 'verify'` connection that finds the database differs from the schema. `model` names the model for a lazy migration, `cause` holds the database error, and `plan` holds the changes that would bring a `'verify'` refusal's database to the schema, with nothing applied |
 | `CerialValidationError` | `C3000` | Input is rejected before a query is sent: wrong type, missing value, bad shape, or a rule the schema forbids |
 | `CerialTransactionError` | `C5000` | A transaction is used after it ended, nested, or times out |
 | `CerialUniqueConstraintError` | `C6000` | A write violates a unique index, or creates a record whose id is taken. `conflict` is `'index'` or `'record'`. For an index, `index` names it and `value` is the conflicting value as the database prints it. `record` is the id of the record involved in both cases |
