@@ -1,4 +1,3 @@
-import type { Surreal } from 'surrealdb';
 import pkg from '../../../package.json';
 import { CerialMigrationError } from '../../errors';
 import {
@@ -13,12 +12,12 @@ import {
   schemaFingerprint,
   withLease,
 } from '../../migrations';
-import type { MigrationLease, SchemaDifference, SchemaModel } from '../../migrations';
+import type { SchemaDifference, SchemaModel } from '../../migrations';
 import { parseMigrateArgs } from './args';
 import type { MigrateEnv } from './connection';
 import { loadDesired } from './load';
-import type { MigrateEntryDesired, MigrateTarget } from './load';
-import { connect, join, readLiveTarget, scrub, withLogsOnStderr } from './shared';
+import type { MigrateTarget } from './load';
+import { connect, join, readLiveTarget, scrub, suffixed, withLogsOnStderr } from './shared';
 
 /** Exit codes: 0 recorded, 1 refused because the live schema differs, 2 failed */
 export const BASELINE_OK = 0;
@@ -79,64 +78,53 @@ async function checkTarget(target: MigrateTarget): Promise<CheckedTarget> {
 }
 
 /**
- * Writes one entry's state in a single transaction under the lease: the schema's fingerprint for every model whose
- * table is live, and the schema row. A model whose table is absent gets no row, so the lazy path still creates it.
+ * Writes the state of every entry on the target in one transaction under the lease: the schema's fingerprint for
+ * every model whose table is live, and one schema row per entry. A model whose table is absent gets no row, so the
+ * lazy path still creates it. One transaction, so a failure leaves no entry recorded.
  */
-async function recordEntry(
-  surreal: Surreal,
-  lease: MigrationLease,
-  checked: CheckedTarget,
-  entry: MigrateEntryDesired,
-): Promise<number> {
-  const liveTables = new Set(checked.live.tables.map((t) => t.name));
-  const models = entry.models.filter((m) => liveTables.has(m.table));
-  const declared = entry.desired.tables.map((t) => t.name).filter((t) => liveTables.has(t));
-  const previous = checked.managed.get(entry.schemaName) ?? [];
-  const pieces = [lease.holderCheck()];
-  if (models.length) {
-    pieces.push(
-      buildModelStateWrite(
-        models.map((m) => ({
-          schemaName: entry.schemaName,
-          modelName: m.name,
-          fingerprint: m.fingerprint,
-          cerialVersion: pkg.version,
-          status: 'applied' as const,
-        })),
-      ),
-    );
-  }
-  pieces.push(
-    buildSchemaStateWrite({
-      schemaName: entry.schemaName,
-      fingerprint: schemaFingerprint(entry.desired),
-      statements: [],
-      managedTables: [...new Set([...previous, ...declared])],
-      previousManagedTables: previous,
-    }),
-  );
-  const script = join('BEGIN;\n', pieces.map((p) => p.query).join(';\n'), ';\nCOMMIT;\n');
-  const responses = await surreal.query(script, Object.assign({}, ...pieces.map((p) => p.bindings))).responses();
-  const failed = responses.find((r) => !r.success);
-  if (failed && !failed.success) {
-    throw new CerialMigrationError(join('Recording the baseline failed and was rolled back: ', failed.error.message), {
-      cause: failed.error,
-    });
-  }
-
-  return models.length;
-}
-
 async function recordTarget(checked: CheckedTarget): Promise<number> {
   const surreal = await connect(checked.target.credentials(), 'migrate baseline');
   try {
     await bootstrapStateTables(surreal);
 
     return await withLease(surreal, async (lease) => {
-      let count = 0;
-      for (const entry of checked.target.entryModels) count += await recordEntry(surreal, lease, checked, entry);
+      const liveTables = new Set(checked.live.tables.map((t) => t.name));
+      const rows = checked.target.entryModels.flatMap((entry) =>
+        entry.models
+          .filter((m) => liveTables.has(m.table))
+          .map((m) => ({
+            schemaName: entry.schemaName,
+            modelName: m.name,
+            fingerprint: m.fingerprint,
+            cerialVersion: pkg.version,
+            status: 'applied' as const,
+          })),
+      );
+      const pieces = [lease.holderCheck()];
+      if (rows.length) pieces.push(buildModelStateWrite(rows));
+      checked.target.entryModels.forEach((entry, index) => {
+        const declared = entry.desired.tables.map((t) => t.name).filter((t) => liveTables.has(t));
+        const previous = checked.managed.get(entry.schemaName) ?? [];
+        const piece = buildSchemaStateWrite({
+          schemaName: entry.schemaName,
+          fingerprint: schemaFingerprint(entry.desired),
+          statements: [],
+          managedTables: [...new Set([...previous, ...declared])],
+          previousManagedTables: previous,
+        });
+        pieces.push(suffixed(piece, String(index)));
+      });
+      const script = join('BEGIN;\n', pieces.map((p) => p.query).join(';\n'), ';\nCOMMIT;\n');
+      const responses = await surreal.query(script, Object.assign({}, ...pieces.map((p) => p.bindings))).responses();
+      const failed = responses.find((r) => !r.success);
+      if (failed && !failed.success) {
+        throw new CerialMigrationError(
+          join('Recording the baseline failed and was rolled back: ', failed.error.message),
+          { cause: failed.error },
+        );
+      }
 
-      return count;
+      return rows.length;
     });
   } finally {
     await surreal.close().catch(() => {});

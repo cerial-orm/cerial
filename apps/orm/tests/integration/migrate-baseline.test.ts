@@ -266,3 +266,36 @@ describe('a database that was never defined', () => {
   }
 });
 
+describe('several schema entries on one database', () => {
+  test('are recorded in one transaction: a failure on the second leaves the first unrecorded', async () => {
+    const dir = await mixedProject({
+      'cerial.config.ts':
+        "export default { schemas: { alpha: { path: './alpha', output: './out/a' }, beta: { path: './beta', output: './out/b' } } };\n",
+      'alpha/schema.cerial': NOTE,
+      'beta/schema.cerial': 'model Audit {\n  id Record(int) @id\n  action String\n}\n',
+    });
+    const { db, name } = await scratch('twoentries');
+    expect((await migrateApply({ argv: ['--from-schema'], env: envFor(name), cwd: dir, isTTY: false })).exitCode).toBe(
+      0,
+    );
+    await db
+      .query(
+        "DELETE FROM _cerial_migrations; DEFINE EVENT refuse_beta ON _cerial_migrations WHEN $after.id[0] = 'BetaCerialClient' THEN { THROW 'refused' }",
+      )
+      .collect();
+
+    const result = await baseline(dir, name);
+
+    expect(result.exitCode).toBe(2);
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toContain('rolled back');
+    const [rows] = await db.query('SELECT * FROM _cerial_migrations').collect<[unknown[]]>();
+    expect(rows).toEqual([]);
+
+    await db.query('REMOVE EVENT refuse_beta ON _cerial_migrations').collect();
+    const retry = await baseline(dir, name);
+    expect(retry.exitCode).toBe(0);
+    expect((await readState(db, 'AlphaCerialClient')).models.has('Note')).toBe(true);
+    expect((await readState(db, 'BetaCerialClient')).models.has('Audit')).toBe(true);
+  });
+});

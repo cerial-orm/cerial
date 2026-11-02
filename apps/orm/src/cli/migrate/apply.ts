@@ -17,7 +17,7 @@ import {
   schemaFingerprint,
   withLease,
 } from '../../migrations';
-import type { MigrationLease, MigrationPlan, MigrationPlanItem, SchemaModel } from '../../migrations';
+import type { ApplyEntry, MigrationPlan, MigrationPlanItem, SchemaModel } from '../../migrations';
 import { parseMigrateArgs } from './args';
 import type { MigrateArgs } from './args';
 import type { MigrateEnv } from './connection';
@@ -143,23 +143,20 @@ function entryOf(item: MigrationPlanItem, planned: PlannedTarget): MigrateEntryD
   return declared ?? owner ?? entryModels[0]!;
 }
 
-async function applyEntry(
-  surreal: Surreal,
-  lease: MigrationLease,
+function toApplyEntry(
   planned: PlannedTarget,
   entry: MigrateEntryDesired,
   items: readonly MigrationPlanItem[],
-): Promise<string[]> {
+): ApplyEntry {
   const touched = new Set(items.map((i) => i.table));
   const removed = removedTables(items);
   const previous = planned.managed.get(entry.schemaName) ?? [];
   const managedTables = [...new Set([...previous, ...entry.desired.tables.map((t) => t.name)])].filter(
     (t) => !removed.includes(t),
   );
-  const result = await applyPlan(surreal, items, {
+
+  return {
     schemaName: entry.schemaName,
-    cerialVersion: pkg.version,
-    lease,
     models: entry.models
       .filter((m) => touched.has(m.table))
       .map((m) => ({
@@ -174,9 +171,7 @@ async function applyEntry(
       managedTables,
       removedTables: removed,
     },
-  });
-
-  return [...result.executed];
+  };
 }
 
 async function applyTarget(planned: PlannedTarget): Promise<number> {
@@ -190,11 +185,15 @@ async function applyTarget(planned: PlannedTarget): Promise<number> {
       byEntry.set(entry, [...(byEntry.get(entry) ?? []), item]);
     }
 
+    // One call for every entry on this connection: they are one transaction, so a failure in any rolls back all
     return await withLease(surreal, async (lease) => {
-      let count = 0;
-      for (const [entry, items] of byEntry) count += (await applyEntry(surreal, lease, planned, entry, items)).length;
+      const result = await applyPlan(surreal, [...byEntry.values()].flat(), {
+        cerialVersion: pkg.version,
+        lease,
+        entries: [...byEntry].map(([entry, items]) => toApplyEntry(planned, entry, items)),
+      });
 
-      return count;
+      return result.executed.length;
     });
   } finally {
     await surreal.close().catch(() => {});
@@ -409,10 +408,19 @@ export async function migrateApply(options: ApplyOptions): Promise<ApplyResult> 
       if (!/^y(es)?$/i.test(answer.trim())) return fail(APPLY_REFUSED, 'not confirmed, nothing was applied.');
     }
 
+    const applied: string[] = [];
     for (const p of pending) {
-      const count = await applyTarget(p);
-      said.push(join('Applied ', String(count), ' statement(s) to ', where(p.target), '.'));
+      try {
+        const count = await applyTarget(p);
+        applied.push(join('Applied ', String(count), ' statement(s) to ', where(p.target), '.'));
+      } catch (error) {
+        // Another database's transaction already committed; the output must say so rather than read as all-or-nothing
+        if (!applied.length || !(error instanceof Error)) throw error;
+        const message = join(error.message, '\nAlready applied before this failure:\n  ', applied.join('\n  '));
+        throw error instanceof Refused ? new Refused(message) : new Error(message, { cause: error });
+      }
     }
+    said.push(...applied);
     for (const p of planned) {
       if (!p.skipped?.length) continue;
       said.push(join('Left ', String(p.skipped.length), ' commented-out statement(s) unapplied:'));

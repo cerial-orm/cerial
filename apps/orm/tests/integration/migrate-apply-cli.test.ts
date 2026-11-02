@@ -516,6 +516,51 @@ describe('a database that was never defined', () => {
   });
 });
 
+describe('several schema entries on one database', () => {
+  const TWO_ENTRIES = {
+    'cerial.config.ts':
+      "export default { schemas: { alpha: { path: './alpha', output: './out/a' }, beta: { path: './beta', output: './out/b' } } };\n",
+  };
+  const AUDIT_BY_ACTION = 'model AuditEntry {\n  id Record(int) @id\n  action String @unique\n}\n';
+
+  test('a failure in the second entry rolls back the first: its table and its state are absent', async () => {
+    const dir = await mixedProject({ ...TWO_ENTRIES, 'alpha/schema.cerial': NOTE, 'beta/schema.cerial': AUDIT });
+    const { db, name } = await scratch('twofail');
+    expect((await apply(dir, name)).exitCode).toBe(0);
+    await db.query("CREATE audit_entry:1 SET action = 'same'; CREATE audit_entry:2 SET action = 'same'").collect();
+    await writeFile(join(dir, 'alpha/schema.cerial'), NOTE + EXTRA);
+    await writeFile(join(dir, 'beta/schema.cerial'), AUDIT_BY_ACTION);
+    // The schema rows: a model row is set to pending before the transaction by design, the schema row only commits with it
+    const schemaRows = async () =>
+      Promise.all(['AlphaCerialClient', 'BetaCerialClient'].map(async (n) => (await readState(db, n)).schema));
+    const stateBefore = await schemaRows();
+
+    const result = await apply(dir, name);
+
+    expect(result.exitCode).toBe(2);
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toContain('rolled back');
+    expect(result.stderr).not.toContain('Applied');
+    expect(await tablesOf(db)).not.toContain('extra');
+    expect(await schemaRows()).toEqual(stateBefore);
+    expect(await rows(db, 'audit_entry')).toHaveLength(2);
+    expect((await readState(db, 'AlphaCerialClient')).models.has('Extra')).toBe(false);
+  });
+
+  test('success applies both and reports one count for the database', async () => {
+    const dir = await mixedProject({ ...TWO_ENTRIES, 'alpha/schema.cerial': NOTE, 'beta/schema.cerial': AUDIT });
+    const { db, name } = await scratch('twook');
+
+    const result = await apply(dir, name);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout.match(/^Applied \d+ statement/gm)).toHaveLength(1);
+    expect(await tablesOf(db)).toEqual(expect.arrayContaining(['note', 'audit_entry']));
+    expect((await readState(db, 'AlphaCerialClient')).schema?.managedTables).toEqual(['note']);
+    expect((await readState(db, 'BetaCerialClient')).schema?.managedTables).toEqual(['audit_entry']);
+  });
+});
+
 describe('a zero-config project with a single schema root', () => {
   test('records state under the name the generated client reads, CerialClient', async () => {
     const dir = await mixedProject({ 'app/schema.cerial': NOTE });

@@ -1,7 +1,7 @@
 import { NotFoundError, Surreal } from 'surrealdb';
 import { CerialConnectionError, CerialMigrationError } from '../../errors';
 import { quoteIdent, readLiveSchema, readState } from '../../migrations';
-import type { SchemaModel } from '../../migrations';
+import type { SchemaModel, StatePiece } from '../../migrations';
 import type { ResolvedMigrateConnection } from './connection';
 import type { MigrateTarget } from './load';
 
@@ -106,4 +106,16 @@ export async function readLiveTarget(surreal: Surreal, target: MigrateTarget): P
   }
 
   return { exists: true, live, managed, managedTables };
+}
+
+/** Gives a piece's bindings a suffix, so one builder can run once per entry inside a single script */
+export function suffixed(piece: StatePiece, suffix: string): StatePiece {
+  let query = piece.query;
+  const bindings: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(piece.bindings)) {
+    query = query.replace(new RegExp(join('\\$', key, '\\b'), 'g'), join('$', key, suffix));
+    bindings[join(key, suffix)] = value;
+  }
+
+  return { query, bindings };
 }
