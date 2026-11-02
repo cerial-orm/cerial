@@ -48,7 +48,10 @@ export class CerialUniqueConstraintError extends CerialError {
   }
 }
 
-/** A model's lazy migration failed. `model` names the model; the database error is the `cause`. */
+/**
+ * A migration failed: a model's lazy migration, a plan that rolled back, the migration lease, or a state write.
+ * The database error, when there is one, is the `cause`.
+ */
 export class CerialMigrationError extends CerialError {
   /**
    * The DDL that failed. Always present for a failed migration, unlike a query's statement: it is
