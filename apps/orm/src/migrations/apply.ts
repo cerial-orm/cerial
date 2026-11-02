@@ -18,7 +18,8 @@ export interface ApplyModel {
   readonly modelName: string;
   readonly table: string;
   readonly fingerprint: string;
-  readonly desired: TableModel;
+  /** The table as the schema describes it. Without it the re-read is judged against `fingerprint`. */
+  readonly desired?: TableModel;
 }
 
 export interface ApplyOptions {
@@ -168,7 +169,7 @@ async function applyUnderLease(
     const bad = converged.filter((m) => {
       const found = live.tables.find((t) => t.name === m.table);
 
-      return !found || fingerprint(found) !== fingerprint(m.desired);
+      return !found || fingerprint(found) !== (m.desired ? fingerprint(m.desired) : m.fingerprint);
     });
     if (bad.length) {
       await writePending(surreal, options, bad);
