@@ -131,7 +131,8 @@ function isImpliedElement(row: FieldRow, path: FieldPath, parents: ReadonlyMap<s
     row.computed === undefined &&
     row.assert === undefined &&
     !row.readonly &&
-    !row.flexible &&
+    // The server copies the parent's FLEXIBLE onto the `.*` element it creates for `array<object> FLEXIBLE`.
+    !row.flexible === !parent.flexible &&
     isFull(row.permissions)
   );
 }

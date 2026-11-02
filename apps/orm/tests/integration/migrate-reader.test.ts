@@ -127,6 +127,22 @@ describe('readLiveSchema', () => {
     expect(paths).toContain('["plain",{"element":true}]');
   });
 
+  test('drops the FLEXIBLE element an array<object> FLEXIBLE parent implies, and keeps one the parent lacks', async () => {
+    const db = await scratch('flexible_element');
+    await exec(
+      db,
+      `DEFINE TABLE t SCHEMAFULL;
+       DEFINE FIELD loose ON t TYPE array<object> FLEXIBLE;
+       DEFINE FIELD strict ON t TYPE array<object>;
+       DEFINE FIELD OVERWRITE strict.* ON t TYPE object FLEXIBLE;`,
+    );
+
+    const paths = table((await readLiveSchema(db)).tables, 't').fields.map((f) => JSON.stringify(f.path));
+
+    expect(paths).not.toContain('["loose",{"element":true}]');
+    expect(paths).toContain('["strict",{"element":true}]');
+  });
+
   test('reports events, functions, params, table and field permissions and non-normal tables as unmanaged', async () => {
     const db = await scratch('unmanaged');
     await exec(
