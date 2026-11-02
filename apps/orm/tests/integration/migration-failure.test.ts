@@ -54,7 +54,13 @@ async function countDdl(client: ProbeClient, run: () => Promise<void>): Promise<
   watched.forEach((surreal, i) => {
     const original = originals[i]!;
     surreal.query = ((...args: unknown[]) => {
-      if (typeof args[0] === 'string' && args[0].includes('DEFINE')) count++;
+      // The state tables' own bootstrap is not the model DDL these tests count.
+      if (
+        typeof args[0] === 'string' &&
+        args[0].includes('DEFINE') &&
+        !args[0].includes('IF NOT EXISTS _cerial_migration')
+      )
+        count++;
 
       return original.apply(surreal, args);
     }) as typeof surreal.query;
@@ -70,8 +76,14 @@ async function countDdl(client: ProbeClient, run: () => Promise<void>): Promise<
   return count;
 }
 
+// The probe table is dropped behind the client's back, so its persisted state goes with it; otherwise a fresh client
+// would rightly trust the state and skip the DDL these tests count.
 async function raw(client: ProbeClient, sql: string): Promise<void> {
   await client.getSurreal()?.query(sql);
+  await client
+    .getSurreal()
+    ?.query(`DELETE _cerial_migrations WHERE id[1] = 'MigFailProbe'`)
+    .catch(() => undefined);
 }
 
 beforeAll(async () => {

@@ -5,16 +5,17 @@
 import type { ConnectionConfig, DatabasePin, ModelMetadata } from '../../types';
 import { generateEmbeddedConnection, generateResolveConnection } from './connection-template';
 import { generateDatabasePins } from './database-pin-template';
+import pkg from '../../../package.json';
 
 /** Generate imports for client */
 export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, applyUnmatched, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
-import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
+import { migrationsByModel, modelFingerprints, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
 import type { ${modelImports}, ${modelTypeImports} } from './models';`;
 }
 
@@ -78,6 +79,24 @@ export function generateClientClass(
     .join('\n\n');
 
   return `/**
+  * What the client knows of each model without a schema: its DDL, its table and the fingerprint the DDL leaves behind
+  */
+const migrationContext: LazyMigrationContext = {
+  schemaName: '${clientClassName}',
+  cerialVersion: '${pkg.version}',
+  models: Object.fromEntries(
+    getMigrationModelNames().map((name) => [
+      name,
+      {
+        table: (modelRegistry as Record<string, { tableName: string }>)[name]!.tableName,
+        statements: migrationsByModel[name],
+        fingerprint: modelFingerprints[name],
+      },
+    ]),
+  ),
+};
+
+/**
   * Migration event types
   */
 export type MigrationEventType = 'start' | 'complete' | 'error';
@@ -123,6 +142,9 @@ export class ${clientClassName} {
   private _migratedModels: Set<ModelName> = new Set();
   private _pendingMigrations: Set<ModelName> = new Set();
   private _migrationPromises: Map<ModelName, Promise<void>> = new Map();
+  // Persisted migration state, read once per client; models are applied in client-level batches, one after another, so they never contend for the database lease with each other.
+  private _state: Promise<MigrationState> | null = null;
+  private _batch: Promise<unknown> = Promise.resolve();
   // A DDL failure (e.g. a UNIQUE index over duplicate data) will not fix itself, so it is kept and rethrown instead of re-running the DDL on every query.
   private _failedMigrations: Map<ModelName, Error> = new Map();
   private _onMigrationEvent?: MigrationEventCallback;
@@ -145,7 +167,7 @@ export class ${clientClassName} {
     // Combine migration callback with user callbacks
     const allCallbacks: BeforeQueryCallback[] = [
       async (modelNames: string[]) => {
-        await Promise.all(modelNames.map(name => this.ensureModelMigrated(name as ModelName)));
+        await this.ensureModelsMigrated(modelNames as ModelName[]);
       },
       ...this._userCallbacks,
     ];
@@ -228,7 +250,7 @@ ${generateResolveConnection(connectConfigName, databasePins)}
     if (this._perModelCallbacks) {
       const allCallbacks: BeforeQueryCallback[] = [
         async (modelNames: string[]) => {
-          await Promise.all(modelNames.map(name => this.ensureModelMigrated(name as ModelName)));
+          await this.ensureModelsMigrated(modelNames as ModelName[]);
         },
         ...this._userCallbacks,
       ];
@@ -261,6 +283,7 @@ ${generateResolveConnection(connectConfigName, databasePins)}
     this._pendingMigrations.clear();
     this._migrationPromises.clear();
     this._failedMigrations.clear();
+    this._state = null;
   }
 
   /**
@@ -338,8 +361,77 @@ ${generateResolveConnection(connectConfigName, databasePins)}
    * @internal
    */
   async ensureModelMigrated(modelName: ModelName): Promise<void> {
-    if (!this._migratedModels.has(modelName)) {
-      await this.migrateModel(modelName);
+    await this.ensureModelsMigrated([modelName]);
+  }
+
+  /**
+   * Ensure the given models are in place before a query runs. Persisted state is read once; models whose state
+   * matches send no DDL, and the rest are applied together under the one database lease.
+   * @internal
+   */
+  async ensureModelsMigrated(modelNames: ModelName[]): Promise<void> {
+    const wanted = [...new Set(modelNames)].filter(name => name in migrationContext.models && !this._migratedModels.has(name));
+    if (!wanted.length) return;
+    this._throwFailed(wanted);
+
+    const run = this._batch.then(() => this._migrateBatch(wanted));
+    this._batch = run.catch(() => undefined);
+    await run;
+  }
+
+  private _throwFailed(modelNames: ModelName[]): void {
+    for (const name of modelNames) {
+      const failure = this._failedMigrations.get(name);
+      if (failure) throw failure;
+    }
+  }
+
+  private async _migrateBatch(modelNames: ModelName[]): Promise<void> {
+    const wanted = modelNames.filter(name => !this._migratedModels.has(name));
+    if (!wanted.length) return;
+    this._throwFailed(wanted);
+    if (!this._db) throw new CerialNotConnectedError('Not connected. Call connect() first.', { operation: 'migrate' });
+    const surreal = this.connectionManager.getDdlSurreal();
+    if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: 'migrate' });
+
+    this._state ??= readLazyState(surreal, migrationContext);
+    let state: MigrationState;
+    try {
+      state = await this._state;
+    } catch (error) {
+      this._state = null;
+      throw error;
+    }
+
+    const matched = matchedModels(state, migrationContext, wanted);
+    for (const name of matched) this._migratedModels.add(name as ModelName);
+    const unmatched = wanted.filter(name => !matched.includes(name));
+    if (!unmatched.length) return;
+
+    for (const modelName of unmatched) this._onMigrationEvent?.({ type: 'start', modelName });
+    try {
+      const done = await applyUnmatched(surreal, migrationContext, unmatched);
+      for (const name of done as ModelName[]) {
+        this._migratedModels.add(name);
+        this._onMigrationEvent?.({ type: 'complete', modelName: name });
+      }
+    } catch (error) {
+      for (const modelName of unmatched) this._onMigrationEvent?.({ type: 'error', modelName, error: error as Error });
+      // Not being connected is a state, not a DDL verdict: the next query may succeed.
+      if (error instanceof CerialNotConnectedError) throw error;
+
+      const failures = (blameModels(error, migrationContext, unmatched) as ModelName[]).map(name => {
+        const failure = new CerialMigrationError(\`Migration of \${name} failed: \${error instanceof Error ? error.message : String(error)}\`, {
+          model: name,
+          operation: 'migrate',
+          statement: { text: getModelMigrationQuery(name), vars: {} },
+          cause: error,
+        });
+        this._failedMigrations.set(name, failure);
+
+        return failure;
+      });
+      throw failures[0];
     }
   }
 
@@ -357,7 +449,7 @@ ${generateResolveConnection(connectConfigName, databasePins)}
    * @internal
    */
   async ensureMigrated(): Promise<void> {
-    await this.migrate();
+    await this.ensureModelsMigrated(getMigrationModelNames());
   }
 
   /**
@@ -602,7 +694,7 @@ ${_generateTransactionOverloads()}
       await this.ensureMigrated();
     } else {
       const modelNames = new Set(queryItems.flatMap(q => q.modelNames));
-      await Promise.all([...modelNames].map(name => this.ensureModelMigrated(name as ModelName)));
+      await this.ensureModelsMigrated([...modelNames] as ModelName[]);
     }
 
     // Build transaction items — pass functions through, wrap CerialQueryPromise

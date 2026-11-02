@@ -41,3 +41,11 @@ export {
 } from './state';
 export { acquireLease, buildHolderCheck, withLease, type LeaseOptions, type MigrationLease } from './lease';
 export { applyPlan, type ApplyModel, type ApplyOptions, type ApplyResult } from './apply';
+export {
+  applyUnmatched,
+  blameModels,
+  matchedModels,
+  readLazyState,
+  type LazyMigrationContext,
+  type LazyModel,
+} from './lazy';

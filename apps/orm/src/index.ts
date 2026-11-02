@@ -177,6 +177,12 @@ export {
   Model,
   resetConnectionPool,
 } from './client';
+// Internal: what a generated client calls to bring models to their generated shape on first use. Not a public API.
+// Imported from the files, not the migrations barrel: that barrel reaches the generators, and with them the formatter.
+export { applyPlan } from './migrations/apply';
+export { applyUnmatched, blameModels, matchedModels, readLazyState } from './migrations/lazy';
+export type { LazyMigrationContext, LazyModel } from './migrations/lazy';
+export type { MigrationState } from './migrations/state';
 // Export errors
 export type { CerialErrorCode, CerialErrorOptions } from './errors';
 export {
