@@ -624,6 +624,16 @@ development branch and is not available on npm.
   `jiti`, because Node's own type stripping cannot load them on any Node 22 release.
   Bun is unaffected.
 
+- **Behavior change.** A delete now follows `@onDelete(Cascade)` (and required
+  relations) through every level. In 0.2.0 it removed the direct dependents only and
+  left their own dependents behind with dangling links, so a delete can now remove
+  more rows than before: grandchildren and deeper. `Restrict` is checked across the
+  whole reachable graph and blocks the delete from any depth, `SetNull`, `SetNone`
+  and `NoAction` stop at their level, and a cycle terminates. A cascade deeper than
+  16 levels is refused with nothing removed. To keep the 0.2.0 shape, give the
+  second-level relation a non-Cascade action, for example `@onDelete(SetNull)`,
+  so the walk stops there. See [Delete Behavior](/relations/on-delete/#how-deletes-walk-the-graph).
+
 - A duplicate model, object, tuple, enum or literal name now reports where both
   declarations are, each as `file:line`, whether they come from `.cerial` files or
   TypeScript modules.

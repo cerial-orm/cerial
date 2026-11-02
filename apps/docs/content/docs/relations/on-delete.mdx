@@ -51,9 +51,7 @@ await client.db.User.deleteMany({ where: { id: userId } });
 
 The logic is straightforward: if a Post **requires** an author, it cannot exist without one. Deleting the author must delete the post.
 
-:::caution[Cascade depth]
-Cascade processes the direct dependents of the deleted records. If those deleted dependents have their own required relations, Cerial generates cascade statements for each level it can see during query building. However, this is not unlimited recursive traversal — Cerial processes each level of the dependency chain within a single transaction.
-:::
+See [How deletes walk the graph](#how-deletes-walk-the-graph) for what happens to dependents of dependents.
 
 ## @onDelete Options
 
@@ -157,7 +155,7 @@ model Order {
 ```typescript
 // If the customer has any orders, this throws an error
 await client.db.Customer.deleteMany({ where: { id: customerId } });
-// Error: Cannot delete Customer because related Order records exist
+// Error: Cannot delete Customer: Order records with @onDelete(Restrict) reference this record
 ```
 
 Use `Restrict` to protect referential integrity when dependents should never become orphaned.
@@ -216,9 +214,20 @@ For N:N relations, both sides are cleaned up atomically — the deleted record's
 `@onDelete` is not allowed on array relations (`Relation[]`). Array cleanup is always automatic, so there's nothing to configure.
 :::
 
-## Cascade Chains
+## How deletes walk the graph
 
-When multiple models form a chain of required relations, cascade operations propagate through the chain within a single transaction:
+:::caution
+This behavior is not yet available in the current release. It will ship in an upcoming version. In 0.2.0 a delete only reached the direct dependents of the deleted record.
+:::
+
+A delete follows the relations below the record you delete, not only the first level. Each action keeps its meaning at every level:
+
+| Action | At any level |
+| --- | --- |
+| `Cascade` (including required relations) | Deletes the dependent, then continues to the records that depend on it |
+| `SetNull`, `SetNone` | Clears the FK on the dependent and stops. The row survives, so nothing below it is touched |
+| `NoAction` | Leaves the dependent alone and stops |
+| `Restrict` | Blocks the whole delete if any dependent exists, however deep |
 
 ```cerial
 model Organization {
@@ -244,13 +253,53 @@ model Member {
 ```
 
 ```typescript
-// Deleting an Organization cascades through the chain:
 await client.db.Organization.deleteMany({ where: { id: orgId } });
-// 1. All Teams where orgId = orgId are deleted
-// 2. All Members where teamId = (any deleted team) are deleted
+// 1. The Teams of the organization are deleted
+// 2. The Members of those Teams are deleted too
 ```
 
-Cerial generates the appropriate cascade statements for each level of the dependency chain, and they execute within a single transaction to ensure atomicity.
+The count `deleteMany` returns is the number of `Organization` records removed, not the dependents.
+
+### Restrict anywhere blocks everything
+
+A `Restrict` is checked across the whole reachable graph before anything is written. If `Member` had `@onDelete(Restrict)` on `team`, deleting an organization whose teams have members would throw, and the organization, its teams and its members would all still exist.
+
+```typescript
+try {
+  await client.db.Organization.deleteMany({ where: { id: orgId } });
+} catch (err) {
+  // Cannot delete Team: Member records with @onDelete(Restrict) reference this record
+  // Nothing was removed at any level
+}
+```
+
+### Cycles
+
+Models that reference each other, or a model that references itself, are followed through the data and stop when no new rows turn up. A delete over a cycle finishes and removes each row once. See [Self-Referential](/relations/self-referential/#cascading-deletes-through-a-tree).
+
+### Depth limit
+
+A cascade goes at most 16 levels deep. If a delete would reach rows deeper than that, it is refused and nothing is removed. The error names the limit, the model and the path:
+
+```typescript
+// Error: Cannot delete Category: cascade deeper than 16 levels at Category (Category > Category > ... > Category)
+```
+
+Only the deepest rows in the data trigger it. A schema that could cascade further than 16 levels is fine until real rows get there. To delete a tree that deep, delete the lower levels first.
+
+### Inside a transaction
+
+A refusal (a `Restrict` or the depth limit) inside [`$transaction`](/transactions) leaves every level unchanged, including when your callback catches the error and goes on to commit.
+
+```typescript
+await client.$transaction(async (tx) => {
+  try {
+    await tx.Organization.deleteMany({ where: { id: orgId } });
+  } catch {
+    // refused: the organization, teams and members are all still there
+  }
+});
+```
 
 ## Rules and Restrictions
 
@@ -294,7 +343,7 @@ tags Relation[] @field(tagIds) @model(Tag) @onDelete(Cascade)
 All delete operations — including cascades, SetNull/SetNone updates, Restrict checks, and array cleanup — execute within a **transaction**. This ensures:
 
 - Either all cascade operations complete, or none do
-- Restrict checks happen before any deletions
+- Restrict checks, at every level, happen before any deletions
 - Array cleanup is atomic with the delete
 - No partial state if any operation fails
 

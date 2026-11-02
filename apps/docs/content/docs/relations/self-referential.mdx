@@ -62,6 +62,32 @@ const child = await client.db.Category.findOne({
 // child.parent: Category | null
 ```
 
+### Cascading deletes through a tree
+
+:::caution
+This behavior is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Add `@onDelete(Cascade)` to the parent relation and deleting a node removes its whole subtree, however deep:
+
+```cerial
+model Folder {
+  id Record @id
+  name String
+  parentId Record? @nullable
+  parent Relation? @field(parentId) @model(Folder) @onDelete(Cascade) @key(tree)
+  children Relation[] @model(Folder) @key(tree)
+}
+```
+
+```typescript
+// Docs > Guides > Setup
+await client.db.Folder.deleteMany({ where: { name: 'Docs' } });
+// Docs, Guides and Setup are removed. Folders outside the subtree stay.
+```
+
+With the default `SetNull` instead, only the direct children are updated (their `parentId` becomes null) and the rest of the tree stays. A tree deeper than 16 levels is refused with nothing removed. See [Depth limit](/relations/on-delete/#depth-limit).
+
 ## One-Directional 1:1
 
 When you only need to reference another record of the same type without a reverse lookup. For example, an employee with a mentor:
