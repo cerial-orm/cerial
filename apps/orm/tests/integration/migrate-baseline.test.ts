@@ -244,3 +244,25 @@ describe('a live schema that differs', () => {
     expect(state.schema?.managedTables).toEqual([]);
   });
 });
+
+describe('a database that was never defined', () => {
+  for (const argv of [[], ['--accept-drift']]) {
+    test(`is refused with exit 1 and created nowhere (${argv.join(' ') || 'no flag'})`, async () => {
+      const dir = await mixedProject({
+        'cerial.config.ts': "export default { schema: './app' };\n",
+        'app/schema.cerial': NOTE,
+      });
+      const name = `baseline_missing_${process.pid}_${Date.now().toString(36)}`;
+      names.push(name);
+
+      const result = await baseline(dir, name, argv);
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stderr).toContain('does not exist');
+      expect(result.stdout).toBe('');
+      const [info] = await (await admin()).query('INFO FOR NS').collect<[{ databases: Record<string, string> }]>();
+      expect(Object.keys(info.databases)).not.toContain(name);
+    });
+  }
+});
+

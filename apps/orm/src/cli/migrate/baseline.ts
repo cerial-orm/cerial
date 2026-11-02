@@ -9,8 +9,6 @@ import {
   findDrift,
   quoteFieldPath,
   quoteIdent,
-  readLiveSchema,
-  readState,
   sanitiseReason,
   schemaFingerprint,
   withLease,
@@ -20,7 +18,7 @@ import { parseMigrateArgs } from './args';
 import type { MigrateEnv } from './connection';
 import { loadDesired } from './load';
 import type { MigrateEntryDesired, MigrateTarget } from './load';
-import { connect, join, scrub, withLogsOnStderr } from './shared';
+import { connect, join, readLiveTarget, scrub, withLogsOnStderr } from './shared';
 
 /** Exit codes: 0 recorded, 1 refused because the live schema differs, 2 failed */
 export const BASELINE_OK = 0;
@@ -41,6 +39,8 @@ export interface BaselineOptions {
 
 interface CheckedTarget {
   readonly target: MigrateTarget;
+  /** False when the database is not defined yet: there is no live schema to record */
+  readonly exists: boolean;
   readonly live: SchemaModel;
   /** Managed tables each entry's state row holds now, which a baseline keeps */
   readonly managed: ReadonlyMap<string, readonly string[]>;
@@ -63,18 +63,12 @@ function describePending(d: SchemaDifference): string {
 async function checkTarget(target: MigrateTarget): Promise<CheckedTarget> {
   const surreal = await connect(target.credentials(), 'migrate baseline');
   try {
-    const live = await readLiveSchema(surreal);
-    const managedTables = new Set<string>();
-    const managed = new Map<string, readonly string[]>();
-    for (const entry of target.entryModels) {
-      const tables = (await readState(surreal, entry.schemaName)).schema?.managedTables ?? [];
-      managed.set(entry.schemaName, tables);
-      for (const table of tables) managedTables.add(table);
-    }
+    const { exists, live, managed, managedTables } = await readLiveTarget(surreal, target);
     const report = findDrift(diffSchema(target.desired, live, { managedTables }));
 
     return {
       target,
+      exists,
       live,
       managed,
       differences: [...report.drift.map((d) => d.line), ...report.pending.map(describePending)].map(sanitiseReason),
@@ -170,6 +164,19 @@ export async function migrateBaseline(options: BaselineOptions): Promise<Baselin
     const targets = await withLogsOnStderr(() => loadDesired({ flags, env: options.env, cwd: options.cwd }));
     const checked: CheckedTarget[] = [];
     for (const target of targets) checked.push(await checkTarget(target));
+
+    const missing = checked.filter((c) => !c.exists);
+    if (missing.length) {
+      // Recording a schema that is not there would say a database was migrated that does not exist
+      return fail(
+        BASELINE_REFUSED,
+        join(
+          'refused, the database ',
+          missing.map((c) => where(c.target)).join(', '),
+          ' does not exist, so there is no live schema to record and nothing was recorded. Run migrate apply --from-schema to create it.',
+        ),
+      );
+    }
 
     const said: string[] = [];
     const differing = checked.filter((c) => c.differences.length);

@@ -11,6 +11,7 @@ import { Surreal } from 'surrealdb';
 import { migrateApply } from '../../src/cli/migrate/apply';
 import type { ApplyResult } from '../../src/cli/migrate/apply';
 import { loadDesired } from '../../src/cli/migrate/load';
+import { createDatabase } from '../../src/cli/migrate/shared';
 import { buildResolvedSchemaAst } from '../../src/cli/resolvers';
 import { buildSchemaMetadata } from '../../src/cli/schema-metadata';
 import { generatePerModelMigrationCode } from '../../src/generators/migrations/define-generator';
@@ -20,6 +21,7 @@ import { mixedProject, removeMixedProjects } from './mixed-merge-project';
 const URL = 'http://127.0.0.1:8000';
 const opened: Surreal[] = [];
 const names: string[] = [];
+const cleanupUsers: string[] = [];
 
 async function admin(): Promise<Surreal> {
   const db = new Surreal();
@@ -42,6 +44,7 @@ async function scratch(label: string): Promise<{ db: Surreal; name: string }> {
 afterAll(async () => {
   const root = await admin();
   for (const name of names) await root.query(`REMOVE DATABASE IF EXISTS ${name}`).collect();
+  for (const user of cleanupUsers) await root.query(`REMOVE USER IF EXISTS ${user} ON NAMESPACE`).collect();
   for (const db of opened) await db.close().catch(() => {});
   await removeMixedProjects();
 });
@@ -460,6 +463,56 @@ describe('the state rows are the ones the generated client reads', () => {
       expect(state.schema?.managedTables).toEqual([table]);
     }
     expect((await apply(dir, name)).stdout).toContain('Nothing to do');
+  });
+});
+
+describe('a database that was never defined', () => {
+  /** A name nothing has defined; cleanup removes it once apply has created it */
+  function neverDefined(label: string): string {
+    const name = `apply_${label}_${process.pid}_${Date.now().toString(36)}`;
+    names.push(name);
+
+    return name;
+  }
+
+  const databasesOf = async (): Promise<string[]> => {
+    const [info] = await (await admin()).query('INFO FOR NS').collect<[{ databases: Record<string, string> }]>();
+
+    return Object.keys(info.databases);
+  };
+
+  test('is created by apply, the schema is applied and state is recorded; a second run has nothing to do', async () => {
+    const dir = await mixedProject({ 'app/schema.cerial': NOTE });
+    const name = neverDefined('create');
+    expect(await databasesOf()).not.toContain(name);
+
+    const result = await apply(dir, name);
+
+    expect(result.stderr).toBe('');
+    expect(result.exitCode).toBe(0);
+    expect(await databasesOf()).toContain(name);
+    const db = await admin();
+    await db.use({ namespace: 'main', database: name });
+    expect(await fieldsOf(db, 'note')).toEqual(expect.arrayContaining(['title', 'body']));
+    expect((await readState(db, await schemaNameOf(dir, name))).schema?.managedTables).toEqual(['note']);
+    expect((await apply(dir, name)).stdout).toContain('Nothing to do');
+  });
+
+  test('a creation the server refuses is reported as such, naming the database', async () => {
+    const root = await admin();
+    const user = `viewer_${process.pid}_${Date.now().toString(36)}`;
+    await root.query(`DEFINE USER ${user} ON NAMESPACE PASSWORD 'viewerpass' ROLES VIEWER`).collect();
+    cleanupUsers.push(user);
+    const viewer = new Surreal();
+    opened.push(viewer);
+    await viewer.connect(URL, {
+      namespace: 'main',
+      authentication: { namespace: 'main', username: user, password: 'viewerpass' },
+    });
+    const name = neverDefined('norights');
+
+    await expect(createDatabase(viewer, name)).rejects.toThrow(`Could not create the database \`${name}\``);
+    expect(await databasesOf()).not.toContain(name);
   });
 });
 

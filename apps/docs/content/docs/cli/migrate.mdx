@@ -81,7 +81,11 @@ CI reads these. A usage error (an unknown or missing subcommand, an unknown flag
 | `status` | In sync | Drift or pending changes | The check could not run |
 | `plan` | Plan written, or nothing to do | | Failed |
 | `apply` | Applied, or nothing to do | Refused: a flag is missing, the plan file is rejected, or you answered no | Failed |
-| `baseline` | Recorded | Refused: the live schema differs | Failed |
+| `baseline` | Recorded | Refused: the live schema differs, or the database does not exist | Failed |
+
+## A database that does not exist yet
+
+`status` and `plan` read a database that has not been defined as an empty one: `status` reports every table as pending and exits 1, and `plan` writes the full additive plan. `apply` creates the database first, then applies. `baseline` refuses (exit 1), since there is no live schema to record. Creating a database needs the rights to define one in the namespace; without them `apply` exits 2 and names the database.
 
 ## status
 

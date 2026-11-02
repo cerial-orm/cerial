@@ -13,8 +13,6 @@ import {
   indexDesiredStatements,
   liveFingerprint,
   quoteIdent,
-  readLiveSchema,
-  readState,
   sanitiseReason,
   schemaFingerprint,
   withLease,
@@ -27,7 +25,7 @@ import { loadDesired } from './load';
 import type { MigrateEntryDesired, MigrateTarget } from './load';
 import { parsePlanFile } from './plan-file';
 import type { FileStatement } from './plan-file';
-import { connect, join, scrub, withLogsOnStderr } from './shared';
+import { connect, createDatabase, databaseExists, join, readLiveTarget, scrub, withLogsOnStderr } from './shared';
 
 /** Exit codes: 0 applied or nothing to do, 1 refused (a flag is missing, or the operator said no), 2 failed */
 export const APPLY_OK = 0;
@@ -76,14 +74,7 @@ const runnable = (plan: MigrationPlan): MigrationPlanItem[] =>
 async function planTarget(target: MigrateTarget): Promise<PlannedTarget> {
   const surreal = await connect(target.credentials(), 'migrate apply');
   try {
-    const live = await readLiveSchema(surreal);
-    const managedTables = new Set<string>();
-    const managed = new Map<string, readonly string[]>();
-    for (const entry of target.entryModels) {
-      const tables = (await readState(surreal, entry.schemaName)).schema?.managedTables ?? [];
-      managed.set(entry.schemaName, tables);
-      for (const table of tables) managedTables.add(table);
-    }
+    const { live, managed, managedTables } = await readLiveTarget(surreal, target);
     const differences = diffSchema(target.desired, live, { managedTables });
 
     return {
@@ -191,6 +182,7 @@ async function applyEntry(
 async function applyTarget(planned: PlannedTarget): Promise<number> {
   const surreal = await connect(planned.target.credentials(), 'migrate apply');
   try {
+    if (!(await databaseExists(surreal))) await createDatabase(surreal, planned.target.connection.database);
     await bootstrapStateTables(surreal);
     const byEntry = new Map<MigrateEntryDesired, MigrationPlanItem[]>();
     for (const item of [...runnable(planned.plan), ...(planned.skipped ?? [])]) {

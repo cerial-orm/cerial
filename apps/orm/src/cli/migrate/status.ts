@@ -1,18 +1,10 @@
-import {
-  diffSchema,
-  findDrift,
-  quoteFieldPath,
-  quoteIdent,
-  readLiveSchema,
-  readState,
-  sanitiseReason,
-} from '../../migrations';
+import { diffSchema, findDrift, quoteFieldPath, quoteIdent, sanitiseReason } from '../../migrations';
 import type { FieldPath, SchemaDifference } from '../../migrations';
 import { parseMigrateArgs } from './args';
 import type { MigrateEnv } from './connection';
 import { loadDesired } from './load';
 import type { MigrateTarget } from './load';
-import { connect, join, scrub, withLogsOnStderr } from './shared';
+import { connect, join, readLiveTarget, scrub, withLogsOnStderr } from './shared';
 
 /** Exit codes: 0 in sync, 1 drift or pending changes, 2 the check itself could not run */
 export const STATUS_IN_SYNC = 0;
@@ -79,13 +71,7 @@ function toItem(d: SchemaDifference, description: string): StatusItem {
 async function statusOfTarget(target: MigrateTarget): Promise<TargetStatus> {
   const surreal = await connect(target.credentials(), 'migrate status');
   try {
-    const live = await readLiveSchema(surreal);
-    const managedTables = new Set<string>();
-    // readState creates nothing: a database without state tables reads as no managed tables
-    for (const entry of target.entryModels) {
-      const state = await readState(surreal, entry.schemaName);
-      for (const table of state.schema?.managedTables ?? []) managedTables.add(table);
-    }
+    const { live, managedTables } = await readLiveTarget(surreal, target);
 
     const differences = diffSchema(target.desired, live, { managedTables });
     const report = findDrift(differences);

@@ -9,8 +9,6 @@ import {
   liveFingerprint,
   parseFieldIdiom,
   quoteIdent,
-  readLiveSchema,
-  readState,
   sanitiseReason,
 } from '../../migrations';
 import type { FieldPath, MigrationPlan } from '../../migrations';
@@ -18,7 +16,7 @@ import { parseMigrateArgs } from './args';
 import type { MigrateEnv } from './connection';
 import { loadDesired } from './load';
 import type { MigrateTarget } from './load';
-import { connect, join, scrub, withLogsOnStderr } from './shared';
+import { connect, join, readLiveTarget, scrub, withLogsOnStderr } from './shared';
 
 export const PLAN_OK = 0;
 export const PLAN_FAILED = 2;
@@ -142,12 +140,7 @@ async function writeNew(dir: string, stem: string, text: string): Promise<string
 async function planTarget(target: MigrateTarget): Promise<{ plan: MigrationPlan; live: string }> {
   const surreal = await connect(target.credentials(), 'migrate plan');
   try {
-    const live = await readLiveSchema(surreal);
-    const managedTables = new Set<string>();
-    for (const entry of target.entryModels) {
-      const state = await readState(surreal, entry.schemaName);
-      for (const table of state.schema?.managedTables ?? []) managedTables.add(table);
-    }
+    const { live, managedTables } = await readLiveTarget(surreal, target);
     const differences = diffSchema(target.desired, live, { managedTables });
     const plan = buildMigrationPlan(differences, indexDesiredStatements(target.desiredStatements), live);
 

@@ -304,3 +304,41 @@ describe('failures exit 2', () => {
     expect(result.stderr).toContain('cerial migrate status');
   });
 });
+
+describe('a database that was never defined', () => {
+  /** A name nothing has defined; cleanup removes it in case a later step creates it */
+  function neverDefined(label: string): string {
+    const name = `status_${label}_${process.pid}_${Date.now().toString(36)}`;
+    names.push(name);
+
+    return name;
+  }
+
+  test('reads as an empty live schema: everything pending, exit 1, not a failure', async () => {
+    const dir = await mixedProject({ 'app/schema.cerial': CERIAL_ONLY });
+    const name = neverDefined('missing');
+
+    const result = await status(dir, name, ['--json']);
+    const report = JSON.parse(result.stdout) as { inSync: boolean; targets: TargetStatus[] };
+
+    expect(result.stderr).toBe('');
+    expect(result.exitCode).toBe(1);
+    expect(report.inSync).toBe(false);
+    expect(report.targets[0]!.pending.some((item) => item.construct === 'table' && item.table === 'note')).toBe(true);
+    expect(report.targets[0]!.drift).toEqual([]);
+    const [info] = await (await admin()).query('INFO FOR NS').collect<[{ databases: Record<string, string> }]>();
+    expect(Object.keys(info.databases)).not.toContain(name);
+  });
+
+  test('any other read failure is still exit 2', async () => {
+    const dir = await mixedProject({ 'app/schema.cerial': CERIAL_ONLY });
+
+    const result = await migrateStatus({
+      argv: [],
+      env: envFor('whatever', { CERIAL_DB_NAMESPACE: `no_such_ns_${process.pid}` }),
+      cwd: dir,
+    });
+
+    expect(result.exitCode).toBe(2);
+  });
+});

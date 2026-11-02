@@ -290,3 +290,24 @@ describe('nothing to do', () => {
     expect(await stat(out).catch(() => undefined)).toBeUndefined();
   });
 });
+
+describe('a database that was never defined', () => {
+  test('writes the full additive plan and creates nothing', async () => {
+    const dir = await mixedProject({ 'app/schema.cerial': CERIAL_ONLY });
+    const name = `plan_missing_${process.pid}_${Date.now().toString(36)}`;
+    names.push(name);
+    const out = await outDir();
+
+    const result = await plan(dir, name, out);
+
+    expect(result.stderr).toBe('');
+    expect(result.exitCode).toBe(0);
+    expect(result.files).toHaveLength(1);
+    const text = await read(result.files[0]!);
+    expect(text).toContain('DEFINE TABLE');
+    expect(text).toMatch(/^DEFINE FIELD .*title/m);
+    expect(text).not.toMatch(/^-- cerial:destructive/m);
+    const [info] = await (await admin()).query('INFO FOR NS').collect<[{ databases: Record<string, string> }]>();
+    expect(Object.keys(info.databases)).not.toContain(name);
+  });
+});
