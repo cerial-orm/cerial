@@ -1,5 +1,6 @@
 import { dirname, resolve } from 'node:path';
 import { CerialGenerationError, CerialValidationError } from '../../errors';
+import { generateRegistryDefineStatements } from '../../generators/migrations';
 import { buildDesiredSchema, fingerprint, schemaFingerprint } from '../../migrations';
 import type { SchemaModel } from '../../migrations';
 import type { ConnectionConfig, SchemaAST } from '../../types';
@@ -34,6 +35,8 @@ export interface PrintableConnection {
 export interface MigrateEntryDesired {
   readonly name: string;
   readonly desired: SchemaModel;
+  /** The generated `DEFINE` statements the desired model was built from, which a plan writes out */
+  readonly statements: readonly string[];
 }
 
 export interface MigrateTarget {
@@ -44,6 +47,8 @@ export interface MigrateTarget {
   readonly entryModels: readonly MigrateEntryDesired[];
   /** The union of the entries' tables, so a sibling entry's tables are not foreign to this target */
   readonly desired: SchemaModel;
+  /** The union of the entries' generated `DEFINE` statements, in entry order */
+  readonly desiredStatements: readonly string[];
   /** Fingerprint of each desired table by table name, and of the whole union */
   readonly tableFingerprints: Readonly<Record<string, string>>;
   readonly schemaFingerprint: string;
@@ -55,10 +60,20 @@ export interface MigrateTarget {
 }
 
 /** Build the desired model from the same metadata `generate` hands its generators, so the two cannot drift */
-function desiredOf(ast: SchemaAST): SchemaModel {
+function desiredOf(ast: SchemaAST): { desired: SchemaModel; statements: string[] } {
   const { modelRegistry, objectRegistry, tupleRegistry, literalRegistry } = buildSchemaMetadata(ast);
 
-  return buildDesiredSchema(modelRegistry, objectRegistry, tupleRegistry, literalRegistry);
+  return {
+    desired: buildDesiredSchema(modelRegistry, objectRegistry, tupleRegistry, literalRegistry),
+    statements: generateRegistryDefineStatements(
+      modelRegistry,
+      undefined,
+      undefined,
+      objectRegistry ?? {},
+      tupleRegistry ?? {},
+      literalRegistry ?? {},
+    ),
+  };
 }
 
 interface SchemaSource {
@@ -159,7 +174,7 @@ export async function loadDesired(options: LoadDesiredOptions): Promise<MigrateT
     // Credentials are left out of the key: the same database under two logins is still one database
     const key = JSON.stringify([connection.url, connection.namespace, connection.database]);
     const group = groups.get(key) ?? { connection, entries: [] };
-    group.entries.push({ name: source.name, desired: desiredOf(ast) });
+    group.entries.push({ name: source.name, ...desiredOf(ast) });
     groups.set(key, group);
   }
 
@@ -176,6 +191,7 @@ export async function loadDesired(options: LoadDesiredOptions): Promise<MigrateT
       entries: members.map((m) => m.name),
       entryModels: members,
       desired,
+      desiredStatements: members.flatMap((m) => m.statements),
       tableFingerprints: Object.fromEntries(desired.tables.map((table) => [table.name, fingerprint(table)])),
       schemaFingerprint: schemaFingerprint(desired),
       credentials: () => connection,
