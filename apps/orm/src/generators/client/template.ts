@@ -158,8 +158,8 @@ export class ${clientClassName} {
   // Persisted migration state, read once per client; models are applied in client-level batches, one after another, so they never contend for the database lease with each other.
   private _state: Promise<MigrationState> | null = null;
   private _batch: Promise<unknown> = Promise.resolve();
-  // Set by resetMigrationState(): the next apply ignores persisted state, because the caller says the database changed behind it.
-  private _bypassState = false;
+  // Filled by resetMigrationState(): a model in it ignores persisted state until it has been applied itself, because the caller says the database changed behind it.
+  private _bypass: Set<ModelName> = new Set();
   // A DDL failure (e.g. a UNIQUE index over duplicate data) will not fix itself, so it is kept and rethrown instead of re-running the DDL on every query.
   private _failedMigrations: Map<ModelName, Error> = new Map();
   private _onMigrationEvent?: MigrationEventCallback;
@@ -322,7 +322,7 @@ ${generateResolveConnection(connectConfigName, databasePins)}
    * migration state is ignored until the next apply, so a matching state row does not skip the re-creation.
    */
   resetMigrationState(): void {
-    this._bypassState = true;
+    this._bypass = new Set(getMigrationModelNames() as ModelName[]);
     this._migratedModels.clear();
     this._failedMigrations.clear();
     this._state = null;
@@ -382,9 +382,11 @@ ${generateResolveConnection(connectConfigName, databasePins)}
     const surreal = this.connectionManager.getDdlSurreal();
     if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: 'migrate' });
 
-    const bypass = force || this._bypassState;
-    let unmatched = wanted;
-    if (!bypass) {
+    // A forced or reset model skips the state check; the rest are applied only if their persisted row no longer matches.
+    const forced = force ? wanted : wanted.filter(name => this._bypass.has(name));
+    const rest = wanted.filter(name => !forced.includes(name));
+    let unmatched: ModelName[] = [];
+    if (rest.length) {
       this._state ??= readLazyState(surreal, migrationContext);
       let state: MigrationState;
       try {
@@ -394,10 +396,9 @@ ${generateResolveConnection(connectConfigName, databasePins)}
         throw error;
       }
 
-      const matched = matchedModels(state, migrationContext, wanted);
+      const matched = matchedModels(state, migrationContext, rest);
       for (const name of matched) this._migratedModels.add(name as ModelName);
-      unmatched = wanted.filter(name => !matched.includes(name));
-      if (!unmatched.length) return;
+      unmatched = rest.filter(name => !matched.includes(name));
 
       // A model with a persisted row that no longer matches changed since it was applied: show what is about to be altered. Fresh models and unchanged fingerprints cost no read.
       const changed = unmatched.filter(name => state.models.has(name));
@@ -409,26 +410,33 @@ ${generateResolveConnection(connectConfigName, databasePins)}
         });
       }
     }
+    if (!forced.length && !unmatched.length) return;
 
-    for (const modelName of unmatched) this._onMigrationEvent?.({ type: 'start', modelName });
+    const all = [...forced, ...unmatched];
+    // The re-read after commit judges only what the schema declares, so live-only drift does not fail an apply.
+    const desiredSchema = manifest as unknown as Parameters<typeof verifySchema>[1]['manifest'];
+    for (const modelName of all) this._onMigrationEvent?.({ type: 'start', modelName });
     try {
-      const done = await applyUnmatched(surreal, migrationContext, unmatched, {
-        force: bypass,
-        schemaFingerprint: force ? wholeSchemaFingerprint : undefined,
-      });
+      const done: string[] = [];
+      if (forced.length) {
+        // Only a batch of every model may carry the whole-schema fingerprint.
+        const whole = force && forced.length === getMigrationModelNames().length;
+        done.push(...(await applyUnmatched(surreal, migrationContext, forced, { force: true, schemaFingerprint: whole ? wholeSchemaFingerprint : undefined, manifest: desiredSchema })));
+      }
+      if (unmatched.length) done.push(...(await applyUnmatched(surreal, migrationContext, unmatched, { manifest: desiredSchema })));
       // The rows just written make any state read earlier stale.
-      this._bypassState = false;
       this._state = null;
       for (const name of done as ModelName[]) {
+        this._bypass.delete(name);
         this._migratedModels.add(name);
         this._onMigrationEvent?.({ type: 'complete', modelName: name });
       }
     } catch (error) {
-      for (const modelName of unmatched) this._onMigrationEvent?.({ type: 'error', modelName, error: error as Error });
+      for (const modelName of all) this._onMigrationEvent?.({ type: 'error', modelName, error: error as Error });
       // Not being connected is a state, not a DDL verdict: the next query may succeed.
       if (error instanceof CerialNotConnectedError) throw error;
 
-      const failures = (blameModels(error, migrationContext, unmatched) as ModelName[]).map(name => {
+      const failures = (blameModels(error, migrationContext, all) as ModelName[]).map(name => {
         const failure = new CerialMigrationError(\`Migration of \${name} failed: \${error instanceof Error ? error.message : String(error)}\`, {
           model: name,
           operation: 'migrate',
