@@ -1,5 +1,6 @@
 import type { Surreal } from 'surrealdb';
 import { CerialMigrationError } from '../errors';
+import { diffSchema } from './diff';
 import { fingerprint } from './fingerprint';
 import { type LeaseOptions, type MigrationLease, withLease } from './lease';
 import type { MigrationPlan } from './plan';
@@ -19,7 +20,10 @@ export interface ApplyModel {
   readonly modelName: string;
   readonly table: string;
   readonly fingerprint: string;
-  /** The table as the schema describes it. Without it the re-read is judged against `fingerprint`. */
+  /**
+   * The table as the schema describes it. The re-read judges only what it declares: a live-only field or index is
+   * drift for status and verify, not a failed apply. Without it the re-read is judged against `fingerprint`.
+   */
   readonly desired?: TableModel;
 }
 
@@ -108,6 +112,23 @@ async function writePending(surreal: Surreal, options: ApplyOptions, models: rea
   }
 }
 
+/** Whether the live table lacks, or defines differently, anything the schema declares. A live-only construct passes. */
+function disagrees(model: ApplyModel, live: readonly TableModel[]): boolean {
+  const found = live.find((t) => t.name === model.table);
+  if (!found) return true;
+  if (!model.desired) return fingerprint(found) !== model.fingerprint;
+  try {
+    return diffSchema(
+      { tables: [model.desired], unmanaged: [] },
+      { tables: [found], unmanaged: [] },
+      { managedTables: [] },
+    ).some((d) => d.kind !== 'field-extra' && d.kind !== 'index-extra');
+  } catch {
+    // A live definition the differ cannot classify is not the declared one.
+    return true;
+  }
+}
+
 async function applyUnderLease(
   surreal: Surreal,
   plan: MigrationPlan,
@@ -169,11 +190,7 @@ async function applyUnderLease(
   const touched = converged.map((m) => m.table);
   if (touched.length) {
     const live = await readLiveSchema(surreal);
-    const bad = converged.filter((m) => {
-      const found = live.tables.find((t) => t.name === m.table);
-
-      return !found || fingerprint(found) !== (m.desired ? fingerprint(m.desired) : m.fingerprint);
-    });
+    const bad = converged.filter((m) => disagrees(m, live.tables));
     if (bad.length) {
       await writePending(surreal, options, bad);
 
@@ -195,8 +212,8 @@ async function applyUnderLease(
  * `BEGIN ... COMMIT` script of the plan's statements, the lease's holder check, and the flip to `applied`. Rollback
  * holds only for a single script, so the SDK transaction API is not used. A statement that is a `--` comment is
  * skipped, and a model is marked `applied` only when none of its statements was; a plan step belongs to the
- * model whose `table` equals the step's `table`. After the commit the touched tables are re-read and judged against `desired`;
- * a disagreement throws `CerialMigrationError` and puts the row back to `pending`.
+ * model whose `table` equals the step's `table`. After the commit the touched tables are re-read and judged against `desired`,
+ * over the constructs the schema declares only; a disagreement throws `CerialMigrationError` and puts the row back to `pending`.
  */
 export async function applyPlan(surreal: Surreal, plan: MigrationPlan, options: ApplyOptions): Promise<ApplyResult> {
   if (options.lease) return applyUnderLease(surreal, plan, options, options.lease);

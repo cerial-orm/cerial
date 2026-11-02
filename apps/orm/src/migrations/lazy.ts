@@ -5,6 +5,7 @@ import { withLease } from './lease';
 import type { MigrationPlan } from './plan';
 import { type MigrationState, readState } from './state';
 import { bootstrapStateTables } from './state-tables';
+import type { SchemaModel } from './types';
 import { trimStatement } from './util';
 
 /** One model as the generated client knows it: no schema, only the DDL it would run and the fingerprint it should leave. */
@@ -43,6 +44,12 @@ export interface ApplyUnmatchedOptions {
   readonly force?: boolean;
   /** The fingerprint of the whole schema, written to the schema row; only a batch of every model may pass it. */
   readonly schemaFingerprint?: string;
+  /**
+   * The desired schema the client was generated with. The post-commit re-read then judges only the constructs it
+   * declares, so a live-only field or index (which `auto` never removes) does not fail the apply. Without it the
+   * re-read compares the whole live table with the generated fingerprint.
+   */
+  readonly manifest?: SchemaModel;
 }
 
 /**
@@ -86,6 +93,7 @@ export async function applyUnmatched(
         modelName: name,
         table: context.models[name]!.table,
         fingerprint: context.models[name]!.fingerprint,
+        desired: options.manifest?.tables.find((t) => t.name === context.models[name]!.table),
       })),
       schema: {
         schemaName: context.schemaName,
