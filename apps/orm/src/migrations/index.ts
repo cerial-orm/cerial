@@ -11,5 +11,6 @@ export type {
 } from './types';
 export { buildDesiredSchema } from './desired';
 export { parseFieldIdiom, quoteFieldPath, quoteIdent } from './quote';
+export { commentOut, sanitiseReason } from './comment';
 export { readLiveSchema } from './reader';
 export { classifyDifference, diffSchema, type DiffOptions, type DifferenceKind, type SchemaDifference } from './diff';

@@ -102,6 +102,8 @@
   "src/migrations/canonical.ts::members::template::generic[1]": 1,
   "src/migrations/canonical.ts::members::template::elements.join(', ')": 1,
   "src/migrations/canonical.ts::members::template::inner.join(', ')": 1,
+  "src/migrations/comment.ts::commentOut::template::text": 1,
+  "src/migrations/comment.ts::renderTerminator::template::char.codePointAt(0)!.toString(16)": 1,
   "src/migrations/desired.ts::buildTable::template::field.isUnique ? 'unique' : 'index'": 1,
   "src/migrations/desired.ts::buildTable::template::field.name": 1,
   "src/migrations/desired.ts::buildTable::template::model.tableName": 1,
