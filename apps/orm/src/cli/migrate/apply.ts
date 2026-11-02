@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { Readable, Writable } from 'node:stream';
 import type { Surreal } from 'surrealdb';
@@ -9,6 +11,7 @@ import {
   buildMigrationPlan,
   diffSchema,
   indexDesiredStatements,
+  liveFingerprint,
   quoteIdent,
   readLiveSchema,
   readState,
@@ -16,12 +19,14 @@ import {
   schemaFingerprint,
   withLease,
 } from '../../migrations';
-import type { MigrationLease, MigrationPlan, MigrationPlanItem } from '../../migrations';
+import type { MigrationLease, MigrationPlan, MigrationPlanItem, SchemaModel } from '../../migrations';
 import { parseMigrateArgs } from './args';
 import type { MigrateArgs } from './args';
 import type { MigrateEnv } from './connection';
 import { loadDesired } from './load';
 import type { MigrateEntryDesired, MigrateTarget } from './load';
+import { parsePlanFile } from './plan-file';
+import type { FileStatement } from './plan-file';
 import { connect, join, scrub, withLogsOnStderr } from './shared';
 
 /** Exit codes: 0 applied or nothing to do, 1 refused (a flag is missing, or the operator said no), 2 failed */
@@ -53,12 +58,19 @@ interface PlannedTarget {
   readonly plan: MigrationPlan;
   /** Managed tables each entry's state row holds now */
   readonly managed: ReadonlyMap<string, readonly string[]>;
+  readonly live: SchemaModel;
+  /** Set for a plan file: its statements left commented out, which are reported and leave their models unmatched */
+  readonly skipped?: readonly MigrationPlanItem[];
 }
+
+/** A plan file the operator must fix or regenerate: a refusal, not a failure */
+class Refused extends Error {}
 
 const FLAG_FOR = { destructive: '--allow-destructive', 'data-loss': '--allow-data-loss' } as const;
 
 const where = (target: MigrateTarget): string => join(target.connection.namespace, '/', target.connection.database);
-const runnable = (plan: MigrationPlan): MigrationPlanItem[] => plan.filter((item) => item.statement !== undefined);
+const runnable = (plan: MigrationPlan): MigrationPlanItem[] =>
+  plan.filter((item) => item.statement !== undefined && !item.statement.startsWith('--'));
 
 /** Re-reads the live schema and state, and builds the plan from them. Writes nothing. */
 async function planTarget(target: MigrateTarget): Promise<PlannedTarget> {
@@ -78,6 +90,7 @@ async function planTarget(target: MigrateTarget): Promise<PlannedTarget> {
       target,
       plan: buildMigrationPlan(differences, indexDesiredStatements(target.desiredStatements), live),
       managed,
+      live,
     };
   } finally {
     await surreal.close().catch(() => {});
@@ -180,7 +193,7 @@ async function applyTarget(planned: PlannedTarget): Promise<number> {
   try {
     await bootstrapStateTables(surreal);
     const byEntry = new Map<MigrateEntryDesired, MigrationPlanItem[]>();
-    for (const item of runnable(planned.plan)) {
+    for (const item of [...runnable(planned.plan), ...(planned.skipped ?? [])]) {
       const entry = entryOf(item, planned);
       byEntry.set(entry, [...(byEntry.get(entry) ?? []), item]);
     }
@@ -196,6 +209,152 @@ async function applyTarget(planned: PlannedTarget): Promise<number> {
   }
 }
 
+const RANK: Readonly<Record<MigrationPlanItem['class'], number>> = {
+  additive: 0,
+  destructive: 1,
+  'data-loss': 2,
+  unmanaged: 0,
+};
+
+const normalise = (statement: string): string => statement.trim().replace(/;+\s*$/, '');
+
+/**
+ * The step for one file statement, classed from its own text and the fresh plan, never from the annotation above
+ * it. A removal is classed by its verb. A definition keeps the class of the plan step with the same text (found by
+ * re-diffing the schema against live, which is where a type change is destructive).
+ */
+function classifyStatement(s: FileStatement, fresh: ReadonlyMap<string, MigrationPlanItem>): MigrationPlanItem {
+  const base = { statement: s.text, table: s.table };
+  switch (s.verb) {
+    case 'REMOVE TABLE':
+      return {
+        ...base,
+        class: 'data-loss',
+        construct: 'table',
+        reason: 'removing a table destroys its rows with no separate data step',
+      };
+    case 'REMOVE FIELD':
+      return { ...base, class: 'destructive', construct: 'field', reason: 'removing a field leaves its values behind' };
+    case 'REMOVE INDEX':
+      return { ...base, class: 'destructive', construct: 'index', reason: 'removing an index drops a structure' };
+    case 'UPDATE UNSET':
+      return {
+        ...base,
+        class: 'destructive',
+        construct: 'field',
+        reason: 'unsetting a field deletes its stored values',
+      };
+  }
+
+  // A definition reaching here is one the schema generates (planFromFile refuses the rest); it keeps the class of the
+  // fresh plan's step for it, and one the plan does not need, because live already holds it, only restates live
+  return {
+    ...(fresh.get(s.text) ?? { class: 'additive', construct: 'definition', reason: 'it restates the schema' }),
+    ...base,
+  };
+}
+
+async function readPlanFile(file: string, cwd: string | undefined) {
+  let text: string;
+  try {
+    text = await readFile(resolve(cwd ?? process.cwd(), file), 'utf8');
+  } catch (error) {
+    throw new CerialValidationError(
+      join('Could not read plan file ', file, ': ', (error as NodeJS.ErrnoException).code ?? 'unreadable'),
+    );
+  }
+  const parsed = parsePlanFile(text);
+  if (parsed.refusals.length) {
+    throw new Refused(join('refused plan file ', file, ', nothing was applied.\n  ', parsed.refusals.join('\n  ')));
+  }
+
+  return parsed;
+}
+
+/** Plans a target from a reviewed file: the file must match the live schema it was written against */
+async function planFromFile(
+  file: string,
+  parsed: ReturnType<typeof parsePlanFile>,
+  targets: readonly MigrateTarget[],
+): Promise<PlannedTarget> {
+  if (!parsed.liveFingerprint) {
+    throw new Refused(
+      join(
+        'plan file ',
+        file,
+        ' has no live fingerprint in its header, so it cannot be checked. Run migrate plan again.',
+      ),
+    );
+  }
+  const target = parsed.database
+    ? targets.find((t) => sanitiseReason(where(t)) === parsed.database)
+    : targets.length === 1
+      ? targets[0]
+      : undefined;
+  if (!target) {
+    throw new Refused(
+      join(
+        'plan file ',
+        file,
+        ' was written for ',
+        parsed.database ?? 'an unnamed database',
+        ', which is not a target here.',
+      ),
+    );
+  }
+
+  const planned = await planTarget(target);
+  if (liveFingerprint(planned.live) !== parsed.liveFingerprint) {
+    throw new Refused(
+      join(
+        'plan file ',
+        file,
+        ' is stale: the live schema of ',
+        where(target),
+        ' changed after it was written. Run migrate plan again.',
+      ),
+    );
+  }
+
+  const fresh = new Map<string, MigrationPlanItem>();
+  for (const item of runnable(planned.plan)) {
+    const key = normalise(item.statement!);
+    const held = fresh.get(key);
+    if (!held || RANK[item.class] > RANK[held.class]) fresh.set(key, item);
+  }
+  // Only text Cerial generates may be defined: an expression in a hand-written definition can run a statement
+  // of its own whenever a row is written
+  const generated = new Set(target.desiredStatements.map(normalise));
+  const handWritten = [...parsed.statements, ...parsed.commented]
+    .filter((s) => s.verb.startsWith('DEFINE') && !generated.has(s.text))
+    .sort((a, b) => a.line - b.line);
+  if (handWritten.length) {
+    throw new Refused(
+      join(
+        'refused plan file ',
+        file,
+        ', nothing was applied.\n  ',
+        handWritten
+          .map((s) =>
+            join('line ', String(s.line), ': this definition is hand-written, not one Cerial generates for the schema'),
+          )
+          .join('\n  '),
+      ),
+    );
+  }
+  const step = (s: FileStatement) => classifyStatement(s, fresh);
+
+  return {
+    ...planned,
+    plan: parsed.statements.map(step),
+    skipped: parsed.commented.map((s) => ({
+      ...step(s),
+      statement: join('-- ', s.text),
+      reason: join('left commented out at line ', String(s.line)),
+    })),
+  };
+}
+
 /**
  * `cerial migrate apply --from-schema`: re-diff the live database against the schema and apply what is pending.
  *
@@ -203,6 +362,11 @@ async function applyTarget(planned: PlannedTarget): Promise<number> {
  * `--allow-data-loss` on top. One step lacking its flag refuses the whole plan before anything is written, so
  * the additive part is not applied either. On a terminal a plan with a destructive step is confirmed first;
  * off one, the flags are the authorisation.
+ *
+ * `cerial migrate apply <file>` applies a reviewed plan file the same way. The file is checked against the live
+ * schema it was written for, only table, field and index definitions and removals are run, and each statement's class
+ * is read from the statement and the live schema. Statements left commented out stay unapplied, and their models
+ * stay unmatched.
  */
 export async function migrateApply(options: ApplyOptions): Promise<ApplyResult> {
   const fail = (exitCode: number, message: string): ApplyResult => ({
@@ -213,12 +377,15 @@ export async function migrateApply(options: ApplyOptions): Promise<ApplyResult> 
 
   try {
     const { flags, positionals } = parseMigrateArgs(options.argv);
-    if (!flags['from-schema'] || positionals.length) {
-      throw new CerialValidationError('migrate apply needs --from-schema.');
+    const file = positionals[0];
+    if (positionals.length > 1 || Boolean(flags['from-schema']) === (file !== undefined)) {
+      throw new CerialValidationError('migrate apply needs either --from-schema or one plan file.');
     }
+    const parsed = file === undefined ? undefined : await readPlanFile(file, options.cwd);
     const targets = await withLogsOnStderr(() => loadDesired({ flags, env: options.env, cwd: options.cwd }));
     const planned: PlannedTarget[] = [];
-    for (const target of targets) planned.push(await planTarget(target));
+    if (file !== undefined && parsed) planned.push(await planFromFile(file, parsed, targets));
+    else for (const target of targets) planned.push(await planTarget(target));
 
     const missing = missingFlags(planned, flags);
     if (missing.length) {
@@ -229,7 +396,12 @@ export async function migrateApply(options: ApplyOptions): Promise<ApplyResult> 
     const pending = planned.filter((p) => runnable(p.plan).length);
     for (const p of planned) {
       if (!runnable(p.plan).length) {
-        said.push(join('Nothing to do for ', where(p.target), ': the database matches the schema.'));
+        const idle = p.skipped
+          ? p.skipped.length
+            ? ': every statement in the file is commented out.'
+            : ': the file holds no statements.'
+          : ': the database matches the schema.';
+        said.push(join('Nothing to do for ', where(p.target), idle));
       }
     }
 
@@ -249,9 +421,18 @@ export async function migrateApply(options: ApplyOptions): Promise<ApplyResult> 
       const count = await applyTarget(p);
       said.push(join('Applied ', String(count), ' statement(s) to ', where(p.target), '.'));
     }
+    for (const p of planned) {
+      if (!p.skipped?.length) continue;
+      said.push(join('Left ', String(p.skipped.length), ' commented-out statement(s) unapplied:'));
+      for (const item of p.skipped) {
+        said.push(join('  ', item.construct, ' on table ', quoteIdent(item.table ?? ''), ' (', item.reason, ')'));
+      }
+    }
 
     return { exitCode: APPLY_OK, stdout: join(said.join('\n'), '\n'), stderr: '' };
   } catch (error) {
+    if (error instanceof Refused) return fail(APPLY_REFUSED, error.message);
+
     return fail(APPLY_FAILED, error instanceof Error ? error.message : String(error));
   }
 }

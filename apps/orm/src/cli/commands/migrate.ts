@@ -52,9 +52,10 @@ const applyCommand = defineCommand({
   meta: {
     name: 'apply',
     description:
-      'Apply the pending changes. Additive changes need no flag; destructive ones need --allow-destructive, and removing a table also --allow-data-loss. On the memory backend a failed apply rolls back; other backends are not yet measured',
+      'Apply the pending changes, from the schema (--from-schema) or from a reviewed plan file (apply <file>). Additive changes need no flag; destructive ones need --allow-destructive, and removing a table also --allow-data-loss. On the memory backend a failed apply rolls back; other backends are not yet measured',
   },
   args: {
+    file: { type: 'positional', required: false, description: 'A plan file written by migrate plan' },
     ...connectionArgs,
     'from-schema': { type: 'boolean', description: 'Diff the live database against the schema and apply the result' },
     'allow-destructive': { type: 'boolean', description: 'Allow changes that can invalidate or remove data' },
