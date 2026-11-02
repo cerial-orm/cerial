@@ -3,14 +3,14 @@
  *
  * A nested write or include must migrate the related model's table before it is
  * touched, otherwise SurrealDB creates it schemaless and a later migration
- * leaves rows that reject every write. The preload already defined all tables, so
- * each test uses a fresh client (nothing migrated in-process) and asserts which
- * models that client migrated, plus that the related table stays writable.
+ * leaves rows that reject every write. The preload already defined all tables and
+ * recorded their state, so each test forgets that state, uses a fresh client and
+ * asserts which models that client migrated, plus that the related table stays writable.
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { RecordId } from 'surrealdb';
-import { CerialClient, cleanupTables, tables, testConfig, uniqueEmail } from '../../test-helper';
+import { CerialClient, cleanupTables, forgetMigrationState, tables, testConfig, uniqueEmail } from '../../test-helper';
 
 describe('lazy migration of related models', () => {
   let client: CerialClient;
@@ -24,6 +24,7 @@ describe('lazy migration of related models', () => {
       },
     });
     await client.connect(testConfig);
+    await forgetMigrationState(client);
     await cleanupTables(client, tables.oneToManyRequired);
   });
 

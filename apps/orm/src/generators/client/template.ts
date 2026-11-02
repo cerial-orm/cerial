@@ -15,7 +15,7 @@ export function generateImports(models: ModelMetadata[]): string {
   return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, applyUnmatched, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
-import { migrationsByModel, modelFingerprints, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
+import { migrationsByModel, modelFingerprints, wholeSchemaFingerprint, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
 import type { ${modelImports}, ${modelTypeImports} } from './models';`;
 }
 
@@ -145,6 +145,8 @@ export class ${clientClassName} {
   // Persisted migration state, read once per client; models are applied in client-level batches, one after another, so they never contend for the database lease with each other.
   private _state: Promise<MigrationState> | null = null;
   private _batch: Promise<unknown> = Promise.resolve();
+  // Set by resetMigrationState(): the next apply ignores persisted state, because the caller says the database changed behind it.
+  private _bypassState = false;
   // A DDL failure (e.g. a UNIQUE index over duplicate data) will not fix itself, so it is kept and rethrown instead of re-running the DDL on every query.
   private _failedMigrations: Map<ModelName, Error> = new Map();
   private _onMigrationEvent?: MigrationEventCallback;
@@ -276,9 +278,11 @@ ${generateResolveConnection(connectConfigName, databasePins)}
 
   /**
    * Reset migration tracking state so all models are re-migrated on next access.
-   * Useful after dropping tables (e.g., in test cleanup) to force schema re-creation.
+   * Useful after dropping tables (e.g., in test cleanup) to force schema re-creation. The persisted
+   * migration state is ignored until the next apply, so a matching state row does not skip the re-creation.
    */
   resetMigrationState(): void {
+    this._bypassState = true;
     this._migratedModels.clear();
     this._pendingMigrations.clear();
     this._migrationPromises.clear();
@@ -386,31 +390,41 @@ ${generateResolveConnection(connectConfigName, databasePins)}
     }
   }
 
-  private async _migrateBatch(modelNames: ModelName[]): Promise<void> {
-    const wanted = modelNames.filter(name => !this._migratedModels.has(name));
+  private async _migrateBatch(modelNames: ModelName[], force = false): Promise<void> {
+    const wanted = force ? modelNames : modelNames.filter(name => !this._migratedModels.has(name));
     if (!wanted.length) return;
     this._throwFailed(wanted);
     if (!this._db) throw new CerialNotConnectedError('Not connected. Call connect() first.', { operation: 'migrate' });
     const surreal = this.connectionManager.getDdlSurreal();
     if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: 'migrate' });
 
-    this._state ??= readLazyState(surreal, migrationContext);
-    let state: MigrationState;
-    try {
-      state = await this._state;
-    } catch (error) {
-      this._state = null;
-      throw error;
-    }
+    const bypass = force || this._bypassState;
+    let unmatched = wanted;
+    if (!bypass) {
+      this._state ??= readLazyState(surreal, migrationContext);
+      let state: MigrationState;
+      try {
+        state = await this._state;
+      } catch (error) {
+        this._state = null;
+        throw error;
+      }
 
-    const matched = matchedModels(state, migrationContext, wanted);
-    for (const name of matched) this._migratedModels.add(name as ModelName);
-    const unmatched = wanted.filter(name => !matched.includes(name));
-    if (!unmatched.length) return;
+      const matched = matchedModels(state, migrationContext, wanted);
+      for (const name of matched) this._migratedModels.add(name as ModelName);
+      unmatched = wanted.filter(name => !matched.includes(name));
+      if (!unmatched.length) return;
+    }
 
     for (const modelName of unmatched) this._onMigrationEvent?.({ type: 'start', modelName });
     try {
-      const done = await applyUnmatched(surreal, migrationContext, unmatched);
+      const done = await applyUnmatched(surreal, migrationContext, unmatched, {
+        force: bypass,
+        schemaFingerprint: force ? wholeSchemaFingerprint : undefined,
+      });
+      // The rows just written make any state read earlier stale.
+      this._bypassState = false;
+      this._state = null;
       for (const name of done as ModelName[]) {
         this._migratedModels.add(name);
         this._onMigrationEvent?.({ type: 'complete', modelName: name });
@@ -436,12 +450,17 @@ ${generateResolveConnection(connectConfigName, databasePins)}
   }
 
   /**
-   * Run schema migrations for all models
-   * This can be called manually to eagerly migrate all models upfront.
+   * Run schema migrations for all models, e.g. as a deploy step.
+   * Always applies every model as one batch under the database lease, whatever this client or the persisted
+   * state already holds, and records the result so later clients send no DDL.
    */
   async migrate(): Promise<void> {
     const allModels = getMigrationModelNames();
-    await Promise.all(allModels.map(model => this.migrateModel(model)));
+    this._throwFailed(allModels);
+
+    const run = this._batch.then(() => this._migrateBatch(allModels, true));
+    this._batch = run.catch(() => undefined);
+    await run;
   }
 
   /**

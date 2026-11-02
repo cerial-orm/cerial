@@ -89,6 +89,14 @@ export async function globalCleanup(client: CerialClient): Promise<void> {
 }
 
 /**
+ * Drop the persisted migration state of every model, so a fresh client has to migrate what it touches instead of
+ * trusting the state the preload's migrate() left. For tests that assert which models a client migrated.
+ */
+export async function forgetMigrationState(client: CerialClient): Promise<void> {
+  await client.getSurreal()?.query(`DELETE _cerial_migrations WHERE kind = 'model'`);
+}
+
+/**
  * Truncate specific tables by deleting all rows.
  * Lightweight alternative to cleanupTables — preserves schema, just clears data.
  * Use in `beforeEach` for fast per-test cleanup.

@@ -10,7 +10,14 @@
 
 import { afterEach, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import type { RecordId } from 'surrealdb';
-import { CerialClient, cleanupTables, tables, testConfig, truncateTables } from '../../test-helper';
+import {
+  CerialClient,
+  cleanupTables,
+  forgetMigrationState,
+  tables,
+  testConfig,
+  truncateTables,
+} from '../../test-helper';
 
 const DELETE_TABLES = [...tables.oneToOneCascade, ...tables.oneToOneSetNull, ...tables.oneToOneRestrict];
 
@@ -33,6 +40,7 @@ describe('lazy migration of dependent models on delete', () => {
       },
     });
     await client.connect(testConfig);
+    await forgetMigrationState(client);
     await truncateTables(client, DELETE_TABLES);
   });
 

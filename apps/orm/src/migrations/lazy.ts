@@ -44,16 +44,24 @@ export function readLazyState(surreal: Surreal, context: LazyMigrationContext): 
  * the lease is held, only the models still unmatched are applied, and the schema row only grows `managedTables`.
  * Returns the models that are in place afterwards (matched by another client, or applied here).
  */
+export interface ApplyUnmatchedOptions {
+  /** Apply every named model whatever the persisted state says (a deploy step, or after a state reset). */
+  readonly force?: boolean;
+  /** The fingerprint of the whole schema, written to the schema row; only a batch of every model may pass it. */
+  readonly schemaFingerprint?: string;
+}
+
 export async function applyUnmatched(
   surreal: Surreal,
   context: LazyMigrationContext,
   names: readonly string[],
+  options: ApplyUnmatchedOptions = {},
 ): Promise<string[]> {
   await bootstrapStateTables(surreal);
 
   return withLease(surreal, async (lease) => {
     const state = await readLazyState(surreal, context);
-    const matched = matchedModels(state, context, names);
+    const matched = options.force ? [] : matchedModels(state, context, names);
     const unmatched = names.filter((name) => !matched.includes(name));
     if (!unmatched.length) return [...matched];
 
@@ -66,7 +74,7 @@ export async function applyUnmatched(
         table: context.models[name]!.table,
       })),
     );
-    // The whole-schema fingerprint is not known without the schema, so an existing row keeps its own.
+    // Without the whole schema's fingerprint an existing row keeps its own.
     const tables = new Set([
       ...(state.schema?.managedTables ?? []),
       ...unmatched.map((name) => context.models[name]!.table),
@@ -82,7 +90,7 @@ export async function applyUnmatched(
       })),
       schema: {
         schemaName: context.schemaName,
-        fingerprint: state.schema?.fingerprint ?? '',
+        fingerprint: options.schemaFingerprint ?? state.schema?.fingerprint ?? '',
         managedTables: [...tables],
       },
     });
