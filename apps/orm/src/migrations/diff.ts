@@ -175,7 +175,13 @@ function changedAttributes(desired: FieldModel, live: FieldModel): string[] {
 function isRequired(field: FieldModel): boolean {
   if (typeof field.path.at(-1) !== 'string') return false;
 
-  return !acceptsNone(field.kind) && field.default === undefined && field.value === undefined;
+  return (
+    !acceptsNone(field.kind) &&
+    field.default === undefined &&
+    field.value === undefined &&
+    // A computed field stores nothing, so adding it asks nothing of existing rows.
+    field.computed === undefined
+  );
 }
 
 const KNOWN_INDEX_CLAUSES: ReadonlySet<string> = new Set(['', 'UNIQUE']);

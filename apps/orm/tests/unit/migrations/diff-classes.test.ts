@@ -224,6 +224,24 @@ describe('equality across the two sides', () => {
 });
 
 describe('computed fields and table mode', () => {
+  test('a new COMPUTED field is additive: it stores nothing', () => {
+    const found = one(
+      schema([table('t', [field('a', 'string'), field('seen', 'datetime', { computed: 'time::now()' })])]),
+      schema([table('t', [field('a', 'string')])]),
+    );
+
+    expect(found).toMatchObject({ kind: 'field-missing', class: 'additive', field: ['seen'] });
+  });
+
+  test('near miss: a new required plain field is still destructive', () => {
+    const found = one(
+      schema([table('t', [field('a', 'string'), field('seen', 'datetime')])]),
+      schema([table('t', [field('a', 'string')])]),
+    );
+
+    expect(found).toMatchObject({ kind: 'field-missing-required', class: 'destructive' });
+  });
+
   test('a declared table that is live with another mode differs, destructively', () => {
     const found = one(
       schema([table('t', [field('a', 'string')])]),
