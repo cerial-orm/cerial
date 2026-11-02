@@ -16,6 +16,8 @@ import {
   executeClientTransaction,
   applyUnmatched,
   verifySchema,
+  warnAutoChange,
+  warnAutoInProduction,
   blameModels,
   matchedModels,
   readLazyState,
@@ -811,6 +813,7 @@ export class CerialClient {
       );
     }
     this._migrations = migrations;
+    if (migrations === 'auto') warnAutoInProduction();
 
     this._onMigrationEvent = options?.onMigrationEvent;
     this._includeStatementInErrors = options?.includeStatementInErrors ?? false;
@@ -1974,6 +1977,16 @@ export class CerialClient {
       for (const name of matched) this._migratedModels.add(name as ModelName);
       unmatched = wanted.filter((name) => !matched.includes(name));
       if (!unmatched.length) return;
+
+      // A model with a persisted row that no longer matches changed since it was applied: show what is about to be altered. Fresh models and unchanged fingerprints cost no read.
+      const changed = unmatched.filter((name) => state.models.has(name));
+      if (this._migrations === 'auto' && changed.length) {
+        await warnAutoChange(surreal, state, {
+          manifest: manifest as unknown as Parameters<typeof verifySchema>[1]['manifest'],
+          statements: Object.values(migrationsByModel).flat(),
+          tables: changed.map((name) => migrationContext.models[name]!.table),
+        });
+      }
     }
 
     for (const modelName of unmatched) this._onMigrationEvent?.({ type: 'start', modelName });

@@ -12,7 +12,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, applyUnmatched, verifySchema, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, applyUnmatched, verifySchema, warnAutoChange, warnAutoInProduction, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { manifest } from './internal/manifest';
@@ -184,6 +184,7 @@ export class ${clientClassName} {
       throw new CerialValidationError(\`Invalid migrations option \${JSON.stringify(migrations)}. Allowed values: \${MIGRATIONS_MODES.map(mode => \`'\${mode}'\`).join(', ')}.\`, { operation: 'constructor' });
     }
     this._migrations = migrations;
+    if (migrations === 'auto') warnAutoInProduction();
 
     this._onMigrationEvent = options?.onMigrationEvent;
     this._includeStatementInErrors = options?.includeStatementInErrors ?? false;
@@ -454,6 +455,16 @@ ${generateResolveConnection(connectConfigName, databasePins)}
       for (const name of matched) this._migratedModels.add(name as ModelName);
       unmatched = wanted.filter(name => !matched.includes(name));
       if (!unmatched.length) return;
+
+      // A model with a persisted row that no longer matches changed since it was applied: show what is about to be altered. Fresh models and unchanged fingerprints cost no read.
+      const changed = unmatched.filter(name => state.models.has(name));
+      if (this._migrations === 'auto' && changed.length) {
+        await warnAutoChange(surreal, state, {
+          manifest: manifest as unknown as Parameters<typeof verifySchema>[1]['manifest'],
+          statements: Object.values(migrationsByModel).flat(),
+          tables: changed.map(name => migrationContext.models[name]!.table),
+        });
+      }
     }
 
     for (const modelName of unmatched) this._onMigrationEvent?.({ type: 'start', modelName });

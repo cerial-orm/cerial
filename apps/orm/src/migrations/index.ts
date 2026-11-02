@@ -49,3 +49,4 @@ export {
   type LazyMigrationContext,
   type LazyModel,
 } from './lazy';
+export { warnAutoChange, warnAutoInProduction, resetProductionWarning, type AutoChangeInput } from './warnings';
