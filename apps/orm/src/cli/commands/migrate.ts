@@ -1,8 +1,9 @@
-import { defineCommand } from 'citty';
+import { defineCommand, renderUsage } from 'citty';
 import type { MigrateEnv } from '../migrate/connection';
 import { migrateApply } from '../migrate/apply';
 import { migrateBaseline } from '../migrate/baseline';
 import { migratePlan } from '../migrate/plan-file';
+import { join } from '../migrate/shared';
 import { migrateStatus } from '../migrate/status';
 
 const connectionArgs = {
@@ -94,15 +95,27 @@ const baselineCommand = defineCommand({
   },
 });
 
+const subCommands = {
+  status: statusCommand,
+  plan: planCommand,
+  apply: applyCommand,
+  baseline: baselineCommand,
+};
+
 export const migrateCommand = defineCommand({
   meta: {
     name: 'migrate',
     description: 'Inspect and change the live database schema',
   },
-  subCommands: {
-    status: statusCommand,
-    plan: planCommand,
-    apply: applyCommand,
-    baseline: baselineCommand,
+  subCommands,
+  // citty exits 1 for a missing or unknown subcommand, which `migrate status` already uses for drift.
+  // A usage error is exit 2 here, so the name is checked before citty dispatches.
+  async setup({ rawArgs, cmd }) {
+    const name = rawArgs.find((arg) => !arg.startsWith('-'));
+    if (name !== undefined && name in subCommands) return;
+
+    process.stderr.write(join(await renderUsage(cmd), '\n\n'));
+    process.stderr.write(join(name === undefined ? 'No command specified.' : join('Unknown command ', name), '\n'));
+    process.exit(2);
   },
 });
