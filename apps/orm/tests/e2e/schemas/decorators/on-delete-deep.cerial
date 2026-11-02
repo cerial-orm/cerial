@@ -1,0 +1,133 @@
+# Transitive @onDelete: chains that end in each action at depth two and three, a Cascade
+# self-reference and a mutual Cascade cycle.
+#
+# DdRoot (depth 0) <- DdOne (Cascade) <- DdTwo (Cascade) is the trunk. DdAtTwo<Action> hangs off DdOne
+# and DdAtThree<Action> off DdTwo, so each ends a chain at depth two and three with its own action.
+
+model DdRoot {
+  id Record @id
+  name String
+  code String @unique
+  ones Relation[] @model(DdOne)
+}
+
+model DdOne {
+  id Record @id
+  name String
+  rootId Record? @nullable
+  root Relation? @field(rootId) @model(DdRoot) @onDelete(Cascade)
+  twos Relation[] @model(DdTwo)
+  atTwoCascades Relation[] @model(DdAtTwoCascade)
+  atTwoRestricts Relation[] @model(DdAtTwoRestrict)
+  atTwoSetNulls Relation[] @model(DdAtTwoSetNull)
+  atTwoSetNones Relation[] @model(DdAtTwoSetNone)
+  atTwoNoActions Relation[] @model(DdAtTwoNoAction)
+}
+
+model DdTwo {
+  id Record @id
+  name String
+  oneId Record? @nullable
+  one Relation? @field(oneId) @model(DdOne) @onDelete(Cascade)
+  atThreeCascades Relation[] @model(DdAtThreeCascade)
+  atThreeRestricts Relation[] @model(DdAtThreeRestrict)
+  atThreeSetNulls Relation[] @model(DdAtThreeSetNull)
+  atThreeSetNones Relation[] @model(DdAtThreeSetNone)
+  atThreeNoActions Relation[] @model(DdAtThreeNoAction)
+}
+
+model DdAtTwoCascade {
+  id Record @id
+  name String
+  oneId Record? @nullable
+  one Relation? @field(oneId) @model(DdOne) @onDelete(Cascade)
+}
+
+model DdAtTwoRestrict {
+  id Record @id
+  name String
+  oneId Record? @nullable
+  one Relation? @field(oneId) @model(DdOne) @onDelete(Restrict)
+}
+
+model DdAtTwoSetNull {
+  id Record @id
+  name String
+  oneId Record? @nullable
+  one Relation? @field(oneId) @model(DdOne) @onDelete(SetNull)
+}
+
+model DdAtTwoSetNone {
+  id Record @id
+  name String
+  oneId Record?
+  one Relation? @field(oneId) @model(DdOne) @onDelete(SetNone)
+}
+
+model DdAtTwoNoAction {
+  id Record @id
+  name String
+  oneId Record? @nullable
+  one Relation? @field(oneId) @model(DdOne) @onDelete(NoAction)
+}
+
+model DdAtThreeCascade {
+  id Record @id
+  name String
+  twoId Record? @nullable
+  two Relation? @field(twoId) @model(DdTwo) @onDelete(Cascade)
+}
+
+model DdAtThreeRestrict {
+  id Record @id
+  name String
+  twoId Record? @nullable
+  two Relation? @field(twoId) @model(DdTwo) @onDelete(Restrict)
+}
+
+model DdAtThreeSetNull {
+  id Record @id
+  name String
+  twoId Record? @nullable
+  two Relation? @field(twoId) @model(DdTwo) @onDelete(SetNull)
+}
+
+model DdAtThreeSetNone {
+  id Record @id
+  name String
+  twoId Record?
+  two Relation? @field(twoId) @model(DdTwo) @onDelete(SetNone)
+}
+
+model DdAtThreeNoAction {
+  id Record @id
+  name String
+  twoId Record? @nullable
+  two Relation? @field(twoId) @model(DdTwo) @onDelete(NoAction)
+}
+
+# Cascade self-reference: a tree of any depth hangs off its root
+model DdTree {
+  id Record @id
+  name String
+  parentId Record? @nullable
+  parent Relation? @field(parentId) @model(DdTree) @onDelete(Cascade) @key(tree)
+  children Relation[] @model(DdTree) @key(tree)
+}
+
+# Mutual Cascade cycle: a Ping and a Pong each cascade to the other
+model DdPing {
+  id Record @id
+  name String
+  pongId Record? @nullable
+  pong Relation? @field(pongId) @model(DdPong) @onDelete(Cascade) @key(pingToPong)
+  pongs Relation[] @model(DdPong) @key(pongToPing)
+}
+
+model DdPong {
+  id Record @id
+  name String
+  pingId Record? @nullable
+  ping Relation? @field(pingId) @model(DdPing) @onDelete(Cascade) @key(pongToPing)
+  pings Relation[] @model(DdPing) @key(pingToPong)
+}

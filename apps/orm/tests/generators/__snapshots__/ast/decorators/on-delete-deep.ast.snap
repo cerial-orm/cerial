@@ -1,0 +1,1770 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "code",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdOne"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "ones",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdRoot",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "rootId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "rootId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdRoot"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "root",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdTwo"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "twos",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtTwoCascade"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atTwoCascades",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtTwoRestrict"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atTwoRestricts",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtTwoSetNull"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atTwoSetNulls",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtTwoSetNone"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atTwoSetNones",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtTwoNoAction"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atTwoNoActions",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdOne",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "oneId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "oneId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdOne"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "one",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtThreeCascade"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atThreeCascades",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtThreeRestrict"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atThreeRestricts",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtThreeSetNull"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atThreeSetNulls",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtThreeSetNone"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atThreeSetNones",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdAtThreeNoAction"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "atThreeNoActions",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdTwo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "oneId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "oneId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdOne"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "one",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoCascade",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "oneId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "oneId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdOne"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Restrict"
+            }
+          ],
+          "isOptional": true,
+          "name": "one",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoRestrict",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "oneId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "oneId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdOne"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "SetNull"
+            }
+          ],
+          "isOptional": true,
+          "name": "one",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoSetNull",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "oneId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "oneId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdOne"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "SetNone"
+            }
+          ],
+          "isOptional": true,
+          "name": "one",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoSetNone",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "oneId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "oneId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdOne"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "NoAction"
+            }
+          ],
+          "isOptional": true,
+          "name": "one",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoNoAction",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "twoId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "twoId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdTwo"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "two",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeCascade",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "twoId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "twoId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdTwo"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Restrict"
+            }
+          ],
+          "isOptional": true,
+          "name": "two",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeRestrict",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "twoId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "twoId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdTwo"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "SetNull"
+            }
+          ],
+          "isOptional": true,
+          "name": "two",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeSetNull",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "twoId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "twoId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdTwo"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "SetNone"
+            }
+          ],
+          "isOptional": true,
+          "name": "two",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeSetNone",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "twoId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "twoId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdTwo"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "NoAction"
+            }
+          ],
+          "isOptional": true,
+          "name": "two",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeNoAction",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "parentId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "parentId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdTree"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Cascade"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "key",
+              "value": "tree"
+            }
+          ],
+          "isOptional": true,
+          "name": "parent",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdTree"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "key",
+              "value": "tree"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "children",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdTree",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "pongId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "pongId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdPong"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Cascade"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "key",
+              "value": "pingToPong"
+            }
+          ],
+          "isOptional": true,
+          "name": "pong",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdPong"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "key",
+              "value": "pongToPing"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "pongs",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdPing",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "pingId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "pingId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdPing"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "Cascade"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "key",
+              "value": "pongToPing"
+            }
+          ],
+          "isOptional": true,
+          "name": "ping",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "DdPing"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "key",
+              "value": "pingToPong"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "pings",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdPong",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ]
+}

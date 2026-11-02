@@ -1,0 +1,954 @@
+{
+  "models": {
+    "DdAtThreeCascade": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "twoId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "two",
+          "relationInfo": {
+            "fieldRef": "twoId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "DdTwo",
+            "targetTable": "dd_two"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeCascade",
+      "tableName": "dd_at_three_cascade"
+    },
+    "DdAtThreeNoAction": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "twoId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "two",
+          "relationInfo": {
+            "fieldRef": "twoId",
+            "isReverse": false,
+            "onDelete": "NoAction",
+            "targetModel": "DdTwo",
+            "targetTable": "dd_two"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeNoAction",
+      "tableName": "dd_at_three_no_action"
+    },
+    "DdAtThreeRestrict": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "twoId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "two",
+          "relationInfo": {
+            "fieldRef": "twoId",
+            "isReverse": false,
+            "onDelete": "Restrict",
+            "targetModel": "DdTwo",
+            "targetTable": "dd_two"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeRestrict",
+      "tableName": "dd_at_three_restrict"
+    },
+    "DdAtThreeSetNone": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "twoId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "two",
+          "relationInfo": {
+            "fieldRef": "twoId",
+            "isReverse": false,
+            "onDelete": "SetNone",
+            "targetModel": "DdTwo",
+            "targetTable": "dd_two"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeSetNone",
+      "tableName": "dd_at_three_set_none"
+    },
+    "DdAtThreeSetNull": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "twoId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "two",
+          "relationInfo": {
+            "fieldRef": "twoId",
+            "isReverse": false,
+            "onDelete": "SetNull",
+            "targetModel": "DdTwo",
+            "targetTable": "dd_two"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtThreeSetNull",
+      "tableName": "dd_at_three_set_null"
+    },
+    "DdAtTwoCascade": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "oneId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "one",
+          "relationInfo": {
+            "fieldRef": "oneId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "DdOne",
+            "targetTable": "dd_one"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoCascade",
+      "tableName": "dd_at_two_cascade"
+    },
+    "DdAtTwoNoAction": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "oneId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "one",
+          "relationInfo": {
+            "fieldRef": "oneId",
+            "isReverse": false,
+            "onDelete": "NoAction",
+            "targetModel": "DdOne",
+            "targetTable": "dd_one"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoNoAction",
+      "tableName": "dd_at_two_no_action"
+    },
+    "DdAtTwoRestrict": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "oneId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "one",
+          "relationInfo": {
+            "fieldRef": "oneId",
+            "isReverse": false,
+            "onDelete": "Restrict",
+            "targetModel": "DdOne",
+            "targetTable": "dd_one"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoRestrict",
+      "tableName": "dd_at_two_restrict"
+    },
+    "DdAtTwoSetNone": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "oneId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "one",
+          "relationInfo": {
+            "fieldRef": "oneId",
+            "isReverse": false,
+            "onDelete": "SetNone",
+            "targetModel": "DdOne",
+            "targetTable": "dd_one"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoSetNone",
+      "tableName": "dd_at_two_set_none"
+    },
+    "DdAtTwoSetNull": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "oneId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "one",
+          "relationInfo": {
+            "fieldRef": "oneId",
+            "isReverse": false,
+            "onDelete": "SetNull",
+            "targetModel": "DdOne",
+            "targetTable": "dd_one"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdAtTwoSetNull",
+      "tableName": "dd_at_two_set_null"
+    },
+    "DdOne": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "rootId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "root",
+          "relationInfo": {
+            "fieldRef": "rootId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "DdRoot",
+            "targetTable": "dd_root"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "twos",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdTwo",
+            "targetTable": "dd_two"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atTwoCascades",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtTwoCascade",
+            "targetTable": "dd_at_two_cascade"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atTwoRestricts",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtTwoRestrict",
+            "targetTable": "dd_at_two_restrict"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atTwoSetNulls",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtTwoSetNull",
+            "targetTable": "dd_at_two_set_null"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atTwoSetNones",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtTwoSetNone",
+            "targetTable": "dd_at_two_set_none"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atTwoNoActions",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtTwoNoAction",
+            "targetTable": "dd_at_two_no_action"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdOne",
+      "tableName": "dd_one"
+    },
+    "DdPing": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "pongId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "pong",
+          "relationInfo": {
+            "fieldRef": "pongId",
+            "isReverse": false,
+            "key": "pingToPong",
+            "onDelete": "Cascade",
+            "targetModel": "DdPong",
+            "targetTable": "dd_pong"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pongs",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "pongToPing",
+            "targetModel": "DdPong",
+            "targetTable": "dd_pong"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdPing",
+      "tableName": "dd_ping"
+    },
+    "DdPong": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "pingId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "ping",
+          "relationInfo": {
+            "fieldRef": "pingId",
+            "isReverse": false,
+            "key": "pongToPing",
+            "onDelete": "Cascade",
+            "targetModel": "DdPing",
+            "targetTable": "dd_ping"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pings",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "pingToPong",
+            "targetModel": "DdPing",
+            "targetTable": "dd_ping"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdPong",
+      "tableName": "dd_pong"
+    },
+    "DdRoot": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "ones",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdOne",
+            "targetTable": "dd_one"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdRoot",
+      "tableName": "dd_root"
+    },
+    "DdTree": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parentId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parent",
+          "relationInfo": {
+            "fieldRef": "parentId",
+            "isReverse": false,
+            "key": "tree",
+            "onDelete": "Cascade",
+            "targetModel": "DdTree",
+            "targetTable": "dd_tree"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "children",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "tree",
+            "targetModel": "DdTree",
+            "targetTable": "dd_tree"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdTree",
+      "tableName": "dd_tree"
+    },
+    "DdTwo": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "oneId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "one",
+          "relationInfo": {
+            "fieldRef": "oneId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "DdOne",
+            "targetTable": "dd_one"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atThreeCascades",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtThreeCascade",
+            "targetTable": "dd_at_three_cascade"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atThreeRestricts",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtThreeRestrict",
+            "targetTable": "dd_at_three_restrict"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atThreeSetNulls",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtThreeSetNull",
+            "targetTable": "dd_at_three_set_null"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atThreeSetNones",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtThreeSetNone",
+            "targetTable": "dd_at_three_set_none"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "atThreeNoActions",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "DdAtThreeNoAction",
+            "targetTable": "dd_at_three_no_action"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "DdTwo",
+      "tableName": "dd_two"
+    }
+  }
+}

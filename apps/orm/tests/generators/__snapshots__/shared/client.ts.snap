@@ -124,6 +124,22 @@ import type {
   Booking,
   ContentItem,
   FlexUser,
+  DdRoot,
+  DdOne,
+  DdTwo,
+  DdAtTwoCascade,
+  DdAtTwoRestrict,
+  DdAtTwoSetNull,
+  DdAtTwoSetNone,
+  DdAtTwoNoAction,
+  DdAtThreeCascade,
+  DdAtThreeRestrict,
+  DdAtThreeSetNull,
+  DdAtThreeSetNone,
+  DdAtThreeNoAction,
+  DdTree,
+  DdPing,
+  DdPong,
   UserCascade,
   ProfileCascade,
   UserNoAction,
@@ -324,6 +340,22 @@ import type {
   BookingModel,
   ContentItemModel,
   FlexUserModel,
+  DdRootModel,
+  DdOneModel,
+  DdTwoModel,
+  DdAtTwoCascadeModel,
+  DdAtTwoRestrictModel,
+  DdAtTwoSetNullModel,
+  DdAtTwoSetNoneModel,
+  DdAtTwoNoActionModel,
+  DdAtThreeCascadeModel,
+  DdAtThreeRestrictModel,
+  DdAtThreeSetNullModel,
+  DdAtThreeSetNoneModel,
+  DdAtThreeNoActionModel,
+  DdTreeModel,
+  DdPingModel,
+  DdPongModel,
   UserCascadeModel,
   ProfileCascadeModel,
   UserNoActionModel,
@@ -532,6 +564,22 @@ export interface TypedDb {
   Booking: BookingModel;
   ContentItem: ContentItemModel;
   FlexUser: FlexUserModel;
+  DdRoot: DdRootModel;
+  DdOne: DdOneModel;
+  DdTwo: DdTwoModel;
+  DdAtTwoCascade: DdAtTwoCascadeModel;
+  DdAtTwoRestrict: DdAtTwoRestrictModel;
+  DdAtTwoSetNull: DdAtTwoSetNullModel;
+  DdAtTwoSetNone: DdAtTwoSetNoneModel;
+  DdAtTwoNoAction: DdAtTwoNoActionModel;
+  DdAtThreeCascade: DdAtThreeCascadeModel;
+  DdAtThreeRestrict: DdAtThreeRestrictModel;
+  DdAtThreeSetNull: DdAtThreeSetNullModel;
+  DdAtThreeSetNone: DdAtThreeSetNoneModel;
+  DdAtThreeNoAction: DdAtThreeNoActionModel;
+  DdTree: DdTreeModel;
+  DdPing: DdPingModel;
+  DdPong: DdPongModel;
   UserCascade: UserCascadeModel;
   ProfileCascade: ProfileCascadeModel;
   UserNoAction: UserNoActionModel;
@@ -1073,6 +1121,70 @@ export class CerialClient {
 
   get FlexUser(): FlexUserModel {
     return this._ensureDb().FlexUser;
+  }
+
+  get DdRoot(): DdRootModel {
+    return this._ensureDb().DdRoot;
+  }
+
+  get DdOne(): DdOneModel {
+    return this._ensureDb().DdOne;
+  }
+
+  get DdTwo(): DdTwoModel {
+    return this._ensureDb().DdTwo;
+  }
+
+  get DdAtTwoCascade(): DdAtTwoCascadeModel {
+    return this._ensureDb().DdAtTwoCascade;
+  }
+
+  get DdAtTwoRestrict(): DdAtTwoRestrictModel {
+    return this._ensureDb().DdAtTwoRestrict;
+  }
+
+  get DdAtTwoSetNull(): DdAtTwoSetNullModel {
+    return this._ensureDb().DdAtTwoSetNull;
+  }
+
+  get DdAtTwoSetNone(): DdAtTwoSetNoneModel {
+    return this._ensureDb().DdAtTwoSetNone;
+  }
+
+  get DdAtTwoNoAction(): DdAtTwoNoActionModel {
+    return this._ensureDb().DdAtTwoNoAction;
+  }
+
+  get DdAtThreeCascade(): DdAtThreeCascadeModel {
+    return this._ensureDb().DdAtThreeCascade;
+  }
+
+  get DdAtThreeRestrict(): DdAtThreeRestrictModel {
+    return this._ensureDb().DdAtThreeRestrict;
+  }
+
+  get DdAtThreeSetNull(): DdAtThreeSetNullModel {
+    return this._ensureDb().DdAtThreeSetNull;
+  }
+
+  get DdAtThreeSetNone(): DdAtThreeSetNoneModel {
+    return this._ensureDb().DdAtThreeSetNone;
+  }
+
+  get DdAtThreeNoAction(): DdAtThreeNoActionModel {
+    return this._ensureDb().DdAtThreeNoAction;
+  }
+
+  get DdTree(): DdTreeModel {
+    return this._ensureDb().DdTree;
+  }
+
+  get DdPing(): DdPingModel {
+    return this._ensureDb().DdPing;
+  }
+
+  get DdPong(): DdPongModel {
+    return this._ensureDb().DdPong;
   }
 
   get UserCascade(): UserCascadeModel {

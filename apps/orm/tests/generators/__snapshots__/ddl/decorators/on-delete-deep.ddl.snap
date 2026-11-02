@@ -1,0 +1,80 @@
+-- DdAtThreeCascade
+DEFINE TABLE OVERWRITE dd_at_three_cascade SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_three_cascade TYPE string;
+DEFINE FIELD OVERWRITE twoId ON TABLE dd_at_three_cascade TYPE option<record<dd_two> | null>;
+
+-- DdAtThreeNoAction
+DEFINE TABLE OVERWRITE dd_at_three_no_action SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_three_no_action TYPE string;
+DEFINE FIELD OVERWRITE twoId ON TABLE dd_at_three_no_action TYPE option<record<dd_two> | null>;
+
+-- DdAtThreeRestrict
+DEFINE TABLE OVERWRITE dd_at_three_restrict SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_three_restrict TYPE string;
+DEFINE FIELD OVERWRITE twoId ON TABLE dd_at_three_restrict TYPE option<record<dd_two> | null>;
+
+-- DdAtThreeSetNone
+DEFINE TABLE OVERWRITE dd_at_three_set_none SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_three_set_none TYPE string;
+DEFINE FIELD OVERWRITE twoId ON TABLE dd_at_three_set_none TYPE option<record<dd_two>>;
+
+-- DdAtThreeSetNull
+DEFINE TABLE OVERWRITE dd_at_three_set_null SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_three_set_null TYPE string;
+DEFINE FIELD OVERWRITE twoId ON TABLE dd_at_three_set_null TYPE option<record<dd_two> | null>;
+
+-- DdAtTwoCascade
+DEFINE TABLE OVERWRITE dd_at_two_cascade SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_two_cascade TYPE string;
+DEFINE FIELD OVERWRITE oneId ON TABLE dd_at_two_cascade TYPE option<record<dd_one> | null>;
+
+-- DdAtTwoNoAction
+DEFINE TABLE OVERWRITE dd_at_two_no_action SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_two_no_action TYPE string;
+DEFINE FIELD OVERWRITE oneId ON TABLE dd_at_two_no_action TYPE option<record<dd_one> | null>;
+
+-- DdAtTwoRestrict
+DEFINE TABLE OVERWRITE dd_at_two_restrict SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_two_restrict TYPE string;
+DEFINE FIELD OVERWRITE oneId ON TABLE dd_at_two_restrict TYPE option<record<dd_one> | null>;
+
+-- DdAtTwoSetNone
+DEFINE TABLE OVERWRITE dd_at_two_set_none SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_two_set_none TYPE string;
+DEFINE FIELD OVERWRITE oneId ON TABLE dd_at_two_set_none TYPE option<record<dd_one>>;
+
+-- DdAtTwoSetNull
+DEFINE TABLE OVERWRITE dd_at_two_set_null SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_at_two_set_null TYPE string;
+DEFINE FIELD OVERWRITE oneId ON TABLE dd_at_two_set_null TYPE option<record<dd_one> | null>;
+
+-- DdOne
+DEFINE TABLE OVERWRITE dd_one SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_one TYPE string;
+DEFINE FIELD OVERWRITE rootId ON TABLE dd_one TYPE option<record<dd_root> | null>;
+
+-- DdPing
+DEFINE TABLE OVERWRITE dd_ping SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_ping TYPE string;
+DEFINE FIELD OVERWRITE pongId ON TABLE dd_ping TYPE option<record<dd_pong> | null>;
+
+-- DdPong
+DEFINE TABLE OVERWRITE dd_pong SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_pong TYPE string;
+DEFINE FIELD OVERWRITE pingId ON TABLE dd_pong TYPE option<record<dd_ping> | null>;
+
+-- DdRoot
+DEFINE TABLE OVERWRITE dd_root SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_root TYPE string;
+DEFINE FIELD OVERWRITE code ON TABLE dd_root TYPE string;
+DEFINE INDEX OVERWRITE dd_root_code_unique ON TABLE dd_root COLUMNS code UNIQUE;
+
+-- DdTree
+DEFINE TABLE OVERWRITE dd_tree SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_tree TYPE string;
+DEFINE FIELD OVERWRITE parentId ON TABLE dd_tree TYPE option<record<dd_tree> | null>;
+
+-- DdTwo
+DEFINE TABLE OVERWRITE dd_two SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE dd_two TYPE string;
+DEFINE FIELD OVERWRITE oneId ON TABLE dd_two TYPE option<record<dd_one> | null>;
