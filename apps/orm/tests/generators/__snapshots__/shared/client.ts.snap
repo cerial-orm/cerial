@@ -1823,7 +1823,10 @@ export class CerialClient {
   async disconnect(): Promise<void> {
     await this.connectionManager.disconnect();
     this._db = null;
-    this.resetMigrationState();
+    // Not resetMigrationState(): a disconnect says nothing about the database, so a reconnect still trusts a matching state row.
+    this._migratedModels.clear();
+    this._failedMigrations.clear();
+    this._state = null;
   }
 
   /**
