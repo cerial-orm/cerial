@@ -4,25 +4,12 @@
 
 import { cp, mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { basename, dirname, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
-import {
-  convertLiterals,
-  convertModels,
-  convertObjects,
-  convertTuples,
-  createLiteralRegistry,
-  createObjectRegistry,
-  createRegistry,
-  createTupleRegistry,
-  inferFKTypes,
-  resolveObjectFields,
-} from '../generators/metadata';
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
 import type {
-  ASTLiteral,
   ConnectionConfig,
   DatabasePin,
   LiteralMetadata,
@@ -31,17 +18,13 @@ import type {
   TupleRegistry,
 } from '../types';
 import type { CerialConfig, ResolvedSchemaEntry } from './config';
-import {
-  detectNestedSchemaRoots,
-  findFolderConfigs,
-  loadConfig,
-  resolveConfig,
-  toClientClassName,
-  validateCombinedEntries,
-} from './config';
+import { loadConfig, resolveConfig, toClientClassName, validateCombinedEntries } from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
-import { buildResolvedSchemaAst, findSchemaRoots } from './resolvers';
+import { discoverSchemaRoots } from './discover-roots';
+import type { DiscoveredRoot } from './discover-roots';
+import { buildResolvedSchemaAst } from './resolvers';
+import { buildSchemaMetadata } from './schema-metadata';
 import { logger } from './utils';
 import type { CLIOptions, EntryModels, LogOutputLevel, SchemaValidationError } from './validators';
 import {
@@ -351,35 +334,15 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     logger.info(`Found ${concreteModels.length} model(s)${extraInfo ? ` and ${extraInfo}` : ''}`);
 
     // Convert to metadata (using resolved, concrete models and resolved type collections)
-    const models = convertModels(concreteModels);
-    const objects = convertObjects(resolvedAST.objects);
-    const tuples = convertTuples(resolvedAST.tuples);
-
-    // Convert enums to synthetic ASTLiteral entries for the literal pipeline
-    const syntheticEnumLiterals: ASTLiteral[] = resolvedAST.enums.map((e) => ({
-      name: e.name,
-      variants: e.values.map((v): import('../types').ASTLiteralVariant => ({ kind: 'string', value: v })),
-      range: e.range,
-      origin: e.origin,
-    }));
-    const allLiteralsForConversion = [...resolvedAST.literals, ...syntheticEnumLiterals];
-    const literals = convertLiterals(allLiteralsForConversion);
-    for (const lit of literals) {
-      if (resolvedAST.enums.some((e) => e.name === lit.name)) {
-        lit.isEnum = true;
-      }
-    }
-
-    // Resolve inline object, tuple, and literal fields
-    const objRegistry = objects.length ? createObjectRegistry(objects) : undefined;
-    const tupRegistry = tuples.length ? createTupleRegistry(tuples) : undefined;
-    const litRegistry = literals.length ? createLiteralRegistry(literals) : undefined;
-    if (objects.length || tuples.length || literals.length) {
-      resolveObjectFields(models, objects, objRegistry ?? {}, tupRegistry, litRegistry);
-    }
-
-    const modelRegistry = createRegistry(models);
-    inferFKTypes(models, modelRegistry);
+    const {
+      models,
+      objects,
+      tuples,
+      literals,
+      objectRegistry: objRegistry,
+      tupleRegistry: tupRegistry,
+      literalRegistry: litRegistry,
+    } = buildSchemaMetadata(resolvedAST);
 
     // Check for literal decorator warnings
     if (literals.length && (objRegistry || tupRegistry)) {
@@ -556,7 +519,7 @@ export { applyFolderOverridesAndDiscover } from './discovery';
  * Build a root-only filter from .cerialignore at cwd.
  * Used by paths that have no config file (folder discovery, convention markers, legacy, -s flag).
  */
-async function buildRootFilter(cwd: string): Promise<PathFilter | undefined> {
+export async function buildRootFilter(cwd: string): Promise<PathFilter | undefined> {
   const rootCerialIgnore = (await loadCerialIgnore(cwd)) ?? undefined;
   if (!rootCerialIgnore) return undefined;
 
@@ -567,7 +530,7 @@ async function buildRootFilter(cwd: string): Promise<PathFilter | undefined> {
  * Build a filter from root config + root .cerialignore.
  * Used by the config path for discovery-level filtering.
  */
-async function buildConfigRootFilter(
+export async function buildConfigRootFilter(
   config: CerialConfig,
   cwd: string,
 ): Promise<{
@@ -598,7 +561,7 @@ async function buildConfigRootFilter(
  * Build per-schema filters for config-based generation.
  * Each schema entry gets its own cascading filter combining root + schema + folder .cerialignore layers.
  */
-async function buildSchemaFilters(
+export async function buildSchemaFilters(
   config: CerialConfig,
   entries: ResolvedSchemaEntry[],
   rootFilterConfig: FilterConfig,
@@ -735,77 +698,39 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     return result;
   }
 
-  // No config, no -s → try folder config discovery, then legacy mode
+  // No config, no -s → folder configs, then convention markers, then legacy mode
   try {
-    const rootFilter = await buildRootFilter(cwd);
-    const folderConfigs = await findFolderConfigs(cwd, rootFilter);
+    const found = await discoverSchemaRoots(cwd);
 
-    if (folderConfigs.length) {
+    if (found) {
       const logLevel = options.log ?? 'minimal';
       logger.setOutputLevel(logLevel);
 
-      const rootCerialIgnore = (await loadCerialIgnore(cwd)) ?? undefined;
+      const outputOf = ({ dir, output }: DiscoveredRoot): string =>
+        options.output ?? (output ? resolve(dir, output) : resolve(dir, 'client'));
 
-      if (folderConfigs.length === 1) {
-        const { dir, config: folderCfg } = folderConfigs[0]!;
-        const outputDir =
-          options.output ?? (folderCfg.output ? resolve(dir, folderCfg.output) : resolve(dir, 'client'));
-        const folderCerialIgnore = (await loadCerialIgnore(dir)) ?? undefined;
-        const folderFilterConfig: FilterConfig = {
-          ignore: folderCfg.ignore,
-          exclude: folderCfg.exclude,
-          include: folderCfg.include,
-        };
-
-        const filter = resolvePathFilter({
-          rootCerialIgnore,
-          folderConfig: folderFilterConfig,
-          folderCerialIgnore,
-          basePath: cwd,
-          schemaPath: dir,
-        });
+      if (found.roots.length === 1) {
+        const root = found.roots[0]!;
 
         return generateSingleSchema({
-          schemaPath: dir,
-          outputDir,
+          schemaPath: root.dir,
+          outputDir: outputOf(root),
           logLevel: options.log,
           verbose: options.verbose,
           clean: options.clean,
-          filter,
+          filter: root.filter,
         });
       }
 
-      const entries: ResolvedSchemaEntry[] = folderConfigs.map(({ dir, config: folderCfg }) => {
-        const name = basename(dir);
-        const output = options.output ?? (folderCfg.output ? resolve(dir, folderCfg.output) : resolve(dir, 'client'));
+      const entries: ResolvedSchemaEntry[] = found.roots.map((root) => ({
+        name: root.name,
+        path: root.dir,
+        output: outputOf(root),
+        clientClassName: toClientClassName(root.name),
+      }));
 
-        return {
-          name,
-          path: dir,
-          output,
-          clientClassName: toClientClassName(name),
-        };
-      });
-
-      const filters = new Map<string, PathFilter>();
-      for (const { dir, config: folderCfg } of folderConfigs) {
-        const name = basename(dir);
-        const folderCerialIgnore = (await loadCerialIgnore(dir)) ?? undefined;
-        const folderFilterConfig: FilterConfig = {
-          ignore: folderCfg.ignore,
-          exclude: folderCfg.exclude,
-          include: folderCfg.include,
-        };
-
-        const filter = resolvePathFilter({
-          rootCerialIgnore,
-          folderConfig: folderFilterConfig,
-          folderCerialIgnore,
-          basePath: cwd,
-          schemaPath: dir,
-        });
-        filters.set(name, filter);
-      }
+      // Check for duplicate names/outputs among discovered markers
+      if (found.source === 'marker') validateCombinedEntries([], entries);
 
       const multiResult = await generateMultiSchema(
         entries,
@@ -814,105 +739,12 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
           verbose: options.verbose,
           clean: options.clean,
         },
-        filters,
+        new Map(found.roots.map((root) => [root.name, root.filter])),
       );
 
       const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
 
       return { success: multiResult.success, files: allFiles, errors: multiResult.errors };
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    result.errors.push(message);
-
-    return result;
-  }
-
-  // No folder configs → try convention marker discovery
-  try {
-    const markerRootFilter = await buildRootFilter(cwd);
-    const schemaRoots = await findSchemaRoots(cwd, markerRootFilter);
-
-    if (schemaRoots.length) {
-      const logLevel = options.log ?? 'minimal';
-      logger.setOutputLevel(logLevel);
-
-      const rootCerialIgnore = (await loadCerialIgnore(cwd)) ?? undefined;
-
-      // Check for marker-to-marker nesting
-      const typedRoots = schemaRoots.map(({ path: mp }) => ({
-        path: mp,
-        type: 'convention-marker' as const,
-      }));
-      const { ignored } = detectNestedSchemaRoots(typedRoots);
-      const validRoots = schemaRoots.filter(({ path: mp }) => !ignored.has(mp));
-
-      if (validRoots.length === 1) {
-        const root = validRoots[0]!;
-        const outputDir = options.output ?? resolve(root.path, 'client');
-        const folderCerialIgnore = (await loadCerialIgnore(root.path)) ?? undefined;
-
-        const filter = resolvePathFilter({
-          rootCerialIgnore,
-          folderCerialIgnore,
-          basePath: cwd,
-          schemaPath: root.path,
-        });
-
-        return generateSingleSchema({
-          schemaPath: root.path,
-          outputDir,
-          logLevel: options.log,
-          verbose: options.verbose,
-          clean: options.clean,
-          filter,
-        });
-      }
-
-      if (validRoots.length > 1) {
-        const entries: ResolvedSchemaEntry[] = validRoots.map(({ path: mp }) => {
-          const name = basename(mp);
-          const output = options.output ?? resolve(mp, 'client');
-
-          return {
-            name,
-            path: mp,
-            output,
-            clientClassName: toClientClassName(name),
-          };
-        });
-
-        // Check for duplicate names/outputs among discovered markers
-        validateCombinedEntries([], entries);
-
-        const filters = new Map<string, PathFilter>();
-        for (const root of validRoots) {
-          const name = basename(root.path);
-          const folderCerialIgnore = (await loadCerialIgnore(root.path)) ?? undefined;
-
-          const filter = resolvePathFilter({
-            rootCerialIgnore,
-            folderCerialIgnore,
-            basePath: cwd,
-            schemaPath: root.path,
-          });
-          filters.set(name, filter);
-        }
-
-        const multiResult = await generateMultiSchema(
-          entries,
-          {
-            logLevel: options.log,
-            verbose: options.verbose,
-            clean: options.clean,
-          },
-          filters,
-        );
-
-        const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
-
-        return { success: multiResult.success, files: allFiles, errors: multiResult.errors };
-      }
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
