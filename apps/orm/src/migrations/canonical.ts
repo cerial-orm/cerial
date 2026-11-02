@@ -126,6 +126,7 @@ export interface FieldInput {
   readonly default?: string | null;
   readonly defaultAlways?: boolean | null;
   readonly value?: string | null;
+  readonly computed?: string | null;
   readonly assert?: string | null;
   readonly readonly?: boolean | null;
   readonly flexible?: boolean | null;
@@ -139,6 +140,7 @@ export function buildFieldModel(input: FieldInput): FieldModel {
     ...(input.default != null && { default: canonicalExpression(input.default) }),
     ...(input.default != null && input.defaultAlways && { defaultAlways: true as const }),
     ...(input.value != null && { value: canonicalExpression(input.value) }),
+    ...(input.computed != null && { computed: canonicalExpression(input.computed) }),
     ...(input.assert != null && { assert: canonicalExpression(input.assert) }),
     ...(input.readonly && { readonly: true as const }),
     ...(input.flexible && { flexible: true as const }),

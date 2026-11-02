@@ -203,7 +203,7 @@ describe('buildDesiredSchema fixtures', () => {
     );
 
     expect(find(schema, 'bag', 'xs')?.value).toBe('IF $value THEN $value.distinct().sort(false) ELSE [] END');
-    expect(find(schema, 'bag', 'stamp')).toEqual({ path: ['stamp'], kind: 'datetime' });
+    expect(find(schema, 'bag', 'stamp')).toEqual({ path: ['stamp'], kind: 'datetime', computed: 'time::now()' });
   });
 
   test('relation fields produce no field and no index; unique, indexed and composite indexes are named', () => {

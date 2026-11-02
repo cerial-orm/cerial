@@ -28,6 +28,7 @@ interface FieldRow {
   readonly default?: string;
   readonly default_always?: boolean;
   readonly value?: string;
+  readonly computed?: string;
   readonly assert?: string;
   readonly readonly?: boolean;
   readonly flexible?: boolean;
@@ -127,6 +128,7 @@ function isImpliedElement(row: FieldRow, path: FieldPath, parents: ReadonlyMap<s
   return (
     row.default === undefined &&
     row.value === undefined &&
+    row.computed === undefined &&
     row.assert === undefined &&
     !row.readonly &&
     !row.flexible &&
@@ -150,6 +152,7 @@ function readTable(name: string, info: TableInfo, unmanaged: UnmanagedItem[]): T
         default: row.default,
         defaultAlways: row.default_always,
         value: row.value,
+        computed: row.computed,
         assert: row.assert,
         readonly: row.readonly,
         flexible: row.flexible,

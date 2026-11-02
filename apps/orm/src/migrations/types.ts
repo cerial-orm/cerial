@@ -18,6 +18,8 @@ export interface FieldModel {
   readonly default?: string;
   readonly defaultAlways?: true;
   readonly value?: string;
+  /** The `COMPUTED` expression of a `@now` field; the server stores no value for it. */
+  readonly computed?: string;
   readonly assert?: string;
   readonly readonly?: true;
   readonly flexible?: true;

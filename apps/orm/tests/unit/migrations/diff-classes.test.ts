@@ -74,6 +74,8 @@ describe('data-loss and destructive classes', () => {
     ['assert', {}, { assert: '$value > 0' }],
     ['readonly', { readonly: true }, {}],
     ['flexible', { flexible: true }, {}],
+    ['computed', { computed: 'time::now()' }, {}],
+    ['computed', { computed: 'time::now()' }, { computed: 'time::now() + 1d' }],
   ])('a changed %s option is destructive', (attribute, desired, live) => {
     const found = one(
       schema([table('t', [field('a', 'string', desired)])]),

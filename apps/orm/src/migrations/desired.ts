@@ -43,7 +43,7 @@ function fieldModel(
   path: string,
   kind: string,
   decorators: Decorators,
-  extra: { value?: string; assert?: string; readonly?: boolean; flexible?: boolean } = {},
+  extra: { value?: string; computed?: string; assert?: string; readonly?: boolean; flexible?: boolean } = {},
 ): FieldModel {
   const clause = generateDefaultClause(
     decorators.timestampDecorator,
@@ -238,7 +238,14 @@ function topLevelField(
     objectHasCycles(field.objectInfo.objectName, context.objectRegistry);
 
   if (generateComputedClause(field.timestampDecorator)) {
-    fields.push(fieldModel(field.name, 'datetime', {}));
+    fields.push(
+      fieldModel(
+        field.name,
+        'datetime',
+        {},
+        { computed: withoutPrefix(generateComputedClause(field.timestampDecorator), 'COMPUTED ') },
+      ),
+    );
   } else {
     fields.push(
       fieldModel(

@@ -111,6 +111,13 @@ describe('canonicalExpression', () => {
 });
 
 describe('buildFieldModel', () => {
+  test('a computed expression is carried, and a changed one is a different model', () => {
+    const a = buildFieldModel({ path: ['t'], kind: 'datetime', computed: 'time::now()' });
+    expect(a.computed).toBe('time::now()');
+    expect(buildFieldModel({ path: ['t'], kind: 'datetime', computed: 'time::now() + 1d' })).not.toEqual(a);
+    expect(buildFieldModel({ path: ['t'], kind: 'datetime' })).not.toEqual(a);
+  });
+
   test('a bare field has only path and kind, no null keys', () => {
     const model = buildFieldModel({ path: ['plain'], kind: 'string' });
     expect(Object.keys(model).sort()).toEqual(['kind', 'path']);
