@@ -47,6 +47,24 @@ const _FormatConfigSchema = v.looseObject({
   blankLineBeforeDirectives: v.optional(v.unknown()),
 });
 
+const ConnectionSchema = v.looseObject(
+  {
+    url: v.pipe(v.string("'connection.url' must be a string"), v.minLength(1, "'connection.url' must not be empty")),
+    namespace: v.optional(v.string("'connection.namespace' must be a string")),
+    database: v.optional(v.string("'connection.database' must be a string")),
+    auth: v.optional(
+      v.looseObject(
+        {
+          username: v.string("'connection.auth.username' must be a string"),
+          password: v.string("'connection.auth.password' must be a string"),
+        },
+        "'connection.auth' must be an object",
+      ),
+    ),
+  },
+  "'connection' must be an object",
+);
+
 const JsIdentifierSchema = v.pipe(
   v.string("'name' must be a string"),
   v.regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "'name' must be a valid JavaScript identifier"),
@@ -66,7 +84,7 @@ const SchemaEntrySchema = v.looseObject({
     ),
   ),
   output: v.optional(v.string()),
-  connection: v.optional(v.looseObject({})),
+  connection: v.optional(ConnectionSchema),
   format: v.optional(_FormatConfigSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
@@ -77,7 +95,7 @@ const CerialConfigSchema = v.looseObject({
   schema: v.optional(v.string()),
   schemas: v.optional(v.record(v.string(), SchemaEntrySchema)),
   output: v.optional(v.string()),
-  connection: v.optional(v.looseObject({})),
+  connection: v.optional(ConnectionSchema),
   format: v.optional(_FormatConfigSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
@@ -87,7 +105,7 @@ const CerialConfigSchema = v.looseObject({
 const FolderConfigSchema = v.looseObject({
   name: v.optional(JsIdentifierSchema),
   output: v.optional(v.string("'output' must be a string")),
-  connection: v.optional(v.looseObject({}, "'connection' must be an object")),
+  connection: v.optional(ConnectionSchema),
   format: v.optional(_FormatConfigSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
