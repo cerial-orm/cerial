@@ -192,4 +192,9 @@ describe('parseMigrateArgs', () => {
   it('refuses a boolean flag given a value', () => {
     expect(messageOf(() => parseMigrateArgs(['--allow-data-loss=yes']))).toContain('--allow-data-loss');
   });
+
+  it('accepts -C as the short form of --config', () => {
+    expect(parseMigrateArgs(['-C', 'cerial.config.json']).flags.config).toBe('cerial.config.json');
+    expect(parseMigrateArgs(['-Ccerial.config.json']).flags.config).toBe('cerial.config.json');
+  });
 });

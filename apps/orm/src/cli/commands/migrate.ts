@@ -1,4 +1,5 @@
 import { defineCommand, renderUsage } from 'citty';
+import { VALUE_FLAGS } from '../migrate/args';
 import type { MigrateEnv } from '../migrate/connection';
 import { migrateApply } from '../migrate/apply';
 import { migrateBaseline } from '../migrate/baseline';
@@ -102,6 +103,17 @@ const subCommands = {
   baseline: baselineCommand,
 };
 
+/** Index of the first argument that is neither a flag nor the value of one, so `--config x.json status` finds `status` */
+export function subcommandIndex(rawArgs: readonly string[]): number {
+  for (let i = 0; i < rawArgs.length; i++) {
+    const arg = rawArgs[i]!;
+    if (!arg.startsWith('-')) return i;
+    if (VALUE_FLAGS.has(arg)) i++;
+  }
+
+  return -1;
+}
+
 export const migrateCommand = defineCommand({
   meta: {
     name: 'migrate',
@@ -111,8 +123,14 @@ export const migrateCommand = defineCommand({
   // citty exits 1 for a missing or unknown subcommand, which `migrate status` already uses for drift.
   // A usage error is exit 2 here, so the name is checked before citty dispatches.
   async setup({ rawArgs, cmd }) {
-    const name = rawArgs.find((arg) => !arg.startsWith('-'));
-    if (name !== undefined && name in subCommands) return;
+    const at = subcommandIndex(rawArgs);
+    const name = rawArgs[at];
+    if (name !== undefined && name in subCommands) {
+      // citty takes the first argument without a dash as the subcommand, which is the value of a leading
+      // `--config x.json`; moving the name to the front, in the array citty reads next, makes it find the right one
+      rawArgs.splice(0, at + 1, name, ...rawArgs.slice(0, at));
+      return;
+    }
 
     process.stderr.write(join(await renderUsage(cmd), '\n\n'));
     process.stderr.write(join(name === undefined ? 'No command specified.' : join('Unknown command ', name), '\n'));

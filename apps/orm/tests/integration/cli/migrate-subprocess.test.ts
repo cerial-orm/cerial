@@ -327,3 +327,47 @@ describe('cerial migrate with no subcommand (subprocess)', () => {
     expect(result.stderr).toContain('status');
   });
 });
+
+describe('cerial migrate flag placement (subprocess)', () => {
+  it('finds the subcommand after a flag with a value, in either order', async () => {
+    const dir = await project(NOTE);
+    const { env } = await scratch('order');
+    expect((await runCli(dir, env, 'migrate', 'apply', '--from-schema')).code).toBe(0);
+
+    const after = await runCli(dir, env, 'migrate', 'status', '--name', 'schemas');
+    const before = await runCli(dir, env, 'migrate', '--name', 'schemas', 'status');
+
+    expect(after.code).toBe(0);
+    expect(before.code).toBe(0);
+    expect(before.stdout).toBe(after.stdout);
+    expect(before.stderr).not.toContain('Unknown command');
+  });
+
+  it('reads the value of -C and --config before the subcommand as a value', async () => {
+    const dir = await project(NOTE);
+    const { env } = await scratch('config');
+    await Bun.write(join(dir, 'cerial.config.json'), '{ "schema": "./schemas" }\n');
+    expect((await runCli(dir, env, 'migrate', 'apply', '--from-schema')).code).toBe(0);
+
+    for (const args of [
+      ['migrate', '-C', 'cerial.config.json', 'status'],
+      ['migrate', '--config', 'cerial.config.json', 'status'],
+      ['migrate', '--config=cerial.config.json', 'status'],
+      ['migrate', 'status', '-C', 'cerial.config.json'],
+    ]) {
+      const result = await runCli(dir, env, ...args);
+
+      expect(result.stderr).not.toContain('Unknown command');
+      expect(result.code).toBe(0);
+    }
+  });
+
+  it('still reports an unknown subcommand after a flag with a value, exit 2', async () => {
+    const dir = await project(NOTE);
+
+    const result = await runCli(dir, {}, 'migrate', '--name', 'schemas', 'nonsense');
+
+    expect(result.code).toBe(2);
+    expect(result.stderr).toContain('Unknown command nonsense');
+  });
+});

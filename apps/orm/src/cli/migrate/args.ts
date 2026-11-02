@@ -1,6 +1,7 @@
 import { parseArgs } from 'node:util';
 import * as v from 'valibot';
 import { CerialValidationError } from '../../errors';
+import { join } from './shared';
 
 const NonEmpty = (message: string) => v.pipe(v.string(message), v.trim(), v.minLength(1, message));
 
@@ -41,12 +42,25 @@ export interface ParsedMigrateArgs {
 
 const BOOLEAN_FLAGS = ['json', 'from-schema', 'allow-destructive', 'allow-data-loss', 'accept-drift'] as const;
 const KNOWN_FLAGS = new Set(Object.keys(MigrateArgsSchema.entries));
+const SHORT_FLAGS: Readonly<Record<string, string>> = { config: 'C' };
 // Declared so `--url value` takes its value; an undeclared flag would parse as a boolean and orphan the value
 const OPTIONS = Object.fromEntries(
   [...KNOWN_FLAGS].map((flag) => [
     flag,
-    { type: (BOOLEAN_FLAGS as readonly string[]).includes(flag) ? 'boolean' : 'string' } as const,
+    {
+      type: (BOOLEAN_FLAGS as readonly string[]).includes(flag) ? 'boolean' : 'string',
+      ...(SHORT_FLAGS[flag] ? { short: SHORT_FLAGS[flag] } : {}),
+    } as const,
   ]),
+);
+
+/** The flags that take a value, as they are written on the command line, so a caller can tell a value from a subcommand */
+export const VALUE_FLAGS: ReadonlySet<string> = new Set(
+  [...KNOWN_FLAGS].flatMap((flag) =>
+    (BOOLEAN_FLAGS as readonly string[]).includes(flag)
+      ? []
+      : [join('--', flag), ...(SHORT_FLAGS[flag] ? [join('-', SHORT_FLAGS[flag])] : [])],
+  ),
 );
 
 /**
