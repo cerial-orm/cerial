@@ -1,5 +1,6 @@
 import { defineCommand } from 'citty';
 import type { MigrateEnv } from '../migrate/connection';
+import { migrateApply } from '../migrate/apply';
 import { migratePlan } from '../migrate/plan-file';
 import { migrateStatus } from '../migrate/status';
 
@@ -47,6 +48,29 @@ const planCommand = defineCommand({
   },
 });
 
+const applyCommand = defineCommand({
+  meta: {
+    name: 'apply',
+    description:
+      'Apply the pending changes. Additive changes need no flag; destructive ones need --allow-destructive, and removing a table also --allow-data-loss. On the memory backend a failed apply rolls back; other backends are not yet measured',
+  },
+  args: {
+    ...connectionArgs,
+    'from-schema': { type: 'boolean', description: 'Diff the live database against the schema and apply the result' },
+    'allow-destructive': { type: 'boolean', description: 'Allow changes that can invalidate or remove data' },
+    'allow-data-loss': {
+      type: 'boolean',
+      description: 'Allow removing a table with its rows (with --allow-destructive)',
+    },
+  },
+  async run({ rawArgs }) {
+    const result = await migrateApply({ argv: rawArgs, env: process.env as MigrateEnv });
+    if (result.stdout) process.stdout.write(result.stdout);
+    if (result.stderr) process.stderr.write(result.stderr);
+    process.exit(result.exitCode);
+  },
+});
+
 export const migrateCommand = defineCommand({
   meta: {
     name: 'migrate',
@@ -55,5 +79,6 @@ export const migrateCommand = defineCommand({
   subCommands: {
     status: statusCommand,
     plan: planCommand,
+    apply: applyCommand,
   },
 });
