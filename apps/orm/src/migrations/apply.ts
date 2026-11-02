@@ -48,7 +48,9 @@ export interface ApplyResult {
 }
 
 // What the other statements of an aborted transaction answer; only the statement that caused it carries its own error.
-const GENERIC_FAILURE = /not executed due to a (?:failed|cancelled) transaction|Cannot COMMIT/i;
+// A COMMIT that fails on its own (a write conflict) answers differently and is the cause, not noise.
+const GENERIC_FAILURE =
+  /not executed due to a (?:failed|cancelled) transaction|Cannot COMMIT: the transaction was aborted/i;
 
 /** A statement the plan carries as a `--` comment is not run, the way a file apply skips it. */
 const isCommented = (statement: string): boolean => statement.trimStart().startsWith('--');
@@ -69,7 +71,9 @@ function reportFailure(
   responses: readonly { success: boolean; error?: { message: string } }[],
   statements: readonly string[],
 ): CerialMigrationError {
-  // The first response answers BEGIN, so the statement behind response n is statement n - 1.
+  // The first response answers BEGIN, so the statement behind response n is statement n - 1. A failure past the last
+  // statement is COMMIT's own (a write conflict, say): the transaction is to blame, no statement, and the whole
+  // batch is rolled back.
   const index = responses.findIndex((r) => !r.success && !GENERIC_FAILURE.test(r.error?.message ?? ''));
   const message = responses[index]?.error?.message ?? 'the transaction failed and was rolled back';
   const ddl = statements[index - 1];
