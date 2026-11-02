@@ -39,3 +39,4 @@ export {
   type SchemaStateInput,
   type StatePiece,
 } from './state';
+export { acquireLease, buildHolderCheck, withLease, type LeaseOptions, type MigrationLease } from './lease';
