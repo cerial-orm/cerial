@@ -143,7 +143,7 @@ describe('what the file holds', () => {
     await db.query('DEFINE TABLE gone SCHEMALESS').collect();
     await db.query('CREATE gone:1').collect();
     await writeSchemaState(db, {
-      schemaName: target!.entries[0]!,
+      schemaName: target!.entryModels[0]!.schemaName,
       fingerprint: 'x',
       statements: [],
       managedTables: ['note', 'gone'],
@@ -169,7 +169,7 @@ describe('hostile names stay inside their comment', () => {
     await db.query(`DEFINE TABLE ${table} SCHEMALESS`).collect();
     await db.query('REMOVE FIELD body ON TABLE note').collect();
     await writeSchemaState(db, {
-      schemaName: target!.entries[0]!,
+      schemaName: target!.entryModels[0]!.schemaName,
       fingerprint: 'x',
       statements: [],
       managedTables: ['note', `t${raw}REMOVE TABLE victim;`],

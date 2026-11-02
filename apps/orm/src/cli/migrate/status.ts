@@ -83,7 +83,7 @@ async function statusOfTarget(target: MigrateTarget): Promise<TargetStatus> {
     const managedTables = new Set<string>();
     // readState creates nothing: a database without state tables reads as no managed tables
     for (const entry of target.entryModels) {
-      const state = await readState(surreal, entry.name);
+      const state = await readState(surreal, entry.schemaName);
       for (const table of state.schema?.managedTables ?? []) managedTables.add(table);
     }
 

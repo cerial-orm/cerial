@@ -143,7 +143,7 @@ async function planTarget(target: MigrateTarget): Promise<{ plan: MigrationPlan;
     const live = await readLiveSchema(surreal);
     const managedTables = new Set<string>();
     for (const entry of target.entryModels) {
-      const state = await readState(surreal, entry.name);
+      const state = await readState(surreal, entry.schemaName);
       for (const table of state.schema?.managedTables ?? []) managedTables.add(table);
     }
     const differences = diffSchema(target.desired, live, { managedTables });

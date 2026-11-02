@@ -4,7 +4,7 @@ import { generateRegistryDefineStatements } from '../../generators/migrations';
 import { buildDesiredSchema, fingerprint, schemaFingerprint } from '../../migrations';
 import type { SchemaModel } from '../../migrations';
 import type { ConnectionConfig, SchemaAST } from '../../types';
-import { loadConfig, resolveConfig } from '../config';
+import { loadConfig, resolveConfig, toClientClassName } from '../config';
 import { applyFolderOverridesAndDiscover } from '../discovery';
 import { discoverSchemaRoots } from '../discover-roots';
 import type { PathFilter } from '../filters';
@@ -37,6 +37,16 @@ export interface MigrateEntryDesired {
   readonly desired: SchemaModel;
   /** The generated `DEFINE` statements the desired model was built from, which a plan writes out */
   readonly statements: readonly string[];
+  /** The name the generated client keeps this entry's state under: its client class name */
+  readonly schemaName: string;
+  /** Each model as the generated client knows it, in registry order: the state row key and its fingerprint */
+  readonly models: readonly MigrateEntryModel[];
+}
+
+export interface MigrateEntryModel {
+  readonly name: string;
+  readonly table: string;
+  readonly fingerprint: string;
 }
 
 export interface MigrateTarget {
@@ -60,11 +70,18 @@ export interface MigrateTarget {
 }
 
 /** Build the desired model from the same metadata `generate` hands its generators, so the two cannot drift */
-function desiredOf(ast: SchemaAST): { desired: SchemaModel; statements: string[] } {
+function desiredOf(ast: SchemaAST): { desired: SchemaModel; statements: string[]; models: MigrateEntryModel[] } {
   const { modelRegistry, objectRegistry, tupleRegistry, literalRegistry } = buildSchemaMetadata(ast);
+  const desired = buildDesiredSchema(modelRegistry, objectRegistry, tupleRegistry, literalRegistry);
 
   return {
-    desired: buildDesiredSchema(modelRegistry, objectRegistry, tupleRegistry, literalRegistry),
+    desired,
+    // The generator pairs the registry's keys with the desired tables by position; so does this
+    models: Object.keys(modelRegistry).map((name, index) => ({
+      name,
+      table: desired.tables[index]!.name,
+      fingerprint: fingerprint(desired.tables[index]!),
+    })),
     statements: generateRegistryDefineStatements(
       modelRegistry,
       undefined,
@@ -78,6 +95,7 @@ function desiredOf(ast: SchemaAST): { desired: SchemaModel; statements: string[]
 
 interface SchemaSource {
   readonly name: string;
+  readonly clientClassName: string;
   readonly connection?: ConnectionConfig;
   readonly explicitDatabase?: string;
   readonly ast: Parameters<typeof buildResolvedSchemaAst>[0];
@@ -98,6 +116,7 @@ async function resolveSources(configPath: string | undefined, cwd: string): Prom
 
     return entries.map((entry) => ({
       name: entry.name,
+      clientClassName: entry.clientClassName,
       connection: entry.connection,
       explicitDatabase: entry.explicitDatabase,
       ast: { ...schemaSource(entry, configDir), filter: filters.get(entry.name) },
@@ -106,12 +125,16 @@ async function resolveSources(configPath: string | undefined, cwd: string): Prom
 
   const found = await discoverSchemaRoots(cwd);
   if (found) {
-    return found.roots.map((root) => ({ name: root.name, ast: { schemaPath: root.dir, filter: root.filter } }));
+    return found.roots.map((root) => ({
+      name: root.name,
+      clientClassName: toClientClassName(root.name),
+      ast: { schemaPath: root.dir, filter: root.filter },
+    }));
   }
 
   const legacyFilter: PathFilter | undefined = await buildRootFilter(cwd);
 
-  return [{ name: 'default', ast: { filter: legacyFilter } }];
+  return [{ name: 'default', clientClassName: 'CerialClient', ast: { filter: legacyFilter } }];
 }
 
 /**
@@ -174,7 +197,7 @@ export async function loadDesired(options: LoadDesiredOptions): Promise<MigrateT
     // Credentials are left out of the key: the same database under two logins is still one database
     const key = JSON.stringify([connection.url, connection.namespace, connection.database]);
     const group = groups.get(key) ?? { connection, entries: [] };
-    group.entries.push({ name: source.name, ...desiredOf(ast) });
+    group.entries.push({ name: source.name, schemaName: source.clientClassName, ...desiredOf(ast) });
     groups.set(key, group);
   }
 
