@@ -157,7 +157,7 @@ async function planTarget(target: MigrateTarget): Promise<{ plan: MigrationPlan;
 export async function migratePlan(options: PlanOptions): Promise<PlanResult> {
   const cwd = options.cwd ?? process.cwd();
   try {
-    const { flags } = parseMigrateArgs(options.argv);
+    const { flags } = parseMigrateArgs(options.argv, 'plan');
     const targets = await withLogsOnStderr(() => loadDesired({ flags, env: options.env, cwd }));
     const dir = await ensureOutDir(flags.out, cwd);
     const stamp = timestamp((options.now ?? (() => new Date()))());

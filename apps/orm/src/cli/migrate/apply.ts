@@ -416,9 +416,9 @@ export async function migrateApply(options: ApplyOptions): Promise<ApplyResult> 
   });
 
   try {
-    const { flags, positionals } = parseMigrateArgs(options.argv);
+    const { flags, positionals } = parseMigrateArgs(options.argv, 'apply');
     const file = positionals[0];
-    if (positionals.length > 1 || Boolean(flags['from-schema']) === (file !== undefined)) {
+    if (Boolean(flags['from-schema']) === (file !== undefined)) {
       throw new CerialValidationError('migrate apply needs either --from-schema or one plan file.');
     }
     const parsed = file === undefined ? undefined : await readPlanFile(file, options.cwd);

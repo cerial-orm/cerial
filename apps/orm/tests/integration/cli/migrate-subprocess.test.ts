@@ -370,4 +370,18 @@ describe('cerial migrate flag placement (subprocess)', () => {
     expect(result.code).toBe(2);
     expect(result.stderr).toContain('Unknown command nonsense');
   });
+
+  it('refuses a flag or argument the subcommand does not take, exit 2, without writing', async () => {
+    const dir = await project(NOTE);
+    const { env } = await scratch('foreign');
+
+    const plan = await runCli(dir, env, 'migrate', 'plan', './out');
+    const drift = await runCli(dir, env, 'migrate', 'apply', '--from-schema', '--accept-drift');
+
+    expect(plan.code).toBe(2);
+    expect(plan.stderr).toContain('migrate plan takes no arguments');
+    expect(drift.code).toBe(2);
+    expect(drift.stderr).toContain('migrate apply does not take --accept-drift');
+    expect(await Bun.file(join(dir, 'cerial', 'migrations')).exists()).toBe(false);
+  });
 });

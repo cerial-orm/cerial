@@ -129,7 +129,7 @@ function render(targets: readonly TargetStatus[]): string {
  */
 export async function migrateStatus(options: StatusOptions): Promise<StatusResult> {
   try {
-    const { flags } = parseMigrateArgs(options.argv);
+    const { flags } = parseMigrateArgs(options.argv, 'status');
     const targets = await withLogsOnStderr(() => loadDesired({ flags, env: options.env, cwd: options.cwd }));
     const statuses: TargetStatus[] = [];
     for (const target of targets) statuses.push(await statusOfTarget(target));

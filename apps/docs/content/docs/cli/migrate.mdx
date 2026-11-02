@@ -59,7 +59,7 @@ bunx cerial migrate status
 
 ## Flags
 
-Every subcommand accepts these. A flag the command does not know is refused by name, so a typo in `--allow-destructive` cannot silently run a migration you meant to authorise or hold back.
+Every subcommand accepts these. A flag the command does not know is refused by name, so a typo in `--allow-destructive` cannot silently run a migration you meant to authorise or hold back. So is a flag that belongs to another subcommand, and an argument the subcommand does not take.
 
 | Flag | Description |
 |---|---|
@@ -74,7 +74,7 @@ Each subcommand adds its own flags, listed under it below.
 
 ## Exit codes
 
-CI reads these. A usage error (an unknown or missing subcommand, an unknown flag) is always 2.
+CI reads these. A usage error (an unknown or missing subcommand, an unknown flag, a flag or argument the subcommand does not take) is always 2.
 
 | Command | 0 | 1 | 2 |
 |---|---|---|---|

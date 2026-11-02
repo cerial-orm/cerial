@@ -147,8 +147,7 @@ export async function migrateBaseline(options: BaselineOptions): Promise<Baselin
   });
 
   try {
-    const { flags, positionals } = parseMigrateArgs(options.argv);
-    if (positionals.length) throw new Error('migrate baseline takes no arguments.');
+    const { flags } = parseMigrateArgs(options.argv, 'baseline');
     const targets = await withLogsOnStderr(() => loadDesired({ flags, env: options.env, cwd: options.cwd }));
     const checked: CheckedTarget[] = [];
     for (const target of targets) checked.push(await checkTarget(target));

@@ -153,48 +153,70 @@ describe('resolveMigrateConnection refusals', () => {
 
 describe('parseMigrateArgs', () => {
   it('parses connection flags, booleans and positionals', () => {
-    const { flags, positionals } = parseMigrateArgs([
-      'plan.surql',
-      '--url',
-      'http://127.0.0.1:8000',
-      '--namespace=main',
-      '--allow-destructive',
-    ]);
+    const { flags, positionals } = parseMigrateArgs(
+      ['plan.surql', '--url', 'http://127.0.0.1:8000', '--namespace=main', '--allow-destructive'],
+      'apply',
+    );
 
     expect(flags).toEqual({ url: 'http://127.0.0.1:8000', namespace: 'main', 'allow-destructive': true });
     expect(positionals).toEqual(['plan.surql']);
   });
 
   it('refuses a url that is not a url, naming --url', () => {
-    expect(() => parseMigrateArgs(['--url', 'nonsense'])).toThrow(CerialValidationError);
-    expect(messageOf(() => parseMigrateArgs(['--url', 'nonsense']))).toContain('--url');
+    expect(() => parseMigrateArgs(['--url', 'nonsense'], 'apply')).toThrow(CerialValidationError);
+    expect(messageOf(() => parseMigrateArgs(['--url', 'nonsense'], 'apply'))).toContain('--url');
   });
 
   it('refuses a url with a non-database scheme', () => {
-    expect(messageOf(() => parseMigrateArgs(['--url', 'file:///etc/passwd']))).toContain('--url');
+    expect(messageOf(() => parseMigrateArgs(['--url', 'file:///etc/passwd'], 'apply'))).toContain('--url');
   });
 
   it('refuses a value-less connection flag, naming it', () => {
-    expect(messageOf(() => parseMigrateArgs(['--namespace']))).toContain('--namespace');
-    expect(messageOf(() => parseMigrateArgs(['--database=']))).toContain('--database');
+    expect(messageOf(() => parseMigrateArgs(['--namespace'], 'apply'))).toContain('--namespace');
+    expect(messageOf(() => parseMigrateArgs(['--database='], 'apply'))).toContain('--database');
   });
 
   it('refuses a misspelled flag by name instead of dropping it', () => {
-    expect(() => parseMigrateArgs(['--allow-destrucive'])).toThrow(CerialValidationError);
-    expect(messageOf(() => parseMigrateArgs(['--allow-destrucive']))).toContain('--allow-destrucive');
+    expect(() => parseMigrateArgs(['--allow-destrucive'], 'apply')).toThrow(CerialValidationError);
+    expect(messageOf(() => parseMigrateArgs(['--allow-destrucive'], 'apply'))).toContain('--allow-destrucive');
   });
 
   it('refuses a password flag', () => {
-    expect(messageOf(() => parseMigrateArgs(['--password', 'secretvalue']))).not.toContain('secretvalue');
-    expect(() => parseMigrateArgs(['--password', 'secretvalue'])).toThrow(CerialValidationError);
+    expect(messageOf(() => parseMigrateArgs(['--password', 'secretvalue'], 'apply'))).not.toContain('secretvalue');
+    expect(() => parseMigrateArgs(['--password', 'secretvalue'], 'apply')).toThrow(CerialValidationError);
   });
 
   it('refuses a boolean flag given a value', () => {
-    expect(messageOf(() => parseMigrateArgs(['--allow-data-loss=yes']))).toContain('--allow-data-loss');
+    expect(messageOf(() => parseMigrateArgs(['--allow-data-loss=yes'], 'apply'))).toContain('--allow-data-loss');
   });
 
   it('accepts -C as the short form of --config', () => {
-    expect(parseMigrateArgs(['-C', 'cerial.config.json']).flags.config).toBe('cerial.config.json');
-    expect(parseMigrateArgs(['-Ccerial.config.json']).flags.config).toBe('cerial.config.json');
+    expect(parseMigrateArgs(['-C', 'cerial.config.json'], 'status').flags.config).toBe('cerial.config.json');
+    expect(parseMigrateArgs(['-Ccerial.config.json'], 'plan').flags.config).toBe('cerial.config.json');
+  });
+
+  it('refuses a flag that exists but belongs to another subcommand, naming it and the command', () => {
+    expect(messageOf(() => parseMigrateArgs(['--accept-drift'], 'apply'))).toBe(
+      'migrate apply does not take --accept-drift.',
+    );
+    expect(messageOf(() => parseMigrateArgs(['--out', './x'], 'status'))).toContain('--out');
+    expect(messageOf(() => parseMigrateArgs(['--json'], 'plan'))).toContain('--json');
+    expect(messageOf(() => parseMigrateArgs(['--from-schema'], 'baseline'))).toContain('--from-schema');
+    expect(messageOf(() => parseMigrateArgs(['--allow-data-loss'], 'status'))).toContain('--allow-data-loss');
+  });
+
+  it('accepts each subcommand its own flags', () => {
+    expect(parseMigrateArgs(['--json'], 'status').flags.json).toBe(true);
+    expect(parseMigrateArgs(['--out', './x'], 'plan').flags.out).toBe('./x');
+    expect(parseMigrateArgs(['--accept-drift'], 'baseline').flags['accept-drift']).toBe(true);
+    expect(parseMigrateArgs(['--from-schema', '--allow-destructive'], 'apply').flags['from-schema']).toBe(true);
+  });
+
+  it('refuses a positional the subcommand does not take, but lets apply take its plan file', () => {
+    expect(messageOf(() => parseMigrateArgs(['./out'], 'plan'))).toBe('migrate plan takes no arguments.');
+    expect(messageOf(() => parseMigrateArgs(['x'], 'status'))).toContain('no arguments');
+    expect(messageOf(() => parseMigrateArgs(['x'], 'baseline'))).toContain('no arguments');
+    expect(parseMigrateArgs(['plan.surql'], 'apply').positionals).toEqual(['plan.surql']);
+    expect(messageOf(() => parseMigrateArgs(['a.surql', 'b.surql'], 'apply'))).toContain('one argument');
   });
 });

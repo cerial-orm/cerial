@@ -63,14 +63,28 @@ export const VALUE_FLAGS: ReadonlySet<string> = new Set(
   ),
 );
 
+export type MigrateCommand = 'status' | 'plan' | 'apply' | 'baseline';
+
+const CONNECTION_FLAGS = ['url', 'namespace', 'database', 'username', 'name', 'config'];
+const COMMAND_FLAGS: Readonly<Record<MigrateCommand, ReadonlySet<string>>> = {
+  status: new Set([...CONNECTION_FLAGS, 'json']),
+  plan: new Set([...CONNECTION_FLAGS, 'out']),
+  apply: new Set([...CONNECTION_FLAGS, 'from-schema', 'allow-destructive', 'allow-data-loss']),
+  baseline: new Set([...CONNECTION_FLAGS, 'accept-drift']),
+};
+/** Only `apply` takes an argument: the plan file */
+const COMMAND_POSITIONALS: Readonly<Record<MigrateCommand, number>> = { status: 0, plan: 0, apply: 1, baseline: 0 };
+
 /**
  * Parse the flags of a `migrate` subcommand from raw argv.
  *
  * An unknown flag is refused by name: dropping `--allow-destrucive` silently would run a migration the
  * operator believed was authorised, or not authorised, in a way they did not intend. Every message
- * names the flag at fault and never echoes a value other than the flag name.
+ * names the flag at fault and never echoes a value other than the flag name. A flag or argument that exists
+ * but belongs to another subcommand is refused too: `migrate plan ./out` writing to the default directory, or
+ * `apply --accept-drift` being ignored, would each leave the operator believing something that did not happen.
  */
-export function parseMigrateArgs(argv: readonly string[]): ParsedMigrateArgs {
+export function parseMigrateArgs(argv: readonly string[], command: MigrateCommand): ParsedMigrateArgs {
   const { values, positionals } = parseArgs({
     args: [...argv],
     options: OPTIONS,
@@ -82,6 +96,18 @@ export function parseMigrateArgs(argv: readonly string[]): ParsedMigrateArgs {
   if (unknown.length) {
     throw new CerialValidationError(
       `Unknown migrate ${unknown.length > 1 ? 'flags' : 'flag'} ${unknown.map((key) => `--${key}`).join(', ')}.`,
+    );
+  }
+
+  const foreign = Object.keys(values).filter((key) => !COMMAND_FLAGS[command].has(key));
+  if (foreign.length) {
+    throw new CerialValidationError(`migrate ${command} does not take ${foreign.map((key) => `--${key}`).join(', ')}.`);
+  }
+  if (positionals.length > COMMAND_POSITIONALS[command]) {
+    throw new CerialValidationError(
+      COMMAND_POSITIONALS[command]
+        ? `migrate ${command} takes one argument, the plan file.`
+        : `migrate ${command} takes no arguments.`,
     );
   }
 
