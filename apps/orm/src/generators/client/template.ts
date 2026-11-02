@@ -436,12 +436,14 @@ ${generateResolveConnection(connectConfigName, databasePins)}
       // Not being connected is a state, not a DDL verdict: the next query may succeed.
       if (error instanceof CerialNotConnectedError) throw error;
 
+      // A migration error from below already names the failing statement and wraps the driver's error; keep both rather than nesting it.
+      const inner = error instanceof CerialMigrationError ? error : undefined;
       const failures = (blameModels(error, migrationContext, all) as ModelName[]).map(name => {
         const failure = new CerialMigrationError(\`Migration of \${name} failed: \${error instanceof Error ? error.message : String(error)}\`, {
           model: name,
           operation: 'migrate',
-          statement: { text: getModelMigrationQuery(name), vars: {} },
-          cause: error,
+          statement: inner?.statement ?? { text: getModelMigrationQuery(name), vars: {} },
+          cause: inner ? (inner.cause ?? inner) : error,
         });
         this._failedMigrations.set(name, failure);
 
