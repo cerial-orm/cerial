@@ -1,6 +1,7 @@
 import { defineCommand } from 'citty';
 import type { MigrateEnv } from '../migrate/connection';
 import { migrateApply } from '../migrate/apply';
+import { migrateBaseline } from '../migrate/baseline';
 import { migratePlan } from '../migrate/plan-file';
 import { migrateStatus } from '../migrate/status';
 
@@ -72,6 +73,27 @@ const applyCommand = defineCommand({
   },
 });
 
+const baselineCommand = defineCommand({
+  meta: {
+    name: 'baseline',
+    description:
+      'Record the live schema as applied without running any DDL; only migration state is written. Refuses when the live schema differs from the schema files unless --accept-drift is passed. Tables the schema does not declare stay unmanaged',
+  },
+  args: {
+    ...connectionArgs,
+    'accept-drift': {
+      type: 'boolean',
+      description: 'Record the schema as applied although the live schema differs, listing what differs',
+    },
+  },
+  async run({ rawArgs }) {
+    const result = await migrateBaseline({ argv: rawArgs, env: process.env as MigrateEnv });
+    if (result.stdout) process.stdout.write(result.stdout);
+    if (result.stderr) process.stderr.write(result.stderr);
+    process.exit(result.exitCode);
+  },
+});
+
 export const migrateCommand = defineCommand({
   meta: {
     name: 'migrate',
@@ -81,5 +103,6 @@ export const migrateCommand = defineCommand({
     status: statusCommand,
     plan: planCommand,
     apply: applyCommand,
+    baseline: baselineCommand,
   },
 });

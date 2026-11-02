@@ -28,6 +28,7 @@ const MigrateArgsSchema = v.object({
   'from-schema': v.optional(v.boolean('--from-schema takes no value')),
   'allow-destructive': v.optional(v.boolean('--allow-destructive takes no value')),
   'allow-data-loss': v.optional(v.boolean('--allow-data-loss takes no value')),
+  'accept-drift': v.optional(v.boolean('--accept-drift takes no value')),
 });
 
 export type MigrateArgs = v.InferOutput<typeof MigrateArgsSchema>;
@@ -38,7 +39,7 @@ export interface ParsedMigrateArgs {
   readonly positionals: readonly string[];
 }
 
-const BOOLEAN_FLAGS = ['json', 'from-schema', 'allow-destructive', 'allow-data-loss'] as const;
+const BOOLEAN_FLAGS = ['json', 'from-schema', 'allow-destructive', 'allow-data-loss', 'accept-drift'] as const;
 const KNOWN_FLAGS = new Set(Object.keys(MigrateArgsSchema.entries));
 // Declared so `--url value` takes its value; an undeclared flag would parse as a boolean and orphan the value
 const OPTIONS = Object.fromEntries(
