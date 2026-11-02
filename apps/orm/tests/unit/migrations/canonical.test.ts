@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { acceptsNone, buildFieldModel, canonicalExpression, canonicalType } from '../../../src/migrations';
+import { splitTopLevel } from '../../../src/migrations/canonical';
 
 describe('canonicalType', () => {
   test('option<string | null> and none | string | null are one form', () => {
@@ -233,5 +234,16 @@ describe('acceptsNone', () => {
     expect(acceptsNone('string | null')).toBe(false);
     expect(acceptsNone('[float, option<float>]')).toBe(false);
     expect(acceptsNone('array<option<string>>')).toBe(false);
+  });
+});
+
+describe('splitTopLevel', () => {
+  test('keeps a backticked name holding the separator whole', () => {
+    expect(splitTopLevel('array<{ `a,b`: int }>, 3', ',')).toEqual(['array<{ `a,b`: int }>', '3']);
+    expect(splitTopLevel('`x|y` | int', '|')).toEqual(['`x|y`', 'int']);
+  });
+
+  test('near miss: a separator inside brackets or single quotes stays too, and one outside splits', () => {
+    expect(splitTopLevel("a<b, c>, 'd,e', f", ',')).toEqual(['a<b, c>', "'d,e'", 'f']);
   });
 });

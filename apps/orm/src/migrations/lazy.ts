@@ -5,6 +5,7 @@ import { withLease } from './lease';
 import type { MigrationPlan } from './plan';
 import { type MigrationState, readState } from './state';
 import { bootstrapStateTables } from './state-tables';
+import { trimStatement } from './util';
 
 /** One model as the generated client knows it: no schema, only the DDL it would run and the fingerprint it should leave. */
 export interface LazyModel {
@@ -18,8 +19,6 @@ export interface LazyMigrationContext {
   readonly cerialVersion: string;
   readonly models: Readonly<Record<string, LazyModel>>;
 }
-
-const trimStatement = (text: string): string => text.trim().replace(/;+\s*$/, '');
 
 /** The requested models whose persisted `applied` row carries the fingerprint the client was generated with. */
 export function matchedModels(
@@ -39,11 +38,6 @@ export function readLazyState(surreal: Surreal, context: LazyMigrationContext): 
   return readState(surreal, context.schemaName);
 }
 
-/**
- * Brings the named models to their generated shape as one batch under the one database lease: state is re-read after
- * the lease is held, only the models still unmatched are applied, and the schema row only grows `managedTables`.
- * Returns the models that are in place afterwards (matched by another client, or applied here).
- */
 export interface ApplyUnmatchedOptions {
   /** Apply every named model whatever the persisted state says (a deploy step, or after a state reset). */
   readonly force?: boolean;
@@ -51,6 +45,11 @@ export interface ApplyUnmatchedOptions {
   readonly schemaFingerprint?: string;
 }
 
+/**
+ * Brings the named models to their generated shape as one batch under the one database lease: state is re-read after
+ * the lease is held, only the models still unmatched are applied, and the schema row only grows `managedTables`.
+ * Returns the models that are in place afterwards (matched by another client, or applied here).
+ */
 export async function applyUnmatched(
   surreal: Surreal,
   context: LazyMigrationContext,

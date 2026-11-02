@@ -2,6 +2,7 @@ import { Duration, RecordId, type Surreal } from 'surrealdb';
 import { CerialMigrationError } from '../errors';
 import { MIGRATION_LEASE_TABLE } from './state-tables';
 import type { StatePiece } from './state';
+import { describe } from './util';
 
 export interface LeaseOptions {
   /** How long a holder owns the lease without renewing it. Default 60 000. */
@@ -33,7 +34,6 @@ const leaseRecord = (): RecordId => new RecordId(MIGRATION_LEASE_TABLE, LEASE_ID
 const leaseDuration = (ms: number): Duration => new Duration([Math.max(1, Math.round(ms)), 'ms'].join(''));
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 const isConflict = (message: string): boolean => /conflict|retry/i.test(message);
-const describe = (cause: unknown): string => (cause instanceof Error ? cause.message : String(cause));
 
 interface Outcome {
   readonly ok: boolean;

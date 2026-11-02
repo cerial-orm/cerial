@@ -1,10 +1,8 @@
 import { CerialMigrationError } from '../errors';
 import type { SchemaDifference } from './diff';
 import { quoteFieldPath, quoteIdent } from './quote';
+import { isStateTable } from './state-tables';
 import type { FieldPath, SchemaModel, TableModel } from './types';
-
-/** Tables the migration subsystem keeps its own state in; no emitted statement may name one. */
-const STATE_TABLE_PREFIX = '_cerial_';
 
 const isPrefix = (prefix: FieldPath, path: FieldPath): boolean =>
   prefix.length <= path.length && prefix.every((segment, i) => JSON.stringify(segment) === JSON.stringify(path[i]));
@@ -12,7 +10,7 @@ const isPrefix = (prefix: FieldPath, path: FieldPath): boolean =>
 function requireTable(difference: SchemaDifference): string {
   const name = difference.table;
   if (name === undefined) throw new CerialMigrationError(`Cannot remove: '${difference.kind}' names no table.`);
-  if (name.startsWith(STATE_TABLE_PREFIX)) {
+  if (isStateTable(name)) {
     throw new CerialMigrationError(`Cannot remove anything of '${name}': migration state tables are never removed.`);
   }
 

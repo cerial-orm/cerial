@@ -12,6 +12,7 @@ import {
   type StatePiece,
 } from './state';
 import type { TableModel } from './types';
+import { describe, trimStatement } from './util';
 
 /** One model the plan converges: its table, and the table as the schema describes it, which the re-read is judged against. */
 export interface ApplyModel {
@@ -48,8 +49,6 @@ export interface ApplyResult {
 
 // What the other statements of an aborted transaction answer; only the statement that caused it carries its own error.
 const GENERIC_FAILURE = /not executed due to a (?:failed|cancelled) transaction|Cannot COMMIT/i;
-const trimStatement = (text: string): string => text.trim().replace(/;+\s*$/, '');
-const describe = (cause: unknown): string => (cause instanceof Error ? cause.message : String(cause));
 
 /** A statement the plan carries as a `--` comment is not run, the way a file apply skips it. */
 const isCommented = (statement: string): boolean => statement.trimStart().startsWith('--');

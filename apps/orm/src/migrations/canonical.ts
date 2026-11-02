@@ -32,7 +32,8 @@ function scan(text: string, separator: string): Scan {
   return { cuts, balanced: !quote && !stack.length };
 }
 
-function split(text: string, separator: string): string[] {
+/** Splits `text` at `separator` where no bracket or quote (`'`, `"`, backtick) is open. */
+export function splitTopLevel(text: string, separator: string): string[] {
   const { cuts } = scan(text, separator);
   const parts: string[] = [];
   let from = 0;
@@ -53,17 +54,17 @@ const OBJECT_LITERAL = /^\{([\s\S]*)\}$/;
 
 function members(text: string): string[] {
   const result: string[] = [];
-  for (const member of split(text, '|')) {
+  for (const member of splitTopLevel(text, '|')) {
     const generic = GENERIC.exec(member);
     if (generic && generic[1]!.toLowerCase() === 'option') {
       result.push(...members(generic[2]!));
       result.push('none');
     } else if (generic) {
-      const inner = split(generic[2]!, ',').map(canonicalMembers);
+      const inner = splitTopLevel(generic[2]!, ',').map(canonicalMembers);
       result.push(`${generic[1]}<${inner.join(', ')}>`);
     } else if (TUPLE.test(member)) {
       // Element order is the tuple's shape, so only each element's own union is canonicalised.
-      const elements = split(TUPLE.exec(member)![1]!, ',').map(canonicalMembers);
+      const elements = splitTopLevel(TUPLE.exec(member)![1]!, ',').map(canonicalMembers);
       result.push(`[${elements.join(', ')}]`);
     } else if (OBJECT_LITERAL.test(member)) {
       result.push(canonicalObjectLiteral(OBJECT_LITERAL.exec(member)![1]!));
@@ -76,7 +77,7 @@ function members(text: string): string[] {
 /** The server sorts an inline object type's keys, so both sides are written in key order. */
 function canonicalObjectLiteral(body: string): string {
   if (!body.trim()) return '{}';
-  const entries = split(body, ',').map((entry) => {
+  const entries = splitTopLevel(body, ',').map((entry) => {
     const colon = scan(entry, ':').cuts[0];
     if (colon === undefined) return { key: entry, text: entry };
     const key = entry.slice(0, colon).trim();
@@ -106,7 +107,7 @@ export function canonicalType(type: string): string {
 
 /** Whether a type admits an absent value, which is what makes a field optional: `none` or `any` is a member. */
 export function acceptsNone(type: string): boolean {
-  const members = split(canonicalType(type), '|');
+  const members = splitTopLevel(canonicalType(type), '|');
 
   return members.includes('none') || members.includes('any');
 }

@@ -7,6 +7,9 @@ export const MIGRATIONS_TABLE = '_cerial_migrations';
 /** The single `migrate` record that serialises concurrent migrators. */
 export const MIGRATION_LEASE_TABLE = '_cerial_migration_lease';
 
+/** Whether `name` is one of the tables the subsystem keeps its own state in. */
+export const isStateTable = (name: string): boolean => name === MIGRATIONS_TABLE || name === MIGRATION_LEASE_TABLE;
+
 /**
  * Fixed text, nothing interpolated. Both tables are SCHEMALESS: `_cerial_migrations` holds two row kinds with
  * different shapes (per-model state and the schema row), and a field definition on either would only add a

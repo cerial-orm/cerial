@@ -1,11 +1,9 @@
 import type { Surreal } from 'surrealdb';
 import { CerialMigrationError } from '../errors';
-import { buildFieldModel, canonicalType } from './canonical';
+import { buildFieldModel, canonicalType, splitTopLevel } from './canonical';
 import { parseFieldIdiom, quoteIdent } from './quote';
+import { isStateTable } from './state-tables';
 import type { FieldModel, FieldPath, IndexModel, SchemaModel, TableModel, UnmanagedItem } from './types';
-
-/** Tables the subsystem bootstraps for its own bookkeeping; it cannot record removing its own state. */
-const STATE_TABLE_PREFIX = '_cerial_';
 
 interface Permissions {
   readonly create: unknown;
@@ -79,30 +77,6 @@ function itemName(item: unknown, index: number): string {
 
 function pathKey(path: FieldPath): string {
   return JSON.stringify(path);
-}
-
-/** Splits `text` at `separator` where no `<>`, `()`, `[]`, `{}` or quote is open. */
-function splitTopLevel(text: string, separator: string): string[] {
-  const parts: string[] = [];
-  let depth = 0;
-  let quote = '';
-  let start = 0;
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i]!;
-    if (quote) {
-      if (char === '\\') i++;
-      else if (char === quote) quote = '';
-    } else if (char === "'" || char === '"') quote = char;
-    else if ('<([{'.includes(char)) depth++;
-    else if ('>)]}'.includes(char)) depth--;
-    else if (char === separator && depth === 0) {
-      parts.push(text.slice(start, i).trim());
-      start = i + 1;
-    }
-  }
-  parts.push(text.slice(start).trim());
-
-  return parts;
 }
 
 /** The element type an `array<T>` or `set<T>` parent defines by itself, or undefined for any other parent type. */
@@ -191,7 +165,7 @@ export async function readLiveSchema(surreal: Surreal): Promise<SchemaModel> {
   }
 
   const managed = tableRows
-    .filter((row) => !row.name.startsWith(STATE_TABLE_PREFIX))
+    .filter((row) => !isStateTable(row.name))
     .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
 
   for (const row of managed) {
