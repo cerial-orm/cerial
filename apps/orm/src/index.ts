@@ -183,6 +183,7 @@ export { applyPlan } from './migrations/apply';
 export { applyUnmatched, blameModels, matchedModels, readLazyState } from './migrations/lazy';
 export type { LazyMigrationContext, LazyModel } from './migrations/lazy';
 export type { MigrationState } from './migrations/state';
+export { verifySchema } from './migrations/verify';
 // Export errors
 export type { CerialErrorCode, CerialErrorOptions } from './errors';
 export {

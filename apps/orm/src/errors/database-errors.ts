@@ -1,5 +1,6 @@
 import { CerialError, type CerialErrorOptions } from './cerial-error';
 import { CERIAL_ERROR_CODES } from './codes';
+import type { MigrationPlan } from '../migrations/plan';
 
 /** The generated statement and its bound values, carried only when the client sets `includeStatementInErrors`. */
 export interface CerialStatement {
@@ -48,6 +49,12 @@ export class CerialUniqueConstraintError extends CerialError {
   }
 }
 
+/** What a migration error carries beyond the common context. */
+export interface CerialMigrationErrorOptions extends CerialErrorOptions {
+  readonly statement?: CerialStatement;
+  readonly plan?: MigrationPlan;
+}
+
 /**
  * A migration failed: a model's lazy migration, a plan that rolled back, the migration lease, or a state write.
  * The database error, when there is one, is the `cause`.
@@ -58,11 +65,14 @@ export class CerialMigrationError extends CerialError {
    * generated from the schema and holds no bound user values.
    */
   readonly statement?: CerialStatement;
+  /** What would bring the database to the generated schema, on a verify refusal. Nothing was applied. */
+  readonly plan?: MigrationPlan;
 
-  constructor(message: string, options: CerialDatabaseErrorOptions = {}) {
+  constructor(message: string, options: CerialMigrationErrorOptions = {}) {
     super(CERIAL_ERROR_CODES.MIGRATION, message, options);
     this.name = 'CerialMigrationError';
     this.statement = options.statement;
+    this.plan = options.plan;
   }
 }
 

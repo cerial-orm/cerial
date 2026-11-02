@@ -12,9 +12,10 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, applyUnmatched, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, applyUnmatched, verifySchema, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
+import { manifest } from './internal/manifest';
 import { migrationsByModel, modelFingerprints, wholeSchemaFingerprint, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
 import type { ${modelImports}, ${modelTypeImports} } from './models';`;
 }
@@ -122,7 +123,8 @@ export interface ClientOptions {
   /**
    * How the client treats the schema (default: 'auto').
    * - 'auto': apply a model's DDL the first time it is used.
-   * - 'verify': check the live schema against the generated one on connect and apply nothing.
+   * - 'verify': on connect, compare the live schema with the generated one and apply nothing. A difference
+   *   makes connect() throw a CerialMigrationError naming it and carrying the plan; events and tables Cerial does not manage are ignored.
    * - 'off': apply nothing, check nothing and read or write no migration state on any implicit entry
    *   (model queries, query, $raw, $live, $transaction). An explicit migrate() call still runs.
    */
@@ -285,6 +287,22 @@ ${generateResolveConnection(connectConfigName, databasePins)}
     }
 
     this._db = await this.connectionManager.connect(resolved);
+
+    if (this._migrations === 'verify') {
+      try {
+        const surreal = this.connectionManager.getDdlSurreal();
+        if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: 'verify' });
+        await verifySchema(surreal, {
+          schemaName: migrationContext.schemaName,
+          manifest: manifest as unknown as Parameters<typeof verifySchema>[1]['manifest'],
+          statements: Object.values(migrationsByModel).flat(),
+        });
+      } catch (error) {
+        // A refused client is not left half-connected; a second connect() after the fix starts clean.
+        await this.disconnect().catch(() => undefined);
+        throw error;
+      }
+    }
   }
 
   /**
@@ -394,8 +412,8 @@ ${generateResolveConnection(connectConfigName, databasePins)}
    * @internal
    */
   async ensureModelsMigrated(modelNames: ModelName[]): Promise<void> {
-    // Under 'off' no implicit entry touches the schema; only an explicit migrate() does.
-    if (this._migrations === 'off') return;
+    // Only 'auto' migrates implicitly. 'verify' checked the schema once in connect() and 'off' never looks; only an explicit migrate() applies.
+    if (this._migrations !== 'auto') return;
     const wanted = [...new Set(modelNames)].filter(name => name in migrationContext.models && !this._migratedModels.has(name));
     if (!wanted.length) return;
     this._throwFailed(wanted);
