@@ -23,3 +23,4 @@ export {
   type MigrationPlanItem,
 } from './plan';
 export { findDrift, type DriftItem, type DriftReport } from './drift';
+export { bootstrapStateTables, MIGRATION_LEASE_TABLE, MIGRATIONS_TABLE } from './state-tables';
