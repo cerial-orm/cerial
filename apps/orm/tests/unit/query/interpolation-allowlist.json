@@ -54,6 +54,7 @@
   "src/generators/migrations/define-generator.ts::generatePerModelMigrationCode::template::mapEntries": 1,
   "src/generators/migrations/define-generator.ts::generatePerModelMigrationCode::template::modelName": 2,
   "src/generators/migrations/define-generator.ts::generatePerModelMigrationCode::template::modelNameUnion": 1,
+  "src/generators/migrations/define-generator.ts::generatePerModelMigrationCode::template::schemaFingerprintValue": 1,
   "src/generators/migrations/define-generator.ts::generatePerModelMigrationCode::template::modelNamesArray": 1,
   "src/generators/migrations/define-generator.ts::generatePerModelMigrationCode::template::modelStatementsStr": 1,
   "src/generators/migrations/define-generator.ts::generatePerModelMigrationCode::template::name": 2,

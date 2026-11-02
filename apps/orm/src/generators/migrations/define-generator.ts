@@ -14,7 +14,7 @@ import type {
   TupleRegistry,
 } from '../../types';
 import { buildDesiredSchema } from '../../migrations/desired';
-import { fingerprint } from '../../migrations/fingerprint';
+import { fingerprint, schemaFingerprint } from '../../migrations/fingerprint';
 import { escapeTsString } from '../shared';
 import {
   generateAssertClause,
@@ -847,6 +847,7 @@ export function generatePerModelMigrationCode(
 
   // Fingerprints come from the full in-process metadata, not the emitted registry, which omits some decorators.
   const desiredTables = buildDesiredSchema(registry, objectRegistry, tupleRegistry, literalRegistry).tables;
+  const schemaFingerprintValue = schemaFingerprint({ tables: desiredTables, unmanaged: [] });
   const fingerprintEntries = Object.keys(registry)
     .map((modelName, index) => `  ${modelName}: '${fingerprint(desiredTables[index]!)}'`)
     .join(',\n');
@@ -876,6 +877,9 @@ ${mapEntries}
 export const modelFingerprints: Record<ModelName, string> = {
 ${fingerprintEntries}
 };
+
+/** Fingerprint of the whole schema, written to the state when every model is applied together */
+export const wholeSchemaFingerprint = '${schemaFingerprintValue}';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

@@ -2336,6 +2336,9 @@ export const modelFingerprints: Record<ModelName, string> = {
   CategoryTree: '7ad5814df2413c2abf080f16316f488f7114abc512d00b3a2debd88d9352a366',
 };
 
+/** Fingerprint of the whole schema, written to the state when every model is applied together */
+export const wholeSchemaFingerprint = 'ce377f483cf78d80c03df66e9b55fa5203594f57f2646ec2e5904fa8c3f027a0';
+
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {
   const statements = migrationsByModel[modelName];
