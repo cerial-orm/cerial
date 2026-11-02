@@ -9,8 +9,7 @@ import {
 } from '../../../../test-helper';
 
 /**
- * Cascade is applied to direct dependents only: deleting a grandparent removes its parents and
- * does not continue to the parents' own children. This pins the current behaviour.
+ * Cascade is transitive: deleting a grandparent removes its parents and continues to the parents' own children.
  */
 describe('E2E three-model @onDelete(Cascade) chain', () => {
   let client: CerialClient;
@@ -53,23 +52,24 @@ describe('E2E three-model @onDelete(Cascade) chain', () => {
     expect(await client.db.OdParent.findOne({ where: { id: parent.id } })).toBeNull();
   });
 
-  test('deleting the grandparent does not reach the grandchildren', async () => {
-    const { grandparent, parent, child } = await seed();
+  test('deleting the grandparent also removes the grandchildren', async () => {
+    const { grandparent, child } = await seed();
 
     await client.db.OdGrandparent.deleteMany({ where: { id: grandparent.id } });
 
-    const orphan = await client.db.OdChild.findOne({ where: { id: child.id } });
-    expect(orphan).not.toBeNull();
-    expect(orphan?.parentId?.equals(parent.id)).toBe(true);
+    expect(await client.db.OdChild.findOne({ where: { id: child.id } })).toBeNull();
+    expect(await client.db.OdChild.count()).toBe(0);
   });
 
   test('unrelated branches are untouched', async () => {
     const { grandparent } = await seed();
     const other = await client.db.OdGrandparent.create({ data: { name: 'other' } });
     const otherParent = await client.db.OdParent.create({ data: { name: 'op', grandparent: { connect: other.id } } });
+    const otherChild = await client.db.OdChild.create({ data: { name: 'oc', parent: { connect: otherParent.id } } });
 
     await client.db.OdGrandparent.deleteMany({ where: { id: grandparent.id } });
 
     expect(await client.db.OdParent.findOne({ where: { id: otherParent.id } })).not.toBeNull();
+    expect(await client.db.OdChild.findOne({ where: { id: otherChild.id } })).not.toBeNull();
   });
 });
