@@ -8,7 +8,7 @@ import { dirname, resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
-import { writeMigrationFile } from '../generators/migrations/writer';
+import { writeManifestFile, writeMigrationFile } from '../generators/migrations/writer';
 import type {
   ConnectionConfig,
   DatabasePin,
@@ -377,6 +377,10 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       );
       result.files.push(migrationPath);
       if (logLevel === 'full') logger.fileCreated(toFinal(migrationPath));
+
+      const manifestPath = await writeManifestFile(stagingDir, models, objectRegistry, tupleRegistry, literalRegistry);
+      result.files.push(manifestPath);
+      if (logLevel === 'full') logger.fileCreated(toFinal(manifestPath));
 
       const internalIndexPath = await writeInternalIndex(
         stagingDir,

@@ -11,6 +11,7 @@ export {
   generateModelDefineStatements,
   generateRegistryDefineStatements,
 } from './define-generator';
+export { generateManifestCode } from './manifest';
 export type { SurrealQLType } from './type-mapper';
 export {
   generateAssertClause,
@@ -26,4 +27,4 @@ export {
   mapToSurrealType,
 } from './type-mapper';
 
-export { writeMigrationFile } from './writer';
+export { writeManifestFile, writeMigrationFile } from './writer';
