@@ -24,3 +24,4 @@ export {
 } from './plan';
 export { findDrift, type DriftItem, type DriftReport } from './drift';
 export { bootstrapStateTables, MIGRATION_LEASE_TABLE, MIGRATIONS_TABLE } from './state-tables';
+export { fingerprint, liveFingerprint, schemaFingerprint } from './fingerprint';
