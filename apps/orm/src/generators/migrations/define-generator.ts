@@ -13,6 +13,8 @@ import type {
   TupleFieldMetadata,
   TupleRegistry,
 } from '../../types';
+import { buildDesiredSchema } from '../../migrations/desired';
+import { fingerprint } from '../../migrations/fingerprint';
 import { escapeTsString } from '../shared';
 import {
   generateAssertClause,
@@ -843,6 +845,12 @@ export function generatePerModelMigrationCode(
     })
     .join(',\n');
 
+  // Fingerprints come from the full in-process metadata, not the emitted registry, which omits some decorators.
+  const desiredTables = buildDesiredSchema(registry, objectRegistry, tupleRegistry, literalRegistry).tables;
+  const fingerprintEntries = Object.keys(registry)
+    .map((modelName, index) => `  ${modelName}: '${fingerprint(desiredTables[index]!)}'`)
+    .join(',\n');
+
   // Generate typed model name union
   const modelNameUnion = Object.keys(migrationMap)
     .map((name) => `'${name}'`)
@@ -862,6 +870,11 @@ export const modelNames = [${modelNamesArray}] as const;
 /** Migration statements grouped by model */
 export const migrationsByModel: Record<ModelName, string[]> = {
 ${mapEntries}
+};
+
+/** Fingerprint of each model's desired table, for comparing against the stored state without a schema */
+export const modelFingerprints: Record<ModelName, string> = {
+${fingerprintEntries}
 };
 
 /** Get migration query string for a specific model */
