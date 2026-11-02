@@ -1,6 +1,6 @@
 import { CerialMigrationError } from '../errors';
 import type { SchemaDifference } from './diff';
-import { emitRemove } from './emit-remove';
+import { emitRemove, type KeepIndex } from './emit-remove';
 import { parseFieldIdiom, quoteIdent } from './quote';
 import type { DifferenceClass, FieldPath, SchemaModel } from './types';
 
@@ -93,14 +93,18 @@ const isStrictPrefix = (prefix: FieldPath, path: FieldPath): boolean =>
  * removed field, and the indexes `emitRemove` clears with it. Left in, those statements would run twice and fail the
  * transaction.
  */
-function dropCovered(differences: readonly SchemaDifference[], live: SchemaModel): SchemaDifference[] {
+function dropCovered(
+  differences: readonly SchemaDifference[],
+  live: SchemaModel,
+  keepIndex: KeepIndex,
+): SchemaDifference[] {
   const removedTables = new Set(differences.filter((d) => d.kind === 'table-extra-managed').map((d) => d.table));
   const extras = differences.filter((d) => d.kind === 'field-extra' && !removedTables.has(d.table));
   const roots = extras.filter(
     (d) =>
       !extras.some((o) => o !== d && o.table === d.table && o.field && d.field && isStrictPrefix(o.field, d.field)),
   );
-  const cleared = new Set(roots.flatMap((d) => emitRemove(d, live)));
+  const cleared = new Set(roots.flatMap((d) => emitRemove(d, live, keepIndex)));
 
   return differences.filter((d) => {
     if (d.kind !== 'table-extra-managed' && removedTables.has(d.table)) return false;
@@ -125,7 +129,8 @@ export function buildMigrationPlan(
   desired: DesiredStatements,
   live: SchemaModel,
 ): MigrationPlan {
-  const kept = dropCovered(differences, live);
+  const keepIndex: KeepIndex = (table, index) => desired.get(table)?.indexes.has(index) ?? false;
+  const kept = dropCovered(differences, live, keepIndex);
   const tableOf = (d: SchemaDifference): [string, TableStatements] => {
     const found = d.table === undefined ? undefined : desired.get(d.table);
     if (!found) return missing(d);
@@ -196,7 +201,7 @@ export function buildMigrationPlan(
       case 'field-extra':
       case 'index-extra':
       case 'table-extra-managed':
-        for (const statement of emitRemove(d, live)) stages[4]!.push({ at: 0, item: forward(d, statement) });
+        for (const statement of emitRemove(d, live, keepIndex)) stages[4]!.push({ at: 0, item: forward(d, statement) });
         break;
       default:
         stages[5]!.push({ at: 0, item: { class: d.class, reason: d.reason, construct: d.construct, table: d.table } });

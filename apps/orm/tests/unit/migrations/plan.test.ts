@@ -317,3 +317,38 @@ describe('indexDesiredStatements over the e2e corpus', () => {
     expect(count).toBeGreaterThan(0);
   });
 });
+
+const NO_STATE = { managedTables: [] };
+
+describe('buildMigrationPlan: an index the schema keeps', () => {
+  const desiredStatements = indexDesiredStatements([
+    'DEFINE TABLE OVERWRITE user SCHEMAFULL;',
+    'DEFINE FIELD OVERWRITE email ON TABLE user TYPE string;',
+    'DEFINE INDEX OVERWRITE idx ON TABLE user COLUMNS email UNIQUE;',
+  ]);
+  const desired = schema([table('user', [field('email', 'string')], [index('idx', 'email', 'UNIQUE')])]);
+
+  test('a field removal does not remove an index the schema redefines under the same name', () => {
+    const live = schema([table('user', [field('oldEmail', 'string')], [index('idx', 'oldEmail', 'UNIQUE')])]);
+
+    const statements = buildMigrationPlan(diffSchema(desired, live, NO_STATE), desiredStatements, live).flatMap((i) =>
+      i.statement ? [i.statement] : [],
+    );
+
+    expect(statements.some((s) => s.startsWith('REMOVE INDEX'))).toBe(false);
+    expect(statements.some((s) => s.startsWith('DEFINE INDEX OVERWRITE idx'))).toBe(true);
+    expect(statements.some((s) => s.startsWith('REMOVE FIELD `oldEmail`'))).toBe(true);
+  });
+
+  test('near miss: an index the schema does not keep is still removed with its field', () => {
+    const live = schema([
+      table('user', [field('oldEmail', 'string'), field('email', 'string')], [index('gone', 'oldEmail')]),
+    ]);
+
+    const statements = buildMigrationPlan(diffSchema(desired, live, NO_STATE), desiredStatements, live).flatMap((i) =>
+      i.statement ? [i.statement] : [],
+    );
+
+    expect(statements).toContain('REMOVE INDEX `gone` ON `user`;');
+  });
+});

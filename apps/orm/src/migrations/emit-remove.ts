@@ -24,7 +24,15 @@ function liveTable(live: SchemaModel, name: string): TableModel {
   return found;
 }
 
-function removeField(difference: SchemaDifference, table: string, live: SchemaModel): readonly string[] {
+/** Whether the desired schema keeps an index of this name on the table; such an index is redefined, never removed. */
+export type KeepIndex = (table: string, index: string) => boolean;
+
+function removeField(
+  difference: SchemaDifference,
+  table: string,
+  live: SchemaModel,
+  keepIndex: KeepIndex,
+): readonly string[] {
   const path = difference.field;
   if (!path?.length) throw new CerialMigrationError(`Cannot remove a field of '${table}': the difference names none.`);
   // An array element is defined by its parent's type and is removed together with the parent.
@@ -33,7 +41,9 @@ function removeField(difference: SchemaDifference, table: string, live: SchemaMo
   const model = liveTable(live, table);
   const covered = model.fields.map((f) => f.path).filter((p) => isPrefix(path, p));
   const descendants = covered.filter((p) => p.length > path.length).sort((a, b) => b.length - a.length);
-  const indexes = model.indexes.filter((ix) => ix.columns.some((column) => covered.some((p) => isPrefix(p, column))));
+  const indexes = model.indexes.filter(
+    (ix) => !keepIndex(table, ix.name) && ix.columns.some((column) => covered.some((p) => isPrefix(p, column))),
+  );
   const on = quoteIdent(table);
 
   // Indexes first, then children deepest first, then the field; the UNSET comes last because it fails while the
@@ -51,12 +61,17 @@ function removeField(difference: SchemaDifference, table: string, live: SchemaMo
  * it and the fields beneath it, then an `UPDATE ... UNSET`), a live-only index, or a managed table Cerial created.
  * Any other difference throws, including a changed field or a missing required one, which redefine rather than
  * remove. `live` supplies the children and indexes a field removal must clear first; nothing here reads a database.
- * The differ also reports each child of a removed field as its own difference; the caller drops those the parent covers.
+ * An index `keepIndex` names is left to its own definition step: removing it with the field would clash with the
+ * `DEFINE INDEX OVERWRITE` that moves it. The differ also reports each child of a removed field as its own difference; the caller drops those the parent covers.
  */
-export function emitRemove(difference: SchemaDifference, live: SchemaModel): readonly string[] {
+export function emitRemove(
+  difference: SchemaDifference,
+  live: SchemaModel,
+  keepIndex: KeepIndex = () => false,
+): readonly string[] {
   switch (difference.kind) {
     case 'field-extra':
-      return removeField(difference, requireTable(difference), live);
+      return removeField(difference, requireTable(difference), live, keepIndex);
     case 'index-extra': {
       const table = requireTable(difference);
       if (difference.index === undefined)
