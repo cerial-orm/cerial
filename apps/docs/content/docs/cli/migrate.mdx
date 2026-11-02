@@ -1,0 +1,207 @@
+---
+title: Migrate
+description: Inspect the live database against your schema, plan changes as a reviewable file, and apply them with explicit approval for anything destructive.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+`cerial migrate` compares your schema with the live SurrealDB database and changes the database to match. It is the tool for deployments, where you want to see a change before it runs and approve anything that can lose data. For how migrations run from application code, see [Migrations](/connection/migrations).
+
+```bash
+bunx cerial migrate status
+bunx cerial migrate plan
+bunx cerial migrate apply --from-schema
+```
+
+| Command | Description |
+|---|---|
+| `status` | Report how the live database stands against the schema. Writes nothing |
+| `plan` | Write the pending changes to a timestamped `.surql` file, destructive statements commented out |
+| `apply` | Apply the pending changes, from the schema (`--from-schema`) or from a reviewed plan file (`apply <file>`) |
+| `baseline` | Record the live schema as applied without running any DDL |
+
+There are no `down` migrations and no command that undoes an applied change. A schema is declarative, so the way forward is always derived from the schema itself, and an inverse would be a guess about data that may no longer exist. To roll back, restore the database from a backup and apply a forward fix.
+
+## Where the schema comes from
+
+`migrate` finds your schema the same way [`cerial generate`](/cli/generate) does, and builds the same model from it, so what `status` compares is what `generate` would emit:
+
+- With a [config file](/cli/configuration), every schema entry in it. `-C, --config` points at a config elsewhere.
+- Without one, [convention markers](/cli/configuration#convention-markers), then the default schema location. The connection then comes from flags and environment variables only.
+
+Each entry can hold `.cerial` files only, [TypeScript modules](/schema/typescript) only (`*.schema.ts`), or both in one entry, as described in [Mixing .cerial and TypeScript](/schema/typescript/mixed). `migrate` treats all three the same. A TypeScript module is imported and run, just as `generate` runs it, so run `migrate` only against schemas you trust. A schema that does not parse or validate stops the command before it touches the database, because a plan built from half a schema would propose removing the other half.
+
+Schema entries that resolve to the same url, namespace and database are one target and are compared together. Entries on different databases are separate targets, each reported on its own. `--name <name>` limits the command to one entry.
+
+## Connecting
+
+Each connection value comes from the first of these that sets it, field by field:
+
+1. A flag: `--url`, `--namespace`, `--database`, `--username`
+2. An environment variable: `CERIAL_DB_URL`, `CERIAL_DB_NAMESPACE`, `CERIAL_DB_DATABASE`, `CERIAL_DB_USERNAME`, `CERIAL_DB_PASSWORD`
+3. The `connection` of the schema entry in your [config](/connection)
+
+An empty environment variable counts as unset. **There is no password flag**, because a secret on the command line shows up in `ps` and shell history. Set `CERIAL_DB_PASSWORD`, or put `connection.auth.password` in a TypeScript config that reads it from `process.env`. A username without a password, or the reverse, is an error. A url that carries credentials (`http://user:pass@host`) is refused, and error messages never print the url or the password.
+
+```bash
+export CERIAL_DB_URL=http://127.0.0.1:8000
+export CERIAL_DB_NAMESPACE=main
+export CERIAL_DB_DATABASE=main
+export CERIAL_DB_USERNAME=root
+export CERIAL_DB_PASSWORD=root
+
+bunx cerial migrate status
+```
+
+`--url` accepts `http`, `https`, `ws` and `wss` urls.
+
+## Flags
+
+Every subcommand accepts these. A flag the command does not know is refused by name, so a typo in `--allow-destructive` cannot silently run a migration you meant to authorise or hold back.
+
+| Flag | Description |
+|---|---|
+| `--url=<url>` | Database url (or `CERIAL_DB_URL`) |
+| `--namespace=<namespace>` | Namespace (or `CERIAL_DB_NAMESPACE`) |
+| `--database=<database>` | Database (or `CERIAL_DB_DATABASE`) |
+| `--username=<username>` | Username (or `CERIAL_DB_USERNAME`); the password is `CERIAL_DB_PASSWORD` |
+| `--name=<name>` | Limit to one schema entry by name |
+| `-C, --config=<config>` | Path to config file |
+
+Each subcommand adds its own flags, listed under it below.
+
+## Exit codes
+
+CI reads these. A usage error (an unknown or missing subcommand, an unknown flag) is always 2.
+
+| Command | 0 | 1 | 2 |
+|---|---|---|---|
+| `status` | In sync | Drift or pending changes | The check could not run |
+| `plan` | Plan written, or nothing to do | | Failed |
+| `apply` | Applied, or nothing to do | Refused: a flag is missing, the plan file is rejected, or you answered no | Failed |
+| `baseline` | Recorded | Refused: the live schema differs | Failed |
+
+## status
+
+```bash
+bunx cerial migrate status
+```
+
+| Flag | Description |
+|---|---|
+| `--json` | Print one JSON object for CI |
+
+`status` reads the live database and writes nothing. It reports three lists per target:
+
+- **Pending**: schema constructs the database lacks yet, each marked with the class of change it would be (see [What needs approval](#what-needs-approval)).
+- **Drift**: constructs that are in the database but not in the schema, or whose definition differs from it.
+- **Unmanaged**: things Cerial has no concept for (an event or function, say) and tables it did not create. They are listed and never a failure, so `status` stays usable on a database Cerial does not own alone.
+
+`status` exits 0 only when there is neither pending change nor drift:
+
+```bash
+bunx cerial migrate status || echo "database is out of step with the schema"
+```
+
+## plan
+
+```bash
+bunx cerial migrate plan
+bunx cerial migrate plan --out ./db/migrations
+```
+
+| Flag | Description |
+|---|---|
+| `--out=<out>` | Directory for the plan file (default `cerial/migrations`) |
+
+`plan` reads the database and writes one `.surql` file per target that has something to do, named by timestamp and schema, for example `20261103T101500Z-default.surql`. The directory is created if it does not exist. A file is never overwritten, so a second plan in the same second gets a numeric suffix, and your edits to an earlier plan are never lost. With nothing to do, no file is written.
+
+Additive statements are live in the file. Destructive and data-loss statements are written as comments, each under a line that says why, so running the file unedited can only add:
+
+```sql
+-- cerial migration plan
+-- schemas: default
+-- database: main/main
+-- desired fingerprint: <hash>
+-- live fingerprint: <hash>
+-- Commented statements are not applied. Review them, then uncomment and apply with --allow-destructive.
+
+DEFINE FIELD OVERWRITE phone ON TABLE user TYPE option<string>;
+-- cerial:destructive removing a field leaves its values behind
+-- REMOVE FIELD nickname ON TABLE user;
+-- cerial:destructive unsetting a field deletes its stored values
+-- UPDATE user UNSET nickname;
+```
+
+To approve a destructive statement, review it, remove the leading `-- `, and apply the file with the flag the header names.
+
+## apply
+
+```bash
+bunx cerial migrate apply --from-schema
+bunx cerial migrate apply cerial/migrations/20261103T101500Z-default.surql
+```
+
+| Flag | Description |
+|---|---|
+| `--from-schema` | Diff the live database against the schema and apply the result |
+| `--allow-destructive` | Allow changes that can invalidate or remove data |
+| `--allow-data-loss` | Allow removing a table with its rows (with `--allow-destructive`) |
+
+`apply` needs exactly one of `--from-schema` or a plan file. Anything else exits 2.
+
+### From the schema
+
+`apply --from-schema` re-reads the live database, works out what is pending right now and applies it. It is the unattended path for a deploy step. Nothing is applied until every step has the flag it needs: if one step is refused for a missing flag, the additive steps beside it are not applied either, and the refusal names each flag, construct and table. On a terminal, a plan with a destructive step asks `[y/N]` before it runs. Without a terminal, the flags are the authorisation.
+
+### From a plan file
+
+`apply <file>` applies a file you reviewed. It is stricter than running the file through another tool:
+
+- **A stale file is refused.** The header records the live schema the plan was written against. If the database has changed since, `apply` exits 1 and asks you to run `plan` again. A file without that header line is refused for the same reason.
+- **The file must be for this database**, named by the `database:` header line.
+- **Only generated definitions are accepted.** A `DEFINE` must be exactly a statement Cerial generates for your schema. A hand-written definition is refused, since an expression in one can run its own statement whenever a row is written.
+- **Only a few statements are allowed:** `DEFINE` and `REMOVE` of a table, field or index, and `UPDATE <table> UNSET <field>`. Anything else (`REMOVE DATABASE`, `DEFINE EVENT`, a `SELECT`) is refused, naming its line, and nothing is applied. A statement may not touch Cerial's own state tables.
+- **Each statement is classed from its own text** and the live schema, never from the comment above it. Editing `cerial:data-loss` to `cerial:additive` does not lower what a `REMOVE TABLE` needs.
+- **Statements left commented out stay unapplied.** They are listed in the output, and the models they belong to are not marked as matching the schema, so `status` still reports them.
+
+### What needs approval
+
+Every change belongs to one of three classes:
+
+| Class | Examples | Needs |
+|---|---|---|
+| Additive | A new table, field or index | Nothing |
+| Destructive | Removing a field or index, a type change, a new required field with no default | `--allow-destructive` |
+| Data loss | Removing a table | `--allow-destructive` and `--allow-data-loss` |
+
+The two flags are separate because they authorise different things. `--allow-destructive` accepts changes that can leave existing rows unable to be written, or drop a structure, and a separate step (an `UNSET`, a backfill) deals with the data. `REMOVE TABLE` is the one operation that destroys rows with no separate step, so it needs `--allow-data-loss` as well, and `--allow-data-loss` alone is not enough.
+
+A removed field is applied as `REMOVE FIELD` followed by `UPDATE ... UNSET` in one transaction, because removing the definition alone leaves values behind that block every later write to the row.
+
+A table is proposed for removal only when Cerial created it. A live table the schema does not declare and that migration state does not list as managed is reported as unmanaged and never touched. Cerial does not detect renames: a renamed field is a removal plus an addition.
+
+### Failure
+
+On the memory backend, a failed apply rolls back as a unit. Other SurrealDB backends have not been measured, so atomicity is promised only for memory. After a failed apply, run `status` before retrying. One migration per database runs at a time. A second one waits for the first to finish, and a lease that expires after 60 seconds lets it take over if the first process crashed.
+
+## baseline
+
+```bash
+bunx cerial migrate baseline
+bunx cerial migrate baseline --accept-drift
+```
+
+| Flag | Description |
+|---|---|
+| `--accept-drift` | Record the schema as applied although the live schema differs, listing what differs |
+
+Use `baseline` to adopt a database that already matches your schema, for example one built by hand or by an older Cerial. It runs no DDL; the only thing written is Cerial's migration state, which says the schema is applied.
+
+If the live schema differs from your schema files, `baseline` exits 1 and lists every difference without recording anything. `--accept-drift` records the schema as applied anyway and prints what it accepted. `status` keeps reporting those differences afterwards, so drift you accepted is not hidden. Only tables your schema declares become managed, so tables it does not declare stay unmanaged and are never proposed for removal.
+
+## Migration state
+
+`apply` and `baseline` keep their records in two tables in your database, `_cerial_migrations` and `_cerial_migration_lease`. They are Cerial's own: do not edit them, and a plan file that touches them is refused. `status` and `plan` read them if they exist and never create them.
