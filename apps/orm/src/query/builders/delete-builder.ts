@@ -59,11 +59,24 @@ export function buildDeleteQueryWithReturn(
 /** Deepest level of a cascade a delete follows; a cascade that reaches further is refused */
 const CASCADE_DEPTH_LIMIT = 16;
 
+interface BeyondLimit {
+  readonly dep: DependentRelation;
+  /** Model names from the root down to the model that owns `dep` */
+  readonly path: readonly string[];
+}
+
 interface LevelEdge extends CascadeEdge {
   /** Reached by following a cycle level by level, so its rows exclude those an earlier level already holds */
   readonly unrolled: boolean;
-  /** Relations that would sit one level past the limit: any row they find refuses the delete */
-  readonly beyondLimit: readonly DependentRelation[];
+  /**
+   * Edges of one unrolled level are adjacent and share a single id capture, held by the first of them.
+   * That first edge carries the level's size, whether a level follows and what sits past the limit; the
+   * others carry 0. A walked edge is a level of its own.
+   */
+  readonly levelSize: number;
+  readonly levelDescends: boolean;
+  /** Relations one level past the limit: any row they find refuses the delete */
+  readonly beyondLimit: readonly BeyondLimit[];
 }
 
 function reachableDependents(modelName: string, registry: ModelRegistry): DependentRelation[] {
@@ -74,35 +87,69 @@ function depthMessage(root: string, model: string, path: readonly string[]): str
   return `Cannot delete ${root}: cascade deeper than ${CASCADE_DEPTH_LIMIT} levels at ${model} (${path.join(' > ')})`;
 }
 
+const relationKey = (dep: DependentRelation): string => `${dep.model.name}.${dep.recordField!.name}`;
+
 /**
- * The walk stops at the first repeat of a model on a cycle, which would strand the rows below it. Each
- * cyclic edge is unrolled into one edge per level up to the limit instead, and a graph that is deeper than
- * the limit without a cycle is refused here, before any statement exists.
+ * The walk stops at the first repeat of a model on a cycle, which would strand the rows below it. The cyclic
+ * edges at one position are unrolled together instead, one level per step up to the limit, each level holding
+ * the edges of every model the level before reached. The script then grows with depth times edges, where one
+ * level per edge would grow as edges to the power of depth. A graph that is deeper than the limit without a
+ * cycle is refused here, before any statement exists.
  */
 function unrollCycles(edges: readonly CascadeEdge[], registry: ModelRegistry): LevelEdge[] {
   const out: LevelEdge[] = [];
+  const unrolledAt = new Set<string>();
 
-  const descend = (edge: CascadeEdge): void => {
-    const cascades = edge.onDelete === 'Cascade';
-    const atLimit = cascades && edge.depth >= CASCADE_DEPTH_LIMIT;
-    const dependents = cascades ? reachableDependents(edge.model.name, registry) : [];
-    out.push({ ...edge, cyclic: false, unrolled: true, beyondLimit: atLimit ? dependents : [] });
-    if (!cascades || atLimit) return;
+  const unroll = (first: CascadeEdge[]): void => {
+    let level = first;
 
-    const path = [...edge.path, edge.model.name];
-    for (const dep of dependents)
-      descend({ ...dep, parent: edge.model.name, depth: edge.depth + 1, path, cyclic: false });
+    while (level.length) {
+      const depth = level[0]!.depth;
+      const atLimit = depth >= CASCADE_DEPTH_LIMIT;
+      const next = new Map<string, CascadeEdge>();
+      const beyond = new Map<string, BeyondLimit>();
+
+      for (const edge of level) {
+        if (edge.onDelete !== 'Cascade') continue;
+
+        const path = [...edge.path, edge.model.name];
+        for (const dep of reachableDependents(edge.model.name, registry)) {
+          const key = relationKey(dep);
+          if (atLimit) {
+            if (!beyond.has(key)) beyond.set(key, { dep, path });
+          } else if (!next.has(key)) {
+            next.set(key, { ...dep, parent: edge.model.name, depth: depth + 1, path, cyclic: false });
+          }
+        }
+      }
+
+      level.forEach((edge, k) =>
+        out.push({
+          ...edge,
+          cyclic: false,
+          unrolled: true,
+          levelSize: k === 0 ? level.length : 0,
+          levelDescends: k === 0 && (next.size > 0 || beyond.size > 0),
+          beyondLimit: k === 0 ? [...beyond.values()] : [],
+        }),
+      );
+      level = [...next.values()];
+    }
   };
 
   for (const edge of edges) {
     if (edge.cyclic) {
-      descend(edge);
+      const position = `${edge.depth}|${edge.path.join('>')}`;
+      if (unrolledAt.has(position)) continue;
+
+      unrolledAt.add(position);
+      unroll(edges.filter((e) => e.cyclic && e.depth === edge.depth && e.path.join('>') === edge.path.join('>')));
       continue;
     }
     if (edge.depth > CASCADE_DEPTH_LIMIT) {
       throw new CerialValidationError(depthMessage(edge.path[0]!, edge.model.name, [...edge.path, edge.model.name]));
     }
-    out.push({ ...edge, unrolled: false, beyondLimit: [] });
+    out.push({ ...edge, unrolled: false, levelSize: 1, levelDescends: false, beyondLimit: [] });
   }
 
   return out;
@@ -128,16 +175,16 @@ function emitDependentStatements(
   const rootName = walked[0]!.path[0]!;
   const parentTarget: string[] = [];
   const captured: Array<string | undefined> = [];
+  const capturedTables: Array<ReadonlySet<string>> = [];
   const lastCaptured: string[] = [];
 
   const rootTable = registry[rootName]!.tableName;
 
-  // Ids a row of `table` must not be captured again from: the root rows and every earlier capture of the
-  // table. Without it a cycle in the data would look as deep as the limit
+  // Ids a row of `table` must not be captured again from: the root rows and every earlier capture that can
+  // hold the table. Without it a cycle in the data would look as deep as the limit
   const seen = (table: string, upTo: number): string => {
-    const holders = edges
-      .slice(0, upTo)
-      .flatMap((e, j) => (e.model.tableName === table && captured[j] ? [captured[j]!] : []));
+    const holders: string[] = [];
+    for (let j = 0; j < upTo; j++) if (captured[j] && capturedTables[j]!.has(table)) holders.push(captured[j]!);
     if (table === rootTable) holders.unshift(rootTarget);
 
     return holders.map((h) => ` AND id NOT IN ${h}`).join('');
@@ -145,15 +192,31 @@ function emitDependentStatements(
 
   edges.forEach((edge, i) => {
     parentTarget[i] = edge.depth === 1 ? rootTarget : lastCaptured[edge.depth - 1]!;
-    const descends = (edges[i + 1]?.depth ?? 0) > edge.depth || edge.beyondLimit.length > 0;
-    if (edge.onDelete !== 'Cascade' || !descends) return;
+    if (!edge.levelSize) return;
+
+    const level = edges.slice(i, i + edge.levelSize).filter((e) => e.onDelete === 'Cascade');
+    const descends = edge.unrolled ? edge.levelDescends : (edges[i + 1]?.depth ?? 0) > edge.depth;
+    if (!level.length || !descends) return;
+
+    // One capture for the whole level: a SELECT per table, its relations OR-ed together
+    const byTable = new Map<string, string[]>();
+    for (const e of level) {
+      const conditions = byTable.get(e.model.tableName) ?? [];
+      conditions.push(`${e.recordField!.name} ${e.isArray ? 'CONTAINSANY' : 'IN'} ${parentTarget[i]}`);
+      byTable.set(e.model.tableName, conditions);
+    }
+    const selects = [...byTable].map(([table, conditions]) => {
+      const where = conditions.length > 1 ? `(${conditions.join(' OR ')})` : conditions[0];
+      const exclude = edge.unrolled ? seen(table, i) : '';
+
+      return `(SELECT VALUE id FROM ${table} WHERE ${where}${exclude})`;
+    });
 
     captured[i] = `$cd_${i + 1}`;
+    capturedTables[i] = new Set(byTable.keys());
     lastCaptured[edge.depth] = captured[i]!;
-    const match = edge.isArray ? 'CONTAINSANY' : 'IN';
-    const exclude = edge.unrolled ? seen(edge.model.tableName, i) : '';
     statements.push(
-      `LET ${captured[i]} = (SELECT VALUE id FROM ${edge.model.tableName} WHERE ${edge.recordField!.name} ${match} ${parentTarget[i]}${exclude})`,
+      `LET ${captured[i]} = ${selects.length > 1 ? `array::flatten([${selects.join(', ')}])` : selects[0]}`,
     );
   });
 
@@ -177,7 +240,7 @@ function emitDependentStatements(
   });
 
   edges.forEach((edge, i) => {
-    edge.beyondLimit.forEach((dep) => {
+    edge.beyondLimit.forEach(({ dep, path }) => {
       const checkVarName = `$deep_${checkVars.length + 1}`;
       const match = dep.isArray ? 'CONTAINSANY' : 'IN';
       checkVars.push(checkVarName);
@@ -186,7 +249,7 @@ function emitDependentStatements(
         `LET ${checkVarName} = (SELECT count() as cnt FROM ${dep.model.tableName} WHERE ${dep.recordField!.name} ${match} ${captured[i]}${seen(dep.model.tableName, i + 1)} GROUP ALL)[0].cnt ?? 0`,
       );
       statements.push(
-        `IF ${checkVarName} > 0 { THROW "${depthMessage(walked[0]!.path[0]!, dep.model.name, [...edge.path, edge.model.name, dep.model.name])}" }`,
+        `IF ${checkVarName} > 0 { THROW "${depthMessage(walked[0]!.path[0]!, dep.model.name, [...path, dep.model.name])}" }`,
       );
     });
   });

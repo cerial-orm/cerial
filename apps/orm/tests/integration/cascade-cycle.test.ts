@@ -27,6 +27,16 @@ model Node {
   children Relation[] @model(Node) @key(tree)
 }
 
+model Branch {
+  id Record @id
+  leftId Record?
+  left Relation? @field(leftId) @model(Branch) @onDelete(Cascade) @key(leftTree)
+  lefts Relation[] @model(Branch) @key(leftTree)
+  rightId Record?
+  right Relation? @field(rightId) @model(Branch) @onDelete(Cascade) @key(rightTree)
+  rights Relation[] @model(Branch) @key(rightTree)
+}
+
 model Ping {
   id Record @id
   pongId Record?
@@ -56,7 +66,11 @@ beforeAll(async () => {
   await db.connect('ws://127.0.0.1:8000/rpc');
   await db.signin({ username: 'root', password: 'root' });
   await db.use({ namespace: NAMESPACE, database: DATABASE });
-  await db.query('DEFINE TABLE node SCHEMALESS; DEFINE TABLE ping SCHEMALESS; DEFINE TABLE pong SCHEMALESS;').collect();
+  await db
+    .query(
+      'DEFINE TABLE node SCHEMALESS; DEFINE TABLE branch SCHEMALESS; DEFINE TABLE ping SCHEMALESS; DEFINE TABLE pong SCHEMALESS;',
+    )
+    .collect();
 });
 
 afterAll(async () => {
@@ -75,7 +89,7 @@ const count = async (table: string): Promise<number> => {
 };
 
 const reset = async (): Promise<void> => {
-  await db.query('DELETE node; DELETE ping; DELETE pong;').collect();
+  await db.query('DELETE node; DELETE branch; DELETE ping; DELETE pong;').collect();
 };
 
 /** One node per level: n0 is the root and n<k> hangs under n<k-1> */
@@ -238,5 +252,106 @@ describe('cycles', () => {
       executeQuery(db, buildDeleteUniqueWithCascade(registry.Node!, { id: 'n0' }, registry, false)),
     ).rejects.toThrow();
     expect(await levelsLeft(LIMIT + 1)).toEqual(Array(LIMIT + 2).fill(1));
+  });
+});
+
+describe('two cascading self-relations', () => {
+  const deleteBranch = (id: string): CompiledQuery =>
+    buildDeleteUniqueWithCascade(registry.Branch!, { id }, registry, false, true);
+
+  /** b0 is the root and b<k> hangs under b<k-1> through the left relation when k is odd, the right one when even */
+  const seedAlternating = async (levels: number): Promise<void> => {
+    await reset();
+    const statements = ['CREATE branch:b0'];
+    for (let k = 1; k <= levels; k++) {
+      statements.push(`CREATE branch:b${k} SET ${k % 2 ? 'leftId' : 'rightId'} = branch:b${k - 1}`);
+    }
+    await db.query(statements.join(';')).collect();
+  };
+
+  const branchesLeft = async (levels: number): Promise<number[]> => {
+    const out: number[] = [];
+    for (let k = 0; k <= levels; k++) {
+      const [rows] = await db.query<[{ id: unknown }[]]>(`SELECT id FROM branch:b${k}`).collect();
+      out.push(rows!.length);
+    }
+
+    return out;
+  };
+
+  test.each(['callback', 'manual'] as const)(
+    'a branching tree over both relations deletes fully in a %s transaction',
+    async (mode) => {
+      await reset();
+      await db
+        .query(
+          `CREATE branch:r; CREATE branch:l1 SET leftId = branch:r; CREATE branch:r1 SET rightId = branch:r;
+         CREATE branch:l2 SET rightId = branch:l1; CREATE branch:r2 SET leftId = branch:r1;
+         CREATE branch:l3 SET leftId = branch:l2; CREATE branch:r3 SET rightId = branch:r2;
+         CREATE branch:s; CREATE branch:s1 SET leftId = branch:s; CREATE branch:s2 SET rightId = branch:s1;`,
+        )
+        .collect();
+
+      expect(await inTransaction(mode, deleteBranch('r'))).toBeUndefined();
+      expect(await count('branch')).toBe(3);
+      const [kept] = await db.query<[{ id: unknown }[]]>('SELECT id FROM branch:s, branch:s1, branch:s2').collect();
+      expect(kept).toHaveLength(3);
+    },
+  );
+
+  test('a row reached through both relations is deleted once and the delete ends', async () => {
+    await reset();
+    await db
+      .query(
+        `CREATE branch:r; CREATE branch:m SET leftId = branch:r, rightId = branch:r;
+         CREATE branch:m1 SET leftId = branch:m, rightId = branch:m;`,
+      )
+      .collect();
+
+    expect(await inTransaction('callback', deleteBranch('r'))).toBeUndefined();
+    expect(await count('branch')).toBe(0);
+  });
+
+  test('a data cycle across the two relations terminates', async () => {
+    await reset();
+    await db
+      .query(
+        'CREATE branch:x SET leftId = branch:y; CREATE branch:y SET rightId = branch:x; CREATE branch:z SET leftId = branch:y; CREATE branch:keep;',
+      )
+      .collect();
+
+    expect(await inTransaction('callback', deleteBranch('x'))).toBeUndefined();
+    expect(await count('branch')).toBe(1);
+  });
+
+  test.each(['callback', 'manual'] as const)(
+    'a tree at the limit deletes every level in a %s transaction',
+    async (mode) => {
+      await seedAlternating(LIMIT);
+
+      expect(await inTransaction(mode, deleteBranch('b0'))).toBeUndefined();
+      expect(await branchesLeft(LIMIT)).toEqual(Array(LIMIT + 1).fill(0));
+    },
+  );
+
+  test.each(['callback', 'manual'] as const)(
+    'a tree one level past the limit is refused and every level stays in a %s transaction',
+    async (mode) => {
+      await seedAlternating(LIMIT + 1);
+
+      const refusal = await inTransaction(mode, deleteBranch('b0'));
+
+      expect(refusal).toContain(`cascade deeper than ${LIMIT} levels at Branch (Branch > Branch`);
+      expect(await branchesLeft(LIMIT + 1)).toEqual(Array(LIMIT + 2).fill(1));
+    },
+  );
+
+  test('a refusal outside a transaction leaves every level', async () => {
+    await seedAlternating(LIMIT + 1);
+
+    await expect(
+      executeQuery(db, buildDeleteUniqueWithCascade(registry.Branch!, { id: 'b0' }, registry, false)),
+    ).rejects.toThrow();
+    expect(await branchesLeft(LIMIT + 1)).toEqual(Array(LIMIT + 2).fill(1));
   });
 });

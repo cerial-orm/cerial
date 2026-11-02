@@ -40,6 +40,16 @@ model Pong {
 }
 `);
 
+/** A model with `count` cascading self-relations, each with its reverse side */
+const selfModel = (name: string, count: number): string =>
+  `model ${name} {\n  id Record @id\n${Array.from(
+    { length: count },
+    (_, k) =>
+      `  p${k}Id Record?\n  p${k} Relation? @field(p${k}Id) @model(${name}) @onDelete(Cascade) @key(t${k})\n  c${k} Relation[] @model(${name}) @key(t${k})\n`,
+  ).join('')}}\n`;
+
+const multi = parseModelRegistry([1, 2, 3].map((n) => selfModel(`Self${n}`, n)).join('\n'));
+
 const deleteMany = (name: string): string => buildDeleteWithCascade(registry[name]!, {}, registry, true).text;
 
 const lines = (text: string): string[] => text.split(';\n').map((l) => l.replace(/;$/, ''));
@@ -127,6 +137,45 @@ describe('a mutual cycle of two models', () => {
 
     expect(throwLine).toContain(`cascade deeper than ${LIMIT} levels at `);
     expect(throwLine).toContain('(Ping > Pong > Ping > Pong');
+  });
+});
+
+describe('several cascading relations on one cycle', () => {
+  // to_delete, one capture per level, a check pair per relation past the limit, blocked, one delete per
+  // relation per level, the root delete
+  const bound = (relations: number): number => 1 + LIMIT + 2 * relations + 1 + LIMIT * relations + 1;
+
+  test.each([1, 2, 3])('%d self-relations build with a script linear in depth times relations', (n) => {
+    const text = buildDeleteWithCascade(multi[`Self${n}`]!, {}, multi, true).text;
+
+    expect(lines(text)).toHaveLength(bound(n));
+    expect(captures(text)).toHaveLength(LIMIT);
+    expect(deletes(text)).toHaveLength(LIMIT * n + 1);
+  });
+
+  test('a mutual pair stays within the same bound', () => {
+    // two relations in all: one per model
+    expect(lines(deleteMany('Ping')).length).toBeLessThanOrEqual(bound(2));
+  });
+
+  test('one capture per level holds every relation of the level, never a capture per relation', () => {
+    const text = buildDeleteWithCascade(multi.Self2!, {}, multi, true).text;
+
+    expect(captures(text)[0]).toBe(
+      'LET $cd_1 = (SELECT VALUE id FROM self2 WHERE (p0Id IN $to_delete.id OR p1Id IN $to_delete.id) AND id NOT IN $to_delete.id)',
+    );
+    expect(captures(text)[1]).toBe(
+      'LET $cd_3 = (SELECT VALUE id FROM self2 WHERE (p0Id IN $cd_1 OR p1Id IN $cd_1) AND id NOT IN $to_delete.id AND id NOT IN $cd_1)',
+    );
+  });
+
+  test('past the limit one check per relation refuses the delete', () => {
+    const text = buildDeleteWithCascade(multi.Self3!, {}, multi, true).text;
+
+    expect(lines(text).filter((l) => l.startsWith('IF $deep_'))).toHaveLength(3);
+    expect(lines(text).find((l) => l.startsWith('LET $blocked'))).toBe(
+      'LET $blocked = $deep_1 > 0 OR $deep_2 > 0 OR $deep_3 > 0',
+    );
   });
 });
 
