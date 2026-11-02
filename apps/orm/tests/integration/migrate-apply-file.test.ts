@@ -607,6 +607,24 @@ describe('a removal in the file must be one the fresh plan makes', () => {
   });
 });
 
+describe('a prose comment that starts like a statement', () => {
+  test('is ignored: the file applies and the prose is not reported as a skipped statement', async () => {
+    const fixture = await planned('prose', { 'app/schema.cerial': NOTE }, { 'app/schema.cerial': NOTE_TAG_NO_BODY });
+    await writeFile(
+      fixture.file,
+      `${fixture.text}-- DEFINE FIELD foo ON bar later, once the team agrees\n-- REMOVE TABLE legacy when we are done\n-- UPDATE the changelog\n`,
+    );
+
+    const result = await apply(fixture.dir, fixture.name, [fixture.file]);
+
+    expect(result.stderr).toBe('');
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).not.toContain('bar');
+    expect(await fieldsOf(fixture.db, 'note')).toEqual(expect.arrayContaining(['tag']));
+    expect(parsePlanFile(`${fixture.text}-- DEFINE FIELD foo ON bar later\n`).refusals).toEqual([]);
+  });
+});
+
 describe('a file whose database moves between the check and the lease', () => {
   test('is refused naming the change, and nothing is applied', async () => {
     const fixture = await planned('lease', { 'app/schema.cerial': NOTE }, { 'app/schema.cerial': NOTE_TAG_NO_BODY });
