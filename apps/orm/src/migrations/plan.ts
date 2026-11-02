@@ -10,6 +10,8 @@ export interface MigrationPlanItem {
   readonly class: DifferenceClass;
   readonly reason: string;
   readonly construct: string;
+  /** The raw name of the table the step acts on, from the difference; absent for a report of a database-level item. */
+  readonly table?: string;
 }
 
 export type MigrationPlan = readonly MigrationPlanItem[];
@@ -135,6 +137,7 @@ export function buildMigrationPlan(
     class: d.class,
     reason,
     construct: d.construct,
+    table: d.table,
   });
   const order = (table: string, key: string, kind: 'fields' | 'indexes'): number =>
     [...desired.keys()].indexOf(table) * 1e6 + [...desired.get(table)![kind].keys()].indexOf(key);
@@ -196,7 +199,7 @@ export function buildMigrationPlan(
         for (const statement of emitRemove(d, live)) stages[4]!.push({ at: 0, item: forward(d, statement) });
         break;
       default:
-        stages[5]!.push({ at: 0, item: { class: d.class, reason: d.reason, construct: d.construct } });
+        stages[5]!.push({ at: 0, item: { class: d.class, reason: d.reason, construct: d.construct, table: d.table } });
     }
   }
 

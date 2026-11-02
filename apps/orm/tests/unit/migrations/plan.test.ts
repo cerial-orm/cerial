@@ -157,6 +157,21 @@ describe('buildMigrationPlan reasons and reports', () => {
     expect(items[0]!.construct).toBe('functions');
   });
 
+  test('every step names the raw table it acts on, removals included', () => {
+    const live = schema([
+      table('user', [...USER_FIELDS, field('legacy', 'string')]),
+      table('gone', [field('id', 'record<gone>')]),
+    ]);
+    const items = plan(schema([table('user', USER_FIELDS), table('post', [field('title', 'string')])]), live, ['gone']);
+
+    expect(items.some((i) => i.statement?.startsWith('REMOVE TABLE'))).toBe(true);
+    expect(items.some((i) => i.statement?.startsWith('UPDATE'))).toBe(true);
+    for (const item of items.filter((i) => i.statement !== undefined)) {
+      expect(['user', 'post', 'gone']).toContain(item.table!);
+    }
+    expect(items.find((i) => i.statement?.startsWith('REMOVE TABLE'))!.table).toBe('gone');
+  });
+
   test('an empty difference list gives an empty plan', () => {
     expect(buildMigrationPlan([], STATEMENTS, schema([]))).toEqual([]);
   });
