@@ -14,6 +14,7 @@ const main = defineCommand({
     generate: () => import('../src/cli/commands/generate').then((m) => m.generateCommand),
     format: () => import('../src/cli/commands/format').then((m) => m.formatCommand),
     convert: () => import('../src/cli/commands/convert').then((m) => m.convertCommand),
+    migrate: () => import('../src/cli/commands/migrate').then((m) => m.migrateCommand),
     init: () => import('../src/cli/commands/init').then((m) => m.initCommand),
   },
 });
