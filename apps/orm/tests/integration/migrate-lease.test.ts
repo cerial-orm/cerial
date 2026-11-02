@@ -179,3 +179,40 @@ describe('migration lease', () => {
     await successor.release();
   });
 });
+
+describe('a holder name taken from the database', () => {
+  const HOSTILE = 'evil\u001b]0;pwned\u0007\nSECOND LINE';
+  const bindings = { holder: HOSTILE };
+
+  test('is rendered without raw control characters in the reclaim log', async () => {
+    const { db } = await scratch('esc_reclaim');
+    await db
+      .query(`CREATE ${MIGRATION_LEASE_TABLE}:migrate SET holder = $holder, expiresAt = time::now() - 1s`, bindings)
+      .collect();
+    const warn = spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      const lease = await acquireLease(db, FAST);
+      const logged = warn.mock.calls.map((call) => String(call[0])).find((text) => text.includes('Reclaimed'));
+      expect(logged).toBeDefined();
+      expect(logged).not.toMatch(/\p{Cc}/u);
+      expect(logged).toContain('evil');
+      await lease.release();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  test('is rendered without raw control characters in the timeout error', async () => {
+    const { db } = await scratch('esc_timeout');
+    await db
+      .query(`CREATE ${MIGRATION_LEASE_TABLE}:migrate SET holder = $holder, expiresAt = time::now() + 1h`, bindings)
+      .collect();
+
+    const error = await acquireLease(db, { leaseMs: 5000, waitMs: 60, pollMs: 10 }).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(CerialMigrationError);
+    expect((error as Error).message).not.toMatch(/\p{Cc}/u);
+    expect((error as Error).message).toContain('evil');
+  });
+});

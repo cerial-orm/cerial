@@ -2,6 +2,7 @@ import { Duration, RecordId, type Surreal } from 'surrealdb';
 import { CerialMigrationError } from '../errors';
 import { MIGRATION_LEASE_TABLE } from './state-tables';
 import type { StatePiece } from './state';
+import { sanitiseReason } from './comment';
 import { describe } from './util';
 
 export interface LeaseOptions {
@@ -96,7 +97,9 @@ async function attempt(surreal: Surreal, me: string, leaseMs: number): Promise<b
   // The UPDATE is conditional, but a read-back is the proof that this holder, and no concurrent one, owns the row.
   const now = await readHolder(surreal);
   if (now?.holder !== me) return false;
-  console.warn(`[cerial] Reclaimed the migration lease from expired holder ${before[0]?.holder ?? 'unknown'}.`);
+  console.warn(
+    `[cerial] Reclaimed the migration lease from expired holder ${sanitiseReason(String(before[0]?.holder ?? 'unknown'))}.`,
+  );
 
   return true;
 }
@@ -119,7 +122,7 @@ export async function acquireLease(surreal: Surreal, options: LeaseOptions = {})
       const current = await readHolder(surreal);
 
       throw new CerialMigrationError(
-        `Waited ${waited} ms for the migration lease, still held by ${current?.holder ?? 'another migrator'}; ` +
+        `Waited ${waited} ms for the migration lease, still held by ${sanitiseReason(String(current?.holder ?? 'another migrator'))}; ` +
           `it is released when that migration ends, or reclaimed once it expires.`,
       );
     }
