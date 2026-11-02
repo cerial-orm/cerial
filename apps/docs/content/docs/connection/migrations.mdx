@@ -13,7 +13,7 @@ Migrations execute SurrealQL statements that define the structure of your databa
 - **`DEFINE FIELD`** defines fields with types, defaults, and constraints
 - **`DEFINE INDEX`** creates indexes for [`@unique`](/schema/decorators/unique) fields
 
-These statements are idempotent. Running them multiple times has the same effect as running them once. Cerial emits every `DEFINE` with `OVERWRITE`, which replaces an existing definition of the same name, so migrations are safe to re-run. `OVERWRITE` only replaces what the statement names: it never removes a field or table that your schema no longer mentions (see [Removing a field](#schema-changes)).
+These statements are idempotent. Running them multiple times has the same effect as running them once. Cerial emits every `DEFINE` with `OVERWRITE`, which replaces an existing definition of the same name, so migrations are safe to re-run. `OVERWRITE` only replaces what the statement names. `DEFINE TABLE OVERWRITE` leaves the table's existing fields and indexes in place, and no emitted statement ever removes a field, index or table that your schema no longer mentions (see [Removing a field](#schema-changes)). Measured on SurrealDB 3.3.0.
 
 ## Lazy Migration (Default)
 
@@ -55,7 +55,7 @@ await client.connect({
 // Run migrations explicitly
 await client.migrate();
 
-// Now query — no migration overhead on first query
+// Now query, no migration overhead on first query
 const users = await client.db.User.findMany();
 ```
 
@@ -109,26 +109,29 @@ Each field generates a `DEFINE FIELD` statement with the appropriate SurrealQL t
 -- String field (required)
 DEFINE FIELD OVERWRITE name ON TABLE user TYPE string;
 
--- Optional field (accepts NONE and null)
-DEFINE FIELD OVERWRITE bio ON TABLE user TYPE option<string | null>;
+-- Optional field (accepts NONE)
+DEFINE FIELD OVERWRITE bio ON TABLE user TYPE option<string>;
+
+-- Optional and @nullable field (accepts NONE and null)
+DEFINE FIELD OVERWRITE nickname ON TABLE user TYPE option<string | null>;
 
 -- Boolean with default
 DEFINE FIELD OVERWRITE isActive ON TABLE user TYPE bool DEFAULT true;
 
 -- DateTime with @createdAt (set on creation when absent)
-DEFINE FIELD OVERWRITE createdAt ON TABLE user TYPE datetime DEFAULT time::now();
+DEFINE FIELD OVERWRITE createdAt ON TABLE user TYPE option<datetime> DEFAULT time::now();
 
 -- DateTime with @updatedAt (set on creation and re-set on every update)
-DEFINE FIELD OVERWRITE updatedAt ON TABLE user TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE user TYPE option<datetime> DEFAULT ALWAYS time::now();
 
 -- DateTime with @now (computed, not stored)
 DEFINE FIELD OVERWRITE currentTime ON TABLE user TYPE datetime COMPUTED time::now();
 
 -- Integer field
-DEFINE FIELD OVERWRITE age ON TABLE user TYPE option<int | null>;
+DEFINE FIELD OVERWRITE age ON TABLE user TYPE option<int>;
 
 -- Float field
-DEFINE FIELD OVERWRITE score ON TABLE user TYPE option<float | null>;
+DEFINE FIELD OVERWRITE score ON TABLE user TYPE option<float>;
 ```
 
 See [`@default`](/schema/decorators/default), [`@createdAt`](/schema/decorators/created-at), [`@updatedAt`](/schema/decorators/updated-at), and [`@now`](/schema/decorators/now) for details on each decorator.
@@ -144,12 +147,11 @@ DEFINE FIELD OVERWRITE authorId ON TABLE post TYPE record<user>;
 -- Optional record reference
 DEFINE FIELD OVERWRITE reviewerId ON TABLE post TYPE option<record<user>>;
 
--- Array of record references
-DEFINE FIELD OVERWRITE tagIds ON TABLE post TYPE option<array<record<tag>>>;
-DEFINE FIELD OVERWRITE tagIds[*] ON TABLE post TYPE record<tag>;
+-- Array of record references (duplicates are dropped, absent becomes [])
+DEFINE FIELD OVERWRITE tagIds ON TABLE post TYPE array<record<tag>> VALUE IF $value THEN $value.distinct() ELSE [] END;
 ```
 
-Array fields generate two statements: one for the array itself and one for the array elements (`field[*]`).
+Array fields default to an empty array, so they are not `option<...>`.
 
 ### Embedded Object Fields
 
@@ -161,7 +163,7 @@ DEFINE FIELD OVERWRITE address ON TABLE user TYPE object;
 DEFINE FIELD OVERWRITE address.street ON TABLE user TYPE string;
 DEFINE FIELD OVERWRITE address.city ON TABLE user TYPE string;
 DEFINE FIELD OVERWRITE address.state ON TABLE user TYPE string;
-DEFINE FIELD OVERWRITE address.zipCode ON TABLE user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE address.zipCode ON TABLE user TYPE option<string>;
 
 -- Optional object field
 DEFINE FIELD OVERWRITE shipping ON TABLE user TYPE option<object>;
@@ -169,10 +171,9 @@ DEFINE FIELD OVERWRITE shipping.street ON TABLE user TYPE string;
 DEFINE FIELD OVERWRITE shipping.city ON TABLE user TYPE string;
 
 -- Array of objects
-DEFINE FIELD OVERWRITE locations ON TABLE user TYPE option<array<object>>;
-DEFINE FIELD OVERWRITE locations[*] ON TABLE user TYPE object;
-DEFINE FIELD OVERWRITE locations[*].lat ON TABLE user TYPE float;
-DEFINE FIELD OVERWRITE locations[*].lng ON TABLE user TYPE float;
+DEFINE FIELD OVERWRITE locations ON TABLE user TYPE array<object>;
+DEFINE FIELD OVERWRITE locations.*.lat ON TABLE user TYPE float;
+DEFINE FIELD OVERWRITE locations.*.lng ON TABLE user TYPE float;
 ```
 
 ### Index Definitions
@@ -195,28 +196,25 @@ DEFINE FIELD OVERWRITE location ON TABLE user TYPE [float, float];
 -- Optional tuple: option<[float, float]>
 DEFINE FIELD OVERWRITE backup ON TABLE user TYPE option<[float, float]>;
 
--- Tuple with nullable element: [float, option<float>]
-DEFINE FIELD OVERWRITE coords ON TABLE user TYPE [float, option<float>];
+-- Tuple with a @nullable element: [float, float | null]
+DEFINE FIELD OVERWRITE coords ON TABLE user TYPE [float, float | null];
 
 -- Array of tuples: array<[float, float]>
 DEFINE FIELD OVERWRITE history ON TABLE user TYPE array<[float, float]>;
 ```
 
-**Sub-field constraints** are only emitted for tuple elements that need them, specifically elements with decorators ([`@default`](/schema/decorators/default), `@defaultAlways`, [`@createdAt`](/schema/decorators/created-at), [`@updatedAt`](/schema/decorators/updated-at)), `@nullable` elements, or object/nested-tuple elements:
+**Sub-field constraints** are only emitted for tuple elements that need them: elements with decorators ([`@default`](/schema/decorators/default), `@defaultAlways`, [`@createdAt`](/schema/decorators/created-at), [`@updatedAt`](/schema/decorators/updated-at)) and object or nested-tuple elements:
 
 ```sql
 -- Element with @default
 DEFINE FIELD OVERWRITE data[0] ON TABLE user TYPE string DEFAULT 'hello';
-
--- @nullable element
-DEFINE FIELD OVERWRITE data[1] ON TABLE user TYPE option<float | null>;
 
 -- Object element with sub-fields
 DEFINE FIELD OVERWRITE data[2] ON TABLE user TYPE object;
 DEFINE FIELD OVERWRITE data[2].name ON TABLE user TYPE string;
 ```
 
-Plain primitive elements (with no decorators or `@nullable`) do **not** get sub-field `DEFINE FIELD` statements. The parent tuple type literal already enforces their types. This is intentional, to avoid a [known SurrealDB issue](#known-limitation-tuple--object-interaction) where sub-field constraints on tuple elements can cause incorrect initialization.
+Plain primitive elements (with no decorators, including `@nullable` ones, whose `| null` lives in the tuple's type literal) do **not** get sub-field `DEFINE FIELD` statements. The parent tuple type literal already enforces their types. This is intentional, to avoid a [known SurrealDB issue](#known-limitation-tuple--object-interaction) where sub-field constraints on tuple elements can cause incorrect initialization.
 
 ### ID Fields
 
@@ -264,24 +262,23 @@ The generated migrations:
 DEFINE TABLE OVERWRITE user SCHEMAFULL;
 DEFINE FIELD OVERWRITE name ON TABLE user TYPE string;
 DEFINE FIELD OVERWRITE email ON TABLE user TYPE string;
-DEFINE FIELD OVERWRITE bio ON TABLE user TYPE option<string | null>;
-DEFINE FIELD OVERWRITE age ON TABLE user TYPE option<int | null>;
+DEFINE FIELD OVERWRITE bio ON TABLE user TYPE option<string>;
+DEFINE FIELD OVERWRITE age ON TABLE user TYPE option<int>;
 DEFINE FIELD OVERWRITE isActive ON TABLE user TYPE bool DEFAULT true;
-DEFINE FIELD OVERWRITE createdAt ON TABLE user TYPE datetime DEFAULT time::now();
+DEFINE FIELD OVERWRITE createdAt ON TABLE user TYPE option<datetime> DEFAULT time::now();
 DEFINE FIELD OVERWRITE address ON TABLE user TYPE object;
 DEFINE FIELD OVERWRITE address.street ON TABLE user TYPE string;
 DEFINE FIELD OVERWRITE address.city ON TABLE user TYPE string;
 DEFINE FIELD OVERWRITE address.state ON TABLE user TYPE string;
-DEFINE FIELD OVERWRITE address.zipCode ON TABLE user TYPE option<string | null>;
-DEFINE FIELD OVERWRITE postIds ON TABLE user TYPE option<array<record<post>>>;
-DEFINE FIELD OVERWRITE postIds[*] ON TABLE user TYPE record<post>;
+DEFINE FIELD OVERWRITE address.zipCode ON TABLE user TYPE option<string>;
+DEFINE FIELD OVERWRITE postIds ON TABLE user TYPE array<record<post>> VALUE IF $value THEN $value.distinct() ELSE [] END;
 DEFINE INDEX OVERWRITE user_email_unique ON TABLE user COLUMNS email UNIQUE;
 
 -- Post table
 DEFINE TABLE OVERWRITE post SCHEMAFULL;
 DEFINE FIELD OVERWRITE title ON TABLE post TYPE string;
-DEFINE FIELD OVERWRITE content ON TABLE post TYPE option<string | null>;
-DEFINE FIELD OVERWRITE publishedAt ON TABLE post TYPE option<datetime | null>;
+DEFINE FIELD OVERWRITE content ON TABLE post TYPE option<string>;
+DEFINE FIELD OVERWRITE publishedAt ON TABLE post TYPE option<datetime>;
 DEFINE FIELD OVERWRITE authorId ON TABLE post TYPE record<user>;
 ```
 
@@ -298,17 +295,26 @@ model User {
 }
 ```
 
-Regenerate and the new `DEFINE FIELD OVERWRITE phone ON TABLE user TYPE option<string | null>` statement is included. Existing records will have `NONE` for the new field until updated.
+Regenerate and the new `DEFINE FIELD OVERWRITE phone ON TABLE user TYPE option<string | null>` statement is included. Existing records have `NONE` for the new field until updated. A required field with no default has no value to give existing rows, so their next write to the row is refused until they hold one.
 
 :::warning
-**Removing a field** from the schema removes its `DEFINE FIELD` statement from the generated migrations, but Cerial never emits `REMOVE FIELD`. The field **keeps both its definition and its data** in SurrealDB, and queries such as `SELECT *` still return it. Re-running migrations does not change this, and `DEFINE TABLE OVERWRITE` does not remove fields from a table either.
+**Removing a field** from the schema removes its `DEFINE FIELD` statement from the generated migrations, but the client's migrations never emit `REMOVE FIELD`. The field **keeps both its definition and its data** in SurrealDB, and `SELECT *` still returns it. Re-running migrations does not change this, and `DEFINE TABLE OVERWRITE` does not remove fields from a table either.
 
-Cerial has no command for dropping a field today. To remove one, run `REMOVE FIELD <name> ON TABLE <table>;` yourself, and `UPDATE <table> UNSET <name>;` to delete the stored values, since removing the definition alone leaves them in place.
+If you drop the definition yourself with `REMOVE FIELD <name> ON TABLE <table>;`, the stored values stay on every row that held one, and **every later write to such a row fails** (`Found field '<name>', but no such field exists`) until the value is unset. Reads are unaffected and nothing is lost, but the row cannot be updated. Remove the definition and unset the values together, in this order, in one transaction:
+
+```sql
+BEGIN;
+REMOVE FIELD <name> ON TABLE <table>;
+UPDATE <table> UNSET <name>;
+COMMIT;
+```
+
+Unsetting first and removing the definition second fails with a coercion error and rolls the whole transaction back. To remove a single child of an object field, unset the child path (`UNSET <parent>.<child>`); the row keeps an empty parent object.
 :::
 
 **Changing a field type:**
 
-Changing a field type regenerates the `DEFINE FIELD` with the new type. SurrealDB enforces the new type on future writes, but existing data with the old type may cause runtime errors until updated.
+Changing a field type regenerates the `DEFINE FIELD` with the new type. SurrealDB 3.3.0 accepts the new definition over existing rows and leaves their values untouched, so reads still return the old value. The next write that touches such a row fails with `Couldn't coerce value for field` until that row holds a value of the new type. Setting the field to a valid value repairs the row.
 
 ## Known Limitation: Tuple + Object Interaction
 
@@ -317,6 +323,6 @@ SurrealDB has a bug where optional tuple fields with sub-field constraints (`DEF
 1. The model has an optional tuple field with per-element `DEFINE FIELD` sub-field constraints
 2. The model also has an optional object field with its own sub-field constraints
 
-Cerial mitigates this by skipping sub-field `DEFINE FIELD` statements for primitive tuple elements that don't need them (no decorators, not `@nullable`). The parent tuple type literal already enforces element types, so the sub-field constraints are redundant for plain primitives.
+Cerial mitigates this by skipping sub-field `DEFINE FIELD` statements for primitive tuple elements that don't need them (no decorators). The parent tuple type literal already enforces element types, so the sub-field constraints are redundant for plain primitives.
 
 For models that combine optional tuples with required-decorated elements (which _need_ sub-field constraints) and optional object fields, Cerial's schema validator reports an error at generation time. This prevents deploying a schema that would trigger the bug.
