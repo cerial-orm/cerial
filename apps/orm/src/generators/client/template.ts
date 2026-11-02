@@ -110,10 +110,23 @@ export type MigrationEventCallback = (event: {
   error?: Error;
 }) => void;
 
+/** The values \`ClientOptions.migrations\` accepts */
+export type MigrationsMode = 'auto' | 'verify' | 'off';
+
+const MIGRATIONS_MODES: readonly MigrationsMode[] = ['auto', 'verify', 'off'];
+
 /**
   * Client options for configuring callbacks and events
   */
 export interface ClientOptions {
+  /**
+   * How the client treats the schema (default: 'auto').
+   * - 'auto': apply a model's DDL the first time it is used.
+   * - 'verify': check the live schema against the generated one on connect and apply nothing.
+   * - 'off': apply nothing, check nothing and read or write no migration state on any implicit entry
+   *   (model queries, query, $raw, $live, $transaction). An explicit migrate() call still runs.
+   */
+  migrations?: MigrationsMode;
   /** Callback(s) to run before each query - can be single function or array */
   onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
   /** Callback for migration events (start, complete, error) */
@@ -152,6 +165,7 @@ export class ${clientClassName} {
   private _onMigrationEvent?: MigrationEventCallback;
   private _userCallbacks: BeforeQueryCallback[] = [];
   private _includeStatementInErrors = false;
+  private _migrations: MigrationsMode = 'auto';
   // Initialised explicitly so the guard proxy finds it on the instance rather than treating it as an unknown name.
   private _perModelCallbacks?: PerModelCallbacks = undefined;
 
@@ -162,6 +176,12 @@ export class ${clientClassName} {
         ? options.onBeforeQuery
         : [options.onBeforeQuery];
     }
+
+    const migrations = options?.migrations === undefined ? 'auto' : options.migrations;
+    if (!MIGRATIONS_MODES.includes(migrations)) {
+      throw new CerialValidationError(\`Invalid migrations option \${JSON.stringify(migrations)}. Allowed values: \${MIGRATIONS_MODES.map(mode => \`'\${mode}'\`).join(', ')}.\`, { operation: 'constructor' });
+    }
+    this._migrations = migrations;
 
     this._onMigrationEvent = options?.onMigrationEvent;
     this._includeStatementInErrors = options?.includeStatementInErrors ?? false;
@@ -374,6 +394,8 @@ ${generateResolveConnection(connectConfigName, databasePins)}
    * @internal
    */
   async ensureModelsMigrated(modelNames: ModelName[]): Promise<void> {
+    // Under 'off' no implicit entry touches the schema; only an explicit migrate() does.
+    if (this._migrations === 'off') return;
     const wanted = [...new Set(modelNames)].filter(name => name in migrationContext.models && !this._migratedModels.has(name));
     if (!wanted.length) return;
     this._throwFailed(wanted);
