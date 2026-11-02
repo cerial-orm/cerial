@@ -783,8 +783,6 @@ export class CerialClient {
   private connectionManager: ConnectionManager<typeof modelRegistry>;
   private _db: DatabaseProxy<typeof modelRegistry> | null = null;
   private _migratedModels: Set<ModelName> = new Set();
-  private _pendingMigrations: Set<ModelName> = new Set();
-  private _migrationPromises: Map<ModelName, Promise<void>> = new Map();
   // Persisted migration state, read once per client; models are applied in client-level batches, one after another, so they never contend for the database lease with each other.
   private _state: Promise<MigrationState> | null = null;
   private _batch: Promise<unknown> = Promise.resolve();
@@ -1837,8 +1835,6 @@ export class CerialClient {
   resetMigrationState(): void {
     this._bypassState = true;
     this._migratedModels.clear();
-    this._pendingMigrations.clear();
-    this._migrationPromises.clear();
     this._failedMigrations.clear();
     this._state = null;
   }
@@ -1848,77 +1844,12 @@ export class CerialClient {
    * @param modelName - The model name to migrate
    */
   async migrateModel(modelName: ModelName): Promise<void> {
-    // Check if already migrated
     if (this._migratedModels.has(modelName)) return;
+    this._throwFailed([modelName]);
 
-    const failure = this._failedMigrations.get(modelName);
-    if (failure) throw failure;
-
-    // Thread safety: wait for in-progress migration
-    if (this._pendingMigrations.has(modelName)) {
-      const promise = this._migrationPromises.get(modelName);
-      if (promise) await promise;
-      return;
-    }
-
-    // Mark as pending
-    this._pendingMigrations.add(modelName);
-
-    // Create migration promise
-    const migrationPromise = this._doMigrateModel(modelName);
-    this._migrationPromises.set(modelName, migrationPromise);
-
-    try {
-      await migrationPromise;
-    } finally {
-      this._pendingMigrations.delete(modelName);
-      this._migrationPromises.delete(modelName);
-    }
-  }
-
-  /**
-   * Internal method to perform migration for a model
-   * @internal
-   */
-  private async _doMigrateModel(modelName: ModelName): Promise<void> {
-    if (!this._db)
-      throw new CerialNotConnectedError('Not connected. Call connect() first.', {
-        model: modelName,
-        operation: 'migrate',
-      });
-
-    this._onMigrationEvent?.({ type: 'start', modelName });
-
-    // Outside the try so a failure can name the DDL it came from.
-    const query = getModelMigrationQuery(modelName);
-    try {
-      const surreal = this.connectionManager.getDdlSurreal();
-      if (!surreal)
-        throw new CerialNotConnectedError('No active connection.', { model: modelName, operation: 'migrate' });
-
-      await surreal.query(query);
-
-      // Mark as migrated
-      this._migratedModels.add(modelName);
-      this._onMigrationEvent?.({ type: 'complete', modelName });
-    } catch (error) {
-      this._onMigrationEvent?.({ type: 'error', modelName, error: error as Error });
-      const failure =
-        error instanceof CerialError
-          ? error
-          : new CerialMigrationError(
-              `Migration of ${modelName} failed: ${error instanceof Error ? error.message : String(error)}`,
-              {
-                model: modelName,
-                operation: 'migrate',
-                statement: { text: query, vars: {} },
-                cause: error,
-              },
-            );
-      // Not being connected is a state, not a DDL verdict: the next query may succeed.
-      if (!(failure instanceof CerialNotConnectedError)) this._failedMigrations.set(modelName, failure);
-      throw failure;
-    }
+    const run = this._batch.then(() => this._migrateBatch([modelName], true));
+    this._batch = run.catch(() => undefined);
+    await run;
   }
 
   /**
