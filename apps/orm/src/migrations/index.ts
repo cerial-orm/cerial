@@ -22,3 +22,4 @@ export {
   type MigrationPlan,
   type MigrationPlanItem,
 } from './plan';
+export { findDrift, type DriftItem, type DriftReport } from './drift';
