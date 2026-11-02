@@ -5,6 +5,7 @@ import { buildMigrationPlan, indexDesiredStatements } from './plan';
 import { readLiveSchema } from './reader';
 import type { MigrationState } from './state';
 import type { SchemaModel } from './types';
+import { describe } from './util';
 
 /** Held on `globalThis` so a second copy of the package in the process shares the flag instead of warning again. */
 const PRODUCTION_WARNED = Symbol.for('cerial.migrations.productionWarned');
@@ -40,6 +41,22 @@ export interface AutoChangeInput {
  * tables and warns with the plan that is about to be applied. Warns only; the caller applies as it always did.
  */
 export async function warnAutoChange(surreal: Surreal, state: MigrationState, input: AutoChangeInput): Promise<void> {
+  try {
+    await warnPlan(surreal, state, input);
+  } catch (cause) {
+    // Only a notice: failing here would block the apply the warning is about.
+    console.warn(
+      sanitiseReason(
+        [
+          '[cerial] migrations: could not compute the plan for the schema change about to be applied: ',
+          describe(cause),
+        ].join(''),
+      ),
+    );
+  }
+}
+
+async function warnPlan(surreal: Surreal, state: MigrationState, input: AutoChangeInput): Promise<void> {
   const live = await readLiveSchema(surreal);
   const changed = new Set(input.tables);
   const differences = diffSchema(input.manifest, live, { managedTables: state.schema?.managedTables ?? [] }).filter(
