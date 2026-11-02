@@ -27,9 +27,9 @@ export interface ApplyModel {
   readonly desired?: TableModel;
 }
 
-export interface ApplyOptions {
+/** One schema entry of an apply: the models its plan steps converge and the schema row written once they all did. */
+export interface ApplyEntry {
   readonly schemaName: string;
-  readonly cerialVersion: string;
   /** Every model this apply may mark `applied`. A model whose statements did not all run stays unmarked. */
   readonly models: readonly ApplyModel[];
   /**
@@ -37,18 +37,44 @@ export interface ApplyOptions {
    * here: the first is what ran, the second is read under the lease.
    */
   readonly schema?: Omit<SchemaStateInput, 'statements' | 'previousManagedTables'>;
+}
+
+interface ApplyBase {
+  readonly cerialVersion: string;
   /** A lease the caller already holds (and releases). Without one, `applyPlan` takes the lease and releases it. */
   readonly lease?: MigrationLease;
   readonly leaseOptions?: LeaseOptions;
 }
 
+/**
+ * One schema entry (`schemaName`, `models`, `schema`), or `entries`: several entries sharing the connection, applied
+ * in one transaction so a failure in any of them rolls back all of them.
+ */
+export type ApplyOptions = ApplyBase &
+  (
+    | (ApplyEntry & { readonly entries?: never })
+    | {
+        readonly entries: readonly ApplyEntry[];
+        readonly schemaName?: never;
+        readonly models?: never;
+        readonly schema?: never;
+      }
+  );
+
+export interface ApplyEntryResult {
+  readonly schemaName: string;
+  readonly applied: readonly string[];
+  readonly skipped: readonly string[];
+}
+
 export interface ApplyResult {
   /** The statements the transaction ran, in order. */
   readonly executed: readonly string[];
-  /** Models marked `applied`. */
+  /** Models marked `applied`, across every entry. */
   readonly applied: readonly string[];
   /** Models left without state because a statement of theirs was commented out. */
   readonly skipped: readonly string[];
+  readonly entries: readonly ApplyEntryResult[];
 }
 
 // What the other statements of an aborted transaction answer; only the statement that caused it carries its own error.
@@ -58,6 +84,8 @@ const GENERIC_FAILURE =
 
 /** A statement the plan carries as a `--` comment is not run, the way a file apply skips it. */
 const isCommented = (statement: string): boolean => statement.trimStart().startsWith('--');
+
+const entriesOf = (options: ApplyOptions): readonly ApplyEntry[] => options.entries ?? [options as ApplyEntry];
 
 function merge(pieces: readonly StatePiece[]): StatePiece {
   const bindings: Record<string, unknown> = {};
@@ -69,6 +97,18 @@ function merge(pieces: readonly StatePiece[]): StatePiece {
   }
 
   return { query: pieces.map((p) => p.query).join(';\n'), bindings };
+}
+
+/** Gives a piece's bindings a suffix, so the same builder can run once per entry inside one script. */
+function suffixed(piece: StatePiece, suffix: string): StatePiece {
+  let query = piece.query;
+  const bindings: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(piece.bindings)) {
+    query = query.replace(new RegExp(['\\$', key, '\\b'].join(''), 'g'), ['$', key, suffix].join(''));
+    bindings[[key, suffix].join('')] = value;
+  }
+
+  return { query, bindings };
 }
 
 function reportFailure(
@@ -93,14 +133,19 @@ function reportFailure(
   });
 }
 
-async function writePending(surreal: Surreal, options: ApplyOptions, models: readonly ApplyModel[]): Promise<void> {
-  if (!models.length) return;
+interface PendingRow {
+  readonly schemaName: string;
+  readonly model: ApplyModel;
+}
+
+async function writePending(surreal: Surreal, cerialVersion: string, rows: readonly PendingRow[]): Promise<void> {
+  if (!rows.length) return;
   const piece = buildModelStateWrite(
-    models.map((m) => ({
-      schemaName: options.schemaName,
-      modelName: m.modelName,
-      fingerprint: m.fingerprint,
-      cerialVersion: options.cerialVersion,
+    rows.map(({ schemaName, model }) => ({
+      schemaName,
+      modelName: model.modelName,
+      fingerprint: model.fingerprint,
+      cerialVersion,
       status: 'pending' as const,
     })),
   );
@@ -135,46 +180,56 @@ async function applyUnderLease(
   options: ApplyOptions,
   lease: MigrationLease,
 ): Promise<ApplyResult> {
+  const entries = entriesOf(options);
   const runnable: string[] = [];
   const skippedTables = new Set<string>();
+  let anySkipped = false;
   for (const item of plan) {
     if (item.statement === undefined) continue;
     if (isCommented(item.statement)) {
+      anySkipped = true;
       if (item.table !== undefined) skippedTables.add(item.table);
       continue;
     }
     runnable.push(trimStatement(item.statement));
   }
 
-  const converged = options.models.filter((m) => !skippedTables.has(m.table));
-  const skipped = options.models.filter((m) => skippedTables.has(m.table));
-  const complete = !skipped.length;
+  const split = entries.map((entry) => ({
+    entry,
+    converged: entry.models.filter((m) => !skippedTables.has(m.table)),
+    skipped: entry.models.filter((m) => skippedTables.has(m.table)),
+  }));
+  // A skipped statement of any table, a model's or not, leaves the database short of the schema.
+  const complete = !anySkipped;
 
-  await writePending(surreal, options, options.models);
+  await writePending(
+    surreal,
+    options.cerialVersion,
+    entries.flatMap((entry) => entry.models.map((model) => ({ schemaName: entry.schemaName, model }))),
+  );
 
   const pieces: StatePiece[] = [];
-  if (converged.length) {
-    pieces.push(
-      buildModelStateWrite(
-        converged.map((m) => ({
-          schemaName: options.schemaName,
-          modelName: m.modelName,
-          fingerprint: m.fingerprint,
-          cerialVersion: options.cerialVersion,
-          status: 'applied' as const,
-        })),
-      ),
-    );
-  }
-  if (complete && options.schema) {
-    const { schema } = await readState(surreal, options.schemaName);
-    pieces.push(
-      buildSchemaStateWrite({
-        ...options.schema,
+  const convergedRows = split.flatMap(({ entry, converged }) =>
+    converged.map((m) => ({
+      schemaName: entry.schemaName,
+      modelName: m.modelName,
+      fingerprint: m.fingerprint,
+      cerialVersion: options.cerialVersion,
+      status: 'applied' as const,
+    })),
+  );
+  if (convergedRows.length) pieces.push(buildModelStateWrite(convergedRows));
+  if (complete) {
+    for (const [i, { entry }] of split.entries()) {
+      if (!entry.schema) continue;
+      const { schema } = await readState(surreal, entry.schemaName);
+      const piece = buildSchemaStateWrite({
+        ...entry.schema,
         statements: runnable,
         previousManagedTables: schema?.managedTables ?? [],
-      }),
-    );
+      });
+      pieces.push(i ? suffixed(piece, String(i)) : piece);
+    }
   }
   const tail = merge([lease.holderCheck(), ...pieces]);
   const script = ['BEGIN', ...runnable, tail.query, 'COMMIT', ''].join(';\n');
@@ -187,33 +242,43 @@ async function applyUnderLease(
   }
   if (responses.some((r) => !r.success)) throw reportFailure(responses, [...runnable, tail.query]);
 
-  const touched = converged.map((m) => m.table);
-  if (touched.length) {
+  const convergedAll = split.flatMap(({ entry, converged }) =>
+    converged.map((model) => ({ schemaName: entry.schemaName, model })),
+  );
+  if (convergedAll.length) {
     const live = await readLiveSchema(surreal);
-    const bad = converged.filter((m) => disagrees(m, live.tables));
+    const bad = convergedAll.filter(({ model }) => disagrees(model, live.tables));
     if (bad.length) {
-      await writePending(surreal, options, bad);
+      await writePending(surreal, options.cerialVersion, bad);
 
       throw new CerialMigrationError(
-        `The migration committed but the live table(s) ${bad.map((m) => JSON.stringify(m.table)).join(', ')} do not match the schema; their state stays pending.`,
+        `The migration committed but the live table(s) ${bad.map(({ model }) => JSON.stringify(model.table)).join(', ')} do not match the schema; their state stays pending.`,
       );
     }
   }
 
-  return {
-    executed: runnable,
+  const perEntry = split.map(({ entry, converged, skipped }) => ({
+    schemaName: entry.schemaName,
     applied: converged.map((m) => m.modelName),
     skipped: skipped.map((m) => m.modelName),
+  }));
+
+  return {
+    executed: runnable,
+    applied: perEntry.flatMap((e) => e.applied),
+    skipped: perEntry.flatMap((e) => e.skipped),
+    entries: perEntry,
   };
 }
 
 /**
  * Applies a plan under the migration lease: a `pending` state row for each model first, then one
- * `BEGIN ... COMMIT` script of the plan's statements, the lease's holder check, and the flip to `applied`. Rollback
- * holds only for a single script, so the SDK transaction API is not used. A statement that is a `--` comment is
- * skipped, and a model is marked `applied` only when none of its statements was; a plan step belongs to the
- * model whose `table` equals the step's `table`. After the commit the touched tables are re-read and judged against `desired`,
- * over the constructs the schema declares only; a disagreement throws `CerialMigrationError` and puts the row back to `pending`.
+ * `BEGIN ... COMMIT` script of the plan's statements, the lease's holder check, and the flip to `applied`, for every
+ * entry at once. Rollback holds only for a single script, so the SDK transaction API is not used. A statement that is
+ * a `--` comment is skipped, a model is marked `applied` only when none of its statements was, and no schema row is
+ * written when any statement was skipped; a plan step belongs to the model whose `table` equals the step's `table`.
+ * After the commit the touched tables are re-read and judged against `desired`, over the constructs the schema
+ * declares only; a disagreement throws `CerialMigrationError` and puts the row back to `pending`.
  */
 export async function applyPlan(surreal: Surreal, plan: MigrationPlan, options: ApplyOptions): Promise<ApplyResult> {
   if (options.lease) return applyUnderLease(surreal, plan, options, options.lease);

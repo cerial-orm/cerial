@@ -40,7 +40,14 @@ export {
   type StatePiece,
 } from './state';
 export { acquireLease, buildHolderCheck, withLease, type LeaseOptions, type MigrationLease } from './lease';
-export { applyPlan, type ApplyModel, type ApplyOptions, type ApplyResult } from './apply';
+export {
+  applyPlan,
+  type ApplyEntry,
+  type ApplyEntryResult,
+  type ApplyModel,
+  type ApplyOptions,
+  type ApplyResult,
+} from './apply';
 export {
   applyUnmatched,
   blameModels,
