@@ -15,3 +15,10 @@ export { commentOut, sanitiseReason } from './comment';
 export { emitRemove } from './emit-remove';
 export { readLiveSchema } from './reader';
 export { classifyDifference, diffSchema, type DiffOptions, type DifferenceKind, type SchemaDifference } from './diff';
+export {
+  buildMigrationPlan,
+  indexDesiredStatements,
+  type DesiredStatements,
+  type MigrationPlan,
+  type MigrationPlanItem,
+} from './plan';
