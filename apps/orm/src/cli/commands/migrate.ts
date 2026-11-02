@@ -1,5 +1,6 @@
 import { defineCommand } from 'citty';
 import type { MigrateEnv } from '../migrate/connection';
+import { migratePlan } from '../migrate/plan-file';
 import { migrateStatus } from '../migrate/status';
 
 const connectionArgs = {
@@ -29,6 +30,23 @@ const statusCommand = defineCommand({
   },
 });
 
+const planCommand = defineCommand({
+  meta: {
+    name: 'plan',
+    description: 'Write the pending changes to a timestamped .surql file, destructive statements commented out',
+  },
+  args: {
+    ...connectionArgs,
+    out: { type: 'string', description: 'Directory for the plan file (default cerial/migrations)' },
+  },
+  async run({ rawArgs }) {
+    const result = await migratePlan({ argv: rawArgs, env: process.env as MigrateEnv });
+    if (result.stdout) process.stdout.write(result.stdout);
+    if (result.stderr) process.stderr.write(result.stderr);
+    process.exit(result.exitCode);
+  },
+});
+
 export const migrateCommand = defineCommand({
   meta: {
     name: 'migrate',
@@ -36,5 +54,6 @@ export const migrateCommand = defineCommand({
   },
   subCommands: {
     status: statusCommand,
+    plan: planCommand,
   },
 });
