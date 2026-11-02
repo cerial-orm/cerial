@@ -314,22 +314,27 @@ async function planFromFile(
     if (!held || RANK[item.class] > RANK[held.class]) fresh.set(key, item);
   }
   // Only text Cerial generates may be defined: an expression in a hand-written definition can run a statement
-  // of its own whenever a row is written
+  // of its own whenever a row is written. A removal or an UNSET must be a step the fresh plan makes itself, since
+  // a tampered file could otherwise drop a table or unset a field the schema never managed.
   const generated = new Set(target.desiredStatements.map(normalise));
-  const handWritten = [...parsed.statements, ...parsed.commented]
-    .filter((s) => s.verb.startsWith('DEFINE') && !generated.has(s.text))
-    .sort((a, b) => a.line - b.line);
-  if (handWritten.length) {
+  const refused = [
+    ...[...parsed.statements, ...parsed.commented]
+      .filter((s) => s.verb.startsWith('DEFINE') && !generated.has(s.text))
+      .map((s) => ({ line: s.line, why: 'this definition is hand-written, not one Cerial generates for the schema' })),
+    ...parsed.statements
+      .filter((s) => !s.verb.startsWith('DEFINE') && !fresh.has(normalise(s.text)))
+      .map((s) => ({
+        line: s.line,
+        why: join('this ', s.verb, ' is not a step the schema needs against the live database'),
+      })),
+  ].sort((a, b) => a.line - b.line);
+  if (refused.length) {
     throw new Refused(
       join(
         'refused plan file ',
         file,
         ', nothing was applied.\n  ',
-        handWritten
-          .map((s) =>
-            join('line ', String(s.line), ': this definition is hand-written, not one Cerial generates for the schema'),
-          )
-          .join('\n  '),
+        refused.map((r) => join('line ', String(r.line), ': ', r.why)).join('\n  '),
       ),
     );
   }

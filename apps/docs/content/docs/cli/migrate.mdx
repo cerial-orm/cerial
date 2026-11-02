@@ -165,6 +165,7 @@ bunx cerial migrate apply cerial/migrations/20261103T101500Z-default.surql
 `apply <file>` applies a file you reviewed. It is stricter than running the file through another tool:
 
 - **A stale file is refused.** The header records the live schema the plan was written against. If the database has changed since, `apply` exits 1 and asks you to run `plan` again. A file without that header line is refused for the same reason.
+- **Nothing else is run.** Every `REMOVE` and `UPDATE ... UNSET` must be identical to a step the current plan makes for your schema. A removal of anything else, such as a table the schema never managed, is refused by line number.
 - **The file must be for this database**, named by the `database:` header line.
 - **Only generated definitions are accepted.** A `DEFINE` must be exactly a statement Cerial generates for your schema. A hand-written definition is refused, since an expression in one can run its own statement whenever a row is written.
 - **Only a few statements are allowed:** `DEFINE` and `REMOVE` of a table, field or index, and `UPDATE <table> UNSET <field>`. Anything else (`REMOVE DATABASE`, `DEFINE EVENT`, a `SELECT`) is refused, naming its line, and nothing is applied. A statement may not touch Cerial's own state tables.

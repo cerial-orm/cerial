@@ -533,3 +533,77 @@ describe('a definition that carries a statement of its own', () => {
     });
   }
 });
+
+describe('a removal in the file must be one the fresh plan makes', () => {
+  /** A planned file for a schema change, with a table the schema does not declare added to the database afterwards */
+  async function withVictim(label: string) {
+    const fixture = await planned(label, { 'app/schema.cerial': NOTE }, { 'app/schema.cerial': NOTE_TAG_NO_BODY });
+    await fixture.db
+      .query(
+        "DEFINE TABLE victim SCHEMAFULL; DEFINE FIELD ssn ON victim TYPE string; DEFINE INDEX ssn_idx ON victim FIELDS ssn; CREATE victim:1 SET ssn = '123-45-6789'; CREATE victim:2 SET ssn = '987-65-4321'",
+      )
+      .collect();
+    const out = await mkdtemp(join(tmpdir(), 'cerial-apply-file-'));
+    temps.push(out);
+    const replanned = await migratePlan({ argv: ['--out', out], env: envFor(fixture.name), cwd: fixture.dir });
+    const file = replanned.files[0]!;
+
+    return { ...fixture, file, text: await readFile(file, 'utf8') };
+  }
+
+  const victimIntact = async (db: Surreal): Promise<void> => {
+    expect((await rowsOf(db, 'victim')).map((r) => r.ssn)).toEqual(['123-45-6789', '987-65-4321']);
+    expect(await fieldsOf(db, 'victim')).toEqual(['ssn']);
+  };
+
+  const tampered: Array<[string, string]> = [
+    ['REMOVE TABLE', 'REMOVE TABLE victim'],
+    ['UPDATE UNSET', 'UPDATE victim UNSET ssn'],
+    ['REMOVE FIELD', 'REMOVE FIELD ssn ON TABLE victim'],
+    ['REMOVE INDEX', 'REMOVE INDEX ssn_idx ON TABLE victim'],
+  ];
+
+  for (const [label, statement] of tampered) {
+    test(`${label} on a table the schema never managed is refused by line, with every flag, and applies nothing`, async () => {
+      const fixture = await withVictim(`tamper_${label.replace(/\W/g, '').toLowerCase()}`);
+      const count = fixture.text.split('\n').length;
+      await writeFile(fixture.file, `${fixture.text}${statement};\n`);
+
+      const result = await apply(fixture.dir, fixture.name, [fixture.file, ...BOTH]);
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stderr).toContain(`line ${count}: this ${label} is not a step the schema needs`);
+      expect(result.stdout).not.toContain('Applied');
+      expect(await fieldsOf(fixture.db, 'note')).not.toContain('tag');
+      await victimIntact(fixture.db);
+      await expectNoteRowsIntact(fixture.db);
+    });
+  }
+
+  test('the same file without the extra lines applies, so the refusal is the extra lines and nothing else', async () => {
+    const fixture = await withVictim('tamperok');
+    await writeFile(fixture.file, uncomment(fixture.text));
+
+    const result = await apply(fixture.dir, fixture.name, [fixture.file, '--allow-destructive']);
+
+    expect(result.exitCode).toBe(0);
+    expect(await fieldsOf(fixture.db, 'note')).toEqual(expect.arrayContaining(['tag']));
+    await victimIntact(fixture.db);
+  });
+
+  test('an UNSET is destructive, not data loss: it needs --allow-destructive alone', async () => {
+    const fixture = await planned(
+      'unsetclass',
+      { 'app/schema.cerial': NOTE },
+      { 'app/schema.cerial': NOTE_TAG_NO_BODY },
+    );
+    await writeFile(fixture.file, uncomment(fixture.text));
+
+    const refused = await apply(fixture.dir, fixture.name, [fixture.file]);
+
+    expect(refused.exitCode).toBe(1);
+    expect(refused.stderr).toContain('--allow-destructive needed for field on table `note`');
+    expect(refused.stderr).not.toContain('--allow-data-loss');
+  });
+});
+
