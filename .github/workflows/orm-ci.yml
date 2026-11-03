@@ -45,7 +45,8 @@ jobs:
 
   typescript-range:
     # A tested floor, open forward. The peer range is >=5.9.3, so this proves the floor and the
-    # current latest both compile the generated types. A version nobody ran is not promised.
+    # current latest both compile the generated types, declaration files included (skipLibCheck
+    # false). A version nobody ran is not promised.
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -64,6 +65,9 @@ jobs:
       - run: bunx tsc --noEmit
         working-directory: apps/orm
       - run: bun run typecheck
+        working-directory: apps/orm
+      # The compiler this job installed, not the pinned aliases
+      - run: bun run typecheck:generated -- --resolved
         working-directory: apps/orm
 
   commit-hooks:

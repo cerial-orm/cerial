@@ -90,7 +90,8 @@ export function parseTscErrors(text: string, cwd: string): TscError[] {
   return errors;
 }
 
-function isUnder(file: string, roots: readonly string[]): boolean {
+/** True when `file` is `roots` itself or lies beneath one of them */
+export function isUnder(file: string, roots: readonly string[]): boolean {
   return roots.some((root) => {
     const dir = resolve(root);
 
