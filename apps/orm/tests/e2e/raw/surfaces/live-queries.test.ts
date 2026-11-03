@@ -56,23 +56,31 @@ describe('E2E raw surface: live queries', () => {
     return handle;
   };
   // A timed-out next() stays pending and would swallow the next notification, so each handle keeps one.
+  // It is dropped only once a caller has read its result: a notification can settle it while the write
+  // that caused it is still awaiting its response, and dropping it on settle would lose that notification.
   const pending = new WeakMap<object, Promise<IteratorResult<unknown>>>();
-  const pull = <T>(handle: Handle<T>): Promise<IteratorResult<Notification<T>>> => {
-    const existing = pending.get(handle) as Promise<IteratorResult<Notification<T>>> | undefined;
-    if (existing) return existing;
-    const fresh = handle.next().finally(() => pending.delete(handle));
-    pending.set(handle, fresh);
+  const pull = async <T>(
+    handle: Handle<T>,
+    ms = WAIT_MS,
+  ): Promise<IteratorResult<Notification<T>> | typeof TIMEOUT> => {
+    let next = pending.get(handle) as Promise<IteratorResult<Notification<T>>> | undefined;
+    if (!next) {
+      next = handle.next();
+      pending.set(handle, next);
+    }
+    const result = await within(next, ms);
+    if (result !== TIMEOUT) pending.delete(handle);
 
-    return fresh;
+    return result;
   };
   const take = async <T>(handle: Handle<T>): Promise<Notification<T>> => {
-    const result = await within(pull(handle));
+    const result = await pull(handle);
     expect(result).not.toBe(TIMEOUT);
 
     return (result as IteratorResult<Notification<T>>).value;
   };
   const silent = async <T>(handle: Handle<T>): Promise<void> => {
-    expect(await within(pull(handle), SILENCE_MS)).toBe(TIMEOUT);
+    expect(await pull(handle, SILENCE_MS)).toBe(TIMEOUT);
   };
 
   beforeAll(async () => {
