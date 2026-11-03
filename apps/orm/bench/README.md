@@ -39,7 +39,9 @@ Curve, and every mode except `bench:live`:
 - `--json path` also writes the raw rows as JSON
 - `--heap-mb 4096` heap limit for 5.9 runs. Default 4096, so the ceiling is the same on every machine. 7 is native and has no such limit
 - `--ceiling 1250` measure that one size and exit non-zero if any compiler runs out of heap there
-- `--case name` apply a named transform to the generated tree first: `no-queries`, `no-select`, `flat-select`, `no-include`, `no-compute`, `dts` or `ts`. Each transform fails if its pattern matches nothing. `dts` measures the default layout and `ts` generates with `typeFiles: 'ts'`; both also report a `skipLibCheck: false` row, and each fails if the tree is not that layout
+- `--case name` apply a named transform to the generated tree first: `no-queries`, `no-select`, `flat-select`, `no-include`, `no-compute`, `dts`, `ts`, or one of the corpus-only select cases below. Each transform fails if its pattern matches nothing. `dts` measures the default layout and `ts` generates with `typeFiles: 'ts'`; both also report a `skipLibCheck: false` row, and each fails if the tree is not that layout
+
+`heavy-select` replaces the corpus consumer with 200 queries that each select every field of `UnsetTest` (composites down to its three object levels, and its self-referencing tree) and read the result, so it measures a consumer where the selects dominate. It runs on the e2e corpus only and ignores `--sizes`. `heavy-select-no-resolve` and `heavy-select-no-arg` swap `ResolveFieldSelect` or `SelectArg` in the generated client for a trivial form, so the gap to `heavy-select` is that type's share of the check. Each has a `-ts` twin that generates with `typeFiles: 'ts'`; the plain name measures the default `.d.ts` layout.
 
 Other modes:
 

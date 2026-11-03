@@ -81,6 +81,35 @@ const EMPTY = treeOf({
   'gen/index.ts': `export const y = 1;\n`,
 });
 
+const HEAVY_INDEX = `export type SelectArg<S, T, D extends unknown[] = []> = S &
+  NoInfer<T> & { [K in Exclude<keyof S, keyof T>]: never } & ([...D, 0]['length'] extends 5
+    ? unknown
+    : { [K in SelectObjectKeys<S>]: SelectArg<S[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
+/** One relation's include options */
+export type IncludeEntryArg<E, T, D extends unknown[]> = E;
+
+export type ResolveFieldSelect<FieldType, SelectValue> = SelectValue extends true
+  ? FieldType
+  : SelectValue extends Record<string, any>
+    ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue>
+    : never;
+
+export type ApplyObjectSelect<T, S extends Record<string, any>> = { [K in keyof S]: K };
+`;
+
+const HEAVY = treeOf({
+  'consumer.ts': 'export const x = 1;\n',
+  'gen/models/unsettest.d.ts': 'export interface UnsetTestSelectFields {\n  id?: boolean;\n}\n',
+  'gen/index.ts': HEAVY_INDEX,
+});
+const HEAVY_TS = treeOf({
+  'consumer.ts': 'export const x = 1;\n',
+  'gen/models/unsettest.ts': 'export interface UnsetTestSelectFields {\n  id?: boolean;\n}\n',
+  'gen/index.ts': HEAVY_INDEX,
+});
+const HEAVY_NAMES = CASE_NAMES.filter((name) => name.startsWith('heavy-select'));
+const isTsLayout = (name: CaseName): boolean => name.endsWith('-ts');
+
 function file(tree: Tree, path: string): string {
   const text = tree.get(path);
   if (text === undefined) throw new Error(`no ${path} in the tree`);
@@ -206,18 +235,88 @@ describe('transforms on a tree with the pattern', () => {
     },
   );
 
+  test('heavy-select swaps the consumer for 200 queries over every field and leaves the generated tree alone', () => {
+    const next = CASES['heavy-select'].transform(HEAVY);
+    const consumer = file(next, 'consumer.ts');
+
+    expect(consumer.match(/client\.db\.UnsetTest\.findMany\(/g)).toHaveLength(200);
+    expect(consumer).toContain(
+      'nested: { title: true, mid: { label: true, score: true, deep: { code: true, note: true } }',
+    );
+    expect(consumer).toContain('deepTuple: { 1: {');
+    expect(consumer).toContain('r.nested.mid.deep.code');
+    expect(file(next, 'gen/index.ts')).toBe(HEAVY_INDEX);
+    expect(CASES['heavy-select'].corpusOnly).toBe(true);
+  });
+
+  test('heavy-select-no-resolve makes ResolveFieldSelect return the field type and keeps SelectArg', () => {
+    const index = file(CASES['heavy-select-no-resolve'].transform(HEAVY), 'gen/index.ts');
+
+    expect(index).toContain('export type ResolveFieldSelect<FieldType, SelectValue> = FieldType;\n');
+    expect(index).not.toContain('SelectValue extends true');
+    expect(index).toContain('export type SelectArg<S, T, D extends unknown[] = []> = S &\n  NoInfer<T> &');
+    expect(index).toContain('export type ApplyObjectSelect');
+  });
+
+  test('heavy-select-no-arg makes SelectArg just S and NoInfer<T> and keeps ResolveFieldSelect', () => {
+    const index = file(CASES['heavy-select-no-arg'].transform(HEAVY), 'gen/index.ts');
+
+    expect(index).toContain('export type SelectArg<S, T, D extends unknown[] = []> = S & NoInfer<T>;\n');
+    expect(index).not.toContain('SelectObjectKeys<S>]: SelectArg');
+    expect(index).toContain('export type IncludeEntryArg');
+    expect(index).toContain('SelectValue extends true');
+  });
+
+  test('the -ts heavy cases ask for typeFiles ts and accept that layout, the others the default one', () => {
+    for (const name of HEAVY_NAMES) {
+      const ts = isTsLayout(name);
+
+      expect(CASES[name].typeFiles).toBe(ts ? 'ts' : undefined);
+      expect(CASES[name].transform(ts ? HEAVY_TS : HEAVY)).not.toBe(ts ? HEAVY_TS : HEAVY);
+    }
+  });
+
   test('a transform never changes its input', () => {
     const before = new Map(FULL);
-    for (const name of CASE_NAMES.filter((name) => name !== 'dts')) CASES[name].transform(FULL);
+    for (const name of CASE_NAMES.filter((name) => name !== 'dts' && !HEAVY_NAMES.includes(name))) {
+      CASES[name].transform(FULL);
+    }
     CASES.dts.transform(DTS_TREE);
+    const heavyBefore = new Map(HEAVY);
+    CASES['heavy-select-no-arg'].transform(HEAVY);
 
     expect(FULL).toEqual(before);
+    expect(HEAVY).toEqual(heavyBefore);
   });
 });
 
 describe('transforms on a tree without the pattern', () => {
   test.each(CASE_NAMES)('%s throws', (name: CaseName) => {
-    expect(() => CASES[name].transform(EMPTY)).toThrow(/case (no-|flat-|dts|ts)/);
+    expect(() => CASES[name].transform(EMPTY)).toThrow(/case (no-|flat-|dts|ts|heavy-select)/);
+  });
+
+  test.each(HEAVY_NAMES)('%s throws when the tree has no UnsetTest to select from', (name) => {
+    const tree = isTsLayout(name) ? FULL : DTS_TREE;
+
+    expect(() => CASES[name].transform(tree)).toThrow('no UnsetTest model');
+  });
+
+  test.each(['heavy-select-no-resolve', 'heavy-select-no-arg'] as const)(
+    '%s throws when the declaration it replaces is absent',
+    (name) => {
+      const tree = treeOf({
+        'consumer.ts': 'export {};\n',
+        'gen/models/unsettest.d.ts': 'export interface UnsetTestSelectFields {\n  id?: boolean;\n}\n',
+        'gen/index.ts': 'export const y = 1;\n',
+      });
+
+      expect(() => CASES[name].transform(tree)).toThrow('matched nothing');
+    },
+  );
+
+  test('a heavy case refuses the other layout, so a run that ignored typeFiles cannot pass', () => {
+    expect(() => CASES['heavy-select'].transform(HEAVY_TS)).toThrow('not the default layout');
+    expect(() => CASES['heavy-select-ts'].transform(HEAVY)).toThrow('not the typeFiles');
   });
 
   test('no-queries and no-select throw when the tree has no consumer', () => {
@@ -251,6 +350,22 @@ describe('transforms on a tree without the pattern', () => {
   test('ts throws on the default layout, so a run that ignored typeFiles cannot pass as the ts row', () => {
     expect(() => CASES.ts.transform(DTS_TREE)).toThrow('not the typeFiles');
   });
+});
+
+withDist('the heavy-select cases compile clean on the e2e corpus', () => {
+  test.each(HEAVY_NAMES)(
+    '%s under 7',
+    async (name) => {
+      const { rows } = await runBench(
+        { sizes: [3], runs: 1, compilers: ['7'], fields: 3, json: null, ceiling: null, heapMb: 4096, case: name },
+        { allowStale: true },
+      );
+
+      expect(rows.map((row) => row.name)).toEqual([`corpus ${name}`]);
+      expect(rows[0]!.state).toBe('ok');
+    },
+    120_000,
+  );
 });
 
 describe('tree on disk', () => {

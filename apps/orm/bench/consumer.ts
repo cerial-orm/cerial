@@ -72,3 +72,47 @@ export const updated = ${model}.updateMany({ where: ${spec.where}, data: ${spec.
 export const created = ${model}.create({ data: ${spec.createData} });
 `;
 }
+
+/** Every field of `UnsetTest`, composites included, down its deepest nesting (model, object, object, object) and five levels of its self-referencing tree */
+const HEAVY_SELECT = (() => {
+  const mid = `{ label: true, score: true, deep: { code: true, note: true } }`;
+  const outer = `{ title: true, mid: ${mid}, desc: true }`;
+  const address = `{ street: true, city: true, zip: true }`;
+  const tree = `{ payload: true, extra: true, child: { payload: true, extra: true, child: { payload: true, extra: true, child: { payload: true } } } }`;
+
+  return `{ id: true, name: true, bio: true, age: true, address: ${address}, shipping: ${address}, pos: true, backup: true, opt: true, tagged: { 1: { payload: true, extra: true } }, nested: ${outer}, optNested: ${outer}, deepTuple: { 1: ${mid} }, tree: ${tree}, recursive: true }`;
+})();
+
+/**
+ * Reads of the result that reach the deepest object of each selected composite. A type is resolved when it is read, so a
+ * query nobody reads costs the `select` check but never the return type.
+ */
+const HEAVY_READS = [
+  'r.address.zip',
+  'r.shipping?.city',
+  'r.tagged?.[1].payload',
+  'r.nested.mid.deep.code',
+  'r.optNested?.mid.deep.note',
+  'r.deepTuple?.[1].deep.code',
+  'r.tree?.child?.child?.child?.payload',
+].join(', ');
+
+/** The consumer of the `heavy-select` cases: `count` queries that each select every field of one model, then read the result */
+export function heavySelectConsumer(count: number): string {
+  const queries = Array.from(
+    { length: count },
+    (_, i) => `export const q${i} = client.db.UnsetTest.findMany({ select: ${HEAVY_SELECT} });
+export const r${i} = async () => {
+  const r = (await q${i})[0]!;
+
+  return [${HEAVY_READS}];
+};`,
+  );
+
+  return `import type { CerialClient } from './gen';
+
+declare const client: CerialClient;
+
+${queries.join('\n')}
+`;
+}

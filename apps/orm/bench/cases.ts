@@ -3,9 +3,25 @@
  * `consumer.ts`) and returns a new tree, so the generator is never touched and a result can be reproduced from the same input.
  * A transform throws when its pattern matches nothing, so a generator change cannot turn a case into a silent no-op.
  */
+import { heavySelectConsumer } from './consumer';
+
 export type Tree = ReadonlyMap<string, string>;
 
-export const CASE_NAMES = ['no-queries', 'no-select', 'flat-select', 'no-include', 'no-compute', 'dts', 'ts'] as const;
+export const CASE_NAMES = [
+  'no-queries',
+  'no-select',
+  'flat-select',
+  'no-include',
+  'no-compute',
+  'dts',
+  'ts',
+  'heavy-select',
+  'heavy-select-ts',
+  'heavy-select-no-resolve',
+  'heavy-select-no-resolve-ts',
+  'heavy-select-no-arg',
+  'heavy-select-no-arg-ts',
+] as const;
 export type CaseName = (typeof CASE_NAMES)[number];
 
 export interface CaseVariant {
@@ -17,6 +33,8 @@ export interface CaseVariant {
 export interface BenchCase {
   /** Written to a config before generating; absent runs the CLI's default layout */
   readonly typeFiles?: 'ts';
+  /** Measures the e2e corpus only: the consumer names corpus models, so the synthetic sizes are skipped */
+  readonly corpusOnly?: boolean;
   readonly transform: (tree: Tree) => Tree;
   readonly variants: readonly CaseVariant[];
 }
@@ -140,8 +158,49 @@ function plainTs(tree: Tree): Tree {
   return tree;
 }
 
+const RESOLVE_DECL = /^export type ResolveFieldSelect<FieldType, SelectValue> =[\s\S]*?;\n/m;
+const SELECT_ARG_DECL = /^export type SelectArg<S, T, D extends unknown\[\] = \[\]> =[\s\S]*?;\n/m;
+const HEAVY_SELECT_MODEL = /^export interface UnsetTestSelectFields \{/m;
+const HEAVY_QUERIES = 200;
+
+type HeavyAblation = 'none' | 'resolve' | 'arg';
+
+/**
+ * A consumer that replaces the corpus consumer with 200 queries selecting every field of `UnsetTest`, which holds the
+ * corpus's deepest object nesting. An ablation swaps one part of the select machinery in the generated client for a trivial
+ * form: `resolve` makes `ResolveFieldSelect` return the field type unchanged (which also leaves `ApplyObjectSelect` and
+ * `ApplyTupleSelect` unreached), `arg` makes `SelectArg` just `S & NoInfer<T>`, with no excess-key check and no recursion.
+ */
+function heavySelect(name: CaseName, ablation: HeavyAblation, layout: (tree: Tree) => Tree): (tree: Tree) => Tree {
+  return (tree) => {
+    layout(tree);
+    if (![...tree].some(([path, text]) => isGenerated(path) && HEAVY_SELECT_MODEL.test(text))) {
+      throw new Error(`case ${name}: the generated tree has no UnsetTest model to select from`);
+    }
+
+    const next = new Map(tree).set('consumer.ts', heavySelectConsumer(HEAVY_QUERIES));
+    if (ablation === 'none') return next;
+
+    const [pattern, trivial] =
+      ablation === 'resolve'
+        ? [RESOLVE_DECL, 'export type ResolveFieldSelect<FieldType, SelectValue> = FieldType;\n']
+        : [SELECT_ARG_DECL, 'export type SelectArg<S, T, D extends unknown[] = []> = S & NoInfer<T>;\n'];
+
+    return rewriteGenerated(next, name, (text) => text.replace(pattern, trivial));
+  };
+}
+
 const DEFAULT_VARIANT: CaseVariant = { label: '', skipLibCheck: true };
 const STRICT_VARIANT: CaseVariant = { label: ' skipLibCheck=false', skipLibCheck: false };
+
+function heavyCase(name: CaseName, ablation: HeavyAblation, layout: 'dts' | 'ts'): BenchCase {
+  return {
+    ...(layout === 'ts' ? { typeFiles: 'ts' as const } : {}),
+    corpusOnly: true,
+    transform: heavySelect(name, ablation, layout === 'ts' ? plainTs : declarations),
+    variants: [DEFAULT_VARIANT],
+  };
+}
 
 export const CASES: Record<CaseName, BenchCase> = {
   'no-queries': { transform: noQueries, variants: [DEFAULT_VARIANT] },
@@ -152,6 +211,12 @@ export const CASES: Record<CaseName, BenchCase> = {
   // The second row of each layout type-checks the files that `skipLibCheck: true` would skip
   dts: { transform: declarations, variants: [DEFAULT_VARIANT, STRICT_VARIANT] },
   ts: { typeFiles: 'ts', transform: plainTs, variants: [DEFAULT_VARIANT, STRICT_VARIANT] },
+  'heavy-select': heavyCase('heavy-select', 'none', 'dts'),
+  'heavy-select-ts': heavyCase('heavy-select-ts', 'none', 'ts'),
+  'heavy-select-no-resolve': heavyCase('heavy-select-no-resolve', 'resolve', 'dts'),
+  'heavy-select-no-resolve-ts': heavyCase('heavy-select-no-resolve-ts', 'resolve', 'ts'),
+  'heavy-select-no-arg': heavyCase('heavy-select-no-arg', 'arg', 'dts'),
+  'heavy-select-no-arg-ts': heavyCase('heavy-select-no-arg-ts', 'arg', 'ts'),
 };
 
 export function isCaseName(value: string): value is CaseName {

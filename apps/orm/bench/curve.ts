@@ -375,7 +375,9 @@ export async function runBench(options: BenchOptions, overrides: RunOverrides = 
     const rows: CaseRow[] = [];
     let index = 0;
 
-    for (const size of options.sizes) {
+    const benchCase = options.case ? CASES[options.case] : null;
+
+    for (const size of benchCase?.corpusOnly ? [] : options.sizes) {
       const schema = syntheticSchema({ models: size, fieldsPerModel: options.fields, seed: SEED });
       const schemaDir = join(root, `schema-${size}`);
       mkdirSync(schemaDir, { recursive: true });
