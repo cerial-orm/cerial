@@ -171,7 +171,7 @@ await client.db.User.findMany({
 });
 ```
 
-TypeScript reports `Type 'true' is not assignable to type 'never'` on the misspelt key. A lone unknown key reports `'nmae' does not exist in type ...` instead. The same check covers nested object selects such as `address: { city: true, citty: true }`, up to five levels deep. See [Typed select and include](/types/dynamic-return-types#typos-completion-and-depth).
+TypeScript reports `Type 'true' is not assignable to type 'never'` on the misspelt key. A lone unknown key reports `'nmae' does not exist in type ...` instead. The same check covers nested object selects such as `address: { city: true, citty: true }`, up to six levels deep. See [Typed select and include](/types/dynamic-return-types#typos-completion-and-depth).
 
 :::tip
 Selecting fewer fields means less data transferred from the database. Use `select` when you only need a subset of fields — especially useful for list views, API responses, and performance-sensitive queries.

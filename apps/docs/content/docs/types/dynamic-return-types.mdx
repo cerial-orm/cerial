@@ -218,7 +218,7 @@ This feature is not yet available in the current release. It will ship in an upc
 
 - **Completion.** Once you have typed some keys, the editor suggests the remaining ones in `select`, `include`, a `select` inside an `include`, and nested update `data`.
 - **Typos fail to compile.** An unknown key is refused next to valid keys too. This covers nested object selects, nested includes, and nested `data`: object fields, object elements of tuples, pushed and set elements, and nested `connect` and `create` blocks.
-- **Depth.** Keys are checked five levels deep. Past that, selecting and writing still work and the result type is still narrowed. Only the typo check stops.
+- **Depth.** Keys are checked six levels deep. Past that, selecting and writing still work and the result type is still narrowed. Only the typo check stops.
 - **`@flexible` fields** keep accepting keys the schema does not declare, in `select` and in `data`.
 
 ```typescript
