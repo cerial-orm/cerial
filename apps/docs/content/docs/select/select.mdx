@@ -157,6 +157,22 @@ const user2 = await client.db.User.findOne({
 
 For detailed coverage of object sub-field selection including arrays, optional objects, and nested objects, see [Object Sub-Select](/select/object-sub-select).
 
+## Typos and Completion
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+After you type some keys in `select`, the editor suggests the remaining ones. An unknown key is a compile error, including when it sits next to valid keys:
+
+```typescript
+await client.db.User.findMany({
+  select: { name: true, nmae: true }, // error on `nmae`
+});
+```
+
+TypeScript reports `Type 'true' is not assignable to type 'never'` on the misspelt key. A lone unknown key reports `'nmae' does not exist in type ...` instead. The same check covers nested object selects such as `address: { city: true, citty: true }`, up to five levels deep. See [Typed select and include](/types/dynamic-return-types#typos-completion-and-depth).
+
 :::tip
 Selecting fewer fields means less data transferred from the database. Use `select` when you only need a subset of fields — especially useful for list views, API responses, and performance-sensitive queries.
 :::

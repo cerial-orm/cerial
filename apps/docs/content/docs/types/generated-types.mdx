@@ -324,6 +324,8 @@ Key features:
 - `include` relation entries accept `boolean` (simple include) or an object with nested query options
 - Array relations in `include` support `where`, `orderBy`, `limit`, and `offset` for filtering and pagination
 
+Methods check the keys you pass against these types, so a misspelt key is refused even next to valid ones, and the editor suggests the keys you have not typed yet. See [Typos, Completion and Depth](/types/dynamic-return-types#typos-completion-and-depth).
+
 ## CerialQueryPromise
 
 All model methods return `CerialQueryPromise<T>` instead of `Promise<T>`. It works exactly like a regular Promise: you can `await` it, call `.then()`, `.catch()`, and `.finally()` as usual. It can also be passed to [`$transaction`](/transactions) for atomic batched execution.

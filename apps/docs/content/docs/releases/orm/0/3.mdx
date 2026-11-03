@@ -909,6 +909,18 @@ development branch and is not available on npm.
   `database` itself, and is still refused when a database is equal, unset or only
   inherited from the root `connection`.
 
+- Unknown keys in `select`, `include` and write `data` are now compile errors even
+  next to valid keys; before, a typo beside a valid key compiled. This covers nested
+  object selects, nested includes and nested `data` (object fields, tuple object
+  elements, push and set elements, nested `connect` and `create` blocks), checked
+  five levels deep. Beyond that, selecting and writing still work and the result is
+  still narrowed. `@flexible` fields keep accepting undeclared keys. The editor now
+  suggests the remaining keys after you type some. A typo reports
+  `Type 'true' is not assignable to type 'never'` on the misspelt key. Code that
+  relied on an unnoticed typo stops compiling. Files with many nested writes
+  type-check about twice as slowly; other projects see no measurable change. See
+  [Typos, Completion and Depth](/types/dynamic-return-types#typos-completion-and-depth).
+
 ### Removed
 
 - `generateMigrationCode` is no longer exported. Nothing in Cerial called it, it

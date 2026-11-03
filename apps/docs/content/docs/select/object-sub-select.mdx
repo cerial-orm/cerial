@@ -114,6 +114,12 @@ const user = await client.db.User.findOne({
 // user.employer: { name: string; address: Address; hq: { lat: number } | undefined } | undefined
 ```
 
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+A misspelt sub-key is a compile error at every nesting level, including next to valid sub-keys. The check covers five levels; below that, selecting still works and the result is still narrowed, but a typo is no longer caught. Fields marked `@flexible` keep accepting sub-keys the schema does not declare.
+
 ## Mixing with Scalar Fields
 
 Object sub-selection combines naturally with scalar field selection:
