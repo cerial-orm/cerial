@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   BasicsUser,
   BasicsUserWhere,
@@ -136,11 +137,14 @@ export type BasicsPostUnset = {
   body?: true;
 };
 
-export type BasicsPostSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'body' | 'authorId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'body' | 'authorId', boolean>>)
-  | ({ body: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'body', boolean>>);
+export interface BasicsPostSelectFields {
+  id?: boolean;
+  title?: boolean;
+  body?: boolean;
+  authorId?: boolean;
+}
+
+export type BasicsPostSelect = AtLeastOne<BasicsPostSelectFields>;
 
 export interface BasicsPostOrderBy {
   id?: 'asc' | 'desc';
@@ -397,6 +401,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   BasicsUser,
   BasicsUserWhere,
@@ -530,11 +535,14 @@ export type BasicsProfileUnset = {
   userId?: true;
 };
 
-export type BasicsProfileSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'avatarUrl' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'avatarUrl' | 'userId', boolean>>)
-  | ({ avatarUrl: boolean } & Partial<Record<'id' | 'bio' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio' | 'avatarUrl', boolean>>);
+export interface BasicsProfileSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  avatarUrl?: boolean;
+  userId?: boolean;
+}
+
+export type BasicsProfileSelect = AtLeastOne<BasicsProfileSelectFields>;
 
 export interface BasicsProfileOrderBy {
   id?: 'asc' | 'desc';
@@ -787,6 +795,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   BasicsUser,
   BasicsUserWhere,
@@ -896,10 +905,13 @@ export type BasicsTagUpdateInput =
 
 export type BasicsTagUnset = {};
 
-export type BasicsTagSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'userIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'userIds', boolean>>)
-  | ({ userIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface BasicsTagSelectFields {
+  id?: boolean;
+  name?: boolean;
+  userIds?: boolean;
+}
+
+export type BasicsTagSelect = AtLeastOne<BasicsTagSelectFields>;
 
 export interface BasicsTagOrderBy {
   id?: 'asc' | 'desc';
@@ -1154,6 +1166,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   BasicsProfile,
   BasicsProfileWhere,
@@ -1461,127 +1474,21 @@ export type BasicsUserUnset = {
   profileId?: true;
 };
 
-export type BasicsUserSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        | 'email'
-        | 'name'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ email: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'name'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ name: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'email'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ age: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'email'
-        | 'name'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ isActive: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'createdAt' | 'nicknames' | 'scores' | 'loginDates' | 'profileId' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'isActive' | 'nicknames' | 'scores' | 'loginDates' | 'profileId' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ nicknames: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'isActive' | 'createdAt' | 'scores' | 'loginDates' | 'profileId' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ scores: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'email'
-        | 'name'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ loginDates: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'isActive' | 'createdAt' | 'nicknames' | 'scores' | 'profileId' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ profileId: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'isActive' | 'createdAt' | 'nicknames' | 'scores' | 'loginDates' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ tagIds: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'email'
-        | 'name'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId',
-        boolean
-      >
-    >);
+export interface BasicsUserSelectFields {
+  id?: boolean;
+  email?: boolean;
+  name?: boolean;
+  age?: boolean;
+  isActive?: boolean;
+  createdAt?: boolean;
+  nicknames?: boolean;
+  scores?: boolean;
+  loginDates?: boolean;
+  profileId?: boolean;
+  tagIds?: boolean;
+}
+
+export type BasicsUserSelect = AtLeastOne<BasicsUserSelectFields>;
 
 export interface BasicsUserOrderBy {
   id?: 'asc' | 'desc';

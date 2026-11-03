@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UnsetAddress,
   UnsetAddressInput,
@@ -297,247 +298,25 @@ export type UnsetTestUnset = {
   recursive?: true | UnsetRecursiveUnset;
 };
 
-export type UnsetTestSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ bio: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ age: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ address: boolean | UnsetAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ shipping: boolean | UnsetAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ pos: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ backup: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ opt: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ tagged: boolean | UnsetObjTupleSelect } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ nested: boolean | UnsetDeepOuterSelect } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ optNested: boolean | UnsetDeepOuterSelect } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ deepTuple: boolean | UnsetDeepTupleSelect } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-      recursive?: boolean;
-    })
-  | ({ tree: boolean | UnsetTreeNodeSelect } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      recursive?: boolean;
-    })
-  | ({ recursive: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      bio?: boolean;
-      age?: boolean;
-      address?: boolean | UnsetAddressSelect;
-      shipping?: boolean | UnsetAddressSelect;
-      pos?: boolean;
-      backup?: boolean;
-      opt?: boolean;
-      tagged?: boolean | UnsetObjTupleSelect;
-      nested?: boolean | UnsetDeepOuterSelect;
-      optNested?: boolean | UnsetDeepOuterSelect;
-      deepTuple?: boolean | UnsetDeepTupleSelect;
-      tree?: boolean | UnsetTreeNodeSelect;
-    });
+export interface UnsetTestSelectFields {
+  id?: boolean;
+  name?: boolean;
+  bio?: boolean;
+  age?: boolean;
+  address?: boolean | UnsetAddressSelect;
+  shipping?: boolean | UnsetAddressSelect;
+  pos?: boolean;
+  backup?: boolean;
+  opt?: boolean;
+  tagged?: boolean | UnsetObjTupleSelect;
+  nested?: boolean | UnsetDeepOuterSelect;
+  optNested?: boolean | UnsetDeepOuterSelect;
+  deepTuple?: boolean | UnsetDeepTupleSelect;
+  tree?: boolean | UnsetTreeNodeSelect;
+  recursive?: boolean;
+}
+
+export type UnsetTestSelect = AtLeastOne<UnsetTestSelectFields>;
 
 export interface UnsetTestOrderBy {
   id?: 'asc' | 'desc';
@@ -716,6 +495,7 @@ export interface UnsetTestModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface UnsetAddress {
   street: string;
   city: string;
@@ -776,10 +556,13 @@ export interface UnsetAddressWhere {
   NOT?: UnsetAddressWhere;
 }
 
-export type UnsetAddressSelect =
-  | ({ street: boolean } & Partial<Record<'city' | 'zip', boolean>>)
-  | ({ city: boolean } & Partial<Record<'street' | 'zip', boolean>>)
-  | ({ zip: boolean } & Partial<Record<'street' | 'city', boolean>>);
+export interface UnsetAddressSelectFields {
+  street?: boolean;
+  city?: boolean;
+  zip?: boolean;
+}
+
+export type UnsetAddressSelect = AtLeastOne<UnsetAddressSelectFields>;
 
 export interface UnsetAddressOrderBy {
   street?: 'asc' | 'desc';
@@ -793,6 +576,7 @@ export interface UnsetAddressOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface UnsetDeepInner {
   code: string;
   note?: string;
@@ -838,9 +622,12 @@ export interface UnsetDeepInnerWhere {
   NOT?: UnsetDeepInnerWhere;
 }
 
-export type UnsetDeepInnerSelect =
-  | ({ code: boolean } & Partial<Record<'note', boolean>>)
-  | ({ note: boolean } & Partial<Record<'code', boolean>>);
+export interface UnsetDeepInnerSelectFields {
+  code?: boolean;
+  note?: boolean;
+}
+
+export type UnsetDeepInnerSelect = AtLeastOne<UnsetDeepInnerSelectFields>;
 
 export interface UnsetDeepInnerOrderBy {
   code?: 'asc' | 'desc';
@@ -853,6 +640,7 @@ export interface UnsetDeepInnerOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type {
   UnsetDeepInner,
   UnsetDeepInnerInput,
@@ -909,10 +697,13 @@ export interface UnsetDeepMidWhere {
   NOT?: UnsetDeepMidWhere;
 }
 
-export type UnsetDeepMidSelect =
-  | ({ label: boolean } & { score?: boolean; deep?: boolean | UnsetDeepInnerSelect })
-  | ({ score: boolean } & { label?: boolean; deep?: boolean | UnsetDeepInnerSelect })
-  | ({ deep: boolean | UnsetDeepInnerSelect } & Partial<Record<'label' | 'score', boolean>>);
+export interface UnsetDeepMidSelectFields {
+  label?: boolean;
+  score?: boolean;
+  deep?: boolean | UnsetDeepInnerSelect;
+}
+
+export type UnsetDeepMidSelect = AtLeastOne<UnsetDeepMidSelectFields>;
 
 export interface UnsetDeepMidOrderBy {
   label?: 'asc' | 'desc';
@@ -926,6 +717,7 @@ export interface UnsetDeepMidOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type {
   UnsetDeepMid,
   UnsetDeepMidInput,
@@ -981,10 +773,13 @@ export interface UnsetDeepOuterWhere {
   NOT?: UnsetDeepOuterWhere;
 }
 
-export type UnsetDeepOuterSelect =
-  | ({ title: boolean } & { mid?: boolean | UnsetDeepMidSelect; desc?: boolean })
-  | ({ mid: boolean | UnsetDeepMidSelect } & Partial<Record<'title' | 'desc', boolean>>)
-  | ({ desc: boolean } & { title?: boolean; mid?: boolean | UnsetDeepMidSelect });
+export interface UnsetDeepOuterSelectFields {
+  title?: boolean;
+  mid?: boolean | UnsetDeepMidSelect;
+  desc?: boolean;
+}
+
+export type UnsetDeepOuterSelect = AtLeastOne<UnsetDeepOuterSelectFields>;
 
 export interface UnsetDeepOuterOrderBy {
   title?: 'asc' | 'desc';
@@ -998,6 +793,7 @@ export interface UnsetDeepOuterOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface UnsetInner {
   payload: string;
   extra?: string;
@@ -1043,9 +839,12 @@ export interface UnsetInnerWhere {
   NOT?: UnsetInnerWhere;
 }
 
-export type UnsetInnerSelect =
-  | ({ payload: boolean } & Partial<Record<'extra', boolean>>)
-  | ({ extra: boolean } & Partial<Record<'payload', boolean>>);
+export interface UnsetInnerSelectFields {
+  payload?: boolean;
+  extra?: boolean;
+}
+
+export type UnsetInnerSelect = AtLeastOne<UnsetInnerSelectFields>;
 
 export interface UnsetInnerOrderBy {
   payload?: 'asc' | 'desc';
@@ -1058,6 +857,7 @@ export interface UnsetInnerOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface UnsetTreeNode {
   payload: string;
   extra?: string;
@@ -1106,10 +906,13 @@ export interface UnsetTreeNodeWhere {
   NOT?: UnsetTreeNodeWhere;
 }
 
-export type UnsetTreeNodeSelect =
-  | ({ payload: boolean } & { extra?: boolean; child?: boolean | UnsetTreeNodeSelect })
-  | ({ extra: boolean } & { payload?: boolean; child?: boolean | UnsetTreeNodeSelect })
-  | ({ child: boolean | UnsetTreeNodeSelect } & Partial<Record<'payload' | 'extra', boolean>>);
+export interface UnsetTreeNodeSelectFields {
+  payload?: boolean;
+  extra?: boolean;
+  child?: boolean | UnsetTreeNodeSelect;
+}
+
+export type UnsetTreeNodeSelect = AtLeastOne<UnsetTreeNodeSelectFields>;
 
 export interface UnsetTreeNodeOrderBy {
   payload?: 'asc' | 'desc';

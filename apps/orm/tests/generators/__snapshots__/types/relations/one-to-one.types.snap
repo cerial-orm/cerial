@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UserOptional,
   UserOptionalWhere,
@@ -128,10 +129,13 @@ export type ProfileOptionalUnset = {
   userId?: true;
 };
 
-export type ProfileOptionalSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+export interface ProfileOptionalSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileOptionalSelect = AtLeastOne<ProfileOptionalSelectFields>;
 
 export interface ProfileOptionalOrderBy {
   id?: 'asc' | 'desc';
@@ -388,6 +392,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UserRequired,
   UserRequiredWhere,
@@ -510,11 +515,14 @@ export type ProfileRequiredUnset = {
   avatarUrl?: true;
 };
 
-export type ProfileRequiredSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'avatarUrl' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'avatarUrl' | 'userId', boolean>>)
-  | ({ avatarUrl: boolean } & Partial<Record<'id' | 'bio' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio' | 'avatarUrl', boolean>>);
+export interface ProfileRequiredSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  avatarUrl?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileRequiredSelect = AtLeastOne<ProfileRequiredSelectFields>;
 
 export interface ProfileRequiredOrderBy {
   id?: 'asc' | 'desc';
@@ -772,6 +780,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UserSingleSided,
   UserSingleSidedWhere,
@@ -879,10 +888,13 @@ export type ProfileSingleSidedUnset = {
   userId?: true;
 };
 
-export type ProfileSingleSidedSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+export interface ProfileSingleSidedSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileSingleSidedSelect = AtLeastOne<ProfileSingleSidedSelectFields>;
 
 export interface ProfileSingleSidedOrderBy {
   id?: 'asc' | 'desc';
@@ -1126,6 +1138,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ProfileOptional,
   ProfileOptionalWhere,
@@ -1217,10 +1230,13 @@ export type UserOptionalUpdateInput = UserOptionalUpdate & {
 
 export type UserOptionalUnset = {};
 
-export type UserOptionalSelect =
-  | ({ id: boolean } & Partial<Record<'email' | 'name', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'email', boolean>>);
+export interface UserOptionalSelectFields {
+  id?: boolean;
+  email?: boolean;
+  name?: boolean;
+}
+
+export type UserOptionalSelect = AtLeastOne<UserOptionalSelectFields>;
 
 export interface UserOptionalOrderBy {
   id?: 'asc' | 'desc';
@@ -1477,6 +1493,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ProfileRequired,
   ProfileRequiredWhere,
@@ -1568,10 +1585,13 @@ export type UserRequiredUpdateInput = UserRequiredUpdate & {
 
 export type UserRequiredUnset = {};
 
-export type UserRequiredSelect =
-  | ({ id: boolean } & Partial<Record<'email' | 'name', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'email', boolean>>);
+export interface UserRequiredSelectFields {
+  id?: boolean;
+  email?: boolean;
+  name?: boolean;
+}
+
+export type UserRequiredSelect = AtLeastOne<UserRequiredSelectFields>;
 
 export interface UserRequiredOrderBy {
   id?: 'asc' | 'desc';
@@ -1828,6 +1848,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface UserSingleSided {
   id: CerialId<string>;
   name: string;
@@ -1887,9 +1908,12 @@ export type UserSingleSidedUpdateInput = UserSingleSidedUpdate;
 
 export type UserSingleSidedUnset = {};
 
-export type UserSingleSidedSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface UserSingleSidedSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type UserSingleSidedSelect = AtLeastOne<UserSingleSidedSelectFields>;
 
 export interface UserSingleSidedOrderBy {
   id?: 'asc' | 'desc';

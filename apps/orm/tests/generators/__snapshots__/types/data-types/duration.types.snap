@@ -24,6 +24,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface DurationBasic {
   id: CerialId<string>;
   name: string;
@@ -160,13 +161,16 @@ export type DurationBasicUnset = {
   expiry?: true;
 };
 
-export type DurationBasicSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'ttl' | 'expiry' | 'cooldown' | 'intervals', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'ttl' | 'expiry' | 'cooldown' | 'intervals', boolean>>)
-  | ({ ttl: boolean } & Partial<Record<'id' | 'name' | 'expiry' | 'cooldown' | 'intervals', boolean>>)
-  | ({ expiry: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'cooldown' | 'intervals', boolean>>)
-  | ({ cooldown: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'expiry' | 'intervals', boolean>>)
-  | ({ intervals: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'expiry' | 'cooldown', boolean>>);
+export interface DurationBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  ttl?: boolean;
+  expiry?: boolean;
+  cooldown?: boolean;
+  intervals?: boolean;
+}
+
+export type DurationBasicSelect = AtLeastOne<DurationBasicSelectFields>;
 
 export interface DurationBasicOrderBy {
   id?: 'asc' | 'desc';
@@ -362,6 +366,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface DurationDecorated {
   id: CerialId<string>;
   name: string;
@@ -461,11 +466,14 @@ export type DurationDecoratedUnset = {
   alwaysTtl?: true;
 };
 
-export type DurationDecoratedSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'defaultTtl' | 'alwaysTtl', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'defaultTtl' | 'alwaysTtl', boolean>>)
-  | ({ defaultTtl: boolean } & Partial<Record<'id' | 'name' | 'alwaysTtl', boolean>>)
-  | ({ alwaysTtl: boolean } & Partial<Record<'id' | 'name' | 'defaultTtl', boolean>>);
+export interface DurationDecoratedSelectFields {
+  id?: boolean;
+  name?: boolean;
+  defaultTtl?: boolean;
+  alwaysTtl?: boolean;
+}
+
+export type DurationDecoratedSelect = AtLeastOne<DurationDecoratedSelectFields>;
 
 export interface DurationDecoratedOrderBy {
   id?: 'asc' | 'desc';
@@ -659,6 +667,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DurationInfo,
   DurationInfoInput,
@@ -734,10 +743,13 @@ export type DurationWithObjectUnset = {
   };
 };
 
-export type DurationWithObjectSelect =
-  | ({ id: boolean } & { name?: boolean; timing?: boolean | DurationInfoSelect })
-  | ({ name: boolean } & { id?: boolean; timing?: boolean | DurationInfoSelect })
-  | ({ timing: boolean | DurationInfoSelect } & Partial<Record<'id' | 'name', boolean>>);
+export interface DurationWithObjectSelectFields {
+  id?: boolean;
+  name?: boolean;
+  timing?: boolean | DurationInfoSelect;
+}
+
+export type DurationWithObjectSelect = AtLeastOne<DurationWithObjectSelectFields>;
 
 export interface DurationWithObjectOrderBy {
   id?: 'asc' | 'desc';
@@ -930,6 +942,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DurationPair,
   DurationPairInput,
@@ -1003,10 +1016,13 @@ export type DurationWithTupleUnset = {
   pair?: DurationPairUnset;
 };
 
-export type DurationWithTupleSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'pair', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'pair', boolean>>)
-  | ({ pair: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DurationWithTupleSelectFields {
+  id?: boolean;
+  name?: boolean;
+  pair?: boolean;
+}
+
+export type DurationWithTupleSelect = AtLeastOne<DurationWithTupleSelectFields>;
 
 export interface DurationWithTupleOrderBy {
   id?: 'asc' | 'desc';
@@ -1183,6 +1199,7 @@ export interface DurationWithTupleModel {
 
 import { CerialDuration } from 'cerial';
 import type { CerialDurationInput } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface DurationInfo {
   expires: CerialDuration;
   grace?: CerialDuration;
@@ -1231,9 +1248,12 @@ export interface DurationInfoWhere {
   NOT?: DurationInfoWhere;
 }
 
-export type DurationInfoSelect =
-  | ({ expires: boolean } & Partial<Record<'grace', boolean>>)
-  | ({ grace: boolean } & Partial<Record<'expires', boolean>>);
+export interface DurationInfoSelectFields {
+  expires?: boolean;
+  grace?: boolean;
+}
+
+export type DurationInfoSelect = AtLeastOne<DurationInfoSelectFields>;
 
 export interface DurationInfoOrderBy {
   expires?: 'asc' | 'desc';

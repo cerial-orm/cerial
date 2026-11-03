@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -123,10 +124,13 @@ export type DdAtThreeCascadeUnset = {
   twoId?: true;
 };
 
-export type DdAtThreeCascadeSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'twoId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'twoId', boolean>>)
-  | ({ twoId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtThreeCascadeSelectFields {
+  id?: boolean;
+  name?: boolean;
+  twoId?: boolean;
+}
+
+export type DdAtThreeCascadeSelect = AtLeastOne<DdAtThreeCascadeSelectFields>;
 
 export interface DdAtThreeCascadeOrderBy {
   id?: 'asc' | 'desc';
@@ -380,6 +384,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -481,10 +486,13 @@ export type DdAtThreeNoActionUnset = {
   twoId?: true;
 };
 
-export type DdAtThreeNoActionSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'twoId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'twoId', boolean>>)
-  | ({ twoId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtThreeNoActionSelectFields {
+  id?: boolean;
+  name?: boolean;
+  twoId?: boolean;
+}
+
+export type DdAtThreeNoActionSelect = AtLeastOne<DdAtThreeNoActionSelectFields>;
 
 export interface DdAtThreeNoActionOrderBy {
   id?: 'asc' | 'desc';
@@ -738,6 +746,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -839,10 +848,13 @@ export type DdAtThreeRestrictUnset = {
   twoId?: true;
 };
 
-export type DdAtThreeRestrictSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'twoId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'twoId', boolean>>)
-  | ({ twoId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtThreeRestrictSelectFields {
+  id?: boolean;
+  name?: boolean;
+  twoId?: boolean;
+}
+
+export type DdAtThreeRestrictSelect = AtLeastOne<DdAtThreeRestrictSelectFields>;
 
 export interface DdAtThreeRestrictOrderBy {
   id?: 'asc' | 'desc';
@@ -1096,6 +1108,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -1195,10 +1208,13 @@ export type DdAtThreeSetNoneUnset = {
   twoId?: true;
 };
 
-export type DdAtThreeSetNoneSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'twoId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'twoId', boolean>>)
-  | ({ twoId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtThreeSetNoneSelectFields {
+  id?: boolean;
+  name?: boolean;
+  twoId?: boolean;
+}
+
+export type DdAtThreeSetNoneSelect = AtLeastOne<DdAtThreeSetNoneSelectFields>;
 
 export interface DdAtThreeSetNoneOrderBy {
   id?: 'asc' | 'desc';
@@ -1452,6 +1468,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -1553,10 +1570,13 @@ export type DdAtThreeSetNullUnset = {
   twoId?: true;
 };
 
-export type DdAtThreeSetNullSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'twoId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'twoId', boolean>>)
-  | ({ twoId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtThreeSetNullSelectFields {
+  id?: boolean;
+  name?: boolean;
+  twoId?: boolean;
+}
+
+export type DdAtThreeSetNullSelect = AtLeastOne<DdAtThreeSetNullSelectFields>;
 
 export interface DdAtThreeSetNullOrderBy {
   id?: 'asc' | 'desc';
@@ -1810,6 +1830,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdOne,
   DdOneWhere,
@@ -1911,10 +1932,13 @@ export type DdAtTwoCascadeUnset = {
   oneId?: true;
 };
 
-export type DdAtTwoCascadeSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'oneId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'oneId', boolean>>)
-  | ({ oneId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtTwoCascadeSelectFields {
+  id?: boolean;
+  name?: boolean;
+  oneId?: boolean;
+}
+
+export type DdAtTwoCascadeSelect = AtLeastOne<DdAtTwoCascadeSelectFields>;
 
 export interface DdAtTwoCascadeOrderBy {
   id?: 'asc' | 'desc';
@@ -2168,6 +2192,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdOne,
   DdOneWhere,
@@ -2269,10 +2294,13 @@ export type DdAtTwoNoActionUnset = {
   oneId?: true;
 };
 
-export type DdAtTwoNoActionSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'oneId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'oneId', boolean>>)
-  | ({ oneId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtTwoNoActionSelectFields {
+  id?: boolean;
+  name?: boolean;
+  oneId?: boolean;
+}
+
+export type DdAtTwoNoActionSelect = AtLeastOne<DdAtTwoNoActionSelectFields>;
 
 export interface DdAtTwoNoActionOrderBy {
   id?: 'asc' | 'desc';
@@ -2526,6 +2554,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdOne,
   DdOneWhere,
@@ -2627,10 +2656,13 @@ export type DdAtTwoRestrictUnset = {
   oneId?: true;
 };
 
-export type DdAtTwoRestrictSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'oneId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'oneId', boolean>>)
-  | ({ oneId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtTwoRestrictSelectFields {
+  id?: boolean;
+  name?: boolean;
+  oneId?: boolean;
+}
+
+export type DdAtTwoRestrictSelect = AtLeastOne<DdAtTwoRestrictSelectFields>;
 
 export interface DdAtTwoRestrictOrderBy {
   id?: 'asc' | 'desc';
@@ -2884,6 +2916,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdOne,
   DdOneWhere,
@@ -2983,10 +3016,13 @@ export type DdAtTwoSetNoneUnset = {
   oneId?: true;
 };
 
-export type DdAtTwoSetNoneSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'oneId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'oneId', boolean>>)
-  | ({ oneId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtTwoSetNoneSelectFields {
+  id?: boolean;
+  name?: boolean;
+  oneId?: boolean;
+}
+
+export type DdAtTwoSetNoneSelect = AtLeastOne<DdAtTwoSetNoneSelectFields>;
 
 export interface DdAtTwoSetNoneOrderBy {
   id?: 'asc' | 'desc';
@@ -3240,6 +3276,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdOne,
   DdOneWhere,
@@ -3341,10 +3378,13 @@ export type DdAtTwoSetNullUnset = {
   oneId?: true;
 };
 
-export type DdAtTwoSetNullSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'oneId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'oneId', boolean>>)
-  | ({ oneId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdAtTwoSetNullSelectFields {
+  id?: boolean;
+  name?: boolean;
+  oneId?: boolean;
+}
+
+export type DdAtTwoSetNullSelect = AtLeastOne<DdAtTwoSetNullSelectFields>;
 
 export interface DdAtTwoSetNullOrderBy {
   id?: 'asc' | 'desc';
@@ -3598,6 +3638,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdRoot,
   DdRootWhere,
@@ -3893,10 +3934,13 @@ export type DdOneUnset = {
   rootId?: true;
 };
 
-export type DdOneSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'rootId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'rootId', boolean>>)
-  | ({ rootId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdOneSelectFields {
+  id?: boolean;
+  name?: boolean;
+  rootId?: boolean;
+}
+
+export type DdOneSelect = AtLeastOne<DdOneSelectFields>;
 
 export interface DdOneOrderBy {
   id?: 'asc' | 'desc';
@@ -4328,6 +4372,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdPong,
   DdPongWhere,
@@ -4447,10 +4492,13 @@ export type DdPingUnset = {
   pongId?: true;
 };
 
-export type DdPingSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'pongId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'pongId', boolean>>)
-  | ({ pongId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdPingSelectFields {
+  id?: boolean;
+  name?: boolean;
+  pongId?: boolean;
+}
+
+export type DdPingSelect = AtLeastOne<DdPingSelectFields>;
 
 export interface DdPingOrderBy {
   id?: 'asc' | 'desc';
@@ -4727,6 +4775,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdPing,
   DdPingWhere,
@@ -4846,10 +4895,13 @@ export type DdPongUnset = {
   pingId?: true;
 };
 
-export type DdPongSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'pingId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'pingId', boolean>>)
-  | ({ pingId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdPongSelectFields {
+  id?: boolean;
+  name?: boolean;
+  pingId?: boolean;
+}
+
+export type DdPongSelect = AtLeastOne<DdPongSelectFields>;
 
 export interface DdPongOrderBy {
   id?: 'asc' | 'desc';
@@ -5125,6 +5177,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdOne,
   DdOneWhere,
@@ -5231,10 +5284,13 @@ export type DdRootUpdateInput = DdRootUpdate & {
 
 export type DdRootUnset = {};
 
-export type DdRootSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'code', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'code', boolean>>)
-  | ({ code: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdRootSelectFields {
+  id?: boolean;
+  name?: boolean;
+  code?: boolean;
+}
+
+export type DdRootSelect = AtLeastOne<DdRootSelectFields>;
 
 export interface DdRootOrderBy {
   id?: 'asc' | 'desc';
@@ -5485,6 +5541,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface DdTree {
   id: CerialId<string>;
   name: string;
@@ -5595,10 +5652,13 @@ export type DdTreeUnset = {
   parentId?: true;
 };
 
-export type DdTreeSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'parentId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'parentId', boolean>>)
-  | ({ parentId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdTreeSelectFields {
+  id?: boolean;
+  name?: boolean;
+  parentId?: boolean;
+}
+
+export type DdTreeSelect = AtLeastOne<DdTreeSelectFields>;
 
 export interface DdTreeOrderBy {
   id?: 'asc' | 'desc';
@@ -5875,6 +5935,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DdOne,
   DdOneWhere,
@@ -6141,10 +6202,13 @@ export type DdTwoUnset = {
   oneId?: true;
 };
 
-export type DdTwoSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'oneId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'oneId', boolean>>)
-  | ({ oneId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DdTwoSelectFields {
+  id?: boolean;
+  name?: boolean;
+  oneId?: boolean;
+}
+
+export type DdTwoSelect = AtLeastOne<DdTwoSelectFields>;
 
 export interface DdTwoOrderBy {
   id?: 'asc' | 'desc';

@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Publisher,
   PublisherWhere,
@@ -141,11 +142,14 @@ export type BookUnset = {
   publisherId?: true;
 };
 
-export type BookSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'isbn' | 'publisherId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'isbn' | 'publisherId', boolean>>)
-  | ({ isbn: boolean } & Partial<Record<'id' | 'title' | 'publisherId', boolean>>)
-  | ({ publisherId: boolean } & Partial<Record<'id' | 'title' | 'isbn', boolean>>);
+export interface BookSelectFields {
+  id?: boolean;
+  title?: boolean;
+  isbn?: boolean;
+  publisherId?: boolean;
+}
+
+export type BookSelect = AtLeastOne<BookSelectFields>;
 
 export interface BookOrderBy {
   id?: 'asc' | 'desc';
@@ -397,6 +401,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Book,
   BookWhere,
@@ -485,9 +490,12 @@ export type PublisherUpdateInput = PublisherUpdate & {
 
 export type PublisherUnset = {};
 
-export type PublisherSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface PublisherSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type PublisherSelect = AtLeastOne<PublisherSelectFields>;
 
 export interface PublisherOrderBy {
   id?: 'asc' | 'desc';

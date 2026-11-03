@@ -24,10 +24,13 @@ afterAll(() => {
 
 const MODEL = `import type { Object as O, Any as A } from 'ts-toolbelt';
 
-export type UserSelect =
-  | ({ id: boolean } & { name?: boolean; profile?: boolean | ProfileSelect })
-  | ({ name: boolean } & { id?: boolean; profile?: boolean | ProfileSelect })
-  | ({ profile: boolean | ProfileSelect } & Partial<Record<'id' | 'name', boolean>>);
+export interface UserSelectFields {
+  id?: boolean;
+  name?: boolean;
+  profile?: boolean | ProfileSelect;
+}
+
+export type UserSelect = AtLeastOne<UserSelectFields>;
 
 export type GetUserIncludePayload<I extends UserInclude | undefined> = I extends UserInclude
   ? Pick<{ posts: Post[] }, Extract<keyof I, 'posts'>>
@@ -50,6 +53,11 @@ declare const client: CerialClient;
 
 export const nestedSelect = client.db.User.findMany({ select: { name: true, profile: { label: true } } });
 export const nestedInclude = client.db.User.findMany({ include: { posts: true } });
+`;
+
+const UNION_SELECT = `export type UserSelect =
+  | ({ id: boolean } & { name?: boolean; profile?: boolean | ProfileSelect })
+  | ({ name: boolean } & { id?: boolean; profile?: boolean | ProfileSelect });
 `;
 
 const SELECT_ONLY = 'export type UserSelect = { id: boolean };\n';
@@ -128,12 +136,22 @@ describe('transforms on a tree with the pattern', () => {
 
     expect(file(next, 'gen/models/user.ts')).toContain('export type UserSelect = Record<string, unknown>;');
     expect(file(next, 'gen/models/user.ts')).toContain('export type GetUserIncludePayload');
+    expect(file(next, 'gen/models/user.ts')).not.toContain('AtLeastOne<UserSelectFields>');
     expect(file(next, 'consumer.ts')).toContain('export const nestedSelect = client.db.User.findMany({});');
     expect(file(next, 'consumer.ts')).toContain('findMany({ include: { posts: true } })');
   });
 
-  test('flat-select keeps one variant with every key optional', () => {
+  test('flat-select replaces AtLeastOne of the fields with the flat fields interface', () => {
     const model = file(CASES['flat-select'].transform(FULL), 'gen/models/user.ts');
+
+    expect(model).toContain('export type UserSelect = UserSelectFields;');
+    expect(model).toContain('export interface UserSelectFields {');
+    expect(model).not.toContain('AtLeastOne<');
+  });
+
+  test('flat-select still keeps the first variant of a select written as a union, with every key optional', () => {
+    const tree = treeOf({ 'gen/models/user.ts': UNION_SELECT });
+    const model = file(CASES['flat-select'].transform(tree), 'gen/models/user.ts');
 
     expect(model).toContain(
       'export type UserSelect = { id?: boolean } & { name?: boolean; profile?: boolean | ProfileSelect };',
@@ -148,12 +166,18 @@ describe('transforms on a tree with the pattern', () => {
     expect(file(next, 'gen/tuples/pair.ts')).toBe(SELECT_ONLY);
   });
 
+  test('flat-select throws on a tree whose selects are all already flat', () => {
+    const tree = treeOf({ 'gen/tuples/pair.ts': SELECT_ONLY });
+
+    expect(() => CASES['flat-select'].transform(tree)).toThrow('matched nothing');
+  });
+
   test('no-include collapses the include payload and keeps the select', () => {
     const model = file(CASES['no-include'].transform(FULL), 'gen/models/user.ts');
 
     expect(model).toContain('export type GetUserIncludePayload<I extends UserInclude | undefined> = {};');
     expect(model).not.toContain('Pick<');
-    expect(model).toContain('| ({ id: boolean }');
+    expect(model).toContain('AtLeastOne<UserSelectFields>');
   });
 
   test('no-compute unwraps A.Compute and keeps the payload body', () => {

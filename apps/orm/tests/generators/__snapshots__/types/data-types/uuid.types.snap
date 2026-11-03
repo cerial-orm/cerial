@@ -24,6 +24,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface UuidBasic {
   id: CerialId<string>;
   name: string;
@@ -158,13 +159,16 @@ export type UuidBasicUnset = {
   nullableToken?: true;
 };
 
-export type UuidBasicSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'token' | 'optionalToken' | 'nullableToken' | 'tags', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'token' | 'optionalToken' | 'nullableToken' | 'tags', boolean>>)
-  | ({ token: boolean } & Partial<Record<'id' | 'name' | 'optionalToken' | 'nullableToken' | 'tags', boolean>>)
-  | ({ optionalToken: boolean } & Partial<Record<'id' | 'name' | 'token' | 'nullableToken' | 'tags', boolean>>)
-  | ({ nullableToken: boolean } & Partial<Record<'id' | 'name' | 'token' | 'optionalToken' | 'tags', boolean>>)
-  | ({ tags: boolean } & Partial<Record<'id' | 'name' | 'token' | 'optionalToken' | 'nullableToken', boolean>>);
+export interface UuidBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  token?: boolean;
+  optionalToken?: boolean;
+  nullableToken?: boolean;
+  tags?: boolean;
+}
+
+export type UuidBasicSelect = AtLeastOne<UuidBasicSelectFields>;
 
 export interface UuidBasicOrderBy {
   id?: 'asc' | 'desc';
@@ -360,6 +364,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface UuidDecorated {
   id: CerialId<string>;
   name: string;
@@ -506,13 +511,16 @@ export type UuidDecoratedUnset = {
   optAutoId?: true;
 };
 
-export type UuidDecoratedSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'autoId' | 'autoV4' | 'autoV7' | 'optAutoId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'autoId' | 'autoV4' | 'autoV7' | 'optAutoId', boolean>>)
-  | ({ autoId: boolean } & Partial<Record<'id' | 'name' | 'autoV4' | 'autoV7' | 'optAutoId', boolean>>)
-  | ({ autoV4: boolean } & Partial<Record<'id' | 'name' | 'autoId' | 'autoV7' | 'optAutoId', boolean>>)
-  | ({ autoV7: boolean } & Partial<Record<'id' | 'name' | 'autoId' | 'autoV4' | 'optAutoId', boolean>>)
-  | ({ optAutoId: boolean } & Partial<Record<'id' | 'name' | 'autoId' | 'autoV4' | 'autoV7', boolean>>);
+export interface UuidDecoratedSelectFields {
+  id?: boolean;
+  name?: boolean;
+  autoId?: boolean;
+  autoV4?: boolean;
+  autoV7?: boolean;
+  optAutoId?: boolean;
+}
+
+export type UuidDecoratedSelect = AtLeastOne<UuidDecoratedSelectFields>;
 
 export interface UuidDecoratedOrderBy {
   id?: 'asc' | 'desc';
@@ -706,6 +714,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UuidInfo,
   UuidInfoInput,
@@ -796,11 +805,14 @@ export type UuidWithObjectUnset = {
       };
 };
 
-export type UuidWithObjectSelect =
-  | ({ id: boolean } & { name?: boolean; meta?: boolean | UuidInfoSelect; optMeta?: boolean | UuidInfoSelect })
-  | ({ name: boolean } & { id?: boolean; meta?: boolean | UuidInfoSelect; optMeta?: boolean | UuidInfoSelect })
-  | ({ meta: boolean | UuidInfoSelect } & { id?: boolean; name?: boolean; optMeta?: boolean | UuidInfoSelect })
-  | ({ optMeta: boolean | UuidInfoSelect } & { id?: boolean; name?: boolean; meta?: boolean | UuidInfoSelect });
+export interface UuidWithObjectSelectFields {
+  id?: boolean;
+  name?: boolean;
+  meta?: boolean | UuidInfoSelect;
+  optMeta?: boolean | UuidInfoSelect;
+}
+
+export type UuidWithObjectSelect = AtLeastOne<UuidWithObjectSelectFields>;
 
 export interface UuidWithObjectOrderBy {
   id?: 'asc' | 'desc';
@@ -992,6 +1004,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { UuidPair, UuidPairInput, UuidPairWhere, UuidPairUpdate } from '../tuples/uuidpair';
 export interface UuidWithTuple {
   id: CerialId<string>;
@@ -1063,11 +1076,14 @@ export type UuidWithTupleUnset = {
   optPair?: true;
 };
 
-export type UuidWithTupleSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'pair' | 'optPair', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'pair' | 'optPair', boolean>>)
-  | ({ pair: boolean } & Partial<Record<'id' | 'name' | 'optPair', boolean>>)
-  | ({ optPair: boolean } & Partial<Record<'id' | 'name' | 'pair', boolean>>);
+export interface UuidWithTupleSelectFields {
+  id?: boolean;
+  name?: boolean;
+  pair?: boolean;
+  optPair?: boolean;
+}
+
+export type UuidWithTupleSelect = AtLeastOne<UuidWithTupleSelectFields>;
 
 export interface UuidWithTupleOrderBy {
   id?: 'asc' | 'desc';
@@ -1241,6 +1257,7 @@ export interface UuidWithTupleModel {
 
 import { CerialUuid } from 'cerial';
 import type { CerialUuidInput } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface UuidInfo {
   label: string;
   trackingId: CerialUuid;
@@ -1326,11 +1343,14 @@ export interface UuidInfoWhere {
   NOT?: UuidInfoWhere;
 }
 
-export type UuidInfoSelect =
-  | ({ label: boolean } & Partial<Record<'trackingId' | 'optionalId' | 'autoGenId', boolean>>)
-  | ({ trackingId: boolean } & Partial<Record<'label' | 'optionalId' | 'autoGenId', boolean>>)
-  | ({ optionalId: boolean } & Partial<Record<'label' | 'trackingId' | 'autoGenId', boolean>>)
-  | ({ autoGenId: boolean } & Partial<Record<'label' | 'trackingId' | 'optionalId', boolean>>);
+export interface UuidInfoSelectFields {
+  label?: boolean;
+  trackingId?: boolean;
+  optionalId?: boolean;
+  autoGenId?: boolean;
+}
+
+export type UuidInfoSelect = AtLeastOne<UuidInfoSelectFields>;
 
 export interface UuidInfoOrderBy {
   label?: 'asc' | 'desc';

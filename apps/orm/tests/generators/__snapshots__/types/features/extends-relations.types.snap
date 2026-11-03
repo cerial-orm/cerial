@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtRelBlogPost,
   ExtRelBlogPostWhere,
@@ -200,13 +201,16 @@ export type ExtRelBlogAuthorUnset = {
   bio?: true;
 };
 
-export type ExtRelBlogAuthorSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'name' | 'email' | 'bio', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'name' | 'email' | 'bio', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'email' | 'bio', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'bio', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'bio', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'email', boolean>>);
+export interface ExtRelBlogAuthorSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  name?: boolean;
+  email?: boolean;
+  bio?: boolean;
+}
+
+export type ExtRelBlogAuthorSelect = AtLeastOne<ExtRelBlogAuthorSelectFields>;
 
 export interface ExtRelBlogAuthorOrderBy {
   id?: 'asc' | 'desc';
@@ -468,6 +472,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtRelBlogAuthor,
   ExtRelBlogAuthorWhere,
@@ -632,13 +637,16 @@ export type ExtRelBlogPostUnset = {
   body?: true;
 };
 
-export type ExtRelBlogPostSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'title' | 'body' | 'authorId', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'title' | 'body' | 'authorId', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'title' | 'body' | 'authorId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'authorId', boolean>>)
-  | ({ body: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'body', boolean>>);
+export interface ExtRelBlogPostSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  title?: boolean;
+  body?: boolean;
+  authorId?: boolean;
+}
+
+export type ExtRelBlogPostSelect = AtLeastOne<ExtRelBlogPostSelectFields>;
 
 export interface ExtRelBlogPostOrderBy {
   id?: 'asc' | 'desc';
@@ -898,6 +906,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtRelBlogPost,
   ExtRelBlogPostWhere,
@@ -1012,10 +1021,13 @@ export type ExtRelBlogPostTagUnset = {
   postId?: true;
 };
 
-export type ExtRelBlogPostTagSelect =
-  | ({ id: boolean } & Partial<Record<'postId' | 'tagId', boolean>>)
-  | ({ postId: boolean } & Partial<Record<'id' | 'tagId', boolean>>)
-  | ({ tagId: boolean } & Partial<Record<'id' | 'postId', boolean>>);
+export interface ExtRelBlogPostTagSelectFields {
+  id?: boolean;
+  postId?: boolean;
+  tagId?: boolean;
+}
+
+export type ExtRelBlogPostTagSelect = AtLeastOne<ExtRelBlogPostTagSelectFields>;
 
 export interface ExtRelBlogPostTagOrderBy {
   id?: 'asc' | 'desc';
@@ -1301,6 +1313,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtRelBlogPostTag,
   ExtRelBlogPostTagWhere,
@@ -1439,11 +1452,14 @@ export type ExtRelBlogTagUnset = {
   updatedAt?: true;
 };
 
-export type ExtRelBlogTagSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'name', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'name', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt', boolean>>);
+export interface ExtRelBlogTagSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  name?: boolean;
+}
+
+export type ExtRelBlogTagSelect = AtLeastOne<ExtRelBlogTagSelectFields>;
 
 export interface ExtRelBlogTagOrderBy {
   id?: 'asc' | 'desc';
@@ -1702,6 +1718,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtRelComment {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1842,12 +1859,15 @@ export type ExtRelCommentUnset = {
   parentCommentId?: true;
 };
 
-export type ExtRelCommentSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'body' | 'parentCommentId', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'body' | 'parentCommentId', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'body' | 'parentCommentId', boolean>>)
-  | ({ body: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'parentCommentId', boolean>>)
-  | ({ parentCommentId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'body', boolean>>);
+export interface ExtRelCommentSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  body?: boolean;
+  parentCommentId?: boolean;
+}
+
+export type ExtRelCommentSelect = AtLeastOne<ExtRelCommentSelectFields>;
 
 export interface ExtRelCommentOrderBy {
   id?: 'asc' | 'desc';
@@ -2105,6 +2125,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtRelComment,
   ExtRelCommentWhere,
@@ -2300,28 +2321,17 @@ export type ExtRelCommentModeratedUnset = {
   approvedBy?: true;
 };
 
-export type ExtRelCommentModeratedSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'updatedAt' | 'body' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'updatedAt' | 'body' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'body' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
-    >)
-  | ({ body: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
-    >)
-  | ({ parentCommentId: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'isApproved' | 'approvedBy', boolean>
-    >)
-  | ({ isApproved: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'parentCommentId' | 'approvedBy', boolean>
-    >)
-  | ({ approvedBy: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'parentCommentId' | 'isApproved', boolean>
-    >);
+export interface ExtRelCommentModeratedSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  body?: boolean;
+  parentCommentId?: boolean;
+  isApproved?: boolean;
+  approvedBy?: boolean;
+}
+
+export type ExtRelCommentModeratedSelect = AtLeastOne<ExtRelCommentModeratedSelectFields>;
 
 export interface ExtRelCommentModeratedOrderBy {
   id?: 'asc' | 'desc';
@@ -2615,6 +2625,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtRelPostArchive {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2767,13 +2778,16 @@ export type ExtRelPostArchiveUnset = {
   archiveReason?: true;
 };
 
-export type ExtRelPostArchiveSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'title' | 'archivedAt' | 'archiveReason', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'title' | 'archivedAt' | 'archiveReason', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'title' | 'archivedAt' | 'archiveReason', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'archivedAt' | 'archiveReason', boolean>>)
-  | ({ archivedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'archiveReason', boolean>>)
-  | ({ archiveReason: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'archivedAt', boolean>>);
+export interface ExtRelPostArchiveSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  title?: boolean;
+  archivedAt?: boolean;
+  archiveReason?: boolean;
+}
+
+export type ExtRelPostArchiveSelect = AtLeastOne<ExtRelPostArchiveSelectFields>;
 
 export interface ExtRelPostArchiveOrderBy {
   id?: 'asc' | 'desc';
@@ -2970,6 +2984,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtRelPostSummary {
   id: CerialId<string>;
   createdAt?: Date;
@@ -3142,16 +3157,17 @@ export type ExtRelPostSummaryUnset = {
   wordCount?: true;
 };
 
-export type ExtRelPostSummarySelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'title' | 'body' | 'summary' | 'wordCount', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'title' | 'body' | 'summary' | 'wordCount', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'title' | 'body' | 'summary' | 'wordCount', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'summary' | 'wordCount', boolean>>)
-  | ({ body: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'summary' | 'wordCount', boolean>>)
-  | ({ summary: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'body' | 'wordCount', boolean>>)
-  | ({ wordCount: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'body' | 'summary', boolean>
-    >);
+export interface ExtRelPostSummarySelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  title?: boolean;
+  body?: boolean;
+  summary?: boolean;
+  wordCount?: boolean;
+}
+
+export type ExtRelPostSummarySelect = AtLeastOne<ExtRelPostSummarySelectFields>;
 
 export interface ExtRelPostSummaryOrderBy {
   id?: 'asc' | 'desc';
@@ -3349,6 +3365,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtRelBlogAuthor,
   ExtRelBlogAuthorWhere,
@@ -3518,13 +3535,16 @@ export type ExtRelProjectUnset = {
   ownerId?: true;
 };
 
-export type ExtRelProjectSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'name' | 'description' | 'ownerId', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'name' | 'description' | 'ownerId', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'description' | 'ownerId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'description' | 'ownerId', boolean>>)
-  | ({ description: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'ownerId', boolean>>)
-  | ({ ownerId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'description', boolean>>);
+export interface ExtRelProjectSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  name?: boolean;
+  description?: boolean;
+  ownerId?: boolean;
+}
+
+export type ExtRelProjectSelect = AtLeastOne<ExtRelProjectSelectFields>;
 
 export interface ExtRelProjectOrderBy {
   id?: 'asc' | 'desc';

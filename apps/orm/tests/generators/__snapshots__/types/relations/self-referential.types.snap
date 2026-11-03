@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface Assistant {
   id: CerialId<string>;
   name: string;
@@ -117,10 +118,13 @@ export type AssistantUnset = {
   assistsId?: true;
 };
 
-export type AssistantSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'assistsId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'assistsId', boolean>>)
-  | ({ assistsId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface AssistantSelectFields {
+  id?: boolean;
+  name?: boolean;
+  assistsId?: boolean;
+}
+
+export type AssistantSelect = AtLeastOne<AssistantSelectFields>;
 
 export interface AssistantOrderBy {
   id?: 'asc' | 'desc';
@@ -404,6 +408,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface CategoryTree {
   id: CerialId<string>;
   name: string;
@@ -514,10 +519,13 @@ export type CategoryTreeUnset = {
   parentId?: true;
 };
 
-export type CategoryTreeSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'parentId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'parentId', boolean>>)
-  | ({ parentId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface CategoryTreeSelectFields {
+  id?: boolean;
+  name?: boolean;
+  parentId?: boolean;
+}
+
+export type CategoryTreeSelect = AtLeastOne<CategoryTreeSelectFields>;
 
 export interface CategoryTreeOrderBy {
   id?: 'asc' | 'desc';
@@ -804,6 +812,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface EmployeeSingleSided {
   id: CerialId<string>;
   name: string;
@@ -899,10 +908,13 @@ export type EmployeeSingleSidedUnset = {
   managerId?: true;
 };
 
-export type EmployeeSingleSidedSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'managerId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'managerId', boolean>>)
-  | ({ managerId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface EmployeeSingleSidedSelectFields {
+  id?: boolean;
+  name?: boolean;
+  managerId?: boolean;
+}
+
+export type EmployeeSingleSidedSelect = AtLeastOne<EmployeeSingleSidedSelectFields>;
 
 export interface EmployeeSingleSidedOrderBy {
   id?: 'asc' | 'desc';
@@ -1161,6 +1173,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface EmployeeWithReports {
   id: CerialId<string>;
   name: string;
@@ -1279,10 +1292,13 @@ export type EmployeeWithReportsUnset = {
   managerId?: true;
 };
 
-export type EmployeeWithReportsSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'managerId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'managerId', boolean>>)
-  | ({ managerId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface EmployeeWithReportsSelectFields {
+  id?: boolean;
+  name?: boolean;
+  managerId?: boolean;
+}
+
+export type EmployeeWithReportsSelect = AtLeastOne<EmployeeWithReportsSelectFields>;
 
 export interface EmployeeWithReportsOrderBy {
   id?: 'asc' | 'desc';
@@ -1571,6 +1587,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface Friend {
   id: CerialId<string>;
   name: string;
@@ -1664,10 +1681,13 @@ export type FriendUpdateInput =
 
 export type FriendUnset = {};
 
-export type FriendSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'friendIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'friendIds', boolean>>)
-  | ({ friendIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface FriendSelectFields {
+  id?: boolean;
+  name?: boolean;
+  friendIds?: boolean;
+}
+
+export type FriendSelect = AtLeastOne<FriendSelectFields>;
 
 export interface FriendOrderBy {
   id?: 'asc' | 'desc';
@@ -1918,6 +1938,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface Person {
   id: CerialId<string>;
   name: string;
@@ -2010,10 +2031,13 @@ export type PersonUnset = {
   mentorId?: true;
 };
 
-export type PersonSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'mentorId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'mentorId', boolean>>)
-  | ({ mentorId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface PersonSelectFields {
+  id?: boolean;
+  name?: boolean;
+  mentorId?: boolean;
+}
+
+export type PersonSelect = AtLeastOne<PersonSelectFields>;
 
 export interface PersonOrderBy {
   id?: 'asc' | 'desc';
@@ -2261,6 +2285,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface SocialUser {
   id: CerialId<string>;
   name: string;
@@ -2358,10 +2383,13 @@ export type SocialUserUpdateInput =
 
 export type SocialUserUnset = {};
 
-export type SocialUserSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'followingIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'followingIds', boolean>>)
-  | ({ followingIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface SocialUserSelectFields {
+  id?: boolean;
+  name?: boolean;
+  followingIds?: boolean;
+}
+
+export type SocialUserSelect = AtLeastOne<SocialUserSelectFields>;
 
 export interface SocialUserOrderBy {
   id?: 'asc' | 'desc';

@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   RelObjEmployee,
   RelObjEmployeeWhere,
@@ -136,11 +137,14 @@ export type RelObjCompanyUnset = {
       };
 };
 
-export type RelObjCompanySelect =
-  | ({ id: boolean } & { name?: boolean; headquarters?: boolean | AddressSelect; meta?: boolean | CompanyMetaSelect })
-  | ({ name: boolean } & { id?: boolean; headquarters?: boolean | AddressSelect; meta?: boolean | CompanyMetaSelect })
-  | ({ headquarters: boolean | AddressSelect } & { id?: boolean; name?: boolean; meta?: boolean | CompanyMetaSelect })
-  | ({ meta: boolean | CompanyMetaSelect } & { id?: boolean; name?: boolean; headquarters?: boolean | AddressSelect });
+export interface RelObjCompanySelectFields {
+  id?: boolean;
+  name?: boolean;
+  headquarters?: boolean | AddressSelect;
+  meta?: boolean | CompanyMetaSelect;
+}
+
+export type RelObjCompanySelect = AtLeastOne<RelObjCompanySelectFields>;
 
 export interface RelObjCompanyOrderBy {
   id?: 'asc' | 'desc';
@@ -398,6 +402,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   RelObjCompany,
   RelObjCompanyWhere,
@@ -500,11 +505,14 @@ export type RelObjEmployeeUnset = {
   };
 };
 
-export type RelObjEmployeeSelect =
-  | ({ id: boolean } & { name?: boolean; homeAddress?: boolean | AddressSelect; companyId?: boolean })
-  | ({ name: boolean } & { id?: boolean; homeAddress?: boolean | AddressSelect; companyId?: boolean })
-  | ({ homeAddress: boolean | AddressSelect } & Partial<Record<'id' | 'name' | 'companyId', boolean>>)
-  | ({ companyId: boolean } & { id?: boolean; name?: boolean; homeAddress?: boolean | AddressSelect });
+export interface RelObjEmployeeSelectFields {
+  id?: boolean;
+  name?: boolean;
+  homeAddress?: boolean | AddressSelect;
+  companyId?: boolean;
+}
+
+export type RelObjEmployeeSelect = AtLeastOne<RelObjEmployeeSelectFields>;
 
 export interface RelObjEmployeeOrderBy {
   id?: 'asc' | 'desc';
@@ -744,6 +752,7 @@ export interface RelObjEmployeeModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface CompanyMeta {
   industry: string;
   founded?: number;
@@ -790,9 +799,12 @@ export interface CompanyMetaWhere {
   NOT?: CompanyMetaWhere;
 }
 
-export type CompanyMetaSelect =
-  | ({ industry: boolean } & Partial<Record<'founded', boolean>>)
-  | ({ founded: boolean } & Partial<Record<'industry', boolean>>);
+export interface CompanyMetaSelectFields {
+  industry?: boolean;
+  founded?: boolean;
+}
+
+export type CompanyMetaSelect = AtLeastOne<CompanyMetaSelectFields>;
 
 export interface CompanyMetaOrderBy {
   industry?: 'asc' | 'desc';

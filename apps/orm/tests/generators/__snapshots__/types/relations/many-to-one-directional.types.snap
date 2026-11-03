@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Label, LabelWhere, LabelSelect, LabelOrderBy, LabelNestedCreate } from './label';
 export interface Blogger {
   id: CerialId<string>;
@@ -115,10 +116,13 @@ export type BloggerUpdateInput =
 
 export type BloggerUnset = {};
 
-export type BloggerSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'labelIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'labelIds', boolean>>)
-  | ({ labelIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface BloggerSelectFields {
+  id?: boolean;
+  name?: boolean;
+  labelIds?: boolean;
+}
+
+export type BloggerSelect = AtLeastOne<BloggerSelectFields>;
 
 export interface BloggerOrderBy {
   id?: 'asc' | 'desc';
@@ -360,6 +364,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface Label {
   id: CerialId<string>;
   name: string;
@@ -422,9 +427,12 @@ export type LabelUpdateInput = LabelUpdate;
 
 export type LabelUnset = {};
 
-export type LabelSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface LabelSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type LabelSelect = AtLeastOne<LabelSelectFields>;
 
 export interface LabelOrderBy {
   id?: 'asc' | 'desc';

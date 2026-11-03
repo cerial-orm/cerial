@@ -29,11 +29,12 @@ describe('Object Select Type Generator', () => {
 
       const result = generateObjectSelectType(addr);
 
-      expect(result).toContain('AddressSelect');
-      // Should contain field names
-      expect(result).toContain('street');
-      expect(result).toContain('city');
-      expect(result).toContain('zipCode');
+      expect(result).toContain('export type AddressSelect = AtLeastOne<AddressSelectFields>;');
+      // Every field is optional in the fields interface; AtLeastOne makes one of them required
+      expect(result).toContain('export interface AddressSelectFields {');
+      expect(result).toContain('street?: boolean;');
+      expect(result).toContain('city?: boolean;');
+      expect(result).toContain('zipCode?: boolean;');
     });
 
     test('should generate select type for single-field object', () => {
@@ -41,8 +42,7 @@ describe('Object Select Type Generator', () => {
 
       const result = generateObjectSelectType(single);
 
-      expect(result).toContain('SimpleSelect');
-      expect(result).toContain('value');
+      expect(result).toBe('export type SimpleSelect = { value: boolean; };');
     });
 
     test('should generate empty select for empty object', () => {
@@ -50,7 +50,7 @@ describe('Object Select Type Generator', () => {
 
       const result = generateObjectSelectType(empty);
 
-      expect(result).toContain('EmptySelect');
+      expect(result).toBe('export interface EmptySelect {}');
     });
 
     test('should include nested object select type reference', () => {
@@ -66,8 +66,9 @@ describe('Object Select Type Generator', () => {
 
       const result = generateObjectSelectType(geo);
 
-      expect(result).toContain('GeoPointSelect');
-      expect(result).toContain('AddressSelect');
+      expect(result).toContain('export type GeoPointSelect = AtLeastOne<GeoPointSelectFields>;');
+      expect(result).toContain('lat?: boolean;');
+      expect(result).toContain('label?: boolean | AddressSelect;');
     });
   });
 
@@ -190,9 +191,10 @@ describe('Model Select Type with Objects', () => {
 
     const result = generateSelectType(m);
 
-    expect(result).toContain('UserSelect');
+    expect(result).toContain('export type UserSelect = AtLeastOne<UserSelectFields>;');
+    expect(result).toContain('name?: boolean;');
     // Object fields can be boolean or sub-select
-    expect(result).toContain('AddressSelect');
+    expect(result).toContain('address?: boolean | AddressSelect;');
   });
 });
 

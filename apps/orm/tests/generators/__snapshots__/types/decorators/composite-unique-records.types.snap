@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Registration,
   RegistrationWhere,
@@ -163,9 +164,12 @@ export type AttendeeUpdateInput = AttendeeUpdate & {
 
 export type AttendeeUnset = {};
 
-export type AttendeeSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface AttendeeSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type AttendeeSelect = AtLeastOne<AttendeeSelectFields>;
 
 export interface AttendeeOrderBy {
   id?: 'asc' | 'desc';
@@ -474,6 +478,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Attendee,
   AttendeeWhere,
@@ -572,10 +577,13 @@ export type BookingUpdateInput =
 
 export type BookingUnset = {};
 
-export type BookingSelect =
-  | ({ id: boolean } & { attendeeId?: boolean; slot?: boolean | SlotSelect })
-  | ({ attendeeId: boolean } & { id?: boolean; slot?: boolean | SlotSelect })
-  | ({ slot: boolean | SlotSelect } & Partial<Record<'id' | 'attendeeId', boolean>>);
+export interface BookingSelectFields {
+  id?: boolean;
+  attendeeId?: boolean;
+  slot?: boolean | SlotSelect;
+}
+
+export type BookingSelect = AtLeastOne<BookingSelectFields>;
 
 export interface BookingOrderBy {
   id?: 'asc' | 'desc';
@@ -825,6 +833,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Attendee,
   AttendeeWhere,
@@ -963,11 +972,14 @@ export type RegistrationUnset = {
   role?: true;
 };
 
-export type RegistrationSelect =
-  | ({ id: boolean } & Partial<Record<'attendeeId' | 'workshopId' | 'role', boolean>>)
-  | ({ attendeeId: boolean } & Partial<Record<'id' | 'workshopId' | 'role', boolean>>)
-  | ({ workshopId: boolean } & Partial<Record<'id' | 'attendeeId' | 'role', boolean>>)
-  | ({ role: boolean } & Partial<Record<'id' | 'attendeeId' | 'workshopId', boolean>>);
+export interface RegistrationSelectFields {
+  id?: boolean;
+  attendeeId?: boolean;
+  workshopId?: boolean;
+  role?: boolean;
+}
+
+export type RegistrationSelect = AtLeastOne<RegistrationSelectFields>;
 
 export interface RegistrationOrderBy {
   id?: 'asc' | 'desc';
@@ -1246,6 +1258,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Attendee,
   AttendeeWhere,
@@ -1387,11 +1400,14 @@ export type TicketUpdateInput =
 
 export type TicketUnset = {};
 
-export type TicketSelect =
-  | ({ id: boolean } & Partial<Record<'attendeeId' | 'workshopId' | 'seat', boolean>>)
-  | ({ attendeeId: boolean } & Partial<Record<'id' | 'workshopId' | 'seat', boolean>>)
-  | ({ workshopId: boolean } & Partial<Record<'id' | 'attendeeId' | 'seat', boolean>>)
-  | ({ seat: boolean } & Partial<Record<'id' | 'attendeeId' | 'workshopId', boolean>>);
+export interface TicketSelectFields {
+  id?: boolean;
+  attendeeId?: boolean;
+  workshopId?: boolean;
+  seat?: boolean;
+}
+
+export type TicketSelect = AtLeastOne<TicketSelectFields>;
 
 export interface TicketOrderBy {
   id?: 'asc' | 'desc';
@@ -1666,6 +1682,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Registration,
   RegistrationWhere,
@@ -1781,9 +1798,12 @@ export type WorkshopUpdateInput = WorkshopUpdate & {
 
 export type WorkshopUnset = {};
 
-export type WorkshopSelect =
-  | ({ id: boolean } & Partial<Record<'title', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id', boolean>>);
+export interface WorkshopSelectFields {
+  id?: boolean;
+  title?: boolean;
+}
+
+export type WorkshopSelect = AtLeastOne<WorkshopSelectFields>;
 
 export interface WorkshopOrderBy {
   id?: 'asc' | 'desc';

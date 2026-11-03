@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ArrayDecoratorTest {
   id: CerialId<string>;
   uniqueTags: string[];
@@ -210,91 +211,18 @@ export type ArrayDecoratorTestUpdateInput = ArrayDecoratorTestUpdate;
 
 export type ArrayDecoratorTestUnset = {};
 
-export type ArrayDecoratorTestSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        | 'uniqueTags'
-        | 'sortedScores'
-        | 'recentDates'
-        | 'uniqueSortedCategories'
-        | 'uniqueSortedPriorities'
-        | 'normalTags'
-        | 'normalScores',
-        boolean
-      >
-    >)
-  | ({ uniqueTags: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'sortedScores'
-        | 'recentDates'
-        | 'uniqueSortedCategories'
-        | 'uniqueSortedPriorities'
-        | 'normalTags'
-        | 'normalScores',
-        boolean
-      >
-    >)
-  | ({ sortedScores: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'uniqueTags'
-        | 'recentDates'
-        | 'uniqueSortedCategories'
-        | 'uniqueSortedPriorities'
-        | 'normalTags'
-        | 'normalScores',
-        boolean
-      >
-    >)
-  | ({ recentDates: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'uniqueTags'
-        | 'sortedScores'
-        | 'uniqueSortedCategories'
-        | 'uniqueSortedPriorities'
-        | 'normalTags'
-        | 'normalScores',
-        boolean
-      >
-    >)
-  | ({ uniqueSortedCategories: boolean } & Partial<
-      Record<
-        'id' | 'uniqueTags' | 'sortedScores' | 'recentDates' | 'uniqueSortedPriorities' | 'normalTags' | 'normalScores',
-        boolean
-      >
-    >)
-  | ({ uniqueSortedPriorities: boolean } & Partial<
-      Record<
-        'id' | 'uniqueTags' | 'sortedScores' | 'recentDates' | 'uniqueSortedCategories' | 'normalTags' | 'normalScores',
-        boolean
-      >
-    >)
-  | ({ normalTags: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'uniqueTags'
-        | 'sortedScores'
-        | 'recentDates'
-        | 'uniqueSortedCategories'
-        | 'uniqueSortedPriorities'
-        | 'normalScores',
-        boolean
-      >
-    >)
-  | ({ normalScores: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'uniqueTags'
-        | 'sortedScores'
-        | 'recentDates'
-        | 'uniqueSortedCategories'
-        | 'uniqueSortedPriorities'
-        | 'normalTags',
-        boolean
-      >
-    >);
+export interface ArrayDecoratorTestSelectFields {
+  id?: boolean;
+  uniqueTags?: boolean;
+  sortedScores?: boolean;
+  recentDates?: boolean;
+  uniqueSortedCategories?: boolean;
+  uniqueSortedPriorities?: boolean;
+  normalTags?: boolean;
+  normalScores?: boolean;
+}
+
+export type ArrayDecoratorTestSelect = AtLeastOne<ArrayDecoratorTestSelectFields>;
 
 export interface ArrayDecoratorTestOrderBy {
   id?: 'asc' | 'desc';
@@ -492,6 +420,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ScalarArrays {
   id: CerialId<string>;
   emails: string[];
@@ -569,10 +498,13 @@ export type ScalarArraysUpdateInput = ScalarArraysUpdate;
 
 export type ScalarArraysUnset = {};
 
-export type ScalarArraysSelect =
-  | ({ id: boolean } & Partial<Record<'emails' | 'flags', boolean>>)
-  | ({ emails: boolean } & Partial<Record<'id' | 'flags', boolean>>)
-  | ({ flags: boolean } & Partial<Record<'id' | 'emails', boolean>>);
+export interface ScalarArraysSelectFields {
+  id?: boolean;
+  emails?: boolean;
+  flags?: boolean;
+}
+
+export type ScalarArraysSelect = AtLeastOne<ScalarArraysSelectFields>;
 
 export interface ScalarArraysOrderBy {
   id?: 'asc' | 'desc';

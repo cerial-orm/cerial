@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Employee,
   EmployeeWhere,
@@ -109,9 +110,12 @@ export type DepartmentUpdateInput = DepartmentUpdate & {
 
 export type DepartmentUnset = {};
 
-export type DepartmentSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface DepartmentSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type DepartmentSelect = AtLeastOne<DepartmentSelectFields>;
 
 export interface DepartmentOrderBy {
   id?: 'asc' | 'desc';
@@ -365,6 +369,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Department,
   DepartmentWhere,
@@ -466,10 +471,13 @@ export type EmployeeUnset = {
   departmentId?: true;
 };
 
-export type EmployeeSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'departmentId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'departmentId', boolean>>)
-  | ({ departmentId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface EmployeeSelectFields {
+  id?: boolean;
+  name?: boolean;
+  departmentId?: boolean;
+}
+
+export type EmployeeSelect = AtLeastOne<EmployeeSelectFields>;
 
 export interface EmployeeOrderBy {
   id?: 'asc' | 'desc';
@@ -722,6 +730,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Team,
   TeamWhere,
@@ -823,10 +832,13 @@ export type MemberUnset = {
   teamId?: true;
 };
 
-export type MemberSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'teamId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'teamId', boolean>>)
-  | ({ teamId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface MemberSelectFields {
+  id?: boolean;
+  name?: boolean;
+  teamId?: boolean;
+}
+
+export type MemberSelect = AtLeastOne<MemberSelectFields>;
 
 export interface MemberOrderBy {
   id?: 'asc' | 'desc';
@@ -1075,6 +1087,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   TeamNoAction,
   TeamNoActionWhere,
@@ -1176,10 +1189,13 @@ export type MemberNoActionUnset = {
   teamId?: true;
 };
 
-export type MemberNoActionSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'teamId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'teamId', boolean>>)
-  | ({ teamId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface MemberNoActionSelectFields {
+  id?: boolean;
+  name?: boolean;
+  teamId?: boolean;
+}
+
+export type MemberNoActionSelect = AtLeastOne<MemberNoActionSelectFields>;
 
 export interface MemberNoActionOrderBy {
   id?: 'asc' | 'desc';
@@ -1436,6 +1452,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   TeamSetNull,
   TeamSetNullWhere,
@@ -1537,10 +1554,13 @@ export type MemberSetNullUnset = {
   teamId?: true;
 };
 
-export type MemberSetNullSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'teamId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'teamId', boolean>>)
-  | ({ teamId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface MemberSetNullSelectFields {
+  id?: boolean;
+  name?: boolean;
+  teamId?: boolean;
+}
+
+export type MemberSetNullSelect = AtLeastOne<MemberSetNullSelectFields>;
 
 export interface MemberSetNullOrderBy {
   id?: 'asc' | 'desc';
@@ -1796,6 +1816,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   OdParent,
   OdParentWhere,
@@ -1897,10 +1918,13 @@ export type OdChildUnset = {
   parentId?: true;
 };
 
-export type OdChildSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'parentId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'parentId', boolean>>)
-  | ({ parentId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface OdChildSelectFields {
+  id?: boolean;
+  name?: boolean;
+  parentId?: boolean;
+}
+
+export type OdChildSelect = AtLeastOne<OdChildSelectFields>;
 
 export interface OdChildOrderBy {
   id?: 'asc' | 'desc';
@@ -2150,6 +2174,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface OdFolder {
   id: CerialId<string>;
   name: string;
@@ -2260,10 +2285,13 @@ export type OdFolderUnset = {
   parentId?: true;
 };
 
-export type OdFolderSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'parentId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'parentId', boolean>>)
-  | ({ parentId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface OdFolderSelectFields {
+  id?: boolean;
+  name?: boolean;
+  parentId?: boolean;
+}
+
+export type OdFolderSelect = AtLeastOne<OdFolderSelectFields>;
 
 export interface OdFolderOrderBy {
   id?: 'asc' | 'desc';
@@ -2540,6 +2568,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   OdParent,
   OdParentWhere,
@@ -2628,9 +2657,12 @@ export type OdGrandparentUpdateInput = OdGrandparentUpdate & {
 
 export type OdGrandparentUnset = {};
 
-export type OdGrandparentSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface OdGrandparentSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type OdGrandparentSelect = AtLeastOne<OdGrandparentSelectFields>;
 
 export interface OdGrandparentOrderBy {
   id?: 'asc' | 'desc';
@@ -2884,6 +2916,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   OdGrandparent,
   OdGrandparentWhere,
@@ -3015,10 +3048,13 @@ export type OdParentUnset = {
   grandparentId?: true;
 };
 
-export type OdParentSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'grandparentId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'grandparentId', boolean>>)
-  | ({ grandparentId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface OdParentSelectFields {
+  id?: boolean;
+  name?: boolean;
+  grandparentId?: boolean;
+}
+
+export type OdParentSelect = AtLeastOne<OdParentSelectFields>;
 
 export interface OdParentOrderBy {
   id?: 'asc' | 'desc';
@@ -3299,6 +3335,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UserCascade,
   UserCascadeWhere,
@@ -3405,10 +3442,13 @@ export type ProfileCascadeUnset = {
   userId?: true;
 };
 
-export type ProfileCascadeSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+export interface ProfileCascadeSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileCascadeSelect = AtLeastOne<ProfileCascadeSelectFields>;
 
 export interface ProfileCascadeOrderBy {
   id?: 'asc' | 'desc';
@@ -3665,6 +3705,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UserNoAction,
   UserNoActionWhere,
@@ -3771,10 +3812,13 @@ export type ProfileNoActionUnset = {
   userId?: true;
 };
 
-export type ProfileNoActionSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+export interface ProfileNoActionSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileNoActionSelect = AtLeastOne<ProfileNoActionSelectFields>;
 
 export interface ProfileNoActionOrderBy {
   id?: 'asc' | 'desc';
@@ -4031,6 +4075,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UserRestrict,
   UserRestrictWhere,
@@ -4137,10 +4182,13 @@ export type ProfileRestrictUnset = {
   userId?: true;
 };
 
-export type ProfileRestrictSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+export interface ProfileRestrictSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileRestrictSelect = AtLeastOne<ProfileRestrictSelectFields>;
 
 export interface ProfileRestrictOrderBy {
   id?: 'asc' | 'desc';
@@ -4397,6 +4445,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UserSetNone,
   UserSetNoneWhere,
@@ -4501,10 +4550,13 @@ export type ProfileSetNoneUnset = {
   userId?: true;
 };
 
-export type ProfileSetNoneSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+export interface ProfileSetNoneSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileSetNoneSelect = AtLeastOne<ProfileSetNoneSelectFields>;
 
 export interface ProfileSetNoneOrderBy {
   id?: 'asc' | 'desc';
@@ -4761,6 +4813,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   UserSetNull,
   UserSetNullWhere,
@@ -4867,10 +4920,13 @@ export type ProfileSetNullUnset = {
   userId?: true;
 };
 
-export type ProfileSetNullSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+export interface ProfileSetNullSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileSetNullSelect = AtLeastOne<ProfileSetNullSelectFields>;
 
 export interface ProfileSetNullOrderBy {
   id?: 'asc' | 'desc';
@@ -5126,6 +5182,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Member,
   MemberWhere,
@@ -5214,9 +5271,12 @@ export type TeamUpdateInput = TeamUpdate & {
 
 export type TeamUnset = {};
 
-export type TeamSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface TeamSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type TeamSelect = AtLeastOne<TeamSelectFields>;
 
 export interface TeamOrderBy {
   id?: 'asc' | 'desc';
@@ -5465,6 +5525,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   MemberNoAction,
   MemberNoActionWhere,
@@ -5553,9 +5614,12 @@ export type TeamNoActionUpdateInput = TeamNoActionUpdate & {
 
 export type TeamNoActionUnset = {};
 
-export type TeamNoActionSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface TeamNoActionSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type TeamNoActionSelect = AtLeastOne<TeamNoActionSelectFields>;
 
 export interface TeamNoActionOrderBy {
   id?: 'asc' | 'desc';
@@ -5811,6 +5875,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   MemberSetNull,
   MemberSetNullWhere,
@@ -5899,9 +5964,12 @@ export type TeamSetNullUpdateInput = TeamSetNullUpdate & {
 
 export type TeamSetNullUnset = {};
 
-export type TeamSetNullSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface TeamSetNullSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type TeamSetNullSelect = AtLeastOne<TeamSetNullSelectFields>;
 
 export interface TeamSetNullOrderBy {
   id?: 'asc' | 'desc';
@@ -6157,6 +6225,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ProfileCascade,
   ProfileCascadeWhere,
@@ -6230,9 +6299,12 @@ export type UserCascadeUpdateInput = UserCascadeUpdate & {
 
 export type UserCascadeUnset = {};
 
-export type UserCascadeSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface UserCascadeSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type UserCascadeSelect = AtLeastOne<UserCascadeSelectFields>;
 
 export interface UserCascadeOrderBy {
   id?: 'asc' | 'desc';
@@ -6488,6 +6560,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ProfileNoAction,
   ProfileNoActionWhere,
@@ -6561,9 +6634,12 @@ export type UserNoActionUpdateInput = UserNoActionUpdate & {
 
 export type UserNoActionUnset = {};
 
-export type UserNoActionSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface UserNoActionSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type UserNoActionSelect = AtLeastOne<UserNoActionSelectFields>;
 
 export interface UserNoActionOrderBy {
   id?: 'asc' | 'desc';
@@ -6819,6 +6895,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ProfileRestrict,
   ProfileRestrictWhere,
@@ -6892,9 +6969,12 @@ export type UserRestrictUpdateInput = UserRestrictUpdate & {
 
 export type UserRestrictUnset = {};
 
-export type UserRestrictSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface UserRestrictSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type UserRestrictSelect = AtLeastOne<UserRestrictSelectFields>;
 
 export interface UserRestrictOrderBy {
   id?: 'asc' | 'desc';
@@ -7150,6 +7230,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ProfileSetNone,
   ProfileSetNoneWhere,
@@ -7223,9 +7304,12 @@ export type UserSetNoneUpdateInput = UserSetNoneUpdate & {
 
 export type UserSetNoneUnset = {};
 
-export type UserSetNoneSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface UserSetNoneSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type UserSetNoneSelect = AtLeastOne<UserSetNoneSelectFields>;
 
 export interface UserSetNoneOrderBy {
   id?: 'asc' | 'desc';
@@ -7481,6 +7565,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ProfileSetNull,
   ProfileSetNullWhere,
@@ -7572,10 +7657,13 @@ export type UserSetNullUpdateInput = UserSetNullUpdate & {
 
 export type UserSetNullUnset = {};
 
-export type UserSetNullSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'email', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'email', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface UserSetNullSelectFields {
+  id?: boolean;
+  name?: boolean;
+  email?: boolean;
+}
+
+export type UserSetNullSelect = AtLeastOne<UserSetNullSelectFields>;
 
 export interface UserSetNullOrderBy {
   id?: 'asc' | 'desc';

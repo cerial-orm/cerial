@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtAdmin {
   id: CerialId<string>;
   createdAt?: Date;
@@ -179,16 +180,17 @@ export type ExtAdminUnset = {
   updatedAt?: true;
 };
 
-export type ExtAdminSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'level' | 'permissions', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'level' | 'permissions', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'level' | 'permissions', boolean>>)
-  | ({ level: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'permissions', boolean>>)
-  | ({ permissions: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level', boolean>
-    >);
+export interface ExtAdminSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  level?: boolean;
+  permissions?: boolean;
+}
+
+export type ExtAdminSelect = AtLeastOne<ExtAdminSelectFields>;
 
 export interface ExtAdminOrderBy {
   id?: 'asc' | 'desc';
@@ -383,6 +385,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtEmptyChild {
   id: CerialId<string>;
   createdAt?: Date;
@@ -471,10 +474,13 @@ export type ExtEmptyChildUnset = {
   updatedAt?: true;
 };
 
-export type ExtEmptyChildSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt', boolean>>);
+export interface ExtEmptyChildSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+}
+
+export type ExtEmptyChildSelect = AtLeastOne<ExtEmptyChildSelectFields>;
 
 export interface ExtEmptyChildOrderBy {
   id?: 'asc' | 'desc';
@@ -665,6 +671,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtModerator {
   id: CerialId<string>;
   createdAt?: Date;
@@ -806,13 +813,16 @@ export type ExtModeratorUnset = {
   notes?: true;
 };
 
-export type ExtModeratorSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'email' | 'name' | 'bannedUntil' | 'notes', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'email' | 'name' | 'bannedUntil' | 'notes', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'bannedUntil' | 'notes', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'bannedUntil' | 'notes', boolean>>)
-  | ({ bannedUntil: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'notes', boolean>>)
-  | ({ notes: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'bannedUntil', boolean>>);
+export interface ExtModeratorSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  bannedUntil?: boolean;
+  notes?: boolean;
+}
+
+export type ExtModeratorSelect = AtLeastOne<ExtModeratorSelectFields>;
 
 export interface ExtModeratorOrderBy {
   id?: 'asc' | 'desc';
@@ -1006,6 +1016,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtPremiumUser {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1215,107 +1226,20 @@ export type ExtPremiumUserUnset = {
   subscriptionEnd?: true;
 };
 
-export type ExtPremiumUserSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        | 'createdAt'
-        | 'updatedAt'
-        | 'email'
-        | 'name'
-        | 'isActive'
-        | 'age'
-        | 'role'
-        | 'subscriptionTier'
-        | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<
-        'id' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'subscriptionTier' | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'subscriptionTier' | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ email: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'name'
-        | 'isActive'
-        | 'age'
-        | 'role'
-        | 'subscriptionTier'
-        | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ name: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'email'
-        | 'isActive'
-        | 'age'
-        | 'role'
-        | 'subscriptionTier'
-        | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ isActive: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'age' | 'role' | 'subscriptionTier' | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ age: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'email'
-        | 'name'
-        | 'isActive'
-        | 'role'
-        | 'subscriptionTier'
-        | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ role: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'email'
-        | 'name'
-        | 'isActive'
-        | 'age'
-        | 'subscriptionTier'
-        | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ subscriptionTier: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'subscriptionEnd',
-        boolean
-      >
-    >)
-  | ({ subscriptionEnd: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'subscriptionTier',
-        boolean
-      >
-    >);
+export interface ExtPremiumUserSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  isActive?: boolean;
+  age?: boolean;
+  role?: boolean;
+  subscriptionTier?: boolean;
+  subscriptionEnd?: boolean;
+}
+
+export type ExtPremiumUserSelect = AtLeastOne<ExtPremiumUserSelectFields>;
 
 export interface ExtPremiumUserOrderBy {
   id?: 'asc' | 'desc';
@@ -1513,6 +1437,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtPrivateUser {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1659,13 +1584,16 @@ export type ExtPrivateUserUnset = {
   publicBio?: true;
 };
 
-export type ExtPrivateUserSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'publicBio', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'email' | 'name' | 'publicBio', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'publicBio', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'publicBio', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'publicBio', boolean>>)
-  | ({ publicBio: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name', boolean>>);
+export interface ExtPrivateUserSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  publicBio?: boolean;
+}
+
+export type ExtPrivateUserSelect = AtLeastOne<ExtPrivateUserSelectFields>;
 
 export interface ExtPrivateUserOrderBy {
   id?: 'asc' | 'desc';
@@ -1859,6 +1787,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtProfile {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2047,31 +1976,18 @@ export type ExtProfileUnset = {
   metadata?: true;
 };
 
-export type ExtProfileSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata', boolean>
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata', boolean>
-    >)
-  | ({ userId: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'tags' | 'metadata', boolean>
-    >)
-  | ({ bio: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'userId' | 'avatar' | 'tags' | 'metadata', boolean>
-    >)
-  | ({ avatar: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'tags' | 'metadata', boolean>
-    >)
-  | ({ tags: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'metadata', boolean>
-    >)
-  | ({ metadata: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags', boolean>
-    >);
+export interface ExtProfileSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  userId?: boolean;
+  bio?: boolean;
+  avatar?: boolean;
+  tags?: boolean;
+  metadata?: boolean;
+}
+
+export type ExtProfileSelect = AtLeastOne<ExtProfileSelectFields>;
 
 export interface ExtProfileOrderBy {
   id?: 'asc' | 'desc';
@@ -2267,6 +2183,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtSuperAdmin {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2442,34 +2359,19 @@ export type ExtSuperAdminUnset = {
   updatedAt?: true;
 };
 
-export type ExtSuperAdminSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'email' | 'name' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
-    >)
-  | ({ email: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
-    >)
-  | ({ isActive: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'role' | 'level' | 'canDeleteUsers', boolean>
-    >)
-  | ({ role: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'level' | 'canDeleteUsers', boolean>
-    >)
-  | ({ level: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'canDeleteUsers', boolean>
-    >)
-  | ({ canDeleteUsers: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'level', boolean>
-    >);
+export interface ExtSuperAdminSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  isActive?: boolean;
+  role?: boolean;
+  level?: boolean;
+  canDeleteUsers?: boolean;
+}
+
+export type ExtSuperAdminSelect = AtLeastOne<ExtSuperAdminSelectFields>;
 
 export interface ExtSuperAdminOrderBy {
   id?: 'asc' | 'desc';
@@ -2666,6 +2568,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtSystemAdmin {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2852,40 +2755,19 @@ export type ExtSystemAdminUnset = {
   updatedAt?: true;
 };
 
-export type ExtSystemAdminSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'systemAccess' | 'auditLog',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'systemAccess' | 'auditLog', boolean>
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'email' | 'name' | 'level' | 'permissions' | 'systemAccess' | 'auditLog', boolean>
-    >)
-  | ({ email: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'level' | 'permissions' | 'systemAccess' | 'auditLog', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'level' | 'permissions' | 'systemAccess' | 'auditLog',
-        boolean
-      >
-    >)
-  | ({ level: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'permissions' | 'systemAccess' | 'auditLog', boolean>
-    >)
-  | ({ permissions: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'systemAccess' | 'auditLog', boolean>
-    >)
-  | ({ systemAccess: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'auditLog', boolean>
-    >)
-  | ({ auditLog: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'systemAccess', boolean>
-    >);
+export interface ExtSystemAdminSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  level?: boolean;
+  permissions?: boolean;
+  systemAccess?: boolean;
+  auditLog?: boolean;
+}
+
+export type ExtSystemAdminSelect = AtLeastOne<ExtSystemAdminSelectFields>;
 
 export interface ExtSystemAdminOrderBy {
   id?: 'asc' | 'desc';
@@ -3082,6 +2964,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtUser {
   id: CerialId<string>;
   createdAt?: Date;
@@ -3250,31 +3133,18 @@ export type ExtUserUnset = {
   age?: true;
 };
 
-export type ExtUserSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role', boolean>
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'email' | 'name' | 'isActive' | 'age' | 'role', boolean>
-    >)
-  | ({ email: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'isActive' | 'age' | 'role', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'isActive' | 'age' | 'role', boolean>
-    >)
-  | ({ isActive: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'age' | 'role', boolean>
-    >)
-  | ({ age: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role', boolean>
-    >)
-  | ({ role: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age', boolean>
-    >);
+export interface ExtUserSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  isActive?: boolean;
+  age?: boolean;
+  role?: boolean;
+}
+
+export type ExtUserSelect = AtLeastOne<ExtUserSelectFields>;
 
 export interface ExtUserOrderBy {
   id?: 'asc' | 'desc';

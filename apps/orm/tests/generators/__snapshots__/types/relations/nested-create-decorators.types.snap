@@ -28,6 +28,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   NcGroup,
   NcGroupWhere,
@@ -390,292 +391,25 @@ export type NcDocUnset = {
   revHolderId?: true;
 };
 
-export type NcDocSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ label: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ note: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ always: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ seenAt: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ token: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ tokenV7: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ amount: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ span: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ stamp: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'tags'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ tags: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'groupIds'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ groupIds: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'revHolderId',
-        boolean
-      >
-    >)
-  | ({ revHolderId: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'label'
-        | 'note'
-        | 'always'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'seenAt'
-        | 'token'
-        | 'tokenV7'
-        | 'amount'
-        | 'span'
-        | 'stamp'
-        | 'tags'
-        | 'groupIds',
-        boolean
-      >
-    >);
+export interface NcDocSelectFields {
+  id?: boolean;
+  label?: boolean;
+  note?: boolean;
+  always?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  seenAt?: boolean;
+  token?: boolean;
+  tokenV7?: boolean;
+  amount?: boolean;
+  span?: boolean;
+  stamp?: boolean;
+  tags?: boolean;
+  groupIds?: boolean;
+  revHolderId?: boolean;
+}
+
+export type NcDocSelect = AtLeastOne<NcDocSelectFields>;
 
 export interface NcDocOrderBy {
   id?: 'asc' | 'desc';
@@ -994,6 +728,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   NcDoc,
   NcDocWhere,
@@ -1096,10 +831,13 @@ export type NcGroupUpdateInput =
 
 export type NcGroupUnset = {};
 
-export type NcGroupSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'docIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'docIds', boolean>>)
-  | ({ docIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface NcGroupSelectFields {
+  id?: boolean;
+  name?: boolean;
+  docIds?: boolean;
+}
+
+export type NcGroupSelect = AtLeastOne<NcGroupSelectFields>;
 
 export interface NcGroupOrderBy {
   id?: 'asc' | 'desc';
@@ -1351,6 +1089,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   NcDoc,
   NcDocWhere,
@@ -1468,10 +1207,13 @@ export type NcHolderUnset = {
   docId?: true;
 };
 
-export type NcHolderSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'docId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'docId', boolean>>)
-  | ({ docId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface NcHolderSelectFields {
+  id?: boolean;
+  name?: boolean;
+  docId?: boolean;
+}
+
+export type NcHolderSelect = AtLeastOne<NcHolderSelectFields>;
 
 export interface NcHolderOrderBy {
   id?: 'asc' | 'desc';

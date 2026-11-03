@@ -177,8 +177,7 @@ describe('Tuple Derived Type Generator', () => {
 
       const result = generateSelectType(m);
 
-      expect(result).toContain('location');
-      expect(result).toContain('boolean');
+      expect(result).toContain('location?: boolean;');
     });
 
     test('should not generate tuple-specific select type (no per-position)', () => {
@@ -202,8 +201,9 @@ describe('Tuple Derived Type Generator', () => {
 
       const result = generateSelectType(m);
 
-      expect(result).toContain('name');
-      expect(result).toContain('location');
+      expect(result).toContain('export type UserSelect = AtLeastOne<UserSelectFields>;');
+      expect(result).toContain('name?: boolean;');
+      expect(result).toContain('location?: boolean;');
     });
   });
 

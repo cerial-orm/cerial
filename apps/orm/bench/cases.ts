@@ -80,12 +80,16 @@ function noSelect(tree: Tree): Tree {
 }
 
 /**
- * Keeps the first variant of each select union with its required key made optional: every field optional and nothing
- * required. It accepts `select: {}`, which the union refuses, so it is a bound and never a candidate.
+ * Every select becomes flat, with every field optional and nothing required: `AtLeastOne<{X}SelectFields>` is replaced by
+ * `{X}SelectFields`, and a select still written as a union keeps its first variant with the required key made optional.
+ * It accepts `select: {}`, which the generated type refuses, so it is a bound and never a candidate.
  */
 function flatSelect(tree: Tree): Tree {
   return rewriteGenerated(tree, 'flat-select', (text) =>
     text.replace(SELECT_DECL, (declaration: string, name: string) => {
+      const atLeastOne = /^export type \w+ = AtLeastOne<(\w+)>;\n$/.exec(declaration);
+      if (atLeastOne) return `export type ${name} = ${atLeastOne[1]};\n`;
+
       // A select with no union variants is already flat, as tuple selects are
       if (!/^ {2}\| /m.test(declaration)) return declaration;
 

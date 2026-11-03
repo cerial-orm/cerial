@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtL4AltConcrete {
   id: CerialId<string>;
   createdAt?: Date;
@@ -193,31 +194,18 @@ export type ExtL4AltConcreteUnset = {
   lastViewed?: true;
 };
 
-export type ExtL4AltConcreteSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'name' | 'description' | 'owner' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'name' | 'description' | 'owner' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'description' | 'owner' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
-    >)
-  | ({ description: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'owner' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
-    >)
-  | ({ owner: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
-    >)
-  | ({ isPublic: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'owner' | 'viewCount' | 'lastViewed', boolean>
-    >)
-  | ({ viewCount: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'owner' | 'isPublic' | 'lastViewed', boolean>
-    >)
-  | ({ lastViewed: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'owner' | 'isPublic' | 'viewCount', boolean>
-    >);
+export interface ExtL4AltConcreteSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  name?: boolean;
+  description?: boolean;
+  owner?: boolean;
+  isPublic?: boolean;
+  viewCount?: boolean;
+  lastViewed?: boolean;
+}
+
+export type ExtL4AltConcreteSelect = AtLeastOne<ExtL4AltConcreteSelectFields>;
 
 export interface ExtL4AltConcreteOrderBy {
   id?: 'asc' | 'desc';
@@ -416,6 +404,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtL4Concrete {
   id: CerialId<string>;
   createdAt?: Date;
@@ -595,31 +584,18 @@ export type ExtL4ConcreteUnset = {
   metadata?: true;
 };
 
-export type ExtL4ConcreteSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'description' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
-    >)
-  | ({ description: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
-    >)
-  | ({ tags: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'metadata' | 'status' | 'priority', boolean>
-    >)
-  | ({ metadata: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'status' | 'priority', boolean>
-    >)
-  | ({ status: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'priority', boolean>
-    >)
-  | ({ priority: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status', boolean>
-    >);
+export interface ExtL4ConcreteSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  name?: boolean;
+  description?: boolean;
+  tags?: boolean;
+  metadata?: boolean;
+  status?: boolean;
+  priority?: boolean;
+}
+
+export type ExtL4ConcreteSelect = AtLeastOne<ExtL4ConcreteSelectFields>;
 
 export interface ExtL4ConcreteOrderBy {
   id?: 'asc' | 'desc';
@@ -815,6 +791,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtL4OmitConcrete {
   id: CerialId<string>;
   createdAt?: Date;
@@ -952,13 +929,16 @@ export type ExtL4OmitConcreteUnset = {
   subtype?: true;
 };
 
-export type ExtL4OmitConcreteSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'name' | 'kind' | 'subtype' | 'version', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'name' | 'kind' | 'subtype' | 'version', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'kind' | 'subtype' | 'version', boolean>>)
-  | ({ kind: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'subtype' | 'version', boolean>>)
-  | ({ subtype: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'kind' | 'version', boolean>>)
-  | ({ version: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'kind' | 'subtype', boolean>>);
+export interface ExtL4OmitConcreteSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  name?: boolean;
+  kind?: boolean;
+  subtype?: boolean;
+  version?: boolean;
+}
+
+export type ExtL4OmitConcreteSelect = AtLeastOne<ExtL4OmitConcreteSelectFields>;
 
 export interface ExtL4OmitConcreteOrderBy {
   id?: 'asc' | 'desc';
@@ -1155,6 +1135,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtL4PickConcrete {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1321,28 +1302,17 @@ export type ExtL4PickConcreteUnset = {
   rank?: true;
 };
 
-export type ExtL4PickConcreteSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'name' | 'description' | 'category' | 'subcategory' | 'rank', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'name' | 'description' | 'category' | 'subcategory' | 'rank', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'description' | 'category' | 'subcategory' | 'rank', boolean>
-    >)
-  | ({ description: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'category' | 'subcategory' | 'rank', boolean>
-    >)
-  | ({ category: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'subcategory' | 'rank', boolean>
-    >)
-  | ({ subcategory: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'category' | 'rank', boolean>
-    >)
-  | ({ rank: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'category' | 'subcategory', boolean>
-    >);
+export interface ExtL4PickConcreteSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  name?: boolean;
+  description?: boolean;
+  category?: boolean;
+  subcategory?: boolean;
+  rank?: boolean;
+}
+
+export type ExtL4PickConcreteSelect = AtLeastOne<ExtL4PickConcreteSelectFields>;
 
 export interface ExtL4PickConcreteOrderBy {
   id?: 'asc' | 'desc';
@@ -1540,6 +1510,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtL5VeryDeep {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1727,34 +1698,19 @@ export type ExtL5VeryDeepUnset = {
   metadata?: true;
 };
 
-export type ExtL5VeryDeepSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'description' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
-    >)
-  | ({ description: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
-    >)
-  | ({ tags: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
-    >)
-  | ({ metadata: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'status' | 'priority' | 'archived', boolean>
-    >)
-  | ({ status: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'priority' | 'archived', boolean>
-    >)
-  | ({ priority: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'archived', boolean>
-    >)
-  | ({ archived: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
-    >);
+export interface ExtL5VeryDeepSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  name?: boolean;
+  description?: boolean;
+  tags?: boolean;
+  metadata?: boolean;
+  status?: boolean;
+  priority?: boolean;
+  archived?: boolean;
+}
+
+export type ExtL5VeryDeepSelect = AtLeastOne<ExtL5VeryDeepSelectFields>;
 
 export interface ExtL5VeryDeepOrderBy {
   id?: 'asc' | 'desc';
@@ -1951,6 +1907,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtL6UltraDeep {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2197,172 +2154,21 @@ export type ExtL6UltraDeepUnset = {
   archivedAt?: true;
 };
 
-export type ExtL6UltraDeepSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        | 'createdAt'
-        | 'name'
-        | 'description'
-        | 'tags'
-        | 'metadata'
-        | 'status'
-        | 'priority'
-        | 'archived'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'name'
-        | 'description'
-        | 'tags'
-        | 'metadata'
-        | 'status'
-        | 'priority'
-        | 'archived'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ name: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'description'
-        | 'tags'
-        | 'metadata'
-        | 'status'
-        | 'priority'
-        | 'archived'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ description: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'name'
-        | 'tags'
-        | 'metadata'
-        | 'status'
-        | 'priority'
-        | 'archived'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ tags: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'name'
-        | 'description'
-        | 'metadata'
-        | 'status'
-        | 'priority'
-        | 'archived'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ metadata: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'name'
-        | 'description'
-        | 'tags'
-        | 'status'
-        | 'priority'
-        | 'archived'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ status: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'name'
-        | 'description'
-        | 'tags'
-        | 'metadata'
-        | 'priority'
-        | 'archived'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ priority: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'name'
-        | 'description'
-        | 'tags'
-        | 'metadata'
-        | 'status'
-        | 'archived'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ archived: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'name'
-        | 'description'
-        | 'tags'
-        | 'metadata'
-        | 'status'
-        | 'priority'
-        | 'archiveReason'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ archiveReason: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'name'
-        | 'description'
-        | 'tags'
-        | 'metadata'
-        | 'status'
-        | 'priority'
-        | 'archived'
-        | 'archivedAt',
-        boolean
-      >
-    >)
-  | ({ archivedAt: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'name'
-        | 'description'
-        | 'tags'
-        | 'metadata'
-        | 'status'
-        | 'priority'
-        | 'archived'
-        | 'archiveReason',
-        boolean
-      >
-    >);
+export interface ExtL6UltraDeepSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  name?: boolean;
+  description?: boolean;
+  tags?: boolean;
+  metadata?: boolean;
+  status?: boolean;
+  priority?: boolean;
+  archived?: boolean;
+  archiveReason?: boolean;
+  archivedAt?: boolean;
+}
+
+export type ExtL6UltraDeepSelect = AtLeastOne<ExtL6UltraDeepSelectFields>;
 
 export interface ExtL6UltraDeepOrderBy {
   id?: 'asc' | 'desc';
@@ -2561,6 +2367,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtP4Concrete {
   id: CerialId<string>;
   secret: string;
@@ -2709,14 +2516,17 @@ export type ExtP4ConcreteUnset = {
   final?: true;
 };
 
-export type ExtP4ConcreteSelect =
-  | ({ id: boolean } & Partial<Record<'secret' | 'name' | 'tag' | 'extra' | 'level' | 'final', boolean>>)
-  | ({ secret: boolean } & Partial<Record<'id' | 'name' | 'tag' | 'extra' | 'level' | 'final', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'secret' | 'tag' | 'extra' | 'level' | 'final', boolean>>)
-  | ({ tag: boolean } & Partial<Record<'id' | 'secret' | 'name' | 'extra' | 'level' | 'final', boolean>>)
-  | ({ extra: boolean } & Partial<Record<'id' | 'secret' | 'name' | 'tag' | 'level' | 'final', boolean>>)
-  | ({ level: boolean } & Partial<Record<'id' | 'secret' | 'name' | 'tag' | 'extra' | 'final', boolean>>)
-  | ({ final: boolean } & Partial<Record<'id' | 'secret' | 'name' | 'tag' | 'extra' | 'level', boolean>>);
+export interface ExtP4ConcreteSelectFields {
+  id?: boolean;
+  secret?: boolean;
+  name?: boolean;
+  tag?: boolean;
+  extra?: boolean;
+  level?: boolean;
+  final?: boolean;
+}
+
+export type ExtP4ConcreteSelect = AtLeastOne<ExtP4ConcreteSelectFields>;
 
 export interface ExtP4ConcreteOrderBy {
   id?: 'asc' | 'desc';

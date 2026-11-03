@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   User,
   UserWhere,
@@ -136,11 +137,14 @@ export type PostUnset = {
   body?: true;
 };
 
-export type PostSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'body' | 'authorId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'body' | 'authorId', boolean>>)
-  | ({ body: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'body', boolean>>);
+export interface PostSelectFields {
+  id?: boolean;
+  title?: boolean;
+  body?: boolean;
+  authorId?: boolean;
+}
+
+export type PostSelect = AtLeastOne<PostSelectFields>;
 
 export interface PostOrderBy {
   id?: 'asc' | 'desc';
@@ -390,6 +394,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   User,
   UserWhere,
@@ -518,11 +523,14 @@ export type ProfileUnset = {
   userId?: true;
 };
 
-export type ProfileSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'avatarUrl' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'avatarUrl' | 'userId', boolean>>)
-  | ({ avatarUrl: boolean } & Partial<Record<'id' | 'bio' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio' | 'avatarUrl', boolean>>);
+export interface ProfileSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  avatarUrl?: boolean;
+  userId?: boolean;
+}
+
+export type ProfileSelect = AtLeastOne<ProfileSelectFields>;
 
 export interface ProfileOrderBy {
   id?: 'asc' | 'desc';
@@ -772,6 +780,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   User,
   UserWhere,
@@ -877,10 +886,13 @@ export type TagUpdateInput =
 
 export type TagUnset = {};
 
-export type TagSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'userIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'userIds', boolean>>)
-  | ({ userIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface TagSelectFields {
+  id?: boolean;
+  name?: boolean;
+  userIds?: boolean;
+}
+
+export type TagSelect = AtLeastOne<TagSelectFields>;
 
 export interface TagOrderBy {
   id?: 'asc' | 'desc';
@@ -1129,6 +1141,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Profile,
   ProfileWhere,
@@ -1424,127 +1437,21 @@ export type UserUnset = {
   profileId?: true;
 };
 
-export type UserSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        | 'email'
-        | 'name'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ email: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'name'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ name: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'email'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ age: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'email'
-        | 'name'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ isActive: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'createdAt' | 'nicknames' | 'scores' | 'loginDates' | 'profileId' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'isActive' | 'nicknames' | 'scores' | 'loginDates' | 'profileId' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ nicknames: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'isActive' | 'createdAt' | 'scores' | 'loginDates' | 'profileId' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ scores: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'email'
-        | 'name'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'loginDates'
-        | 'profileId'
-        | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ loginDates: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'isActive' | 'createdAt' | 'nicknames' | 'scores' | 'profileId' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ profileId: boolean } & Partial<
-      Record<
-        'id' | 'email' | 'name' | 'age' | 'isActive' | 'createdAt' | 'nicknames' | 'scores' | 'loginDates' | 'tagIds',
-        boolean
-      >
-    >)
-  | ({ tagIds: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'email'
-        | 'name'
-        | 'age'
-        | 'isActive'
-        | 'createdAt'
-        | 'nicknames'
-        | 'scores'
-        | 'loginDates'
-        | 'profileId',
-        boolean
-      >
-    >);
+export interface UserSelectFields {
+  id?: boolean;
+  email?: boolean;
+  name?: boolean;
+  age?: boolean;
+  isActive?: boolean;
+  createdAt?: boolean;
+  nicknames?: boolean;
+  scores?: boolean;
+  loginDates?: boolean;
+  profileId?: boolean;
+  tagIds?: boolean;
+}
+
+export type UserSelect = AtLeastOne<UserSelectFields>;
 
 export interface UserOrderBy {
   id?: 'asc' | 'desc';

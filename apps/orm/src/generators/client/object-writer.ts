@@ -8,6 +8,7 @@ import type { LiteralRegistry, ObjectMetadata, ObjectRegistry, TupleRegistry } f
 import { ensureDir, formatCode } from '../shared';
 import { generateObjectDerivedTypes, generateObjectInterfaces, generateObjectWhereInterface } from '../types';
 import {
+  AT_LEAST_ONE_IMPORT,
   CERIAL_ANY_IMPORT,
   CERIAL_BYTES_IMPORT,
   CERIAL_DECIMAL_IMPORT,
@@ -76,6 +77,8 @@ export async function writeObjectTypes(
   const cerialGeometryImport = hasGeometryFields ? `${CERIAL_GEOMETRY_IMPORT}\n` : '';
   const hasAnyFields = objectHasAnyFields(object, objectRegistry);
   const cerialAnyImport = hasAnyFields ? `${CERIAL_ANY_IMPORT}\n` : '';
+  // Only a Select of two or more fields is built with AtLeastOne
+  const atLeastOneImport = object.fields.length > 1 ? `${AT_LEAST_ONE_IMPORT}\n` : '';
 
   // Generate all type content for this object
   const interfaceCode = generateObjectInterfaces([object], objectRegistry, tupleRegistry);
@@ -87,7 +90,7 @@ export async function writeObjectTypes(
  * Do not edit manually
  */
 
-${cerialIdImport}${cerialUuidImport}${cerialDurationImport}${cerialDecimalImport}${cerialBytesImport}${cerialGeometryImport}${cerialAnyImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
+${cerialIdImport}${cerialUuidImport}${cerialDurationImport}${cerialDecimalImport}${cerialBytesImport}${cerialGeometryImport}${cerialAnyImport}${atLeastOneImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

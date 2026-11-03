@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
 import type {
   OrderItem,
@@ -117,37 +118,15 @@ export type ObjectTestOrderUnset = {
   metadata?: true;
 };
 
-export type ObjectTestOrderSelect =
-  | ({ id: boolean } & {
-      billingAddress?: boolean | AddressSelect;
-      shippingAddress?: boolean | AddressSelect;
-      items?: boolean | OrderItemSelect;
-      metadata?: boolean | TreeNodeSelect;
-    })
-  | ({ billingAddress: boolean | AddressSelect } & {
-      id?: boolean;
-      shippingAddress?: boolean | AddressSelect;
-      items?: boolean | OrderItemSelect;
-      metadata?: boolean | TreeNodeSelect;
-    })
-  | ({ shippingAddress: boolean | AddressSelect } & {
-      id?: boolean;
-      billingAddress?: boolean | AddressSelect;
-      items?: boolean | OrderItemSelect;
-      metadata?: boolean | TreeNodeSelect;
-    })
-  | ({ items: boolean | OrderItemSelect } & {
-      id?: boolean;
-      billingAddress?: boolean | AddressSelect;
-      shippingAddress?: boolean | AddressSelect;
-      metadata?: boolean | TreeNodeSelect;
-    })
-  | ({ metadata: boolean | TreeNodeSelect } & {
-      id?: boolean;
-      billingAddress?: boolean | AddressSelect;
-      shippingAddress?: boolean | AddressSelect;
-      items?: boolean | OrderItemSelect;
-    });
+export interface ObjectTestOrderSelectFields {
+  id?: boolean;
+  billingAddress?: boolean | AddressSelect;
+  shippingAddress?: boolean | AddressSelect;
+  items?: boolean | OrderItemSelect;
+  metadata?: boolean | TreeNodeSelect;
+}
+
+export type ObjectTestOrderSelect = AtLeastOne<ObjectTestOrderSelectFields>;
 
 export interface ObjectTestOrderOrderBy {
   id?: 'asc' | 'desc';
@@ -343,6 +322,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
 import type { GeoPoint, GeoPointInput, GeoPointWhere, GeoPointSelect, GeoPointOrderBy } from '../objects/geopoint';
 export interface ObjectTestUser {
@@ -454,49 +434,16 @@ export type ObjectTestUserUnset = {
       };
 };
 
-export type ObjectTestUserSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      address?: boolean | AddressSelect;
-      shipping?: boolean | AddressSelect;
-      locations?: boolean | GeoPointSelect;
-      primaryLocation?: boolean | GeoPointSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      address?: boolean | AddressSelect;
-      shipping?: boolean | AddressSelect;
-      locations?: boolean | GeoPointSelect;
-      primaryLocation?: boolean | GeoPointSelect;
-    })
-  | ({ address: boolean | AddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      shipping?: boolean | AddressSelect;
-      locations?: boolean | GeoPointSelect;
-      primaryLocation?: boolean | GeoPointSelect;
-    })
-  | ({ shipping: boolean | AddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | AddressSelect;
-      locations?: boolean | GeoPointSelect;
-      primaryLocation?: boolean | GeoPointSelect;
-    })
-  | ({ locations: boolean | GeoPointSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | AddressSelect;
-      shipping?: boolean | AddressSelect;
-      primaryLocation?: boolean | GeoPointSelect;
-    })
-  | ({ primaryLocation: boolean | GeoPointSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | AddressSelect;
-      shipping?: boolean | AddressSelect;
-      locations?: boolean | GeoPointSelect;
-    });
+export interface ObjectTestUserSelectFields {
+  id?: boolean;
+  name?: boolean;
+  address?: boolean | AddressSelect;
+  shipping?: boolean | AddressSelect;
+  locations?: boolean | GeoPointSelect;
+  primaryLocation?: boolean | GeoPointSelect;
+}
+
+export type ObjectTestUserSelect = AtLeastOne<ObjectTestUserSelectFields>;
 
 export interface ObjectTestUserOrderBy {
   id?: 'asc' | 'desc';
@@ -672,6 +619,7 @@ export interface ObjectTestUserModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface Address {
   street: string;
   city: string;
@@ -749,11 +697,14 @@ export interface AddressWhere {
   NOT?: AddressWhere;
 }
 
-export type AddressSelect =
-  | ({ street: boolean } & Partial<Record<'city' | 'state' | 'zipCode', boolean>>)
-  | ({ city: boolean } & Partial<Record<'street' | 'state' | 'zipCode', boolean>>)
-  | ({ state: boolean } & Partial<Record<'street' | 'city' | 'zipCode', boolean>>)
-  | ({ zipCode: boolean } & Partial<Record<'street' | 'city' | 'state', boolean>>);
+export interface AddressSelectFields {
+  street?: boolean;
+  city?: boolean;
+  state?: boolean;
+  zipCode?: boolean;
+}
+
+export type AddressSelect = AtLeastOne<AddressSelectFields>;
 
 export interface AddressOrderBy {
   street?: 'asc' | 'desc';
@@ -768,6 +719,7 @@ export interface AddressOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from './address';
 export interface GeoPoint {
   lat: number;
@@ -818,10 +770,13 @@ export interface GeoPointWhere {
   NOT?: GeoPointWhere;
 }
 
-export type GeoPointSelect =
-  | ({ lat: boolean } & { lng?: boolean; label?: boolean | AddressSelect })
-  | ({ lng: boolean } & { lat?: boolean; label?: boolean | AddressSelect })
-  | ({ label: boolean | AddressSelect } & Partial<Record<'lat' | 'lng', boolean>>);
+export interface GeoPointSelectFields {
+  lat?: boolean;
+  lng?: boolean;
+  label?: boolean | AddressSelect;
+}
+
+export type GeoPointSelect = AtLeastOne<GeoPointSelectFields>;
 
 export interface GeoPointOrderBy {
   lat?: 'asc' | 'desc';
@@ -835,6 +790,7 @@ export interface GeoPointOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface OrderItem {
   productName: string;
   quantity: number;
@@ -906,11 +862,14 @@ export interface OrderItemWhere {
   NOT?: OrderItemWhere;
 }
 
-export type OrderItemSelect =
-  | ({ productName: boolean } & Partial<Record<'quantity' | 'price' | 'tags', boolean>>)
-  | ({ quantity: boolean } & Partial<Record<'productName' | 'price' | 'tags', boolean>>)
-  | ({ price: boolean } & Partial<Record<'productName' | 'quantity' | 'tags', boolean>>)
-  | ({ tags: boolean } & Partial<Record<'productName' | 'quantity' | 'price', boolean>>);
+export interface OrderItemSelectFields {
+  productName?: boolean;
+  quantity?: boolean;
+  price?: boolean;
+  tags?: boolean;
+}
+
+export type OrderItemSelect = AtLeastOne<OrderItemSelectFields>;
 
 export interface OrderItemOrderBy {
   productName?: 'asc' | 'desc';
@@ -925,6 +884,7 @@ export interface OrderItemOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface TreeNode {
   payload: number;
   children: TreeNode[];
@@ -957,9 +917,12 @@ export interface TreeNodeWhere {
   NOT?: TreeNodeWhere;
 }
 
-export type TreeNodeSelect =
-  | ({ payload: boolean } & { children?: boolean | TreeNodeSelect })
-  | ({ children: boolean | TreeNodeSelect } & Partial<Record<'payload', boolean>>);
+export interface TreeNodeSelectFields {
+  payload?: boolean;
+  children?: boolean | TreeNodeSelect;
+}
+
+export type TreeNodeSelect = AtLeastOne<TreeNodeSelectFields>;
 
 export interface TreeNodeOrderBy {
   payload?: 'asc' | 'desc';

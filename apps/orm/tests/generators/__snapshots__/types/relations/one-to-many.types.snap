@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface Article {
   id: CerialId<string>;
   title: string;
@@ -80,9 +81,12 @@ export type ArticleUpdateInput = ArticleUpdate;
 
 export type ArticleUnset = {};
 
-export type ArticleSelect =
-  | ({ id: boolean } & Partial<Record<'title', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id', boolean>>);
+export interface ArticleSelectFields {
+  id?: boolean;
+  title?: boolean;
+}
+
+export type ArticleSelect = AtLeastOne<ArticleSelectFields>;
 
 export interface ArticleOrderBy {
   id?: 'asc' | 'desc';
@@ -271,6 +275,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   PostRequired,
   PostRequiredWhere,
@@ -377,10 +382,13 @@ export type AuthorUpdateInput = AuthorUpdate & {
 
 export type AuthorUnset = {};
 
-export type AuthorSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'email', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'email', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface AuthorSelectFields {
+  id?: boolean;
+  name?: boolean;
+  email?: boolean;
+}
+
+export type AuthorSelect = AtLeastOne<AuthorSelectFields>;
 
 export interface AuthorOrderBy {
   id?: 'asc' | 'desc';
@@ -634,6 +642,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Article, ArticleWhere, ArticleSelect, ArticleOrderBy, ArticleNestedCreate } from './article';
 export interface Comment {
   id: CerialId<string>;
@@ -727,10 +736,13 @@ export type CommentUnset = {
   articleId?: true;
 };
 
-export type CommentSelect =
-  | ({ id: boolean } & Partial<Record<'text' | 'articleId', boolean>>)
-  | ({ text: boolean } & Partial<Record<'id' | 'articleId', boolean>>)
-  | ({ articleId: boolean } & Partial<Record<'id' | 'text', boolean>>);
+export interface CommentSelectFields {
+  id?: boolean;
+  text?: boolean;
+  articleId?: boolean;
+}
+
+export type CommentSelect = AtLeastOne<CommentSelectFields>;
 
 export interface CommentOrderBy {
   id?: 'asc' | 'desc';
@@ -971,6 +983,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Author,
   AuthorWhere,
@@ -1111,12 +1124,15 @@ export type PostRequiredUnset = {
   createdAt?: true;
 };
 
-export type PostRequiredSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'body' | 'authorId' | 'createdAt', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'body' | 'authorId' | 'createdAt', boolean>>)
-  | ({ body: boolean } & Partial<Record<'id' | 'title' | 'authorId' | 'createdAt', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'body' | 'createdAt', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'title' | 'body' | 'authorId', boolean>>);
+export interface PostRequiredSelectFields {
+  id?: boolean;
+  title?: boolean;
+  body?: boolean;
+  authorId?: boolean;
+  createdAt?: boolean;
+}
+
+export type PostRequiredSelect = AtLeastOne<PostRequiredSelectFields>;
 
 export interface PostRequiredOrderBy {
   id?: 'asc' | 'desc';

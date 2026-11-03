@@ -9,6 +9,7 @@ import { ensureDir, formatCode } from '../shared';
 import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, generateWhereTypes } from '../types';
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import {
+  AT_LEAST_ONE_IMPORT,
   CERIAL_ANY_IMPORT,
   CERIAL_BYTES_IMPORT,
   CERIAL_DECIMAL_IMPORT,
@@ -126,6 +127,9 @@ export async function writeModelTypes(
   const geometryImport = modelHasGeometryFields(model) ? `\n${CERIAL_GEOMETRY_IMPORT}` : '';
   const anyImport = modelHasAnyFields(model) ? `\n${CERIAL_ANY_IMPORT}` : '';
   const setImport = modelHasSetFields(model) ? `\n${CERIAL_SET_IMPORT}` : '';
+  // Only a Select of two or more fields is built with AtLeastOne
+  const atLeastOneImport =
+    model.fields.filter((f) => f.type !== 'relation').length > 1 ? `\n${AT_LEAST_ONE_IMPORT}` : '';
 
   const interfaceCode = generateInterfaces([model], tupleRegistry, objectRegistry);
   const whereCode = generateWhereTypes([model]);
@@ -141,7 +145,7 @@ export async function writeModelTypes(
 ${TS_TOOLBELT_IMPORT}
 ${CERIAL_ID_IMPORT}
 ${SQL_FRAGMENT_IMPORT}${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${geometryImport}${anyImport}${setImport}
-${UNIQUE_TYPES_IMPORT}
+${UNIQUE_TYPES_IMPORT}${atLeastOneImport}
 ${relatedImports}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}

@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ReviewMeta,
   ReviewMetaInput,
@@ -201,73 +202,18 @@ export type ContentItemUnset = {
       };
 };
 
-export type ContentItemSelect =
-  | ({ id: boolean } & {
-      title?: boolean;
-      body?: boolean;
-      reviewed?: boolean;
-      syncStatus?: boolean;
-      retryCount?: boolean;
-      score?: boolean;
-      meta?: boolean | ReviewMetaSelect;
-    })
-  | ({ title: boolean } & {
-      id?: boolean;
-      body?: boolean;
-      reviewed?: boolean;
-      syncStatus?: boolean;
-      retryCount?: boolean;
-      score?: boolean;
-      meta?: boolean | ReviewMetaSelect;
-    })
-  | ({ body: boolean } & {
-      id?: boolean;
-      title?: boolean;
-      reviewed?: boolean;
-      syncStatus?: boolean;
-      retryCount?: boolean;
-      score?: boolean;
-      meta?: boolean | ReviewMetaSelect;
-    })
-  | ({ reviewed: boolean } & {
-      id?: boolean;
-      title?: boolean;
-      body?: boolean;
-      syncStatus?: boolean;
-      retryCount?: boolean;
-      score?: boolean;
-      meta?: boolean | ReviewMetaSelect;
-    })
-  | ({ syncStatus: boolean } & {
-      id?: boolean;
-      title?: boolean;
-      body?: boolean;
-      reviewed?: boolean;
-      retryCount?: boolean;
-      score?: boolean;
-      meta?: boolean | ReviewMetaSelect;
-    })
-  | ({ retryCount: boolean } & {
-      id?: boolean;
-      title?: boolean;
-      body?: boolean;
-      reviewed?: boolean;
-      syncStatus?: boolean;
-      score?: boolean;
-      meta?: boolean | ReviewMetaSelect;
-    })
-  | ({ score: boolean } & {
-      id?: boolean;
-      title?: boolean;
-      body?: boolean;
-      reviewed?: boolean;
-      syncStatus?: boolean;
-      retryCount?: boolean;
-      meta?: boolean | ReviewMetaSelect;
-    })
-  | ({ meta: boolean | ReviewMetaSelect } & Partial<
-      Record<'id' | 'title' | 'body' | 'reviewed' | 'syncStatus' | 'retryCount' | 'score', boolean>
-    >);
+export interface ContentItemSelectFields {
+  id?: boolean;
+  title?: boolean;
+  body?: boolean;
+  reviewed?: boolean;
+  syncStatus?: boolean;
+  retryCount?: boolean;
+  score?: boolean;
+  meta?: boolean | ReviewMetaSelect;
+}
+
+export type ContentItemSelect = AtLeastOne<ContentItemSelectFields>;
 
 export interface ContentItemOrderBy {
   id?: 'asc' | 'desc';
@@ -445,6 +391,7 @@ export interface ContentItemModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface ReviewMeta {
   note?: string;
   flagged?: boolean;
@@ -491,9 +438,12 @@ export interface ReviewMetaWhere {
   NOT?: ReviewMetaWhere;
 }
 
-export type ReviewMetaSelect =
-  | ({ note: boolean } & Partial<Record<'flagged', boolean>>)
-  | ({ flagged: boolean } & Partial<Record<'note', boolean>>);
+export interface ReviewMetaSelectFields {
+  note?: boolean;
+  flagged?: boolean;
+}
+
+export type ReviewMetaSelect = AtLeastOne<ReviewMetaSelectFields>;
 
 export interface ReviewMetaOrderBy {
   note?: 'asc' | 'desc';

@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface Staff {
   id: CerialId<string>;
   firstName: string;
@@ -161,13 +162,16 @@ export type StaffUnset = {
   age?: true;
 };
 
-export type StaffSelect =
-  | ({ id: boolean } & Partial<Record<'firstName' | 'lastName' | 'department' | 'email' | 'age', boolean>>)
-  | ({ firstName: boolean } & Partial<Record<'id' | 'lastName' | 'department' | 'email' | 'age', boolean>>)
-  | ({ lastName: boolean } & Partial<Record<'id' | 'firstName' | 'department' | 'email' | 'age', boolean>>)
-  | ({ department: boolean } & Partial<Record<'id' | 'firstName' | 'lastName' | 'email' | 'age', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'firstName' | 'lastName' | 'department' | 'age', boolean>>)
-  | ({ age: boolean } & Partial<Record<'id' | 'firstName' | 'lastName' | 'department' | 'email', boolean>>);
+export interface StaffSelectFields {
+  id?: boolean;
+  firstName?: boolean;
+  lastName?: boolean;
+  department?: boolean;
+  email?: boolean;
+  age?: boolean;
+}
+
+export type StaffSelect = AtLeastOne<StaffSelectFields>;
 
 export interface StaffOrderBy {
   id?: 'asc' | 'desc';

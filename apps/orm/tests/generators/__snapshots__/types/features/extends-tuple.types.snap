@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtPickedName,
   ExtPickedNameInput,
@@ -86,10 +87,13 @@ export type ExtTupleByNameUpdateInput = ExtTupleByNameUpdate;
 
 export type ExtTupleByNameUnset = {};
 
-export type ExtTupleByNameSelect =
-  | ({ id: boolean } & Partial<Record<'picked' | 'omitted', boolean>>)
-  | ({ picked: boolean } & Partial<Record<'id' | 'omitted', boolean>>)
-  | ({ omitted: boolean } & Partial<Record<'id' | 'picked', boolean>>);
+export interface ExtTupleByNameSelectFields {
+  id?: boolean;
+  picked?: boolean;
+  omitted?: boolean;
+}
+
+export type ExtTupleByNameSelect = AtLeastOne<ExtTupleByNameSelectFields>;
 
 export interface ExtTupleByNameOrderBy {
   id?: 'asc' | 'desc';
@@ -278,6 +282,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { ExtCoord, ExtCoordInput, ExtCoordWhere, ExtCoordSelect, ExtCoordOrderBy } from '../objects/extcoord';
 import type { ExtBasePair, ExtBasePairInput, ExtBasePairWhere, ExtBasePairUpdate } from '../tuples/extbasepair';
 import type { ExtTriple, ExtTripleInput, ExtTripleWhere, ExtTripleUpdate } from '../tuples/exttriple';
@@ -375,58 +380,17 @@ export type ExtTupleModelUnset = {
   optionalTriple?: true | ExtOptionalTripleUnset;
 };
 
-export type ExtTupleModelSelect =
-  | ({ id: boolean } & {
-      pair?: boolean;
-      triple?: boolean;
-      namedTriple?: boolean;
-      quad?: boolean;
-      coordPair?: boolean | ExtCoordPairSelect;
-      optionalTriple?: boolean;
-    })
-  | ({ pair: boolean } & {
-      id?: boolean;
-      triple?: boolean;
-      namedTriple?: boolean;
-      quad?: boolean;
-      coordPair?: boolean | ExtCoordPairSelect;
-      optionalTriple?: boolean;
-    })
-  | ({ triple: boolean } & {
-      id?: boolean;
-      pair?: boolean;
-      namedTriple?: boolean;
-      quad?: boolean;
-      coordPair?: boolean | ExtCoordPairSelect;
-      optionalTriple?: boolean;
-    })
-  | ({ namedTriple: boolean } & {
-      id?: boolean;
-      pair?: boolean;
-      triple?: boolean;
-      quad?: boolean;
-      coordPair?: boolean | ExtCoordPairSelect;
-      optionalTriple?: boolean;
-    })
-  | ({ quad: boolean } & {
-      id?: boolean;
-      pair?: boolean;
-      triple?: boolean;
-      namedTriple?: boolean;
-      coordPair?: boolean | ExtCoordPairSelect;
-      optionalTriple?: boolean;
-    })
-  | ({ coordPair: boolean | ExtCoordPairSelect } & Partial<
-      Record<'id' | 'pair' | 'triple' | 'namedTriple' | 'quad' | 'optionalTriple', boolean>
-    >)
-  | ({ optionalTriple: boolean } & {
-      id?: boolean;
-      pair?: boolean;
-      triple?: boolean;
-      namedTriple?: boolean;
-      quad?: boolean;
-      coordPair?: boolean | ExtCoordPairSelect;
-    });
+export interface ExtTupleModelSelectFields {
+  id?: boolean;
+  pair?: boolean;
+  triple?: boolean;
+  namedTriple?: boolean;
+  quad?: boolean;
+  coordPair?: boolean | ExtCoordPairSelect;
+  optionalTriple?: boolean;
+}
+
+export type ExtTupleModelSelect = AtLeastOne<ExtTupleModelSelectFields>;
 
 export interface ExtTupleModelOrderBy {
   id?: 'asc' | 'desc';
@@ -597,6 +561,7 @@ export interface ExtTupleModelModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface ExtCoord {
   x: number;
   y: number;
@@ -643,9 +608,12 @@ export interface ExtCoordWhere {
   NOT?: ExtCoordWhere;
 }
 
-export type ExtCoordSelect =
-  | ({ x: boolean } & Partial<Record<'y', boolean>>)
-  | ({ y: boolean } & Partial<Record<'x', boolean>>);
+export interface ExtCoordSelectFields {
+  x?: boolean;
+  y?: boolean;
+}
+
+export type ExtCoordSelect = AtLeastOne<ExtCoordSelectFields>;
 
 export interface ExtCoordOrderBy {
   x?: 'asc' | 'desc';

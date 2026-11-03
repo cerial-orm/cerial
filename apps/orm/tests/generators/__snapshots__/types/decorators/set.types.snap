@@ -24,6 +24,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface SetBasic {
   id: CerialId<string>;
   name: string;
@@ -132,12 +133,15 @@ export type SetBasicUpdateInput = SetBasicUpdate;
 
 export type SetBasicUnset = {};
 
-export type SetBasicSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'tags' | 'numbers' | 'uuids', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'tags' | 'numbers' | 'uuids', boolean>>)
-  | ({ tags: boolean } & Partial<Record<'id' | 'name' | 'numbers' | 'uuids', boolean>>)
-  | ({ numbers: boolean } & Partial<Record<'id' | 'name' | 'tags' | 'uuids', boolean>>)
-  | ({ uuids: boolean } & Partial<Record<'id' | 'name' | 'tags' | 'numbers', boolean>>);
+export interface SetBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  tags?: boolean;
+  numbers?: boolean;
+  uuids?: boolean;
+}
+
+export type SetBasicSelect = AtLeastOne<SetBasicSelectFields>;
 
 export interface SetBasicOrderBy {
   id?: 'asc' | 'desc';

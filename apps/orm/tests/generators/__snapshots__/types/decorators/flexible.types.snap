@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   FlexAddress,
   FlexAddressInput,
@@ -151,63 +152,17 @@ export type FlexUserUnset = {
   };
 };
 
-export type FlexUserSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      address?: boolean | FlexAddressSelect;
-      shipping?: boolean | FlexAddressSelect;
-      tags?: boolean | FlexAddressSelect;
-      profile?: boolean | FlexProfileSelect;
-      strictAddress?: boolean | FlexAddressSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      address?: boolean | FlexAddressSelect;
-      shipping?: boolean | FlexAddressSelect;
-      tags?: boolean | FlexAddressSelect;
-      profile?: boolean | FlexProfileSelect;
-      strictAddress?: boolean | FlexAddressSelect;
-    })
-  | ({ address: boolean | FlexAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      shipping?: boolean | FlexAddressSelect;
-      tags?: boolean | FlexAddressSelect;
-      profile?: boolean | FlexProfileSelect;
-      strictAddress?: boolean | FlexAddressSelect;
-    })
-  | ({ shipping: boolean | FlexAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | FlexAddressSelect;
-      tags?: boolean | FlexAddressSelect;
-      profile?: boolean | FlexProfileSelect;
-      strictAddress?: boolean | FlexAddressSelect;
-    })
-  | ({ tags: boolean | FlexAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | FlexAddressSelect;
-      shipping?: boolean | FlexAddressSelect;
-      profile?: boolean | FlexProfileSelect;
-      strictAddress?: boolean | FlexAddressSelect;
-    })
-  | ({ profile: boolean | FlexProfileSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | FlexAddressSelect;
-      shipping?: boolean | FlexAddressSelect;
-      tags?: boolean | FlexAddressSelect;
-      strictAddress?: boolean | FlexAddressSelect;
-    })
-  | ({ strictAddress: boolean | FlexAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | FlexAddressSelect;
-      shipping?: boolean | FlexAddressSelect;
-      tags?: boolean | FlexAddressSelect;
-      profile?: boolean | FlexProfileSelect;
-    });
+export interface FlexUserSelectFields {
+  id?: boolean;
+  name?: boolean;
+  address?: boolean | FlexAddressSelect;
+  shipping?: boolean | FlexAddressSelect;
+  tags?: boolean | FlexAddressSelect;
+  profile?: boolean | FlexProfileSelect;
+  strictAddress?: boolean | FlexAddressSelect;
+}
+
+export type FlexUserSelect = AtLeastOne<FlexUserSelectFields>;
 
 export interface FlexUserOrderBy {
   id?: 'asc' | 'desc';
@@ -384,6 +339,7 @@ export interface FlexUserModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface FlexAddress {
   street: string;
   city: string;
@@ -446,10 +402,13 @@ export interface FlexAddressWhere {
   NOT?: FlexAddressWhere;
 }
 
-export type FlexAddressSelect =
-  | ({ street: boolean } & Partial<Record<'city' | 'zip', boolean>>)
-  | ({ city: boolean } & Partial<Record<'street' | 'zip', boolean>>)
-  | ({ zip: boolean } & Partial<Record<'street' | 'city', boolean>>);
+export interface FlexAddressSelectFields {
+  street?: boolean;
+  city?: boolean;
+  zip?: boolean;
+}
+
+export type FlexAddressSelect = AtLeastOne<FlexAddressSelectFields>;
 
 export interface FlexAddressOrderBy {
   street?: 'asc' | 'desc';
@@ -502,6 +461,7 @@ export interface FlexMetaOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { FlexMeta, FlexMetaInput, FlexMetaWhere, FlexMetaSelect, FlexMetaOrderBy } from './flexmeta';
 export interface FlexProfile {
   bio: string;
@@ -533,9 +493,12 @@ export interface FlexProfileWhere {
   NOT?: FlexProfileWhere;
 }
 
-export type FlexProfileSelect =
-  | ({ bio: boolean } & { metadata?: boolean | FlexMetaSelect })
-  | ({ metadata: boolean | FlexMetaSelect } & Partial<Record<'bio', boolean>>);
+export interface FlexProfileSelectFields {
+  bio?: boolean;
+  metadata?: boolean | FlexMetaSelect;
+}
+
+export type FlexProfileSelect = AtLeastOne<FlexProfileSelectFields>;
 
 export interface FlexProfileOrderBy {
   bio?: 'asc' | 'desc';

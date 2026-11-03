@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface AnyBasic {
   id: CerialId<string>;
   name: string;
@@ -119,11 +120,14 @@ export type AnyBasicUpdateInput = AnyBasicUpdate;
 
 export type AnyBasicUnset = {};
 
-export type AnyBasicSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'data' | 'items', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'data' | 'items', boolean>>)
-  | ({ data: boolean } & Partial<Record<'id' | 'name' | 'items', boolean>>)
-  | ({ items: boolean } & Partial<Record<'id' | 'name' | 'data', boolean>>);
+export interface AnyBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  data?: boolean;
+  items?: boolean;
+}
+
+export type AnyBasicSelect = AtLeastOne<AnyBasicSelectFields>;
 
 export interface AnyBasicOrderBy {
   id?: 'asc' | 'desc';
@@ -314,6 +318,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface AnyDecorated {
   id: CerialId<string>;
   defData: CerialAny;
@@ -489,28 +494,17 @@ export type AnyDecoratedUnset = {
   alwaysData?: true;
 };
 
-export type AnyDecoratedSelect =
-  | ({ id: boolean } & Partial<
-      Record<'defData' | 'alwaysData' | 'readonlyData' | 'indexedData' | 'sortedItems' | 'distinctItems', boolean>
-    >)
-  | ({ defData: boolean } & Partial<
-      Record<'id' | 'alwaysData' | 'readonlyData' | 'indexedData' | 'sortedItems' | 'distinctItems', boolean>
-    >)
-  | ({ alwaysData: boolean } & Partial<
-      Record<'id' | 'defData' | 'readonlyData' | 'indexedData' | 'sortedItems' | 'distinctItems', boolean>
-    >)
-  | ({ readonlyData: boolean } & Partial<
-      Record<'id' | 'defData' | 'alwaysData' | 'indexedData' | 'sortedItems' | 'distinctItems', boolean>
-    >)
-  | ({ indexedData: boolean } & Partial<
-      Record<'id' | 'defData' | 'alwaysData' | 'readonlyData' | 'sortedItems' | 'distinctItems', boolean>
-    >)
-  | ({ sortedItems: boolean } & Partial<
-      Record<'id' | 'defData' | 'alwaysData' | 'readonlyData' | 'indexedData' | 'distinctItems', boolean>
-    >)
-  | ({ distinctItems: boolean } & Partial<
-      Record<'id' | 'defData' | 'alwaysData' | 'readonlyData' | 'indexedData' | 'sortedItems', boolean>
-    >);
+export interface AnyDecoratedSelectFields {
+  id?: boolean;
+  defData?: boolean;
+  alwaysData?: boolean;
+  readonlyData?: boolean;
+  indexedData?: boolean;
+  sortedItems?: boolean;
+  distinctItems?: boolean;
+}
+
+export type AnyDecoratedSelect = AtLeastOne<AnyDecoratedSelectFields>;
 
 export interface AnyDecoratedOrderBy {
   id?: 'asc' | 'desc';
@@ -699,6 +693,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface AnyUnique {
   id: CerialId<string>;
   uniqueData: CerialAny;
@@ -767,9 +762,12 @@ export type AnyUniqueUpdateInput = AnyUniqueUpdate;
 
 export type AnyUniqueUnset = {};
 
-export type AnyUniqueSelect =
-  | ({ id: boolean } & Partial<Record<'uniqueData', boolean>>)
-  | ({ uniqueData: boolean } & Partial<Record<'id', boolean>>);
+export interface AnyUniqueSelectFields {
+  id?: boolean;
+  uniqueData?: boolean;
+}
+
+export type AnyUniqueSelect = AtLeastOne<AnyUniqueSelectFields>;
 
 export interface AnyUniqueOrderBy {
   id?: 'asc' | 'desc';
@@ -957,6 +955,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { AnyMeta, AnyMetaInput, AnyMetaWhere, AnyMetaSelect, AnyMetaOrderBy } from '../objects/anymeta';
 export interface AnyWithObject {
   id: CerialId<string>;
@@ -1022,10 +1021,13 @@ export type AnyWithObjectUpdateInput = AnyWithObjectUpdate;
 
 export type AnyWithObjectUnset = {};
 
-export type AnyWithObjectSelect =
-  | ({ id: boolean } & { name?: boolean; meta?: boolean | AnyMetaSelect })
-  | ({ name: boolean } & { id?: boolean; meta?: boolean | AnyMetaSelect })
-  | ({ meta: boolean | AnyMetaSelect } & Partial<Record<'id' | 'name', boolean>>);
+export interface AnyWithObjectSelectFields {
+  id?: boolean;
+  name?: boolean;
+  meta?: boolean | AnyMetaSelect;
+}
+
+export type AnyWithObjectSelect = AtLeastOne<AnyWithObjectSelectFields>;
 
 export interface AnyWithObjectOrderBy {
   id?: 'asc' | 'desc';
@@ -1199,6 +1201,7 @@ export interface AnyWithObjectModel {
  */
 
 import type { CerialAny } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface AnyMeta {
   data: CerialAny;
   label: string;
@@ -1247,9 +1250,12 @@ export interface AnyMetaWhere {
   NOT?: AnyMetaWhere;
 }
 
-export type AnyMetaSelect =
-  | ({ data: boolean } & Partial<Record<'label', boolean>>)
-  | ({ label: boolean } & Partial<Record<'data', boolean>>);
+export interface AnyMetaSelectFields {
+  data?: boolean;
+  label?: boolean;
+}
+
+export type AnyMetaSelect = AtLeastOne<AnyMetaSelectFields>;
 
 export interface AnyMetaOrderBy {
   data?: 'asc' | 'desc';

@@ -767,29 +767,14 @@ export function generateSelectType(model: ModelMetadata): string {
     return `export type ${model.name}Select = { ${f.name}: ${selectType}; };`;
   }
 
-  // Generate union where each variant requires at least one field
-  // For each field, make it required and all others optional
-  const variants = selectableFields.map((field) => {
-    const selectType = getFieldSelectType(field);
-    const otherFields = selectableFields.filter((f) => f.name !== field.name);
+  // The fields are declared once; AtLeastOne derives the union of "this key required, the rest optional" lazily
+  const fieldDefs = selectableFields.map((f) => `  ${f.name}?: ${getFieldSelectType(f)};`).join('\n');
 
-    // Build the Partial record for other fields, each with their own select type
-    const hasNonBooleanOthers = otherFields.some((f) => getFieldSelectType(f) !== 'boolean');
+  return `export interface ${model.name}SelectFields {
+${fieldDefs}
+}
 
-    if (hasNonBooleanOthers) {
-      // When some other fields have non-boolean select types (objects, tuples with objects), we need per-field optional types
-      const otherFieldDefs = otherFields.map((f) => `${f.name}?: ${getFieldSelectType(f)}`).join('; ');
-
-      return `  | { ${field.name}: ${selectType} } & { ${otherFieldDefs} }`;
-    }
-
-    const otherKeys = otherFields.map((f) => `'${f.name}'`).join(' | ');
-
-    return `  | { ${field.name}: ${selectType} } & Partial<Record<${otherKeys}, boolean>>`;
-  });
-
-  return `export type ${model.name}Select =
-${variants.join('\n')};`;
+export type ${model.name}Select = AtLeastOne<${model.name}SelectFields>;`;
 }
 
 /** Generate OrderBy type */

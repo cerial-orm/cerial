@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Student,
   StudentWhere,
@@ -145,11 +146,14 @@ export type CourseUpdateInput =
 
 export type CourseUnset = {};
 
-export type CourseSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'code' | 'studentIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'code' | 'studentIds', boolean>>)
-  | ({ code: boolean } & Partial<Record<'id' | 'name' | 'studentIds', boolean>>)
-  | ({ studentIds: boolean } & Partial<Record<'id' | 'name' | 'code', boolean>>);
+export interface CourseSelectFields {
+  id?: boolean;
+  name?: boolean;
+  code?: boolean;
+  studentIds?: boolean;
+}
+
+export type CourseSelect = AtLeastOne<CourseSelectFields>;
 
 export interface CourseOrderBy {
   id?: 'asc' | 'desc';
@@ -400,6 +404,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Course,
   CourseWhere,
@@ -520,11 +525,14 @@ export type StudentUpdateInput =
 
 export type StudentUnset = {};
 
-export type StudentSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'email' | 'courseIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'email' | 'courseIds', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'name' | 'courseIds', boolean>>)
-  | ({ courseIds: boolean } & Partial<Record<'id' | 'name' | 'email', boolean>>);
+export interface StudentSelectFields {
+  id?: boolean;
+  name?: boolean;
+  email?: boolean;
+  courseIds?: boolean;
+}
+
+export type StudentSelect = AtLeastOne<StudentSelectFields>;
 
 export interface StudentOrderBy {
   id?: 'asc' | 'desc';

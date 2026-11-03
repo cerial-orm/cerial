@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Dock, DockInput, DockWhere, DockSelect, DockOrderBy } from '../objects/dock';
 export interface Depot {
   id: CerialId<string>;
@@ -91,10 +92,13 @@ export type DepotUpdateInput = DepotUpdate;
 
 export type DepotUnset = {};
 
-export type DepotSelect =
-  | ({ id: boolean } & { label?: boolean; dock?: boolean | DockSelect })
-  | ({ label: boolean } & { id?: boolean; dock?: boolean | DockSelect })
-  | ({ dock: boolean | DockSelect } & Partial<Record<'id' | 'label', boolean>>);
+export interface DepotSelectFields {
+  id?: boolean;
+  label?: boolean;
+  dock?: boolean | DockSelect;
+}
+
+export type DepotSelect = AtLeastOne<DepotSelectFields>;
 
 export interface DepotOrderBy {
   id?: 'asc' | 'desc';
@@ -280,6 +284,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Location, LocationInput, LocationWhere, LocationSelect, LocationOrderBy } from '../objects/location';
 export interface Warehouse {
   id: CerialId<string>;
@@ -385,11 +390,14 @@ export type WarehouseUnset = {
   capacity?: true;
 };
 
-export type WarehouseSelect =
-  | ({ id: boolean } & { name?: boolean; location?: boolean | LocationSelect; capacity?: boolean })
-  | ({ name: boolean } & { id?: boolean; location?: boolean | LocationSelect; capacity?: boolean })
-  | ({ location: boolean | LocationSelect } & Partial<Record<'id' | 'name' | 'capacity', boolean>>)
-  | ({ capacity: boolean } & { id?: boolean; name?: boolean; location?: boolean | LocationSelect });
+export interface WarehouseSelectFields {
+  id?: boolean;
+  name?: boolean;
+  location?: boolean | LocationSelect;
+  capacity?: boolean;
+}
+
+export type WarehouseSelect = AtLeastOne<WarehouseSelectFields>;
 
 export interface WarehouseOrderBy {
   id?: 'asc' | 'desc';
@@ -563,6 +571,7 @@ export interface WarehouseModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface Dock {
   bay: string;
   level: number;
@@ -607,9 +616,12 @@ export interface DockWhere {
   NOT?: DockWhere;
 }
 
-export type DockSelect =
-  | ({ bay: boolean } & Partial<Record<'level', boolean>>)
-  | ({ level: boolean } & Partial<Record<'bay', boolean>>);
+export interface DockSelectFields {
+  bay?: boolean;
+  level?: boolean;
+}
+
+export type DockSelect = AtLeastOne<DockSelectFields>;
 
 export interface DockOrderBy {
   bay?: 'asc' | 'desc';
@@ -622,6 +634,7 @@ export interface DockOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface Location {
   city: string;
   zip: string;
@@ -682,10 +695,13 @@ export interface LocationWhere {
   NOT?: LocationWhere;
 }
 
-export type LocationSelect =
-  | ({ city: boolean } & Partial<Record<'zip' | 'street', boolean>>)
-  | ({ zip: boolean } & Partial<Record<'city' | 'street', boolean>>)
-  | ({ street: boolean } & Partial<Record<'city' | 'zip', boolean>>);
+export interface LocationSelectFields {
+  city?: boolean;
+  zip?: boolean;
+  street?: boolean;
+}
+
+export type LocationSelect = AtLeastOne<LocationSelectFields>;
 
 export interface LocationOrderBy {
   city?: 'asc' | 'desc';

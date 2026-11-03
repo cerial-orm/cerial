@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ContactInfo,
   ContactInfoInput,
@@ -120,37 +121,15 @@ export type ObjDecUserUnset = {
   altLocation?: true;
 };
 
-export type ObjDecUserSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      contact?: boolean | ContactInfoSelect;
-      location?: boolean | LocationInfoSelect;
-      altLocation?: boolean | LocationInfoSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      contact?: boolean | ContactInfoSelect;
-      location?: boolean | LocationInfoSelect;
-      altLocation?: boolean | LocationInfoSelect;
-    })
-  | ({ contact: boolean | ContactInfoSelect } & {
-      id?: boolean;
-      name?: boolean;
-      location?: boolean | LocationInfoSelect;
-      altLocation?: boolean | LocationInfoSelect;
-    })
-  | ({ location: boolean | LocationInfoSelect } & {
-      id?: boolean;
-      name?: boolean;
-      contact?: boolean | ContactInfoSelect;
-      altLocation?: boolean | LocationInfoSelect;
-    })
-  | ({ altLocation: boolean | LocationInfoSelect } & {
-      id?: boolean;
-      name?: boolean;
-      contact?: boolean | ContactInfoSelect;
-      location?: boolean | LocationInfoSelect;
-    });
+export interface ObjDecUserSelectFields {
+  id?: boolean;
+  name?: boolean;
+  contact?: boolean | ContactInfoSelect;
+  location?: boolean | LocationInfoSelect;
+  altLocation?: boolean | LocationInfoSelect;
+}
+
+export type ObjDecUserSelect = AtLeastOne<ObjDecUserSelectFields>;
 
 export interface ObjDecUserOrderBy {
   id?: 'asc' | 'desc';
@@ -325,6 +304,7 @@ export interface ObjDecUserModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface ContactInfo {
   email: string;
   phone?: string | null;
@@ -424,12 +404,15 @@ export interface ContactInfoWhere {
   NOT?: ContactInfoWhere;
 }
 
-export type ContactInfoSelect =
-  | ({ email: boolean } & Partial<Record<'phone' | 'city' | 'createdAt' | 'tags', boolean>>)
-  | ({ phone: boolean } & Partial<Record<'email' | 'city' | 'createdAt' | 'tags', boolean>>)
-  | ({ city: boolean } & Partial<Record<'email' | 'phone' | 'createdAt' | 'tags', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'email' | 'phone' | 'city' | 'tags', boolean>>)
-  | ({ tags: boolean } & Partial<Record<'email' | 'phone' | 'city' | 'createdAt', boolean>>);
+export interface ContactInfoSelectFields {
+  email?: boolean;
+  phone?: boolean;
+  city?: boolean;
+  createdAt?: boolean;
+  tags?: boolean;
+}
+
+export type ContactInfoSelect = AtLeastOne<ContactInfoSelectFields>;
 
 export interface ContactInfoOrderBy {
   email?: 'asc' | 'desc';
@@ -445,6 +428,7 @@ export interface ContactInfoOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface LocationInfo {
   address: string;
   zip: string;
@@ -502,10 +486,13 @@ export interface LocationInfoWhere {
   NOT?: LocationInfoWhere;
 }
 
-export type LocationInfoSelect =
-  | ({ address: boolean } & Partial<Record<'zip' | 'country', boolean>>)
-  | ({ zip: boolean } & Partial<Record<'address' | 'country', boolean>>)
-  | ({ country: boolean } & Partial<Record<'address' | 'zip', boolean>>);
+export interface LocationInfoSelectFields {
+  address?: boolean;
+  zip?: boolean;
+  country?: boolean;
+}
+
+export type LocationInfoSelect = AtLeastOne<LocationInfoSelectFields>;
 
 export interface LocationInfoOrderBy {
   address?: 'asc' | 'desc';

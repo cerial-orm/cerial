@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Writer,
   WriterWhere,
@@ -144,11 +145,14 @@ export type DocumentUnset = {
   reviewerId?: true;
 };
 
-export type DocumentSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'authorId' | 'reviewerId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'authorId' | 'reviewerId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'reviewerId', boolean>>)
-  | ({ reviewerId: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>);
+export interface DocumentSelectFields {
+  id?: boolean;
+  title?: boolean;
+  authorId?: boolean;
+  reviewerId?: boolean;
+}
+
+export type DocumentSelect = AtLeastOne<DocumentSelectFields>;
 
 export interface DocumentOrderBy {
   id?: 'asc' | 'desc';
@@ -424,6 +428,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Document,
   DocumentWhere,
@@ -530,9 +535,12 @@ export type WriterUpdateInput = WriterUpdate & {
 
 export type WriterUnset = {};
 
-export type WriterSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface WriterSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type WriterSelect = AtLeastOne<WriterSelectFields>;
 
 export interface WriterOrderBy {
   id?: 'asc' | 'desc';

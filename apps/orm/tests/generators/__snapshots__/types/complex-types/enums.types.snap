@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import { RoleEnum } from '../enums/role';
 import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
 export interface EnumBasic {
@@ -107,13 +108,16 @@ export type EnumBasicUnset = {
   nullRole?: true;
 };
 
-export type EnumBasicSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'role' | 'optRole' | 'nullRole' | 'roles', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'role' | 'optRole' | 'nullRole' | 'roles', boolean>>)
-  | ({ role: boolean } & Partial<Record<'id' | 'name' | 'optRole' | 'nullRole' | 'roles', boolean>>)
-  | ({ optRole: boolean } & Partial<Record<'id' | 'name' | 'role' | 'nullRole' | 'roles', boolean>>)
-  | ({ nullRole: boolean } & Partial<Record<'id' | 'name' | 'role' | 'optRole' | 'roles', boolean>>)
-  | ({ roles: boolean } & Partial<Record<'id' | 'name' | 'role' | 'optRole' | 'nullRole', boolean>>);
+export interface EnumBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  role?: boolean;
+  optRole?: boolean;
+  nullRole?: boolean;
+  roles?: boolean;
+}
+
+export type EnumBasicSelect = AtLeastOne<EnumBasicSelectFields>;
 
 export interface EnumBasicOrderBy {
   id?: 'asc' | 'desc';
@@ -306,6 +310,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import { RoleEnum } from '../enums/role';
 import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
 import { SeverityEnum } from '../enums/severity';
@@ -375,11 +380,14 @@ export type EnumDefaultsUpdateInput = EnumDefaultsUpdate;
 
 export type EnumDefaultsUnset = {};
 
-export type EnumDefaultsSelect =
-  | ({ id: boolean } & Partial<Record<'label' | 'role' | 'severity', boolean>>)
-  | ({ label: boolean } & Partial<Record<'id' | 'role' | 'severity', boolean>>)
-  | ({ role: boolean } & Partial<Record<'id' | 'label' | 'severity', boolean>>)
-  | ({ severity: boolean } & Partial<Record<'id' | 'label' | 'role', boolean>>);
+export interface EnumDefaultsSelectFields {
+  id?: boolean;
+  label?: boolean;
+  role?: boolean;
+  severity?: boolean;
+}
+
+export type EnumDefaultsSelect = AtLeastOne<EnumDefaultsSelectFields>;
 
 export interface EnumDefaultsOrderBy {
   id?: 'asc' | 'desc';
@@ -570,6 +578,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { RoleOrCustom, RoleOrCustomWhere } from '../literals/roleorcustom';
 export interface EnumLiteralRef {
   id: CerialId<string>;
@@ -618,9 +627,12 @@ export type EnumLiteralRefUpdateInput = EnumLiteralRefUpdate;
 
 export type EnumLiteralRefUnset = {};
 
-export type EnumLiteralRefSelect =
-  | ({ id: boolean } & Partial<Record<'visibility', boolean>>)
-  | ({ visibility: boolean } & Partial<Record<'id', boolean>>);
+export interface EnumLiteralRefSelectFields {
+  id?: boolean;
+  visibility?: boolean;
+}
+
+export type EnumLiteralRefSelect = AtLeastOne<EnumLiteralRefSelectFields>;
 
 export interface EnumLiteralRefOrderBy {
   id?: 'asc' | 'desc';
@@ -808,6 +820,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import { RoleEnum } from '../enums/role';
 import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
 import { ColorEnum } from '../enums/color';
@@ -882,12 +895,15 @@ export type EnumMultipleUpdateInput = EnumMultipleUpdate;
 
 export type EnumMultipleUnset = {};
 
-export type EnumMultipleSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'role' | 'color' | 'severity', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'role' | 'color' | 'severity', boolean>>)
-  | ({ role: boolean } & Partial<Record<'id' | 'title' | 'color' | 'severity', boolean>>)
-  | ({ color: boolean } & Partial<Record<'id' | 'title' | 'role' | 'severity', boolean>>)
-  | ({ severity: boolean } & Partial<Record<'id' | 'title' | 'role' | 'color', boolean>>);
+export interface EnumMultipleSelectFields {
+  id?: boolean;
+  title?: boolean;
+  role?: boolean;
+  color?: boolean;
+  severity?: boolean;
+}
+
+export type EnumMultipleSelect = AtLeastOne<EnumMultipleSelectFields>;
 
 export interface EnumMultipleOrderBy {
   id?: 'asc' | 'desc';
@@ -1079,6 +1095,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import { RoleEnum } from '../enums/role';
 import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
 export interface EnumUnique {
@@ -1131,9 +1148,12 @@ export type EnumUniqueUpdateInput = EnumUniqueUpdate;
 
 export type EnumUniqueUnset = {};
 
-export type EnumUniqueSelect =
-  | ({ id: boolean } & Partial<Record<'role', boolean>>)
-  | ({ role: boolean } & Partial<Record<'id', boolean>>);
+export interface EnumUniqueSelectFields {
+  id?: boolean;
+  role?: boolean;
+}
+
+export type EnumUniqueSelect = AtLeastOne<EnumUniqueSelectFields>;
 
 export interface EnumUniqueOrderBy {
   id?: 'asc' | 'desc';
@@ -1323,6 +1343,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   EnumAddress,
   EnumAddressInput,
@@ -1400,27 +1421,14 @@ export type EnumWithObjectUnset = {
   optAddress?: true;
 };
 
-export type EnumWithObjectSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      address?: boolean | EnumAddressSelect;
-      optAddress?: boolean | EnumAddressSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      address?: boolean | EnumAddressSelect;
-      optAddress?: boolean | EnumAddressSelect;
-    })
-  | ({ address: boolean | EnumAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      optAddress?: boolean | EnumAddressSelect;
-    })
-  | ({ optAddress: boolean | EnumAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | EnumAddressSelect;
-    });
+export interface EnumWithObjectSelectFields {
+  id?: boolean;
+  name?: boolean;
+  address?: boolean | EnumAddressSelect;
+  optAddress?: boolean | EnumAddressSelect;
+}
+
+export type EnumWithObjectSelect = AtLeastOne<EnumWithObjectSelectFields>;
 
 export interface EnumWithObjectOrderBy {
   id?: 'asc' | 'desc';
@@ -1594,6 +1602,7 @@ export interface EnumWithObjectModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import { SeverityEnum } from '../enums/severity';
 import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity';
 export interface EnumAddress {
@@ -1626,9 +1635,12 @@ export interface EnumAddressWhere {
   NOT?: EnumAddressWhere;
 }
 
-export type EnumAddressSelect =
-  | ({ city: boolean } & Partial<Record<'severity', boolean>>)
-  | ({ severity: boolean } & Partial<Record<'city', boolean>>);
+export interface EnumAddressSelectFields {
+  city?: boolean;
+  severity?: boolean;
+}
+
+export type EnumAddressSelect = AtLeastOne<EnumAddressSelectFields>;
 
 export interface EnumAddressOrderBy {
   city?: 'asc' | 'desc';

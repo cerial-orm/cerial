@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtLiteralInfo,
   ExtLiteralInfoInput,
@@ -110,27 +111,14 @@ export type ExtLiteralContainerUnset = {
   };
 };
 
-export type ExtLiteralContainerSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      details?: boolean | ExtLiteralInfoSelect;
-      detailsList?: boolean | ExtLiteralInfoSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      details?: boolean | ExtLiteralInfoSelect;
-      detailsList?: boolean | ExtLiteralInfoSelect;
-    })
-  | ({ details: boolean | ExtLiteralInfoSelect } & {
-      id?: boolean;
-      name?: boolean;
-      detailsList?: boolean | ExtLiteralInfoSelect;
-    })
-  | ({ detailsList: boolean | ExtLiteralInfoSelect } & {
-      id?: boolean;
-      name?: boolean;
-      details?: boolean | ExtLiteralInfoSelect;
-    });
+export interface ExtLiteralContainerSelectFields {
+  id?: boolean;
+  name?: boolean;
+  details?: boolean | ExtLiteralInfoSelect;
+  detailsList?: boolean | ExtLiteralInfoSelect;
+}
+
+export type ExtLiteralContainerSelect = AtLeastOne<ExtLiteralContainerSelectFields>;
 
 export interface ExtLiteralContainerOrderBy {
   id?: 'asc' | 'desc';
@@ -327,6 +315,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { ExtExtendedPriority, ExtExtendedPriorityWhere } from '../literals/extextendedpriority';
 import type { ExtExtendedLevel, ExtExtendedLevelWhere } from '../literals/extextendedlevel';
 import type { ExtExtendedMixed, ExtExtendedMixedWhere } from '../literals/extextendedmixed';
@@ -409,28 +398,17 @@ export type ExtLiteralModelUnset = {
   highPriority?: true;
 };
 
-export type ExtLiteralModelSelect =
-  | ({ id: boolean } & Partial<
-      Record<'priority' | 'level' | 'status' | 'broadValue' | 'highPriority' | 'priorities', boolean>
-    >)
-  | ({ priority: boolean } & Partial<
-      Record<'id' | 'level' | 'status' | 'broadValue' | 'highPriority' | 'priorities', boolean>
-    >)
-  | ({ level: boolean } & Partial<
-      Record<'id' | 'priority' | 'status' | 'broadValue' | 'highPriority' | 'priorities', boolean>
-    >)
-  | ({ status: boolean } & Partial<
-      Record<'id' | 'priority' | 'level' | 'broadValue' | 'highPriority' | 'priorities', boolean>
-    >)
-  | ({ broadValue: boolean } & Partial<
-      Record<'id' | 'priority' | 'level' | 'status' | 'highPriority' | 'priorities', boolean>
-    >)
-  | ({ highPriority: boolean } & Partial<
-      Record<'id' | 'priority' | 'level' | 'status' | 'broadValue' | 'priorities', boolean>
-    >)
-  | ({ priorities: boolean } & Partial<
-      Record<'id' | 'priority' | 'level' | 'status' | 'broadValue' | 'highPriority', boolean>
-    >);
+export interface ExtLiteralModelSelectFields {
+  id?: boolean;
+  priority?: boolean;
+  level?: boolean;
+  status?: boolean;
+  broadValue?: boolean;
+  highPriority?: boolean;
+  priorities?: boolean;
+}
+
+export type ExtLiteralModelSelect = AtLeastOne<ExtLiteralModelSelectFields>;
 
 export interface ExtLiteralModelOrderBy {
   id?: 'asc' | 'desc';
@@ -621,6 +599,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { ExtQuotedPick, ExtQuotedPickWhere } from '../literals/extquotedpick';
 import type { ExtQuotedOmit, ExtQuotedOmitWhere } from '../literals/extquotedomit';
 export interface ExtLiteralQuoted {
@@ -673,10 +652,13 @@ export type ExtLiteralQuotedUpdateInput = ExtLiteralQuotedUpdate;
 
 export type ExtLiteralQuotedUnset = {};
 
-export type ExtLiteralQuotedSelect =
-  | ({ id: boolean } & Partial<Record<'picked' | 'omitted', boolean>>)
-  | ({ picked: boolean } & Partial<Record<'id' | 'omitted', boolean>>)
-  | ({ omitted: boolean } & Partial<Record<'id' | 'picked', boolean>>);
+export interface ExtLiteralQuotedSelectFields {
+  id?: boolean;
+  picked?: boolean;
+  omitted?: boolean;
+}
+
+export type ExtLiteralQuotedSelect = AtLeastOne<ExtLiteralQuotedSelectFields>;
 
 export interface ExtLiteralQuotedOrderBy {
   id?: 'asc' | 'desc';
@@ -850,6 +832,7 @@ export interface ExtLiteralQuotedModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { ExtExtendedPriority, ExtExtendedPriorityWhere } from '../literals/extextendedpriority';
 import type { ExtExtendedLevel, ExtExtendedLevelWhere } from '../literals/extextendedlevel';
 import type { ExtExtendedMixed, ExtExtendedMixedWhere } from '../literals/extextendedmixed';
@@ -874,10 +857,13 @@ export interface ExtLiteralInfoWhere {
   NOT?: ExtLiteralInfoWhere;
 }
 
-export type ExtLiteralInfoSelect =
-  | ({ priority: boolean } & Partial<Record<'level' | 'status', boolean>>)
-  | ({ level: boolean } & Partial<Record<'priority' | 'status', boolean>>)
-  | ({ status: boolean } & Partial<Record<'priority' | 'level', boolean>>);
+export interface ExtLiteralInfoSelectFields {
+  priority?: boolean;
+  level?: boolean;
+  status?: boolean;
+}
+
+export type ExtLiteralInfoSelect = AtLeastOne<ExtLiteralInfoSelectFields>;
 
 export interface ExtLiteralInfoOrderBy {}
 

@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ExtEnumInfo,
   ExtEnumInfoInput,
@@ -110,27 +111,14 @@ export type ExtEnumContainerUnset = {
   };
 };
 
-export type ExtEnumContainerSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      details?: boolean | ExtEnumInfoSelect;
-      detailsList?: boolean | ExtEnumInfoSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      details?: boolean | ExtEnumInfoSelect;
-      detailsList?: boolean | ExtEnumInfoSelect;
-    })
-  | ({ details: boolean | ExtEnumInfoSelect } & {
-      id?: boolean;
-      name?: boolean;
-      detailsList?: boolean | ExtEnumInfoSelect;
-    })
-  | ({ detailsList: boolean | ExtEnumInfoSelect } & {
-      id?: boolean;
-      name?: boolean;
-      details?: boolean | ExtEnumInfoSelect;
-    });
+export interface ExtEnumContainerSelectFields {
+  id?: boolean;
+  name?: boolean;
+  details?: boolean | ExtEnumInfoSelect;
+  detailsList?: boolean | ExtEnumInfoSelect;
+}
+
+export type ExtEnumContainerSelect = AtLeastOne<ExtEnumContainerSelectFields>;
 
 export interface ExtEnumContainerOrderBy {
   id?: 'asc' | 'desc';
@@ -325,6 +313,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import { ExtExtendedRoleEnum } from '../enums/extextendedrole';
 import type { ExtExtendedRoleEnumType, ExtExtendedRoleEnumWhere } from '../enums/extextendedrole';
 import { ExtDetailedStatusEnum } from '../enums/extdetailedstatus';
@@ -431,16 +420,17 @@ export type ExtEnumModelUnset = {
   nonAdminRole?: true;
 };
 
-export type ExtEnumModelSelect =
-  | ({ id: boolean } & Partial<Record<'role' | 'status' | 'coreRole' | 'nonAdminRole' | 'roles' | 'statuses', boolean>>)
-  | ({ role: boolean } & Partial<Record<'id' | 'status' | 'coreRole' | 'nonAdminRole' | 'roles' | 'statuses', boolean>>)
-  | ({ status: boolean } & Partial<Record<'id' | 'role' | 'coreRole' | 'nonAdminRole' | 'roles' | 'statuses', boolean>>)
-  | ({ coreRole: boolean } & Partial<Record<'id' | 'role' | 'status' | 'nonAdminRole' | 'roles' | 'statuses', boolean>>)
-  | ({ nonAdminRole: boolean } & Partial<Record<'id' | 'role' | 'status' | 'coreRole' | 'roles' | 'statuses', boolean>>)
-  | ({ roles: boolean } & Partial<Record<'id' | 'role' | 'status' | 'coreRole' | 'nonAdminRole' | 'statuses', boolean>>)
-  | ({ statuses: boolean } & Partial<
-      Record<'id' | 'role' | 'status' | 'coreRole' | 'nonAdminRole' | 'roles', boolean>
-    >);
+export interface ExtEnumModelSelectFields {
+  id?: boolean;
+  role?: boolean;
+  status?: boolean;
+  coreRole?: boolean;
+  nonAdminRole?: boolean;
+  roles?: boolean;
+  statuses?: boolean;
+}
+
+export type ExtEnumModelSelect = AtLeastOne<ExtEnumModelSelectFields>;
 
 export interface ExtEnumModelOrderBy {
   id?: 'asc' | 'desc';
@@ -617,6 +607,7 @@ export interface ExtEnumModelModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import { ExtExtendedRoleEnum } from '../enums/extextendedrole';
 import type { ExtExtendedRoleEnumType, ExtExtendedRoleEnumWhere } from '../enums/extextendedrole';
 import { ExtDetailedStatusEnum } from '../enums/extdetailedstatus';
@@ -644,10 +635,13 @@ export interface ExtEnumInfoWhere {
   NOT?: ExtEnumInfoWhere;
 }
 
-export type ExtEnumInfoSelect =
-  | ({ role: boolean } & Partial<Record<'status' | 'backupRole', boolean>>)
-  | ({ status: boolean } & Partial<Record<'role' | 'backupRole', boolean>>)
-  | ({ backupRole: boolean } & Partial<Record<'role' | 'status', boolean>>);
+export interface ExtEnumInfoSelectFields {
+  role?: boolean;
+  status?: boolean;
+  backupRole?: boolean;
+}
+
+export type ExtEnumInfoSelect = AtLeastOne<ExtEnumInfoSelectFields>;
 
 export interface ExtEnumInfoOrderBy {
   role?: 'asc' | 'desc';

@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
 import type { Entry, EntryInput, EntryWhere, EntryUpdate } from '../tuples/entry';
 export interface TupleBasic {
@@ -108,13 +109,16 @@ export type TupleBasicUnset = {
   entry?: true;
 };
 
-export type TupleBasicSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'location' | 'backup' | 'history' | 'entry', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'location' | 'backup' | 'history' | 'entry', boolean>>)
-  | ({ location: boolean } & Partial<Record<'id' | 'name' | 'backup' | 'history' | 'entry', boolean>>)
-  | ({ backup: boolean } & Partial<Record<'id' | 'name' | 'location' | 'history' | 'entry', boolean>>)
-  | ({ history: boolean } & Partial<Record<'id' | 'name' | 'location' | 'backup' | 'entry', boolean>>)
-  | ({ entry: boolean } & Partial<Record<'id' | 'name' | 'location' | 'backup' | 'history', boolean>>);
+export interface TupleBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  location?: boolean;
+  backup?: boolean;
+  history?: boolean;
+  entry?: boolean;
+}
+
+export type TupleBasicSelect = AtLeastOne<TupleBasicSelectFields>;
 
 export interface TupleBasicOrderBy {
   id?: 'asc' | 'desc';
@@ -304,6 +308,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { StampedOuter, StampedOuterInput, StampedOuterWhere, StampedOuterUpdate } from '../tuples/stampedouter';
 import type { Stamped, StampedInput, StampedWhere, StampedUpdate } from '../tuples/stamped';
 import type { StampedInner, StampedInnerInput, StampedInnerWhere, StampedInnerUpdate } from '../tuples/stampedinner';
@@ -377,11 +382,14 @@ export type TupleDecoratedNestUnset = {
   maybe?: true;
 };
 
-export type TupleDecoratedNestSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'outer' | 'maybe', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'outer' | 'maybe', boolean>>)
-  | ({ outer: boolean } & Partial<Record<'id' | 'name' | 'maybe', boolean>>)
-  | ({ maybe: boolean } & Partial<Record<'id' | 'name' | 'outer', boolean>>);
+export interface TupleDecoratedNestSelectFields {
+  id?: boolean;
+  name?: boolean;
+  outer?: boolean;
+  maybe?: boolean;
+}
+
+export type TupleDecoratedNestSelect = AtLeastOne<TupleDecoratedNestSelectFields>;
 
 export interface TupleDecoratedNestOrderBy {
   id?: 'asc' | 'desc';
@@ -574,6 +582,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DeepMidObj,
   DeepMidObjInput,
@@ -653,10 +662,13 @@ export type TupleDeepNestUnset = {
   deepOpt?: true | DeepOuterTupleUnset;
 };
 
-export type TupleDeepNestSelect =
-  | ({ id: boolean } & { deep?: boolean | DeepOuterTupleSelect; deepOpt?: boolean | DeepOuterTupleSelect })
-  | ({ deep: boolean | DeepOuterTupleSelect } & { id?: boolean; deepOpt?: boolean | DeepOuterTupleSelect })
-  | ({ deepOpt: boolean | DeepOuterTupleSelect } & { id?: boolean; deep?: boolean | DeepOuterTupleSelect });
+export interface TupleDeepNestSelectFields {
+  id?: boolean;
+  deep?: boolean | DeepOuterTupleSelect;
+  deepOpt?: boolean | DeepOuterTupleSelect;
+}
+
+export type TupleDeepNestSelect = AtLeastOne<TupleDeepNestSelectFields>;
 
 export interface TupleDeepNestOrderBy {
   id?: 'asc' | 'desc';
@@ -844,6 +856,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Defaulted, DefaultedInput, DefaultedWhere, DefaultedUpdate } from '../tuples/defaulted';
 export interface TupleDefaulted {
   id: CerialId<string>;
@@ -909,10 +922,13 @@ export type TupleDefaultedUpdateInput = TupleDefaultedUpdate;
 
 export type TupleDefaultedUnset = {};
 
-export type TupleDefaultedSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'meta', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'meta', boolean>>)
-  | ({ meta: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface TupleDefaultedSelectFields {
+  id?: boolean;
+  name?: boolean;
+  meta?: boolean;
+}
+
+export type TupleDefaultedSelect = AtLeastOne<TupleDefaultedSelectFields>;
 
 export interface TupleDefaultedOrderBy {
   id?: 'asc' | 'desc';
@@ -1101,6 +1117,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   TupleHolder,
   TupleHolderInput,
@@ -1161,9 +1178,12 @@ export type TupleInObjUnset = {
   };
 };
 
-export type TupleInObjSelect =
-  | ({ id: boolean } & { details?: boolean | TupleHolderSelect })
-  | ({ details: boolean | TupleHolderSelect } & Partial<Record<'id', boolean>>);
+export interface TupleInObjSelectFields {
+  id?: boolean;
+  details?: boolean | TupleHolderSelect;
+}
+
+export type TupleInObjSelect = AtLeastOne<TupleInObjSelectFields>;
 
 export interface TupleInObjOrderBy {
   id?: 'asc' | 'desc';
@@ -1352,6 +1372,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { StatusPair, StatusPairInput, StatusPairWhere, StatusPairUpdate } from '../tuples/statuspair';
 import type { RolePair, RolePairInput, RolePairWhere, RolePairUpdate } from '../tuples/rolepair';
 export interface TupleLiteralElement {
@@ -1433,12 +1454,15 @@ export type TupleLiteralElementUpdateInput = TupleLiteralElementUpdate;
 
 export type TupleLiteralElementUnset = {};
 
-export type TupleLiteralElementSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'status' | 'role' | 'history', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'status' | 'role' | 'history', boolean>>)
-  | ({ status: boolean } & Partial<Record<'id' | 'name' | 'role' | 'history', boolean>>)
-  | ({ role: boolean } & Partial<Record<'id' | 'name' | 'status' | 'history', boolean>>)
-  | ({ history: boolean } & Partial<Record<'id' | 'name' | 'status' | 'role', boolean>>);
+export interface TupleLiteralElementSelectFields {
+  id?: boolean;
+  name?: boolean;
+  status?: boolean;
+  role?: boolean;
+  history?: boolean;
+}
+
+export type TupleLiteralElementSelect = AtLeastOne<TupleLiteralElementSelectFields>;
 
 export interface TupleLiteralElementOrderBy {
   id?: 'asc' | 'desc';
@@ -1632,6 +1656,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Outer, OuterInput, OuterWhere, OuterUpdate } from '../tuples/outer';
 import type { Inner, InnerInput, InnerWhere, InnerUpdate } from '../tuples/inner';
 export interface TupleNested {
@@ -1683,9 +1708,12 @@ export type TupleNestedUpdateInput = TupleNestedUpdate;
 
 export type TupleNestedUnset = {};
 
-export type TupleNestedSelect =
-  | ({ id: boolean } & Partial<Record<'payload', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'id', boolean>>);
+export interface TupleNestedSelectFields {
+  id?: boolean;
+  payload?: boolean;
+}
+
+export type TupleNestedSelect = AtLeastOne<TupleNestedSelectFields>;
 
 export interface TupleNestedOrderBy {
   id?: 'asc' | 'desc';
@@ -1873,6 +1901,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   NullablePair,
   NullablePairInput,
@@ -1970,12 +1999,15 @@ export type TupleNullableUnset = {
   mixed?: MixedNullabilityUnset;
 };
 
-export type TupleNullableSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'pair' | 'optNull' | 'mixed', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'pair' | 'optNull' | 'mixed', boolean>>)
-  | ({ pair: boolean } & Partial<Record<'id' | 'name' | 'optNull' | 'mixed', boolean>>)
-  | ({ optNull: boolean } & Partial<Record<'id' | 'name' | 'pair' | 'mixed', boolean>>)
-  | ({ mixed: boolean } & Partial<Record<'id' | 'name' | 'pair' | 'optNull', boolean>>);
+export interface TupleNullableSelectFields {
+  id?: boolean;
+  name?: boolean;
+  pair?: boolean;
+  optNull?: boolean;
+  mixed?: boolean;
+}
+
+export type TupleNullableSelect = AtLeastOne<TupleNullableSelectFields>;
 
 export interface TupleNullableOrderBy {
   id?: 'asc' | 'desc';
@@ -2164,6 +2196,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   TupleAddress,
   TupleAddressInput,
@@ -2221,9 +2254,12 @@ export type TupleObjInTupleUpdateInput = TupleObjInTupleUpdate;
 
 export type TupleObjInTupleUnset = {};
 
-export type TupleObjInTupleSelect =
-  | ({ id: boolean } & { place?: boolean | LocatedSelect })
-  | ({ place: boolean | LocatedSelect } & Partial<Record<'id', boolean>>);
+export interface TupleObjInTupleSelectFields {
+  id?: boolean;
+  place?: boolean | LocatedSelect;
+}
+
+export type TupleObjInTupleSelect = AtLeastOne<TupleObjInTupleSelectFields>;
 
 export interface TupleObjInTupleOrderBy {
   id?: 'asc' | 'desc';
@@ -2415,6 +2451,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   TupleWithRelation,
   TupleWithRelationWhere,
@@ -2518,11 +2555,14 @@ export type TupleRelatedPostUnset = {
   position?: true;
 };
 
-export type TupleRelatedPostSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'position' | 'authorId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'position' | 'authorId', boolean>>)
-  | ({ position: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'position', boolean>>);
+export interface TupleRelatedPostSelectFields {
+  id?: boolean;
+  title?: boolean;
+  position?: boolean;
+  authorId?: boolean;
+}
+
+export type TupleRelatedPostSelect = AtLeastOne<TupleRelatedPostSelectFields>;
 
 export interface TupleRelatedPostOrderBy {
   id?: 'asc' | 'desc';
@@ -2778,6 +2818,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Stamped, StampedInput, StampedWhere, StampedUpdate } from '../tuples/stamped';
 export interface TupleStamped {
   id: CerialId<string>;
@@ -2843,10 +2884,13 @@ export type TupleStampedUpdateInput = TupleStampedUpdate;
 
 export type TupleStampedUnset = {};
 
-export type TupleStampedSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'stamp', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'stamp', boolean>>)
-  | ({ stamp: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface TupleStampedSelectFields {
+  id?: boolean;
+  name?: boolean;
+  stamp?: boolean;
+}
+
+export type TupleStampedSelect = AtLeastOne<TupleStampedSelectFields>;
 
 export interface TupleStampedOrderBy {
   id?: 'asc' | 'desc';
@@ -3035,6 +3079,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   TupleRelatedPost,
   TupleRelatedPostWhere,
@@ -3129,10 +3174,13 @@ export type TupleWithRelationUpdateInput = TupleWithRelationUpdate & {
 
 export type TupleWithRelationUnset = {};
 
-export type TupleWithRelationSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'location', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'location', boolean>>)
-  | ({ location: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface TupleWithRelationSelectFields {
+  id?: boolean;
+  name?: boolean;
+  location?: boolean;
+}
+
+export type TupleWithRelationSelect = AtLeastOne<TupleWithRelationSelectFields>;
 
 export interface TupleWithRelationOrderBy {
   id?: 'asc' | 'desc';
@@ -3372,6 +3420,7 @@ export interface TupleWithRelationModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface DeepInnerObj {
   payload: string;
   extra: string;
@@ -3414,9 +3463,12 @@ export interface DeepInnerObjWhere {
   NOT?: DeepInnerObjWhere;
 }
 
-export type DeepInnerObjSelect =
-  | ({ payload: boolean } & Partial<Record<'extra', boolean>>)
-  | ({ extra: boolean } & Partial<Record<'payload', boolean>>);
+export interface DeepInnerObjSelectFields {
+  payload?: boolean;
+  extra?: boolean;
+}
+
+export type DeepInnerObjSelect = AtLeastOne<DeepInnerObjSelectFields>;
 
 export interface DeepInnerObjOrderBy {
   payload?: 'asc' | 'desc';
@@ -3429,6 +3481,7 @@ export interface DeepInnerObjOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type {
   DeepInnerTuple,
   DeepInnerTupleInput,
@@ -3485,10 +3538,13 @@ export interface DeepMidObjWhere {
   NOT?: DeepMidObjWhere;
 }
 
-export type DeepMidObjSelect =
-  | ({ name: boolean } & { age?: boolean; pos?: boolean | DeepInnerTupleSelect })
-  | ({ age: boolean } & { name?: boolean; pos?: boolean | DeepInnerTupleSelect })
-  | ({ pos: boolean | DeepInnerTupleSelect } & Partial<Record<'name' | 'age', boolean>>);
+export interface DeepMidObjSelectFields {
+  name?: boolean;
+  age?: boolean;
+  pos?: boolean | DeepInnerTupleSelect;
+}
+
+export type DeepMidObjSelect = AtLeastOne<DeepMidObjSelectFields>;
 
 export interface DeepMidObjOrderBy {
   name?: 'asc' | 'desc';
@@ -3501,6 +3557,7 @@ export interface DeepMidObjOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface TupleAddress {
   street: string;
   city: string;
@@ -3543,9 +3600,12 @@ export interface TupleAddressWhere {
   NOT?: TupleAddressWhere;
 }
 
-export type TupleAddressSelect =
-  | ({ street: boolean } & Partial<Record<'city', boolean>>)
-  | ({ city: boolean } & Partial<Record<'street', boolean>>);
+export interface TupleAddressSelectFields {
+  street?: boolean;
+  city?: boolean;
+}
+
+export type TupleAddressSelect = AtLeastOne<TupleAddressSelectFields>;
 
 export interface TupleAddressOrderBy {
   street?: 'asc' | 'desc';
@@ -3558,6 +3618,7 @@ export interface TupleAddressOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
 export interface TupleHolder {
   label: string;
@@ -3592,10 +3653,13 @@ export interface TupleHolderWhere {
   NOT?: TupleHolderWhere;
 }
 
-export type TupleHolderSelect =
-  | ({ label: boolean } & Partial<Record<'coord' | 'optCoord', boolean>>)
-  | ({ coord: boolean } & Partial<Record<'label' | 'optCoord', boolean>>)
-  | ({ optCoord: boolean } & Partial<Record<'label' | 'coord', boolean>>);
+export interface TupleHolderSelectFields {
+  label?: boolean;
+  coord?: boolean;
+  optCoord?: boolean;
+}
+
+export type TupleHolderSelect = AtLeastOne<TupleHolderSelectFields>;
 
 export interface TupleHolderOrderBy {
   label?: 'asc' | 'desc';

@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
 import type { NmMid, NmMidInput, NmMidWhere, NmMidSelect, NmMidOrderBy } from '../objects/nmmid';
 import type { NmTop, NmTopInput, NmTopWhere, NmTopSelect, NmTopOrderBy } from '../objects/nmtop';
@@ -147,63 +148,17 @@ export type NmObjectDocUnset = {
       };
 };
 
-export type NmObjectDocSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      leaf?: boolean | NmLeafSelect;
-      mid?: boolean | NmMidSelect;
-      top?: boolean | NmTopSelect;
-      leaves?: boolean | NmLeafSelect;
-      tops?: boolean | NmTopSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      leaf?: boolean | NmLeafSelect;
-      mid?: boolean | NmMidSelect;
-      top?: boolean | NmTopSelect;
-      leaves?: boolean | NmLeafSelect;
-      tops?: boolean | NmTopSelect;
-    })
-  | ({ leaf: boolean | NmLeafSelect } & {
-      id?: boolean;
-      name?: boolean;
-      mid?: boolean | NmMidSelect;
-      top?: boolean | NmTopSelect;
-      leaves?: boolean | NmLeafSelect;
-      tops?: boolean | NmTopSelect;
-    })
-  | ({ mid: boolean | NmMidSelect } & {
-      id?: boolean;
-      name?: boolean;
-      leaf?: boolean | NmLeafSelect;
-      top?: boolean | NmTopSelect;
-      leaves?: boolean | NmLeafSelect;
-      tops?: boolean | NmTopSelect;
-    })
-  | ({ top: boolean | NmTopSelect } & {
-      id?: boolean;
-      name?: boolean;
-      leaf?: boolean | NmLeafSelect;
-      mid?: boolean | NmMidSelect;
-      leaves?: boolean | NmLeafSelect;
-      tops?: boolean | NmTopSelect;
-    })
-  | ({ leaves: boolean | NmLeafSelect } & {
-      id?: boolean;
-      name?: boolean;
-      leaf?: boolean | NmLeafSelect;
-      mid?: boolean | NmMidSelect;
-      top?: boolean | NmTopSelect;
-      tops?: boolean | NmTopSelect;
-    })
-  | ({ tops: boolean | NmTopSelect } & {
-      id?: boolean;
-      name?: boolean;
-      leaf?: boolean | NmLeafSelect;
-      mid?: boolean | NmMidSelect;
-      top?: boolean | NmTopSelect;
-      leaves?: boolean | NmLeafSelect;
-    });
+export interface NmObjectDocSelectFields {
+  id?: boolean;
+  name?: boolean;
+  leaf?: boolean | NmLeafSelect;
+  mid?: boolean | NmMidSelect;
+  top?: boolean | NmTopSelect;
+  leaves?: boolean | NmLeafSelect;
+  tops?: boolean | NmTopSelect;
+}
+
+export type NmObjectDocSelect = AtLeastOne<NmObjectDocSelectFields>;
 
 export interface NmObjectDocOrderBy {
   id?: 'asc' | 'desc';
@@ -398,6 +353,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   NmHoldsTuple,
   NmHoldsTupleInput,
@@ -559,97 +515,19 @@ export type NmTupleDocUnset = {
       };
 };
 
-export type NmTupleDocSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      withLeaf?: boolean | NmWithLeafSelect;
-      named?: boolean | NmNamedLeafSelect;
-      outer?: boolean | NmOuterSelect;
-      holds?: boolean | NmHoldsTupleSelect;
-      deepHolds?: boolean | NmHoldsHolderSelect;
-      withLeaves?: boolean | NmWithLeafSelect;
-      nameds?: boolean | NmNamedLeafSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      withLeaf?: boolean | NmWithLeafSelect;
-      named?: boolean | NmNamedLeafSelect;
-      outer?: boolean | NmOuterSelect;
-      holds?: boolean | NmHoldsTupleSelect;
-      deepHolds?: boolean | NmHoldsHolderSelect;
-      withLeaves?: boolean | NmWithLeafSelect;
-      nameds?: boolean | NmNamedLeafSelect;
-    })
-  | ({ withLeaf: boolean | NmWithLeafSelect } & {
-      id?: boolean;
-      name?: boolean;
-      named?: boolean | NmNamedLeafSelect;
-      outer?: boolean | NmOuterSelect;
-      holds?: boolean | NmHoldsTupleSelect;
-      deepHolds?: boolean | NmHoldsHolderSelect;
-      withLeaves?: boolean | NmWithLeafSelect;
-      nameds?: boolean | NmNamedLeafSelect;
-    })
-  | ({ named: boolean | NmNamedLeafSelect } & {
-      id?: boolean;
-      name?: boolean;
-      withLeaf?: boolean | NmWithLeafSelect;
-      outer?: boolean | NmOuterSelect;
-      holds?: boolean | NmHoldsTupleSelect;
-      deepHolds?: boolean | NmHoldsHolderSelect;
-      withLeaves?: boolean | NmWithLeafSelect;
-      nameds?: boolean | NmNamedLeafSelect;
-    })
-  | ({ outer: boolean | NmOuterSelect } & {
-      id?: boolean;
-      name?: boolean;
-      withLeaf?: boolean | NmWithLeafSelect;
-      named?: boolean | NmNamedLeafSelect;
-      holds?: boolean | NmHoldsTupleSelect;
-      deepHolds?: boolean | NmHoldsHolderSelect;
-      withLeaves?: boolean | NmWithLeafSelect;
-      nameds?: boolean | NmNamedLeafSelect;
-    })
-  | ({ holds: boolean | NmHoldsTupleSelect } & {
-      id?: boolean;
-      name?: boolean;
-      withLeaf?: boolean | NmWithLeafSelect;
-      named?: boolean | NmNamedLeafSelect;
-      outer?: boolean | NmOuterSelect;
-      deepHolds?: boolean | NmHoldsHolderSelect;
-      withLeaves?: boolean | NmWithLeafSelect;
-      nameds?: boolean | NmNamedLeafSelect;
-    })
-  | ({ deepHolds: boolean | NmHoldsHolderSelect } & {
-      id?: boolean;
-      name?: boolean;
-      withLeaf?: boolean | NmWithLeafSelect;
-      named?: boolean | NmNamedLeafSelect;
-      outer?: boolean | NmOuterSelect;
-      holds?: boolean | NmHoldsTupleSelect;
-      withLeaves?: boolean | NmWithLeafSelect;
-      nameds?: boolean | NmNamedLeafSelect;
-    })
-  | ({ withLeaves: boolean | NmWithLeafSelect } & {
-      id?: boolean;
-      name?: boolean;
-      withLeaf?: boolean | NmWithLeafSelect;
-      named?: boolean | NmNamedLeafSelect;
-      outer?: boolean | NmOuterSelect;
-      holds?: boolean | NmHoldsTupleSelect;
-      deepHolds?: boolean | NmHoldsHolderSelect;
-      nameds?: boolean | NmNamedLeafSelect;
-    })
-  | ({ nameds: boolean | NmNamedLeafSelect } & {
-      id?: boolean;
-      name?: boolean;
-      withLeaf?: boolean | NmWithLeafSelect;
-      named?: boolean | NmNamedLeafSelect;
-      outer?: boolean | NmOuterSelect;
-      holds?: boolean | NmHoldsTupleSelect;
-      deepHolds?: boolean | NmHoldsHolderSelect;
-      withLeaves?: boolean | NmWithLeafSelect;
-    });
+export interface NmTupleDocSelectFields {
+  id?: boolean;
+  name?: boolean;
+  withLeaf?: boolean | NmWithLeafSelect;
+  named?: boolean | NmNamedLeafSelect;
+  outer?: boolean | NmOuterSelect;
+  holds?: boolean | NmHoldsTupleSelect;
+  deepHolds?: boolean | NmHoldsHolderSelect;
+  withLeaves?: boolean | NmWithLeafSelect;
+  nameds?: boolean | NmNamedLeafSelect;
+}
+
+export type NmTupleDocSelect = AtLeastOne<NmTupleDocSelectFields>;
 
 export interface NmTupleDocOrderBy {
   id?: 'asc' | 'desc';
@@ -890,6 +768,7 @@ export interface NmHoldsTupleOrderBy {}
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { NmCode, NmCodeWhere } from '../literals/nmcode';
 import { NmGradeEnum } from '../enums/nmgrade';
 import type { NmGradeEnumType, NmGradeEnumWhere } from '../enums/nmgrade';
@@ -911,9 +790,12 @@ export interface NmLeafWhere {
   NOT?: NmLeafWhere;
 }
 
-export type NmLeafSelect =
-  | ({ grade: boolean } & Partial<Record<'code', boolean>>)
-  | ({ code: boolean } & Partial<Record<'grade', boolean>>);
+export interface NmLeafSelectFields {
+  grade?: boolean;
+  code?: boolean;
+}
+
+export type NmLeafSelect = AtLeastOne<NmLeafSelectFields>;
 
 export interface NmLeafOrderBy {
   grade?: 'asc' | 'desc';
@@ -925,6 +807,7 @@ export interface NmLeafOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from './nmleaf';
 export interface NmMid {
   label: string;
@@ -956,9 +839,12 @@ export interface NmMidWhere {
   NOT?: NmMidWhere;
 }
 
-export type NmMidSelect =
-  | ({ label: boolean } & { leaf?: boolean | NmLeafSelect })
-  | ({ leaf: boolean | NmLeafSelect } & Partial<Record<'label', boolean>>);
+export interface NmMidSelectFields {
+  label?: boolean;
+  leaf?: boolean | NmLeafSelect;
+}
+
+export type NmMidSelect = AtLeastOne<NmMidSelectFields>;
 
 export interface NmMidOrderBy {
   label?: 'asc' | 'desc';
@@ -971,6 +857,7 @@ export interface NmMidOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { NmMid, NmMidInput, NmMidWhere, NmMidSelect, NmMidOrderBy } from './nmmid';
 export interface NmTop {
   title: string;
@@ -1002,9 +889,12 @@ export interface NmTopWhere {
   NOT?: NmTopWhere;
 }
 
-export type NmTopSelect =
-  | ({ title: boolean } & { mid?: boolean | NmMidSelect })
-  | ({ mid: boolean | NmMidSelect } & Partial<Record<'title', boolean>>);
+export interface NmTopSelectFields {
+  title?: boolean;
+  mid?: boolean | NmMidSelect;
+}
+
+export type NmTopSelect = AtLeastOne<NmTopSelectFields>;
 
 export interface NmTopOrderBy {
   title?: 'asc' | 'desc';

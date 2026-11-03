@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   FkTargetIntId,
   FkTargetIntIdWhere,
@@ -113,10 +114,13 @@ export type FkChildModelUpdateInput =
 
 export type FkChildModelUnset = {};
 
-export type FkChildModelSelect =
-  | ({ id: boolean } & Partial<Record<'parentId' | 'note', boolean>>)
-  | ({ parentId: boolean } & Partial<Record<'id' | 'note', boolean>>)
-  | ({ note: boolean } & Partial<Record<'id' | 'parentId', boolean>>);
+export interface FkChildModelSelectFields {
+  id?: boolean;
+  parentId?: boolean;
+  note?: boolean;
+}
+
+export type FkChildModelSelect = AtLeastOne<FkChildModelSelectFields>;
 
 export interface FkChildModelOrderBy {
   id?: 'asc' | 'desc';
@@ -371,6 +375,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   FkChildModel,
   FkChildModelWhere,
@@ -459,9 +464,12 @@ export type FkTargetIntIdUpdateInput = FkTargetIntIdUpdate & {
 
 export type FkTargetIntIdUnset = {};
 
-export type FkTargetIntIdSelect =
-  | ({ id: boolean } & Partial<Record<'label', boolean>>)
-  | ({ label: boolean } & Partial<Record<'id', boolean>>);
+export interface FkTargetIntIdSelectFields {
+  id?: boolean;
+  label?: boolean;
+}
+
+export type FkTargetIntIdSelect = AtLeastOne<FkTargetIntIdSelectFields>;
 
 export interface FkTargetIntIdOrderBy {
   id?: 'asc' | 'desc';
@@ -717,6 +725,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface IntIdModel {
   id: CerialId<number>;
   name: string;
@@ -776,9 +785,12 @@ export type IntIdModelUpdateInput = IntIdModelUpdate;
 
 export type IntIdModelUnset = {};
 
-export type IntIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface IntIdModelSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type IntIdModelSelect = AtLeastOne<IntIdModelSelectFields>;
 
 export interface IntIdModelOrderBy {
   id?: 'asc' | 'desc';
@@ -967,6 +979,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface IntUnionIdModel {
   id: CerialId<number | string>;
   label: string;
@@ -1026,9 +1039,12 @@ export type IntUnionIdModelUpdateInput = IntUnionIdModelUpdate;
 
 export type IntUnionIdModelUnset = {};
 
-export type IntUnionIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'label', boolean>>)
-  | ({ label: boolean } & Partial<Record<'id', boolean>>);
+export interface IntUnionIdModelSelectFields {
+  id?: boolean;
+  label?: boolean;
+}
+
+export type IntUnionIdModelSelect = AtLeastOne<IntUnionIdModelSelectFields>;
 
 export interface IntUnionIdModelOrderBy {
   id?: 'asc' | 'desc';
@@ -1220,6 +1236,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface NumberIdModel {
   id: CerialId<number>;
   label: string;
@@ -1279,9 +1296,12 @@ export type NumberIdModelUpdateInput = NumberIdModelUpdate;
 
 export type NumberIdModelUnset = {};
 
-export type NumberIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'label', boolean>>)
-  | ({ label: boolean } & Partial<Record<'id', boolean>>);
+export interface NumberIdModelSelectFields {
+  id?: boolean;
+  label?: boolean;
+}
+
+export type NumberIdModelSelect = AtLeastOne<NumberIdModelSelectFields>;
 
 export interface NumberIdModelOrderBy {
   id?: 'asc' | 'desc';
@@ -1470,6 +1490,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   IdMetricKey,
   IdMetricKeyInput,
@@ -1541,9 +1562,12 @@ export type ObjectIdModelUpdateInput = ObjectIdModelUpdate;
 
 export type ObjectIdModelUnset = {};
 
-export type ObjectIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'payload', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'id', boolean>>);
+export interface ObjectIdModelSelectFields {
+  id?: boolean;
+  payload?: boolean;
+}
+
+export type ObjectIdModelSelect = AtLeastOne<ObjectIdModelSelectFields>;
 
 export interface ObjectIdModelOrderBy {
   id?: 'asc' | 'desc';
@@ -1732,6 +1756,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface StandaloneRefModel {
   id: CerialId<string>;
   externalRef: CerialId<number>;
@@ -1823,11 +1848,14 @@ export type StandaloneRefModelUpdateInput = StandaloneRefModelUpdate;
 
 export type StandaloneRefModelUnset = {};
 
-export type StandaloneRefModelSelect =
-  | ({ id: boolean } & Partial<Record<'externalRef' | 'externalRefs' | 'label', boolean>>)
-  | ({ externalRef: boolean } & Partial<Record<'id' | 'externalRefs' | 'label', boolean>>)
-  | ({ externalRefs: boolean } & Partial<Record<'id' | 'externalRef' | 'label', boolean>>)
-  | ({ label: boolean } & Partial<Record<'id' | 'externalRef' | 'externalRefs', boolean>>);
+export interface StandaloneRefModelSelectFields {
+  id?: boolean;
+  externalRef?: boolean;
+  externalRefs?: boolean;
+  label?: boolean;
+}
+
+export type StandaloneRefModelSelect = AtLeastOne<StandaloneRefModelSelectFields>;
 
 export interface StandaloneRefModelOrderBy {
   id?: 'asc' | 'desc';
@@ -2021,6 +2049,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface StringIdModel {
   id: CerialId<string>;
   payload: string;
@@ -2080,9 +2109,12 @@ export type StringIdModelUpdateInput = StringIdModelUpdate;
 
 export type StringIdModelUnset = {};
 
-export type StringIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'payload', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'id', boolean>>);
+export interface StringIdModelSelectFields {
+  id?: boolean;
+  payload?: boolean;
+}
+
+export type StringIdModelSelect = AtLeastOne<StringIdModelSelectFields>;
 
 export interface StringIdModelOrderBy {
   id?: 'asc' | 'desc';
@@ -2271,6 +2303,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { IdCoord, IdCoordInput, IdCoordWhere, IdCoordUpdate } from '../tuples/idcoord';
 export interface TupleIdModel {
   id: CerialId<[number, number]>;
@@ -2331,9 +2364,12 @@ export type TupleIdModelUpdateInput = TupleIdModelUpdate;
 
 export type TupleIdModelUnset = {};
 
-export type TupleIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'city', boolean>>)
-  | ({ city: boolean } & Partial<Record<'id', boolean>>);
+export interface TupleIdModelSelectFields {
+  id?: boolean;
+  city?: boolean;
+}
+
+export type TupleIdModelSelect = AtLeastOne<TupleIdModelSelectFields>;
 
 export interface TupleIdModelOrderBy {
   id?: 'asc' | 'desc';
@@ -2522,6 +2558,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface UnionIdModel {
   id: CerialId<string | number>;
   label: string;
@@ -2581,9 +2618,12 @@ export type UnionIdModelUpdateInput = UnionIdModelUpdate;
 
 export type UnionIdModelUnset = {};
 
-export type UnionIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'label', boolean>>)
-  | ({ label: boolean } & Partial<Record<'id', boolean>>);
+export interface UnionIdModelSelectFields {
+  id?: boolean;
+  label?: boolean;
+}
+
+export type UnionIdModelSelect = AtLeastOne<UnionIdModelSelectFields>;
 
 export interface UnionIdModelOrderBy {
   id?: 'asc' | 'desc';
@@ -2772,6 +2812,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface UuidIdModel {
   id: CerialId<string>;
   data: string;
@@ -2831,9 +2872,12 @@ export type UuidIdModelUpdateInput = UuidIdModelUpdate;
 
 export type UuidIdModelUnset = {};
 
-export type UuidIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'data', boolean>>)
-  | ({ data: boolean } & Partial<Record<'id', boolean>>);
+export interface UuidIdModelSelectFields {
+  id?: boolean;
+  data?: boolean;
+}
+
+export type UuidIdModelSelect = AtLeastOne<UuidIdModelSelectFields>;
 
 export interface UuidIdModelOrderBy {
   id?: 'asc' | 'desc';
@@ -3005,6 +3049,7 @@ export interface UuidIdModelModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface IdMetricKey {
   service: string;
   timestamp: number;
@@ -3049,9 +3094,12 @@ export interface IdMetricKeyWhere {
   NOT?: IdMetricKeyWhere;
 }
 
-export type IdMetricKeySelect =
-  | ({ service: boolean } & Partial<Record<'timestamp', boolean>>)
-  | ({ timestamp: boolean } & Partial<Record<'service', boolean>>);
+export interface IdMetricKeySelectFields {
+  service?: boolean;
+  timestamp?: boolean;
+}
+
+export type IdMetricKeySelect = AtLeastOne<IdMetricKeySelectFields>;
 
 export interface IdMetricKeyOrderBy {
   service?: 'asc' | 'desc';

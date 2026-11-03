@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtCrossAdmin {
   id: CerialId<string>;
   createdAt?: Date;
@@ -241,67 +242,20 @@ export type ExtCrossAdminUnset = {
   teamSize?: true;
 };
 
-export type ExtCrossAdminSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<
-        'id' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ email: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'name' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ name: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ level: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'permissions' | 'department' | 'budget' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ permissions: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'department' | 'budget' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ department: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'budget' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ budget: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'teamSize',
-        boolean
-      >
-    >)
-  | ({ teamSize: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'budget',
-        boolean
-      >
-    >);
+export interface ExtCrossAdminSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  level?: boolean;
+  permissions?: boolean;
+  department?: boolean;
+  budget?: boolean;
+  teamSize?: boolean;
+}
+
+export type ExtCrossAdminSelect = AtLeastOne<ExtCrossAdminSelectFields>;
 
 export interface ExtCrossAdminOrderBy {
   id?: 'asc' | 'desc';
@@ -499,6 +453,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtCrossModerator {
   id: CerialId<string>;
   createdAt?: Date;
@@ -643,13 +598,16 @@ export type ExtCrossModeratorUnset = {
   lastWarning?: true;
 };
 
-export type ExtCrossModeratorSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'email' | 'name' | 'warningCount' | 'lastWarning', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'email' | 'name' | 'warningCount' | 'lastWarning', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'warningCount' | 'lastWarning', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'warningCount' | 'lastWarning', boolean>>)
-  | ({ warningCount: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'lastWarning', boolean>>)
-  | ({ lastWarning: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'warningCount', boolean>>);
+export interface ExtCrossModeratorSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  warningCount?: boolean;
+  lastWarning?: boolean;
+}
+
+export type ExtCrossModeratorSelect = AtLeastOne<ExtCrossModeratorSelectFields>;
 
 export interface ExtCrossModeratorOrderBy {
   id?: 'asc' | 'desc';
@@ -846,6 +804,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtCrossPremium {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1056,67 +1015,20 @@ export type ExtCrossPremiumUnset = {
   referralCode?: true;
 };
 
-export type ExtCrossPremiumSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<
-        'id' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ email: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ name: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ isActive: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ age: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'loyaltyPoints' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ role: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'loyaltyPoints' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ loyaltyPoints: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'referralCode',
-        boolean
-      >
-    >)
-  | ({ referralCode: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints',
-        boolean
-      >
-    >);
+export interface ExtCrossPremiumSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  isActive?: boolean;
+  age?: boolean;
+  role?: boolean;
+  loyaltyPoints?: boolean;
+  referralCode?: boolean;
+}
+
+export type ExtCrossPremiumSelect = AtLeastOne<ExtCrossPremiumSelectFields>;
 
 export interface ExtCrossPremiumOrderBy {
   id?: 'asc' | 'desc';
@@ -1317,6 +1229,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtCrossPrivate {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1456,13 +1369,16 @@ export type ExtCrossPrivateUnset = {
   updatedAt?: true;
 };
 
-export type ExtCrossPrivateSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'publicBio', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'email' | 'name' | 'publicBio', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'publicBio', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'publicBio', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'publicBio', boolean>>)
-  | ({ publicBio: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name', boolean>>);
+export interface ExtCrossPrivateSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  name?: boolean;
+  publicBio?: boolean;
+}
+
+export type ExtCrossPrivateSelect = AtLeastOne<ExtCrossPrivateSelectFields>;
 
 export interface ExtCrossPrivateOrderBy {
   id?: 'asc' | 'desc';
@@ -1659,6 +1575,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtCrossProfile {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1897,109 +1814,21 @@ export type ExtCrossProfileUnset = {
   metadata?: true;
 };
 
-export type ExtCrossProfileSelect =
-  | ({ id: boolean } & Partial<
-      Record<
-        | 'createdAt'
-        | 'updatedAt'
-        | 'userId'
-        | 'bio'
-        | 'avatar'
-        | 'tags'
-        | 'metadata'
-        | 'owner'
-        | 'followers'
-        | 'following',
-        boolean
-      >
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<
-        'id' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'followers' | 'following',
-        boolean
-      >
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'followers' | 'following',
-        boolean
-      >
-    >)
-  | ({ userId: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'followers' | 'following',
-        boolean
-      >
-    >)
-  | ({ bio: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'userId'
-        | 'avatar'
-        | 'tags'
-        | 'metadata'
-        | 'owner'
-        | 'followers'
-        | 'following',
-        boolean
-      >
-    >)
-  | ({ avatar: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'tags' | 'metadata' | 'owner' | 'followers' | 'following',
-        boolean
-      >
-    >)
-  | ({ tags: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'userId'
-        | 'bio'
-        | 'avatar'
-        | 'metadata'
-        | 'owner'
-        | 'followers'
-        | 'following',
-        boolean
-      >
-    >)
-  | ({ metadata: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'owner' | 'followers' | 'following',
-        boolean
-      >
-    >)
-  | ({ owner: boolean } & Partial<
-      Record<
-        | 'id'
-        | 'createdAt'
-        | 'updatedAt'
-        | 'userId'
-        | 'bio'
-        | 'avatar'
-        | 'tags'
-        | 'metadata'
-        | 'followers'
-        | 'following',
-        boolean
-      >
-    >)
-  | ({ followers: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'following',
-        boolean
-      >
-    >)
-  | ({ following: boolean } & Partial<
-      Record<
-        'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'followers',
-        boolean
-      >
-    >);
+export interface ExtCrossProfileSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  userId?: boolean;
+  bio?: boolean;
+  avatar?: boolean;
+  tags?: boolean;
+  metadata?: boolean;
+  owner?: boolean;
+  followers?: boolean;
+  following?: boolean;
+}
+
+export type ExtCrossProfileSelect = AtLeastOne<ExtCrossProfileSelectFields>;
 
 export interface ExtCrossProfileOrderBy {
   id?: 'asc' | 'desc';
@@ -2201,6 +2030,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface ExtCrossUser {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2368,28 +2198,17 @@ export type ExtCrossUserUnset = {
   bio?: true;
 };
 
-export type ExtCrossUserSelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'updatedAt' | 'email' | 'username' | 'displayName' | 'bio', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'updatedAt' | 'email' | 'username' | 'displayName' | 'bio', boolean>
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'email' | 'username' | 'displayName' | 'bio', boolean>
-    >)
-  | ({ email: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'username' | 'displayName' | 'bio', boolean>
-    >)
-  | ({ username: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'displayName' | 'bio', boolean>
-    >)
-  | ({ displayName: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'username' | 'bio', boolean>
-    >)
-  | ({ bio: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'username' | 'displayName', boolean>
-    >);
+export interface ExtCrossUserSelectFields {
+  id?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  email?: boolean;
+  username?: boolean;
+  displayName?: boolean;
+  bio?: boolean;
+}
+
+export type ExtCrossUserSelect = AtLeastOne<ExtCrossUserSelectFields>;
 
 export interface ExtCrossUserOrderBy {
   id?: 'asc' | 'desc';

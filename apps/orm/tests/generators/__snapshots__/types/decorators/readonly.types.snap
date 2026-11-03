@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ReadonlyTest,
   ReadonlyTestWhere,
@@ -110,10 +111,13 @@ export type ReadonlyRecordUpdateInput = ReadonlyRecordUpdate;
 
 export type ReadonlyRecordUnset = {};
 
-export type ReadonlyRecordSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'authorId', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface ReadonlyRecordSelectFields {
+  id?: boolean;
+  name?: boolean;
+  authorId?: boolean;
+}
+
+export type ReadonlyRecordSelect = AtLeastOne<ReadonlyRecordSelectFields>;
 
 export interface ReadonlyRecordOrderBy {
   id?: 'asc' | 'desc';
@@ -358,6 +362,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   ReadonlyAddress,
   ReadonlyAddressInput,
@@ -512,79 +517,18 @@ export type ReadonlyTestUnset = {
   meta?: true;
 };
 
-export type ReadonlyTestSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      code?: boolean;
-      score?: boolean;
-      tags?: boolean;
-      createdBy?: boolean;
-      address?: boolean | ReadonlyAddressSelect;
-      meta?: boolean | ReadonlyMetaSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      code?: boolean;
-      score?: boolean;
-      tags?: boolean;
-      createdBy?: boolean;
-      address?: boolean | ReadonlyAddressSelect;
-      meta?: boolean | ReadonlyMetaSelect;
-    })
-  | ({ code: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      score?: boolean;
-      tags?: boolean;
-      createdBy?: boolean;
-      address?: boolean | ReadonlyAddressSelect;
-      meta?: boolean | ReadonlyMetaSelect;
-    })
-  | ({ score: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      code?: boolean;
-      tags?: boolean;
-      createdBy?: boolean;
-      address?: boolean | ReadonlyAddressSelect;
-      meta?: boolean | ReadonlyMetaSelect;
-    })
-  | ({ tags: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      code?: boolean;
-      score?: boolean;
-      createdBy?: boolean;
-      address?: boolean | ReadonlyAddressSelect;
-      meta?: boolean | ReadonlyMetaSelect;
-    })
-  | ({ createdBy: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      code?: boolean;
-      score?: boolean;
-      tags?: boolean;
-      address?: boolean | ReadonlyAddressSelect;
-      meta?: boolean | ReadonlyMetaSelect;
-    })
-  | ({ address: boolean | ReadonlyAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      code?: boolean;
-      score?: boolean;
-      tags?: boolean;
-      createdBy?: boolean;
-      meta?: boolean | ReadonlyMetaSelect;
-    })
-  | ({ meta: boolean | ReadonlyMetaSelect } & {
-      id?: boolean;
-      name?: boolean;
-      code?: boolean;
-      score?: boolean;
-      tags?: boolean;
-      createdBy?: boolean;
-      address?: boolean | ReadonlyAddressSelect;
-    });
+export interface ReadonlyTestSelectFields {
+  id?: boolean;
+  name?: boolean;
+  code?: boolean;
+  score?: boolean;
+  tags?: boolean;
+  createdBy?: boolean;
+  address?: boolean | ReadonlyAddressSelect;
+  meta?: boolean | ReadonlyMetaSelect;
+}
+
+export type ReadonlyTestSelect = AtLeastOne<ReadonlyTestSelectFields>;
 
 export interface ReadonlyTestOrderBy {
   id?: 'asc' | 'desc';
@@ -762,6 +706,7 @@ export interface ReadonlyTestModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface ReadonlyAddress {
   street: string;
   city: string;
@@ -822,10 +767,13 @@ export interface ReadonlyAddressWhere {
   NOT?: ReadonlyAddressWhere;
 }
 
-export type ReadonlyAddressSelect =
-  | ({ street: boolean } & Partial<Record<'city' | 'zip', boolean>>)
-  | ({ city: boolean } & Partial<Record<'street' | 'zip', boolean>>)
-  | ({ zip: boolean } & Partial<Record<'street' | 'city', boolean>>);
+export interface ReadonlyAddressSelectFields {
+  street?: boolean;
+  city?: boolean;
+  zip?: boolean;
+}
+
+export type ReadonlyAddressSelect = AtLeastOne<ReadonlyAddressSelectFields>;
 
 export interface ReadonlyAddressOrderBy {
   street?: 'asc' | 'desc';
@@ -839,6 +787,7 @@ export interface ReadonlyAddressOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface ReadonlyMeta {
   label: string;
   payload: number;
@@ -883,9 +832,12 @@ export interface ReadonlyMetaWhere {
   NOT?: ReadonlyMetaWhere;
 }
 
-export type ReadonlyMetaSelect =
-  | ({ label: boolean } & Partial<Record<'payload', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'label', boolean>>);
+export interface ReadonlyMetaSelectFields {
+  label?: boolean;
+  payload?: boolean;
+}
+
+export type ReadonlyMetaSelect = AtLeastOne<ReadonlyMetaSelectFields>;
 
 export interface ReadonlyMetaOrderBy {
   label?: 'asc' | 'desc';

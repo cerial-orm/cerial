@@ -54,6 +54,9 @@ export const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniq
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';`;
 
+/** AtLeastOne import for a Select type of two or more fields */
+export const AT_LEAST_ONE_IMPORT = `import type { AtLeastOne } from '..';`;
+
 // ─── Import Resolvers ─────────────────────────────────────────────────────────
 
 /** Get related model names from a model's relation fields */

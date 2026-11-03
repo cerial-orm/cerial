@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   PurchaseOrder,
   PurchaseOrderWhere,
@@ -109,9 +110,12 @@ export type AgentUpdateInput = AgentUpdate & {
 
 export type AgentUnset = {};
 
-export type AgentSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface AgentSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type AgentSelect = AtLeastOne<AgentSelectFields>;
 
 export interface AgentOrderBy {
   id?: 'asc' | 'desc';
@@ -363,6 +367,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   PurchaseOrder,
   PurchaseOrderWhere,
@@ -451,9 +456,12 @@ export type CustomerUpdateInput = CustomerUpdate & {
 
 export type CustomerUnset = {};
 
-export type CustomerSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface CustomerSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type CustomerSelect = AtLeastOne<CustomerSelectFields>;
 
 export interface CustomerOrderBy {
   id?: 'asc' | 'desc';
@@ -707,6 +715,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   Customer,
   CustomerWhere,
@@ -841,11 +850,14 @@ export type PurchaseOrderUnset = {
   assigneeId?: true;
 };
 
-export type PurchaseOrderSelect =
-  | ({ id: boolean } & Partial<Record<'orderNumber' | 'customerId' | 'assigneeId', boolean>>)
-  | ({ orderNumber: boolean } & Partial<Record<'id' | 'customerId' | 'assigneeId', boolean>>)
-  | ({ customerId: boolean } & Partial<Record<'id' | 'orderNumber' | 'assigneeId', boolean>>)
-  | ({ assigneeId: boolean } & Partial<Record<'id' | 'orderNumber' | 'customerId', boolean>>);
+export interface PurchaseOrderSelectFields {
+  id?: boolean;
+  orderNumber?: boolean;
+  customerId?: boolean;
+  assigneeId?: boolean;
+}
+
+export type PurchaseOrderSelect = AtLeastOne<PurchaseOrderSelectFields>;
 
 export interface PurchaseOrderOrderBy {
   id?: 'asc' | 'desc';

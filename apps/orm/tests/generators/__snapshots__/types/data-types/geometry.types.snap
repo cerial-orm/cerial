@@ -42,6 +42,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface GeometryBasic {
   id: CerialId<string>;
   name: string;
@@ -191,34 +192,19 @@ export type GeometryBasicUnset = {
   optionalGeo?: true;
 };
 
-export type GeometryBasicSelect =
-  | ({ id: boolean } & Partial<
-      Record<'name' | 'location' | 'area' | 'shape' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<'id' | 'location' | 'area' | 'shape' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
-    >)
-  | ({ location: boolean } & Partial<
-      Record<'id' | 'name' | 'area' | 'shape' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
-    >)
-  | ({ area: boolean } & Partial<
-      Record<'id' | 'name' | 'location' | 'shape' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
-    >)
-  | ({ shape: boolean } & Partial<
-      Record<'id' | 'name' | 'location' | 'area' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
-    >)
-  | ({ route: boolean } & Partial<
-      Record<'id' | 'name' | 'location' | 'area' | 'shape' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
-    >)
-  | ({ multi: boolean } & Partial<
-      Record<'id' | 'name' | 'location' | 'area' | 'shape' | 'route' | 'optionalGeo' | 'geoArray', boolean>
-    >)
-  | ({ optionalGeo: boolean } & Partial<
-      Record<'id' | 'name' | 'location' | 'area' | 'shape' | 'route' | 'multi' | 'geoArray', boolean>
-    >)
-  | ({ geoArray: boolean } & Partial<
-      Record<'id' | 'name' | 'location' | 'area' | 'shape' | 'route' | 'multi' | 'optionalGeo', boolean>
-    >);
+export interface GeometryBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  location?: boolean;
+  area?: boolean;
+  shape?: boolean;
+  route?: boolean;
+  multi?: boolean;
+  optionalGeo?: boolean;
+  geoArray?: boolean;
+}
+
+export type GeometryBasicSelect = AtLeastOne<GeometryBasicSelectFields>;
 
 export interface GeometryBasicOrderBy {
   id?: 'asc' | 'desc';
@@ -427,6 +413,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface GeometryMulti {
   id: CerialId<string>;
   name: string;
@@ -530,13 +517,16 @@ export type GeometryMultiUpdateInput = GeometryMultiUpdate;
 
 export type GeometryMultiUnset = {};
 
-export type GeometryMultiSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'points' | 'lines' | 'polygons' | 'collection', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'points' | 'lines' | 'polygons' | 'collection', boolean>>)
-  | ({ points: boolean } & Partial<Record<'id' | 'name' | 'lines' | 'polygons' | 'collection', boolean>>)
-  | ({ lines: boolean } & Partial<Record<'id' | 'name' | 'points' | 'polygons' | 'collection', boolean>>)
-  | ({ polygons: boolean } & Partial<Record<'id' | 'name' | 'points' | 'lines' | 'collection', boolean>>)
-  | ({ collection: boolean } & Partial<Record<'id' | 'name' | 'points' | 'lines' | 'polygons', boolean>>);
+export interface GeometryMultiSelectFields {
+  id?: boolean;
+  name?: boolean;
+  points?: boolean;
+  lines?: boolean;
+  polygons?: boolean;
+  collection?: boolean;
+}
+
+export type GeometryMultiSelect = AtLeastOne<GeometryMultiSelectFields>;
 
 export interface GeometryMultiOrderBy {
   id?: 'asc' | 'desc';
@@ -725,6 +715,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { GeoInfo, GeoInfoInput, GeoInfoWhere, GeoInfoSelect, GeoInfoOrderBy } from '../objects/geoinfo';
 export interface GeometryWithObject {
   id: CerialId<string>;
@@ -794,10 +785,13 @@ export type GeometryWithObjectUnset = {
   };
 };
 
-export type GeometryWithObjectSelect =
-  | ({ id: boolean } & { name?: boolean; geo?: boolean | GeoInfoSelect })
-  | ({ name: boolean } & { id?: boolean; geo?: boolean | GeoInfoSelect })
-  | ({ geo: boolean | GeoInfoSelect } & Partial<Record<'id' | 'name', boolean>>);
+export interface GeometryWithObjectSelectFields {
+  id?: boolean;
+  name?: boolean;
+  geo?: boolean | GeoInfoSelect;
+}
+
+export type GeometryWithObjectSelect = AtLeastOne<GeometryWithObjectSelectFields>;
 
 export interface GeometryWithObjectOrderBy {
   id?: 'asc' | 'desc';
@@ -990,6 +984,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { GeoPair, GeoPairInput, GeoPairWhere, GeoPairUpdate, GeoPairUnset } from '../tuples/geopair';
 export interface GeometryWithTuple {
   id: CerialId<string>;
@@ -1057,10 +1052,13 @@ export type GeometryWithTupleUnset = {
   pair?: GeoPairUnset;
 };
 
-export type GeometryWithTupleSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'pair', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'pair', boolean>>)
-  | ({ pair: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface GeometryWithTupleSelectFields {
+  id?: boolean;
+  name?: boolean;
+  pair?: boolean;
+}
+
+export type GeometryWithTupleSelect = AtLeastOne<GeometryWithTupleSelectFields>;
 
 export interface GeometryWithTupleOrderBy {
   id?: 'asc' | 'desc';
@@ -1255,6 +1253,7 @@ import type {
   CerialMultiPolygonInput,
   CerialGeometryCollectionInput,
 } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface GeoInfo {
   position: CerialPoint;
   boundary?: CerialGeometry;
@@ -1292,9 +1291,12 @@ export interface GeoInfoWhere {
   NOT?: GeoInfoWhere;
 }
 
-export type GeoInfoSelect =
-  | ({ position: boolean } & Partial<Record<'boundary', boolean>>)
-  | ({ boundary: boolean } & Partial<Record<'position', boolean>>);
+export interface GeoInfoSelectFields {
+  position?: boolean;
+  boundary?: boolean;
+}
+
+export type GeoInfoSelect = AtLeastOne<GeoInfoSelectFields>;
 
 export interface GeoInfoOrderBy {}
 

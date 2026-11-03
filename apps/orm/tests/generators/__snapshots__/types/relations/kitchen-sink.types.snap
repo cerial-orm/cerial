@@ -21,6 +21,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface KitchenSinkBadge {
   id: CerialId<string>;
   name: string;
@@ -83,9 +84,12 @@ export type KitchenSinkBadgeUpdateInput = KitchenSinkBadgeUpdate;
 
 export type KitchenSinkBadgeUnset = {};
 
-export type KitchenSinkBadgeSelect =
-  | ({ id: boolean } & Partial<Record<'name', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+export interface KitchenSinkBadgeSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type KitchenSinkBadgeSelect = AtLeastOne<KitchenSinkBadgeSelectFields>;
 
 export interface KitchenSinkBadgeOrderBy {
   id?: 'asc' | 'desc';
@@ -277,6 +281,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   KitchenSinkUser,
   KitchenSinkUserWhere,
@@ -369,10 +374,13 @@ export type KitchenSinkPostUpdateInput =
 
 export type KitchenSinkPostUnset = {};
 
-export type KitchenSinkPostSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'authorId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title', boolean>>);
+export interface KitchenSinkPostSelectFields {
+  id?: boolean;
+  title?: boolean;
+  authorId?: boolean;
+}
+
+export type KitchenSinkPostSelect = AtLeastOne<KitchenSinkPostSelectFields>;
 
 export interface KitchenSinkPostOrderBy {
   id?: 'asc' | 'desc';
@@ -629,6 +637,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   KitchenSinkUser,
   KitchenSinkUserWhere,
@@ -731,10 +740,13 @@ export type KitchenSinkProfileUnset = {
   bio?: true;
 };
 
-export type KitchenSinkProfileSelect =
-  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
-  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+export interface KitchenSinkProfileSelectFields {
+  id?: boolean;
+  bio?: boolean;
+  userId?: boolean;
+}
+
+export type KitchenSinkProfileSelect = AtLeastOne<KitchenSinkProfileSelectFields>;
 
 export interface KitchenSinkProfileOrderBy {
   id?: 'asc' | 'desc';
@@ -991,6 +1003,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   KitchenSinkUser,
   KitchenSinkUserWhere,
@@ -1092,10 +1105,13 @@ export type KitchenSinkSettingsUnset = {
   userId?: true;
 };
 
-export type KitchenSinkSettingsSelect =
-  | ({ id: boolean } & Partial<Record<'theme' | 'userId', boolean>>)
-  | ({ theme: boolean } & Partial<Record<'id' | 'userId', boolean>>)
-  | ({ userId: boolean } & Partial<Record<'id' | 'theme', boolean>>);
+export interface KitchenSinkSettingsSelectFields {
+  id?: boolean;
+  theme?: boolean;
+  userId?: boolean;
+}
+
+export type KitchenSinkSettingsSelect = AtLeastOne<KitchenSinkSettingsSelectFields>;
 
 export interface KitchenSinkSettingsOrderBy {
   id?: 'asc' | 'desc';
@@ -1353,6 +1369,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   KitchenSinkUser,
   KitchenSinkUserWhere,
@@ -1462,10 +1479,13 @@ export type KitchenSinkTagUpdateInput =
 
 export type KitchenSinkTagUnset = {};
 
-export type KitchenSinkTagSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'userIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'userIds', boolean>>)
-  | ({ userIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface KitchenSinkTagSelectFields {
+  id?: boolean;
+  name?: boolean;
+  userIds?: boolean;
+}
+
+export type KitchenSinkTagSelect = AtLeastOne<KitchenSinkTagSelectFields>;
 
 export interface KitchenSinkTagOrderBy {
   id?: 'asc' | 'desc';
@@ -1724,6 +1744,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   KitchenSinkProfile,
   KitchenSinkProfileWhere,
@@ -1974,13 +1995,16 @@ export type KitchenSinkUserUnset = {
   settingsId?: true;
 };
 
-export type KitchenSinkUserSelect =
-  | ({ id: boolean } & Partial<Record<'email' | 'name' | 'tagIds' | 'settingsId' | 'badgeIds', boolean>>)
-  | ({ email: boolean } & Partial<Record<'id' | 'name' | 'tagIds' | 'settingsId' | 'badgeIds', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'email' | 'tagIds' | 'settingsId' | 'badgeIds', boolean>>)
-  | ({ tagIds: boolean } & Partial<Record<'id' | 'email' | 'name' | 'settingsId' | 'badgeIds', boolean>>)
-  | ({ settingsId: boolean } & Partial<Record<'id' | 'email' | 'name' | 'tagIds' | 'badgeIds', boolean>>)
-  | ({ badgeIds: boolean } & Partial<Record<'id' | 'email' | 'name' | 'tagIds' | 'settingsId', boolean>>);
+export interface KitchenSinkUserSelectFields {
+  id?: boolean;
+  email?: boolean;
+  name?: boolean;
+  tagIds?: boolean;
+  settingsId?: boolean;
+  badgeIds?: boolean;
+}
+
+export type KitchenSinkUserSelect = AtLeastOne<KitchenSinkUserSelectFields>;
 
 export interface KitchenSinkUserOrderBy {
   id?: 'asc' | 'desc';

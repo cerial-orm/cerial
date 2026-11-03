@@ -24,6 +24,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface DecimalBasic {
   id: CerialId<string>;
   name: string;
@@ -160,13 +161,16 @@ export type DecimalBasicUnset = {
   discount?: true;
 };
 
-export type DecimalBasicSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'price' | 'discount' | 'tax' | 'amounts', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'price' | 'discount' | 'tax' | 'amounts', boolean>>)
-  | ({ price: boolean } & Partial<Record<'id' | 'name' | 'discount' | 'tax' | 'amounts', boolean>>)
-  | ({ discount: boolean } & Partial<Record<'id' | 'name' | 'price' | 'tax' | 'amounts', boolean>>)
-  | ({ tax: boolean } & Partial<Record<'id' | 'name' | 'price' | 'discount' | 'amounts', boolean>>)
-  | ({ amounts: boolean } & Partial<Record<'id' | 'name' | 'price' | 'discount' | 'tax', boolean>>);
+export interface DecimalBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  price?: boolean;
+  discount?: boolean;
+  tax?: boolean;
+  amounts?: boolean;
+}
+
+export type DecimalBasicSelect = AtLeastOne<DecimalBasicSelectFields>;
 
 export interface DecimalBasicOrderBy {
   id?: 'asc' | 'desc';
@@ -362,6 +366,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface DecimalDecorated {
   id: CerialId<string>;
   name: string;
@@ -461,11 +466,14 @@ export type DecimalDecoratedUnset = {
   alwaysPrice?: true;
 };
 
-export type DecimalDecoratedSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'defaultPrice' | 'alwaysPrice', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'defaultPrice' | 'alwaysPrice', boolean>>)
-  | ({ defaultPrice: boolean } & Partial<Record<'id' | 'name' | 'alwaysPrice', boolean>>)
-  | ({ alwaysPrice: boolean } & Partial<Record<'id' | 'name' | 'defaultPrice', boolean>>);
+export interface DecimalDecoratedSelectFields {
+  id?: boolean;
+  name?: boolean;
+  defaultPrice?: boolean;
+  alwaysPrice?: boolean;
+}
+
+export type DecimalDecoratedSelect = AtLeastOne<DecimalDecoratedSelectFields>;
 
 export interface DecimalDecoratedOrderBy {
   id?: 'asc' | 'desc';
@@ -659,6 +667,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DecimalInfo,
   DecimalInfoInput,
@@ -734,10 +743,13 @@ export type DecimalWithObjectUnset = {
   };
 };
 
-export type DecimalWithObjectSelect =
-  | ({ id: boolean } & { name?: boolean; pricing?: boolean | DecimalInfoSelect })
-  | ({ name: boolean } & { id?: boolean; pricing?: boolean | DecimalInfoSelect })
-  | ({ pricing: boolean | DecimalInfoSelect } & Partial<Record<'id' | 'name', boolean>>);
+export interface DecimalWithObjectSelectFields {
+  id?: boolean;
+  name?: boolean;
+  pricing?: boolean | DecimalInfoSelect;
+}
+
+export type DecimalWithObjectSelect = AtLeastOne<DecimalWithObjectSelectFields>;
 
 export interface DecimalWithObjectOrderBy {
   id?: 'asc' | 'desc';
@@ -930,6 +942,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   DecimalPair,
   DecimalPairInput,
@@ -1003,10 +1016,13 @@ export type DecimalWithTupleUnset = {
   pair?: DecimalPairUnset;
 };
 
-export type DecimalWithTupleSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'pair', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'pair', boolean>>)
-  | ({ pair: boolean } & Partial<Record<'id' | 'name', boolean>>);
+export interface DecimalWithTupleSelectFields {
+  id?: boolean;
+  name?: boolean;
+  pair?: boolean;
+}
+
+export type DecimalWithTupleSelect = AtLeastOne<DecimalWithTupleSelectFields>;
 
 export interface DecimalWithTupleOrderBy {
   id?: 'asc' | 'desc';
@@ -1183,6 +1199,7 @@ export interface DecimalWithTupleModel {
 
 import { CerialDecimal } from 'cerial';
 import type { CerialDecimalInput } from 'cerial';
+import type { AtLeastOne } from '..';
 export interface DecimalInfo {
   amount: CerialDecimal;
   fee?: CerialDecimal;
@@ -1231,9 +1248,12 @@ export interface DecimalInfoWhere {
   NOT?: DecimalInfoWhere;
 }
 
-export type DecimalInfoSelect =
-  | ({ amount: boolean } & Partial<Record<'fee', boolean>>)
-  | ({ fee: boolean } & Partial<Record<'amount', boolean>>);
+export interface DecimalInfoSelectFields {
+  amount?: boolean;
+  fee?: boolean;
+}
+
+export type DecimalInfoSelect = AtLeastOne<DecimalInfoSelectFields>;
 
 export interface DecimalInfoOrderBy {
   amount?: 'asc' | 'desc';

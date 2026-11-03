@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   TimestampInfo,
   TimestampInfoInput,
@@ -155,45 +156,16 @@ export type TimestampTestUnset = {
       };
 };
 
-export type TimestampTestSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      createdAt?: boolean;
-      updatedAt?: boolean;
-      accessedAt?: boolean;
-      meta?: boolean | TimestampInfoSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      createdAt?: boolean;
-      updatedAt?: boolean;
-      accessedAt?: boolean;
-      meta?: boolean | TimestampInfoSelect;
-    })
-  | ({ createdAt: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      updatedAt?: boolean;
-      accessedAt?: boolean;
-      meta?: boolean | TimestampInfoSelect;
-    })
-  | ({ updatedAt: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      createdAt?: boolean;
-      accessedAt?: boolean;
-      meta?: boolean | TimestampInfoSelect;
-    })
-  | ({ accessedAt: boolean } & {
-      id?: boolean;
-      name?: boolean;
-      createdAt?: boolean;
-      updatedAt?: boolean;
-      meta?: boolean | TimestampInfoSelect;
-    })
-  | ({ meta: boolean | TimestampInfoSelect } & Partial<
-      Record<'id' | 'name' | 'createdAt' | 'updatedAt' | 'accessedAt', boolean>
-    >);
+export interface TimestampTestSelectFields {
+  id?: boolean;
+  name?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  accessedAt?: boolean;
+  meta?: boolean | TimestampInfoSelect;
+}
+
+export type TimestampTestSelect = AtLeastOne<TimestampTestSelectFields>;
 
 export interface TimestampTestOrderBy {
   id?: 'asc' | 'desc';
@@ -369,6 +341,7 @@ export interface TimestampTestModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface TimestampInfo {
   label: string;
   createdAt?: Date;
@@ -440,10 +413,13 @@ export interface TimestampInfoWhere {
   NOT?: TimestampInfoWhere;
 }
 
-export type TimestampInfoSelect =
-  | ({ label: boolean } & Partial<Record<'createdAt' | 'updatedAt', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'label' | 'updatedAt', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'label' | 'createdAt', boolean>>);
+export interface TimestampInfoSelectFields {
+  label?: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
+}
+
+export type TimestampInfoSelect = AtLeastOne<TimestampInfoSelectFields>;
 
 export interface TimestampInfoOrderBy {
   label?: 'asc' | 'desc';

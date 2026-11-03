@@ -7,6 +7,11 @@
 
 /** Select/field resolution utility types */
 export const SELECT_UTILITY_TYPES = `
+/** A select object with at least one key: each key in turn required, the others optional. Required<T> keeps the
+ * per-key value types free of the \`undefined\` an optional property would add. */
+export type AtLeastOne<T, R extends Required<T> = Required<T>> = {
+  [K in keyof R]: { [P in K]: R[P] } & { [P in Exclude<keyof R, K>]?: R[P] };
+}[keyof R];
 /** Check if a type is a tuple (fixed-length array) rather than a dynamic array */
 export type IsTuple<T> = T extends readonly any[]
   ? number extends T['length'] ? false : true

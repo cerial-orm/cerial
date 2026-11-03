@@ -49,25 +49,14 @@ export function generateObjectSelectType(object: ObjectMetadata): string {
     return `export type ${object.name}Select = { ${f.name}: ${selectType}; };`;
   }
 
-  // Generate union where each variant requires at least one field
-  const variants = fields.map((field) => {
-    const selectType = getFieldSelectType(field);
-    const otherFields = fields.filter((f) => f.name !== field.name);
-    const hasNonBooleanOthers = otherFields.some((f) => getFieldSelectType(f) !== 'boolean');
+  // The fields are declared once; AtLeastOne derives the union of "this key required, the rest optional" lazily
+  const fieldDefs = fields.map((f) => `  ${f.name}?: ${getFieldSelectType(f)};`).join('\n');
 
-    if (hasNonBooleanOthers) {
-      const otherFieldDefs = otherFields.map((f) => `${f.name}?: ${getFieldSelectType(f)}`).join('; ');
+  return `export interface ${object.name}SelectFields {
+${fieldDefs}
+}
 
-      return `  | { ${field.name}: ${selectType} } & { ${otherFieldDefs} }`;
-    }
-
-    const otherKeys = otherFields.map((f) => `'${f.name}'`).join(' | ');
-
-    return `  | { ${field.name}: ${selectType} } & Partial<Record<${otherKeys}, boolean>>`;
-  });
-
-  return `export type ${object.name}Select =
-${variants.join('\n')};`;
+export type ${object.name}Select = AtLeastOne<${object.name}SelectFields>;`;
 }
 
 /** Generate OrderBy type for an object definition */

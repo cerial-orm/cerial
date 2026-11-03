@@ -22,6 +22,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Status, StatusWhere } from '../literals/status';
 import type { Priority, PriorityWhere } from '../literals/priority';
 import type { Mixed, MixedWhere } from '../literals/mixed';
@@ -114,31 +115,18 @@ export type LiteralBasicUnset = {
   nullStatus?: true;
 };
 
-export type LiteralBasicSelect =
-  | ({ id: boolean } & Partial<
-      Record<'name' | 'status' | 'priority' | 'optStatus' | 'nullStatus' | 'statuses' | 'mixed', boolean>
-    >)
-  | ({ name: boolean } & Partial<
-      Record<'id' | 'status' | 'priority' | 'optStatus' | 'nullStatus' | 'statuses' | 'mixed', boolean>
-    >)
-  | ({ status: boolean } & Partial<
-      Record<'id' | 'name' | 'priority' | 'optStatus' | 'nullStatus' | 'statuses' | 'mixed', boolean>
-    >)
-  | ({ priority: boolean } & Partial<
-      Record<'id' | 'name' | 'status' | 'optStatus' | 'nullStatus' | 'statuses' | 'mixed', boolean>
-    >)
-  | ({ optStatus: boolean } & Partial<
-      Record<'id' | 'name' | 'status' | 'priority' | 'nullStatus' | 'statuses' | 'mixed', boolean>
-    >)
-  | ({ nullStatus: boolean } & Partial<
-      Record<'id' | 'name' | 'status' | 'priority' | 'optStatus' | 'statuses' | 'mixed', boolean>
-    >)
-  | ({ statuses: boolean } & Partial<
-      Record<'id' | 'name' | 'status' | 'priority' | 'optStatus' | 'nullStatus' | 'mixed', boolean>
-    >)
-  | ({ mixed: boolean } & Partial<
-      Record<'id' | 'name' | 'status' | 'priority' | 'optStatus' | 'nullStatus' | 'statuses', boolean>
-    >);
+export interface LiteralBasicSelectFields {
+  id?: boolean;
+  name?: boolean;
+  status?: boolean;
+  priority?: boolean;
+  optStatus?: boolean;
+  nullStatus?: boolean;
+  statuses?: boolean;
+  mixed?: boolean;
+}
+
+export type LiteralBasicSelect = AtLeastOne<LiteralBasicSelectFields>;
 
 export interface LiteralBasicOrderBy {
   id?: 'asc' | 'desc';
@@ -327,6 +315,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Broad, BroadWhere } from '../literals/broad';
 export interface LiteralBroad {
   id: CerialId<string>;
@@ -385,10 +374,13 @@ export type LiteralBroadUpdateInput = LiteralBroadUpdate;
 
 export type LiteralBroadUnset = {};
 
-export type LiteralBroadSelect =
-  | ({ id: boolean } & Partial<Record<'payload' | 'values', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'id' | 'values', boolean>>)
-  | ({ values: boolean } & Partial<Record<'id' | 'payload', boolean>>);
+export interface LiteralBroadSelectFields {
+  id?: boolean;
+  payload?: boolean;
+  values?: boolean;
+}
+
+export type LiteralBroadSelect = AtLeastOne<LiteralBroadSelectFields>;
 
 export interface LiteralBroadOrderBy {
   id?: 'asc' | 'desc';
@@ -576,6 +568,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Status, StatusWhere } from '../literals/status';
 import type { Priority, PriorityWhere } from '../literals/priority';
 export interface LiteralDefaults {
@@ -643,11 +636,14 @@ export type LiteralDefaultsUpdateInput = LiteralDefaultsUpdate;
 
 export type LiteralDefaultsUnset = {};
 
-export type LiteralDefaultsSelect =
-  | ({ id: boolean } & Partial<Record<'label' | 'status' | 'priority', boolean>>)
-  | ({ label: boolean } & Partial<Record<'id' | 'status' | 'priority', boolean>>)
-  | ({ status: boolean } & Partial<Record<'id' | 'label' | 'priority', boolean>>)
-  | ({ priority: boolean } & Partial<Record<'id' | 'label' | 'status', boolean>>);
+export interface LiteralDefaultsSelectFields {
+  id?: boolean;
+  label?: boolean;
+  status?: boolean;
+  priority?: boolean;
+}
+
+export type LiteralDefaultsSelect = AtLeastOne<LiteralDefaultsSelectFields>;
 
 export interface LiteralDefaultsOrderBy {
   id?: 'asc' | 'desc';
@@ -839,6 +835,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { ExtendedStatus, ExtendedStatusWhere } from '../literals/extendedstatus';
 export interface LiteralExtended {
   id: CerialId<string>;
@@ -887,9 +884,12 @@ export type LiteralExtendedUpdateInput = LiteralExtendedUpdate;
 
 export type LiteralExtendedUnset = {};
 
-export type LiteralExtendedSelect =
-  | ({ id: boolean } & Partial<Record<'status', boolean>>)
-  | ({ status: boolean } & Partial<Record<'id', boolean>>);
+export interface LiteralExtendedSelectFields {
+  id?: boolean;
+  status?: boolean;
+}
+
+export type LiteralExtendedSelect = AtLeastOne<LiteralExtendedSelectFields>;
 
 export interface LiteralExtendedOrderBy {
   id?: 'asc' | 'desc';
@@ -1080,6 +1080,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Ratio, RatioWhere } from '../literals/ratio';
 import type { FloatOrText, FloatOrTextWhere } from '../literals/floatortext';
 import type { DateOrFlag, DateOrFlagWhere } from '../literals/dateorflag';
@@ -1136,11 +1137,14 @@ export type LiteralNumberKindsUpdateInput = LiteralNumberKindsUpdate;
 
 export type LiteralNumberKindsUnset = {};
 
-export type LiteralNumberKindsSelect =
-  | ({ id: boolean } & Partial<Record<'ratio' | 'amount' | 'moment', boolean>>)
-  | ({ ratio: boolean } & Partial<Record<'id' | 'amount' | 'moment', boolean>>)
-  | ({ amount: boolean } & Partial<Record<'id' | 'ratio' | 'moment', boolean>>)
-  | ({ moment: boolean } & Partial<Record<'id' | 'ratio' | 'amount', boolean>>);
+export interface LiteralNumberKindsSelectFields {
+  id?: boolean;
+  ratio?: boolean;
+  amount?: boolean;
+  moment?: boolean;
+}
+
+export type LiteralNumberKindsSelect = AtLeastOne<LiteralNumberKindsSelectFields>;
 
 export interface LiteralNumberKindsOrderBy {
   id?: 'asc' | 'desc';
@@ -1332,6 +1336,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { NumericOnly, NumericOnlyWhere } from '../literals/numericonly';
 export interface LiteralNumeric {
   id: CerialId<string>;
@@ -1387,10 +1392,13 @@ export type LiteralNumericUnset = {
   optRank?: true;
 };
 
-export type LiteralNumericSelect =
-  | ({ id: boolean } & Partial<Record<'rank' | 'optRank', boolean>>)
-  | ({ rank: boolean } & Partial<Record<'id' | 'optRank', boolean>>)
-  | ({ optRank: boolean } & Partial<Record<'id' | 'rank', boolean>>);
+export interface LiteralNumericSelectFields {
+  id?: boolean;
+  rank?: boolean;
+  optRank?: boolean;
+}
+
+export type LiteralNumericSelect = AtLeastOne<LiteralNumericSelectFields>;
 
 export interface LiteralNumericOrderBy {
   id?: 'asc' | 'desc';
@@ -1578,6 +1586,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   LiteralTagged,
   LiteralTaggedInput,
@@ -1634,9 +1643,12 @@ export type LiteralObjectArrayUpdateInput = LiteralObjectArrayUpdate;
 
 export type LiteralObjectArrayUnset = {};
 
-export type LiteralObjectArraySelect =
-  | ({ id: boolean } & { tagged?: boolean | LiteralTaggedSelect })
-  | ({ tagged: boolean | LiteralTaggedSelect } & Partial<Record<'id', boolean>>);
+export interface LiteralObjectArraySelectFields {
+  id?: boolean;
+  tagged?: boolean | LiteralTaggedSelect;
+}
+
+export type LiteralObjectArraySelect = AtLeastOne<LiteralObjectArraySelectFields>;
 
 export interface LiteralObjectArrayOrderBy {
   id?: 'asc' | 'desc';
@@ -1828,6 +1840,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { Status, StatusWhere } from '../literals/status';
 export interface LiteralUnique {
   id: CerialId<string>;
@@ -1879,9 +1892,12 @@ export type LiteralUniqueUpdateInput = LiteralUniqueUpdate;
 
 export type LiteralUniqueUnset = {};
 
-export type LiteralUniqueSelect =
-  | ({ id: boolean } & Partial<Record<'status', boolean>>)
-  | ({ status: boolean } & Partial<Record<'id', boolean>>);
+export interface LiteralUniqueSelectFields {
+  id?: boolean;
+  status?: boolean;
+}
+
+export type LiteralUniqueSelect = AtLeastOne<LiteralUniqueSelectFields>;
 
 export interface LiteralUniqueOrderBy {
   id?: 'asc' | 'desc';
@@ -2070,6 +2086,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { WithBoth, WithBothWhere, WithBothInput } from '../literals/withboth';
 export interface LiteralWithBoth {
   id: CerialId<string>;
@@ -2125,10 +2142,13 @@ export type LiteralWithBothUnset = {
   optData?: true;
 };
 
-export type LiteralWithBothSelect =
-  | ({ id: boolean } & Partial<Record<'data' | 'optData', boolean>>)
-  | ({ data: boolean } & Partial<Record<'id' | 'optData', boolean>>)
-  | ({ optData: boolean } & Partial<Record<'id' | 'data', boolean>>);
+export interface LiteralWithBothSelectFields {
+  id?: boolean;
+  data?: boolean;
+  optData?: boolean;
+}
+
+export type LiteralWithBothSelect = AtLeastOne<LiteralWithBothSelectFields>;
 
 export interface LiteralWithBothOrderBy {
   id?: 'asc' | 'desc';
@@ -2320,6 +2340,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type {
   LiteralAddress,
   LiteralAddressInput,
@@ -2397,27 +2418,14 @@ export type LiteralWithObjectUnset = {
   optAddress?: true;
 };
 
-export type LiteralWithObjectSelect =
-  | ({ id: boolean } & {
-      name?: boolean;
-      address?: boolean | LiteralAddressSelect;
-      optAddress?: boolean | LiteralAddressSelect;
-    })
-  | ({ name: boolean } & {
-      id?: boolean;
-      address?: boolean | LiteralAddressSelect;
-      optAddress?: boolean | LiteralAddressSelect;
-    })
-  | ({ address: boolean | LiteralAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      optAddress?: boolean | LiteralAddressSelect;
-    })
-  | ({ optAddress: boolean | LiteralAddressSelect } & {
-      id?: boolean;
-      name?: boolean;
-      address?: boolean | LiteralAddressSelect;
-    });
+export interface LiteralWithObjectSelectFields {
+  id?: boolean;
+  name?: boolean;
+  address?: boolean | LiteralAddressSelect;
+  optAddress?: boolean | LiteralAddressSelect;
+}
+
+export type LiteralWithObjectSelect = AtLeastOne<LiteralWithObjectSelectFields>;
 
 export interface LiteralWithObjectOrderBy {
   id?: 'asc' | 'desc';
@@ -2612,6 +2620,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { WithObjectOpt, WithObjectOptWhere, WithObjectOptInput } from '../literals/withobjectopt';
 export interface LiteralWithObjectOpt {
   id: CerialId<string>;
@@ -2667,10 +2676,13 @@ export type LiteralWithObjectOptUnset = {
   optPayload?: true;
 };
 
-export type LiteralWithObjectOptSelect =
-  | ({ id: boolean } & Partial<Record<'payload' | 'optPayload', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'id' | 'optPayload', boolean>>)
-  | ({ optPayload: boolean } & Partial<Record<'id' | 'payload', boolean>>);
+export interface LiteralWithObjectOptSelectFields {
+  id?: boolean;
+  payload?: boolean;
+  optPayload?: boolean;
+}
+
+export type LiteralWithObjectOptSelect = AtLeastOne<LiteralWithObjectOptSelectFields>;
 
 export interface LiteralWithObjectOptOrderBy {
   id?: 'asc' | 'desc';
@@ -2864,6 +2876,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { WithObject, WithObjectWhere, WithObjectInput } from '../literals/withobject';
 export interface LiteralWithObjectVariant {
   id: CerialId<string>;
@@ -2939,11 +2952,14 @@ export type LiteralWithObjectVariantUnset = {
   optPayload?: true;
 };
 
-export type LiteralWithObjectVariantSelect =
-  | ({ id: boolean } & Partial<Record<'payload' | 'optPayload' | 'payloads', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'id' | 'optPayload' | 'payloads', boolean>>)
-  | ({ optPayload: boolean } & Partial<Record<'id' | 'payload' | 'payloads', boolean>>)
-  | ({ payloads: boolean } & Partial<Record<'id' | 'payload' | 'optPayload', boolean>>);
+export interface LiteralWithObjectVariantSelectFields {
+  id?: boolean;
+  payload?: boolean;
+  optPayload?: boolean;
+  payloads?: boolean;
+}
+
+export type LiteralWithObjectVariantSelect = AtLeastOne<LiteralWithObjectVariantSelectFields>;
 
 export interface LiteralWithObjectVariantOrderBy {
   id?: 'asc' | 'desc';
@@ -3137,6 +3153,7 @@ import type {
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
 import type { WithTuple, WithTupleWhere, WithTupleInput } from '../literals/withtuple';
 export interface LiteralWithTuple {
   id: CerialId<string>;
@@ -3201,11 +3218,14 @@ export type LiteralWithTupleUnset = {
   optPayload?: true;
 };
 
-export type LiteralWithTupleSelect =
-  | ({ id: boolean } & Partial<Record<'payload' | 'optPayload' | 'payloads', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'id' | 'optPayload' | 'payloads', boolean>>)
-  | ({ optPayload: boolean } & Partial<Record<'id' | 'payload' | 'payloads', boolean>>)
-  | ({ payloads: boolean } & Partial<Record<'id' | 'payload' | 'optPayload', boolean>>);
+export interface LiteralWithTupleSelectFields {
+  id?: boolean;
+  payload?: boolean;
+  optPayload?: boolean;
+  payloads?: boolean;
+}
+
+export type LiteralWithTupleSelect = AtLeastOne<LiteralWithTupleSelectFields>;
 
 export interface LiteralWithTupleOrderBy {
   id?: 'asc' | 'desc';
@@ -3379,6 +3399,7 @@ export interface LiteralWithTupleModel {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { Status, StatusWhere } from '../literals/status';
 export interface LiteralAddress {
   city: string;
@@ -3410,9 +3431,12 @@ export interface LiteralAddressWhere {
   NOT?: LiteralAddressWhere;
 }
 
-export type LiteralAddressSelect =
-  | ({ city: boolean } & Partial<Record<'status', boolean>>)
-  | ({ status: boolean } & Partial<Record<'city', boolean>>);
+export interface LiteralAddressSelectFields {
+  city?: boolean;
+  status?: boolean;
+}
+
+export type LiteralAddressSelect = AtLeastOne<LiteralAddressSelectFields>;
 
 export interface LiteralAddressOrderBy {
   city?: 'asc' | 'desc';
@@ -3424,6 +3448,7 @@ export interface LiteralAddressOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface LiteralPoint {
   label: string;
   payload: number;
@@ -3468,9 +3493,12 @@ export interface LiteralPointWhere {
   NOT?: LiteralPointWhere;
 }
 
-export type LiteralPointSelect =
-  | ({ label: boolean } & Partial<Record<'payload', boolean>>)
-  | ({ payload: boolean } & Partial<Record<'label', boolean>>);
+export interface LiteralPointSelectFields {
+  label?: boolean;
+  payload?: boolean;
+}
+
+export type LiteralPointSelect = AtLeastOne<LiteralPointSelectFields>;
 
 export interface LiteralPointOrderBy {
   label?: 'asc' | 'desc';
@@ -3483,6 +3511,7 @@ export interface LiteralPointOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 export interface LiteralPointOpt {
   label: string;
   count?: number;
@@ -3549,10 +3578,13 @@ export interface LiteralPointOptWhere {
   NOT?: LiteralPointOptWhere;
 }
 
-export type LiteralPointOptSelect =
-  | ({ label: boolean } & Partial<Record<'count' | 'tag', boolean>>)
-  | ({ count: boolean } & Partial<Record<'label' | 'tag', boolean>>)
-  | ({ tag: boolean } & Partial<Record<'label' | 'count', boolean>>);
+export interface LiteralPointOptSelectFields {
+  label?: boolean;
+  count?: boolean;
+  tag?: boolean;
+}
+
+export type LiteralPointOptSelect = AtLeastOne<LiteralPointOptSelectFields>;
 
 export interface LiteralPointOptOrderBy {
   label?: 'asc' | 'desc';
@@ -3566,6 +3598,7 @@ export interface LiteralPointOptOrderBy {
  * Do not edit manually
  */
 
+import type { AtLeastOne } from '..';
 import type { Status, StatusWhere } from '../literals/status';
 export interface LiteralTagged {
   states: Status[];
@@ -3597,9 +3630,12 @@ export interface LiteralTaggedWhere {
   NOT?: LiteralTaggedWhere;
 }
 
-export type LiteralTaggedSelect =
-  | ({ states: boolean } & Partial<Record<'label', boolean>>)
-  | ({ label: boolean } & Partial<Record<'states', boolean>>);
+export interface LiteralTaggedSelectFields {
+  states?: boolean;
+  label?: boolean;
+}
+
+export type LiteralTaggedSelect = AtLeastOne<LiteralTaggedSelectFields>;
 
 export interface LiteralTaggedOrderBy {
   label?: 'asc' | 'desc';
