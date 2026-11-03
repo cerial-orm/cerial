@@ -238,7 +238,7 @@ async function generate(schemaDir: string, genDir: string): Promise<number> {
   return elapsed;
 }
 
-interface CaseInput {
+export interface CaseInput {
   readonly name: string;
   readonly size: number | null;
   readonly schemaDir: string;
@@ -267,7 +267,12 @@ function writeTsconfig(caseDir: string, skipLibCheck: boolean): void {
 }
 
 /** Generates the tree `runs` times for the codegen median, then compiles it `runs` times per compiler */
-async function measureCase(root: string, input: CaseInput, options: BenchOptions, index: number): Promise<CaseRow[]> {
+export async function measureCase(
+  root: string,
+  input: CaseInput,
+  options: BenchOptions,
+  index: number,
+): Promise<CaseRow[]> {
   const caseDir = join(root, `case-${index}`);
   const genDir = join(caseDir, 'gen');
   mkdirSync(caseDir, { recursive: true });
