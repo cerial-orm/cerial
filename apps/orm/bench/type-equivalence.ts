@@ -255,6 +255,8 @@ function candidates(param: TypeParam, scope: Scope, chosen: ReadonlyMap<string, 
   const fallback = param.fallback === null ? null : substitute(param.fallback, chosen);
   const out = new Set<string>();
   if (fallback !== null) out.add(fallback);
+  // A recursion depth counter: its constraint as an argument makes the length a plain number, so the cap is never reached
+  if (fallback !== null && constraint === 'unknown[]') return [fallback];
 
   if (constraint === null) {
     if (!scope.selective) for (const sample of UNCONSTRAINED_POOL) out.add(sample);

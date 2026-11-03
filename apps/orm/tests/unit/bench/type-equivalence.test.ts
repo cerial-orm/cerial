@@ -216,6 +216,24 @@ describe('compareTrees', () => {
   }, 60_000);
 });
 
+withDist('depth counters', () => {
+  test('a recursive helper with a depth counter compares against itself, the counter keeping its default', async () => {
+    const files = {
+      ...BASE,
+      'index.ts': `${INDEX}export type Walk<S, D extends unknown[] = []> =
+  | keyof S
+  | ([...D, 0]['length'] extends 3
+      ? never
+      : { [K in Objects<S>]: Walk<S[K], [...D, 0]> }[Objects<S>]);
+export type Objects<S> = { [K in keyof S]-?: S[K] extends object ? K : never }[keyof S];\n`,
+    };
+    const report = await compareTrees(writeTree(files), writeTree(files), { compilers: ['7'] });
+
+    expect(report.failures).toEqual([]);
+    expect(report.ok).toBe(true);
+  }, 60_000);
+});
+
 withDist('Flat fallback', () => {
   test('a form equal but not identical passes through Flat and is listed', async () => {
     const before = { ...BASE, 'index.ts': `${INDEX}export type Pair = { a: string } & { b: number };\n` };
