@@ -373,6 +373,14 @@ development branch and is not available on npm.
 
 ### Fixed
 
+- `cerial generate --watch` now honours folder-level configs when there is no
+  root config. Before, a watch run without a root config ignored them.
+
+- Regeneration in watch mode now applies `.cerialignore`, the config `exclude`,
+  `entry`, listed `files` and the connection settings the same way a plain
+  `cerial generate` does. Before, a watch rebuild could include schema files
+  that a one-shot run excluded.
+
 - A database error from an item of an array `$transaction` now throws a
   `CerialDatabaseError` (or `CerialUniqueConstraintError`), as callback mode
   does. Before, it reached your code as the raw driver error, so a check such as
@@ -618,6 +626,19 @@ development branch and is not available on npm.
   array relation they are rejected like any other key that is not a quantifier.
 
 ### Changed
+
+- Generated models, objects, tuples and literals are now `.d.ts` files by
+  default, with `export type *` barrels (`enums/` stays `.ts`). With
+  `skipLibCheck: true` this cuts type checking a 500-model schema on
+  TypeScript 5.9 from 10.8 s to 0.50 s and memory from 2,136 MB to 779 MB, and
+  on TypeScript 7 from 1.4 s to 0.14 s. With `skipLibCheck: false` it is no
+  slower than before. Deep imports such as `./db-client/models/user` must be
+  `import type`, and `*.d.ts` must not be in `.gitignore` when you commit the
+  output. A library that re-exports generated types must copy the declarations
+  after `tsc --declaration`, or the types become `any` without an error. Set the
+  new `typeFiles: 'ts'` option to keep the old layout. See
+  [Generated Output](/cli/generated-output#why-declaration-files) and
+  [`typeFiles`](/cli/configuration#typefiles).
 
 - **Breaking.** Cerial now requires Node.js 22.12 or newer (`engines` is `>=22.12.0`).
   Node 20 is no longer supported. TypeScript configs and schemas are loaded through

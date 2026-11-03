@@ -62,6 +62,7 @@ export default defineConfig({
 | `schema` | `string` | Path to schema file or directory |
 | `output` | `string` | Output directory for the generated client |
 | `connection` | `object` | Optional [connection config](/connection) |
+| `typeFiles` | `'dts' \| 'ts'` | File extension of the generated type-only files. See [`typeFiles`](#typefiles) |
 | `ignore` | `string[]` | Absolute exclusion patterns. Nothing can override. |
 | `exclude` | `string[]` | Exclusion patterns. Can be overridden by `include`. |
 | `include` | `string[]` | Inclusion patterns. Overrides `exclude` and `.cerialignore` but not `ignore`. |
@@ -90,6 +91,7 @@ export default defineConfig({
 | `schemas` | `object` | Map of schema name to schema entry |
 | `output` | `string` | Root output directory (used when a schema entry doesn't specify its own) |
 | `connection` | `object` | Root [connection config](/connection) (used when a schema entry doesn't specify its own) |
+| `typeFiles` | `'dts' \| 'ts'` | Root `typeFiles` (used when a schema entry doesn't specify its own) |
 | `ignore` | `string[]` | Absolute exclusion patterns. Nothing can override. |
 | `exclude` | `string[]` | Exclusion patterns. Can be overridden by `include`. |
 | `include` | `string[]` | Inclusion patterns. Overrides `exclude` and `.cerialignore` but not `ignore`. |
@@ -103,6 +105,7 @@ Each schema entry accepts:
 | `files` | `string[]` | Schema files to include one by one. See [Listed files](#listed-files) | |
 | `output` | `string` | Output directory for this schema's generated client | `{path}/client`, or `client` in the folder the entry module and listed files share |
 | `connection` | `object` | [Connection config](/connection) for this schema | Inherits from root |
+| `typeFiles` | `'dts' \| 'ts'` | Extension of this schema's generated type-only files | Inherits from root |
 | `ignore` | `string[]` | Absolute exclusion patterns. Nothing can override. | |
 | `exclude` | `string[]` | Exclusion patterns. Can be overridden by `include`. | |
 | `include` | `string[]` | Inclusion patterns. Overrides `exclude`/`.cerialignore` but not `ignore`. | |
@@ -177,6 +180,36 @@ This feature is not yet available in the current release. It will ship in an upc
 - `ignore`, `exclude`, `include` and `.cerialignore` apply to listed files, to the entry, and to every module the entry imports, exactly as they do to `.cerial` files. Patterns are relative to the schema's folder; a module outside it is matched by a pattern relative to the config's directory.
 - Exclusion beats registration. A model that `defineSchema()` lists is left out when its module is excluded, and so is whatever only that module imports. The excluded module still runs, because the module that imports it imports it. If the entry itself, or every listed file, is excluded, generation says so and names it.
 
+### typeFiles
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+`typeFiles` sets the extension of the generated type-only files (`models/`, `objects/`, `tuples/` and `literals/`). `enums/` is always `.ts`.
+
+| Value | Result |
+|---|---|
+| `'dts'` (default) | `.d.ts` files. Much faster to type check when `skipLibCheck` is `true`. |
+| `'ts'` | Plain `.ts` files, the layout from before `typeFiles` existed. |
+
+```typescript
+import { defineConfig } from 'cerial';
+
+export default defineConfig({
+  typeFiles: 'dts',
+  schemas: {
+    auth: { path: './schemas/auth' },
+    // This entry overrides the root value
+    cms: { path: './schemas/cms', typeFiles: 'ts' },
+  },
+});
+```
+
+It is accepted at the config root, on each `schemas` entry and in a [folder-level config](#folder-level-config). A schema entry overrides the root value. There is no CLI flag, because the choice belongs to the project. Any other value fails with `typeFiles must be 'dts' or 'ts'`.
+
+See [Generated Output](/cli/generated-output#why-declaration-files) for the two layouts, the `skipLibCheck` and `import type` requirements, and what to do when you publish a library.
+
 ### Output Directory Defaults
 
 When no `output` is specified on a schema entry, Cerial defaults to `{schemaPath}/client`. A schema at `./schemas/auth` generates its client into `./schemas/auth/client`.
@@ -245,6 +278,7 @@ project/
 | `output` | `string` | Output directory for generated client (relative to folder) | `./client` |
 | `name` | `string` | Custom schema name (overrides directory basename) | Directory basename |
 | `connection` | `object` | [Connection config](/connection) for this schema | None |
+| `typeFiles` | `'dts' \| 'ts'` | Extension of the generated type-only files | `'dts'` |
 | `ignore` | `string[]` | Absolute exclusion patterns. Nothing can override. | |
 | `exclude` | `string[]` | Exclusion patterns. Can be overridden by `include`. | |
 | `include` | `string[]` | Inclusion patterns. Overrides `exclude`/`.cerialignore` but not `ignore`. | |

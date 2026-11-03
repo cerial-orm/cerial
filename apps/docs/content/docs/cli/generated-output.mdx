@@ -7,29 +7,72 @@ After running `bunx cerial generate`, the output directory contains a complete T
 
 ## Directory Structure
 
-Models, objects, tuples, enums, and literals are each generated into their own directory so you can tell at a glance which is which:
+Models, objects, tuples, enums, and literals are each generated into their own directory so you can tell at a glance which is which. By default (`typeFiles: 'dts'`) the type-only folders are declaration files:
 
 ```
 db-client/
 ├── client.ts             # CerialClient class with connect/disconnect/migrate
 ├── models/
-│   ├── user.ts           # User interface + all derived types
-│   ├── profile.ts        # Profile interface + all derived types
-│   ├── post.ts           # Post interface + all derived types
-│   ├── tag.ts            # Tag interface + all derived types
-│   └── index.ts          # Re-exports all model types
+│   ├── user.d.ts         # User interface + all derived types
+│   ├── profile.d.ts      # Profile interface + all derived types
+│   ├── post.d.ts         # Post interface + all derived types
+│   ├── tag.d.ts          # Tag interface + all derived types
+│   └── index.d.ts        # export type * from every model file
 ├── objects/
-│   ├── address.ts        # Address object interface + types
-│   └── index.ts          # Re-exports all object types
+│   ├── address.d.ts      # Address object interface + types
+│   └── index.d.ts        # export type * from every object file
 ├── tuples/
-│   ├── coordinate.ts     # Coordinate tuple literal + types
-│   └── index.ts          # Re-exports all tuple types
+│   ├── coordinate.d.ts   # Coordinate tuple literal + types
+│   └── index.d.ts        # export type * from every tuple file
+├── literals/             # Literal types, same layout as objects/
+├── enums/                # Enum values and types (.ts, they exist at runtime)
 ├── internal/
 │   ├── model-registry.ts # Runtime metadata (fields, relations, decorators)
 │   ├── migrations.ts     # DEFINE TABLE/FIELD/INDEX statements
 │   └── index.ts          # Internal exports
 └── index.ts              # Main entry: CerialClient + all types
 ```
+
+`models/`, `objects/`, `tuples/` and `literals/` hold only types, so they are `.d.ts` files and their `index.d.ts` barrels use `export type *`. `enums/` stays `.ts` because enum values are real constants you can import and use at runtime.
+
+With `typeFiles: 'ts'` the same folders use plain `.ts` files (`models/user.ts`, `models/index.ts`, and so on) and the barrels are ordinary `export *`. Everything else is identical.
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+### Why declaration files
+
+TypeScript does not check the inside of a `.d.ts` file when `skipLibCheck` is `true`. The generated type surface is large, so skipping it makes `tsc` and your editor much faster. Measured on a schema of 500 models:
+
+| Compiler | `typeFiles: 'ts'` | `typeFiles: 'dts'` |
+|---|---|---|
+| TypeScript 5.9, check time | 10.8 s | 0.50 s |
+| TypeScript 5.9, memory | 2,136 MB | 779 MB |
+| TypeScript 7, check time | 1.4 s | 0.14 s |
+
+Two conditions apply:
+
+- **`skipLibCheck: true`** in your `tsconfig.json`. With `skipLibCheck: false` the `.d.ts` files are checked like any other file, which is no slower than `typeFiles: 'ts'`, just not faster.
+- **`import type` for deep imports.** A declaration file has no runtime code, so a deep import such as `./db-client/models/user` must be `import type { User } from './db-client/models/user'`. Imports from the main `./db-client` entry are unaffected.
+
+### Committing generated output
+
+If you commit the output directory, make sure `.gitignore` does not exclude `*.d.ts`. A pattern like that hides every generated model, object, tuple and literal file, and a fresh clone fails to type check.
+
+### Publishing a library
+
+If you publish a package whose public API re-exports generated types, a plain `tsc --declaration --outDir dist` build does not copy hand-placed `.d.ts` files into `dist`. The re-exported types then resolve to `any` in your consumers' projects, and no error is reported anywhere. Do one of the following:
+
+- Add a step after `tsc` that copies the generated declarations. This one assumes the client is at `src/generated` and your output is `dist`; change both paths to match:
+
+```bash
+node -e "const fs=require('fs');fs.cpSync('src/generated','dist/generated',{recursive:true,filter:(s)=>fs.statSync(s).isDirectory()||s.endsWith('.d.ts')})"
+```
+
+- Or set `typeFiles: 'ts'` so `tsc` compiles and emits the files itself.
+
+To choose the layout, see [`typeFiles`](/cli/configuration#typefiles).
 
 ## client.ts
 

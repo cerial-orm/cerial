@@ -347,27 +347,35 @@ import { CerialQueryPromise } from './db-client';
 
 ## Generated File Structure
 
-All types are generated into the output directory (typically `db-client/` or a configured path). Models, objects, and tuples each get their own directory:
+All types are generated into the output directory (typically `db-client/` or a configured path). Models, objects, tuples, and literals each get their own directory. By default the type-only folders are `.d.ts` files:
 
 ```
 db-client/
 ├── client.ts               # CerialClient class with Model proxies
 ├── models/                  # Model types (User, UserCreate, UserWhere, ...)
-│   ├── user.ts
-│   ├── post.ts
-│   ├── profile.ts
-│   └── index.ts
+│   ├── user.d.ts
+│   ├── post.d.ts
+│   ├── profile.d.ts
+│   └── index.d.ts
 ├── objects/                 # Object types (Address, AddressInput, AddressWhere, ...)
-│   ├── address.ts
-│   └── index.ts
+│   ├── address.d.ts
+│   └── index.d.ts
 ├── tuples/                  # Tuple types (Coordinate, CoordinateInput, CoordinateWhere, ...)
-│   ├── coordinate.ts
-│   └── index.ts
+│   ├── coordinate.d.ts
+│   └── index.d.ts
+├── literals/                # Literal types
+├── enums/                   # Enum values and types (.ts)
 ├── internal/
 │   ├── model-registry.ts    # Runtime model metadata (fields, relations, types)
 │   └── migrations.ts        # DEFINE TABLE / DEFINE FIELD statements
 └── index.ts                 # Re-exports all public types and client
 ```
+
+:::caution
+The `.d.ts` layout is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Set [`typeFiles`](/cli/configuration#typefiles) to `'ts'` for plain `.ts` files instead. The `.d.ts` layout type checks much faster when `skipLibCheck` is `true`; a deep import such as `./db-client/models/user` must then be `import type`. See [Generated Output](/cli/generated-output#why-declaration-files).
 
 ## Raw query types
 
