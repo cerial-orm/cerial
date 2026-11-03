@@ -4244,63 +4244,111 @@ export type Simplify<T> = { [K in keyof T]: T[K] } & {};
 export type AtLeastOne<T, R extends Required<T> = Required<T>> = {
   [K in keyof R]: { [P in K]: R[P] } & { [P in Exclude<keyof R, K>]?: R[P] };
 }[keyof R];
-/** The select argument: S as written, the declared fields for completion, and every key S adds beyond them refused,
- * through the first 5 nesting levels (D counts the levels entered). NoInfer keeps S coming from the argument alone. */
-export type SelectArg<S, T, D extends unknown[] = []> = S &
-  NoInfer<T> & { [K in Exclude<keyof S, keyof T>]: never } & ([...D, 0]['length'] extends 5
+/** The select argument: S as written and the declared fields for completion. When S adds a key beyond the declared
+ * ones within the first 6 levels, or S fell back to its constraint, SelectRefusal is intersected to refuse it at its
+ * position; otherwise the check is the key set alone, computed once per S. */
+export type SelectArg<S, T> = S &
+  NoInfer<T> &
+  (undefined extends S
+    ? SelectRefusal<S, T>
+    : [SelectExcessKeys<S, T>] extends [never]
+      ? unknown
+      : SelectRefusal<S, T>);
+/** Every key S adds beyond T, at any of the first 6 levels (never when there is none) */
+export type SelectExcessKeys<S, T, D extends unknown[] = []> =
+  | Exclude<keyof S, keyof T>
+  | ([...D, 0]['length'] extends 6
+      ? never
+      : {
+          [K in SelectObjectKeys<S>]: SelectExcessKeys<S[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]>;
+        }[SelectObjectKeys<S>]);
+/** S with every key it adds beyond T refused, level by level through the first 6 */
+export type SelectRefusal<S, T, D extends unknown[] = []> = S &
+  NoInfer<T> & { [K in Exclude<keyof S, keyof T>]: never } & ([...D, 0]['length'] extends 6
     ? unknown
-    : { [K in SelectObjectKeys<S>]: SelectArg<S[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
-/** A field-data argument (`data`, `update`): D as written, the declared input for completion, and every key D adds
- * beyond it refused, then the same for each object-valued key, through the first 5 nesting levels (N counts the
- * levels entered). The update input is a union when the model has relations, so a key counts when any member declares it. */
-export type DataArg<D, T, N extends unknown[] = []> = D &
-  NoInfer<T> & { [K in ExtraKeys<D, T>]: never } & ([...N, 0]['length'] extends 5
+    : { [K in SelectObjectKeys<S>]: SelectRefusal<S[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
+/** The data argument, gated the same way as SelectArg. [T] extends [D] holds when D fell back to its constraint. */
+export type DataArg<D, T> = D &
+  NoInfer<T> &
+  ([T] extends [D] ? DataRefusal<D, T> : [DataExcessKeys<D, T>] extends [never] ? unknown : DataRefusal<D, T>);
+/** Every key D adds beyond T, nested values included, mirroring DataRefusal level for level */
+export type DataExcessKeys<D, T, N extends unknown[] = []> =
+  | ExtraKeys<D, T>
+  | ([...N, 0]['length'] extends 6
+      ? never
+      : {
+          [K in DataObjectKeys<D>]: DataValueExcessKeys<NonNullable<D[K]>, UnionValue<T, K>, [...N, 0]>;
+        }[DataObjectKeys<D>]);
+export type DataValueExcessKeys<V, TV, N extends unknown[]> = unknown extends TV
+  ? never
+  : N['length'] extends 6
+    ? never
+    : V extends (...args: never[]) => unknown
+      ? never
+      : V extends readonly unknown[]
+        ? { [I in keyof V]: DataValueExcessKeys<V[I], DataElementTarget<TV, I>, [...N, 0]> }[number]
+        : V extends object
+          ? DataExcessKeys<V, Exclude<Extract<TV, object>, readonly unknown[]>, N>
+          : never;
+export type DataRefusal<D, T, N extends unknown[] = []> = D &
+  NoInfer<T> & { [K in ExtraKeys<D, T>]: never } & ([...N, 0]['length'] extends 6
     ? unknown
     : { [K in DataObjectKeys<D>]: DataValueArg<NonNullable<D[K]>, UnionValue<T, K>, [...N, 0]> });
-/** One nested data value against its declared type TV: an array is checked element by element (a tuple by position), an
- * object key by key against the object members of TV, anything else is left alone. A target of unknown or any (a flexible
- * sub-key) has no declared keys to check against. */
 export type DataValueArg<V, TV, N extends unknown[]> = unknown extends TV
   ? unknown
-  : N['length'] extends 5
+  : N['length'] extends 6
     ? unknown
     : V extends (...args: never[]) => unknown
       ? unknown
       : V extends readonly unknown[]
         ? { [I in keyof V]: DataValueArg<V[I], DataElementTarget<TV, I>, [...N, 0]> }
         : V extends object
-          ? DataArg<V, Exclude<Extract<TV, object>, readonly unknown[]>, N>
+          ? DataRefusal<V, Exclude<Extract<TV, object>, readonly unknown[]>, N>
           : unknown;
-/** The declared type at position I of the array or tuple members of TV */
 export type DataElementTarget<TV, I> = TV extends readonly unknown[]
   ? I extends keyof TV
     ? TV[I]
     : TV[number]
   : never;
-/** The declared type of key K across the members of a union */
 export type UnionValue<T, K> = T extends unknown ? (K extends keyof T ? T[K] : never) : never;
-/** The keys of D whose value is an object or an array (functions count as objects here and DataValueArg skips them) */
 export type DataObjectKeys<D> = {
   [K in keyof D]-?: [NonNullable<D[K]>] extends [never] ? never : NonNullable<D[K]> extends object ? K : never;
 }[keyof D];
-/** The keys D adds beyond the union T. A string index signature in T declares every string key, and so every numeric one. */
 export type ExtraKeys<D, T> = Exclude<keyof D, UnionKeys<T> | (string extends UnionKeys<T> ? number : never)>;
-/** Every key of any member of a union (keyof alone gives the keys all members share) */
 export type UnionKeys<T> = T extends unknown ? keyof T : never;
-/** The include argument: I as written, the declared relations for completion, every key beyond them refused, and each
- * relation's options (its select, its nested include) checked the same way, through the first 5 include levels */
-export type IncludeArg<I, T, D extends unknown[] = []> = I &
-  NoInfer<T> & { [K in Exclude<keyof I, keyof T>]: never } & ([...D, 0]['length'] extends 5
+/** The include argument, gated the same way as SelectArg */
+export type IncludeArg<I, T> = I &
+  NoInfer<T> &
+  (undefined extends I
+    ? IncludeRefusal<I, T>
+    : [IncludeExcessKeys<I, T>] extends [never]
+      ? unknown
+      : IncludeRefusal<I, T>);
+export type IncludeExcessKeys<I, T, D extends unknown[] = []> =
+  | Exclude<keyof I, keyof T>
+  | ([...D, 0]['length'] extends 6
+      ? never
+      : {
+          [K in SelectObjectKeys<I>]: IncludeEntryExcessKeys<
+            I[K],
+            Exclude<T[K & keyof T], boolean | undefined>,
+            [...D, 0]
+          >;
+        }[SelectObjectKeys<I>]);
+export type IncludeEntryExcessKeys<E, T, D extends unknown[]> =
+  | Exclude<keyof E, keyof T>
+  | (E extends { select: infer S } ? SelectExcessKeys<S, NonNullable<T['select' & keyof T]>> : never)
+  | (E extends { include: infer N } ? IncludeExcessKeys<N, NonNullable<T['include' & keyof T]>, D> : never);
+export type IncludeRefusal<I, T, D extends unknown[] = []> = I &
+  NoInfer<T> & { [K in Exclude<keyof I, keyof T>]: never } & ([...D, 0]['length'] extends 6
     ? unknown
     : { [K in SelectObjectKeys<I>]: IncludeEntryArg<I[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
-/** One relation's include options: only select and include are recursed into; where, orderBy, limit and offset keep their own types */
 export type IncludeEntryArg<E, T, D extends unknown[]> = E & { [K in Exclude<keyof E, keyof T>]: never } & (E extends {
     select: infer S;
   }
-    ? { select: SelectArg<S, NonNullable<T['select' & keyof T]>> }
+    ? { select: SelectRefusal<S, NonNullable<T['select' & keyof T]>> }
     : unknown) &
-  (E extends { include: infer N } ? { include: IncludeArg<N, NonNullable<T['include' & keyof T]>, D> } : unknown);
-/** The keys of S whose value is a nested select rather than a boolean */
+  (E extends { include: infer N } ? { include: IncludeRefusal<N, NonNullable<T['include' & keyof T]>, D> } : unknown);
 export type SelectObjectKeys<S> = { [K in keyof S]-?: S[K] extends object ? K : never }[keyof S];
 /** Check if a type is a tuple (fixed-length array) rather than a dynamic array */
 export type IsTuple<T> = T extends readonly any[] ? (number extends T['length'] ? false : true) : false;

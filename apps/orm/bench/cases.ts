@@ -3,7 +3,7 @@
  * `consumer.ts`) and returns a new tree, so the generator is never touched and a result can be reproduced from the same input.
  * A transform throws when its pattern matches nothing, so a generator change cannot turn a case into a silent no-op.
  */
-import { heavySelectConsumer } from './consumer';
+import { heavyIncludeConsumer, heavySelectConsumer, heavyWriteConsumer } from './consumer';
 
 export type Tree = ReadonlyMap<string, string>;
 
@@ -21,6 +21,10 @@ export const CASE_NAMES = [
   'heavy-select-no-resolve-ts',
   'heavy-select-no-arg',
   'heavy-select-no-arg-ts',
+  'heavy-write',
+  'heavy-write-no-arg',
+  'heavy-include',
+  'heavy-include-no-arg',
 ] as const;
 export type CaseName = (typeof CASE_NAMES)[number];
 
@@ -159,7 +163,9 @@ function plainTs(tree: Tree): Tree {
 }
 
 const RESOLVE_DECL = /^export type ResolveFieldSelect<FieldType, SelectValue> =[\s\S]*?;\n/m;
-const SELECT_ARG_DECL = /^export type SelectArg<S, T, D extends unknown\[\] = \[\]> =[\s\S]*?;\n/m;
+const SELECT_ARG_DECL = /^export type SelectArg<S, T> =[\s\S]*?;\n/m;
+const DATA_ARG_DECL = /^export type DataArg<D, T> =[\s\S]*?;\n/m;
+const INCLUDE_ARG_DECL = /^export type IncludeArg<I, T> =[\s\S]*?;\n/m;
 const HEAVY_SELECT_MODEL = /^export interface UnsetTestSelectFields \{/m;
 const HEAVY_QUERIES = 200;
 
@@ -184,9 +190,39 @@ function heavySelect(name: CaseName, ablation: HeavyAblation, layout: (tree: Tre
     const [pattern, trivial] =
       ablation === 'resolve'
         ? [RESOLVE_DECL, 'export type ResolveFieldSelect<FieldType, SelectValue> = FieldType;\n']
-        : [SELECT_ARG_DECL, 'export type SelectArg<S, T, D extends unknown[] = []> = S & NoInfer<T>;\n'];
+        : [SELECT_ARG_DECL, 'export type SelectArg<S, T> = S & NoInfer<T>;\n'];
 
     return rewriteGenerated(next, name, (text) => text.replace(pattern, trivial));
+  };
+}
+
+const WRITE_QUERIES = 600;
+const INCLUDE_QUERIES = 200;
+
+/**
+ * `heavy-write` and `heavy-include`: a consumer of mixed nested `updateMany` writes or nested includes with selects over the
+ * corpus. The ablation swaps `DataArg` or `IncludeArg` in the generated client for `D & NoInfer<T>` or `I & NoInfer<T>`,
+ * with no excess-key check and no recursion.
+ */
+function heavyArg(name: CaseName, kind: 'write' | 'include', ablated: boolean): BenchCase {
+  const [source, pattern, trivial] =
+    kind === 'write'
+      ? [heavyWriteConsumer(WRITE_QUERIES), DATA_ARG_DECL, 'export type DataArg<D, T> = D & NoInfer<T>;\n']
+      : [heavyIncludeConsumer(INCLUDE_QUERIES), INCLUDE_ARG_DECL, 'export type IncludeArg<I, T> = I & NoInfer<T>;\n'];
+
+  return {
+    corpusOnly: true,
+    transform: (tree) => {
+      declarations(tree);
+      if (![...tree].some(([path, text]) => isGenerated(path) && HEAVY_SELECT_MODEL.test(text))) {
+        throw new Error(`case ${name}: the generated tree has no UnsetTest model to write to`);
+      }
+
+      const next = new Map(tree).set('consumer.ts', source);
+
+      return ablated ? rewriteGenerated(next, name, (text) => text.replace(pattern, trivial)) : next;
+    },
+    variants: [DEFAULT_VARIANT],
   };
 }
 
@@ -217,6 +253,10 @@ export const CASES: Record<CaseName, BenchCase> = {
   'heavy-select-no-resolve-ts': heavyCase('heavy-select-no-resolve-ts', 'resolve', 'ts'),
   'heavy-select-no-arg': heavyCase('heavy-select-no-arg', 'arg', 'dts'),
   'heavy-select-no-arg-ts': heavyCase('heavy-select-no-arg-ts', 'arg', 'ts'),
+  'heavy-write': heavyArg('heavy-write', 'write', false),
+  'heavy-write-no-arg': heavyArg('heavy-write-no-arg', 'write', true),
+  'heavy-include': heavyArg('heavy-include', 'include', false),
+  'heavy-include-no-arg': heavyArg('heavy-include-no-arg', 'include', true),
 };
 
 export function isCaseName(value: string): value is CaseName {

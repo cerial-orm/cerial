@@ -186,32 +186,32 @@ export const strictSubKey = db.FlexUser.findMany({
 });
 
 // =============================================================================
-// Depth: the typo check covers the first five select levels (the model's own keys are level 1)
+// Depth: the typo check covers the first six select levels (the model's own keys are level 1)
 // =============================================================================
 
 // UnsetTest.tree is a self-referencing object, so its select nests as deep as the caller writes.
-// Level 5 is the last checked one: model, tree, child, child, child.
+// Level 6 is the last checked one: model, tree, child, child, child, child.
 export const depthLastCheckedTypo = db.UnsetTest.findMany({
   // @ts-expect-error -- a typo at the last checked level is refused
-  select: { tree: { child: { child: { child: { nope: true } } } } },
+  select: { tree: { child: { child: { child: { child: { nope: true } } } } } },
 });
 
 export const depthLastCheckedTypoNextToKey = db.UnsetTest.findMany({
   // @ts-expect-error -- a typo at the last checked level, next to a valid key, is refused
-  select: { tree: { child: { child: { child: { payload: true, nope: true } } } } },
+  select: { tree: { child: { child: { child: { child: { payload: true, nope: true } } } } } },
 });
 
 export const depthLastChecked = db.UnsetTest.findMany({
-  select: { tree: { child: { child: { child: { payload: true } } } } },
+  select: { tree: { child: { child: { child: { child: { payload: true } } } } } },
 });
 
-// Level 6 is past the cap: an unknown key compiles there, and a valid selection still compiles and narrows
+// Level 7 is past the cap: an unknown key compiles there, and a valid selection still compiles and narrows
 export const depthPastCap = db.UnsetTest.findMany({
-  select: { tree: { child: { child: { child: { child: { payload: true } } } } } },
+  select: { tree: { child: { child: { child: { child: { child: { payload: true } } } } } } },
 });
 // The documented limit of the cap: a typo this deep is not caught, so this must keep compiling
 export const depthPastCapTypo = db.UnsetTest.findMany({
-  select: { tree: { child: { child: { child: { child: { payload: true, nope: true } } } } } },
+  select: { tree: { child: { child: { child: { child: { child: { payload: true, nope: true } } } } } } },
 });
 export const depthFarPastCap = db.UnsetTest.findMany({
   select: {

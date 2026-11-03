@@ -382,18 +382,26 @@ export const nestedCreateRelation = db.Post.create({
   data: { title: 'a', author: { create: { email: 'a@x.io', name: 'a', isActive: true, nope: 1 } } },
 });
 
-// Five levels are checked, the sixth is not (selection and narrowing are unaffected beyond the cap)
-export const nestedLevelFive = db.UnsetTest.updateMany({
+// Six levels are checked, the seventh is not (selection and narrowing are unaffected beyond the cap)
+export const nestedLevelSix = db.UnsetTest.updateMany({
   where: {},
-  // @ts-expect-error -- a typo in the fifth level of keys is refused
-  data: { tree: { payload: 'a', child: { payload: 'b', child: { payload: 'c', child: { payload: 'd', nope: 1 } } } } },
+  data: {
+    tree: {
+      payload: 'a',
+      // @ts-expect-error -- a typo in the sixth level of keys is refused
+      child: { payload: 'b', child: { payload: 'c', child: { payload: 'd', child: { payload: 'e', nope: 1 } } } },
+    },
+  },
 });
 export const nestedBeyondCap = db.UnsetTest.updateMany({
   where: {},
   data: {
     tree: {
       payload: 'a',
-      child: { payload: 'b', child: { payload: 'c', child: { payload: 'd', child: { payload: 'e', nope: 1 } } } },
+      child: {
+        payload: 'b',
+        child: { payload: 'c', child: { payload: 'd', child: { payload: 'e', child: { payload: 'f', nope: 1 } } } },
+      },
     },
   },
 });

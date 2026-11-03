@@ -81,10 +81,15 @@ const EMPTY = treeOf({
   'gen/index.ts': `export const y = 1;\n`,
 });
 
-const HEAVY_INDEX = `export type SelectArg<S, T, D extends unknown[] = []> = S &
-  NoInfer<T> & { [K in Exclude<keyof S, keyof T>]: never } & ([...D, 0]['length'] extends 5
-    ? unknown
-    : { [K in SelectObjectKeys<S>]: SelectArg<S[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
+const HEAVY_INDEX = `export type SelectArg<S, T> = S &
+  NoInfer<T> &
+  (undefined extends S ? SelectRefusal<S, T> : [SelectExcessKeys<S, T>] extends [never] ? unknown : SelectRefusal<S, T>);
+export type DataArg<D, T> = D &
+  NoInfer<T> &
+  ([T] extends [D] ? DataRefusal<D, T> : [DataExcessKeys<D, T>] extends [never] ? unknown : DataRefusal<D, T>);
+export type IncludeArg<I, T> = I &
+  NoInfer<T> &
+  (undefined extends I ? IncludeRefusal<I, T> : [IncludeExcessKeys<I, T>] extends [never] ? unknown : IncludeRefusal<I, T>);
 /** One relation's include options */
 export type IncludeEntryArg<E, T, D extends unknown[]> = E;
 
@@ -108,6 +113,7 @@ const HEAVY_TS = treeOf({
   'gen/index.ts': HEAVY_INDEX,
 });
 const HEAVY_NAMES = CASE_NAMES.filter((name) => name.startsWith('heavy-select'));
+const ARG_NAMES = CASE_NAMES.filter((name) => /^heavy-(write|include)/.test(name));
 const isTsLayout = (name: CaseName): boolean => name.endsWith('-ts');
 
 function file(tree: Tree, path: string): string {
@@ -254,17 +260,63 @@ describe('transforms on a tree with the pattern', () => {
 
     expect(index).toContain('export type ResolveFieldSelect<FieldType, SelectValue> = FieldType;\n');
     expect(index).not.toContain('SelectValue extends true');
-    expect(index).toContain('export type SelectArg<S, T, D extends unknown[] = []> = S &\n  NoInfer<T> &');
+    expect(index).toContain('export type SelectArg<S, T> = S &\n  NoInfer<T> &');
     expect(index).toContain('export type ApplyObjectSelect');
   });
 
   test('heavy-select-no-arg makes SelectArg just S and NoInfer<T> and keeps ResolveFieldSelect', () => {
     const index = file(CASES['heavy-select-no-arg'].transform(HEAVY), 'gen/index.ts');
 
-    expect(index).toContain('export type SelectArg<S, T, D extends unknown[] = []> = S & NoInfer<T>;\n');
-    expect(index).not.toContain('SelectObjectKeys<S>]: SelectArg');
+    expect(index).toContain('export type SelectArg<S, T> = S & NoInfer<T>;\n');
+    expect(index).not.toContain('SelectExcessKeys');
+    expect(index).toContain('export type DataArg<D, T> = D &\n  NoInfer<T> &');
     expect(index).toContain('export type IncludeEntryArg');
     expect(index).toContain('SelectValue extends true');
+  });
+
+  test('heavy-write swaps the consumer for 600 nested updateMany calls and leaves the generated tree alone', () => {
+    const next = CASES['heavy-write'].transform(HEAVY);
+    const consumer = file(next, 'consumer.ts');
+
+    expect(consumer.match(/\.updateMany\(/g)).toHaveLength(600);
+    expect(consumer).toContain('export const w599 =');
+    expect(consumer).toContain('db.ObjectTestOrder.updateMany');
+    expect(consumer).toContain("posts: { connect: 'x' }");
+    expect(file(next, 'gen/index.ts')).toBe(HEAVY_INDEX);
+    expect(CASES['heavy-write'].corpusOnly).toBe(true);
+  });
+
+  test('heavy-write-no-arg makes DataArg just D and NoInfer<T> and keeps SelectArg and IncludeArg', () => {
+    const next = CASES['heavy-write-no-arg'].transform(HEAVY);
+    const index = file(next, 'gen/index.ts');
+
+    expect(file(next, 'consumer.ts')).toBe(file(CASES['heavy-write'].transform(HEAVY), 'consumer.ts'));
+    expect(index).toContain('export type DataArg<D, T> = D & NoInfer<T>;\n');
+    expect(index).not.toContain('DataExcessKeys');
+    expect(index).toContain('export type SelectArg<S, T> = S &\n  NoInfer<T> &');
+    expect(index).toContain('export type IncludeArg<I, T> = I &\n  NoInfer<T> &');
+  });
+
+  test('heavy-include swaps the consumer for 200 nested includes with selects and leaves the generated tree alone', () => {
+    const next = CASES['heavy-include'].transform(HEAVY);
+    const consumer = file(next, 'consumer.ts');
+
+    expect(consumer.match(/\.findMany\(/g)).toHaveLength(200);
+    expect(consumer).toContain('export const i199 =');
+    expect(consumer).toContain('include: { author: { select: { name: true, email: true } } }');
+    expect(file(next, 'gen/index.ts')).toBe(HEAVY_INDEX);
+    expect(CASES['heavy-include'].corpusOnly).toBe(true);
+  });
+
+  test('heavy-include-no-arg makes IncludeArg just I and NoInfer<T> and keeps SelectArg and DataArg', () => {
+    const next = CASES['heavy-include-no-arg'].transform(HEAVY);
+    const index = file(next, 'gen/index.ts');
+
+    expect(file(next, 'consumer.ts')).toBe(file(CASES['heavy-include'].transform(HEAVY), 'consumer.ts'));
+    expect(index).toContain('export type IncludeArg<I, T> = I & NoInfer<T>;\n');
+    expect(index).not.toContain('IncludeExcessKeys');
+    expect(index).toContain('export type SelectArg<S, T> = S &\n  NoInfer<T> &');
+    expect(index).toContain('export type DataArg<D, T> = D &\n  NoInfer<T> &');
   });
 
   test('the -ts heavy cases ask for typeFiles ts and accept that layout, the others the default one', () => {
@@ -278,12 +330,16 @@ describe('transforms on a tree with the pattern', () => {
 
   test('a transform never changes its input', () => {
     const before = new Map(FULL);
-    for (const name of CASE_NAMES.filter((name) => name !== 'dts' && !HEAVY_NAMES.includes(name))) {
+    for (const name of CASE_NAMES.filter(
+      (name) => name !== 'dts' && !HEAVY_NAMES.includes(name) && !ARG_NAMES.includes(name),
+    )) {
       CASES[name].transform(FULL);
     }
     CASES.dts.transform(DTS_TREE);
     const heavyBefore = new Map(HEAVY);
     CASES['heavy-select-no-arg'].transform(HEAVY);
+    CASES['heavy-write-no-arg'].transform(HEAVY);
+    CASES['heavy-include-no-arg'].transform(HEAVY);
 
     expect(FULL).toEqual(before);
     expect(HEAVY).toEqual(heavyBefore);
@@ -292,7 +348,7 @@ describe('transforms on a tree with the pattern', () => {
 
 describe('transforms on a tree without the pattern', () => {
   test.each(CASE_NAMES)('%s throws', (name: CaseName) => {
-    expect(() => CASES[name].transform(EMPTY)).toThrow(/case (no-|flat-|dts|ts|heavy-select)/);
+    expect(() => CASES[name].transform(EMPTY)).toThrow(/case (no-|flat-|dts|ts|heavy-)/);
   });
 
   test.each(HEAVY_NAMES)('%s throws when the tree has no UnsetTest to select from', (name) => {
@@ -301,7 +357,11 @@ describe('transforms on a tree without the pattern', () => {
     expect(() => CASES[name].transform(tree)).toThrow('no UnsetTest model');
   });
 
-  test.each(['heavy-select-no-resolve', 'heavy-select-no-arg'] as const)(
+  test.each(ARG_NAMES)('%s throws when the tree has no UnsetTest to write to or include from', (name) => {
+    expect(() => CASES[name].transform(DTS_TREE)).toThrow('no UnsetTest model');
+  });
+
+  test.each(['heavy-select-no-resolve', 'heavy-select-no-arg', 'heavy-write-no-arg', 'heavy-include-no-arg'] as const)(
     '%s throws when the declaration it replaces is absent',
     (name) => {
       const tree = treeOf({
@@ -352,8 +412,8 @@ describe('transforms on a tree without the pattern', () => {
   });
 });
 
-withDist('the heavy-select cases compile clean on the e2e corpus', () => {
-  test.each(HEAVY_NAMES)(
+withDist('the heavy cases compile clean on the e2e corpus', () => {
+  test.each([...HEAVY_NAMES, ...ARG_NAMES])(
     '%s under 7',
     async (name) => {
       const { rows } = await runBench(

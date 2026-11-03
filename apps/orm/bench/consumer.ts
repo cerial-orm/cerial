@@ -116,3 +116,43 @@ declare const client: CerialClient;
 ${queries.join('\n')}
 `;
 }
+
+/** `count` statements named `prefix0`, `prefix1`, ..., cycling through `statements` */
+function cycled(prefix: string, statements: readonly string[], count: number): string {
+  const lines = Array.from(
+    { length: count },
+    (_, i) => `export const ${prefix}${i} = ${statements[i % statements.length]};`,
+  );
+
+  return `import type { CerialClient } from './gen';
+
+declare const client: CerialClient;
+const db = client.db;
+
+${lines.join('\n')}
+`;
+}
+
+const HEAVY_WRITES = [
+  `db.UnsetTest.updateMany({ where: {}, data: { name: 'x', nested: { mid: { label: 'l', deep: { code: 'c' } } } } })`,
+  `db.UnsetTest.updateMany({ where: {}, data: { address: { set: { street: 's', city: 'c' } }, bio: 'b' } })`,
+  `db.UnsetTest.updateMany({ where: {}, data: { shipping: { street: 's' }, tagged: ['t', { payload: 'p' }] } })`,
+  `db.UnsetTest.updateMany({ where: {}, data: { tagged: { tag: 't', 1: { set: { payload: 'p' } } }, optNested: { title: 't' } } })`,
+  `db.ObjectTestOrder.updateMany({ where: {}, data: { items: { push: [{ productName: 'a', quantity: 1, price: 1, tags: [] }, { productName: 'b', quantity: 1, price: 1, tags: [] }] } } })`,
+  `db.User.updateMany({ where: {}, data: { name: 'x', posts: { connect: 'x' } } })`,
+];
+
+const HEAVY_INCLUDES = [
+  `db.User.findMany({ include: { posts: { select: { title: true, body: true }, include: { author: { select: { name: true, email: true } } } }, profile: true } })`,
+  `db.Post.findMany({ include: { author: { include: { posts: { select: { title: true } }, profile: { select: { bio: true } } } } } })`,
+];
+
+/** The consumer of the `heavy-write` cases: `count` `updateMany` calls with nested object, tuple, array-push and relation data */
+export function heavyWriteConsumer(count: number): string {
+  return cycled('w', HEAVY_WRITES, count);
+}
+
+/** The consumer of the `heavy-include` cases: `count` queries that nest includes and select inside them */
+export function heavyIncludeConsumer(count: number): string {
+  return cycled('i', HEAVY_INCLUDES, count);
+}
