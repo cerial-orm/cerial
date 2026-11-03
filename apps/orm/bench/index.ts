@@ -1,6 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { extractIncludeDepthArgs, formatIncludeDepth, runIncludeDepth } from './include-depth';
 import { formatEditor, parseEditorArgs, runEditor } from './editor';
+import { formatRuntime, runRuntime } from './runtime';
 import { formatCurve, parseBenchArgs, runBench } from './curve';
 
 /** `--include-depth [--depths 1,2,3,4] [--size 50]` plus the usual `--runs`, `--compiler`, `--fields`, `--json`, `--heap-mb` */
@@ -20,9 +21,19 @@ async function editor(argv: readonly string[]): Promise<void> {
   if (bench.json) writeFileSync(bench.json, `${JSON.stringify(result, null, 2)}\n`);
 }
 
+/** `--runtime [--sizes 10,100]` plus the usual `--runs` (processes per runtime, at least 5; default 5), `--fields`, `--json` */
+async function runtime(argv: readonly string[]): Promise<void> {
+  const bench = parseBenchArgs(argv);
+  const result = await runRuntime({ bench, processes: argv.includes('--runs') ? bench.runs : 5 });
+  console.log(formatRuntime(result));
+  if (bench.json) writeFileSync(bench.json, `${JSON.stringify(result, null, 2)}\n`);
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args[0] === '--include-depth') return includeDepth(args.slice(1));
+
+  if (args[0] === '--runtime') return runtime(args.slice(1));
 
   if (args[0] === '--editor') return editor(args.slice(1));
 
