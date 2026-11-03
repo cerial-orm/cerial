@@ -660,7 +660,8 @@ export async function compareTrees(
     }
 
     return {
-      ok: !failures.length && !removed.length && !added.length,
+      // An addition cannot change a type that existed before, so only changed and removed ones fail
+      ok: !failures.length && !removed.length && !check.unpaired.removed.length,
       compilers,
       declarations: paired.size,
       generics: [...paired.values()].filter(isGeneric).length,
@@ -681,13 +682,13 @@ function isGeneric(declaration: TreeDeclaration): boolean {
 }
 
 export function formatReport(report: EquivalenceReport): string {
+  const added = report.added.length ? `; added: ${report.added.length} (${report.added.join(', ')})` : '';
   const lines = [
-    `${report.ok ? 'IDENTICAL' : 'NOT IDENTICAL'}: ${report.declarations} exported types (${report.generics} generic), ${report.samples} instantiations, compilers ${report.compilers.join(' and ')}`,
+    `${report.ok ? 'IDENTICAL' : 'NOT IDENTICAL'}: ${report.declarations} exported types (${report.generics} generic), ${report.samples} instantiations, compilers ${report.compilers.join(' and ')}${added}`,
   ];
   if (report.flatFallbacks.length) lines.push(`compared through Flat: ${report.flatFallbacks.join(', ')}`);
   else lines.push('compared through Flat: none');
   if (report.removed.length) lines.push(`removed: ${report.removed.join(', ')}`);
-  if (report.added.length) lines.push(`added: ${report.added.join(', ')}`);
   for (const failure of report.failures.slice(0, 50))
     lines.push(`  ${failure.compiler} ${failure.sample}: ${failure.reason}`);
   if (report.failures.length > 50) lines.push(`  ... and ${report.failures.length - 50} more`);

@@ -168,17 +168,44 @@ describe('compareTrees', () => {
     expect(report.failures.some((failure) => failure.sample.startsWith('GetItemPayload#'))).toBe(true);
   }, 60_000);
 
-  test('an exported type removed or added fails', async () => {
+  test('an exported type removed fails', async () => {
     const removed = await compare({
       'models/item.ts': ITEM,
       'index.ts': "export type { Item } from './models/item';\n",
     });
-    const added = await compare({ ...BASE, 'index.ts': `${INDEX}export type Extra = string;\n` });
 
     expect(removed.ok).toBe(false);
     expect(removed.removed).toEqual(['Wrap']);
-    expect(added.ok).toBe(false);
+    expect(formatReport(removed)).toContain('NOT IDENTICAL');
+    expect(formatReport(removed)).toContain('removed: Wrap');
+  }, 60_000);
+
+  test('an addition-only pair passes and reports the addition', async () => {
+    const added = await compare({ ...BASE, 'index.ts': `${INDEX}export type Extra = string;\n` });
+
+    expect(added.failures).toEqual([]);
+    expect(added.removed).toEqual([]);
+    expect(added.ok).toBe(true);
     expect(added.added).toEqual(['Extra']);
+    expect(formatReport(added)).toMatch(/^IDENTICAL: .*compilers 5\.9 and 7; added: 1 \(Extra\)/);
+  }, 60_000);
+
+  test('an addition next to a changed type still fails', async () => {
+    const report = await compare({
+      ...BASE,
+      'models/item.ts': ITEM.replace('  note?: string;\n}', '  note?: string;\n  extra?: number;\n}'),
+      'index.ts': `${INDEX}export type Extra = string;\n`,
+    });
+
+    expect(report.ok).toBe(false);
+    expect(report.added).toContain('Extra');
+    expect(report.failures.map((failure) => failure.sample)).toContain('Item#0');
+  }, 60_000);
+
+  test('a pair with no addition has no added clause in the summary', async () => {
+    const report = await compare(BASE);
+
+    expect(formatReport(report)).not.toContain('added:');
   }, 60_000);
 
   test('a method instantiation that changes fails on its member sample', async () => {
