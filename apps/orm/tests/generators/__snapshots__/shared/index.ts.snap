@@ -4251,9 +4251,40 @@ export type SelectArg<S, T, D extends unknown[] = []> = S &
     ? unknown
     : { [K in SelectObjectKeys<S>]: SelectArg<S[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
 /** A field-data argument (`data`, `update`): D as written, the declared input for completion, and every key D adds
- * beyond it refused. Same mechanism as SelectArg, one level: the nested values keep their own types. The update
- * input is a union when the model has relations, so a key counts when any member declares it. */
-export type DataArg<D, T> = D & NoInfer<T> & { [K in Exclude<keyof D, UnionKeys<T>>]: never };
+ * beyond it refused, then the same for each object-valued key, through the first 5 nesting levels (N counts the
+ * levels entered). The update input is a union when the model has relations, so a key counts when any member declares it. */
+export type DataArg<D, T, N extends unknown[] = []> = D &
+  NoInfer<T> & { [K in ExtraKeys<D, T>]: never } & ([...N, 0]['length'] extends 5
+    ? unknown
+    : { [K in DataObjectKeys<D>]: DataValueArg<NonNullable<D[K]>, UnionValue<T, K>, [...N, 0]> });
+/** One nested data value against its declared type TV: an array is checked element by element (a tuple by position), an
+ * object key by key against the object members of TV, anything else is left alone. A target of unknown or any (a flexible
+ * sub-key) has no declared keys to check against. */
+export type DataValueArg<V, TV, N extends unknown[]> = unknown extends TV
+  ? unknown
+  : N['length'] extends 5
+    ? unknown
+    : V extends (...args: never[]) => unknown
+      ? unknown
+      : V extends readonly unknown[]
+        ? { [I in keyof V]: DataValueArg<V[I], DataElementTarget<TV, I>, [...N, 0]> }
+        : V extends object
+          ? DataArg<V, Exclude<Extract<TV, object>, readonly unknown[]>, N>
+          : unknown;
+/** The declared type at position I of the array or tuple members of TV */
+export type DataElementTarget<TV, I> = TV extends readonly unknown[]
+  ? I extends keyof TV
+    ? TV[I]
+    : TV[number]
+  : never;
+/** The declared type of key K across the members of a union */
+export type UnionValue<T, K> = T extends unknown ? (K extends keyof T ? T[K] : never) : never;
+/** The keys of D whose value is an object or an array (functions count as objects here and DataValueArg skips them) */
+export type DataObjectKeys<D> = {
+  [K in keyof D]-?: [NonNullable<D[K]>] extends [never] ? never : NonNullable<D[K]> extends object ? K : never;
+}[keyof D];
+/** The keys D adds beyond the union T. A string index signature in T declares every string key, and so every numeric one. */
+export type ExtraKeys<D, T> = Exclude<keyof D, UnionKeys<T> | (string extends UnionKeys<T> ? number : never)>;
 /** Every key of any member of a union (keyof alone gives the keys all members share) */
 export type UnionKeys<T> = T extends unknown ? keyof T : never;
 /** The include argument: I as written, the declared relations for completion, every key beyond them refused, and each

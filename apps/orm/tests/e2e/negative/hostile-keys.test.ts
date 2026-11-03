@@ -173,6 +173,7 @@ describe('Hostile keys — negative cases', () => {
         const row = await seedFlexUser();
 
         await rejects(
+          // @ts-expect-error -- deliberately undeclared key: the types refuse it, the runtime must too
           () => client.db.FlexUser.updateMany({ where: { id: row.id }, data: { strictAddress: { [key]: 'x' } } }),
           `Invalid data: ${unknown(`strictAddress.${key}`)}`,
         );
@@ -188,6 +189,7 @@ describe('Hostile keys — negative cases', () => {
           () =>
             client.db.FlexUser.updateUnique({
               where: { id: row.id },
+              // @ts-expect-error -- deliberately undeclared key: the types refuse it, the runtime must too
               data: { strictAddress: { [key]: 'x' } },
             }),
           `Invalid data: ${unknown(`strictAddress.${key}`)}`,
@@ -210,6 +212,7 @@ describe('Hostile keys — negative cases', () => {
                 profile: { bio: 'b', metadata: { label: 'l' } },
                 strictAddress: ADDRESS,
               },
+              // @ts-expect-error -- deliberately undeclared key: the types refuse it, the runtime must too
               update: { strictAddress: { [key]: 'x' } },
             }),
           `Invalid data: ${unknown(`strictAddress.${key}`)}`,
@@ -229,6 +232,7 @@ describe('Hostile keys — negative cases', () => {
             client.db.RelObjCompany.updateUnique({
               where: { id: company.id },
               data: {
+                // @ts-expect-error -- deliberately undeclared key: the types refuse it, the runtime must too
                 headquarters: { [key]: 'x' },
                 employees: { create: { name: 'E', homeAddress: { street: 'S', city: 'C', state: 'ST' } } },
               },
@@ -248,6 +252,7 @@ describe('Hostile keys — negative cases', () => {
         () =>
           client.db.FlexUser.updateUnique({
             where: { id: row.id },
+            // @ts-expect-error -- deliberately undeclared key: the types refuse it, the runtime must too
             data: { profile: { bio: 'b', bogus: 'x' } },
           }),
         `Invalid data: ${unknown('profile.bogus')}`,

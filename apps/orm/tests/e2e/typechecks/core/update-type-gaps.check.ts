@@ -77,14 +77,16 @@ export const namedProfile: FlexUserUpdate = { profile: { bio: 'b', bogus: 1 } };
 export const namedInput: FlexUserUpdateInput = { name: 'x', bogus: 1 };
 
 // A generic parameter is inferred from the literal, so excess properties are never checked against the constraint;
-// `DataArg` refuses an unknown top-level key anyway, while a key inside a nested value still compiles.
+// `DataArg` refuses an unknown key at the top level and inside a nested value, next to a valid key.
 // Wrong value TYPES are caught either way, because they break assignability.
 export const genericTopLevel = (): unknown =>
   // @ts-expect-error - 'bogus' is not a FlexUser field, and DataArg refuses it next to a valid key
   flexUsers.updateMany({ where: {}, data: { name: 'x', bogus: 1 } });
 export const genericNested = (): unknown =>
+  // @ts-expect-error - 'extra' is not a field of the strict FlexAddress, and DataArg refuses it next to a valid key
   flexUsers.updateMany({ where: {}, data: { strictAddress: { street: 's', extra: 1 } } });
 export const genericProfile = (): unknown =>
+  // @ts-expect-error - 'bogus' is not a FlexProfile field, and DataArg refuses it next to a valid key
   flexUsers.updateMany({ where: {}, data: { profile: { bio: 'b', bogus: 1 } } });
 export const genericUnique = (): unknown =>
   // @ts-expect-error - 'bogus' is not a FlexUser field, and DataArg refuses it next to a valid key

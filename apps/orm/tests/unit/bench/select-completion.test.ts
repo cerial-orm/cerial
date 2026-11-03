@@ -34,6 +34,12 @@ const includedSelect = (select: string): string => included(`{ next: { select: $
 const nestedIncludedSelect = (select: string): string =>
   included(`{ next: { include: { next: { select: ${select} } } } }`);
 
+/** A probe whose last statement puts the cursor inside the `data` of an update */
+const updated = (data: string): string => `import type { CerialClient } from './gen';
+declare const client: CerialClient;
+export const probe = client.db.BenchModel0.updateMany({ where: {}, data: ${data} });
+`;
+
 /** A `select` body with the first `taken` keys set, then the cursor */
 function body(keys: readonly string[], taken: number): string {
   const set = keys.slice(0, taken).map((key) => `${key}: true, `);
@@ -108,6 +114,13 @@ withDist('select key completion', () => {
           }, 120_000);
         }
       }
+
+      // The keys of an embedded object inside update data are offered, including the ones already written
+      test('offers the keys of an embedded object inside update data', async () => {
+        const labels = (await probe.labels(updated('{ profile: { | } }'))).map((entry) => entry.replace(/\?$/, ''));
+
+        expect(OBJECT_KEYS.filter((key) => labels.includes(key))).toEqual(OBJECT_KEYS);
+      }, 120_000);
 
       // The relations of an include: exactly the ones not yet written
       for (const taken of [0, 1]) {
