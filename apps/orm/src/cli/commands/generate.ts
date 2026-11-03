@@ -75,6 +75,7 @@ export async function buildWatchTargets(options: CLIOptions): Promise<WatchTarge
         schemaPath: entry.path,
         outputDir: entry.output,
         clientClassName: entry.clientClassName,
+        typeFiles: entry.typeFiles,
         configPath: options.config,
         ...(entry.entry || entry.files ? { entry: entry.entry, files: entry.files, entryOnly: entry.entryOnly } : {}),
         filter,

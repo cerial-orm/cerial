@@ -10,9 +10,11 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'nod
 import { resolveConfig as resolveFormatConfig } from '../formatter/rules';
 import { type ImportReader, moduleGraph } from '../parser/builder/load';
 import type { FormatConfig } from '../formatter/types';
+import type { TypeFilesMode } from './config';
 import { isExcludedFile } from './filters/path-utils';
 import type { PathFilter } from './filters/types';
 import { formatSingleFile, listedCerialFiles } from './format';
+import type { SingleSchemaOptions } from './generate';
 import { generateSingleSchema } from './generate';
 import { isSchemaFile, isTypescriptSchemaFile, resolveSinglePath } from './resolvers/schema-resolver';
 
@@ -27,6 +29,8 @@ export interface WatchTargetBase {
 export interface WatchTarget extends WatchTargetBase {
   outputDir: string;
   clientClassName?: string;
+  /** The config entry's `typeFiles`; absent means the default, as in a one-shot run */
+  typeFiles?: TypeFilesMode;
   /** The `--config` path the user passed; set only on targets built from a config entry */
   configPath?: string;
   /** The config entry's `defineSchema()` module; its imports are what generation registers, so they are watched */
@@ -422,6 +426,17 @@ export function buildGenerateArgs(target: WatchTarget, cli: CliInvocation): stri
   return [...(cli.args ?? []), cli.entry, 'generate', ...select, '-o', target.outputDir, '--log', 'minimal'];
 }
 
+/** What an in-process regeneration passes to `generateSingleSchema`, so watch and one-shot runs share one layout */
+export function singleSchemaOptions(target: WatchTarget): SingleSchemaOptions {
+  return {
+    schemaPath: target.schemaPath,
+    outputDir: target.outputDir,
+    clientClassName: target.clientClassName,
+    typeFiles: target.typeFiles,
+    logLevel: 'minimal',
+  };
+}
+
 /**
  * Run one generation in a child process of this same CLI, in this process's working directory so a config
  * found relative to it is found again. Resolves with a failure message, or null on success.
@@ -503,12 +518,7 @@ export async function startWatcher(schemas: WatchTarget[], options?: WatcherOpti
     }
 
     try {
-      const result = await generateSingleSchema({
-        schemaPath: target.schemaPath,
-        outputDir: target.outputDir,
-        clientClassName: target.clientClassName,
-        logLevel: 'minimal',
-      });
+      const result = await generateSingleSchema(singleSchemaOptions(target));
 
       const elapsed = Math.round(performance.now() - start);
 
