@@ -1,0 +1,6 @@
+model User {
+  id Record @id
+  email Email @unique
+  name String
+  age Int? @nullable
+}

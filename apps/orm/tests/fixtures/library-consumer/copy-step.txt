@@ -1,0 +1,1 @@
+node -e "const fs=require('fs');fs.cpSync('src/generated','dist/generated',{recursive:true,filter:(s)=>fs.statSync(s).isDirectory()||s.endsWith('.d.ts')})"
