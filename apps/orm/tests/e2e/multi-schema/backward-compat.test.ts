@@ -68,7 +68,7 @@ describe('backward compatibility', () => {
 
     it('should generate models directory with model file', async () => {
       const modelFiles = await readdir(join(outputDir, 'models'));
-      expect(modelFiles).toContain('index.ts');
+      expect(modelFiles).toContain('index.d.ts');
       expect(modelFiles.some((f) => f.includes('mssingleuser'))).toBe(true);
     });
   });

@@ -79,8 +79,8 @@ describe('typeFiles validation', () => {
 
 describe('typeFiles resolution', () => {
   it('resolves to the default when absent', () => {
-    expect(resolveConfig({ schema: './s', output: './o' })[0]!.typeFiles).toBe('ts');
-    expect(resolveConfig({ schemas: { a: { path: './a', output: './o' } } })[0]!.typeFiles).toBe('ts');
+    expect(resolveConfig({ schema: './s', output: './o' })[0]!.typeFiles).toBe('dts');
+    expect(resolveConfig({ schemas: { a: { path: './a', output: './o' } } })[0]!.typeFiles).toBe('dts');
   });
 
   it('carries the root value into the single-schema shorthand', () => {
@@ -138,7 +138,7 @@ describe('typeFiles resolution', () => {
     await writeFile(join(bare, 'cerial.config.json'), JSON.stringify({}));
     const found = await applyFolderOverridesAndDiscover([], bareRoot);
 
-    expect(found.find((e) => e.name === 'discovered-bare')!.typeFiles).toBe('ts');
+    expect(found.find((e) => e.name === 'discovered-bare')!.typeFiles).toBe('dts');
   });
 });
 
@@ -172,7 +172,7 @@ describe('typeFiles in both config formats', () => {
     await writeFile(without, "export default { schema: './s', output: './o' };\n");
 
     expect(resolveConfig((await loadConfig(withKey))!, dir)[0]!.typeFiles).toBe('dts');
-    expect(resolveConfig((await loadConfig(without))!, dir)[0]!.typeFiles).toBe('ts');
+    expect(resolveConfig((await loadConfig(without))!, dir)[0]!.typeFiles).toBe('dts');
   });
 
   it('refuses a bad value in a .ts config', async () => {

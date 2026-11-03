@@ -2,6 +2,7 @@
  * Object writer - writes per-object type files to the objects/ directory
  */
 
+import type { TypeFilesMode } from '../../cli/config/types';
 import { writeFile } from 'node:fs/promises';
 import type { LiteralRegistry, ObjectMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
@@ -29,6 +30,7 @@ import {
   objectHasGeometryFields,
   objectHasUuidFields,
 } from './import-helpers';
+import { typeFileName } from './type-file';
 
 /** Write object type file to objects/ directory */
 export async function writeObjectTypes(
@@ -37,11 +39,12 @@ export async function writeObjectTypes(
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
   literalRegistry?: LiteralRegistry,
+  typeFiles: TypeFilesMode = 'ts',
 ): Promise<string> {
   const objectsDir = `${outputDir}/objects`;
   await ensureDir(objectsDir);
 
-  const filePath = `${objectsDir}/${object.name.toLowerCase()}.ts`;
+  const filePath = `${objectsDir}/${typeFileName(object.name.toLowerCase(), typeFiles)}`;
 
   // Get cross-referenced object names for imports (same directory)
   const referencedObjects = getObjectReferencedObjectNames(object);

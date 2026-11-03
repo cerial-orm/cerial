@@ -88,14 +88,15 @@ describe('case names', () => {
     }
   });
 
-  test('only dts has a second, skipLibCheck=false variant', () => {
+  test('only dts and ts have a second, skipLibCheck=false variant', () => {
     expect(CASES.dts.variants.map((variant) => variant.skipLibCheck)).toEqual([true, false]);
-    for (const name of CASE_NAMES.filter((name) => name !== 'dts')) {
+    expect(CASES.ts.variants.map((variant) => variant.skipLibCheck)).toEqual([true, false]);
+    for (const name of CASE_NAMES.filter((name) => name !== 'dts' && name !== 'ts')) {
       expect(CASES[name].variants.map((variant) => variant.skipLibCheck)).toEqual([true]);
     }
   });
 
-  test('isCaseName accepts the six names and refuses others', () => {
+  test('isCaseName accepts every name and refuses others', () => {
     for (const name of CASE_NAMES) expect(isCaseName(name)).toBe(true);
     expect(isCaseName('no-where')).toBe(false);
   });
@@ -106,6 +107,10 @@ describe('case names', () => {
     expect(() => parseBenchArgs(['--case', 'nope'])).toThrow('--case takes');
   });
 });
+
+const DTS_TREE: Tree = new Map(
+  [...FULL].map(([path, text]) => [/^gen\/(models)\//.test(path) ? path.replace(/\.ts$/, '.d.ts') : path, text]),
+);
 
 describe('transforms on a tree with the pattern', () => {
   test('no-queries drops every query and keeps the import and client', () => {
@@ -159,18 +164,28 @@ describe('transforms on a tree with the pattern', () => {
     expect(model).toContain('S extends UserSelect\n    ? { [K in keyof S]: K }\n    : User;');
   });
 
-  test('dts renames type-only files with their barrels and leaves enums and the root', () => {
-    const next = CASES.dts.transform(FULL);
-
-    expect([...next.keys()].sort()).toEqual(
-      ['consumer.ts', 'gen/enums/role.ts', 'gen/index.ts', 'gen/models/index.d.ts', 'gen/models/user.d.ts'].sort(),
-    );
-    expect(file(next, 'gen/models/user.d.ts')).toBe(MODEL);
+  test('dts measures the tree as generated, and ts asks the generator for typeFiles ts', () => {
+    expect(CASES.dts.transform(DTS_TREE)).toBe(DTS_TREE);
+    expect(CASES.ts.transform(FULL)).toBe(FULL);
+    expect(CASES.ts.typeFiles).toBe('ts');
+    expect(CASES.dts.typeFiles).toBeUndefined();
   });
+
+  test.each(['no-queries', 'no-select', 'flat-select', 'no-include', 'no-compute'] as const)(
+    '%s matches the .d.ts layout as it does .ts',
+    (name) => {
+      const asTs = CASES[name].transform(FULL);
+      const asDts = CASES[name].transform(DTS_TREE);
+
+      expect(file(asDts, 'gen/models/user.d.ts')).toBe(file(asTs, 'gen/models/user.ts'));
+      expect(file(asDts, 'consumer.ts')).toBe(file(asTs, 'consumer.ts'));
+    },
+  );
 
   test('a transform never changes its input', () => {
     const before = new Map(FULL);
-    for (const name of CASE_NAMES) CASES[name].transform(FULL);
+    for (const name of CASE_NAMES.filter((name) => name !== 'dts')) CASES[name].transform(FULL);
+    CASES.dts.transform(DTS_TREE);
 
     expect(FULL).toEqual(before);
   });
@@ -178,7 +193,7 @@ describe('transforms on a tree with the pattern', () => {
 
 describe('transforms on a tree without the pattern', () => {
   test.each(CASE_NAMES)('%s throws', (name: CaseName) => {
-    expect(() => CASES[name].transform(EMPTY)).toThrow(/case (no-|flat-|dts)/);
+    expect(() => CASES[name].transform(EMPTY)).toThrow(/case (no-|flat-|dts|ts)/);
   });
 
   test('no-queries and no-select throw when the tree has no consumer', () => {
@@ -202,10 +217,15 @@ describe('transforms on a tree without the pattern', () => {
     expect(() => CASES['flat-select'].transform(tree)).toThrow('expected shape');
   });
 
-  test('dts throws when only enums and the root exist', () => {
+  test('dts throws when only enums and the root exist, and when the type-only files are plain .ts', () => {
     const tree = treeOf({ 'consumer.ts': '', 'gen/enums/role.ts': 'export {};\n', 'gen/index.ts': 'export {};\n' });
 
-    expect(() => CASES.dts.transform(tree)).toThrow('no type-only file');
+    expect(() => CASES.dts.transform(tree)).toThrow('not the default layout');
+    expect(() => CASES.dts.transform(FULL)).toThrow('not the default layout');
+  });
+
+  test('ts throws on the default layout, so a run that ignored typeFiles cannot pass as the ts row', () => {
+    expect(() => CASES.ts.transform(DTS_TREE)).toThrow('not the typeFiles');
   });
 });
 
@@ -217,7 +237,10 @@ describe('tree on disk', () => {
     writeFileSync(join(dir, 'gen', 'models', 'user.ts'), MODEL);
     writeFileSync(join(dir, 'gen', 'index.ts'), 'export {};\n');
 
-    writeTree(dir, CASES.dts.transform(readTree(dir)));
+    const renamed: Tree = new Map(
+      [...readTree(dir)].map(([path, text]) => [path.replace(/user\.ts$/, 'user.d.ts'), text]),
+    );
+    writeTree(dir, renamed);
 
     expect([...readTree(dir).keys()].sort()).toEqual(['consumer.ts', 'gen/index.ts', 'gen/models/user.d.ts']);
   });
@@ -256,6 +279,7 @@ withDist('every case compiles clean', () => {
     ['no-include', ['3 no-include']],
     ['no-compute', ['3 no-compute']],
     ['dts', ['3 dts', '3 dts skipLibCheck=false']],
+    ['ts', ['3 ts', '3 ts skipLibCheck=false']],
   ];
 
   test.each(ALL)(

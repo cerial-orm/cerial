@@ -2,6 +2,7 @@
  * Model writer - writes per-model type files to the models/ directory
  */
 
+import type { TypeFilesMode } from '../../cli/config/types';
 import { writeFile } from 'node:fs/promises';
 import type { LiteralRegistry, ModelMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
@@ -42,6 +43,7 @@ import {
   TS_TOOLBELT_IMPORT,
   UNIQUE_TYPES_IMPORT,
 } from './import-helpers';
+import { typeFileName } from './type-file';
 
 /** Write model type file to models/ directory */
 export async function writeModelTypes(
@@ -51,11 +53,12 @@ export async function writeModelTypes(
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
   literalRegistry?: LiteralRegistry,
+  typeFiles: TypeFilesMode = 'ts',
 ): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
 
-  const filePath = `${modelsDir}/${model.name.toLowerCase()}.ts`;
+  const filePath = `${modelsDir}/${typeFileName(model.name.toLowerCase(), typeFiles)}`;
 
   // Get related model names for imports, excluding self-references
   const relatedModels = getRelatedModelNames(model).filter((name) => name !== model.name);

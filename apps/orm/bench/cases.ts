@@ -5,7 +5,7 @@
  */
 export type Tree = ReadonlyMap<string, string>;
 
-export const CASE_NAMES = ['no-queries', 'no-select', 'flat-select', 'no-include', 'no-compute', 'dts'] as const;
+export const CASE_NAMES = ['no-queries', 'no-select', 'flat-select', 'no-include', 'no-compute', 'dts', 'ts'] as const;
 export type CaseName = (typeof CASE_NAMES)[number];
 
 export interface CaseVariant {
@@ -15,6 +15,8 @@ export interface CaseVariant {
 }
 
 export interface BenchCase {
+  /** Written to a config before generating; absent runs the CLI's default layout */
+  readonly typeFiles?: 'ts';
   readonly transform: (tree: Tree) => Tree;
   readonly variants: readonly CaseVariant[];
 }
@@ -107,28 +109,35 @@ function noCompute(tree: Tree): Tree {
   return rewriteGenerated(tree, 'no-compute', (text) => text.replace(COMPUTE_WRAP, '=\n$1;'));
 }
 
-/** Type-only files move to `.d.ts` under the same names, barrels included; content is byte-identical */
-function dts(tree: Tree): Tree {
-  const next = new Map<string, string>();
-  let renamed = 0;
+/** Paths of the type-only files of a generated tree, with their barrels */
+function typeOnlyFiles(tree: Tree): string[] {
+  return [...tree.keys()].filter(
+    (path) => path.startsWith('gen/') && path.endsWith('.ts') && TYPE_ONLY_DIRS.includes(path.split('/')[1] ?? ''),
+  );
+}
 
-  for (const [path, text] of tree) {
-    const folder = path.split('/')[1];
-    const typeOnly = path.startsWith('gen/') && path.endsWith('.ts') && TYPE_ONLY_DIRS.includes(folder ?? '');
-    if (!typeOnly || path.endsWith('.d.ts')) {
-      next.set(path, text);
-      continue;
-    }
-
-    next.set(`${path.slice(0, -'.ts'.length)}.d.ts`, text);
-    renamed++;
+/** The default layout: the generator itself wrote the type-only files as `.d.ts`, so the tree is measured as it is */
+function declarations(tree: Tree): Tree {
+  const files = typeOnlyFiles(tree);
+  if (!files.length || files.some((path) => !path.endsWith('.d.ts'))) {
+    throw new Error('case dts: the generated tree is not the default layout of type-only .d.ts files');
   }
-  if (!renamed) throw new Error('case dts: the generated tree has no type-only file to rename');
 
-  return next;
+  return tree;
+}
+
+/** `typeFiles: 'ts'`: the generator wrote plain `.ts` files, so the tree is measured as it is */
+function plainTs(tree: Tree): Tree {
+  const files = typeOnlyFiles(tree);
+  if (!files.length || files.some((path) => path.endsWith('.d.ts'))) {
+    throw new Error("case ts: the generated tree is not the typeFiles: 'ts' layout of plain .ts files");
+  }
+
+  return tree;
 }
 
 const DEFAULT_VARIANT: CaseVariant = { label: '', skipLibCheck: true };
+const STRICT_VARIANT: CaseVariant = { label: ' skipLibCheck=false', skipLibCheck: false };
 
 export const CASES: Record<CaseName, BenchCase> = {
   'no-queries': { transform: noQueries, variants: [DEFAULT_VARIANT] },
@@ -136,8 +145,9 @@ export const CASES: Record<CaseName, BenchCase> = {
   'flat-select': { transform: flatSelect, variants: [DEFAULT_VARIANT] },
   'no-include': { transform: noInclude, variants: [DEFAULT_VARIANT] },
   'no-compute': { transform: noCompute, variants: [DEFAULT_VARIANT] },
-  // The second row type-checks the declaration files that `skipLibCheck: true` would skip
-  dts: { transform: dts, variants: [DEFAULT_VARIANT, { label: ' skipLibCheck=false', skipLibCheck: false }] },
+  // The second row of each layout type-checks the files that `skipLibCheck: true` would skip
+  dts: { transform: declarations, variants: [DEFAULT_VARIANT, STRICT_VARIANT] },
+  ts: { typeFiles: 'ts', transform: plainTs, variants: [DEFAULT_VARIANT, STRICT_VARIANT] },
 };
 
 export function isCaseName(value: string): value is CaseName {

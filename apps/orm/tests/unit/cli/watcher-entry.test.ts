@@ -30,7 +30,7 @@ describe('watching an entry module', () => {
 
   it('does not trigger on generated output, including cerial/handles.ts', () => {
     expect(shouldTriggerRegeneration('client/index.ts', undefined, scope)).toBe(false);
-    expect(shouldTriggerRegeneration('client/models/user.ts', undefined, scope)).toBe(false);
+    expect(shouldTriggerRegeneration('client/models/user.d.ts', undefined, scope)).toBe(false);
     expect(shouldTriggerRegeneration('cerial/handles.ts', undefined, scope)).toBe(false);
     expect(shouldTriggerRegeneration('users/cerial/handles.ts', undefined, scope)).toBe(false);
   });

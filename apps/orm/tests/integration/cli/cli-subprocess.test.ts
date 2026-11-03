@@ -61,7 +61,7 @@ describe('cerial generate (subprocess)', () => {
     for (const file of [
       'client.ts',
       'index.ts',
-      'models/user.ts',
+      'models/user.d.ts',
       'internal/model-registry.ts',
       'internal/manifest.ts',
     ]) {

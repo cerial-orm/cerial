@@ -83,6 +83,6 @@ describe('the three authoring forms', () => {
     const changed = await generateClient(FORMS[0]![1], ['schema/account.cerial', 'title String', 'heading String']);
     const differing = Object.keys(clients[0]!).filter((name) => changed[name] !== clients[0]![name]);
 
-    expect(differing).toContain('models/ticket.ts');
+    expect(differing).toContain('models/ticket.d.ts');
   });
 });

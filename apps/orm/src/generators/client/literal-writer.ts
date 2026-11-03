@@ -2,6 +2,7 @@
  * Literal writer - writes per-literal type files to the literals/ directory
  */
 
+import type { TypeFilesMode } from '../../cli/config/types';
 import { writeFile } from 'node:fs/promises';
 import type { LiteralMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
@@ -12,6 +13,7 @@ import {
   getLiteralReferencedObjectNames,
   getLiteralReferencedTupleNames,
 } from './import-helpers';
+import { typeFileName } from './type-file';
 
 /** Write literal type file to literals/ directory */
 export async function writeLiteralFile(
@@ -19,11 +21,12 @@ export async function writeLiteralFile(
   literal: LiteralMetadata,
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  typeFiles: TypeFilesMode = 'ts',
 ): Promise<string> {
   const literalsDir = `${outputDir}/literals`;
   await ensureDir(literalsDir);
 
-  const filePath = `${literalsDir}/${literal.name.toLowerCase()}.ts`;
+  const filePath = `${literalsDir}/${typeFileName(literal.name.toLowerCase(), typeFiles)}`;
 
   // Get cross-referenced object names for imports (cross-directory)
   const referencedObjects = getLiteralReferencedObjectNames(literal);

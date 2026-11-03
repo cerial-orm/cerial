@@ -81,7 +81,7 @@ async function generated(files: Record<string, string>): Promise<(model: string)
   const result = await generateSingleSchema({ schemaPath: dir, outputDir: out, logLevel: 'minimal' });
   expect(result.errors).toEqual([]);
 
-  return (name) => readFile(join(out, 'models', `${name.toLowerCase()}.ts`), 'utf8');
+  return (name) => readFile(join(out, 'models', `${name.toLowerCase()}.d.ts`), 'utf8');
 }
 
 // Targets declared in `.cerial`, each reached by one optional relation from a TypeScript model

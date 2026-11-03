@@ -64,15 +64,15 @@ describe('the mixed project through the CLI', () => {
     const files = (await readdir(join(mixed.dir, 'client'), { recursive: true })).sort();
 
     for (const file of [
-      'models/account.ts',
-      'models/purchase.ts',
-      'models/ticket.ts',
-      'objects/address.ts',
-      'objects/meta.ts',
-      'tuples/point.ts',
-      'tuples/pair.ts',
-      'literals/level.ts',
-      'literals/priority.ts',
+      'models/account.d.ts',
+      'models/purchase.d.ts',
+      'models/ticket.d.ts',
+      'objects/address.d.ts',
+      'objects/meta.d.ts',
+      'tuples/point.d.ts',
+      'tuples/pair.d.ts',
+      'literals/level.d.ts',
+      'literals/priority.d.ts',
       'enums/role.ts',
       'enums/status.ts',
     ]) {
@@ -81,7 +81,7 @@ describe('the mixed project through the CLI', () => {
   });
 
   it('types the fields of a .cerial model by the four TypeScript declarations', async () => {
-    const account = declaration(await generated(mixed.dir, 'models/account.ts'), 'Account');
+    const account = declaration(await generated(mixed.dir, 'models/account.d.ts'), 'Account');
 
     expect(account).toMatch(/address: Address;/);
     expect(account).toMatch(/spot: Point;/);
@@ -90,7 +90,7 @@ describe('the mixed project through the CLI', () => {
   });
 
   it('types the fields of a TypeScript model by the four .cerial declarations', async () => {
-    const purchase = declaration(await generated(mixed.dir, 'models/purchase.ts'), 'Purchase');
+    const purchase = declaration(await generated(mixed.dir, 'models/purchase.d.ts'), 'Purchase');
 
     expect(purchase).toMatch(/meta: Meta;/);
     expect(purchase).toMatch(/pair: Pair;/);
@@ -99,8 +99,8 @@ describe('the mixed project through the CLI', () => {
   });
 
   it('relates a TypeScript model to a .cerial one through its handle, and back by name', async () => {
-    const purchase = await generated(mixed.dir, 'models/purchase.ts');
-    const ticket = await generated(mixed.dir, 'models/ticket.ts');
+    const purchase = await generated(mixed.dir, 'models/purchase.d.ts');
+    const ticket = await generated(mixed.dir, 'models/ticket.d.ts');
 
     expect(declaration(purchase, 'Purchase')).toMatch(/accountId: CerialId<number>;/);
     expect(purchase).toMatch(/account\?: Omit<AccountWhere, '\$raw'>;/);

@@ -18,7 +18,7 @@ import type {
   TupleRegistry,
 } from '../types';
 import type { CerialConfig, ResolvedSchemaEntry, TypeFilesMode } from './config';
-import { loadConfig, resolveConfig, validateCombinedEntries } from './config';
+import { DEFAULT_TYPE_FILES, loadConfig, resolveConfig, validateCombinedEntries } from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { discoveredClientClassName, discoverSchemaRoots } from './discover-roots';
@@ -64,7 +64,7 @@ export interface SingleSchemaOptions {
   connection?: ConnectionConfig;
   /** Tables this entry shares with another entry; the client refuses to connect to any other database */
   databasePins?: DatabasePin[];
-  /** Extension of the generated type-only files; absent means the default. Nothing reads it yet */
+  /** Extension of the generated type-only files; absent means the default */
   typeFiles?: TypeFilesMode;
 }
 
@@ -233,7 +233,14 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     errors: [],
   };
 
-  const { outputDir, logLevel = 'minimal', clientClassName, connection, databasePins } = options;
+  const {
+    outputDir,
+    logLevel = 'minimal',
+    clientClassName,
+    connection,
+    databasePins,
+    typeFiles = DEFAULT_TYPE_FILES,
+  } = options;
   logger.setOutputLevel(logLevel);
 
   // Throws, like the cross-entry check, so no file is written and the caller cannot treat it as a soft failure
@@ -409,12 +416,13 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
         clientClassName,
         connection,
         databasePins,
+        typeFiles,
       );
       result.files.push(...clientFiles);
       if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(toFinal(f)));
 
       if (logLevel === 'medium') {
-        const modelFiles = clientFiles.filter((f) => f.includes('/models/') && !f.endsWith('index.ts'));
+        const modelFiles = clientFiles.filter((f) => f.includes('/models/') && !/\/index(\.d)?\.ts$/.test(f));
         logger.info(`  ${modelFiles.length} model files`);
         logger.info(`  3 internal files`);
         logger.info(`  ${clientFiles.length - modelFiles.length} client files`);

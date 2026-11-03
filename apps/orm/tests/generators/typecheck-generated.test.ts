@@ -74,7 +74,7 @@ describe.each(COMPILERS)('typecheck:generated under %s', (compiler) => {
 
   test('fails on a deleted import that skipLibCheck would turn into any', async () => {
     const file = 'models/user.d.ts';
-    const source = readFileSync(join(GENERATED, 'models/user.ts'), 'utf8');
+    const source = readFileSync(join(GENERATED, 'models/user.d.ts'), 'utf8');
     const removed = "import type { RecordIdInput } from 'cerial';\n";
     // The import must be both present and used, or the case proves nothing
     expect(source).toContain(removed);

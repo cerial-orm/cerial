@@ -52,6 +52,10 @@ function stable(value: unknown): unknown {
   );
 }
 
+/** The default layout emits type-only files as `.d.ts`; the snapshot keys keep the `.ts` name they always had. */
+const keyOf = (relative: string): string =>
+  /^(models|objects|tuples|literals)\//.test(relative) ? relative.replace(/\.d\.ts$/, '.ts') : relative;
+
 const KINDS = ['models', 'objects', 'tuples', 'literals', 'enums'] as const;
 type Kind = (typeof KINDS)[number];
 
@@ -98,7 +102,8 @@ async function generate(outputDir: string): Promise<Generated> {
     const dir = join(outputDir, kind);
     if (!existsSync(dir)) continue;
     for (const name of readdirSync(dir)) {
-      if (name !== 'index.ts') files.set(`${kind}/${name}`, readFileSync(join(dir, name), 'utf8'));
+      const key = keyOf(`${kind}/${name}`);
+      if (key !== `${kind}/index.ts`) files.set(key, readFileSync(join(dir, name), 'utf8'));
     }
   }
 
@@ -107,7 +112,7 @@ async function generate(outputDir: string): Promise<Generated> {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const path = join(dir, entry.name);
       if (entry.isDirectory()) walk(path);
-      else all.set(relative(outputDir, path), readFileSync(path, 'utf8'));
+      else all.set(keyOf(relative(outputDir, path)), readFileSync(path, 'utf8'));
     }
   };
   walk(outputDir);

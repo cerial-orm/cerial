@@ -9,7 +9,7 @@ import type { ConnectionConfig } from '../../types/metadata.types';
 export type TypeFilesMode = 'dts' | 'ts';
 
 /** What an absent `typeFiles` resolves to */
-export const DEFAULT_TYPE_FILES: TypeFilesMode = 'ts';
+export const DEFAULT_TYPE_FILES: TypeFilesMode = 'dts';
 
 /** The fields every schema entry shares */
 interface SchemaEntryBase {

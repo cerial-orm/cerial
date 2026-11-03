@@ -4,6 +4,7 @@
 
 import { writeFile } from 'node:fs/promises';
 
+import type { TypeFilesMode } from '../../cli/config/types';
 import type {
   ConnectionConfig,
   DatabasePin,
@@ -73,6 +74,7 @@ export async function writeClient(
   clientClassName: string = 'CerialClient',
   connection?: ConnectionConfig,
   databasePins?: DatabasePin[],
+  typeFiles: TypeFilesMode = 'ts',
 ): Promise<string[]> {
   const files: string[] = [];
 
@@ -86,31 +88,33 @@ export async function writeClient(
 
   // Write literal types (they don't depend on anything except objects/tuples they reference)
   for (const literal of literals) {
-    files.push(await writeLiteralFile(outputDir, literal, objectRegistry, tupleRegistry));
+    files.push(await writeLiteralFile(outputDir, literal, objectRegistry, tupleRegistry, typeFiles));
   }
 
   // Write tuple types (before objects and models so imports can resolve)
   for (const tuple of tuples) {
-    files.push(await writeTupleTypes(outputDir, tuple, tupleRegistry, objectRegistry, literalRegistry));
+    files.push(await writeTupleTypes(outputDir, tuple, tupleRegistry, objectRegistry, literalRegistry, typeFiles));
   }
 
   // Write object types (before models so model imports can resolve)
   for (const object of objects) {
-    files.push(await writeObjectTypes(outputDir, object, objectRegistry, tupleRegistry, literalRegistry));
+    files.push(await writeObjectTypes(outputDir, object, objectRegistry, tupleRegistry, literalRegistry, typeFiles));
   }
 
   // Write model types
   for (const model of models) {
-    files.push(await writeModelTypes(outputDir, model, models, objectRegistry, tupleRegistry, literalRegistry));
+    files.push(
+      await writeModelTypes(outputDir, model, models, objectRegistry, tupleRegistry, literalRegistry, typeFiles),
+    );
   }
 
   // Write barrel files for each type directory
-  files.push(await writeModelsIndex(outputDir, models));
-  const objectsIndex = await writeObjectsIndex(outputDir, objects);
+  files.push(await writeModelsIndex(outputDir, models, typeFiles));
+  const objectsIndex = await writeObjectsIndex(outputDir, objects, typeFiles);
   if (objectsIndex) files.push(objectsIndex);
-  const tuplesIndex = await writeTuplesIndex(outputDir, tuples);
+  const tuplesIndex = await writeTuplesIndex(outputDir, tuples, typeFiles);
   if (tuplesIndex) files.push(tuplesIndex);
-  const literalsIndex = await writeLiteralsIndex(outputDir, literals);
+  const literalsIndex = await writeLiteralsIndex(outputDir, literals, typeFiles);
   if (literalsIndex) files.push(literalsIndex);
   const enumsIndex = await writeEnumsIndex(outputDir, enums);
   if (enumsIndex) files.push(enumsIndex);

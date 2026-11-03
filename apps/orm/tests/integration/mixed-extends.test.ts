@@ -227,11 +227,11 @@ describe('an abstract parent in either syntax', () => {
       expect(result.errors).toEqual([]);
       // The children are generated, so what is absent below is the parents' doing and not an empty run
       for (const name of concrete) {
-        expect(names).toContain(`models/${name.toLowerCase()}.ts`);
+        expect(names).toContain(`models/${name.toLowerCase()}.d.ts`);
         expect(text).toMatch(new RegExp(`\\b${name}\\b`));
       }
       for (const name of abstract) {
-        expect(names.map((f) => f.toLowerCase())).not.toContain(`models/${name.toLowerCase()}.ts`);
+        expect(names.map((f) => f.toLowerCase())).not.toContain(`models/${name.toLowerCase()}.d.ts`);
         expect(text).not.toMatch(new RegExp(`\\b${name}\\b`));
       }
     });

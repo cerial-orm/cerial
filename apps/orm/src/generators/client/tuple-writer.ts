@@ -2,6 +2,7 @@
  * Tuple writer - writes per-tuple type files to the tuples/ directory
  */
 
+import type { TypeFilesMode } from '../../cli/config/types';
 import { writeFile } from 'node:fs/promises';
 import type { LiteralRegistry, ObjectRegistry, TupleMetadata, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
@@ -35,6 +36,7 @@ import {
   tupleHasGeometryElements,
   tupleHasUuidElements,
 } from './import-helpers';
+import { typeFileName } from './type-file';
 
 /** Write tuple type file to tuples/ directory */
 export async function writeTupleTypes(
@@ -43,11 +45,12 @@ export async function writeTupleTypes(
   tupleRegistry?: TupleRegistry,
   objectRegistry?: ObjectRegistry,
   literalRegistry?: LiteralRegistry,
+  typeFiles: TypeFilesMode = 'ts',
 ): Promise<string> {
   const tuplesDir = `${outputDir}/tuples`;
   await ensureDir(tuplesDir);
 
-  const filePath = `${tuplesDir}/${tuple.name.toLowerCase()}.ts`;
+  const filePath = `${tuplesDir}/${typeFileName(tuple.name.toLowerCase(), typeFiles)}`;
 
   // Get cross-referenced object names for imports (cross-directory)
   const referencedObjectsSet = new Set(getTupleReferencedObjectNames(tuple));

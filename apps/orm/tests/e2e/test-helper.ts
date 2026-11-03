@@ -16,7 +16,7 @@ import { resolveTestDatabase } from './run-guard';
 
 // Re-export client class and all generated models
 export { CerialClient } from './generated/client';
-export * from './generated/models';
+export type * from './generated/models';
 
 /**
  * Test database configuration

@@ -4,14 +4,20 @@
 
 import { writeFile } from 'node:fs/promises';
 import type { LiteralMetadata, ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
+import type { TypeFilesMode } from '../../cli/config/types';
 import { ensureDir, formatCode } from '../shared';
+import { typeFileName } from './type-file';
 
 /** Write models/index.ts barrel file (models only). The type barrels use `export type *` so they hold no runtime */
-export async function writeModelsIndex(outputDir: string, models: ModelMetadata[]): Promise<string> {
+export async function writeModelsIndex(
+  outputDir: string,
+  models: ModelMetadata[],
+  typeFiles: TypeFilesMode = 'ts',
+): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
 
-  const filePath = `${modelsDir}/index.ts`;
+  const filePath = `${modelsDir}/${typeFileName('index', typeFiles)}`;
   const exports = models.map((m) => `export type * from './${m.name.toLowerCase()}';`).join('\n');
 
   const content = `/**
@@ -29,13 +35,17 @@ ${exports}
 }
 
 /** Write objects/index.ts barrel file (objects only) */
-export async function writeObjectsIndex(outputDir: string, objects: ObjectMetadata[]): Promise<string> {
+export async function writeObjectsIndex(
+  outputDir: string,
+  objects: ObjectMetadata[],
+  typeFiles: TypeFilesMode = 'ts',
+): Promise<string> {
   if (!objects.length) return '';
 
   const objectsDir = `${outputDir}/objects`;
   await ensureDir(objectsDir);
 
-  const filePath = `${objectsDir}/index.ts`;
+  const filePath = `${objectsDir}/${typeFileName('index', typeFiles)}`;
   const exports = objects.map((o) => `export type * from './${o.name.toLowerCase()}';`).join('\n');
 
   const content = `/**
@@ -53,13 +63,17 @@ ${exports}
 }
 
 /** Write tuples/index.ts barrel file (tuples only) */
-export async function writeTuplesIndex(outputDir: string, tuples: TupleMetadata[]): Promise<string> {
+export async function writeTuplesIndex(
+  outputDir: string,
+  tuples: TupleMetadata[],
+  typeFiles: TypeFilesMode = 'ts',
+): Promise<string> {
   if (!tuples.length) return '';
 
   const tuplesDir = `${outputDir}/tuples`;
   await ensureDir(tuplesDir);
 
-  const filePath = `${tuplesDir}/index.ts`;
+  const filePath = `${tuplesDir}/${typeFileName('index', typeFiles)}`;
   const exports = tuples.map((t) => `export type * from './${t.name.toLowerCase()}';`).join('\n');
 
   const content = `/**
@@ -77,13 +91,17 @@ ${exports}
 }
 
 /** Write literals/index.ts barrel file (literals only) */
-export async function writeLiteralsIndex(outputDir: string, literals: LiteralMetadata[]): Promise<string> {
+export async function writeLiteralsIndex(
+  outputDir: string,
+  literals: LiteralMetadata[],
+  typeFiles: TypeFilesMode = 'ts',
+): Promise<string> {
   if (!literals.length) return '';
 
   const literalsDir = `${outputDir}/literals`;
   await ensureDir(literalsDir);
 
-  const filePath = `${literalsDir}/index.ts`;
+  const filePath = `${literalsDir}/${typeFileName('index', typeFiles)}`;
   const exports = literals.map((l) => `export type * from './${l.name.toLowerCase()}';`).join('\n');
 
   const content = `/**

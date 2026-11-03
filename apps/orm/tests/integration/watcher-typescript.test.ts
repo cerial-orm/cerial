@@ -116,7 +116,7 @@ describe('which files trigger regeneration', () => {
 
   it('generated output never triggers', () => {
     expect(shouldTriggerRegeneration('client/index.ts', undefined, scope)).toBe(false);
-    expect(shouldTriggerRegeneration('client/models/user.ts', undefined, scope)).toBe(false);
+    expect(shouldTriggerRegeneration('client/models/user.d.ts', undefined, scope)).toBe(false);
     expect(shouldTriggerRegeneration('cerial/handles.ts', undefined, scope)).toBe(false);
     expect(shouldTriggerRegeneration('nested/cerial/handles.ts', undefined, scope)).toBe(false);
   });

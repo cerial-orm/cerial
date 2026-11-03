@@ -93,8 +93,8 @@ describe('config-based multi-schema generation', () => {
 
     it('should include auth models only in auth output', async () => {
       const authFiles = await readdir(join(authOutput, 'models'), { recursive: true });
-      const modelFiles = authFiles.filter((f) => f.endsWith('.ts') && f !== 'index.ts');
-      const modelNames = modelFiles.map((f) => f.replace('.ts', ''));
+      const modelFiles = authFiles.filter((f) => f.endsWith('.d.ts') && f !== 'index.d.ts');
+      const modelNames = modelFiles.map((f) => f.replace('.d.ts', ''));
 
       expect(modelNames).toContain('msauthuser');
       expect(modelNames).toContain('msauthsession');
@@ -103,8 +103,8 @@ describe('config-based multi-schema generation', () => {
 
     it('should include cms models only in cms output', async () => {
       const cmsFiles = await readdir(join(cmsOutput, 'models'), { recursive: true });
-      const modelFiles = cmsFiles.filter((f) => f.endsWith('.ts') && f !== 'index.ts');
-      const modelNames = modelFiles.map((f) => f.replace('.ts', ''));
+      const modelFiles = cmsFiles.filter((f) => f.endsWith('.d.ts') && f !== 'index.d.ts');
+      const modelNames = modelFiles.map((f) => f.replace('.d.ts', ''));
 
       expect(modelNames).toContain('mscmspage');
       expect(modelNames).toContain('mscmsblock');
@@ -225,7 +225,7 @@ describe('config-based multi-schema generation', () => {
       const cmsSet = new Set(cmsModels);
 
       for (const f of authSet) {
-        if (f !== 'index.ts') {
+        if (f !== 'index.d.ts') {
           expect(cmsSet.has(f)).toBe(false);
         }
       }

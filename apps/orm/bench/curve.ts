@@ -225,12 +225,19 @@ export function writeTree(caseDir: string, tree: Tree): void {
   }
 }
 
-async function generate(schemaDir: string, genDir: string): Promise<number> {
+/** `typeFiles` has no CLI flag, so a case that sets it generates through a config beside the case directory's `gen` */
+async function generate(schemaDir: string, genDir: string, typeFiles?: 'ts'): Promise<number> {
   const started = performance.now();
-  const proc = Bun.spawn(
-    ['node', join(PACKAGE_ROOT, 'dist', 'bin', 'cerial.mjs'), 'generate', '-s', schemaDir, '-o', genDir, '-y'],
-    { stdout: 'pipe', stderr: 'pipe' },
-  );
+  const source = ['-s', schemaDir, '-o', genDir];
+  if (typeFiles) {
+    const config = join(dirname(genDir), 'cerial.config.json');
+    writeFileSync(config, JSON.stringify({ typeFiles, schema: schemaDir, output: genDir }));
+    source.splice(0, source.length, '-C', config);
+  }
+  const proc = Bun.spawn(['node', join(PACKAGE_ROOT, 'dist', 'bin', 'cerial.mjs'), 'generate', ...source, '-y'], {
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
   const [stdout, stderr, exitCode] = await Promise.all([proc.stdout.text(), proc.stderr.text(), proc.exited]);
   const elapsed = performance.now() - started;
   if (exitCode !== 0) throw new Error(`cerial generate failed (exit ${exitCode}): ${(stderr || stdout).slice(0, 500)}`);
@@ -279,13 +286,13 @@ export async function measureCase(
   linkDependencies(caseDir);
   writeFileSync(join(caseDir, 'consumer.ts'), input.consumer);
 
+  const benchCase = options.case ? CASES[options.case] : null;
   const codegen: number[] = [];
   for (let run = 0; run < options.runs; run++) {
     rmSync(genDir, { recursive: true, force: true });
-    codegen.push(await generate(input.schemaDir, genDir));
+    codegen.push(await generate(input.schemaDir, genDir, benchCase?.typeFiles));
   }
 
-  const benchCase = options.case ? CASES[options.case] : null;
   if (benchCase) writeTree(caseDir, benchCase.transform(readTree(caseDir)));
 
   const stats = treeStats(genDir);
