@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -233,7 +235,7 @@ export interface ExtAddressUserModel {
     D extends ExtAddressUserUpdateInput = ExtAddressUserUpdateInput,
   >(options: {
     where: ExtAddressUserWhere;
-    data: D;
+    data: DataArg<D, ExtAddressUserUpdateInput>;
     unset?: SafeUnset<ExtAddressUserUnset, D>;
     select?: SelectArg<S, ExtAddressUserSelectFields>;
     txn?: CerialTransaction;
@@ -245,7 +247,7 @@ export interface ExtAddressUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtAddressUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtAddressUserUpdateInput>;
     unset?: SafeUnset<ExtAddressUserUnset, D>;
     select?: SelectArg<S, ExtAddressUserSelectFields>;
     /**
@@ -265,7 +267,7 @@ export interface ExtAddressUserModel {
   >(options: {
     where: ExtAddressUserFindUniqueWhere;
     create: ExtAddressUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtAddressUserUpdateInput>;
     unset?: SafeUnset<ExtAddressUserUnset, D>;
     select?: SelectArg<S, ExtAddressUserSelectFields>;
     /**
@@ -285,7 +287,7 @@ export interface ExtAddressUserModel {
   >(options: {
     where: ExtAddressUserWhere;
     create: ExtAddressUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtAddressUserUpdateInput>;
     unset?: SafeUnset<ExtAddressUserUnset, D>;
     select?: SelectArg<S, ExtAddressUserSelectFields>;
     /**
@@ -348,6 +350,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -505,7 +509,7 @@ export interface ExtChainModelModel {
     D extends ExtChainModelUpdateInput = ExtChainModelUpdateInput,
   >(options: {
     where: ExtChainModelWhere;
-    data: D;
+    data: DataArg<D, ExtChainModelUpdateInput>;
     unset?: SafeUnset<ExtChainModelUnset, D>;
     select?: SelectArg<S, ExtChainModelSelectFields>;
     txn?: CerialTransaction;
@@ -517,7 +521,7 @@ export interface ExtChainModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtChainModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtChainModelUpdateInput>;
     unset?: SafeUnset<ExtChainModelUnset, D>;
     select?: SelectArg<S, ExtChainModelSelectFields>;
     /**
@@ -537,7 +541,7 @@ export interface ExtChainModelModel {
   >(options: {
     where: ExtChainModelFindUniqueWhere;
     create: ExtChainModelCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtChainModelUpdateInput>;
     unset?: SafeUnset<ExtChainModelUnset, D>;
     select?: SelectArg<S, ExtChainModelSelectFields>;
     /**
@@ -557,7 +561,7 @@ export interface ExtChainModelModel {
   >(options: {
     where: ExtChainModelWhere;
     create: ExtChainModelCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtChainModelUpdateInput>;
     unset?: SafeUnset<ExtChainModelUnset, D>;
     select?: SelectArg<S, ExtChainModelSelectFields>;
     /**

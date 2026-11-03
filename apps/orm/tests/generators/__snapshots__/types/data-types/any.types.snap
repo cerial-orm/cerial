@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -200,7 +202,7 @@ export interface AnyBasicModel {
     D extends AnyBasicUpdateInput = AnyBasicUpdateInput,
   >(options: {
     where: AnyBasicWhere;
-    data: D;
+    data: DataArg<D, AnyBasicUpdateInput>;
     unset?: SafeUnset<AnyBasicUnset, D>;
     select?: SelectArg<S, AnyBasicSelectFields>;
     txn?: CerialTransaction;
@@ -212,7 +214,7 @@ export interface AnyBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: AnyBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, AnyBasicUpdateInput>;
     unset?: SafeUnset<AnyBasicUnset, D>;
     select?: SelectArg<S, AnyBasicSelectFields>;
     /**
@@ -232,7 +234,7 @@ export interface AnyBasicModel {
   >(options: {
     where: AnyBasicFindUniqueWhere;
     create: AnyBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, AnyBasicUpdateInput>;
     unset?: SafeUnset<AnyBasicUnset, D>;
     select?: SelectArg<S, AnyBasicSelectFields>;
     /**
@@ -252,7 +254,7 @@ export interface AnyBasicModel {
   >(options: {
     where: AnyBasicWhere;
     create: AnyBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, AnyBasicUpdateInput>;
     unset?: SafeUnset<AnyBasicUnset, D>;
     select?: SelectArg<S, AnyBasicSelectFields>;
     /**
@@ -317,6 +319,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -577,7 +581,7 @@ export interface AnyDecoratedModel {
     D extends AnyDecoratedUpdateInput = AnyDecoratedUpdateInput,
   >(options: {
     where: AnyDecoratedWhere;
-    data: D;
+    data: DataArg<D, AnyDecoratedUpdateInput>;
     unset?: SafeUnset<AnyDecoratedUnset, D>;
     select?: SelectArg<S, AnyDecoratedSelectFields>;
     txn?: CerialTransaction;
@@ -589,7 +593,7 @@ export interface AnyDecoratedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: AnyDecoratedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, AnyDecoratedUpdateInput>;
     unset?: SafeUnset<AnyDecoratedUnset, D>;
     select?: SelectArg<S, AnyDecoratedSelectFields>;
     /**
@@ -609,7 +613,7 @@ export interface AnyDecoratedModel {
   >(options: {
     where: AnyDecoratedFindUniqueWhere;
     create: AnyDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, AnyDecoratedUpdateInput>;
     unset?: SafeUnset<AnyDecoratedUnset, D>;
     select?: SelectArg<S, AnyDecoratedSelectFields>;
     /**
@@ -629,7 +633,7 @@ export interface AnyDecoratedModel {
   >(options: {
     where: AnyDecoratedWhere;
     create: AnyDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, AnyDecoratedUpdateInput>;
     unset?: SafeUnset<AnyDecoratedUnset, D>;
     select?: SelectArg<S, AnyDecoratedSelectFields>;
     /**
@@ -693,6 +697,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -841,7 +847,7 @@ export interface AnyUniqueModel {
     D extends AnyUniqueUpdateInput = AnyUniqueUpdateInput,
   >(options: {
     where: AnyUniqueWhere;
-    data: D;
+    data: DataArg<D, AnyUniqueUpdateInput>;
     unset?: SafeUnset<AnyUniqueUnset, D>;
     select?: SelectArg<S, AnyUniqueSelectFields>;
     txn?: CerialTransaction;
@@ -853,7 +859,7 @@ export interface AnyUniqueModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: AnyUniqueFindUniqueWhere;
-    data: D;
+    data: DataArg<D, AnyUniqueUpdateInput>;
     unset?: SafeUnset<AnyUniqueUnset, D>;
     select?: SelectArg<S, AnyUniqueSelectFields>;
     /**
@@ -873,7 +879,7 @@ export interface AnyUniqueModel {
   >(options: {
     where: AnyUniqueFindUniqueWhere;
     create: AnyUniqueCreateInput;
-    update?: D;
+    update?: DataArg<D, AnyUniqueUpdateInput>;
     unset?: SafeUnset<AnyUniqueUnset, D>;
     select?: SelectArg<S, AnyUniqueSelectFields>;
     /**
@@ -893,7 +899,7 @@ export interface AnyUniqueModel {
   >(options: {
     where: AnyUniqueWhere;
     create: AnyUniqueCreateInput;
-    update?: D;
+    update?: DataArg<D, AnyUniqueUpdateInput>;
     unset?: SafeUnset<AnyUniqueUnset, D>;
     select?: SelectArg<S, AnyUniqueSelectFields>;
     /**
@@ -956,6 +962,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1104,7 +1112,7 @@ export interface AnyWithObjectModel {
     D extends AnyWithObjectUpdateInput = AnyWithObjectUpdateInput,
   >(options: {
     where: AnyWithObjectWhere;
-    data: D;
+    data: DataArg<D, AnyWithObjectUpdateInput>;
     unset?: SafeUnset<AnyWithObjectUnset, D>;
     select?: SelectArg<S, AnyWithObjectSelectFields>;
     txn?: CerialTransaction;
@@ -1116,7 +1124,7 @@ export interface AnyWithObjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: AnyWithObjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, AnyWithObjectUpdateInput>;
     unset?: SafeUnset<AnyWithObjectUnset, D>;
     select?: SelectArg<S, AnyWithObjectSelectFields>;
     /**
@@ -1136,7 +1144,7 @@ export interface AnyWithObjectModel {
   >(options: {
     where: AnyWithObjectFindUniqueWhere;
     create: AnyWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, AnyWithObjectUpdateInput>;
     unset?: SafeUnset<AnyWithObjectUnset, D>;
     select?: SelectArg<S, AnyWithObjectSelectFields>;
     /**
@@ -1156,7 +1164,7 @@ export interface AnyWithObjectModel {
   >(options: {
     where: AnyWithObjectWhere;
     create: AnyWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, AnyWithObjectUpdateInput>;
     unset?: SafeUnset<AnyWithObjectUnset, D>;
     select?: SelectArg<S, AnyWithObjectSelectFields>;
     /**

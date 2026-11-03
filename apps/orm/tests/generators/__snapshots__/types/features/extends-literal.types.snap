@@ -19,6 +19,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -196,7 +198,7 @@ export interface ExtLiteralContainerModel {
     D extends ExtLiteralContainerUpdateInput = ExtLiteralContainerUpdateInput,
   >(options: {
     where: ExtLiteralContainerWhere;
-    data: D;
+    data: DataArg<D, ExtLiteralContainerUpdateInput>;
     unset?: SafeUnset<ExtLiteralContainerUnset, D>;
     select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     txn?: CerialTransaction;
@@ -208,7 +210,7 @@ export interface ExtLiteralContainerModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtLiteralContainerFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtLiteralContainerUpdateInput>;
     unset?: SafeUnset<ExtLiteralContainerUnset, D>;
     select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     /**
@@ -228,7 +230,7 @@ export interface ExtLiteralContainerModel {
   >(options: {
     where: ExtLiteralContainerFindUniqueWhere;
     create: ExtLiteralContainerCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtLiteralContainerUpdateInput>;
     unset?: SafeUnset<ExtLiteralContainerUnset, D>;
     select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     /**
@@ -248,7 +250,7 @@ export interface ExtLiteralContainerModel {
   >(options: {
     where: ExtLiteralContainerWhere;
     create: ExtLiteralContainerCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtLiteralContainerUpdateInput>;
     unset?: SafeUnset<ExtLiteralContainerUnset, D>;
     select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     /**
@@ -314,6 +316,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -484,7 +488,7 @@ export interface ExtLiteralModelModel {
     D extends ExtLiteralModelUpdateInput = ExtLiteralModelUpdateInput,
   >(options: {
     where: ExtLiteralModelWhere;
-    data: D;
+    data: DataArg<D, ExtLiteralModelUpdateInput>;
     unset?: SafeUnset<ExtLiteralModelUnset, D>;
     select?: SelectArg<S, ExtLiteralModelSelectFields>;
     txn?: CerialTransaction;
@@ -496,7 +500,7 @@ export interface ExtLiteralModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtLiteralModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtLiteralModelUpdateInput>;
     unset?: SafeUnset<ExtLiteralModelUnset, D>;
     select?: SelectArg<S, ExtLiteralModelSelectFields>;
     /**
@@ -516,7 +520,7 @@ export interface ExtLiteralModelModel {
   >(options: {
     where: ExtLiteralModelFindUniqueWhere;
     create: ExtLiteralModelCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtLiteralModelUpdateInput>;
     unset?: SafeUnset<ExtLiteralModelUnset, D>;
     select?: SelectArg<S, ExtLiteralModelSelectFields>;
     /**
@@ -536,7 +540,7 @@ export interface ExtLiteralModelModel {
   >(options: {
     where: ExtLiteralModelWhere;
     create: ExtLiteralModelCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtLiteralModelUpdateInput>;
     unset?: SafeUnset<ExtLiteralModelUnset, D>;
     select?: SelectArg<S, ExtLiteralModelSelectFields>;
     /**
@@ -599,6 +603,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -735,7 +741,7 @@ export interface ExtLiteralQuotedModel {
     D extends ExtLiteralQuotedUpdateInput = ExtLiteralQuotedUpdateInput,
   >(options: {
     where: ExtLiteralQuotedWhere;
-    data: D;
+    data: DataArg<D, ExtLiteralQuotedUpdateInput>;
     unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
     select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     txn?: CerialTransaction;
@@ -747,7 +753,7 @@ export interface ExtLiteralQuotedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtLiteralQuotedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtLiteralQuotedUpdateInput>;
     unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
     select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     /**
@@ -767,7 +773,7 @@ export interface ExtLiteralQuotedModel {
   >(options: {
     where: ExtLiteralQuotedFindUniqueWhere;
     create: ExtLiteralQuotedCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtLiteralQuotedUpdateInput>;
     unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
     select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     /**
@@ -787,7 +793,7 @@ export interface ExtLiteralQuotedModel {
   >(options: {
     where: ExtLiteralQuotedWhere;
     create: ExtLiteralQuotedCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtLiteralQuotedUpdateInput>;
     unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
     select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     /**

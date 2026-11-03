@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -236,7 +238,7 @@ export interface NmObjectDocModel {
     D extends NmObjectDocUpdateInput = NmObjectDocUpdateInput,
   >(options: {
     where: NmObjectDocWhere;
-    data: D;
+    data: DataArg<D, NmObjectDocUpdateInput>;
     unset?: SafeUnset<NmObjectDocUnset, D>;
     select?: SelectArg<S, NmObjectDocSelectFields>;
     txn?: CerialTransaction;
@@ -248,7 +250,7 @@ export interface NmObjectDocModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NmObjectDocFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NmObjectDocUpdateInput>;
     unset?: SafeUnset<NmObjectDocUnset, D>;
     select?: SelectArg<S, NmObjectDocSelectFields>;
     /**
@@ -268,7 +270,7 @@ export interface NmObjectDocModel {
   >(options: {
     where: NmObjectDocFindUniqueWhere;
     create: NmObjectDocCreateInput;
-    update?: D;
+    update?: DataArg<D, NmObjectDocUpdateInput>;
     unset?: SafeUnset<NmObjectDocUnset, D>;
     select?: SelectArg<S, NmObjectDocSelectFields>;
     /**
@@ -288,7 +290,7 @@ export interface NmObjectDocModel {
   >(options: {
     where: NmObjectDocWhere;
     create: NmObjectDocCreateInput;
-    update?: D;
+    update?: DataArg<D, NmObjectDocUpdateInput>;
     unset?: SafeUnset<NmObjectDocUnset, D>;
     select?: SelectArg<S, NmObjectDocSelectFields>;
     /**
@@ -352,6 +354,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -603,7 +607,7 @@ export interface NmTupleDocModel {
     D extends NmTupleDocUpdateInput = NmTupleDocUpdateInput,
   >(options: {
     where: NmTupleDocWhere;
-    data: D;
+    data: DataArg<D, NmTupleDocUpdateInput>;
     unset?: SafeUnset<NmTupleDocUnset, D>;
     select?: SelectArg<S, NmTupleDocSelectFields>;
     txn?: CerialTransaction;
@@ -615,7 +619,7 @@ export interface NmTupleDocModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NmTupleDocFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NmTupleDocUpdateInput>;
     unset?: SafeUnset<NmTupleDocUnset, D>;
     select?: SelectArg<S, NmTupleDocSelectFields>;
     /**
@@ -635,7 +639,7 @@ export interface NmTupleDocModel {
   >(options: {
     where: NmTupleDocFindUniqueWhere;
     create: NmTupleDocCreateInput;
-    update?: D;
+    update?: DataArg<D, NmTupleDocUpdateInput>;
     unset?: SafeUnset<NmTupleDocUnset, D>;
     select?: SelectArg<S, NmTupleDocSelectFields>;
     /**
@@ -655,7 +659,7 @@ export interface NmTupleDocModel {
   >(options: {
     where: NmTupleDocWhere;
     create: NmTupleDocCreateInput;
-    update?: D;
+    update?: DataArg<D, NmTupleDocUpdateInput>;
     unset?: SafeUnset<NmTupleDocUnset, D>;
     select?: SelectArg<S, NmTupleDocSelectFields>;
     /**

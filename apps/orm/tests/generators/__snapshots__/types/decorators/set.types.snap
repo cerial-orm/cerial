@@ -22,6 +22,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -217,7 +219,7 @@ export interface SetBasicModel {
     D extends SetBasicUpdateInput = SetBasicUpdateInput,
   >(options: {
     where: SetBasicWhere;
-    data: D;
+    data: DataArg<D, SetBasicUpdateInput>;
     unset?: SafeUnset<SetBasicUnset, D>;
     select?: SelectArg<S, SetBasicSelectFields>;
     txn?: CerialTransaction;
@@ -229,7 +231,7 @@ export interface SetBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: SetBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, SetBasicUpdateInput>;
     unset?: SafeUnset<SetBasicUnset, D>;
     select?: SelectArg<S, SetBasicSelectFields>;
     /**
@@ -249,7 +251,7 @@ export interface SetBasicModel {
   >(options: {
     where: SetBasicFindUniqueWhere;
     create: SetBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, SetBasicUpdateInput>;
     unset?: SafeUnset<SetBasicUnset, D>;
     select?: SelectArg<S, SetBasicSelectFields>;
     /**
@@ -269,7 +271,7 @@ export interface SetBasicModel {
   >(options: {
     where: SetBasicWhere;
     create: SetBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, SetBasicUpdateInput>;
     unset?: SafeUnset<SetBasicUnset, D>;
     select?: SelectArg<S, SetBasicSelectFields>;
     /**

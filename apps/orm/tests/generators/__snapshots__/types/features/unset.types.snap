@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -396,7 +398,7 @@ export interface UnsetTestModel {
     D extends UnsetTestUpdateInput = UnsetTestUpdateInput,
   >(options: {
     where: UnsetTestWhere;
-    data: D;
+    data: DataArg<D, UnsetTestUpdateInput>;
     unset?: SafeUnset<UnsetTestUnset, D>;
     select?: SelectArg<S, UnsetTestSelectFields>;
     txn?: CerialTransaction;
@@ -408,7 +410,7 @@ export interface UnsetTestModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UnsetTestFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UnsetTestUpdateInput>;
     unset?: SafeUnset<UnsetTestUnset, D>;
     select?: SelectArg<S, UnsetTestSelectFields>;
     /**
@@ -428,7 +430,7 @@ export interface UnsetTestModel {
   >(options: {
     where: UnsetTestFindUniqueWhere;
     create: UnsetTestCreateInput;
-    update?: D;
+    update?: DataArg<D, UnsetTestUpdateInput>;
     unset?: SafeUnset<UnsetTestUnset, D>;
     select?: SelectArg<S, UnsetTestSelectFields>;
     /**
@@ -448,7 +450,7 @@ export interface UnsetTestModel {
   >(options: {
     where: UnsetTestWhere;
     create: UnsetTestCreateInput;
-    update?: D;
+    update?: DataArg<D, UnsetTestUpdateInput>;
     unset?: SafeUnset<UnsetTestUnset, D>;
     select?: SelectArg<S, UnsetTestSelectFields>;
     /**

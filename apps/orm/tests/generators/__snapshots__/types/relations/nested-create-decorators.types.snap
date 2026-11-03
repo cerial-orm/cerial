@@ -26,6 +26,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -553,7 +555,7 @@ export interface NcDocModel {
   >(options?: {
     where?: NcDocWhere;
     select?: SelectArg<S, NcDocSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcDocInclude>;
     compute?: C & { [K in keyof C & (keyof NcDoc | keyof NcDocWhere)]?: never };
     orderBy?: NcDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -572,7 +574,7 @@ export interface NcDocModel {
     orderBy?: NcDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, NcDocInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetNcDocPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -585,7 +587,7 @@ export interface NcDocModel {
   >(options: {
     where: NcDocFindUniqueWhere;
     select?: SelectArg<S, NcDocSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcDocInclude>;
     compute?: C & { [K in keyof C & (keyof NcDoc | keyof NcDocWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -595,7 +597,7 @@ export interface NcDocModel {
   create<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options: {
     data: NcDocCreateInput;
     select?: SelectArg<S, NcDocSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcDocInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNcDocPayload<S, I>>;
 
@@ -605,10 +607,10 @@ export interface NcDocModel {
     D extends NcDocUpdateInput = NcDocUpdateInput,
   >(options: {
     where: NcDocWhere;
-    data: D;
+    data: DataArg<D, NcDocUpdateInput>;
     unset?: SafeUnset<NcDocUnset, D>;
     select?: SelectArg<S, NcDocSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcDocInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNcDocPayload<S, I>[]>;
 
@@ -619,10 +621,10 @@ export interface NcDocModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NcDocFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NcDocUpdateInput>;
     unset?: SafeUnset<NcDocUnset, D>;
     select?: SelectArg<S, NcDocSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcDocInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -641,10 +643,10 @@ export interface NcDocModel {
   >(options: {
     where: NcDocFindUniqueWhere;
     create: NcDocCreateInput;
-    update?: D;
+    update?: DataArg<D, NcDocUpdateInput>;
     unset?: SafeUnset<NcDocUnset, D>;
     select?: SelectArg<S, NcDocSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcDocInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -663,10 +665,10 @@ export interface NcDocModel {
   >(options: {
     where: NcDocWhere;
     create: NcDocCreateInput;
-    update?: D;
+    update?: DataArg<D, NcDocUpdateInput>;
     unset?: SafeUnset<NcDocUnset, D>;
     select?: SelectArg<S, NcDocSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcDocInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -727,6 +729,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -914,7 +918,7 @@ export interface NcGroupModel {
   >(options?: {
     where?: NcGroupWhere;
     select?: SelectArg<S, NcGroupSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcGroupInclude>;
     compute?: C & { [K in keyof C & (keyof NcGroup | keyof NcGroupWhere)]?: never };
     orderBy?: NcGroupOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -933,7 +937,7 @@ export interface NcGroupModel {
     orderBy?: NcGroupOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, NcGroupInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetNcGroupPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -946,7 +950,7 @@ export interface NcGroupModel {
   >(options: {
     where: NcGroupFindUniqueWhere;
     select?: SelectArg<S, NcGroupSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcGroupInclude>;
     compute?: C & { [K in keyof C & (keyof NcGroup | keyof NcGroupWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -956,7 +960,7 @@ export interface NcGroupModel {
   create<S extends NcGroupSelect | undefined = undefined, I extends NcGroupInclude | undefined = undefined>(options: {
     data: NcGroupCreateInput;
     select?: SelectArg<S, NcGroupSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcGroupInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNcGroupPayload<S, I>>;
 
@@ -966,10 +970,10 @@ export interface NcGroupModel {
     D extends NcGroupUpdateInput = NcGroupUpdateInput,
   >(options: {
     where: NcGroupWhere;
-    data: D;
+    data: DataArg<D, NcGroupUpdateInput>;
     unset?: SafeUnset<NcGroupUnset, D>;
     select?: SelectArg<S, NcGroupSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcGroupInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNcGroupPayload<S, I>[]>;
 
@@ -980,10 +984,10 @@ export interface NcGroupModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NcGroupFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NcGroupUpdateInput>;
     unset?: SafeUnset<NcGroupUnset, D>;
     select?: SelectArg<S, NcGroupSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcGroupInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1002,10 +1006,10 @@ export interface NcGroupModel {
   >(options: {
     where: NcGroupFindUniqueWhere;
     create: NcGroupCreateInput;
-    update?: D;
+    update?: DataArg<D, NcGroupUpdateInput>;
     unset?: SafeUnset<NcGroupUnset, D>;
     select?: SelectArg<S, NcGroupSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcGroupInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1024,10 +1028,10 @@ export interface NcGroupModel {
   >(options: {
     where: NcGroupWhere;
     create: NcGroupCreateInput;
-    update?: D;
+    update?: DataArg<D, NcGroupUpdateInput>;
     unset?: SafeUnset<NcGroupUnset, D>;
     select?: SelectArg<S, NcGroupSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcGroupInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1089,6 +1093,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1317,7 +1323,7 @@ export interface NcHolderModel {
   >(options?: {
     where?: NcHolderWhere;
     select?: SelectArg<S, NcHolderSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcHolderInclude>;
     compute?: C & { [K in keyof C & (keyof NcHolder | keyof NcHolderWhere)]?: never };
     orderBy?: NcHolderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1336,7 +1342,7 @@ export interface NcHolderModel {
     orderBy?: NcHolderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, NcHolderInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetNcHolderPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1349,7 +1355,7 @@ export interface NcHolderModel {
   >(options: {
     where: NcHolderFindUniqueWhere;
     select?: SelectArg<S, NcHolderSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcHolderInclude>;
     compute?: C & { [K in keyof C & (keyof NcHolder | keyof NcHolderWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1359,7 +1365,7 @@ export interface NcHolderModel {
   create<S extends NcHolderSelect | undefined = undefined, I extends NcHolderInclude | undefined = undefined>(options: {
     data: NcHolderCreateInput;
     select?: SelectArg<S, NcHolderSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcHolderInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNcHolderPayload<S, I>>;
 
@@ -1369,10 +1375,10 @@ export interface NcHolderModel {
     D extends NcHolderUpdateInput = NcHolderUpdateInput,
   >(options: {
     where: NcHolderWhere;
-    data: D;
+    data: DataArg<D, NcHolderUpdateInput>;
     unset?: SafeUnset<NcHolderUnset, D>;
     select?: SelectArg<S, NcHolderSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcHolderInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNcHolderPayload<S, I>[]>;
 
@@ -1383,10 +1389,10 @@ export interface NcHolderModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NcHolderFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NcHolderUpdateInput>;
     unset?: SafeUnset<NcHolderUnset, D>;
     select?: SelectArg<S, NcHolderSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcHolderInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1405,10 +1411,10 @@ export interface NcHolderModel {
   >(options: {
     where: NcHolderFindUniqueWhere;
     create: NcHolderCreateInput;
-    update?: D;
+    update?: DataArg<D, NcHolderUpdateInput>;
     unset?: SafeUnset<NcHolderUnset, D>;
     select?: SelectArg<S, NcHolderSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcHolderInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1427,10 +1433,10 @@ export interface NcHolderModel {
   >(options: {
     where: NcHolderWhere;
     create: NcHolderCreateInput;
-    update?: D;
+    update?: DataArg<D, NcHolderUpdateInput>;
     unset?: SafeUnset<NcHolderUnset, D>;
     select?: SelectArg<S, NcHolderSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, NcHolderInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

@@ -22,6 +22,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -247,7 +249,7 @@ export interface DurationBasicModel {
     D extends DurationBasicUpdateInput = DurationBasicUpdateInput,
   >(options: {
     where: DurationBasicWhere;
-    data: D;
+    data: DataArg<D, DurationBasicUpdateInput>;
     unset?: SafeUnset<DurationBasicUnset, D>;
     select?: SelectArg<S, DurationBasicSelectFields>;
     txn?: CerialTransaction;
@@ -259,7 +261,7 @@ export interface DurationBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DurationBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DurationBasicUpdateInput>;
     unset?: SafeUnset<DurationBasicUnset, D>;
     select?: SelectArg<S, DurationBasicSelectFields>;
     /**
@@ -279,7 +281,7 @@ export interface DurationBasicModel {
   >(options: {
     where: DurationBasicFindUniqueWhere;
     create: DurationBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, DurationBasicUpdateInput>;
     unset?: SafeUnset<DurationBasicUnset, D>;
     select?: SelectArg<S, DurationBasicSelectFields>;
     /**
@@ -299,7 +301,7 @@ export interface DurationBasicModel {
   >(options: {
     where: DurationBasicWhere;
     create: DurationBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, DurationBasicUpdateInput>;
     unset?: SafeUnset<DurationBasicUnset, D>;
     select?: SelectArg<S, DurationBasicSelectFields>;
     /**
@@ -365,6 +367,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -552,7 +556,7 @@ export interface DurationDecoratedModel {
     D extends DurationDecoratedUpdateInput = DurationDecoratedUpdateInput,
   >(options: {
     where: DurationDecoratedWhere;
-    data: D;
+    data: DataArg<D, DurationDecoratedUpdateInput>;
     unset?: SafeUnset<DurationDecoratedUnset, D>;
     select?: SelectArg<S, DurationDecoratedSelectFields>;
     txn?: CerialTransaction;
@@ -564,7 +568,7 @@ export interface DurationDecoratedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DurationDecoratedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DurationDecoratedUpdateInput>;
     unset?: SafeUnset<DurationDecoratedUnset, D>;
     select?: SelectArg<S, DurationDecoratedSelectFields>;
     /**
@@ -584,7 +588,7 @@ export interface DurationDecoratedModel {
   >(options: {
     where: DurationDecoratedFindUniqueWhere;
     create: DurationDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, DurationDecoratedUpdateInput>;
     unset?: SafeUnset<DurationDecoratedUnset, D>;
     select?: SelectArg<S, DurationDecoratedSelectFields>;
     /**
@@ -604,7 +608,7 @@ export interface DurationDecoratedModel {
   >(options: {
     where: DurationDecoratedWhere;
     create: DurationDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, DurationDecoratedUpdateInput>;
     unset?: SafeUnset<DurationDecoratedUnset, D>;
     select?: SelectArg<S, DurationDecoratedSelectFields>;
     /**
@@ -667,6 +671,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -828,7 +834,7 @@ export interface DurationWithObjectModel {
     D extends DurationWithObjectUpdateInput = DurationWithObjectUpdateInput,
   >(options: {
     where: DurationWithObjectWhere;
-    data: D;
+    data: DataArg<D, DurationWithObjectUpdateInput>;
     unset?: SafeUnset<DurationWithObjectUnset, D>;
     select?: SelectArg<S, DurationWithObjectSelectFields>;
     txn?: CerialTransaction;
@@ -840,7 +846,7 @@ export interface DurationWithObjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DurationWithObjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DurationWithObjectUpdateInput>;
     unset?: SafeUnset<DurationWithObjectUnset, D>;
     select?: SelectArg<S, DurationWithObjectSelectFields>;
     /**
@@ -860,7 +866,7 @@ export interface DurationWithObjectModel {
   >(options: {
     where: DurationWithObjectFindUniqueWhere;
     create: DurationWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, DurationWithObjectUpdateInput>;
     unset?: SafeUnset<DurationWithObjectUnset, D>;
     select?: SelectArg<S, DurationWithObjectSelectFields>;
     /**
@@ -880,7 +886,7 @@ export interface DurationWithObjectModel {
   >(options: {
     where: DurationWithObjectWhere;
     create: DurationWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, DurationWithObjectUpdateInput>;
     unset?: SafeUnset<DurationWithObjectUnset, D>;
     select?: SelectArg<S, DurationWithObjectSelectFields>;
     /**
@@ -943,6 +949,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1101,7 +1109,7 @@ export interface DurationWithTupleModel {
     D extends DurationWithTupleUpdateInput = DurationWithTupleUpdateInput,
   >(options: {
     where: DurationWithTupleWhere;
-    data: D;
+    data: DataArg<D, DurationWithTupleUpdateInput>;
     unset?: SafeUnset<DurationWithTupleUnset, D>;
     select?: SelectArg<S, DurationWithTupleSelectFields>;
     txn?: CerialTransaction;
@@ -1113,7 +1121,7 @@ export interface DurationWithTupleModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DurationWithTupleFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DurationWithTupleUpdateInput>;
     unset?: SafeUnset<DurationWithTupleUnset, D>;
     select?: SelectArg<S, DurationWithTupleSelectFields>;
     /**
@@ -1133,7 +1141,7 @@ export interface DurationWithTupleModel {
   >(options: {
     where: DurationWithTupleFindUniqueWhere;
     create: DurationWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, DurationWithTupleUpdateInput>;
     unset?: SafeUnset<DurationWithTupleUnset, D>;
     select?: SelectArg<S, DurationWithTupleSelectFields>;
     /**
@@ -1153,7 +1161,7 @@ export interface DurationWithTupleModel {
   >(options: {
     where: DurationWithTupleWhere;
     create: DurationWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, DurationWithTupleUpdateInput>;
     unset?: SafeUnset<DurationWithTupleUnset, D>;
     select?: SelectArg<S, DurationWithTupleSelectFields>;
     /**

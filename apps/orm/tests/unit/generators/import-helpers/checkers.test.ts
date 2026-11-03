@@ -250,7 +250,7 @@ describe('import constants', () => {
 
   test('UNIQUE_TYPES_IMPORT', () => {
     expect(UNIQUE_TYPES_IMPORT).toBe(
-      `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect, SafeUnset, SelectArg } from '..';\nimport type { CerialQueryPromise } from '..';\nimport type { CerialTransaction, ModelMetadata } from 'cerial';`,
+      `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect, SafeUnset, SelectArg, DataArg, IncludeArg } from '..';\nimport type { CerialQueryPromise } from '..';\nimport type { CerialTransaction, ModelMetadata } from 'cerial';`,
     );
   });
 });

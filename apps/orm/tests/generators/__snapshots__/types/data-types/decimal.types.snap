@@ -22,6 +22,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -247,7 +249,7 @@ export interface DecimalBasicModel {
     D extends DecimalBasicUpdateInput = DecimalBasicUpdateInput,
   >(options: {
     where: DecimalBasicWhere;
-    data: D;
+    data: DataArg<D, DecimalBasicUpdateInput>;
     unset?: SafeUnset<DecimalBasicUnset, D>;
     select?: SelectArg<S, DecimalBasicSelectFields>;
     txn?: CerialTransaction;
@@ -259,7 +261,7 @@ export interface DecimalBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DecimalBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DecimalBasicUpdateInput>;
     unset?: SafeUnset<DecimalBasicUnset, D>;
     select?: SelectArg<S, DecimalBasicSelectFields>;
     /**
@@ -279,7 +281,7 @@ export interface DecimalBasicModel {
   >(options: {
     where: DecimalBasicFindUniqueWhere;
     create: DecimalBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, DecimalBasicUpdateInput>;
     unset?: SafeUnset<DecimalBasicUnset, D>;
     select?: SelectArg<S, DecimalBasicSelectFields>;
     /**
@@ -299,7 +301,7 @@ export interface DecimalBasicModel {
   >(options: {
     where: DecimalBasicWhere;
     create: DecimalBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, DecimalBasicUpdateInput>;
     unset?: SafeUnset<DecimalBasicUnset, D>;
     select?: SelectArg<S, DecimalBasicSelectFields>;
     /**
@@ -365,6 +367,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -552,7 +556,7 @@ export interface DecimalDecoratedModel {
     D extends DecimalDecoratedUpdateInput = DecimalDecoratedUpdateInput,
   >(options: {
     where: DecimalDecoratedWhere;
-    data: D;
+    data: DataArg<D, DecimalDecoratedUpdateInput>;
     unset?: SafeUnset<DecimalDecoratedUnset, D>;
     select?: SelectArg<S, DecimalDecoratedSelectFields>;
     txn?: CerialTransaction;
@@ -564,7 +568,7 @@ export interface DecimalDecoratedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DecimalDecoratedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DecimalDecoratedUpdateInput>;
     unset?: SafeUnset<DecimalDecoratedUnset, D>;
     select?: SelectArg<S, DecimalDecoratedSelectFields>;
     /**
@@ -584,7 +588,7 @@ export interface DecimalDecoratedModel {
   >(options: {
     where: DecimalDecoratedFindUniqueWhere;
     create: DecimalDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, DecimalDecoratedUpdateInput>;
     unset?: SafeUnset<DecimalDecoratedUnset, D>;
     select?: SelectArg<S, DecimalDecoratedSelectFields>;
     /**
@@ -604,7 +608,7 @@ export interface DecimalDecoratedModel {
   >(options: {
     where: DecimalDecoratedWhere;
     create: DecimalDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, DecimalDecoratedUpdateInput>;
     unset?: SafeUnset<DecimalDecoratedUnset, D>;
     select?: SelectArg<S, DecimalDecoratedSelectFields>;
     /**
@@ -667,6 +671,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -828,7 +834,7 @@ export interface DecimalWithObjectModel {
     D extends DecimalWithObjectUpdateInput = DecimalWithObjectUpdateInput,
   >(options: {
     where: DecimalWithObjectWhere;
-    data: D;
+    data: DataArg<D, DecimalWithObjectUpdateInput>;
     unset?: SafeUnset<DecimalWithObjectUnset, D>;
     select?: SelectArg<S, DecimalWithObjectSelectFields>;
     txn?: CerialTransaction;
@@ -840,7 +846,7 @@ export interface DecimalWithObjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DecimalWithObjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DecimalWithObjectUpdateInput>;
     unset?: SafeUnset<DecimalWithObjectUnset, D>;
     select?: SelectArg<S, DecimalWithObjectSelectFields>;
     /**
@@ -860,7 +866,7 @@ export interface DecimalWithObjectModel {
   >(options: {
     where: DecimalWithObjectFindUniqueWhere;
     create: DecimalWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, DecimalWithObjectUpdateInput>;
     unset?: SafeUnset<DecimalWithObjectUnset, D>;
     select?: SelectArg<S, DecimalWithObjectSelectFields>;
     /**
@@ -880,7 +886,7 @@ export interface DecimalWithObjectModel {
   >(options: {
     where: DecimalWithObjectWhere;
     create: DecimalWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, DecimalWithObjectUpdateInput>;
     unset?: SafeUnset<DecimalWithObjectUnset, D>;
     select?: SelectArg<S, DecimalWithObjectSelectFields>;
     /**
@@ -943,6 +949,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1101,7 +1109,7 @@ export interface DecimalWithTupleModel {
     D extends DecimalWithTupleUpdateInput = DecimalWithTupleUpdateInput,
   >(options: {
     where: DecimalWithTupleWhere;
-    data: D;
+    data: DataArg<D, DecimalWithTupleUpdateInput>;
     unset?: SafeUnset<DecimalWithTupleUnset, D>;
     select?: SelectArg<S, DecimalWithTupleSelectFields>;
     txn?: CerialTransaction;
@@ -1113,7 +1121,7 @@ export interface DecimalWithTupleModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DecimalWithTupleFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DecimalWithTupleUpdateInput>;
     unset?: SafeUnset<DecimalWithTupleUnset, D>;
     select?: SelectArg<S, DecimalWithTupleSelectFields>;
     /**
@@ -1133,7 +1141,7 @@ export interface DecimalWithTupleModel {
   >(options: {
     where: DecimalWithTupleFindUniqueWhere;
     create: DecimalWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, DecimalWithTupleUpdateInput>;
     unset?: SafeUnset<DecimalWithTupleUnset, D>;
     select?: SelectArg<S, DecimalWithTupleSelectFields>;
     /**
@@ -1153,7 +1161,7 @@ export interface DecimalWithTupleModel {
   >(options: {
     where: DecimalWithTupleWhere;
     create: DecimalWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, DecimalWithTupleUpdateInput>;
     unset?: SafeUnset<DecimalWithTupleUnset, D>;
     select?: SelectArg<S, DecimalWithTupleSelectFields>;
     /**

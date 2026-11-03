@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -245,7 +247,7 @@ export interface NumberBasicModel {
     D extends NumberBasicUpdateInput = NumberBasicUpdateInput,
   >(options: {
     where: NumberBasicWhere;
-    data: D;
+    data: DataArg<D, NumberBasicUpdateInput>;
     unset?: SafeUnset<NumberBasicUnset, D>;
     select?: SelectArg<S, NumberBasicSelectFields>;
     txn?: CerialTransaction;
@@ -257,7 +259,7 @@ export interface NumberBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NumberBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NumberBasicUpdateInput>;
     unset?: SafeUnset<NumberBasicUnset, D>;
     select?: SelectArg<S, NumberBasicSelectFields>;
     /**
@@ -277,7 +279,7 @@ export interface NumberBasicModel {
   >(options: {
     where: NumberBasicFindUniqueWhere;
     create: NumberBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberBasicUpdateInput>;
     unset?: SafeUnset<NumberBasicUnset, D>;
     select?: SelectArg<S, NumberBasicSelectFields>;
     /**
@@ -297,7 +299,7 @@ export interface NumberBasicModel {
   >(options: {
     where: NumberBasicWhere;
     create: NumberBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberBasicUpdateInput>;
     unset?: SafeUnset<NumberBasicUnset, D>;
     select?: SelectArg<S, NumberBasicSelectFields>;
     /**
@@ -361,6 +363,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -548,7 +552,7 @@ export interface NumberDecoratedModel {
     D extends NumberDecoratedUpdateInput = NumberDecoratedUpdateInput,
   >(options: {
     where: NumberDecoratedWhere;
-    data: D;
+    data: DataArg<D, NumberDecoratedUpdateInput>;
     unset?: SafeUnset<NumberDecoratedUnset, D>;
     select?: SelectArg<S, NumberDecoratedSelectFields>;
     txn?: CerialTransaction;
@@ -560,7 +564,7 @@ export interface NumberDecoratedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NumberDecoratedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NumberDecoratedUpdateInput>;
     unset?: SafeUnset<NumberDecoratedUnset, D>;
     select?: SelectArg<S, NumberDecoratedSelectFields>;
     /**
@@ -580,7 +584,7 @@ export interface NumberDecoratedModel {
   >(options: {
     where: NumberDecoratedFindUniqueWhere;
     create: NumberDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberDecoratedUpdateInput>;
     unset?: SafeUnset<NumberDecoratedUnset, D>;
     select?: SelectArg<S, NumberDecoratedSelectFields>;
     /**
@@ -600,7 +604,7 @@ export interface NumberDecoratedModel {
   >(options: {
     where: NumberDecoratedWhere;
     create: NumberDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberDecoratedUpdateInput>;
     unset?: SafeUnset<NumberDecoratedUnset, D>;
     select?: SelectArg<S, NumberDecoratedSelectFields>;
     /**
@@ -664,6 +668,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -840,7 +846,7 @@ export interface NumberWithObjectModel {
     D extends NumberWithObjectUpdateInput = NumberWithObjectUpdateInput,
   >(options: {
     where: NumberWithObjectWhere;
-    data: D;
+    data: DataArg<D, NumberWithObjectUpdateInput>;
     unset?: SafeUnset<NumberWithObjectUnset, D>;
     select?: SelectArg<S, NumberWithObjectSelectFields>;
     txn?: CerialTransaction;
@@ -852,7 +858,7 @@ export interface NumberWithObjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NumberWithObjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NumberWithObjectUpdateInput>;
     unset?: SafeUnset<NumberWithObjectUnset, D>;
     select?: SelectArg<S, NumberWithObjectSelectFields>;
     /**
@@ -872,7 +878,7 @@ export interface NumberWithObjectModel {
   >(options: {
     where: NumberWithObjectFindUniqueWhere;
     create: NumberWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberWithObjectUpdateInput>;
     unset?: SafeUnset<NumberWithObjectUnset, D>;
     select?: SelectArg<S, NumberWithObjectSelectFields>;
     /**
@@ -892,7 +898,7 @@ export interface NumberWithObjectModel {
   >(options: {
     where: NumberWithObjectWhere;
     create: NumberWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberWithObjectUpdateInput>;
     unset?: SafeUnset<NumberWithObjectUnset, D>;
     select?: SelectArg<S, NumberWithObjectSelectFields>;
     /**
@@ -956,6 +962,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1120,7 +1128,7 @@ export interface NumberWithTupleModel {
     D extends NumberWithTupleUpdateInput = NumberWithTupleUpdateInput,
   >(options: {
     where: NumberWithTupleWhere;
-    data: D;
+    data: DataArg<D, NumberWithTupleUpdateInput>;
     unset?: SafeUnset<NumberWithTupleUnset, D>;
     select?: SelectArg<S, NumberWithTupleSelectFields>;
     txn?: CerialTransaction;
@@ -1132,7 +1140,7 @@ export interface NumberWithTupleModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NumberWithTupleFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NumberWithTupleUpdateInput>;
     unset?: SafeUnset<NumberWithTupleUnset, D>;
     select?: SelectArg<S, NumberWithTupleSelectFields>;
     /**
@@ -1152,7 +1160,7 @@ export interface NumberWithTupleModel {
   >(options: {
     where: NumberWithTupleFindUniqueWhere;
     create: NumberWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberWithTupleUpdateInput>;
     unset?: SafeUnset<NumberWithTupleUnset, D>;
     select?: SelectArg<S, NumberWithTupleSelectFields>;
     /**
@@ -1172,7 +1180,7 @@ export interface NumberWithTupleModel {
   >(options: {
     where: NumberWithTupleWhere;
     create: NumberWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberWithTupleUpdateInput>;
     unset?: SafeUnset<NumberWithTupleUnset, D>;
     select?: SelectArg<S, NumberWithTupleSelectFields>;
     /**

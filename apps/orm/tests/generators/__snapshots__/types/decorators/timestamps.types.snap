@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -242,7 +244,7 @@ export interface TimestampTestModel {
     D extends TimestampTestUpdateInput = TimestampTestUpdateInput,
   >(options: {
     where: TimestampTestWhere;
-    data: D;
+    data: DataArg<D, TimestampTestUpdateInput>;
     unset?: SafeUnset<TimestampTestUnset, D>;
     select?: SelectArg<S, TimestampTestSelectFields>;
     txn?: CerialTransaction;
@@ -254,7 +256,7 @@ export interface TimestampTestModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: TimestampTestFindUniqueWhere;
-    data: D;
+    data: DataArg<D, TimestampTestUpdateInput>;
     unset?: SafeUnset<TimestampTestUnset, D>;
     select?: SelectArg<S, TimestampTestSelectFields>;
     /**
@@ -274,7 +276,7 @@ export interface TimestampTestModel {
   >(options: {
     where: TimestampTestFindUniqueWhere;
     create: TimestampTestCreateInput;
-    update?: D;
+    update?: DataArg<D, TimestampTestUpdateInput>;
     unset?: SafeUnset<TimestampTestUnset, D>;
     select?: SelectArg<S, TimestampTestSelectFields>;
     /**
@@ -294,7 +296,7 @@ export interface TimestampTestModel {
   >(options: {
     where: TimestampTestWhere;
     create: TimestampTestCreateInput;
-    update?: D;
+    update?: DataArg<D, TimestampTestUpdateInput>;
     unset?: SafeUnset<TimestampTestUnset, D>;
     select?: SelectArg<S, TimestampTestSelectFields>;
     /**

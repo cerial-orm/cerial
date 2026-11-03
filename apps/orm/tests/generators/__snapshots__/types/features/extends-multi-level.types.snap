@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -287,7 +289,7 @@ export interface ExtL4AltConcreteModel {
     D extends ExtL4AltConcreteUpdateInput = ExtL4AltConcreteUpdateInput,
   >(options: {
     where: ExtL4AltConcreteWhere;
-    data: D;
+    data: DataArg<D, ExtL4AltConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
     select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     txn?: CerialTransaction;
@@ -299,7 +301,7 @@ export interface ExtL4AltConcreteModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtL4AltConcreteFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtL4AltConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
     select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     /**
@@ -319,7 +321,7 @@ export interface ExtL4AltConcreteModel {
   >(options: {
     where: ExtL4AltConcreteFindUniqueWhere;
     create: ExtL4AltConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL4AltConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
     select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     /**
@@ -339,7 +341,7 @@ export interface ExtL4AltConcreteModel {
   >(options: {
     where: ExtL4AltConcreteWhere;
     create: ExtL4AltConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL4AltConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
     select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     /**
@@ -403,6 +405,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -675,7 +679,7 @@ export interface ExtL4ConcreteModel {
     D extends ExtL4ConcreteUpdateInput = ExtL4ConcreteUpdateInput,
   >(options: {
     where: ExtL4ConcreteWhere;
-    data: D;
+    data: DataArg<D, ExtL4ConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4ConcreteUnset, D>;
     select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     txn?: CerialTransaction;
@@ -687,7 +691,7 @@ export interface ExtL4ConcreteModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtL4ConcreteFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtL4ConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4ConcreteUnset, D>;
     select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     /**
@@ -707,7 +711,7 @@ export interface ExtL4ConcreteModel {
   >(options: {
     where: ExtL4ConcreteFindUniqueWhere;
     create: ExtL4ConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL4ConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4ConcreteUnset, D>;
     select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     /**
@@ -727,7 +731,7 @@ export interface ExtL4ConcreteModel {
   >(options: {
     where: ExtL4ConcreteWhere;
     create: ExtL4ConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL4ConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4ConcreteUnset, D>;
     select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     /**
@@ -791,6 +795,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1020,7 +1026,7 @@ export interface ExtL4OmitConcreteModel {
     D extends ExtL4OmitConcreteUpdateInput = ExtL4OmitConcreteUpdateInput,
   >(options: {
     where: ExtL4OmitConcreteWhere;
-    data: D;
+    data: DataArg<D, ExtL4OmitConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
     select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     txn?: CerialTransaction;
@@ -1032,7 +1038,7 @@ export interface ExtL4OmitConcreteModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtL4OmitConcreteFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtL4OmitConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
     select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     /**
@@ -1052,7 +1058,7 @@ export interface ExtL4OmitConcreteModel {
   >(options: {
     where: ExtL4OmitConcreteFindUniqueWhere;
     create: ExtL4OmitConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL4OmitConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
     select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     /**
@@ -1072,7 +1078,7 @@ export interface ExtL4OmitConcreteModel {
   >(options: {
     where: ExtL4OmitConcreteWhere;
     create: ExtL4OmitConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL4OmitConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
     select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     /**
@@ -1136,6 +1142,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1396,7 +1404,7 @@ export interface ExtL4PickConcreteModel {
     D extends ExtL4PickConcreteUpdateInput = ExtL4PickConcreteUpdateInput,
   >(options: {
     where: ExtL4PickConcreteWhere;
-    data: D;
+    data: DataArg<D, ExtL4PickConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
     select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     txn?: CerialTransaction;
@@ -1408,7 +1416,7 @@ export interface ExtL4PickConcreteModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtL4PickConcreteFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtL4PickConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
     select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     /**
@@ -1428,7 +1436,7 @@ export interface ExtL4PickConcreteModel {
   >(options: {
     where: ExtL4PickConcreteFindUniqueWhere;
     create: ExtL4PickConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL4PickConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
     select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     /**
@@ -1448,7 +1456,7 @@ export interface ExtL4PickConcreteModel {
   >(options: {
     where: ExtL4PickConcreteWhere;
     create: ExtL4PickConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL4PickConcreteUpdateInput>;
     unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
     select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     /**
@@ -1512,6 +1520,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1794,7 +1804,7 @@ export interface ExtL5VeryDeepModel {
     D extends ExtL5VeryDeepUpdateInput = ExtL5VeryDeepUpdateInput,
   >(options: {
     where: ExtL5VeryDeepWhere;
-    data: D;
+    data: DataArg<D, ExtL5VeryDeepUpdateInput>;
     unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
     select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     txn?: CerialTransaction;
@@ -1806,7 +1816,7 @@ export interface ExtL5VeryDeepModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtL5VeryDeepFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtL5VeryDeepUpdateInput>;
     unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
     select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     /**
@@ -1826,7 +1836,7 @@ export interface ExtL5VeryDeepModel {
   >(options: {
     where: ExtL5VeryDeepFindUniqueWhere;
     create: ExtL5VeryDeepCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL5VeryDeepUpdateInput>;
     unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
     select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     /**
@@ -1846,7 +1856,7 @@ export interface ExtL5VeryDeepModel {
   >(options: {
     where: ExtL5VeryDeepWhere;
     create: ExtL5VeryDeepCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL5VeryDeepUpdateInput>;
     unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
     select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     /**
@@ -1910,6 +1920,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2255,7 +2267,7 @@ export interface ExtL6UltraDeepModel {
     D extends ExtL6UltraDeepUpdateInput = ExtL6UltraDeepUpdateInput,
   >(options: {
     where: ExtL6UltraDeepWhere;
-    data: D;
+    data: DataArg<D, ExtL6UltraDeepUpdateInput>;
     unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
     select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     txn?: CerialTransaction;
@@ -2267,7 +2279,7 @@ export interface ExtL6UltraDeepModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtL6UltraDeepFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtL6UltraDeepUpdateInput>;
     unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
     select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     /**
@@ -2287,7 +2299,7 @@ export interface ExtL6UltraDeepModel {
   >(options: {
     where: ExtL6UltraDeepFindUniqueWhere;
     create: ExtL6UltraDeepCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL6UltraDeepUpdateInput>;
     unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
     select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     /**
@@ -2307,7 +2319,7 @@ export interface ExtL6UltraDeepModel {
   >(options: {
     where: ExtL6UltraDeepWhere;
     create: ExtL6UltraDeepCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtL6UltraDeepUpdateInput>;
     unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
     select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     /**
@@ -2371,6 +2383,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2610,7 +2624,7 @@ export interface ExtP4ConcreteModel {
     D extends ExtP4ConcreteUpdateInput = ExtP4ConcreteUpdateInput,
   >(options: {
     where: ExtP4ConcreteWhere;
-    data: D;
+    data: DataArg<D, ExtP4ConcreteUpdateInput>;
     unset?: SafeUnset<ExtP4ConcreteUnset, D>;
     select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     txn?: CerialTransaction;
@@ -2622,7 +2636,7 @@ export interface ExtP4ConcreteModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtP4ConcreteFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtP4ConcreteUpdateInput>;
     unset?: SafeUnset<ExtP4ConcreteUnset, D>;
     select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     /**
@@ -2642,7 +2656,7 @@ export interface ExtP4ConcreteModel {
   >(options: {
     where: ExtP4ConcreteFindUniqueWhere;
     create: ExtP4ConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtP4ConcreteUpdateInput>;
     unset?: SafeUnset<ExtP4ConcreteUnset, D>;
     select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     /**
@@ -2662,7 +2676,7 @@ export interface ExtP4ConcreteModel {
   >(options: {
     where: ExtP4ConcreteWhere;
     create: ExtP4ConcreteCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtP4ConcreteUpdateInput>;
     unset?: SafeUnset<ExtP4ConcreteUnset, D>;
     select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     /**

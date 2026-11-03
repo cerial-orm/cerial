@@ -19,6 +19,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -197,7 +199,7 @@ export interface FkChildModelModel {
   >(options?: {
     where?: FkChildModelWhere;
     select?: SelectArg<S, FkChildModelSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkChildModelInclude>;
     compute?: C & { [K in keyof C & (keyof FkChildModel | keyof FkChildModelWhere)]?: never };
     orderBy?: FkChildModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -216,7 +218,7 @@ export interface FkChildModelModel {
     orderBy?: FkChildModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, FkChildModelInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetFkChildModelPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -229,7 +231,7 @@ export interface FkChildModelModel {
   >(options: {
     where: FkChildModelFindUniqueWhere;
     select?: SelectArg<S, FkChildModelSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkChildModelInclude>;
     compute?: C & { [K in keyof C & (keyof FkChildModel | keyof FkChildModelWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -242,7 +244,7 @@ export interface FkChildModelModel {
   >(options: {
     data: FkChildModelCreateInput;
     select?: SelectArg<S, FkChildModelSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkChildModelInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetFkChildModelPayload<S, I>>;
 
@@ -252,10 +254,10 @@ export interface FkChildModelModel {
     D extends FkChildModelUpdateInput = FkChildModelUpdateInput,
   >(options: {
     where: FkChildModelWhere;
-    data: D;
+    data: DataArg<D, FkChildModelUpdateInput>;
     unset?: SafeUnset<FkChildModelUnset, D>;
     select?: SelectArg<S, FkChildModelSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkChildModelInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetFkChildModelPayload<S, I>[]>;
 
@@ -266,10 +268,10 @@ export interface FkChildModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: FkChildModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, FkChildModelUpdateInput>;
     unset?: SafeUnset<FkChildModelUnset, D>;
     select?: SelectArg<S, FkChildModelSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkChildModelInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -288,10 +290,10 @@ export interface FkChildModelModel {
   >(options: {
     where: FkChildModelFindUniqueWhere;
     create: FkChildModelCreateInput;
-    update?: D;
+    update?: DataArg<D, FkChildModelUpdateInput>;
     unset?: SafeUnset<FkChildModelUnset, D>;
     select?: SelectArg<S, FkChildModelSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkChildModelInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -310,10 +312,10 @@ export interface FkChildModelModel {
   >(options: {
     where: FkChildModelWhere;
     create: FkChildModelCreateInput;
-    update?: D;
+    update?: DataArg<D, FkChildModelUpdateInput>;
     unset?: SafeUnset<FkChildModelUnset, D>;
     select?: SelectArg<S, FkChildModelSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkChildModelInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -374,6 +376,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -548,7 +552,7 @@ export interface FkTargetIntIdModel {
   >(options?: {
     where?: FkTargetIntIdWhere;
     select?: SelectArg<S, FkTargetIntIdSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkTargetIntIdInclude>;
     compute?: C & { [K in keyof C & (keyof FkTargetIntId | keyof FkTargetIntIdWhere)]?: never };
     orderBy?: FkTargetIntIdOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -567,7 +571,7 @@ export interface FkTargetIntIdModel {
     orderBy?: FkTargetIntIdOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, FkTargetIntIdInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetFkTargetIntIdPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -580,7 +584,7 @@ export interface FkTargetIntIdModel {
   >(options: {
     where: FkTargetIntIdFindUniqueWhere;
     select?: SelectArg<S, FkTargetIntIdSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkTargetIntIdInclude>;
     compute?: C & { [K in keyof C & (keyof FkTargetIntId | keyof FkTargetIntIdWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -593,7 +597,7 @@ export interface FkTargetIntIdModel {
   >(options: {
     data: FkTargetIntIdCreateInput;
     select?: SelectArg<S, FkTargetIntIdSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkTargetIntIdInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetFkTargetIntIdPayload<S, I>>;
 
@@ -603,10 +607,10 @@ export interface FkTargetIntIdModel {
     D extends FkTargetIntIdUpdateInput = FkTargetIntIdUpdateInput,
   >(options: {
     where: FkTargetIntIdWhere;
-    data: D;
+    data: DataArg<D, FkTargetIntIdUpdateInput>;
     unset?: SafeUnset<FkTargetIntIdUnset, D>;
     select?: SelectArg<S, FkTargetIntIdSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkTargetIntIdInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetFkTargetIntIdPayload<S, I>[]>;
 
@@ -617,10 +621,10 @@ export interface FkTargetIntIdModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: FkTargetIntIdFindUniqueWhere;
-    data: D;
+    data: DataArg<D, FkTargetIntIdUpdateInput>;
     unset?: SafeUnset<FkTargetIntIdUnset, D>;
     select?: SelectArg<S, FkTargetIntIdSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkTargetIntIdInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -639,10 +643,10 @@ export interface FkTargetIntIdModel {
   >(options: {
     where: FkTargetIntIdFindUniqueWhere;
     create: FkTargetIntIdCreateInput;
-    update?: D;
+    update?: DataArg<D, FkTargetIntIdUpdateInput>;
     unset?: SafeUnset<FkTargetIntIdUnset, D>;
     select?: SelectArg<S, FkTargetIntIdSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkTargetIntIdInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -661,10 +665,10 @@ export interface FkTargetIntIdModel {
   >(options: {
     where: FkTargetIntIdWhere;
     create: FkTargetIntIdCreateInput;
-    update?: D;
+    update?: DataArg<D, FkTargetIntIdUpdateInput>;
     unset?: SafeUnset<FkTargetIntIdUnset, D>;
     select?: SelectArg<S, FkTargetIntIdSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, FkTargetIntIdInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -725,6 +729,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -865,7 +871,7 @@ export interface IntIdModelModel {
     D extends IntIdModelUpdateInput = IntIdModelUpdateInput,
   >(options: {
     where: IntIdModelWhere;
-    data: D;
+    data: DataArg<D, IntIdModelUpdateInput>;
     unset?: SafeUnset<IntIdModelUnset, D>;
     select?: SelectArg<S, IntIdModelSelectFields>;
     txn?: CerialTransaction;
@@ -877,7 +883,7 @@ export interface IntIdModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: IntIdModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, IntIdModelUpdateInput>;
     unset?: SafeUnset<IntIdModelUnset, D>;
     select?: SelectArg<S, IntIdModelSelectFields>;
     /**
@@ -897,7 +903,7 @@ export interface IntIdModelModel {
   >(options: {
     where: IntIdModelFindUniqueWhere;
     create: IntIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, IntIdModelUpdateInput>;
     unset?: SafeUnset<IntIdModelUnset, D>;
     select?: SelectArg<S, IntIdModelSelectFields>;
     /**
@@ -917,7 +923,7 @@ export interface IntIdModelModel {
   >(options: {
     where: IntIdModelWhere;
     create: IntIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, IntIdModelUpdateInput>;
     unset?: SafeUnset<IntIdModelUnset, D>;
     select?: SelectArg<S, IntIdModelSelectFields>;
     /**
@@ -980,6 +986,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1123,7 +1131,7 @@ export interface IntUnionIdModelModel {
     D extends IntUnionIdModelUpdateInput = IntUnionIdModelUpdateInput,
   >(options: {
     where: IntUnionIdModelWhere;
-    data: D;
+    data: DataArg<D, IntUnionIdModelUpdateInput>;
     unset?: SafeUnset<IntUnionIdModelUnset, D>;
     select?: SelectArg<S, IntUnionIdModelSelectFields>;
     txn?: CerialTransaction;
@@ -1135,7 +1143,7 @@ export interface IntUnionIdModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: IntUnionIdModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, IntUnionIdModelUpdateInput>;
     unset?: SafeUnset<IntUnionIdModelUnset, D>;
     select?: SelectArg<S, IntUnionIdModelSelectFields>;
     /**
@@ -1155,7 +1163,7 @@ export interface IntUnionIdModelModel {
   >(options: {
     where: IntUnionIdModelFindUniqueWhere;
     create: IntUnionIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, IntUnionIdModelUpdateInput>;
     unset?: SafeUnset<IntUnionIdModelUnset, D>;
     select?: SelectArg<S, IntUnionIdModelSelectFields>;
     /**
@@ -1175,7 +1183,7 @@ export interface IntUnionIdModelModel {
   >(options: {
     where: IntUnionIdModelWhere;
     create: IntUnionIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, IntUnionIdModelUpdateInput>;
     unset?: SafeUnset<IntUnionIdModelUnset, D>;
     select?: SelectArg<S, IntUnionIdModelSelectFields>;
     /**
@@ -1238,6 +1246,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1378,7 +1388,7 @@ export interface NumberIdModelModel {
     D extends NumberIdModelUpdateInput = NumberIdModelUpdateInput,
   >(options: {
     where: NumberIdModelWhere;
-    data: D;
+    data: DataArg<D, NumberIdModelUpdateInput>;
     unset?: SafeUnset<NumberIdModelUnset, D>;
     select?: SelectArg<S, NumberIdModelSelectFields>;
     txn?: CerialTransaction;
@@ -1390,7 +1400,7 @@ export interface NumberIdModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: NumberIdModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, NumberIdModelUpdateInput>;
     unset?: SafeUnset<NumberIdModelUnset, D>;
     select?: SelectArg<S, NumberIdModelSelectFields>;
     /**
@@ -1410,7 +1420,7 @@ export interface NumberIdModelModel {
   >(options: {
     where: NumberIdModelFindUniqueWhere;
     create: NumberIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberIdModelUpdateInput>;
     unset?: SafeUnset<NumberIdModelUnset, D>;
     select?: SelectArg<S, NumberIdModelSelectFields>;
     /**
@@ -1430,7 +1440,7 @@ export interface NumberIdModelModel {
   >(options: {
     where: NumberIdModelWhere;
     create: NumberIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, NumberIdModelUpdateInput>;
     unset?: SafeUnset<NumberIdModelUnset, D>;
     select?: SelectArg<S, NumberIdModelSelectFields>;
     /**
@@ -1493,6 +1503,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1645,7 +1657,7 @@ export interface ObjectIdModelModel {
     D extends ObjectIdModelUpdateInput = ObjectIdModelUpdateInput,
   >(options: {
     where: ObjectIdModelWhere;
-    data: D;
+    data: DataArg<D, ObjectIdModelUpdateInput>;
     unset?: SafeUnset<ObjectIdModelUnset, D>;
     select?: SelectArg<S, ObjectIdModelSelectFields>;
     txn?: CerialTransaction;
@@ -1657,7 +1669,7 @@ export interface ObjectIdModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ObjectIdModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ObjectIdModelUpdateInput>;
     unset?: SafeUnset<ObjectIdModelUnset, D>;
     select?: SelectArg<S, ObjectIdModelSelectFields>;
     /**
@@ -1677,7 +1689,7 @@ export interface ObjectIdModelModel {
   >(options: {
     where: ObjectIdModelFindUniqueWhere;
     create: ObjectIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, ObjectIdModelUpdateInput>;
     unset?: SafeUnset<ObjectIdModelUnset, D>;
     select?: SelectArg<S, ObjectIdModelSelectFields>;
     /**
@@ -1697,7 +1709,7 @@ export interface ObjectIdModelModel {
   >(options: {
     where: ObjectIdModelWhere;
     create: ObjectIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, ObjectIdModelUpdateInput>;
     unset?: SafeUnset<ObjectIdModelUnset, D>;
     select?: SelectArg<S, ObjectIdModelSelectFields>;
     /**
@@ -1760,6 +1772,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1939,7 +1953,7 @@ export interface StandaloneRefModelModel {
     D extends StandaloneRefModelUpdateInput = StandaloneRefModelUpdateInput,
   >(options: {
     where: StandaloneRefModelWhere;
-    data: D;
+    data: DataArg<D, StandaloneRefModelUpdateInput>;
     unset?: SafeUnset<StandaloneRefModelUnset, D>;
     select?: SelectArg<S, StandaloneRefModelSelectFields>;
     txn?: CerialTransaction;
@@ -1951,7 +1965,7 @@ export interface StandaloneRefModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: StandaloneRefModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, StandaloneRefModelUpdateInput>;
     unset?: SafeUnset<StandaloneRefModelUnset, D>;
     select?: SelectArg<S, StandaloneRefModelSelectFields>;
     /**
@@ -1971,7 +1985,7 @@ export interface StandaloneRefModelModel {
   >(options: {
     where: StandaloneRefModelFindUniqueWhere;
     create: StandaloneRefModelCreateInput;
-    update?: D;
+    update?: DataArg<D, StandaloneRefModelUpdateInput>;
     unset?: SafeUnset<StandaloneRefModelUnset, D>;
     select?: SelectArg<S, StandaloneRefModelSelectFields>;
     /**
@@ -1991,7 +2005,7 @@ export interface StandaloneRefModelModel {
   >(options: {
     where: StandaloneRefModelWhere;
     create: StandaloneRefModelCreateInput;
-    update?: D;
+    update?: DataArg<D, StandaloneRefModelUpdateInput>;
     unset?: SafeUnset<StandaloneRefModelUnset, D>;
     select?: SelectArg<S, StandaloneRefModelSelectFields>;
     /**
@@ -2054,6 +2068,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2194,7 +2210,7 @@ export interface StringIdModelModel {
     D extends StringIdModelUpdateInput = StringIdModelUpdateInput,
   >(options: {
     where: StringIdModelWhere;
-    data: D;
+    data: DataArg<D, StringIdModelUpdateInput>;
     unset?: SafeUnset<StringIdModelUnset, D>;
     select?: SelectArg<S, StringIdModelSelectFields>;
     txn?: CerialTransaction;
@@ -2206,7 +2222,7 @@ export interface StringIdModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: StringIdModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, StringIdModelUpdateInput>;
     unset?: SafeUnset<StringIdModelUnset, D>;
     select?: SelectArg<S, StringIdModelSelectFields>;
     /**
@@ -2226,7 +2242,7 @@ export interface StringIdModelModel {
   >(options: {
     where: StringIdModelFindUniqueWhere;
     create: StringIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, StringIdModelUpdateInput>;
     unset?: SafeUnset<StringIdModelUnset, D>;
     select?: SelectArg<S, StringIdModelSelectFields>;
     /**
@@ -2246,7 +2262,7 @@ export interface StringIdModelModel {
   >(options: {
     where: StringIdModelWhere;
     create: StringIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, StringIdModelUpdateInput>;
     unset?: SafeUnset<StringIdModelUnset, D>;
     select?: SelectArg<S, StringIdModelSelectFields>;
     /**
@@ -2309,6 +2325,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2450,7 +2468,7 @@ export interface TupleIdModelModel {
     D extends TupleIdModelUpdateInput = TupleIdModelUpdateInput,
   >(options: {
     where: TupleIdModelWhere;
-    data: D;
+    data: DataArg<D, TupleIdModelUpdateInput>;
     unset?: SafeUnset<TupleIdModelUnset, D>;
     select?: SelectArg<S, TupleIdModelSelectFields>;
     txn?: CerialTransaction;
@@ -2462,7 +2480,7 @@ export interface TupleIdModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: TupleIdModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, TupleIdModelUpdateInput>;
     unset?: SafeUnset<TupleIdModelUnset, D>;
     select?: SelectArg<S, TupleIdModelSelectFields>;
     /**
@@ -2482,7 +2500,7 @@ export interface TupleIdModelModel {
   >(options: {
     where: TupleIdModelFindUniqueWhere;
     create: TupleIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, TupleIdModelUpdateInput>;
     unset?: SafeUnset<TupleIdModelUnset, D>;
     select?: SelectArg<S, TupleIdModelSelectFields>;
     /**
@@ -2502,7 +2520,7 @@ export interface TupleIdModelModel {
   >(options: {
     where: TupleIdModelWhere;
     create: TupleIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, TupleIdModelUpdateInput>;
     unset?: SafeUnset<TupleIdModelUnset, D>;
     select?: SelectArg<S, TupleIdModelSelectFields>;
     /**
@@ -2565,6 +2583,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2705,7 +2725,7 @@ export interface UnionIdModelModel {
     D extends UnionIdModelUpdateInput = UnionIdModelUpdateInput,
   >(options: {
     where: UnionIdModelWhere;
-    data: D;
+    data: DataArg<D, UnionIdModelUpdateInput>;
     unset?: SafeUnset<UnionIdModelUnset, D>;
     select?: SelectArg<S, UnionIdModelSelectFields>;
     txn?: CerialTransaction;
@@ -2717,7 +2737,7 @@ export interface UnionIdModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UnionIdModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UnionIdModelUpdateInput>;
     unset?: SafeUnset<UnionIdModelUnset, D>;
     select?: SelectArg<S, UnionIdModelSelectFields>;
     /**
@@ -2737,7 +2757,7 @@ export interface UnionIdModelModel {
   >(options: {
     where: UnionIdModelFindUniqueWhere;
     create: UnionIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, UnionIdModelUpdateInput>;
     unset?: SafeUnset<UnionIdModelUnset, D>;
     select?: SelectArg<S, UnionIdModelSelectFields>;
     /**
@@ -2757,7 +2777,7 @@ export interface UnionIdModelModel {
   >(options: {
     where: UnionIdModelWhere;
     create: UnionIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, UnionIdModelUpdateInput>;
     unset?: SafeUnset<UnionIdModelUnset, D>;
     select?: SelectArg<S, UnionIdModelSelectFields>;
     /**
@@ -2820,6 +2840,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2960,7 +2982,7 @@ export interface UuidIdModelModel {
     D extends UuidIdModelUpdateInput = UuidIdModelUpdateInput,
   >(options: {
     where: UuidIdModelWhere;
-    data: D;
+    data: DataArg<D, UuidIdModelUpdateInput>;
     unset?: SafeUnset<UuidIdModelUnset, D>;
     select?: SelectArg<S, UuidIdModelSelectFields>;
     txn?: CerialTransaction;
@@ -2972,7 +2994,7 @@ export interface UuidIdModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UuidIdModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UuidIdModelUpdateInput>;
     unset?: SafeUnset<UuidIdModelUnset, D>;
     select?: SelectArg<S, UuidIdModelSelectFields>;
     /**
@@ -2992,7 +3014,7 @@ export interface UuidIdModelModel {
   >(options: {
     where: UuidIdModelFindUniqueWhere;
     create: UuidIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidIdModelUpdateInput>;
     unset?: SafeUnset<UuidIdModelUnset, D>;
     select?: SelectArg<S, UuidIdModelSelectFields>;
     /**
@@ -3012,7 +3034,7 @@ export interface UuidIdModelModel {
   >(options: {
     where: UuidIdModelWhere;
     create: UuidIdModelCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidIdModelUpdateInput>;
     unset?: SafeUnset<UuidIdModelUnset, D>;
     select?: SelectArg<S, UuidIdModelSelectFields>;
     /**

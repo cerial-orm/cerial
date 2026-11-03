@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -205,7 +207,7 @@ export interface DdAtThreeCascadeModel {
   >(options?: {
     where?: DdAtThreeCascadeWhere;
     select?: SelectArg<S, DdAtThreeCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeCascadeInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeCascade | keyof DdAtThreeCascadeWhere)]?: never };
     orderBy?: DdAtThreeCascadeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -224,7 +226,7 @@ export interface DdAtThreeCascadeModel {
     orderBy?: DdAtThreeCascadeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeCascadeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtThreeCascadePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -237,7 +239,7 @@ export interface DdAtThreeCascadeModel {
   >(options: {
     where: DdAtThreeCascadeFindUniqueWhere;
     select?: SelectArg<S, DdAtThreeCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeCascadeInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeCascade | keyof DdAtThreeCascadeWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -250,7 +252,7 @@ export interface DdAtThreeCascadeModel {
   >(options: {
     data: DdAtThreeCascadeCreateInput;
     select?: SelectArg<S, DdAtThreeCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeCascadeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeCascadePayload<S, I>>;
 
@@ -260,10 +262,10 @@ export interface DdAtThreeCascadeModel {
     D extends DdAtThreeCascadeUpdateInput = DdAtThreeCascadeUpdateInput,
   >(options: {
     where: DdAtThreeCascadeWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeCascadeUpdateInput>;
     unset?: SafeUnset<DdAtThreeCascadeUnset, D>;
     select?: SelectArg<S, DdAtThreeCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeCascadeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeCascadePayload<S, I>[]>;
 
@@ -274,10 +276,10 @@ export interface DdAtThreeCascadeModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtThreeCascadeFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeCascadeUpdateInput>;
     unset?: SafeUnset<DdAtThreeCascadeUnset, D>;
     select?: SelectArg<S, DdAtThreeCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeCascadeInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -296,10 +298,10 @@ export interface DdAtThreeCascadeModel {
   >(options: {
     where: DdAtThreeCascadeFindUniqueWhere;
     create: DdAtThreeCascadeCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeCascadeUpdateInput>;
     unset?: SafeUnset<DdAtThreeCascadeUnset, D>;
     select?: SelectArg<S, DdAtThreeCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeCascadeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -318,10 +320,10 @@ export interface DdAtThreeCascadeModel {
   >(options: {
     where: DdAtThreeCascadeWhere;
     create: DdAtThreeCascadeCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeCascadeUpdateInput>;
     unset?: SafeUnset<DdAtThreeCascadeUnset, D>;
     select?: SelectArg<S, DdAtThreeCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeCascadeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -383,6 +385,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -568,7 +572,7 @@ export interface DdAtThreeNoActionModel {
   >(options?: {
     where?: DdAtThreeNoActionWhere;
     select?: SelectArg<S, DdAtThreeNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeNoActionInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeNoAction | keyof DdAtThreeNoActionWhere)]?: never };
     orderBy?: DdAtThreeNoActionOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -587,7 +591,7 @@ export interface DdAtThreeNoActionModel {
     orderBy?: DdAtThreeNoActionOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeNoActionInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtThreeNoActionPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -600,7 +604,7 @@ export interface DdAtThreeNoActionModel {
   >(options: {
     where: DdAtThreeNoActionFindUniqueWhere;
     select?: SelectArg<S, DdAtThreeNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeNoActionInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeNoAction | keyof DdAtThreeNoActionWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -613,7 +617,7 @@ export interface DdAtThreeNoActionModel {
   >(options: {
     data: DdAtThreeNoActionCreateInput;
     select?: SelectArg<S, DdAtThreeNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeNoActionInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeNoActionPayload<S, I>>;
 
@@ -623,10 +627,10 @@ export interface DdAtThreeNoActionModel {
     D extends DdAtThreeNoActionUpdateInput = DdAtThreeNoActionUpdateInput,
   >(options: {
     where: DdAtThreeNoActionWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeNoActionUpdateInput>;
     unset?: SafeUnset<DdAtThreeNoActionUnset, D>;
     select?: SelectArg<S, DdAtThreeNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeNoActionInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeNoActionPayload<S, I>[]>;
 
@@ -637,10 +641,10 @@ export interface DdAtThreeNoActionModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtThreeNoActionFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeNoActionUpdateInput>;
     unset?: SafeUnset<DdAtThreeNoActionUnset, D>;
     select?: SelectArg<S, DdAtThreeNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeNoActionInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -659,10 +663,10 @@ export interface DdAtThreeNoActionModel {
   >(options: {
     where: DdAtThreeNoActionFindUniqueWhere;
     create: DdAtThreeNoActionCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeNoActionUpdateInput>;
     unset?: SafeUnset<DdAtThreeNoActionUnset, D>;
     select?: SelectArg<S, DdAtThreeNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeNoActionInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -681,10 +685,10 @@ export interface DdAtThreeNoActionModel {
   >(options: {
     where: DdAtThreeNoActionWhere;
     create: DdAtThreeNoActionCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeNoActionUpdateInput>;
     unset?: SafeUnset<DdAtThreeNoActionUnset, D>;
     select?: SelectArg<S, DdAtThreeNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeNoActionInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -746,6 +750,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -931,7 +937,7 @@ export interface DdAtThreeRestrictModel {
   >(options?: {
     where?: DdAtThreeRestrictWhere;
     select?: SelectArg<S, DdAtThreeRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeRestrictInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeRestrict | keyof DdAtThreeRestrictWhere)]?: never };
     orderBy?: DdAtThreeRestrictOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -950,7 +956,7 @@ export interface DdAtThreeRestrictModel {
     orderBy?: DdAtThreeRestrictOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeRestrictInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtThreeRestrictPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -963,7 +969,7 @@ export interface DdAtThreeRestrictModel {
   >(options: {
     where: DdAtThreeRestrictFindUniqueWhere;
     select?: SelectArg<S, DdAtThreeRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeRestrictInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeRestrict | keyof DdAtThreeRestrictWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -976,7 +982,7 @@ export interface DdAtThreeRestrictModel {
   >(options: {
     data: DdAtThreeRestrictCreateInput;
     select?: SelectArg<S, DdAtThreeRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeRestrictInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeRestrictPayload<S, I>>;
 
@@ -986,10 +992,10 @@ export interface DdAtThreeRestrictModel {
     D extends DdAtThreeRestrictUpdateInput = DdAtThreeRestrictUpdateInput,
   >(options: {
     where: DdAtThreeRestrictWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeRestrictUpdateInput>;
     unset?: SafeUnset<DdAtThreeRestrictUnset, D>;
     select?: SelectArg<S, DdAtThreeRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeRestrictInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeRestrictPayload<S, I>[]>;
 
@@ -1000,10 +1006,10 @@ export interface DdAtThreeRestrictModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtThreeRestrictFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeRestrictUpdateInput>;
     unset?: SafeUnset<DdAtThreeRestrictUnset, D>;
     select?: SelectArg<S, DdAtThreeRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeRestrictInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1022,10 +1028,10 @@ export interface DdAtThreeRestrictModel {
   >(options: {
     where: DdAtThreeRestrictFindUniqueWhere;
     create: DdAtThreeRestrictCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeRestrictUpdateInput>;
     unset?: SafeUnset<DdAtThreeRestrictUnset, D>;
     select?: SelectArg<S, DdAtThreeRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeRestrictInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1044,10 +1050,10 @@ export interface DdAtThreeRestrictModel {
   >(options: {
     where: DdAtThreeRestrictWhere;
     create: DdAtThreeRestrictCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeRestrictUpdateInput>;
     unset?: SafeUnset<DdAtThreeRestrictUnset, D>;
     select?: SelectArg<S, DdAtThreeRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeRestrictInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1109,6 +1115,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1292,7 +1300,7 @@ export interface DdAtThreeSetNoneModel {
   >(options?: {
     where?: DdAtThreeSetNoneWhere;
     select?: SelectArg<S, DdAtThreeSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNoneInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeSetNone | keyof DdAtThreeSetNoneWhere)]?: never };
     orderBy?: DdAtThreeSetNoneOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1311,7 +1319,7 @@ export interface DdAtThreeSetNoneModel {
     orderBy?: DdAtThreeSetNoneOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNoneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtThreeSetNonePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1324,7 +1332,7 @@ export interface DdAtThreeSetNoneModel {
   >(options: {
     where: DdAtThreeSetNoneFindUniqueWhere;
     select?: SelectArg<S, DdAtThreeSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNoneInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeSetNone | keyof DdAtThreeSetNoneWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1337,7 +1345,7 @@ export interface DdAtThreeSetNoneModel {
   >(options: {
     data: DdAtThreeSetNoneCreateInput;
     select?: SelectArg<S, DdAtThreeSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNoneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeSetNonePayload<S, I>>;
 
@@ -1347,10 +1355,10 @@ export interface DdAtThreeSetNoneModel {
     D extends DdAtThreeSetNoneUpdateInput = DdAtThreeSetNoneUpdateInput,
   >(options: {
     where: DdAtThreeSetNoneWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeSetNoneUpdateInput>;
     unset?: SafeUnset<DdAtThreeSetNoneUnset, D>;
     select?: SelectArg<S, DdAtThreeSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNoneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeSetNonePayload<S, I>[]>;
 
@@ -1361,10 +1369,10 @@ export interface DdAtThreeSetNoneModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtThreeSetNoneFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeSetNoneUpdateInput>;
     unset?: SafeUnset<DdAtThreeSetNoneUnset, D>;
     select?: SelectArg<S, DdAtThreeSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNoneInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1383,10 +1391,10 @@ export interface DdAtThreeSetNoneModel {
   >(options: {
     where: DdAtThreeSetNoneFindUniqueWhere;
     create: DdAtThreeSetNoneCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeSetNoneUpdateInput>;
     unset?: SafeUnset<DdAtThreeSetNoneUnset, D>;
     select?: SelectArg<S, DdAtThreeSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNoneInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1405,10 +1413,10 @@ export interface DdAtThreeSetNoneModel {
   >(options: {
     where: DdAtThreeSetNoneWhere;
     create: DdAtThreeSetNoneCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeSetNoneUpdateInput>;
     unset?: SafeUnset<DdAtThreeSetNoneUnset, D>;
     select?: SelectArg<S, DdAtThreeSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNoneInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1470,6 +1478,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1655,7 +1665,7 @@ export interface DdAtThreeSetNullModel {
   >(options?: {
     where?: DdAtThreeSetNullWhere;
     select?: SelectArg<S, DdAtThreeSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNullInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeSetNull | keyof DdAtThreeSetNullWhere)]?: never };
     orderBy?: DdAtThreeSetNullOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1674,7 +1684,7 @@ export interface DdAtThreeSetNullModel {
     orderBy?: DdAtThreeSetNullOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNullInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtThreeSetNullPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1687,7 +1697,7 @@ export interface DdAtThreeSetNullModel {
   >(options: {
     where: DdAtThreeSetNullFindUniqueWhere;
     select?: SelectArg<S, DdAtThreeSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNullInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtThreeSetNull | keyof DdAtThreeSetNullWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1700,7 +1710,7 @@ export interface DdAtThreeSetNullModel {
   >(options: {
     data: DdAtThreeSetNullCreateInput;
     select?: SelectArg<S, DdAtThreeSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNullInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeSetNullPayload<S, I>>;
 
@@ -1710,10 +1720,10 @@ export interface DdAtThreeSetNullModel {
     D extends DdAtThreeSetNullUpdateInput = DdAtThreeSetNullUpdateInput,
   >(options: {
     where: DdAtThreeSetNullWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeSetNullUpdateInput>;
     unset?: SafeUnset<DdAtThreeSetNullUnset, D>;
     select?: SelectArg<S, DdAtThreeSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNullInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtThreeSetNullPayload<S, I>[]>;
 
@@ -1724,10 +1734,10 @@ export interface DdAtThreeSetNullModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtThreeSetNullFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtThreeSetNullUpdateInput>;
     unset?: SafeUnset<DdAtThreeSetNullUnset, D>;
     select?: SelectArg<S, DdAtThreeSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNullInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1746,10 +1756,10 @@ export interface DdAtThreeSetNullModel {
   >(options: {
     where: DdAtThreeSetNullFindUniqueWhere;
     create: DdAtThreeSetNullCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeSetNullUpdateInput>;
     unset?: SafeUnset<DdAtThreeSetNullUnset, D>;
     select?: SelectArg<S, DdAtThreeSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNullInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1768,10 +1778,10 @@ export interface DdAtThreeSetNullModel {
   >(options: {
     where: DdAtThreeSetNullWhere;
     create: DdAtThreeSetNullCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtThreeSetNullUpdateInput>;
     unset?: SafeUnset<DdAtThreeSetNullUnset, D>;
     select?: SelectArg<S, DdAtThreeSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtThreeSetNullInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1833,6 +1843,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2018,7 +2030,7 @@ export interface DdAtTwoCascadeModel {
   >(options?: {
     where?: DdAtTwoCascadeWhere;
     select?: SelectArg<S, DdAtTwoCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoCascadeInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoCascade | keyof DdAtTwoCascadeWhere)]?: never };
     orderBy?: DdAtTwoCascadeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2037,7 +2049,7 @@ export interface DdAtTwoCascadeModel {
     orderBy?: DdAtTwoCascadeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoCascadeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtTwoCascadePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -2050,7 +2062,7 @@ export interface DdAtTwoCascadeModel {
   >(options: {
     where: DdAtTwoCascadeFindUniqueWhere;
     select?: SelectArg<S, DdAtTwoCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoCascadeInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoCascade | keyof DdAtTwoCascadeWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2063,7 +2075,7 @@ export interface DdAtTwoCascadeModel {
   >(options: {
     data: DdAtTwoCascadeCreateInput;
     select?: SelectArg<S, DdAtTwoCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoCascadeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoCascadePayload<S, I>>;
 
@@ -2073,10 +2085,10 @@ export interface DdAtTwoCascadeModel {
     D extends DdAtTwoCascadeUpdateInput = DdAtTwoCascadeUpdateInput,
   >(options: {
     where: DdAtTwoCascadeWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoCascadeUpdateInput>;
     unset?: SafeUnset<DdAtTwoCascadeUnset, D>;
     select?: SelectArg<S, DdAtTwoCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoCascadeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoCascadePayload<S, I>[]>;
 
@@ -2087,10 +2099,10 @@ export interface DdAtTwoCascadeModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtTwoCascadeFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoCascadeUpdateInput>;
     unset?: SafeUnset<DdAtTwoCascadeUnset, D>;
     select?: SelectArg<S, DdAtTwoCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoCascadeInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -2109,10 +2121,10 @@ export interface DdAtTwoCascadeModel {
   >(options: {
     where: DdAtTwoCascadeFindUniqueWhere;
     create: DdAtTwoCascadeCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoCascadeUpdateInput>;
     unset?: SafeUnset<DdAtTwoCascadeUnset, D>;
     select?: SelectArg<S, DdAtTwoCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoCascadeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -2131,10 +2143,10 @@ export interface DdAtTwoCascadeModel {
   >(options: {
     where: DdAtTwoCascadeWhere;
     create: DdAtTwoCascadeCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoCascadeUpdateInput>;
     unset?: SafeUnset<DdAtTwoCascadeUnset, D>;
     select?: SelectArg<S, DdAtTwoCascadeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoCascadeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2196,6 +2208,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2381,7 +2395,7 @@ export interface DdAtTwoNoActionModel {
   >(options?: {
     where?: DdAtTwoNoActionWhere;
     select?: SelectArg<S, DdAtTwoNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoNoActionInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoNoAction | keyof DdAtTwoNoActionWhere)]?: never };
     orderBy?: DdAtTwoNoActionOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2400,7 +2414,7 @@ export interface DdAtTwoNoActionModel {
     orderBy?: DdAtTwoNoActionOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoNoActionInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtTwoNoActionPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -2413,7 +2427,7 @@ export interface DdAtTwoNoActionModel {
   >(options: {
     where: DdAtTwoNoActionFindUniqueWhere;
     select?: SelectArg<S, DdAtTwoNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoNoActionInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoNoAction | keyof DdAtTwoNoActionWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2426,7 +2440,7 @@ export interface DdAtTwoNoActionModel {
   >(options: {
     data: DdAtTwoNoActionCreateInput;
     select?: SelectArg<S, DdAtTwoNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoNoActionInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoNoActionPayload<S, I>>;
 
@@ -2436,10 +2450,10 @@ export interface DdAtTwoNoActionModel {
     D extends DdAtTwoNoActionUpdateInput = DdAtTwoNoActionUpdateInput,
   >(options: {
     where: DdAtTwoNoActionWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoNoActionUpdateInput>;
     unset?: SafeUnset<DdAtTwoNoActionUnset, D>;
     select?: SelectArg<S, DdAtTwoNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoNoActionInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoNoActionPayload<S, I>[]>;
 
@@ -2450,10 +2464,10 @@ export interface DdAtTwoNoActionModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtTwoNoActionFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoNoActionUpdateInput>;
     unset?: SafeUnset<DdAtTwoNoActionUnset, D>;
     select?: SelectArg<S, DdAtTwoNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoNoActionInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -2472,10 +2486,10 @@ export interface DdAtTwoNoActionModel {
   >(options: {
     where: DdAtTwoNoActionFindUniqueWhere;
     create: DdAtTwoNoActionCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoNoActionUpdateInput>;
     unset?: SafeUnset<DdAtTwoNoActionUnset, D>;
     select?: SelectArg<S, DdAtTwoNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoNoActionInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -2494,10 +2508,10 @@ export interface DdAtTwoNoActionModel {
   >(options: {
     where: DdAtTwoNoActionWhere;
     create: DdAtTwoNoActionCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoNoActionUpdateInput>;
     unset?: SafeUnset<DdAtTwoNoActionUnset, D>;
     select?: SelectArg<S, DdAtTwoNoActionSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoNoActionInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2559,6 +2573,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2744,7 +2760,7 @@ export interface DdAtTwoRestrictModel {
   >(options?: {
     where?: DdAtTwoRestrictWhere;
     select?: SelectArg<S, DdAtTwoRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoRestrictInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoRestrict | keyof DdAtTwoRestrictWhere)]?: never };
     orderBy?: DdAtTwoRestrictOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2763,7 +2779,7 @@ export interface DdAtTwoRestrictModel {
     orderBy?: DdAtTwoRestrictOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoRestrictInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtTwoRestrictPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -2776,7 +2792,7 @@ export interface DdAtTwoRestrictModel {
   >(options: {
     where: DdAtTwoRestrictFindUniqueWhere;
     select?: SelectArg<S, DdAtTwoRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoRestrictInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoRestrict | keyof DdAtTwoRestrictWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2789,7 +2805,7 @@ export interface DdAtTwoRestrictModel {
   >(options: {
     data: DdAtTwoRestrictCreateInput;
     select?: SelectArg<S, DdAtTwoRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoRestrictInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoRestrictPayload<S, I>>;
 
@@ -2799,10 +2815,10 @@ export interface DdAtTwoRestrictModel {
     D extends DdAtTwoRestrictUpdateInput = DdAtTwoRestrictUpdateInput,
   >(options: {
     where: DdAtTwoRestrictWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoRestrictUpdateInput>;
     unset?: SafeUnset<DdAtTwoRestrictUnset, D>;
     select?: SelectArg<S, DdAtTwoRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoRestrictInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoRestrictPayload<S, I>[]>;
 
@@ -2813,10 +2829,10 @@ export interface DdAtTwoRestrictModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtTwoRestrictFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoRestrictUpdateInput>;
     unset?: SafeUnset<DdAtTwoRestrictUnset, D>;
     select?: SelectArg<S, DdAtTwoRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoRestrictInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -2835,10 +2851,10 @@ export interface DdAtTwoRestrictModel {
   >(options: {
     where: DdAtTwoRestrictFindUniqueWhere;
     create: DdAtTwoRestrictCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoRestrictUpdateInput>;
     unset?: SafeUnset<DdAtTwoRestrictUnset, D>;
     select?: SelectArg<S, DdAtTwoRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoRestrictInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -2857,10 +2873,10 @@ export interface DdAtTwoRestrictModel {
   >(options: {
     where: DdAtTwoRestrictWhere;
     create: DdAtTwoRestrictCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoRestrictUpdateInput>;
     unset?: SafeUnset<DdAtTwoRestrictUnset, D>;
     select?: SelectArg<S, DdAtTwoRestrictSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoRestrictInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2922,6 +2938,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3105,7 +3123,7 @@ export interface DdAtTwoSetNoneModel {
   >(options?: {
     where?: DdAtTwoSetNoneWhere;
     select?: SelectArg<S, DdAtTwoSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNoneInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoSetNone | keyof DdAtTwoSetNoneWhere)]?: never };
     orderBy?: DdAtTwoSetNoneOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -3124,7 +3142,7 @@ export interface DdAtTwoSetNoneModel {
     orderBy?: DdAtTwoSetNoneOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNoneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtTwoSetNonePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -3137,7 +3155,7 @@ export interface DdAtTwoSetNoneModel {
   >(options: {
     where: DdAtTwoSetNoneFindUniqueWhere;
     select?: SelectArg<S, DdAtTwoSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNoneInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoSetNone | keyof DdAtTwoSetNoneWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -3150,7 +3168,7 @@ export interface DdAtTwoSetNoneModel {
   >(options: {
     data: DdAtTwoSetNoneCreateInput;
     select?: SelectArg<S, DdAtTwoSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNoneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoSetNonePayload<S, I>>;
 
@@ -3160,10 +3178,10 @@ export interface DdAtTwoSetNoneModel {
     D extends DdAtTwoSetNoneUpdateInput = DdAtTwoSetNoneUpdateInput,
   >(options: {
     where: DdAtTwoSetNoneWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoSetNoneUpdateInput>;
     unset?: SafeUnset<DdAtTwoSetNoneUnset, D>;
     select?: SelectArg<S, DdAtTwoSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNoneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoSetNonePayload<S, I>[]>;
 
@@ -3174,10 +3192,10 @@ export interface DdAtTwoSetNoneModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtTwoSetNoneFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoSetNoneUpdateInput>;
     unset?: SafeUnset<DdAtTwoSetNoneUnset, D>;
     select?: SelectArg<S, DdAtTwoSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNoneInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -3196,10 +3214,10 @@ export interface DdAtTwoSetNoneModel {
   >(options: {
     where: DdAtTwoSetNoneFindUniqueWhere;
     create: DdAtTwoSetNoneCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoSetNoneUpdateInput>;
     unset?: SafeUnset<DdAtTwoSetNoneUnset, D>;
     select?: SelectArg<S, DdAtTwoSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNoneInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -3218,10 +3236,10 @@ export interface DdAtTwoSetNoneModel {
   >(options: {
     where: DdAtTwoSetNoneWhere;
     create: DdAtTwoSetNoneCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoSetNoneUpdateInput>;
     unset?: SafeUnset<DdAtTwoSetNoneUnset, D>;
     select?: SelectArg<S, DdAtTwoSetNoneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNoneInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -3283,6 +3301,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3468,7 +3488,7 @@ export interface DdAtTwoSetNullModel {
   >(options?: {
     where?: DdAtTwoSetNullWhere;
     select?: SelectArg<S, DdAtTwoSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNullInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoSetNull | keyof DdAtTwoSetNullWhere)]?: never };
     orderBy?: DdAtTwoSetNullOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -3487,7 +3507,7 @@ export interface DdAtTwoSetNullModel {
     orderBy?: DdAtTwoSetNullOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNullInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdAtTwoSetNullPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -3500,7 +3520,7 @@ export interface DdAtTwoSetNullModel {
   >(options: {
     where: DdAtTwoSetNullFindUniqueWhere;
     select?: SelectArg<S, DdAtTwoSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNullInclude>;
     compute?: C & { [K in keyof C & (keyof DdAtTwoSetNull | keyof DdAtTwoSetNullWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -3513,7 +3533,7 @@ export interface DdAtTwoSetNullModel {
   >(options: {
     data: DdAtTwoSetNullCreateInput;
     select?: SelectArg<S, DdAtTwoSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNullInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoSetNullPayload<S, I>>;
 
@@ -3523,10 +3543,10 @@ export interface DdAtTwoSetNullModel {
     D extends DdAtTwoSetNullUpdateInput = DdAtTwoSetNullUpdateInput,
   >(options: {
     where: DdAtTwoSetNullWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoSetNullUpdateInput>;
     unset?: SafeUnset<DdAtTwoSetNullUnset, D>;
     select?: SelectArg<S, DdAtTwoSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNullInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdAtTwoSetNullPayload<S, I>[]>;
 
@@ -3537,10 +3557,10 @@ export interface DdAtTwoSetNullModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdAtTwoSetNullFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdAtTwoSetNullUpdateInput>;
     unset?: SafeUnset<DdAtTwoSetNullUnset, D>;
     select?: SelectArg<S, DdAtTwoSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNullInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -3559,10 +3579,10 @@ export interface DdAtTwoSetNullModel {
   >(options: {
     where: DdAtTwoSetNullFindUniqueWhere;
     create: DdAtTwoSetNullCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoSetNullUpdateInput>;
     unset?: SafeUnset<DdAtTwoSetNullUnset, D>;
     select?: SelectArg<S, DdAtTwoSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNullInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -3581,10 +3601,10 @@ export interface DdAtTwoSetNullModel {
   >(options: {
     where: DdAtTwoSetNullWhere;
     create: DdAtTwoSetNullCreateInput;
-    update?: D;
+    update?: DataArg<D, DdAtTwoSetNullUpdateInput>;
     unset?: SafeUnset<DdAtTwoSetNullUnset, D>;
     select?: SelectArg<S, DdAtTwoSetNullSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdAtTwoSetNullInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -3646,6 +3666,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -4206,7 +4228,7 @@ export interface DdOneModel {
   >(options?: {
     where?: DdOneWhere;
     select?: SelectArg<S, DdOneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdOneInclude>;
     compute?: C & { [K in keyof C & (keyof DdOne | keyof DdOneWhere)]?: never };
     orderBy?: DdOneOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -4225,7 +4247,7 @@ export interface DdOneModel {
     orderBy?: DdOneOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdOneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdOnePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -4238,7 +4260,7 @@ export interface DdOneModel {
   >(options: {
     where: DdOneFindUniqueWhere;
     select?: SelectArg<S, DdOneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdOneInclude>;
     compute?: C & { [K in keyof C & (keyof DdOne | keyof DdOneWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -4248,7 +4270,7 @@ export interface DdOneModel {
   create<S extends DdOneSelect | undefined = undefined, I extends DdOneInclude | undefined = undefined>(options: {
     data: DdOneCreateInput;
     select?: SelectArg<S, DdOneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdOneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdOnePayload<S, I>>;
 
@@ -4258,10 +4280,10 @@ export interface DdOneModel {
     D extends DdOneUpdateInput = DdOneUpdateInput,
   >(options: {
     where: DdOneWhere;
-    data: D;
+    data: DataArg<D, DdOneUpdateInput>;
     unset?: SafeUnset<DdOneUnset, D>;
     select?: SelectArg<S, DdOneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdOneInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdOnePayload<S, I>[]>;
 
@@ -4272,10 +4294,10 @@ export interface DdOneModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdOneFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdOneUpdateInput>;
     unset?: SafeUnset<DdOneUnset, D>;
     select?: SelectArg<S, DdOneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdOneInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -4294,10 +4316,10 @@ export interface DdOneModel {
   >(options: {
     where: DdOneFindUniqueWhere;
     create: DdOneCreateInput;
-    update?: D;
+    update?: DataArg<D, DdOneUpdateInput>;
     unset?: SafeUnset<DdOneUnset, D>;
     select?: SelectArg<S, DdOneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdOneInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -4316,10 +4338,10 @@ export interface DdOneModel {
   >(options: {
     where: DdOneWhere;
     create: DdOneCreateInput;
-    update?: D;
+    update?: DataArg<D, DdOneUpdateInput>;
     unset?: SafeUnset<DdOneUnset, D>;
     select?: SelectArg<S, DdOneSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdOneInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -4381,6 +4403,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -4610,7 +4634,7 @@ export interface DdPingModel {
   >(options?: {
     where?: DdPingWhere;
     select?: SelectArg<S, DdPingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPingInclude>;
     compute?: C & { [K in keyof C & (keyof DdPing | keyof DdPingWhere)]?: never };
     orderBy?: DdPingOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -4629,7 +4653,7 @@ export interface DdPingModel {
     orderBy?: DdPingOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdPingInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdPingPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -4642,7 +4666,7 @@ export interface DdPingModel {
   >(options: {
     where: DdPingFindUniqueWhere;
     select?: SelectArg<S, DdPingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPingInclude>;
     compute?: C & { [K in keyof C & (keyof DdPing | keyof DdPingWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -4652,7 +4676,7 @@ export interface DdPingModel {
   create<S extends DdPingSelect | undefined = undefined, I extends DdPingInclude | undefined = undefined>(options: {
     data: DdPingCreateInput;
     select?: SelectArg<S, DdPingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPingInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdPingPayload<S, I>>;
 
@@ -4662,10 +4686,10 @@ export interface DdPingModel {
     D extends DdPingUpdateInput = DdPingUpdateInput,
   >(options: {
     where: DdPingWhere;
-    data: D;
+    data: DataArg<D, DdPingUpdateInput>;
     unset?: SafeUnset<DdPingUnset, D>;
     select?: SelectArg<S, DdPingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPingInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdPingPayload<S, I>[]>;
 
@@ -4676,10 +4700,10 @@ export interface DdPingModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdPingFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdPingUpdateInput>;
     unset?: SafeUnset<DdPingUnset, D>;
     select?: SelectArg<S, DdPingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPingInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -4698,10 +4722,10 @@ export interface DdPingModel {
   >(options: {
     where: DdPingFindUniqueWhere;
     create: DdPingCreateInput;
-    update?: D;
+    update?: DataArg<D, DdPingUpdateInput>;
     unset?: SafeUnset<DdPingUnset, D>;
     select?: SelectArg<S, DdPingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPingInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -4720,10 +4744,10 @@ export interface DdPingModel {
   >(options: {
     where: DdPingWhere;
     create: DdPingCreateInput;
-    update?: D;
+    update?: DataArg<D, DdPingUpdateInput>;
     unset?: SafeUnset<DdPingUnset, D>;
     select?: SelectArg<S, DdPingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPingInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -4785,6 +4809,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -5014,7 +5040,7 @@ export interface DdPongModel {
   >(options?: {
     where?: DdPongWhere;
     select?: SelectArg<S, DdPongSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPongInclude>;
     compute?: C & { [K in keyof C & (keyof DdPong | keyof DdPongWhere)]?: never };
     orderBy?: DdPongOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -5033,7 +5059,7 @@ export interface DdPongModel {
     orderBy?: DdPongOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdPongInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdPongPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -5046,7 +5072,7 @@ export interface DdPongModel {
   >(options: {
     where: DdPongFindUniqueWhere;
     select?: SelectArg<S, DdPongSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPongInclude>;
     compute?: C & { [K in keyof C & (keyof DdPong | keyof DdPongWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -5056,7 +5082,7 @@ export interface DdPongModel {
   create<S extends DdPongSelect | undefined = undefined, I extends DdPongInclude | undefined = undefined>(options: {
     data: DdPongCreateInput;
     select?: SelectArg<S, DdPongSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPongInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdPongPayload<S, I>>;
 
@@ -5066,10 +5092,10 @@ export interface DdPongModel {
     D extends DdPongUpdateInput = DdPongUpdateInput,
   >(options: {
     where: DdPongWhere;
-    data: D;
+    data: DataArg<D, DdPongUpdateInput>;
     unset?: SafeUnset<DdPongUnset, D>;
     select?: SelectArg<S, DdPongSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPongInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdPongPayload<S, I>[]>;
 
@@ -5080,10 +5106,10 @@ export interface DdPongModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdPongFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdPongUpdateInput>;
     unset?: SafeUnset<DdPongUnset, D>;
     select?: SelectArg<S, DdPongSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPongInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -5102,10 +5128,10 @@ export interface DdPongModel {
   >(options: {
     where: DdPongFindUniqueWhere;
     create: DdPongCreateInput;
-    update?: D;
+    update?: DataArg<D, DdPongUpdateInput>;
     unset?: SafeUnset<DdPongUnset, D>;
     select?: SelectArg<S, DdPongSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPongInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -5124,10 +5150,10 @@ export interface DdPongModel {
   >(options: {
     where: DdPongWhere;
     create: DdPongCreateInput;
-    update?: D;
+    update?: DataArg<D, DdPongUpdateInput>;
     unset?: SafeUnset<DdPongUnset, D>;
     select?: SelectArg<S, DdPongSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdPongInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -5188,6 +5214,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -5378,7 +5406,7 @@ export interface DdRootModel {
   >(options?: {
     where?: DdRootWhere;
     select?: SelectArg<S, DdRootSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdRootInclude>;
     compute?: C & { [K in keyof C & (keyof DdRoot | keyof DdRootWhere)]?: never };
     orderBy?: DdRootOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -5397,7 +5425,7 @@ export interface DdRootModel {
     orderBy?: DdRootOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdRootInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdRootPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -5410,7 +5438,7 @@ export interface DdRootModel {
   >(options: {
     where: DdRootFindUniqueWhere;
     select?: SelectArg<S, DdRootSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdRootInclude>;
     compute?: C & { [K in keyof C & (keyof DdRoot | keyof DdRootWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -5420,7 +5448,7 @@ export interface DdRootModel {
   create<S extends DdRootSelect | undefined = undefined, I extends DdRootInclude | undefined = undefined>(options: {
     data: DdRootCreateInput;
     select?: SelectArg<S, DdRootSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdRootInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdRootPayload<S, I>>;
 
@@ -5430,10 +5458,10 @@ export interface DdRootModel {
     D extends DdRootUpdateInput = DdRootUpdateInput,
   >(options: {
     where: DdRootWhere;
-    data: D;
+    data: DataArg<D, DdRootUpdateInput>;
     unset?: SafeUnset<DdRootUnset, D>;
     select?: SelectArg<S, DdRootSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdRootInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdRootPayload<S, I>[]>;
 
@@ -5444,10 +5472,10 @@ export interface DdRootModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdRootFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdRootUpdateInput>;
     unset?: SafeUnset<DdRootUnset, D>;
     select?: SelectArg<S, DdRootSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdRootInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -5466,10 +5494,10 @@ export interface DdRootModel {
   >(options: {
     where: DdRootFindUniqueWhere;
     create: DdRootCreateInput;
-    update?: D;
+    update?: DataArg<D, DdRootUpdateInput>;
     unset?: SafeUnset<DdRootUnset, D>;
     select?: SelectArg<S, DdRootSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdRootInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -5488,10 +5516,10 @@ export interface DdRootModel {
   >(options: {
     where: DdRootWhere;
     create: DdRootCreateInput;
-    update?: D;
+    update?: DataArg<D, DdRootUpdateInput>;
     unset?: SafeUnset<DdRootUnset, D>;
     select?: SelectArg<S, DdRootSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdRootInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -5553,6 +5581,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -5773,7 +5803,7 @@ export interface DdTreeModel {
   >(options?: {
     where?: DdTreeWhere;
     select?: SelectArg<S, DdTreeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTreeInclude>;
     compute?: C & { [K in keyof C & (keyof DdTree | keyof DdTreeWhere)]?: never };
     orderBy?: DdTreeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -5792,7 +5822,7 @@ export interface DdTreeModel {
     orderBy?: DdTreeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdTreeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdTreePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -5805,7 +5835,7 @@ export interface DdTreeModel {
   >(options: {
     where: DdTreeFindUniqueWhere;
     select?: SelectArg<S, DdTreeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTreeInclude>;
     compute?: C & { [K in keyof C & (keyof DdTree | keyof DdTreeWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -5815,7 +5845,7 @@ export interface DdTreeModel {
   create<S extends DdTreeSelect | undefined = undefined, I extends DdTreeInclude | undefined = undefined>(options: {
     data: DdTreeCreateInput;
     select?: SelectArg<S, DdTreeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTreeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdTreePayload<S, I>>;
 
@@ -5825,10 +5855,10 @@ export interface DdTreeModel {
     D extends DdTreeUpdateInput = DdTreeUpdateInput,
   >(options: {
     where: DdTreeWhere;
-    data: D;
+    data: DataArg<D, DdTreeUpdateInput>;
     unset?: SafeUnset<DdTreeUnset, D>;
     select?: SelectArg<S, DdTreeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTreeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdTreePayload<S, I>[]>;
 
@@ -5839,10 +5869,10 @@ export interface DdTreeModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdTreeFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdTreeUpdateInput>;
     unset?: SafeUnset<DdTreeUnset, D>;
     select?: SelectArg<S, DdTreeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTreeInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -5861,10 +5891,10 @@ export interface DdTreeModel {
   >(options: {
     where: DdTreeFindUniqueWhere;
     create: DdTreeCreateInput;
-    update?: D;
+    update?: DataArg<D, DdTreeUpdateInput>;
     unset?: SafeUnset<DdTreeUnset, D>;
     select?: SelectArg<S, DdTreeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTreeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -5883,10 +5913,10 @@ export interface DdTreeModel {
   >(options: {
     where: DdTreeWhere;
     create: DdTreeCreateInput;
-    update?: D;
+    update?: DataArg<D, DdTreeUpdateInput>;
     unset?: SafeUnset<DdTreeUnset, D>;
     select?: SelectArg<S, DdTreeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTreeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -5948,6 +5978,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -6451,7 +6483,7 @@ export interface DdTwoModel {
   >(options?: {
     where?: DdTwoWhere;
     select?: SelectArg<S, DdTwoSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTwoInclude>;
     compute?: C & { [K in keyof C & (keyof DdTwo | keyof DdTwoWhere)]?: never };
     orderBy?: DdTwoOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -6470,7 +6502,7 @@ export interface DdTwoModel {
     orderBy?: DdTwoOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DdTwoInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDdTwoPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -6483,7 +6515,7 @@ export interface DdTwoModel {
   >(options: {
     where: DdTwoFindUniqueWhere;
     select?: SelectArg<S, DdTwoSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTwoInclude>;
     compute?: C & { [K in keyof C & (keyof DdTwo | keyof DdTwoWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -6493,7 +6525,7 @@ export interface DdTwoModel {
   create<S extends DdTwoSelect | undefined = undefined, I extends DdTwoInclude | undefined = undefined>(options: {
     data: DdTwoCreateInput;
     select?: SelectArg<S, DdTwoSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTwoInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdTwoPayload<S, I>>;
 
@@ -6503,10 +6535,10 @@ export interface DdTwoModel {
     D extends DdTwoUpdateInput = DdTwoUpdateInput,
   >(options: {
     where: DdTwoWhere;
-    data: D;
+    data: DataArg<D, DdTwoUpdateInput>;
     unset?: SafeUnset<DdTwoUnset, D>;
     select?: SelectArg<S, DdTwoSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTwoInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDdTwoPayload<S, I>[]>;
 
@@ -6517,10 +6549,10 @@ export interface DdTwoModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DdTwoFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DdTwoUpdateInput>;
     unset?: SafeUnset<DdTwoUnset, D>;
     select?: SelectArg<S, DdTwoSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTwoInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -6539,10 +6571,10 @@ export interface DdTwoModel {
   >(options: {
     where: DdTwoFindUniqueWhere;
     create: DdTwoCreateInput;
-    update?: D;
+    update?: DataArg<D, DdTwoUpdateInput>;
     unset?: SafeUnset<DdTwoUnset, D>;
     select?: SelectArg<S, DdTwoSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTwoInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -6561,10 +6593,10 @@ export interface DdTwoModel {
   >(options: {
     where: DdTwoWhere;
     create: DdTwoCreateInput;
-    update?: D;
+    update?: DataArg<D, DdTwoUpdateInput>;
     unset?: SafeUnset<DdTwoUnset, D>;
     select?: SelectArg<S, DdTwoSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DdTwoInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

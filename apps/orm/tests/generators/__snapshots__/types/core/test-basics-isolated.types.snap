@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -222,7 +224,7 @@ export interface BasicsPostModel {
   >(options?: {
     where?: BasicsPostWhere;
     select?: SelectArg<S, BasicsPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsPostInclude>;
     compute?: C & { [K in keyof C & (keyof BasicsPost | keyof BasicsPostWhere)]?: never };
     orderBy?: BasicsPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -241,7 +243,7 @@ export interface BasicsPostModel {
     orderBy?: BasicsPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, BasicsPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetBasicsPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -254,7 +256,7 @@ export interface BasicsPostModel {
   >(options: {
     where: BasicsPostFindUniqueWhere;
     select?: SelectArg<S, BasicsPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsPostInclude>;
     compute?: C & { [K in keyof C & (keyof BasicsPost | keyof BasicsPostWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -267,7 +269,7 @@ export interface BasicsPostModel {
   >(options: {
     data: BasicsPostCreateInput;
     select?: SelectArg<S, BasicsPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBasicsPostPayload<S, I>>;
 
@@ -277,10 +279,10 @@ export interface BasicsPostModel {
     D extends BasicsPostUpdateInput = BasicsPostUpdateInput,
   >(options: {
     where: BasicsPostWhere;
-    data: D;
+    data: DataArg<D, BasicsPostUpdateInput>;
     unset?: SafeUnset<BasicsPostUnset, D>;
     select?: SelectArg<S, BasicsPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBasicsPostPayload<S, I>[]>;
 
@@ -291,10 +293,10 @@ export interface BasicsPostModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BasicsPostFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BasicsPostUpdateInput>;
     unset?: SafeUnset<BasicsPostUnset, D>;
     select?: SelectArg<S, BasicsPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsPostInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -313,10 +315,10 @@ export interface BasicsPostModel {
   >(options: {
     where: BasicsPostFindUniqueWhere;
     create: BasicsPostCreateInput;
-    update?: D;
+    update?: DataArg<D, BasicsPostUpdateInput>;
     unset?: SafeUnset<BasicsPostUnset, D>;
     select?: SelectArg<S, BasicsPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsPostInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -335,10 +337,10 @@ export interface BasicsPostModel {
   >(options: {
     where: BasicsPostWhere;
     create: BasicsPostCreateInput;
-    update?: D;
+    update?: DataArg<D, BasicsPostUpdateInput>;
     unset?: SafeUnset<BasicsPostUnset, D>;
     select?: SelectArg<S, BasicsPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsPostInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -400,6 +402,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -618,7 +622,7 @@ export interface BasicsProfileModel {
   >(options?: {
     where?: BasicsProfileWhere;
     select?: SelectArg<S, BasicsProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsProfileInclude>;
     compute?: C & { [K in keyof C & (keyof BasicsProfile | keyof BasicsProfileWhere)]?: never };
     orderBy?: BasicsProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -637,7 +641,7 @@ export interface BasicsProfileModel {
     orderBy?: BasicsProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, BasicsProfileInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetBasicsProfilePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -650,7 +654,7 @@ export interface BasicsProfileModel {
   >(options: {
     where: BasicsProfileFindUniqueWhere;
     select?: SelectArg<S, BasicsProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsProfileInclude>;
     compute?: C & { [K in keyof C & (keyof BasicsProfile | keyof BasicsProfileWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -663,7 +667,7 @@ export interface BasicsProfileModel {
   >(options: {
     data: BasicsProfileCreateInput;
     select?: SelectArg<S, BasicsProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsProfileInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBasicsProfilePayload<S, I>>;
 
@@ -673,10 +677,10 @@ export interface BasicsProfileModel {
     D extends BasicsProfileUpdateInput = BasicsProfileUpdateInput,
   >(options: {
     where: BasicsProfileWhere;
-    data: D;
+    data: DataArg<D, BasicsProfileUpdateInput>;
     unset?: SafeUnset<BasicsProfileUnset, D>;
     select?: SelectArg<S, BasicsProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsProfileInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBasicsProfilePayload<S, I>[]>;
 
@@ -687,10 +691,10 @@ export interface BasicsProfileModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BasicsProfileFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BasicsProfileUpdateInput>;
     unset?: SafeUnset<BasicsProfileUnset, D>;
     select?: SelectArg<S, BasicsProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsProfileInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -709,10 +713,10 @@ export interface BasicsProfileModel {
   >(options: {
     where: BasicsProfileFindUniqueWhere;
     create: BasicsProfileCreateInput;
-    update?: D;
+    update?: DataArg<D, BasicsProfileUpdateInput>;
     unset?: SafeUnset<BasicsProfileUnset, D>;
     select?: SelectArg<S, BasicsProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsProfileInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -731,10 +735,10 @@ export interface BasicsProfileModel {
   >(options: {
     where: BasicsProfileWhere;
     create: BasicsProfileCreateInput;
-    update?: D;
+    update?: DataArg<D, BasicsProfileUpdateInput>;
     unset?: SafeUnset<BasicsProfileUnset, D>;
     select?: SelectArg<S, BasicsProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsProfileInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -795,6 +799,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -989,7 +995,7 @@ export interface BasicsTagModel {
   >(options?: {
     where?: BasicsTagWhere;
     select?: SelectArg<S, BasicsTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsTagInclude>;
     compute?: C & { [K in keyof C & (keyof BasicsTag | keyof BasicsTagWhere)]?: never };
     orderBy?: BasicsTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1008,7 +1014,7 @@ export interface BasicsTagModel {
     orderBy?: BasicsTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, BasicsTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetBasicsTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1021,7 +1027,7 @@ export interface BasicsTagModel {
   >(options: {
     where: BasicsTagFindUniqueWhere;
     select?: SelectArg<S, BasicsTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsTagInclude>;
     compute?: C & { [K in keyof C & (keyof BasicsTag | keyof BasicsTagWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1034,7 +1040,7 @@ export interface BasicsTagModel {
   >(options: {
     data: BasicsTagCreateInput;
     select?: SelectArg<S, BasicsTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBasicsTagPayload<S, I>>;
 
@@ -1044,10 +1050,10 @@ export interface BasicsTagModel {
     D extends BasicsTagUpdateInput = BasicsTagUpdateInput,
   >(options: {
     where: BasicsTagWhere;
-    data: D;
+    data: DataArg<D, BasicsTagUpdateInput>;
     unset?: SafeUnset<BasicsTagUnset, D>;
     select?: SelectArg<S, BasicsTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBasicsTagPayload<S, I>[]>;
 
@@ -1058,10 +1064,10 @@ export interface BasicsTagModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BasicsTagFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BasicsTagUpdateInput>;
     unset?: SafeUnset<BasicsTagUnset, D>;
     select?: SelectArg<S, BasicsTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsTagInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1080,10 +1086,10 @@ export interface BasicsTagModel {
   >(options: {
     where: BasicsTagFindUniqueWhere;
     create: BasicsTagCreateInput;
-    update?: D;
+    update?: DataArg<D, BasicsTagUpdateInput>;
     unset?: SafeUnset<BasicsTagUnset, D>;
     select?: SelectArg<S, BasicsTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsTagInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1102,10 +1108,10 @@ export interface BasicsTagModel {
   >(options: {
     where: BasicsTagWhere;
     create: BasicsTagCreateInput;
-    update?: D;
+    update?: DataArg<D, BasicsTagUpdateInput>;
     unset?: SafeUnset<BasicsTagUnset, D>;
     select?: SelectArg<S, BasicsTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsTagInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1167,6 +1173,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1632,7 +1640,7 @@ export interface BasicsUserModel {
   >(options?: {
     where?: BasicsUserWhere;
     select?: SelectArg<S, BasicsUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsUserInclude>;
     compute?: C & { [K in keyof C & (keyof BasicsUser | keyof BasicsUserWhere)]?: never };
     orderBy?: BasicsUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1651,7 +1659,7 @@ export interface BasicsUserModel {
     orderBy?: BasicsUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, BasicsUserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetBasicsUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1664,7 +1672,7 @@ export interface BasicsUserModel {
   >(options: {
     where: BasicsUserFindUniqueWhere;
     select?: SelectArg<S, BasicsUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsUserInclude>;
     compute?: C & { [K in keyof C & (keyof BasicsUser | keyof BasicsUserWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1677,7 +1685,7 @@ export interface BasicsUserModel {
   >(options: {
     data: BasicsUserCreateInput;
     select?: SelectArg<S, BasicsUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsUserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBasicsUserPayload<S, I>>;
 
@@ -1687,10 +1695,10 @@ export interface BasicsUserModel {
     D extends BasicsUserUpdateInput = BasicsUserUpdateInput,
   >(options: {
     where: BasicsUserWhere;
-    data: D;
+    data: DataArg<D, BasicsUserUpdateInput>;
     unset?: SafeUnset<BasicsUserUnset, D>;
     select?: SelectArg<S, BasicsUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsUserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBasicsUserPayload<S, I>[]>;
 
@@ -1701,10 +1709,10 @@ export interface BasicsUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BasicsUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BasicsUserUpdateInput>;
     unset?: SafeUnset<BasicsUserUnset, D>;
     select?: SelectArg<S, BasicsUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsUserInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1723,10 +1731,10 @@ export interface BasicsUserModel {
   >(options: {
     where: BasicsUserFindUniqueWhere;
     create: BasicsUserCreateInput;
-    update?: D;
+    update?: DataArg<D, BasicsUserUpdateInput>;
     unset?: SafeUnset<BasicsUserUnset, D>;
     select?: SelectArg<S, BasicsUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsUserInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1745,10 +1753,10 @@ export interface BasicsUserModel {
   >(options: {
     where: BasicsUserWhere;
     create: BasicsUserCreateInput;
-    update?: D;
+    update?: DataArg<D, BasicsUserUpdateInput>;
     unset?: SafeUnset<BasicsUserUnset, D>;
     select?: SelectArg<S, BasicsUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BasicsUserInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

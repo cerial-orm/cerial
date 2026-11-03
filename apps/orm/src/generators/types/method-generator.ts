@@ -75,7 +75,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
   >(options?: {
     where?: ${model.name}Where;
     ${selectOption(model)}
-    include?: I;
+    include?: IncludeArg<I, ${model.name}Include>;
     ${computeOption(model)}
     ${computeOrderBy(model)}
     txn?: CerialTransaction;
@@ -109,7 +109,7 @@ export function generateFindManyMethod(model: ModelMetadata): string {
     ${computeOrderBy(model)}
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ${model.name}Include>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<(Get${model.name}Payload<S, I> & ${COMPUTE_RESULT})[]>;`;
 }
@@ -460,7 +460,7 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
   >(options: {
     where: ${model.name}FindUniqueWhere;
     ${selectOption(model)}
-    include?: I;
+    include?: IncludeArg<I, ${model.name}Include>;
     ${computeOption(model)}
     txn?: CerialTransaction;
   }): CerialQueryPromise<(Get${model.name}Payload<S, I> & ${COMPUTE_RESULT}) | null>;`;
@@ -483,7 +483,7 @@ export function generateCreateMethod(model: ModelMetadata): string {
   >(options: {
     data: ${model.name}CreateInput;
     ${selectOption(model)}
-    include?: I;
+    include?: IncludeArg<I, ${model.name}Include>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S, I>>;`;
 }
@@ -498,7 +498,7 @@ export function generateUpdateMethod(model: ModelMetadata): string {
     D extends ${model.name}UpdateInput = ${model.name}UpdateInput
   >(options: {
     where: ${model.name}Where;
-    data: D;
+    data: DataArg<D, ${model.name}UpdateInput>;
     unset?: SafeUnset<${model.name}Unset, D>;
     ${selectOption(model)}
     txn?: CerialTransaction;
@@ -511,10 +511,10 @@ export function generateUpdateMethod(model: ModelMetadata): string {
     D extends ${model.name}UpdateInput = ${model.name}UpdateInput
   >(options: {
     where: ${model.name}Where;
-    data: D;
+    data: DataArg<D, ${model.name}UpdateInput>;
     unset?: SafeUnset<${model.name}Unset, D>;
     ${selectOption(model)}
-    include?: I;
+    include?: IncludeArg<I, ${model.name}Include>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S, I>[]>;`;
 }
@@ -559,7 +559,7 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
     R extends UpdateUniqueReturn = undefined
   >(options: {
     where: ${model.name}FindUniqueWhere;
-    data: D;
+    data: DataArg<D, ${model.name}UpdateInput>;
     unset?: SafeUnset<${model.name}Unset, D>;
     ${selectOption(model)}
     /**
@@ -581,10 +581,10 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
     R extends UpdateUniqueReturn = undefined
   >(options: {
     where: ${model.name}FindUniqueWhere;
-    data: D;
+    data: DataArg<D, ${model.name}UpdateInput>;
     unset?: SafeUnset<${model.name}Unset, D>;
     ${selectOption(model)}
-    include?: I;
+    include?: IncludeArg<I, ${model.name}Include>;
     /**
       * Return option for the updated record
       * - undefined/null/'after': returns updated record (supports select/include)
@@ -619,7 +619,7 @@ function generateUpsertUniqueOverload(model: ModelMetadata): string {
   >(options: {
     where: ${model.name}FindUniqueWhere;
     create: ${model.name}CreateInput;
-    update?: D;
+    update?: DataArg<D, ${model.name}UpdateInput>;
     unset?: SafeUnset<${model.name}Unset, D>;
     ${selectOption(model)}
     /**
@@ -641,10 +641,10 @@ function generateUpsertUniqueOverload(model: ModelMetadata): string {
   >(options: {
     where: ${model.name}FindUniqueWhere;
     create: ${model.name}CreateInput;
-    update?: D;
+    update?: DataArg<D, ${model.name}UpdateInput>;
     unset?: SafeUnset<${model.name}Unset, D>;
     ${selectOption(model)}
-    include?: I;
+    include?: IncludeArg<I, ${model.name}Include>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -666,7 +666,7 @@ function generateUpsertArrayOverload(model: ModelMetadata): string {
   >(options: {
     where: ${model.name}Where;
     create: ${model.name}CreateInput;
-    update?: D;
+    update?: DataArg<D, ${model.name}UpdateInput>;
     unset?: SafeUnset<${model.name}Unset, D>;
     ${selectOption(model)}
     /**
@@ -688,10 +688,10 @@ function generateUpsertArrayOverload(model: ModelMetadata): string {
   >(options: {
     where: ${model.name}Where;
     create: ${model.name}CreateInput;
-    update?: D;
+    update?: DataArg<D, ${model.name}UpdateInput>;
     unset?: SafeUnset<${model.name}Unset, D>;
     ${selectOption(model)}
-    include?: I;
+    include?: IncludeArg<I, ${model.name}Include>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

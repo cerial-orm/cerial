@@ -58,7 +58,7 @@ export const invalidInput: StatusPairInput = { state: 'not-a-status' };
 export const invalidCount: StatusPairUpdate = { count: 'many' };
 
 // =============================================================================
-// Update methods take the data as a generic, so unknown keys are not rejected
+// Update methods take the data as a generic: unknown top-level keys are refused by DataArg, nested ones are not
 // =============================================================================
 
 declare const flexUsers: FlexUserModel;
@@ -76,14 +76,18 @@ export const namedProfile: FlexUserUpdate = { profile: { bio: 'b', bogus: 1 } };
 // @ts-expect-error - 'bogus' is not a FlexUser field
 export const namedInput: FlexUserUpdateInput = { name: 'x', bogus: 1 };
 
-// A generic parameter is inferred from the literal, so excess properties are never checked
-// against the constraint. Wrong value TYPES are still caught, because they break assignability.
-export const genericTopLevel = (): unknown => flexUsers.updateMany({ where: {}, data: { name: 'x', bogus: 1 } });
+// A generic parameter is inferred from the literal, so excess properties are never checked against the constraint;
+// `DataArg` refuses an unknown top-level key anyway, while a key inside a nested value still compiles.
+// Wrong value TYPES are caught either way, because they break assignability.
+export const genericTopLevel = (): unknown =>
+  // @ts-expect-error - 'bogus' is not a FlexUser field, and DataArg refuses it next to a valid key
+  flexUsers.updateMany({ where: {}, data: { name: 'x', bogus: 1 } });
 export const genericNested = (): unknown =>
   flexUsers.updateMany({ where: {}, data: { strictAddress: { street: 's', extra: 1 } } });
 export const genericProfile = (): unknown =>
   flexUsers.updateMany({ where: {}, data: { profile: { bio: 'b', bogus: 1 } } });
 export const genericUnique = (): unknown =>
+  // @ts-expect-error - 'bogus' is not a FlexUser field, and DataArg refuses it next to a valid key
   flexUsers.updateUnique({ where: { id: 'x' }, data: { name: 'x', bogus: 1 } });
 export const genericUpsert = (): unknown =>
   flexUsers.upsert({
@@ -94,6 +98,7 @@ export const genericUpsert = (): unknown =>
       profile: { bio: 'b', metadata: { label: 'l' } },
       strictAddress: { street: 's', city: 'c' },
     },
+    // @ts-expect-error - 'bogus' is not a FlexUser field, and DataArg refuses it next to a valid key
     update: { name: 'x', bogus: 1 },
   });
 

@@ -155,6 +155,7 @@ describe('E2E Nested update decorators', () => {
         (async () => {
           await client.db.ReadonlyRecord.updateUnique({
             where: { id: post.id },
+            // @ts-expect-error — the readonly FK's relation is excluded from the Update type, testing the database refusal
             data: { name: 'x', author: { connect: a2.id } },
           });
         })(),

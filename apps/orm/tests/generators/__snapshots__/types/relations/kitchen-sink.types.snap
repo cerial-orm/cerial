@@ -19,6 +19,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -165,7 +167,7 @@ export interface KitchenSinkBadgeModel {
     D extends KitchenSinkBadgeUpdateInput = KitchenSinkBadgeUpdateInput,
   >(options: {
     where: KitchenSinkBadgeWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkBadgeUpdateInput>;
     unset?: SafeUnset<KitchenSinkBadgeUnset, D>;
     select?: SelectArg<S, KitchenSinkBadgeSelectFields>;
     txn?: CerialTransaction;
@@ -177,7 +179,7 @@ export interface KitchenSinkBadgeModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: KitchenSinkBadgeFindUniqueWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkBadgeUpdateInput>;
     unset?: SafeUnset<KitchenSinkBadgeUnset, D>;
     select?: SelectArg<S, KitchenSinkBadgeSelectFields>;
     /**
@@ -197,7 +199,7 @@ export interface KitchenSinkBadgeModel {
   >(options: {
     where: KitchenSinkBadgeFindUniqueWhere;
     create: KitchenSinkBadgeCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkBadgeUpdateInput>;
     unset?: SafeUnset<KitchenSinkBadgeUnset, D>;
     select?: SelectArg<S, KitchenSinkBadgeSelectFields>;
     /**
@@ -217,7 +219,7 @@ export interface KitchenSinkBadgeModel {
   >(options: {
     where: KitchenSinkBadgeWhere;
     create: KitchenSinkBadgeCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkBadgeUpdateInput>;
     unset?: SafeUnset<KitchenSinkBadgeUnset, D>;
     select?: SelectArg<S, KitchenSinkBadgeSelectFields>;
     /**
@@ -280,6 +282,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -459,7 +463,7 @@ export interface KitchenSinkPostModel {
   >(options?: {
     where?: KitchenSinkPostWhere;
     select?: SelectArg<S, KitchenSinkPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkPostInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkPost | keyof KitchenSinkPostWhere)]?: never };
     orderBy?: KitchenSinkPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -478,7 +482,7 @@ export interface KitchenSinkPostModel {
     orderBy?: KitchenSinkPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetKitchenSinkPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -491,7 +495,7 @@ export interface KitchenSinkPostModel {
   >(options: {
     where: KitchenSinkPostFindUniqueWhere;
     select?: SelectArg<S, KitchenSinkPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkPostInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkPost | keyof KitchenSinkPostWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -504,7 +508,7 @@ export interface KitchenSinkPostModel {
   >(options: {
     data: KitchenSinkPostCreateInput;
     select?: SelectArg<S, KitchenSinkPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I>>;
 
@@ -514,10 +518,10 @@ export interface KitchenSinkPostModel {
     D extends KitchenSinkPostUpdateInput = KitchenSinkPostUpdateInput,
   >(options: {
     where: KitchenSinkPostWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkPostUpdateInput>;
     unset?: SafeUnset<KitchenSinkPostUnset, D>;
     select?: SelectArg<S, KitchenSinkPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I>[]>;
 
@@ -528,10 +532,10 @@ export interface KitchenSinkPostModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: KitchenSinkPostFindUniqueWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkPostUpdateInput>;
     unset?: SafeUnset<KitchenSinkPostUnset, D>;
     select?: SelectArg<S, KitchenSinkPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkPostInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -550,10 +554,10 @@ export interface KitchenSinkPostModel {
   >(options: {
     where: KitchenSinkPostFindUniqueWhere;
     create: KitchenSinkPostCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkPostUpdateInput>;
     unset?: SafeUnset<KitchenSinkPostUnset, D>;
     select?: SelectArg<S, KitchenSinkPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkPostInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -572,10 +576,10 @@ export interface KitchenSinkPostModel {
   >(options: {
     where: KitchenSinkPostWhere;
     create: KitchenSinkPostCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkPostUpdateInput>;
     unset?: SafeUnset<KitchenSinkPostUnset, D>;
     select?: SelectArg<S, KitchenSinkPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkPostInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -637,6 +641,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -826,7 +832,7 @@ export interface KitchenSinkProfileModel {
   >(options?: {
     where?: KitchenSinkProfileWhere;
     select?: SelectArg<S, KitchenSinkProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkProfileInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkProfile | keyof KitchenSinkProfileWhere)]?: never };
     orderBy?: KitchenSinkProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -845,7 +851,7 @@ export interface KitchenSinkProfileModel {
     orderBy?: KitchenSinkProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkProfileInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetKitchenSinkProfilePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -858,7 +864,7 @@ export interface KitchenSinkProfileModel {
   >(options: {
     where: KitchenSinkProfileFindUniqueWhere;
     select?: SelectArg<S, KitchenSinkProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkProfileInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkProfile | keyof KitchenSinkProfileWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -871,7 +877,7 @@ export interface KitchenSinkProfileModel {
   >(options: {
     data: KitchenSinkProfileCreateInput;
     select?: SelectArg<S, KitchenSinkProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkProfileInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I>>;
 
@@ -881,10 +887,10 @@ export interface KitchenSinkProfileModel {
     D extends KitchenSinkProfileUpdateInput = KitchenSinkProfileUpdateInput,
   >(options: {
     where: KitchenSinkProfileWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkProfileUpdateInput>;
     unset?: SafeUnset<KitchenSinkProfileUnset, D>;
     select?: SelectArg<S, KitchenSinkProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkProfileInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I>[]>;
 
@@ -895,10 +901,10 @@ export interface KitchenSinkProfileModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: KitchenSinkProfileFindUniqueWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkProfileUpdateInput>;
     unset?: SafeUnset<KitchenSinkProfileUnset, D>;
     select?: SelectArg<S, KitchenSinkProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkProfileInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -917,10 +923,10 @@ export interface KitchenSinkProfileModel {
   >(options: {
     where: KitchenSinkProfileFindUniqueWhere;
     create: KitchenSinkProfileCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkProfileUpdateInput>;
     unset?: SafeUnset<KitchenSinkProfileUnset, D>;
     select?: SelectArg<S, KitchenSinkProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkProfileInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -939,10 +945,10 @@ export interface KitchenSinkProfileModel {
   >(options: {
     where: KitchenSinkProfileWhere;
     create: KitchenSinkProfileCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkProfileUpdateInput>;
     unset?: SafeUnset<KitchenSinkProfileUnset, D>;
     select?: SelectArg<S, KitchenSinkProfileSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkProfileInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1004,6 +1010,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1192,7 +1200,7 @@ export interface KitchenSinkSettingsModel {
   >(options?: {
     where?: KitchenSinkSettingsWhere;
     select?: SelectArg<S, KitchenSinkSettingsSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkSettingsInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkSettings | keyof KitchenSinkSettingsWhere)]?: never };
     orderBy?: KitchenSinkSettingsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1211,7 +1219,7 @@ export interface KitchenSinkSettingsModel {
     orderBy?: KitchenSinkSettingsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkSettingsInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetKitchenSinkSettingsPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1224,7 +1232,7 @@ export interface KitchenSinkSettingsModel {
   >(options: {
     where: KitchenSinkSettingsFindUniqueWhere;
     select?: SelectArg<S, KitchenSinkSettingsSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkSettingsInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkSettings | keyof KitchenSinkSettingsWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1237,7 +1245,7 @@ export interface KitchenSinkSettingsModel {
   >(options: {
     data: KitchenSinkSettingsCreateInput;
     select?: SelectArg<S, KitchenSinkSettingsSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkSettingsInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I>>;
 
@@ -1247,10 +1255,10 @@ export interface KitchenSinkSettingsModel {
     D extends KitchenSinkSettingsUpdateInput = KitchenSinkSettingsUpdateInput,
   >(options: {
     where: KitchenSinkSettingsWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkSettingsUpdateInput>;
     unset?: SafeUnset<KitchenSinkSettingsUnset, D>;
     select?: SelectArg<S, KitchenSinkSettingsSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkSettingsInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I>[]>;
 
@@ -1261,10 +1269,10 @@ export interface KitchenSinkSettingsModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: KitchenSinkSettingsFindUniqueWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkSettingsUpdateInput>;
     unset?: SafeUnset<KitchenSinkSettingsUnset, D>;
     select?: SelectArg<S, KitchenSinkSettingsSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkSettingsInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1283,10 +1291,10 @@ export interface KitchenSinkSettingsModel {
   >(options: {
     where: KitchenSinkSettingsFindUniqueWhere;
     create: KitchenSinkSettingsCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkSettingsUpdateInput>;
     unset?: SafeUnset<KitchenSinkSettingsUnset, D>;
     select?: SelectArg<S, KitchenSinkSettingsSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkSettingsInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1305,10 +1313,10 @@ export interface KitchenSinkSettingsModel {
   >(options: {
     where: KitchenSinkSettingsWhere;
     create: KitchenSinkSettingsCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkSettingsUpdateInput>;
     unset?: SafeUnset<KitchenSinkSettingsUnset, D>;
     select?: SelectArg<S, KitchenSinkSettingsSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkSettingsInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1371,6 +1379,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1569,7 +1579,7 @@ export interface KitchenSinkTagModel {
   >(options?: {
     where?: KitchenSinkTagWhere;
     select?: SelectArg<S, KitchenSinkTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkTagInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkTag | keyof KitchenSinkTagWhere)]?: never };
     orderBy?: KitchenSinkTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1588,7 +1598,7 @@ export interface KitchenSinkTagModel {
     orderBy?: KitchenSinkTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetKitchenSinkTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1601,7 +1611,7 @@ export interface KitchenSinkTagModel {
   >(options: {
     where: KitchenSinkTagFindUniqueWhere;
     select?: SelectArg<S, KitchenSinkTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkTagInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkTag | keyof KitchenSinkTagWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1614,7 +1624,7 @@ export interface KitchenSinkTagModel {
   >(options: {
     data: KitchenSinkTagCreateInput;
     select?: SelectArg<S, KitchenSinkTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I>>;
 
@@ -1624,10 +1634,10 @@ export interface KitchenSinkTagModel {
     D extends KitchenSinkTagUpdateInput = KitchenSinkTagUpdateInput,
   >(options: {
     where: KitchenSinkTagWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkTagUpdateInput>;
     unset?: SafeUnset<KitchenSinkTagUnset, D>;
     select?: SelectArg<S, KitchenSinkTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I>[]>;
 
@@ -1638,10 +1648,10 @@ export interface KitchenSinkTagModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: KitchenSinkTagFindUniqueWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkTagUpdateInput>;
     unset?: SafeUnset<KitchenSinkTagUnset, D>;
     select?: SelectArg<S, KitchenSinkTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkTagInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1660,10 +1670,10 @@ export interface KitchenSinkTagModel {
   >(options: {
     where: KitchenSinkTagFindUniqueWhere;
     create: KitchenSinkTagCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkTagUpdateInput>;
     unset?: SafeUnset<KitchenSinkTagUnset, D>;
     select?: SelectArg<S, KitchenSinkTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkTagInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1682,10 +1692,10 @@ export interface KitchenSinkTagModel {
   >(options: {
     where: KitchenSinkTagWhere;
     create: KitchenSinkTagCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkTagUpdateInput>;
     unset?: SafeUnset<KitchenSinkTagUnset, D>;
     select?: SelectArg<S, KitchenSinkTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkTagInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1747,6 +1757,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2202,7 +2214,7 @@ export interface KitchenSinkUserModel {
   >(options?: {
     where?: KitchenSinkUserWhere;
     select?: SelectArg<S, KitchenSinkUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkUserInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkUser | keyof KitchenSinkUserWhere)]?: never };
     orderBy?: KitchenSinkUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2221,7 +2233,7 @@ export interface KitchenSinkUserModel {
     orderBy?: KitchenSinkUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkUserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetKitchenSinkUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -2234,7 +2246,7 @@ export interface KitchenSinkUserModel {
   >(options: {
     where: KitchenSinkUserFindUniqueWhere;
     select?: SelectArg<S, KitchenSinkUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkUserInclude>;
     compute?: C & { [K in keyof C & (keyof KitchenSinkUser | keyof KitchenSinkUserWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2247,7 +2259,7 @@ export interface KitchenSinkUserModel {
   >(options: {
     data: KitchenSinkUserCreateInput;
     select?: SelectArg<S, KitchenSinkUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkUserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I>>;
 
@@ -2257,10 +2269,10 @@ export interface KitchenSinkUserModel {
     D extends KitchenSinkUserUpdateInput = KitchenSinkUserUpdateInput,
   >(options: {
     where: KitchenSinkUserWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkUserUpdateInput>;
     unset?: SafeUnset<KitchenSinkUserUnset, D>;
     select?: SelectArg<S, KitchenSinkUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkUserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I>[]>;
 
@@ -2271,10 +2283,10 @@ export interface KitchenSinkUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: KitchenSinkUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, KitchenSinkUserUpdateInput>;
     unset?: SafeUnset<KitchenSinkUserUnset, D>;
     select?: SelectArg<S, KitchenSinkUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkUserInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -2293,10 +2305,10 @@ export interface KitchenSinkUserModel {
   >(options: {
     where: KitchenSinkUserFindUniqueWhere;
     create: KitchenSinkUserCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkUserUpdateInput>;
     unset?: SafeUnset<KitchenSinkUserUnset, D>;
     select?: SelectArg<S, KitchenSinkUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkUserInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -2315,10 +2327,10 @@ export interface KitchenSinkUserModel {
   >(options: {
     where: KitchenSinkUserWhere;
     create: KitchenSinkUserCreateInput;
-    update?: D;
+    update?: DataArg<D, KitchenSinkUserUpdateInput>;
     unset?: SafeUnset<KitchenSinkUserUnset, D>;
     select?: SelectArg<S, KitchenSinkUserSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, KitchenSinkUserInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

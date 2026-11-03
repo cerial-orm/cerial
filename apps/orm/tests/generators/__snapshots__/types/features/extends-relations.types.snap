@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -293,7 +295,7 @@ export interface ExtRelBlogAuthorModel {
   >(options?: {
     where?: ExtRelBlogAuthorWhere;
     select?: SelectArg<S, ExtRelBlogAuthorSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogAuthorInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelBlogAuthor | keyof ExtRelBlogAuthorWhere)]?: never };
     orderBy?: ExtRelBlogAuthorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -312,7 +314,7 @@ export interface ExtRelBlogAuthorModel {
     orderBy?: ExtRelBlogAuthorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogAuthorInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetExtRelBlogAuthorPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -325,7 +327,7 @@ export interface ExtRelBlogAuthorModel {
   >(options: {
     where: ExtRelBlogAuthorFindUniqueWhere;
     select?: SelectArg<S, ExtRelBlogAuthorSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogAuthorInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelBlogAuthor | keyof ExtRelBlogAuthorWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -338,7 +340,7 @@ export interface ExtRelBlogAuthorModel {
   >(options: {
     data: ExtRelBlogAuthorCreateInput;
     select?: SelectArg<S, ExtRelBlogAuthorSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogAuthorInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I>>;
 
@@ -348,10 +350,10 @@ export interface ExtRelBlogAuthorModel {
     D extends ExtRelBlogAuthorUpdateInput = ExtRelBlogAuthorUpdateInput,
   >(options: {
     where: ExtRelBlogAuthorWhere;
-    data: D;
+    data: DataArg<D, ExtRelBlogAuthorUpdateInput>;
     unset?: SafeUnset<ExtRelBlogAuthorUnset, D>;
     select?: SelectArg<S, ExtRelBlogAuthorSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogAuthorInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I>[]>;
 
@@ -362,10 +364,10 @@ export interface ExtRelBlogAuthorModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelBlogAuthorFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelBlogAuthorUpdateInput>;
     unset?: SafeUnset<ExtRelBlogAuthorUnset, D>;
     select?: SelectArg<S, ExtRelBlogAuthorSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogAuthorInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -384,10 +386,10 @@ export interface ExtRelBlogAuthorModel {
   >(options: {
     where: ExtRelBlogAuthorFindUniqueWhere;
     create: ExtRelBlogAuthorCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelBlogAuthorUpdateInput>;
     unset?: SafeUnset<ExtRelBlogAuthorUnset, D>;
     select?: SelectArg<S, ExtRelBlogAuthorSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogAuthorInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -406,10 +408,10 @@ export interface ExtRelBlogAuthorModel {
   >(options: {
     where: ExtRelBlogAuthorWhere;
     create: ExtRelBlogAuthorCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelBlogAuthorUpdateInput>;
     unset?: SafeUnset<ExtRelBlogAuthorUnset, D>;
     select?: SelectArg<S, ExtRelBlogAuthorSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogAuthorInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -471,6 +473,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -728,7 +732,7 @@ export interface ExtRelBlogPostModel {
   >(options?: {
     where?: ExtRelBlogPostWhere;
     select?: SelectArg<S, ExtRelBlogPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelBlogPost | keyof ExtRelBlogPostWhere)]?: never };
     orderBy?: ExtRelBlogPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -747,7 +751,7 @@ export interface ExtRelBlogPostModel {
     orderBy?: ExtRelBlogPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetExtRelBlogPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -760,7 +764,7 @@ export interface ExtRelBlogPostModel {
   >(options: {
     where: ExtRelBlogPostFindUniqueWhere;
     select?: SelectArg<S, ExtRelBlogPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelBlogPost | keyof ExtRelBlogPostWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -773,7 +777,7 @@ export interface ExtRelBlogPostModel {
   >(options: {
     data: ExtRelBlogPostCreateInput;
     select?: SelectArg<S, ExtRelBlogPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I>>;
 
@@ -783,10 +787,10 @@ export interface ExtRelBlogPostModel {
     D extends ExtRelBlogPostUpdateInput = ExtRelBlogPostUpdateInput,
   >(options: {
     where: ExtRelBlogPostWhere;
-    data: D;
+    data: DataArg<D, ExtRelBlogPostUpdateInput>;
     unset?: SafeUnset<ExtRelBlogPostUnset, D>;
     select?: SelectArg<S, ExtRelBlogPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I>[]>;
 
@@ -797,10 +801,10 @@ export interface ExtRelBlogPostModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelBlogPostFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelBlogPostUpdateInput>;
     unset?: SafeUnset<ExtRelBlogPostUnset, D>;
     select?: SelectArg<S, ExtRelBlogPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -819,10 +823,10 @@ export interface ExtRelBlogPostModel {
   >(options: {
     where: ExtRelBlogPostFindUniqueWhere;
     create: ExtRelBlogPostCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelBlogPostUpdateInput>;
     unset?: SafeUnset<ExtRelBlogPostUnset, D>;
     select?: SelectArg<S, ExtRelBlogPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -841,10 +845,10 @@ export interface ExtRelBlogPostModel {
   >(options: {
     where: ExtRelBlogPostWhere;
     create: ExtRelBlogPostCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelBlogPostUpdateInput>;
     unset?: SafeUnset<ExtRelBlogPostUnset, D>;
     select?: SelectArg<S, ExtRelBlogPostSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -906,6 +910,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1136,7 +1142,7 @@ export interface ExtRelBlogPostTagModel {
   >(options?: {
     where?: ExtRelBlogPostTagWhere;
     select?: SelectArg<S, ExtRelBlogPostTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostTagInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelBlogPostTag | keyof ExtRelBlogPostTagWhere)]?: never };
     orderBy?: ExtRelBlogPostTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1155,7 +1161,7 @@ export interface ExtRelBlogPostTagModel {
     orderBy?: ExtRelBlogPostTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetExtRelBlogPostTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1168,7 +1174,7 @@ export interface ExtRelBlogPostTagModel {
   >(options: {
     where: ExtRelBlogPostTagFindUniqueWhere;
     select?: SelectArg<S, ExtRelBlogPostTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostTagInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelBlogPostTag | keyof ExtRelBlogPostTagWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1181,7 +1187,7 @@ export interface ExtRelBlogPostTagModel {
   >(options: {
     data: ExtRelBlogPostTagCreateInput;
     select?: SelectArg<S, ExtRelBlogPostTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I>>;
 
@@ -1191,10 +1197,10 @@ export interface ExtRelBlogPostTagModel {
     D extends ExtRelBlogPostTagUpdateInput = ExtRelBlogPostTagUpdateInput,
   >(options: {
     where: ExtRelBlogPostTagWhere;
-    data: D;
+    data: DataArg<D, ExtRelBlogPostTagUpdateInput>;
     unset?: SafeUnset<ExtRelBlogPostTagUnset, D>;
     select?: SelectArg<S, ExtRelBlogPostTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I>[]>;
 
@@ -1205,10 +1211,10 @@ export interface ExtRelBlogPostTagModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelBlogPostTagFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelBlogPostTagUpdateInput>;
     unset?: SafeUnset<ExtRelBlogPostTagUnset, D>;
     select?: SelectArg<S, ExtRelBlogPostTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostTagInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1227,10 +1233,10 @@ export interface ExtRelBlogPostTagModel {
   >(options: {
     where: ExtRelBlogPostTagFindUniqueWhere;
     create: ExtRelBlogPostTagCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelBlogPostTagUpdateInput>;
     unset?: SafeUnset<ExtRelBlogPostTagUnset, D>;
     select?: SelectArg<S, ExtRelBlogPostTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostTagInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1249,10 +1255,10 @@ export interface ExtRelBlogPostTagModel {
   >(options: {
     where: ExtRelBlogPostTagWhere;
     create: ExtRelBlogPostTagCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelBlogPostTagUpdateInput>;
     unset?: SafeUnset<ExtRelBlogPostTagUnset, D>;
     select?: SelectArg<S, ExtRelBlogPostTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogPostTagInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1314,6 +1320,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1542,7 +1550,7 @@ export interface ExtRelBlogTagModel {
   >(options?: {
     where?: ExtRelBlogTagWhere;
     select?: SelectArg<S, ExtRelBlogTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogTagInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelBlogTag | keyof ExtRelBlogTagWhere)]?: never };
     orderBy?: ExtRelBlogTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1561,7 +1569,7 @@ export interface ExtRelBlogTagModel {
     orderBy?: ExtRelBlogTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetExtRelBlogTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1574,7 +1582,7 @@ export interface ExtRelBlogTagModel {
   >(options: {
     where: ExtRelBlogTagFindUniqueWhere;
     select?: SelectArg<S, ExtRelBlogTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogTagInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelBlogTag | keyof ExtRelBlogTagWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1587,7 +1595,7 @@ export interface ExtRelBlogTagModel {
   >(options: {
     data: ExtRelBlogTagCreateInput;
     select?: SelectArg<S, ExtRelBlogTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I>>;
 
@@ -1597,10 +1605,10 @@ export interface ExtRelBlogTagModel {
     D extends ExtRelBlogTagUpdateInput = ExtRelBlogTagUpdateInput,
   >(options: {
     where: ExtRelBlogTagWhere;
-    data: D;
+    data: DataArg<D, ExtRelBlogTagUpdateInput>;
     unset?: SafeUnset<ExtRelBlogTagUnset, D>;
     select?: SelectArg<S, ExtRelBlogTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogTagInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I>[]>;
 
@@ -1611,10 +1619,10 @@ export interface ExtRelBlogTagModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelBlogTagFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelBlogTagUpdateInput>;
     unset?: SafeUnset<ExtRelBlogTagUnset, D>;
     select?: SelectArg<S, ExtRelBlogTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogTagInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1633,10 +1641,10 @@ export interface ExtRelBlogTagModel {
   >(options: {
     where: ExtRelBlogTagFindUniqueWhere;
     create: ExtRelBlogTagCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelBlogTagUpdateInput>;
     unset?: SafeUnset<ExtRelBlogTagUnset, D>;
     select?: SelectArg<S, ExtRelBlogTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogTagInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1655,10 +1663,10 @@ export interface ExtRelBlogTagModel {
   >(options: {
     where: ExtRelBlogTagWhere;
     create: ExtRelBlogTagCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelBlogTagUpdateInput>;
     unset?: SafeUnset<ExtRelBlogTagUnset, D>;
     select?: SelectArg<S, ExtRelBlogTagSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelBlogTagInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1720,6 +1728,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1950,7 +1960,7 @@ export interface ExtRelCommentModel {
   >(options?: {
     where?: ExtRelCommentWhere;
     select?: SelectArg<S, ExtRelCommentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelComment | keyof ExtRelCommentWhere)]?: never };
     orderBy?: ExtRelCommentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1969,7 +1979,7 @@ export interface ExtRelCommentModel {
     orderBy?: ExtRelCommentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetExtRelCommentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1982,7 +1992,7 @@ export interface ExtRelCommentModel {
   >(options: {
     where: ExtRelCommentFindUniqueWhere;
     select?: SelectArg<S, ExtRelCommentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelComment | keyof ExtRelCommentWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1995,7 +2005,7 @@ export interface ExtRelCommentModel {
   >(options: {
     data: ExtRelCommentCreateInput;
     select?: SelectArg<S, ExtRelCommentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelCommentPayload<S, I>>;
 
@@ -2005,10 +2015,10 @@ export interface ExtRelCommentModel {
     D extends ExtRelCommentUpdateInput = ExtRelCommentUpdateInput,
   >(options: {
     where: ExtRelCommentWhere;
-    data: D;
+    data: DataArg<D, ExtRelCommentUpdateInput>;
     unset?: SafeUnset<ExtRelCommentUnset, D>;
     select?: SelectArg<S, ExtRelCommentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelCommentPayload<S, I>[]>;
 
@@ -2019,10 +2029,10 @@ export interface ExtRelCommentModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelCommentFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelCommentUpdateInput>;
     unset?: SafeUnset<ExtRelCommentUnset, D>;
     select?: SelectArg<S, ExtRelCommentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -2041,10 +2051,10 @@ export interface ExtRelCommentModel {
   >(options: {
     where: ExtRelCommentFindUniqueWhere;
     create: ExtRelCommentCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelCommentUpdateInput>;
     unset?: SafeUnset<ExtRelCommentUnset, D>;
     select?: SelectArg<S, ExtRelCommentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -2063,10 +2073,10 @@ export interface ExtRelCommentModel {
   >(options: {
     where: ExtRelCommentWhere;
     create: ExtRelCommentCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelCommentUpdateInput>;
     unset?: SafeUnset<ExtRelCommentUnset, D>;
     select?: SelectArg<S, ExtRelCommentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2128,6 +2138,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2447,7 +2459,7 @@ export interface ExtRelCommentModeratedModel {
   >(options?: {
     where?: ExtRelCommentModeratedWhere;
     select?: SelectArg<S, ExtRelCommentModeratedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentModeratedInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelCommentModerated | keyof ExtRelCommentModeratedWhere)]?: never };
     orderBy?: ExtRelCommentModeratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2467,7 +2479,7 @@ export interface ExtRelCommentModeratedModel {
     orderBy?: ExtRelCommentModeratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentModeratedInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetExtRelCommentModeratedPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -2480,7 +2492,7 @@ export interface ExtRelCommentModeratedModel {
   >(options: {
     where: ExtRelCommentModeratedFindUniqueWhere;
     select?: SelectArg<S, ExtRelCommentModeratedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentModeratedInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelCommentModerated | keyof ExtRelCommentModeratedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2494,7 +2506,7 @@ export interface ExtRelCommentModeratedModel {
   >(options: {
     data: ExtRelCommentModeratedCreateInput;
     select?: SelectArg<S, ExtRelCommentModeratedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentModeratedInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I>>;
 
@@ -2504,10 +2516,10 @@ export interface ExtRelCommentModeratedModel {
     D extends ExtRelCommentModeratedUpdateInput = ExtRelCommentModeratedUpdateInput,
   >(options: {
     where: ExtRelCommentModeratedWhere;
-    data: D;
+    data: DataArg<D, ExtRelCommentModeratedUpdateInput>;
     unset?: SafeUnset<ExtRelCommentModeratedUnset, D>;
     select?: SelectArg<S, ExtRelCommentModeratedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentModeratedInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I>[]>;
 
@@ -2518,10 +2530,10 @@ export interface ExtRelCommentModeratedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelCommentModeratedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelCommentModeratedUpdateInput>;
     unset?: SafeUnset<ExtRelCommentModeratedUnset, D>;
     select?: SelectArg<S, ExtRelCommentModeratedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentModeratedInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -2540,10 +2552,10 @@ export interface ExtRelCommentModeratedModel {
   >(options: {
     where: ExtRelCommentModeratedFindUniqueWhere;
     create: ExtRelCommentModeratedCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelCommentModeratedUpdateInput>;
     unset?: SafeUnset<ExtRelCommentModeratedUnset, D>;
     select?: SelectArg<S, ExtRelCommentModeratedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentModeratedInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -2562,10 +2574,10 @@ export interface ExtRelCommentModeratedModel {
   >(options: {
     where: ExtRelCommentModeratedWhere;
     create: ExtRelCommentModeratedCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelCommentModeratedUpdateInput>;
     unset?: SafeUnset<ExtRelCommentModeratedUnset, D>;
     select?: SelectArg<S, ExtRelCommentModeratedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelCommentModeratedInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2629,6 +2641,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2873,7 +2887,7 @@ export interface ExtRelPostArchiveModel {
     D extends ExtRelPostArchiveUpdateInput = ExtRelPostArchiveUpdateInput,
   >(options: {
     where: ExtRelPostArchiveWhere;
-    data: D;
+    data: DataArg<D, ExtRelPostArchiveUpdateInput>;
     unset?: SafeUnset<ExtRelPostArchiveUnset, D>;
     select?: SelectArg<S, ExtRelPostArchiveSelectFields>;
     txn?: CerialTransaction;
@@ -2885,7 +2899,7 @@ export interface ExtRelPostArchiveModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelPostArchiveFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelPostArchiveUpdateInput>;
     unset?: SafeUnset<ExtRelPostArchiveUnset, D>;
     select?: SelectArg<S, ExtRelPostArchiveSelectFields>;
     /**
@@ -2905,7 +2919,7 @@ export interface ExtRelPostArchiveModel {
   >(options: {
     where: ExtRelPostArchiveFindUniqueWhere;
     create: ExtRelPostArchiveCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelPostArchiveUpdateInput>;
     unset?: SafeUnset<ExtRelPostArchiveUnset, D>;
     select?: SelectArg<S, ExtRelPostArchiveSelectFields>;
     /**
@@ -2925,7 +2939,7 @@ export interface ExtRelPostArchiveModel {
   >(options: {
     where: ExtRelPostArchiveWhere;
     create: ExtRelPostArchiveCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelPostArchiveUpdateInput>;
     unset?: SafeUnset<ExtRelPostArchiveUnset, D>;
     select?: SelectArg<S, ExtRelPostArchiveSelectFields>;
     /**
@@ -2989,6 +3003,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3255,7 +3271,7 @@ export interface ExtRelPostSummaryModel {
     D extends ExtRelPostSummaryUpdateInput = ExtRelPostSummaryUpdateInput,
   >(options: {
     where: ExtRelPostSummaryWhere;
-    data: D;
+    data: DataArg<D, ExtRelPostSummaryUpdateInput>;
     unset?: SafeUnset<ExtRelPostSummaryUnset, D>;
     select?: SelectArg<S, ExtRelPostSummarySelectFields>;
     txn?: CerialTransaction;
@@ -3267,7 +3283,7 @@ export interface ExtRelPostSummaryModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelPostSummaryFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelPostSummaryUpdateInput>;
     unset?: SafeUnset<ExtRelPostSummaryUnset, D>;
     select?: SelectArg<S, ExtRelPostSummarySelectFields>;
     /**
@@ -3287,7 +3303,7 @@ export interface ExtRelPostSummaryModel {
   >(options: {
     where: ExtRelPostSummaryFindUniqueWhere;
     create: ExtRelPostSummaryCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelPostSummaryUpdateInput>;
     unset?: SafeUnset<ExtRelPostSummaryUnset, D>;
     select?: SelectArg<S, ExtRelPostSummarySelectFields>;
     /**
@@ -3307,7 +3323,7 @@ export interface ExtRelPostSummaryModel {
   >(options: {
     where: ExtRelPostSummaryWhere;
     create: ExtRelPostSummaryCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelPostSummaryUpdateInput>;
     unset?: SafeUnset<ExtRelPostSummaryUnset, D>;
     select?: SelectArg<S, ExtRelPostSummarySelectFields>;
     /**
@@ -3371,6 +3387,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3632,7 +3650,7 @@ export interface ExtRelProjectModel {
   >(options?: {
     where?: ExtRelProjectWhere;
     select?: SelectArg<S, ExtRelProjectSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelProjectInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelProject | keyof ExtRelProjectWhere)]?: never };
     orderBy?: ExtRelProjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -3651,7 +3669,7 @@ export interface ExtRelProjectModel {
     orderBy?: ExtRelProjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ExtRelProjectInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetExtRelProjectPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -3664,7 +3682,7 @@ export interface ExtRelProjectModel {
   >(options: {
     where: ExtRelProjectFindUniqueWhere;
     select?: SelectArg<S, ExtRelProjectSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelProjectInclude>;
     compute?: C & { [K in keyof C & (keyof ExtRelProject | keyof ExtRelProjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -3677,7 +3695,7 @@ export interface ExtRelProjectModel {
   >(options: {
     data: ExtRelProjectCreateInput;
     select?: SelectArg<S, ExtRelProjectSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelProjectInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelProjectPayload<S, I>>;
 
@@ -3687,10 +3705,10 @@ export interface ExtRelProjectModel {
     D extends ExtRelProjectUpdateInput = ExtRelProjectUpdateInput,
   >(options: {
     where: ExtRelProjectWhere;
-    data: D;
+    data: DataArg<D, ExtRelProjectUpdateInput>;
     unset?: SafeUnset<ExtRelProjectUnset, D>;
     select?: SelectArg<S, ExtRelProjectSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelProjectInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtRelProjectPayload<S, I>[]>;
 
@@ -3701,10 +3719,10 @@ export interface ExtRelProjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtRelProjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtRelProjectUpdateInput>;
     unset?: SafeUnset<ExtRelProjectUnset, D>;
     select?: SelectArg<S, ExtRelProjectSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelProjectInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -3723,10 +3741,10 @@ export interface ExtRelProjectModel {
   >(options: {
     where: ExtRelProjectFindUniqueWhere;
     create: ExtRelProjectCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelProjectUpdateInput>;
     unset?: SafeUnset<ExtRelProjectUnset, D>;
     select?: SelectArg<S, ExtRelProjectSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelProjectInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -3745,10 +3763,10 @@ export interface ExtRelProjectModel {
   >(options: {
     where: ExtRelProjectWhere;
     create: ExtRelProjectCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtRelProjectUpdateInput>;
     unset?: SafeUnset<ExtRelProjectUnset, D>;
     select?: SelectArg<S, ExtRelProjectSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ExtRelProjectInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

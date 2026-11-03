@@ -24,6 +24,22 @@ export type SelectArg<S, T, D extends unknown[] = []> = S &
   NoInfer<T> & { [K in Exclude<keyof S, keyof T>]: never } & ([...D, 0]['length'] extends ${SELECT_ARG_DEPTH}
     ? unknown
     : { [K in SelectObjectKeys<S>]: SelectArg<S[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
+/** A field-data argument (\`data\`, \`update\`): D as written, the declared input for completion, and every key D adds
+ * beyond it refused. Same mechanism as SelectArg, one level: the nested values keep their own types. The update
+ * input is a union when the model has relations, so a key counts when any member declares it. */
+export type DataArg<D, T> = D & NoInfer<T> & { [K in Exclude<keyof D, UnionKeys<T>>]: never };
+/** Every key of any member of a union (keyof alone gives the keys all members share) */
+export type UnionKeys<T> = T extends unknown ? keyof T : never;
+/** The include argument: I as written, the declared relations for completion, every key beyond them refused, and each
+ * relation's options (its select, its nested include) checked the same way, through the first ${SELECT_ARG_DEPTH} include levels */
+export type IncludeArg<I, T, D extends unknown[] = []> = I &
+  NoInfer<T> & { [K in Exclude<keyof I, keyof T>]: never } & ([...D, 0]['length'] extends ${SELECT_ARG_DEPTH}
+    ? unknown
+    : { [K in SelectObjectKeys<I>]: IncludeEntryArg<I[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
+/** One relation's include options: only select and include are recursed into; where, orderBy, limit and offset keep their own types */
+export type IncludeEntryArg<E, T, D extends unknown[]> = E & { [K in Exclude<keyof E, keyof T>]: never } &
+  (E extends { select: infer S } ? { select: SelectArg<S, NonNullable<T['select' & keyof T]>> } : unknown) &
+  (E extends { include: infer N } ? { include: IncludeArg<N, NonNullable<T['include' & keyof T]>, D> } : unknown);
 /** The keys of S whose value is a nested select rather than a boolean */
 export type SelectObjectKeys<S> = { [K in keyof S]-?: S[K] extends object ? K : never }[keyof S];
 /** Check if a type is a tuple (fixed-length array) rather than a dynamic array */

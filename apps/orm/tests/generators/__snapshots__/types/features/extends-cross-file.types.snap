@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -336,7 +338,7 @@ export interface ExtCrossAdminModel {
     D extends ExtCrossAdminUpdateInput = ExtCrossAdminUpdateInput,
   >(options: {
     where: ExtCrossAdminWhere;
-    data: D;
+    data: DataArg<D, ExtCrossAdminUpdateInput>;
     unset?: SafeUnset<ExtCrossAdminUnset, D>;
     select?: SelectArg<S, ExtCrossAdminSelectFields>;
     txn?: CerialTransaction;
@@ -348,7 +350,7 @@ export interface ExtCrossAdminModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtCrossAdminFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtCrossAdminUpdateInput>;
     unset?: SafeUnset<ExtCrossAdminUnset, D>;
     select?: SelectArg<S, ExtCrossAdminSelectFields>;
     /**
@@ -368,7 +370,7 @@ export interface ExtCrossAdminModel {
   >(options: {
     where: ExtCrossAdminFindUniqueWhere;
     create: ExtCrossAdminCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossAdminUpdateInput>;
     unset?: SafeUnset<ExtCrossAdminUnset, D>;
     select?: SelectArg<S, ExtCrossAdminSelectFields>;
     /**
@@ -388,7 +390,7 @@ export interface ExtCrossAdminModel {
   >(options: {
     where: ExtCrossAdminWhere;
     create: ExtCrossAdminCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossAdminUpdateInput>;
     unset?: SafeUnset<ExtCrossAdminUnset, D>;
     select?: SelectArg<S, ExtCrossAdminSelectFields>;
     /**
@@ -452,6 +454,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -688,7 +692,7 @@ export interface ExtCrossModeratorModel {
     D extends ExtCrossModeratorUpdateInput = ExtCrossModeratorUpdateInput,
   >(options: {
     where: ExtCrossModeratorWhere;
-    data: D;
+    data: DataArg<D, ExtCrossModeratorUpdateInput>;
     unset?: SafeUnset<ExtCrossModeratorUnset, D>;
     select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     txn?: CerialTransaction;
@@ -700,7 +704,7 @@ export interface ExtCrossModeratorModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtCrossModeratorFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtCrossModeratorUpdateInput>;
     unset?: SafeUnset<ExtCrossModeratorUnset, D>;
     select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     /**
@@ -720,7 +724,7 @@ export interface ExtCrossModeratorModel {
   >(options: {
     where: ExtCrossModeratorFindUniqueWhere;
     create: ExtCrossModeratorCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossModeratorUpdateInput>;
     unset?: SafeUnset<ExtCrossModeratorUnset, D>;
     select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     /**
@@ -740,7 +744,7 @@ export interface ExtCrossModeratorModel {
   >(options: {
     where: ExtCrossModeratorWhere;
     create: ExtCrossModeratorCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossModeratorUpdateInput>;
     unset?: SafeUnset<ExtCrossModeratorUnset, D>;
     select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     /**
@@ -804,6 +808,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1114,7 +1120,7 @@ export interface ExtCrossPremiumModel {
     D extends ExtCrossPremiumUpdateInput = ExtCrossPremiumUpdateInput,
   >(options: {
     where: ExtCrossPremiumWhere;
-    data: D;
+    data: DataArg<D, ExtCrossPremiumUpdateInput>;
     unset?: SafeUnset<ExtCrossPremiumUnset, D>;
     select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     txn?: CerialTransaction;
@@ -1126,7 +1132,7 @@ export interface ExtCrossPremiumModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtCrossPremiumFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtCrossPremiumUpdateInput>;
     unset?: SafeUnset<ExtCrossPremiumUnset, D>;
     select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     /**
@@ -1146,7 +1152,7 @@ export interface ExtCrossPremiumModel {
   >(options: {
     where: ExtCrossPremiumFindUniqueWhere;
     create: ExtCrossPremiumCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossPremiumUpdateInput>;
     unset?: SafeUnset<ExtCrossPremiumUnset, D>;
     select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     /**
@@ -1166,7 +1172,7 @@ export interface ExtCrossPremiumModel {
   >(options: {
     where: ExtCrossPremiumWhere;
     create: ExtCrossPremiumCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossPremiumUpdateInput>;
     unset?: SafeUnset<ExtCrossPremiumUnset, D>;
     select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     /**
@@ -1230,6 +1236,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1461,7 +1469,7 @@ export interface ExtCrossPrivateModel {
     D extends ExtCrossPrivateUpdateInput = ExtCrossPrivateUpdateInput,
   >(options: {
     where: ExtCrossPrivateWhere;
-    data: D;
+    data: DataArg<D, ExtCrossPrivateUpdateInput>;
     unset?: SafeUnset<ExtCrossPrivateUnset, D>;
     select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     txn?: CerialTransaction;
@@ -1473,7 +1481,7 @@ export interface ExtCrossPrivateModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtCrossPrivateFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtCrossPrivateUpdateInput>;
     unset?: SafeUnset<ExtCrossPrivateUnset, D>;
     select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     /**
@@ -1493,7 +1501,7 @@ export interface ExtCrossPrivateModel {
   >(options: {
     where: ExtCrossPrivateFindUniqueWhere;
     create: ExtCrossPrivateCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossPrivateUpdateInput>;
     unset?: SafeUnset<ExtCrossPrivateUnset, D>;
     select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     /**
@@ -1513,7 +1521,7 @@ export interface ExtCrossPrivateModel {
   >(options: {
     where: ExtCrossPrivateWhere;
     create: ExtCrossPrivateCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossPrivateUpdateInput>;
     unset?: SafeUnset<ExtCrossPrivateUnset, D>;
     select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     /**
@@ -1577,6 +1585,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1917,7 +1927,7 @@ export interface ExtCrossProfileModel {
     D extends ExtCrossProfileUpdateInput = ExtCrossProfileUpdateInput,
   >(options: {
     where: ExtCrossProfileWhere;
-    data: D;
+    data: DataArg<D, ExtCrossProfileUpdateInput>;
     unset?: SafeUnset<ExtCrossProfileUnset, D>;
     select?: SelectArg<S, ExtCrossProfileSelectFields>;
     txn?: CerialTransaction;
@@ -1929,7 +1939,7 @@ export interface ExtCrossProfileModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtCrossProfileFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtCrossProfileUpdateInput>;
     unset?: SafeUnset<ExtCrossProfileUnset, D>;
     select?: SelectArg<S, ExtCrossProfileSelectFields>;
     /**
@@ -1949,7 +1959,7 @@ export interface ExtCrossProfileModel {
   >(options: {
     where: ExtCrossProfileFindUniqueWhere;
     create: ExtCrossProfileCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossProfileUpdateInput>;
     unset?: SafeUnset<ExtCrossProfileUnset, D>;
     select?: SelectArg<S, ExtCrossProfileSelectFields>;
     /**
@@ -1969,7 +1979,7 @@ export interface ExtCrossProfileModel {
   >(options: {
     where: ExtCrossProfileWhere;
     create: ExtCrossProfileCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossProfileUpdateInput>;
     unset?: SafeUnset<ExtCrossProfileUnset, D>;
     select?: SelectArg<S, ExtCrossProfileSelectFields>;
     /**
@@ -2033,6 +2043,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2291,7 +2303,7 @@ export interface ExtCrossUserModel {
     D extends ExtCrossUserUpdateInput = ExtCrossUserUpdateInput,
   >(options: {
     where: ExtCrossUserWhere;
-    data: D;
+    data: DataArg<D, ExtCrossUserUpdateInput>;
     unset?: SafeUnset<ExtCrossUserUnset, D>;
     select?: SelectArg<S, ExtCrossUserSelectFields>;
     txn?: CerialTransaction;
@@ -2303,7 +2315,7 @@ export interface ExtCrossUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtCrossUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtCrossUserUpdateInput>;
     unset?: SafeUnset<ExtCrossUserUnset, D>;
     select?: SelectArg<S, ExtCrossUserSelectFields>;
     /**
@@ -2323,7 +2335,7 @@ export interface ExtCrossUserModel {
   >(options: {
     where: ExtCrossUserFindUniqueWhere;
     create: ExtCrossUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossUserUpdateInput>;
     unset?: SafeUnset<ExtCrossUserUnset, D>;
     select?: SelectArg<S, ExtCrossUserSelectFields>;
     /**
@@ -2343,7 +2355,7 @@ export interface ExtCrossUserModel {
   >(options: {
     where: ExtCrossUserWhere;
     create: ExtCrossUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtCrossUserUpdateInput>;
     unset?: SafeUnset<ExtCrossUserUnset, D>;
     select?: SelectArg<S, ExtCrossUserSelectFields>;
     /**

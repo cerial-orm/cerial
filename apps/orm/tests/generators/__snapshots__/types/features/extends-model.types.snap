@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -268,7 +270,7 @@ export interface ExtAdminModel {
     D extends ExtAdminUpdateInput = ExtAdminUpdateInput,
   >(options: {
     where: ExtAdminWhere;
-    data: D;
+    data: DataArg<D, ExtAdminUpdateInput>;
     unset?: SafeUnset<ExtAdminUnset, D>;
     select?: SelectArg<S, ExtAdminSelectFields>;
     txn?: CerialTransaction;
@@ -280,7 +282,7 @@ export interface ExtAdminModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtAdminFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtAdminUpdateInput>;
     unset?: SafeUnset<ExtAdminUnset, D>;
     select?: SelectArg<S, ExtAdminSelectFields>;
     /**
@@ -300,7 +302,7 @@ export interface ExtAdminModel {
   >(options: {
     where: ExtAdminFindUniqueWhere;
     create: ExtAdminCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtAdminUpdateInput>;
     unset?: SafeUnset<ExtAdminUnset, D>;
     select?: SelectArg<S, ExtAdminSelectFields>;
     /**
@@ -320,7 +322,7 @@ export interface ExtAdminModel {
   >(options: {
     where: ExtAdminWhere;
     create: ExtAdminCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtAdminUpdateInput>;
     unset?: SafeUnset<ExtAdminUnset, D>;
     select?: SelectArg<S, ExtAdminSelectFields>;
     /**
@@ -384,6 +386,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -555,7 +559,7 @@ export interface ExtEmptyChildModel {
     D extends ExtEmptyChildUpdateInput = ExtEmptyChildUpdateInput,
   >(options: {
     where: ExtEmptyChildWhere;
-    data: D;
+    data: DataArg<D, ExtEmptyChildUpdateInput>;
     unset?: SafeUnset<ExtEmptyChildUnset, D>;
     select?: SelectArg<S, ExtEmptyChildSelectFields>;
     txn?: CerialTransaction;
@@ -567,7 +571,7 @@ export interface ExtEmptyChildModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtEmptyChildFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtEmptyChildUpdateInput>;
     unset?: SafeUnset<ExtEmptyChildUnset, D>;
     select?: SelectArg<S, ExtEmptyChildSelectFields>;
     /**
@@ -587,7 +591,7 @@ export interface ExtEmptyChildModel {
   >(options: {
     where: ExtEmptyChildFindUniqueWhere;
     create: ExtEmptyChildCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtEmptyChildUpdateInput>;
     unset?: SafeUnset<ExtEmptyChildUnset, D>;
     select?: SelectArg<S, ExtEmptyChildSelectFields>;
     /**
@@ -607,7 +611,7 @@ export interface ExtEmptyChildModel {
   >(options: {
     where: ExtEmptyChildWhere;
     create: ExtEmptyChildCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtEmptyChildUpdateInput>;
     unset?: SafeUnset<ExtEmptyChildUnset, D>;
     select?: SelectArg<S, ExtEmptyChildSelectFields>;
     /**
@@ -671,6 +675,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -901,7 +907,7 @@ export interface ExtModeratorModel {
     D extends ExtModeratorUpdateInput = ExtModeratorUpdateInput,
   >(options: {
     where: ExtModeratorWhere;
-    data: D;
+    data: DataArg<D, ExtModeratorUpdateInput>;
     unset?: SafeUnset<ExtModeratorUnset, D>;
     select?: SelectArg<S, ExtModeratorSelectFields>;
     txn?: CerialTransaction;
@@ -913,7 +919,7 @@ export interface ExtModeratorModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtModeratorFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtModeratorUpdateInput>;
     unset?: SafeUnset<ExtModeratorUnset, D>;
     select?: SelectArg<S, ExtModeratorSelectFields>;
     /**
@@ -933,7 +939,7 @@ export interface ExtModeratorModel {
   >(options: {
     where: ExtModeratorFindUniqueWhere;
     create: ExtModeratorCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtModeratorUpdateInput>;
     unset?: SafeUnset<ExtModeratorUnset, D>;
     select?: SelectArg<S, ExtModeratorSelectFields>;
     /**
@@ -953,7 +959,7 @@ export interface ExtModeratorModel {
   >(options: {
     where: ExtModeratorWhere;
     create: ExtModeratorCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtModeratorUpdateInput>;
     unset?: SafeUnset<ExtModeratorUnset, D>;
     select?: SelectArg<S, ExtModeratorSelectFields>;
     /**
@@ -1017,6 +1023,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1323,7 +1331,7 @@ export interface ExtPremiumUserModel {
     D extends ExtPremiumUserUpdateInput = ExtPremiumUserUpdateInput,
   >(options: {
     where: ExtPremiumUserWhere;
-    data: D;
+    data: DataArg<D, ExtPremiumUserUpdateInput>;
     unset?: SafeUnset<ExtPremiumUserUnset, D>;
     select?: SelectArg<S, ExtPremiumUserSelectFields>;
     txn?: CerialTransaction;
@@ -1335,7 +1343,7 @@ export interface ExtPremiumUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtPremiumUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtPremiumUserUpdateInput>;
     unset?: SafeUnset<ExtPremiumUserUnset, D>;
     select?: SelectArg<S, ExtPremiumUserSelectFields>;
     /**
@@ -1355,7 +1363,7 @@ export interface ExtPremiumUserModel {
   >(options: {
     where: ExtPremiumUserFindUniqueWhere;
     create: ExtPremiumUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtPremiumUserUpdateInput>;
     unset?: SafeUnset<ExtPremiumUserUnset, D>;
     select?: SelectArg<S, ExtPremiumUserSelectFields>;
     /**
@@ -1375,7 +1383,7 @@ export interface ExtPremiumUserModel {
   >(options: {
     where: ExtPremiumUserWhere;
     create: ExtPremiumUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtPremiumUserUpdateInput>;
     unset?: SafeUnset<ExtPremiumUserUnset, D>;
     select?: SelectArg<S, ExtPremiumUserSelectFields>;
     /**
@@ -1439,6 +1447,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1674,7 +1684,7 @@ export interface ExtPrivateUserModel {
     D extends ExtPrivateUserUpdateInput = ExtPrivateUserUpdateInput,
   >(options: {
     where: ExtPrivateUserWhere;
-    data: D;
+    data: DataArg<D, ExtPrivateUserUpdateInput>;
     unset?: SafeUnset<ExtPrivateUserUnset, D>;
     select?: SelectArg<S, ExtPrivateUserSelectFields>;
     txn?: CerialTransaction;
@@ -1686,7 +1696,7 @@ export interface ExtPrivateUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtPrivateUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtPrivateUserUpdateInput>;
     unset?: SafeUnset<ExtPrivateUserUnset, D>;
     select?: SelectArg<S, ExtPrivateUserSelectFields>;
     /**
@@ -1706,7 +1716,7 @@ export interface ExtPrivateUserModel {
   >(options: {
     where: ExtPrivateUserFindUniqueWhere;
     create: ExtPrivateUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtPrivateUserUpdateInput>;
     unset?: SafeUnset<ExtPrivateUserUnset, D>;
     select?: SelectArg<S, ExtPrivateUserSelectFields>;
     /**
@@ -1726,7 +1736,7 @@ export interface ExtPrivateUserModel {
   >(options: {
     where: ExtPrivateUserWhere;
     create: ExtPrivateUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtPrivateUserUpdateInput>;
     unset?: SafeUnset<ExtPrivateUserUnset, D>;
     select?: SelectArg<S, ExtPrivateUserSelectFields>;
     /**
@@ -1790,6 +1800,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2071,7 +2083,7 @@ export interface ExtProfileModel {
     D extends ExtProfileUpdateInput = ExtProfileUpdateInput,
   >(options: {
     where: ExtProfileWhere;
-    data: D;
+    data: DataArg<D, ExtProfileUpdateInput>;
     unset?: SafeUnset<ExtProfileUnset, D>;
     select?: SelectArg<S, ExtProfileSelectFields>;
     txn?: CerialTransaction;
@@ -2083,7 +2095,7 @@ export interface ExtProfileModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtProfileFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtProfileUpdateInput>;
     unset?: SafeUnset<ExtProfileUnset, D>;
     select?: SelectArg<S, ExtProfileSelectFields>;
     /**
@@ -2103,7 +2115,7 @@ export interface ExtProfileModel {
   >(options: {
     where: ExtProfileFindUniqueWhere;
     create: ExtProfileCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtProfileUpdateInput>;
     unset?: SafeUnset<ExtProfileUnset, D>;
     select?: SelectArg<S, ExtProfileSelectFields>;
     /**
@@ -2123,7 +2135,7 @@ export interface ExtProfileModel {
   >(options: {
     where: ExtProfileWhere;
     create: ExtProfileCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtProfileUpdateInput>;
     unset?: SafeUnset<ExtProfileUnset, D>;
     select?: SelectArg<S, ExtProfileSelectFields>;
     /**
@@ -2187,6 +2199,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2457,7 +2471,7 @@ export interface ExtSuperAdminModel {
     D extends ExtSuperAdminUpdateInput = ExtSuperAdminUpdateInput,
   >(options: {
     where: ExtSuperAdminWhere;
-    data: D;
+    data: DataArg<D, ExtSuperAdminUpdateInput>;
     unset?: SafeUnset<ExtSuperAdminUnset, D>;
     select?: SelectArg<S, ExtSuperAdminSelectFields>;
     txn?: CerialTransaction;
@@ -2469,7 +2483,7 @@ export interface ExtSuperAdminModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtSuperAdminFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtSuperAdminUpdateInput>;
     unset?: SafeUnset<ExtSuperAdminUnset, D>;
     select?: SelectArg<S, ExtSuperAdminSelectFields>;
     /**
@@ -2489,7 +2503,7 @@ export interface ExtSuperAdminModel {
   >(options: {
     where: ExtSuperAdminFindUniqueWhere;
     create: ExtSuperAdminCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtSuperAdminUpdateInput>;
     unset?: SafeUnset<ExtSuperAdminUnset, D>;
     select?: SelectArg<S, ExtSuperAdminSelectFields>;
     /**
@@ -2509,7 +2523,7 @@ export interface ExtSuperAdminModel {
   >(options: {
     where: ExtSuperAdminWhere;
     create: ExtSuperAdminCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtSuperAdminUpdateInput>;
     unset?: SafeUnset<ExtSuperAdminUnset, D>;
     select?: SelectArg<S, ExtSuperAdminSelectFields>;
     /**
@@ -2573,6 +2587,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2854,7 +2870,7 @@ export interface ExtSystemAdminModel {
     D extends ExtSystemAdminUpdateInput = ExtSystemAdminUpdateInput,
   >(options: {
     where: ExtSystemAdminWhere;
-    data: D;
+    data: DataArg<D, ExtSystemAdminUpdateInput>;
     unset?: SafeUnset<ExtSystemAdminUnset, D>;
     select?: SelectArg<S, ExtSystemAdminSelectFields>;
     txn?: CerialTransaction;
@@ -2866,7 +2882,7 @@ export interface ExtSystemAdminModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtSystemAdminFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtSystemAdminUpdateInput>;
     unset?: SafeUnset<ExtSystemAdminUnset, D>;
     select?: SelectArg<S, ExtSystemAdminSelectFields>;
     /**
@@ -2886,7 +2902,7 @@ export interface ExtSystemAdminModel {
   >(options: {
     where: ExtSystemAdminFindUniqueWhere;
     create: ExtSystemAdminCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtSystemAdminUpdateInput>;
     unset?: SafeUnset<ExtSystemAdminUnset, D>;
     select?: SelectArg<S, ExtSystemAdminSelectFields>;
     /**
@@ -2906,7 +2922,7 @@ export interface ExtSystemAdminModel {
   >(options: {
     where: ExtSystemAdminWhere;
     create: ExtSystemAdminCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtSystemAdminUpdateInput>;
     unset?: SafeUnset<ExtSystemAdminUnset, D>;
     select?: SelectArg<S, ExtSystemAdminSelectFields>;
     /**
@@ -2970,6 +2986,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3231,7 +3249,7 @@ export interface ExtUserModel {
     D extends ExtUserUpdateInput = ExtUserUpdateInput,
   >(options: {
     where: ExtUserWhere;
-    data: D;
+    data: DataArg<D, ExtUserUpdateInput>;
     unset?: SafeUnset<ExtUserUnset, D>;
     select?: SelectArg<S, ExtUserSelectFields>;
     txn?: CerialTransaction;
@@ -3243,7 +3261,7 @@ export interface ExtUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtUserUpdateInput>;
     unset?: SafeUnset<ExtUserUnset, D>;
     select?: SelectArg<S, ExtUserSelectFields>;
     /**
@@ -3263,7 +3281,7 @@ export interface ExtUserModel {
   >(options: {
     where: ExtUserFindUniqueWhere;
     create: ExtUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtUserUpdateInput>;
     unset?: SafeUnset<ExtUserUnset, D>;
     select?: SelectArg<S, ExtUserSelectFields>;
     /**
@@ -3283,7 +3301,7 @@ export interface ExtUserModel {
   >(options: {
     where: ExtUserWhere;
     create: ExtUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtUserUpdateInput>;
     unset?: SafeUnset<ExtUserUnset, D>;
     select?: SelectArg<S, ExtUserSelectFields>;
     /**

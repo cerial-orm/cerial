@@ -50,7 +50,7 @@ export const SQL_FRAGMENT_IMPORT = `import type { SqlFragment } from 'cerial';`;
 export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
 /** DeleteUnique, UpdateUnique, Upsert, select utility types, SafeUnset, and CerialQueryPromise import for model files */
-export const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect, SafeUnset, SelectArg } from '..';
+export const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect, SafeUnset, SelectArg, DataArg, IncludeArg } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';`;
 

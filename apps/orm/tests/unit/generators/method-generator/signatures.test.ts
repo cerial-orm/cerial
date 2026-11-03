@@ -62,7 +62,7 @@ describe('generateFindOneMethod', () => {
   >(options?: {
     where?: UserWhere;
     select?: SelectArg<S, UserSelect>;
-    include?: I;
+    include?: IncludeArg<I, UserInclude>;
     compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -100,7 +100,7 @@ describe('generateFindManyMethod', () => {
     orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, UserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<(GetUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;`);
   });
@@ -125,7 +125,7 @@ describe('generateFindUniqueMethod', () => {
   >(options: {
     where: UserFindUniqueWhere;
     select?: SelectArg<S, UserSelect>;
-    include?: I;
+    include?: IncludeArg<I, UserInclude>;
     compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<(GetUserPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null>;`);
@@ -148,7 +148,7 @@ describe('generateCreateMethod', () => {
   >(options: {
     data: UserCreateInput;
     select?: SelectArg<S, UserSelect>;
-    include?: I;
+    include?: IncludeArg<I, UserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserPayload<S, I>>;`);
   });
@@ -161,7 +161,7 @@ describe('generateUpdateMethod', () => {
     D extends UserUpdateInput = UserUpdateInput
   >(options: {
     where: UserWhere;
-    data: D;
+    data: DataArg<D, UserUpdateInput>;
     unset?: SafeUnset<UserUnset, D>;
     select?: SelectArg<S, UserSelect>;
     txn?: CerialTransaction;
@@ -175,10 +175,10 @@ describe('generateUpdateMethod', () => {
     D extends UserUpdateInput = UserUpdateInput
   >(options: {
     where: UserWhere;
-    data: D;
+    data: DataArg<D, UserUpdateInput>;
     unset?: SafeUnset<UserUnset, D>;
     select?: SelectArg<S, UserSelect>;
-    include?: I;
+    include?: IncludeArg<I, UserInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserPayload<S, I>[]>;`);
   });
@@ -223,7 +223,7 @@ describe('generateUpdateUniqueMethod', () => {
     R extends UpdateUniqueReturn = undefined
   >(options: {
     where: UserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UserUpdateInput>;
     unset?: SafeUnset<UserUnset, D>;
     select?: SelectArg<S, UserSelect>;
     /**
@@ -245,10 +245,10 @@ describe('generateUpdateUniqueMethod', () => {
     R extends UpdateUniqueReturn = undefined
   >(options: {
     where: UserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UserUpdateInput>;
     unset?: SafeUnset<UserUnset, D>;
     select?: SelectArg<S, UserSelect>;
-    include?: I;
+    include?: IncludeArg<I, UserInclude>;
     /**
       * Return option for the updated record
       * - undefined/null/'after': returns updated record (supports select/include)
@@ -270,7 +270,7 @@ describe('generateUpsertMethod', () => {
   >(options: {
     where: UserFindUniqueWhere;
     create: UserCreateInput;
-    update?: D;
+    update?: DataArg<D, UserUpdateInput>;
     unset?: SafeUnset<UserUnset, D>;
     select?: SelectArg<S, UserSelect>;
     /**
@@ -290,7 +290,7 @@ describe('generateUpsertMethod', () => {
   >(options: {
     where: UserWhere;
     create: UserCreateInput;
-    update?: D;
+    update?: DataArg<D, UserUpdateInput>;
     unset?: SafeUnset<UserUnset, D>;
     select?: SelectArg<S, UserSelect>;
     /**
@@ -313,10 +313,10 @@ describe('generateUpsertMethod', () => {
   >(options: {
     where: UserFindUniqueWhere;
     create: UserCreateInput;
-    update?: D;
+    update?: DataArg<D, UserUpdateInput>;
     unset?: SafeUnset<UserUnset, D>;
     select?: SelectArg<S, UserSelect>;
-    include?: I;
+    include?: IncludeArg<I, UserInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -335,10 +335,10 @@ describe('generateUpsertMethod', () => {
   >(options: {
     where: UserWhere;
     create: UserCreateInput;
-    update?: D;
+    update?: DataArg<D, UserUpdateInput>;
     unset?: SafeUnset<UserUnset, D>;
     select?: SelectArg<S, UserSelect>;
-    include?: I;
+    include?: IncludeArg<I, UserInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

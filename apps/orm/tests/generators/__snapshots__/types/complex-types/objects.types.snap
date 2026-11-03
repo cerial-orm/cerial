@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -205,7 +207,7 @@ export interface ObjectTestOrderModel {
     D extends ObjectTestOrderUpdateInput = ObjectTestOrderUpdateInput,
   >(options: {
     where: ObjectTestOrderWhere;
-    data: D;
+    data: DataArg<D, ObjectTestOrderUpdateInput>;
     unset?: SafeUnset<ObjectTestOrderUnset, D>;
     select?: SelectArg<S, ObjectTestOrderSelectFields>;
     txn?: CerialTransaction;
@@ -217,7 +219,7 @@ export interface ObjectTestOrderModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ObjectTestOrderFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ObjectTestOrderUpdateInput>;
     unset?: SafeUnset<ObjectTestOrderUnset, D>;
     select?: SelectArg<S, ObjectTestOrderSelectFields>;
     /**
@@ -237,7 +239,7 @@ export interface ObjectTestOrderModel {
   >(options: {
     where: ObjectTestOrderFindUniqueWhere;
     create: ObjectTestOrderCreateInput;
-    update?: D;
+    update?: DataArg<D, ObjectTestOrderUpdateInput>;
     unset?: SafeUnset<ObjectTestOrderUnset, D>;
     select?: SelectArg<S, ObjectTestOrderSelectFields>;
     /**
@@ -257,7 +259,7 @@ export interface ObjectTestOrderModel {
   >(options: {
     where: ObjectTestOrderWhere;
     create: ObjectTestOrderCreateInput;
-    update?: D;
+    update?: DataArg<D, ObjectTestOrderUpdateInput>;
     unset?: SafeUnset<ObjectTestOrderUnset, D>;
     select?: SelectArg<S, ObjectTestOrderSelectFields>;
     /**
@@ -321,6 +323,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -521,7 +525,7 @@ export interface ObjectTestUserModel {
     D extends ObjectTestUserUpdateInput = ObjectTestUserUpdateInput,
   >(options: {
     where: ObjectTestUserWhere;
-    data: D;
+    data: DataArg<D, ObjectTestUserUpdateInput>;
     unset?: SafeUnset<ObjectTestUserUnset, D>;
     select?: SelectArg<S, ObjectTestUserSelectFields>;
     txn?: CerialTransaction;
@@ -533,7 +537,7 @@ export interface ObjectTestUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ObjectTestUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ObjectTestUserUpdateInput>;
     unset?: SafeUnset<ObjectTestUserUnset, D>;
     select?: SelectArg<S, ObjectTestUserSelectFields>;
     /**
@@ -553,7 +557,7 @@ export interface ObjectTestUserModel {
   >(options: {
     where: ObjectTestUserFindUniqueWhere;
     create: ObjectTestUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ObjectTestUserUpdateInput>;
     unset?: SafeUnset<ObjectTestUserUnset, D>;
     select?: SelectArg<S, ObjectTestUserSelectFields>;
     /**
@@ -573,7 +577,7 @@ export interface ObjectTestUserModel {
   >(options: {
     where: ObjectTestUserWhere;
     create: ObjectTestUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ObjectTestUserUpdateInput>;
     unset?: SafeUnset<ObjectTestUserUnset, D>;
     select?: SelectArg<S, ObjectTestUserSelectFields>;
     /**

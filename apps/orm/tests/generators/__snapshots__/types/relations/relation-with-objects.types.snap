@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -224,7 +226,7 @@ export interface RelObjCompanyModel {
   >(options?: {
     where?: RelObjCompanyWhere;
     select?: SelectArg<S, RelObjCompanySelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjCompanyInclude>;
     compute?: C & { [K in keyof C & (keyof RelObjCompany | keyof RelObjCompanyWhere)]?: never };
     orderBy?: RelObjCompanyOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -243,7 +245,7 @@ export interface RelObjCompanyModel {
     orderBy?: RelObjCompanyOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, RelObjCompanyInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetRelObjCompanyPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -256,7 +258,7 @@ export interface RelObjCompanyModel {
   >(options: {
     where: RelObjCompanyFindUniqueWhere;
     select?: SelectArg<S, RelObjCompanySelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjCompanyInclude>;
     compute?: C & { [K in keyof C & (keyof RelObjCompany | keyof RelObjCompanyWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -269,7 +271,7 @@ export interface RelObjCompanyModel {
   >(options: {
     data: RelObjCompanyCreateInput;
     select?: SelectArg<S, RelObjCompanySelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjCompanyInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRelObjCompanyPayload<S, I>>;
 
@@ -279,10 +281,10 @@ export interface RelObjCompanyModel {
     D extends RelObjCompanyUpdateInput = RelObjCompanyUpdateInput,
   >(options: {
     where: RelObjCompanyWhere;
-    data: D;
+    data: DataArg<D, RelObjCompanyUpdateInput>;
     unset?: SafeUnset<RelObjCompanyUnset, D>;
     select?: SelectArg<S, RelObjCompanySelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjCompanyInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRelObjCompanyPayload<S, I>[]>;
 
@@ -293,10 +295,10 @@ export interface RelObjCompanyModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: RelObjCompanyFindUniqueWhere;
-    data: D;
+    data: DataArg<D, RelObjCompanyUpdateInput>;
     unset?: SafeUnset<RelObjCompanyUnset, D>;
     select?: SelectArg<S, RelObjCompanySelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjCompanyInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -315,10 +317,10 @@ export interface RelObjCompanyModel {
   >(options: {
     where: RelObjCompanyFindUniqueWhere;
     create: RelObjCompanyCreateInput;
-    update?: D;
+    update?: DataArg<D, RelObjCompanyUpdateInput>;
     unset?: SafeUnset<RelObjCompanyUnset, D>;
     select?: SelectArg<S, RelObjCompanySelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjCompanyInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -337,10 +339,10 @@ export interface RelObjCompanyModel {
   >(options: {
     where: RelObjCompanyWhere;
     create: RelObjCompanyCreateInput;
-    update?: D;
+    update?: DataArg<D, RelObjCompanyUpdateInput>;
     unset?: SafeUnset<RelObjCompanyUnset, D>;
     select?: SelectArg<S, RelObjCompanySelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjCompanyInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -401,6 +403,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -592,7 +596,7 @@ export interface RelObjEmployeeModel {
   >(options?: {
     where?: RelObjEmployeeWhere;
     select?: SelectArg<S, RelObjEmployeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjEmployeeInclude>;
     compute?: C & { [K in keyof C & (keyof RelObjEmployee | keyof RelObjEmployeeWhere)]?: never };
     orderBy?: RelObjEmployeeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -611,7 +615,7 @@ export interface RelObjEmployeeModel {
     orderBy?: RelObjEmployeeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, RelObjEmployeeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetRelObjEmployeePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -624,7 +628,7 @@ export interface RelObjEmployeeModel {
   >(options: {
     where: RelObjEmployeeFindUniqueWhere;
     select?: SelectArg<S, RelObjEmployeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjEmployeeInclude>;
     compute?: C & { [K in keyof C & (keyof RelObjEmployee | keyof RelObjEmployeeWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -637,7 +641,7 @@ export interface RelObjEmployeeModel {
   >(options: {
     data: RelObjEmployeeCreateInput;
     select?: SelectArg<S, RelObjEmployeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjEmployeeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRelObjEmployeePayload<S, I>>;
 
@@ -647,10 +651,10 @@ export interface RelObjEmployeeModel {
     D extends RelObjEmployeeUpdateInput = RelObjEmployeeUpdateInput,
   >(options: {
     where: RelObjEmployeeWhere;
-    data: D;
+    data: DataArg<D, RelObjEmployeeUpdateInput>;
     unset?: SafeUnset<RelObjEmployeeUnset, D>;
     select?: SelectArg<S, RelObjEmployeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjEmployeeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRelObjEmployeePayload<S, I>[]>;
 
@@ -661,10 +665,10 @@ export interface RelObjEmployeeModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: RelObjEmployeeFindUniqueWhere;
-    data: D;
+    data: DataArg<D, RelObjEmployeeUpdateInput>;
     unset?: SafeUnset<RelObjEmployeeUnset, D>;
     select?: SelectArg<S, RelObjEmployeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjEmployeeInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -683,10 +687,10 @@ export interface RelObjEmployeeModel {
   >(options: {
     where: RelObjEmployeeFindUniqueWhere;
     create: RelObjEmployeeCreateInput;
-    update?: D;
+    update?: DataArg<D, RelObjEmployeeUpdateInput>;
     unset?: SafeUnset<RelObjEmployeeUnset, D>;
     select?: SelectArg<S, RelObjEmployeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjEmployeeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -705,10 +709,10 @@ export interface RelObjEmployeeModel {
   >(options: {
     where: RelObjEmployeeWhere;
     create: RelObjEmployeeCreateInput;
-    update?: D;
+    update?: DataArg<D, RelObjEmployeeUpdateInput>;
     unset?: SafeUnset<RelObjEmployeeUnset, D>;
     select?: SelectArg<S, RelObjEmployeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RelObjEmployeeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

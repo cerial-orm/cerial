@@ -22,6 +22,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -245,7 +247,7 @@ export interface UuidBasicModel {
     D extends UuidBasicUpdateInput = UuidBasicUpdateInput,
   >(options: {
     where: UuidBasicWhere;
-    data: D;
+    data: DataArg<D, UuidBasicUpdateInput>;
     unset?: SafeUnset<UuidBasicUnset, D>;
     select?: SelectArg<S, UuidBasicSelectFields>;
     txn?: CerialTransaction;
@@ -257,7 +259,7 @@ export interface UuidBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UuidBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UuidBasicUpdateInput>;
     unset?: SafeUnset<UuidBasicUnset, D>;
     select?: SelectArg<S, UuidBasicSelectFields>;
     /**
@@ -277,7 +279,7 @@ export interface UuidBasicModel {
   >(options: {
     where: UuidBasicFindUniqueWhere;
     create: UuidBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidBasicUpdateInput>;
     unset?: SafeUnset<UuidBasicUnset, D>;
     select?: SelectArg<S, UuidBasicSelectFields>;
     /**
@@ -297,7 +299,7 @@ export interface UuidBasicModel {
   >(options: {
     where: UuidBasicWhere;
     create: UuidBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidBasicUpdateInput>;
     unset?: SafeUnset<UuidBasicUnset, D>;
     select?: SelectArg<S, UuidBasicSelectFields>;
     /**
@@ -363,6 +365,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -598,7 +602,7 @@ export interface UuidDecoratedModel {
     D extends UuidDecoratedUpdateInput = UuidDecoratedUpdateInput,
   >(options: {
     where: UuidDecoratedWhere;
-    data: D;
+    data: DataArg<D, UuidDecoratedUpdateInput>;
     unset?: SafeUnset<UuidDecoratedUnset, D>;
     select?: SelectArg<S, UuidDecoratedSelectFields>;
     txn?: CerialTransaction;
@@ -610,7 +614,7 @@ export interface UuidDecoratedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UuidDecoratedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UuidDecoratedUpdateInput>;
     unset?: SafeUnset<UuidDecoratedUnset, D>;
     select?: SelectArg<S, UuidDecoratedSelectFields>;
     /**
@@ -630,7 +634,7 @@ export interface UuidDecoratedModel {
   >(options: {
     where: UuidDecoratedFindUniqueWhere;
     create: UuidDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidDecoratedUpdateInput>;
     unset?: SafeUnset<UuidDecoratedUnset, D>;
     select?: SelectArg<S, UuidDecoratedSelectFields>;
     /**
@@ -650,7 +654,7 @@ export interface UuidDecoratedModel {
   >(options: {
     where: UuidDecoratedWhere;
     create: UuidDecoratedCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidDecoratedUpdateInput>;
     unset?: SafeUnset<UuidDecoratedUnset, D>;
     select?: SelectArg<S, UuidDecoratedSelectFields>;
     /**
@@ -714,6 +718,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -889,7 +895,7 @@ export interface UuidWithObjectModel {
     D extends UuidWithObjectUpdateInput = UuidWithObjectUpdateInput,
   >(options: {
     where: UuidWithObjectWhere;
-    data: D;
+    data: DataArg<D, UuidWithObjectUpdateInput>;
     unset?: SafeUnset<UuidWithObjectUnset, D>;
     select?: SelectArg<S, UuidWithObjectSelectFields>;
     txn?: CerialTransaction;
@@ -901,7 +907,7 @@ export interface UuidWithObjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UuidWithObjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UuidWithObjectUpdateInput>;
     unset?: SafeUnset<UuidWithObjectUnset, D>;
     select?: SelectArg<S, UuidWithObjectSelectFields>;
     /**
@@ -921,7 +927,7 @@ export interface UuidWithObjectModel {
   >(options: {
     where: UuidWithObjectFindUniqueWhere;
     create: UuidWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidWithObjectUpdateInput>;
     unset?: SafeUnset<UuidWithObjectUnset, D>;
     select?: SelectArg<S, UuidWithObjectSelectFields>;
     /**
@@ -941,7 +947,7 @@ export interface UuidWithObjectModel {
   >(options: {
     where: UuidWithObjectWhere;
     create: UuidWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidWithObjectUpdateInput>;
     unset?: SafeUnset<UuidWithObjectUnset, D>;
     select?: SelectArg<S, UuidWithObjectSelectFields>;
     /**
@@ -1005,6 +1011,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1159,7 +1167,7 @@ export interface UuidWithTupleModel {
     D extends UuidWithTupleUpdateInput = UuidWithTupleUpdateInput,
   >(options: {
     where: UuidWithTupleWhere;
-    data: D;
+    data: DataArg<D, UuidWithTupleUpdateInput>;
     unset?: SafeUnset<UuidWithTupleUnset, D>;
     select?: SelectArg<S, UuidWithTupleSelectFields>;
     txn?: CerialTransaction;
@@ -1171,7 +1179,7 @@ export interface UuidWithTupleModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UuidWithTupleFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UuidWithTupleUpdateInput>;
     unset?: SafeUnset<UuidWithTupleUnset, D>;
     select?: SelectArg<S, UuidWithTupleSelectFields>;
     /**
@@ -1191,7 +1199,7 @@ export interface UuidWithTupleModel {
   >(options: {
     where: UuidWithTupleFindUniqueWhere;
     create: UuidWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidWithTupleUpdateInput>;
     unset?: SafeUnset<UuidWithTupleUnset, D>;
     select?: SelectArg<S, UuidWithTupleSelectFields>;
     /**
@@ -1211,7 +1219,7 @@ export interface UuidWithTupleModel {
   >(options: {
     where: UuidWithTupleWhere;
     create: UuidWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, UuidWithTupleUpdateInput>;
     unset?: SafeUnset<UuidWithTupleUnset, D>;
     select?: SelectArg<S, UuidWithTupleSelectFields>;
     /**

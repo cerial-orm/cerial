@@ -19,6 +19,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -196,7 +198,7 @@ export interface ExtEnumContainerModel {
     D extends ExtEnumContainerUpdateInput = ExtEnumContainerUpdateInput,
   >(options: {
     where: ExtEnumContainerWhere;
-    data: D;
+    data: DataArg<D, ExtEnumContainerUpdateInput>;
     unset?: SafeUnset<ExtEnumContainerUnset, D>;
     select?: SelectArg<S, ExtEnumContainerSelectFields>;
     txn?: CerialTransaction;
@@ -208,7 +210,7 @@ export interface ExtEnumContainerModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtEnumContainerFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtEnumContainerUpdateInput>;
     unset?: SafeUnset<ExtEnumContainerUnset, D>;
     select?: SelectArg<S, ExtEnumContainerSelectFields>;
     /**
@@ -228,7 +230,7 @@ export interface ExtEnumContainerModel {
   >(options: {
     where: ExtEnumContainerFindUniqueWhere;
     create: ExtEnumContainerCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtEnumContainerUpdateInput>;
     unset?: SafeUnset<ExtEnumContainerUnset, D>;
     select?: SelectArg<S, ExtEnumContainerSelectFields>;
     /**
@@ -248,7 +250,7 @@ export interface ExtEnumContainerModel {
   >(options: {
     where: ExtEnumContainerWhere;
     create: ExtEnumContainerCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtEnumContainerUpdateInput>;
     unset?: SafeUnset<ExtEnumContainerUnset, D>;
     select?: SelectArg<S, ExtEnumContainerSelectFields>;
     /**
@@ -312,6 +314,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -509,7 +513,7 @@ export interface ExtEnumModelModel {
     D extends ExtEnumModelUpdateInput = ExtEnumModelUpdateInput,
   >(options: {
     where: ExtEnumModelWhere;
-    data: D;
+    data: DataArg<D, ExtEnumModelUpdateInput>;
     unset?: SafeUnset<ExtEnumModelUnset, D>;
     select?: SelectArg<S, ExtEnumModelSelectFields>;
     txn?: CerialTransaction;
@@ -521,7 +525,7 @@ export interface ExtEnumModelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ExtEnumModelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ExtEnumModelUpdateInput>;
     unset?: SafeUnset<ExtEnumModelUnset, D>;
     select?: SelectArg<S, ExtEnumModelSelectFields>;
     /**
@@ -541,7 +545,7 @@ export interface ExtEnumModelModel {
   >(options: {
     where: ExtEnumModelFindUniqueWhere;
     create: ExtEnumModelCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtEnumModelUpdateInput>;
     unset?: SafeUnset<ExtEnumModelUnset, D>;
     select?: SelectArg<S, ExtEnumModelSelectFields>;
     /**
@@ -561,7 +565,7 @@ export interface ExtEnumModelModel {
   >(options: {
     where: ExtEnumModelWhere;
     create: ExtEnumModelCreateInput;
-    update?: D;
+    update?: DataArg<D, ExtEnumModelUpdateInput>;
     unset?: SafeUnset<ExtEnumModelUnset, D>;
     select?: SelectArg<S, ExtEnumModelSelectFields>;
     /**

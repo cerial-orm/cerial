@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -253,7 +255,7 @@ export interface DocumentModel {
   >(options?: {
     where?: DocumentWhere;
     select?: SelectArg<S, DocumentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DocumentInclude>;
     compute?: C & { [K in keyof C & (keyof Document | keyof DocumentWhere)]?: never };
     orderBy?: DocumentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -272,7 +274,7 @@ export interface DocumentModel {
     orderBy?: DocumentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, DocumentInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetDocumentPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -285,7 +287,7 @@ export interface DocumentModel {
   >(options: {
     where: DocumentFindUniqueWhere;
     select?: SelectArg<S, DocumentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DocumentInclude>;
     compute?: C & { [K in keyof C & (keyof Document | keyof DocumentWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -295,7 +297,7 @@ export interface DocumentModel {
   create<S extends DocumentSelect | undefined = undefined, I extends DocumentInclude | undefined = undefined>(options: {
     data: DocumentCreateInput;
     select?: SelectArg<S, DocumentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DocumentInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDocumentPayload<S, I>>;
 
@@ -305,10 +307,10 @@ export interface DocumentModel {
     D extends DocumentUpdateInput = DocumentUpdateInput,
   >(options: {
     where: DocumentWhere;
-    data: D;
+    data: DataArg<D, DocumentUpdateInput>;
     unset?: SafeUnset<DocumentUnset, D>;
     select?: SelectArg<S, DocumentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DocumentInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDocumentPayload<S, I>[]>;
 
@@ -319,10 +321,10 @@ export interface DocumentModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DocumentFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DocumentUpdateInput>;
     unset?: SafeUnset<DocumentUnset, D>;
     select?: SelectArg<S, DocumentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DocumentInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -341,10 +343,10 @@ export interface DocumentModel {
   >(options: {
     where: DocumentFindUniqueWhere;
     create: DocumentCreateInput;
-    update?: D;
+    update?: DataArg<D, DocumentUpdateInput>;
     unset?: SafeUnset<DocumentUnset, D>;
     select?: SelectArg<S, DocumentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DocumentInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -363,10 +365,10 @@ export interface DocumentModel {
   >(options: {
     where: DocumentWhere;
     create: DocumentCreateInput;
-    update?: D;
+    update?: DataArg<D, DocumentUpdateInput>;
     unset?: SafeUnset<DocumentUnset, D>;
     select?: SelectArg<S, DocumentSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, DocumentInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -427,6 +429,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -649,7 +653,7 @@ export interface WriterModel {
   >(options?: {
     where?: WriterWhere;
     select?: SelectArg<S, WriterSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WriterInclude>;
     compute?: C & { [K in keyof C & (keyof Writer | keyof WriterWhere)]?: never };
     orderBy?: WriterOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -668,7 +672,7 @@ export interface WriterModel {
     orderBy?: WriterOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, WriterInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetWriterPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -681,7 +685,7 @@ export interface WriterModel {
   >(options: {
     where: WriterFindUniqueWhere;
     select?: SelectArg<S, WriterSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WriterInclude>;
     compute?: C & { [K in keyof C & (keyof Writer | keyof WriterWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -691,7 +695,7 @@ export interface WriterModel {
   create<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options: {
     data: WriterCreateInput;
     select?: SelectArg<S, WriterSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WriterInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetWriterPayload<S, I>>;
 
@@ -701,10 +705,10 @@ export interface WriterModel {
     D extends WriterUpdateInput = WriterUpdateInput,
   >(options: {
     where: WriterWhere;
-    data: D;
+    data: DataArg<D, WriterUpdateInput>;
     unset?: SafeUnset<WriterUnset, D>;
     select?: SelectArg<S, WriterSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WriterInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetWriterPayload<S, I>[]>;
 
@@ -715,10 +719,10 @@ export interface WriterModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: WriterFindUniqueWhere;
-    data: D;
+    data: DataArg<D, WriterUpdateInput>;
     unset?: SafeUnset<WriterUnset, D>;
     select?: SelectArg<S, WriterSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WriterInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -737,10 +741,10 @@ export interface WriterModel {
   >(options: {
     where: WriterFindUniqueWhere;
     create: WriterCreateInput;
-    update?: D;
+    update?: DataArg<D, WriterUpdateInput>;
     unset?: SafeUnset<WriterUnset, D>;
     select?: SelectArg<S, WriterSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WriterInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -759,10 +763,10 @@ export interface WriterModel {
   >(options: {
     where: WriterWhere;
     create: WriterCreateInput;
-    update?: D;
+    update?: DataArg<D, WriterUpdateInput>;
     unset?: SafeUnset<WriterUnset, D>;
     select?: SelectArg<S, WriterSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WriterInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

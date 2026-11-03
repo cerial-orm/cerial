@@ -19,6 +19,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -189,7 +191,7 @@ export interface BloggerModel {
   >(options?: {
     where?: BloggerWhere;
     select?: SelectArg<S, BloggerSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BloggerInclude>;
     compute?: C & { [K in keyof C & (keyof Blogger | keyof BloggerWhere)]?: never };
     orderBy?: BloggerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -208,7 +210,7 @@ export interface BloggerModel {
     orderBy?: BloggerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, BloggerInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetBloggerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -221,7 +223,7 @@ export interface BloggerModel {
   >(options: {
     where: BloggerFindUniqueWhere;
     select?: SelectArg<S, BloggerSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BloggerInclude>;
     compute?: C & { [K in keyof C & (keyof Blogger | keyof BloggerWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -231,7 +233,7 @@ export interface BloggerModel {
   create<S extends BloggerSelect | undefined = undefined, I extends BloggerInclude | undefined = undefined>(options: {
     data: BloggerCreateInput;
     select?: SelectArg<S, BloggerSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BloggerInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBloggerPayload<S, I>>;
 
@@ -241,10 +243,10 @@ export interface BloggerModel {
     D extends BloggerUpdateInput = BloggerUpdateInput,
   >(options: {
     where: BloggerWhere;
-    data: D;
+    data: DataArg<D, BloggerUpdateInput>;
     unset?: SafeUnset<BloggerUnset, D>;
     select?: SelectArg<S, BloggerSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BloggerInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBloggerPayload<S, I>[]>;
 
@@ -255,10 +257,10 @@ export interface BloggerModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BloggerFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BloggerUpdateInput>;
     unset?: SafeUnset<BloggerUnset, D>;
     select?: SelectArg<S, BloggerSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BloggerInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -277,10 +279,10 @@ export interface BloggerModel {
   >(options: {
     where: BloggerFindUniqueWhere;
     create: BloggerCreateInput;
-    update?: D;
+    update?: DataArg<D, BloggerUpdateInput>;
     unset?: SafeUnset<BloggerUnset, D>;
     select?: SelectArg<S, BloggerSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BloggerInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -299,10 +301,10 @@ export interface BloggerModel {
   >(options: {
     where: BloggerWhere;
     create: BloggerCreateInput;
-    update?: D;
+    update?: DataArg<D, BloggerUpdateInput>;
     unset?: SafeUnset<BloggerUnset, D>;
     select?: SelectArg<S, BloggerSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BloggerInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -363,6 +365,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -501,7 +505,7 @@ export interface LabelModel {
 
   updateMany<S extends LabelSelect | undefined = undefined, D extends LabelUpdateInput = LabelUpdateInput>(options: {
     where: LabelWhere;
-    data: D;
+    data: DataArg<D, LabelUpdateInput>;
     unset?: SafeUnset<LabelUnset, D>;
     select?: SelectArg<S, LabelSelectFields>;
     txn?: CerialTransaction;
@@ -513,7 +517,7 @@ export interface LabelModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LabelFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LabelUpdateInput>;
     unset?: SafeUnset<LabelUnset, D>;
     select?: SelectArg<S, LabelSelectFields>;
     /**
@@ -533,7 +537,7 @@ export interface LabelModel {
   >(options: {
     where: LabelFindUniqueWhere;
     create: LabelCreateInput;
-    update?: D;
+    update?: DataArg<D, LabelUpdateInput>;
     unset?: SafeUnset<LabelUnset, D>;
     select?: SelectArg<S, LabelSelectFields>;
     /**
@@ -553,7 +557,7 @@ export interface LabelModel {
   >(options: {
     where: LabelWhere;
     create: LabelCreateInput;
-    update?: D;
+    update?: DataArg<D, LabelUpdateInput>;
     unset?: SafeUnset<LabelUnset, D>;
     select?: SelectArg<S, LabelSelectFields>;
     /**

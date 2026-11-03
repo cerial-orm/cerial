@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -205,7 +207,7 @@ export interface ObjDecUserModel {
     D extends ObjDecUserUpdateInput = ObjDecUserUpdateInput,
   >(options: {
     where: ObjDecUserWhere;
-    data: D;
+    data: DataArg<D, ObjDecUserUpdateInput>;
     unset?: SafeUnset<ObjDecUserUnset, D>;
     select?: SelectArg<S, ObjDecUserSelectFields>;
     txn?: CerialTransaction;
@@ -217,7 +219,7 @@ export interface ObjDecUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ObjDecUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ObjDecUserUpdateInput>;
     unset?: SafeUnset<ObjDecUserUnset, D>;
     select?: SelectArg<S, ObjDecUserSelectFields>;
     /**
@@ -237,7 +239,7 @@ export interface ObjDecUserModel {
   >(options: {
     where: ObjDecUserFindUniqueWhere;
     create: ObjDecUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ObjDecUserUpdateInput>;
     unset?: SafeUnset<ObjDecUserUnset, D>;
     select?: SelectArg<S, ObjDecUserSelectFields>;
     /**
@@ -257,7 +259,7 @@ export interface ObjDecUserModel {
   >(options: {
     where: ObjDecUserWhere;
     create: ObjDecUserCreateInput;
-    update?: D;
+    update?: DataArg<D, ObjDecUserUpdateInput>;
     unset?: SafeUnset<ObjDecUserUnset, D>;
     select?: SelectArg<S, ObjDecUserSelectFields>;
     /**

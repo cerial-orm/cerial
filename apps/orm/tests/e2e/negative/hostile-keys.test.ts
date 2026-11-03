@@ -65,6 +65,7 @@ describe('Hostile keys — negative cases', () => {
 
     test('updateMany data', () =>
       rejects(
+        // @ts-expect-error — hostile key is not a field, testing runtime guard
         () => client.db.BasicsUser.updateMany({ where: { name: 'A' }, data: { [key]: 'x' } }),
         unknown('Invalid data'),
       ));
@@ -80,7 +81,11 @@ describe('Hostile keys — negative cases', () => {
       rejects(() => client.db.BasicsUser.findMany({ orderBy: { [key]: 'asc' } }), unknown('Invalid orderBy')));
 
     test('include', () =>
-      rejects(() => client.db.BasicsUser.findMany({ include: { [key]: true } }), unknown('Invalid include')));
+      rejects(
+        // @ts-expect-error — hostile key is not a relation, testing runtime guard
+        () => client.db.BasicsUser.findMany({ include: { [key]: true } }),
+        unknown('Invalid include'),
+      ));
 
     test('where at top level', () =>
       rejects(

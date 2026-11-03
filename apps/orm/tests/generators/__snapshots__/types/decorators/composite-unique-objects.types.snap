@@ -19,6 +19,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -167,7 +169,7 @@ export interface DepotModel {
 
   updateMany<S extends DepotSelect | undefined = undefined, D extends DepotUpdateInput = DepotUpdateInput>(options: {
     where: DepotWhere;
-    data: D;
+    data: DataArg<D, DepotUpdateInput>;
     unset?: SafeUnset<DepotUnset, D>;
     select?: SelectArg<S, DepotSelectFields>;
     txn?: CerialTransaction;
@@ -179,7 +181,7 @@ export interface DepotModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: DepotFindUniqueWhere;
-    data: D;
+    data: DataArg<D, DepotUpdateInput>;
     unset?: SafeUnset<DepotUnset, D>;
     select?: SelectArg<S, DepotSelectFields>;
     /**
@@ -199,7 +201,7 @@ export interface DepotModel {
   >(options: {
     where: DepotFindUniqueWhere;
     create: DepotCreateInput;
-    update?: D;
+    update?: DataArg<D, DepotUpdateInput>;
     unset?: SafeUnset<DepotUnset, D>;
     select?: SelectArg<S, DepotSelectFields>;
     /**
@@ -219,7 +221,7 @@ export interface DepotModel {
   >(options: {
     where: DepotWhere;
     create: DepotCreateInput;
-    update?: D;
+    update?: DataArg<D, DepotUpdateInput>;
     unset?: SafeUnset<DepotUnset, D>;
     select?: SelectArg<S, DepotSelectFields>;
     /**
@@ -283,6 +285,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -473,7 +477,7 @@ export interface WarehouseModel {
     D extends WarehouseUpdateInput = WarehouseUpdateInput,
   >(options: {
     where: WarehouseWhere;
-    data: D;
+    data: DataArg<D, WarehouseUpdateInput>;
     unset?: SafeUnset<WarehouseUnset, D>;
     select?: SelectArg<S, WarehouseSelectFields>;
     txn?: CerialTransaction;
@@ -485,7 +489,7 @@ export interface WarehouseModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: WarehouseFindUniqueWhere;
-    data: D;
+    data: DataArg<D, WarehouseUpdateInput>;
     unset?: SafeUnset<WarehouseUnset, D>;
     select?: SelectArg<S, WarehouseSelectFields>;
     /**
@@ -505,7 +509,7 @@ export interface WarehouseModel {
   >(options: {
     where: WarehouseFindUniqueWhere;
     create: WarehouseCreateInput;
-    update?: D;
+    update?: DataArg<D, WarehouseUpdateInput>;
     unset?: SafeUnset<WarehouseUnset, D>;
     select?: SelectArg<S, WarehouseSelectFields>;
     /**
@@ -525,7 +529,7 @@ export interface WarehouseModel {
   >(options: {
     where: WarehouseWhere;
     create: WarehouseCreateInput;
-    update?: D;
+    update?: DataArg<D, WarehouseUpdateInput>;
     unset?: SafeUnset<WarehouseUnset, D>;
     select?: SelectArg<S, WarehouseSelectFields>;
     /**

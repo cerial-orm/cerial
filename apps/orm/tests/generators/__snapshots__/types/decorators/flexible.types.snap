@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -240,7 +242,7 @@ export interface FlexUserModel {
     D extends FlexUserUpdateInput = FlexUserUpdateInput,
   >(options: {
     where: FlexUserWhere;
-    data: D;
+    data: DataArg<D, FlexUserUpdateInput>;
     unset?: SafeUnset<FlexUserUnset, D>;
     select?: SelectArg<S, FlexUserSelectFields>;
     txn?: CerialTransaction;
@@ -252,7 +254,7 @@ export interface FlexUserModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: FlexUserFindUniqueWhere;
-    data: D;
+    data: DataArg<D, FlexUserUpdateInput>;
     unset?: SafeUnset<FlexUserUnset, D>;
     select?: SelectArg<S, FlexUserSelectFields>;
     /**
@@ -272,7 +274,7 @@ export interface FlexUserModel {
   >(options: {
     where: FlexUserFindUniqueWhere;
     create: FlexUserCreateInput;
-    update?: D;
+    update?: DataArg<D, FlexUserUpdateInput>;
     unset?: SafeUnset<FlexUserUnset, D>;
     select?: SelectArg<S, FlexUserSelectFields>;
     /**
@@ -292,7 +294,7 @@ export interface FlexUserModel {
   >(options: {
     where: FlexUserWhere;
     create: FlexUserCreateInput;
-    update?: D;
+    update?: DataArg<D, FlexUserUpdateInput>;
     unset?: SafeUnset<FlexUserUnset, D>;
     select?: SelectArg<S, FlexUserSelectFields>;
     /**

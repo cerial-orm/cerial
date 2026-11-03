@@ -40,6 +40,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -277,7 +279,7 @@ export interface GeometryBasicModel {
     D extends GeometryBasicUpdateInput = GeometryBasicUpdateInput,
   >(options: {
     where: GeometryBasicWhere;
-    data: D;
+    data: DataArg<D, GeometryBasicUpdateInput>;
     unset?: SafeUnset<GeometryBasicUnset, D>;
     select?: SelectArg<S, GeometryBasicSelectFields>;
     txn?: CerialTransaction;
@@ -289,7 +291,7 @@ export interface GeometryBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: GeometryBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, GeometryBasicUpdateInput>;
     unset?: SafeUnset<GeometryBasicUnset, D>;
     select?: SelectArg<S, GeometryBasicSelectFields>;
     /**
@@ -309,7 +311,7 @@ export interface GeometryBasicModel {
   >(options: {
     where: GeometryBasicFindUniqueWhere;
     create: GeometryBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, GeometryBasicUpdateInput>;
     unset?: SafeUnset<GeometryBasicUnset, D>;
     select?: SelectArg<S, GeometryBasicSelectFields>;
     /**
@@ -329,7 +331,7 @@ export interface GeometryBasicModel {
   >(options: {
     where: GeometryBasicWhere;
     create: GeometryBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, GeometryBasicUpdateInput>;
     unset?: SafeUnset<GeometryBasicUnset, D>;
     select?: SelectArg<S, GeometryBasicSelectFields>;
     /**
@@ -412,6 +414,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -600,7 +604,7 @@ export interface GeometryMultiModel {
     D extends GeometryMultiUpdateInput = GeometryMultiUpdateInput,
   >(options: {
     where: GeometryMultiWhere;
-    data: D;
+    data: DataArg<D, GeometryMultiUpdateInput>;
     unset?: SafeUnset<GeometryMultiUnset, D>;
     select?: SelectArg<S, GeometryMultiSelectFields>;
     txn?: CerialTransaction;
@@ -612,7 +616,7 @@ export interface GeometryMultiModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: GeometryMultiFindUniqueWhere;
-    data: D;
+    data: DataArg<D, GeometryMultiUpdateInput>;
     unset?: SafeUnset<GeometryMultiUnset, D>;
     select?: SelectArg<S, GeometryMultiSelectFields>;
     /**
@@ -632,7 +636,7 @@ export interface GeometryMultiModel {
   >(options: {
     where: GeometryMultiFindUniqueWhere;
     create: GeometryMultiCreateInput;
-    update?: D;
+    update?: DataArg<D, GeometryMultiUpdateInput>;
     unset?: SafeUnset<GeometryMultiUnset, D>;
     select?: SelectArg<S, GeometryMultiSelectFields>;
     /**
@@ -652,7 +656,7 @@ export interface GeometryMultiModel {
   >(options: {
     where: GeometryMultiWhere;
     create: GeometryMultiCreateInput;
-    update?: D;
+    update?: DataArg<D, GeometryMultiUpdateInput>;
     unset?: SafeUnset<GeometryMultiUnset, D>;
     select?: SelectArg<S, GeometryMultiSelectFields>;
     /**
@@ -715,6 +719,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -870,7 +876,7 @@ export interface GeometryWithObjectModel {
     D extends GeometryWithObjectUpdateInput = GeometryWithObjectUpdateInput,
   >(options: {
     where: GeometryWithObjectWhere;
-    data: D;
+    data: DataArg<D, GeometryWithObjectUpdateInput>;
     unset?: SafeUnset<GeometryWithObjectUnset, D>;
     select?: SelectArg<S, GeometryWithObjectSelectFields>;
     txn?: CerialTransaction;
@@ -882,7 +888,7 @@ export interface GeometryWithObjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: GeometryWithObjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, GeometryWithObjectUpdateInput>;
     unset?: SafeUnset<GeometryWithObjectUnset, D>;
     select?: SelectArg<S, GeometryWithObjectSelectFields>;
     /**
@@ -902,7 +908,7 @@ export interface GeometryWithObjectModel {
   >(options: {
     where: GeometryWithObjectFindUniqueWhere;
     create: GeometryWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, GeometryWithObjectUpdateInput>;
     unset?: SafeUnset<GeometryWithObjectUnset, D>;
     select?: SelectArg<S, GeometryWithObjectSelectFields>;
     /**
@@ -922,7 +928,7 @@ export interface GeometryWithObjectModel {
   >(options: {
     where: GeometryWithObjectWhere;
     create: GeometryWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, GeometryWithObjectUpdateInput>;
     unset?: SafeUnset<GeometryWithObjectUnset, D>;
     select?: SelectArg<S, GeometryWithObjectSelectFields>;
     /**
@@ -985,6 +991,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1137,7 +1145,7 @@ export interface GeometryWithTupleModel {
     D extends GeometryWithTupleUpdateInput = GeometryWithTupleUpdateInput,
   >(options: {
     where: GeometryWithTupleWhere;
-    data: D;
+    data: DataArg<D, GeometryWithTupleUpdateInput>;
     unset?: SafeUnset<GeometryWithTupleUnset, D>;
     select?: SelectArg<S, GeometryWithTupleSelectFields>;
     txn?: CerialTransaction;
@@ -1149,7 +1157,7 @@ export interface GeometryWithTupleModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: GeometryWithTupleFindUniqueWhere;
-    data: D;
+    data: DataArg<D, GeometryWithTupleUpdateInput>;
     unset?: SafeUnset<GeometryWithTupleUnset, D>;
     select?: SelectArg<S, GeometryWithTupleSelectFields>;
     /**
@@ -1169,7 +1177,7 @@ export interface GeometryWithTupleModel {
   >(options: {
     where: GeometryWithTupleFindUniqueWhere;
     create: GeometryWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, GeometryWithTupleUpdateInput>;
     unset?: SafeUnset<GeometryWithTupleUnset, D>;
     select?: SelectArg<S, GeometryWithTupleSelectFields>;
     /**
@@ -1189,7 +1197,7 @@ export interface GeometryWithTupleModel {
   >(options: {
     where: GeometryWithTupleWhere;
     create: GeometryWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, GeometryWithTupleUpdateInput>;
     unset?: SafeUnset<GeometryWithTupleUnset, D>;
     select?: SelectArg<S, GeometryWithTupleSelectFields>;
     /**

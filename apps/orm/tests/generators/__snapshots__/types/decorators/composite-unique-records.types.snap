@@ -19,6 +19,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -303,7 +305,7 @@ export interface AttendeeModel {
   >(options?: {
     where?: AttendeeWhere;
     select?: SelectArg<S, AttendeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, AttendeeInclude>;
     compute?: C & { [K in keyof C & (keyof Attendee | keyof AttendeeWhere)]?: never };
     orderBy?: AttendeeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -322,7 +324,7 @@ export interface AttendeeModel {
     orderBy?: AttendeeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, AttendeeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetAttendeePayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -335,7 +337,7 @@ export interface AttendeeModel {
   >(options: {
     where: AttendeeFindUniqueWhere;
     select?: SelectArg<S, AttendeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, AttendeeInclude>;
     compute?: C & { [K in keyof C & (keyof Attendee | keyof AttendeeWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -345,7 +347,7 @@ export interface AttendeeModel {
   create<S extends AttendeeSelect | undefined = undefined, I extends AttendeeInclude | undefined = undefined>(options: {
     data: AttendeeCreateInput;
     select?: SelectArg<S, AttendeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, AttendeeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAttendeePayload<S, I>>;
 
@@ -355,10 +357,10 @@ export interface AttendeeModel {
     D extends AttendeeUpdateInput = AttendeeUpdateInput,
   >(options: {
     where: AttendeeWhere;
-    data: D;
+    data: DataArg<D, AttendeeUpdateInput>;
     unset?: SafeUnset<AttendeeUnset, D>;
     select?: SelectArg<S, AttendeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, AttendeeInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAttendeePayload<S, I>[]>;
 
@@ -369,10 +371,10 @@ export interface AttendeeModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: AttendeeFindUniqueWhere;
-    data: D;
+    data: DataArg<D, AttendeeUpdateInput>;
     unset?: SafeUnset<AttendeeUnset, D>;
     select?: SelectArg<S, AttendeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, AttendeeInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -391,10 +393,10 @@ export interface AttendeeModel {
   >(options: {
     where: AttendeeFindUniqueWhere;
     create: AttendeeCreateInput;
-    update?: D;
+    update?: DataArg<D, AttendeeUpdateInput>;
     unset?: SafeUnset<AttendeeUnset, D>;
     select?: SelectArg<S, AttendeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, AttendeeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -413,10 +415,10 @@ export interface AttendeeModel {
   >(options: {
     where: AttendeeWhere;
     create: AttendeeCreateInput;
-    update?: D;
+    update?: DataArg<D, AttendeeUpdateInput>;
     unset?: SafeUnset<AttendeeUnset, D>;
     select?: SelectArg<S, AttendeeSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, AttendeeInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -477,6 +479,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -658,7 +662,7 @@ export interface BookingModel {
   >(options?: {
     where?: BookingWhere;
     select?: SelectArg<S, BookingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BookingInclude>;
     compute?: C & { [K in keyof C & (keyof Booking | keyof BookingWhere)]?: never };
     orderBy?: BookingOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -677,7 +681,7 @@ export interface BookingModel {
     orderBy?: BookingOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, BookingInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetBookingPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -690,7 +694,7 @@ export interface BookingModel {
   >(options: {
     where: BookingFindUniqueWhere;
     select?: SelectArg<S, BookingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BookingInclude>;
     compute?: C & { [K in keyof C & (keyof Booking | keyof BookingWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -700,7 +704,7 @@ export interface BookingModel {
   create<S extends BookingSelect | undefined = undefined, I extends BookingInclude | undefined = undefined>(options: {
     data: BookingCreateInput;
     select?: SelectArg<S, BookingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BookingInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBookingPayload<S, I>>;
 
@@ -710,10 +714,10 @@ export interface BookingModel {
     D extends BookingUpdateInput = BookingUpdateInput,
   >(options: {
     where: BookingWhere;
-    data: D;
+    data: DataArg<D, BookingUpdateInput>;
     unset?: SafeUnset<BookingUnset, D>;
     select?: SelectArg<S, BookingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BookingInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBookingPayload<S, I>[]>;
 
@@ -724,10 +728,10 @@ export interface BookingModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BookingFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BookingUpdateInput>;
     unset?: SafeUnset<BookingUnset, D>;
     select?: SelectArg<S, BookingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BookingInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -746,10 +750,10 @@ export interface BookingModel {
   >(options: {
     where: BookingFindUniqueWhere;
     create: BookingCreateInput;
-    update?: D;
+    update?: DataArg<D, BookingUpdateInput>;
     unset?: SafeUnset<BookingUnset, D>;
     select?: SelectArg<S, BookingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BookingInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -768,10 +772,10 @@ export interface BookingModel {
   >(options: {
     where: BookingWhere;
     create: BookingCreateInput;
-    update?: D;
+    update?: DataArg<D, BookingUpdateInput>;
     unset?: SafeUnset<BookingUnset, D>;
     select?: SelectArg<S, BookingSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, BookingInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -833,6 +837,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1082,7 +1088,7 @@ export interface RegistrationModel {
   >(options?: {
     where?: RegistrationWhere;
     select?: SelectArg<S, RegistrationSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RegistrationInclude>;
     compute?: C & { [K in keyof C & (keyof Registration | keyof RegistrationWhere)]?: never };
     orderBy?: RegistrationOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1101,7 +1107,7 @@ export interface RegistrationModel {
     orderBy?: RegistrationOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, RegistrationInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetRegistrationPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1114,7 +1120,7 @@ export interface RegistrationModel {
   >(options: {
     where: RegistrationFindUniqueWhere;
     select?: SelectArg<S, RegistrationSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RegistrationInclude>;
     compute?: C & { [K in keyof C & (keyof Registration | keyof RegistrationWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1127,7 +1133,7 @@ export interface RegistrationModel {
   >(options: {
     data: RegistrationCreateInput;
     select?: SelectArg<S, RegistrationSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RegistrationInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRegistrationPayload<S, I>>;
 
@@ -1137,10 +1143,10 @@ export interface RegistrationModel {
     D extends RegistrationUpdateInput = RegistrationUpdateInput,
   >(options: {
     where: RegistrationWhere;
-    data: D;
+    data: DataArg<D, RegistrationUpdateInput>;
     unset?: SafeUnset<RegistrationUnset, D>;
     select?: SelectArg<S, RegistrationSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RegistrationInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRegistrationPayload<S, I>[]>;
 
@@ -1151,10 +1157,10 @@ export interface RegistrationModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: RegistrationFindUniqueWhere;
-    data: D;
+    data: DataArg<D, RegistrationUpdateInput>;
     unset?: SafeUnset<RegistrationUnset, D>;
     select?: SelectArg<S, RegistrationSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RegistrationInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1173,10 +1179,10 @@ export interface RegistrationModel {
   >(options: {
     where: RegistrationFindUniqueWhere;
     create: RegistrationCreateInput;
-    update?: D;
+    update?: DataArg<D, RegistrationUpdateInput>;
     unset?: SafeUnset<RegistrationUnset, D>;
     select?: SelectArg<S, RegistrationSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RegistrationInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1195,10 +1201,10 @@ export interface RegistrationModel {
   >(options: {
     where: RegistrationWhere;
     create: RegistrationCreateInput;
-    update?: D;
+    update?: DataArg<D, RegistrationUpdateInput>;
     unset?: SafeUnset<RegistrationUnset, D>;
     select?: SelectArg<S, RegistrationSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, RegistrationInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1259,6 +1265,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1510,7 +1518,7 @@ export interface TicketModel {
   >(options?: {
     where?: TicketWhere;
     select?: SelectArg<S, TicketSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, TicketInclude>;
     compute?: C & { [K in keyof C & (keyof Ticket | keyof TicketWhere)]?: never };
     orderBy?: TicketOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1529,7 +1537,7 @@ export interface TicketModel {
     orderBy?: TicketOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, TicketInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetTicketPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1542,7 +1550,7 @@ export interface TicketModel {
   >(options: {
     where: TicketFindUniqueWhere;
     select?: SelectArg<S, TicketSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, TicketInclude>;
     compute?: C & { [K in keyof C & (keyof Ticket | keyof TicketWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1552,7 +1560,7 @@ export interface TicketModel {
   create<S extends TicketSelect | undefined = undefined, I extends TicketInclude | undefined = undefined>(options: {
     data: TicketCreateInput;
     select?: SelectArg<S, TicketSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, TicketInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetTicketPayload<S, I>>;
 
@@ -1562,10 +1570,10 @@ export interface TicketModel {
     D extends TicketUpdateInput = TicketUpdateInput,
   >(options: {
     where: TicketWhere;
-    data: D;
+    data: DataArg<D, TicketUpdateInput>;
     unset?: SafeUnset<TicketUnset, D>;
     select?: SelectArg<S, TicketSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, TicketInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetTicketPayload<S, I>[]>;
 
@@ -1576,10 +1584,10 @@ export interface TicketModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: TicketFindUniqueWhere;
-    data: D;
+    data: DataArg<D, TicketUpdateInput>;
     unset?: SafeUnset<TicketUnset, D>;
     select?: SelectArg<S, TicketSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, TicketInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1598,10 +1606,10 @@ export interface TicketModel {
   >(options: {
     where: TicketFindUniqueWhere;
     create: TicketCreateInput;
-    update?: D;
+    update?: DataArg<D, TicketUpdateInput>;
     unset?: SafeUnset<TicketUnset, D>;
     select?: SelectArg<S, TicketSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, TicketInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1620,10 +1628,10 @@ export interface TicketModel {
   >(options: {
     where: TicketWhere;
     create: TicketCreateInput;
-    update?: D;
+    update?: DataArg<D, TicketUpdateInput>;
     unset?: SafeUnset<TicketUnset, D>;
     select?: SelectArg<S, TicketSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, TicketInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1684,6 +1692,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1913,7 +1923,7 @@ export interface WorkshopModel {
   >(options?: {
     where?: WorkshopWhere;
     select?: SelectArg<S, WorkshopSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WorkshopInclude>;
     compute?: C & { [K in keyof C & (keyof Workshop | keyof WorkshopWhere)]?: never };
     orderBy?: WorkshopOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1932,7 +1942,7 @@ export interface WorkshopModel {
     orderBy?: WorkshopOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, WorkshopInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetWorkshopPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1945,7 +1955,7 @@ export interface WorkshopModel {
   >(options: {
     where: WorkshopFindUniqueWhere;
     select?: SelectArg<S, WorkshopSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WorkshopInclude>;
     compute?: C & { [K in keyof C & (keyof Workshop | keyof WorkshopWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1955,7 +1965,7 @@ export interface WorkshopModel {
   create<S extends WorkshopSelect | undefined = undefined, I extends WorkshopInclude | undefined = undefined>(options: {
     data: WorkshopCreateInput;
     select?: SelectArg<S, WorkshopSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WorkshopInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetWorkshopPayload<S, I>>;
 
@@ -1965,10 +1975,10 @@ export interface WorkshopModel {
     D extends WorkshopUpdateInput = WorkshopUpdateInput,
   >(options: {
     where: WorkshopWhere;
-    data: D;
+    data: DataArg<D, WorkshopUpdateInput>;
     unset?: SafeUnset<WorkshopUnset, D>;
     select?: SelectArg<S, WorkshopSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WorkshopInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetWorkshopPayload<S, I>[]>;
 
@@ -1979,10 +1989,10 @@ export interface WorkshopModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: WorkshopFindUniqueWhere;
-    data: D;
+    data: DataArg<D, WorkshopUpdateInput>;
     unset?: SafeUnset<WorkshopUnset, D>;
     select?: SelectArg<S, WorkshopSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WorkshopInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -2001,10 +2011,10 @@ export interface WorkshopModel {
   >(options: {
     where: WorkshopFindUniqueWhere;
     create: WorkshopCreateInput;
-    update?: D;
+    update?: DataArg<D, WorkshopUpdateInput>;
     unset?: SafeUnset<WorkshopUnset, D>;
     select?: SelectArg<S, WorkshopSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WorkshopInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -2023,10 +2033,10 @@ export interface WorkshopModel {
   >(options: {
     where: WorkshopWhere;
     create: WorkshopCreateInput;
-    update?: D;
+    update?: DataArg<D, WorkshopUpdateInput>;
     unset?: SafeUnset<WorkshopUnset, D>;
     select?: SelectArg<S, WorkshopSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, WorkshopInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

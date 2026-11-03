@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -292,7 +294,7 @@ export interface ContentItemModel {
     D extends ContentItemUpdateInput = ContentItemUpdateInput,
   >(options: {
     where: ContentItemWhere;
-    data: D;
+    data: DataArg<D, ContentItemUpdateInput>;
     unset?: SafeUnset<ContentItemUnset, D>;
     select?: SelectArg<S, ContentItemSelectFields>;
     txn?: CerialTransaction;
@@ -304,7 +306,7 @@ export interface ContentItemModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ContentItemFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ContentItemUpdateInput>;
     unset?: SafeUnset<ContentItemUnset, D>;
     select?: SelectArg<S, ContentItemSelectFields>;
     /**
@@ -324,7 +326,7 @@ export interface ContentItemModel {
   >(options: {
     where: ContentItemFindUniqueWhere;
     create: ContentItemCreateInput;
-    update?: D;
+    update?: DataArg<D, ContentItemUpdateInput>;
     unset?: SafeUnset<ContentItemUnset, D>;
     select?: SelectArg<S, ContentItemSelectFields>;
     /**
@@ -344,7 +346,7 @@ export interface ContentItemModel {
   >(options: {
     where: ContentItemWhere;
     create: ContentItemCreateInput;
-    update?: D;
+    update?: DataArg<D, ContentItemUpdateInput>;
     unset?: SafeUnset<ContentItemUnset, D>;
     select?: SelectArg<S, ContentItemSelectFields>;
     /**

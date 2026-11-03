@@ -21,6 +21,19 @@ export const probe = client.db.BenchModel0.findMany({ select: ${select} });
 `;
 const embedded = (select: string): string => model(`{ profile: ${select} }`);
 
+const INCLUDE_KEYS = ['next', 'previous'];
+
+/** A probe whose last statement puts the cursor inside an `include` argument */
+const included = (include: string): string => `import type { CerialClient } from './gen';
+declare const client: CerialClient;
+export const probe = client.db.BenchModel0.findMany({ include: ${include} });
+`;
+/** The select inside an include's relation: the related model has the same keys as the first */
+const includedSelect = (select: string): string => included(`{ next: { select: ${select} } }`);
+/** A select inside an include nested one level further */
+const nestedIncludedSelect = (select: string): string =>
+  included(`{ next: { include: { next: { select: ${select} } } } }`);
+
 /** A `select` body with the first `taken` keys set, then the cursor */
 function body(keys: readonly string[], taken: number): string {
   const set = keys.slice(0, taken).map((key) => `${key}: true, `);
@@ -75,6 +88,8 @@ withDist('select key completion', () => {
       const cases: readonly [string, readonly string[], (select: string) => string][] = [
         ['a model', MODEL_KEYS, model],
         ['an embedded object', OBJECT_KEYS, embedded],
+        ['a select inside an include', MODEL_KEYS, includedSelect],
+        ['a select inside a nested include', MODEL_KEYS, nestedIncludedSelect],
       ];
 
       for (const [label, keys, wrap] of cases) {
@@ -92,6 +107,18 @@ withDist('select key completion', () => {
             expect(labels.length).toBe(keys.length - taken);
           }, 120_000);
         }
+      }
+
+      // The relations of an include: exactly the ones not yet written
+      for (const taken of [0, 1]) {
+        test(`offers exactly the remaining relations of an include after ${taken} taken`, async () => {
+          const set = INCLUDE_KEYS.slice(0, taken).map((key) => `${key}: true, `);
+          const labels = (await probe.labels(included(`{ ${set.join('')}| }`)))
+            .map((entry) => entry.replace(/\?$/, ''))
+            .filter((entry) => entry !== 'valueOf');
+
+          expect(labels.toSorted()).toEqual(INCLUDE_KEYS.slice(taken).toSorted());
+        }, 120_000);
       }
     });
   }

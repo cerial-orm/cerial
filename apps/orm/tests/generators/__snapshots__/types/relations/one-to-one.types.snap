@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -213,7 +215,7 @@ export interface ProfileOptionalModel {
   >(options?: {
     where?: ProfileOptionalWhere;
     select?: SelectArg<S, ProfileOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileOptionalInclude>;
     compute?: C & { [K in keyof C & (keyof ProfileOptional | keyof ProfileOptionalWhere)]?: never };
     orderBy?: ProfileOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -232,7 +234,7 @@ export interface ProfileOptionalModel {
     orderBy?: ProfileOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ProfileOptionalInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetProfileOptionalPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -245,7 +247,7 @@ export interface ProfileOptionalModel {
   >(options: {
     where: ProfileOptionalFindUniqueWhere;
     select?: SelectArg<S, ProfileOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileOptionalInclude>;
     compute?: C & { [K in keyof C & (keyof ProfileOptional | keyof ProfileOptionalWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -258,7 +260,7 @@ export interface ProfileOptionalModel {
   >(options: {
     data: ProfileOptionalCreateInput;
     select?: SelectArg<S, ProfileOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileOptionalInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileOptionalPayload<S, I>>;
 
@@ -268,10 +270,10 @@ export interface ProfileOptionalModel {
     D extends ProfileOptionalUpdateInput = ProfileOptionalUpdateInput,
   >(options: {
     where: ProfileOptionalWhere;
-    data: D;
+    data: DataArg<D, ProfileOptionalUpdateInput>;
     unset?: SafeUnset<ProfileOptionalUnset, D>;
     select?: SelectArg<S, ProfileOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileOptionalInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileOptionalPayload<S, I>[]>;
 
@@ -282,10 +284,10 @@ export interface ProfileOptionalModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ProfileOptionalFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ProfileOptionalUpdateInput>;
     unset?: SafeUnset<ProfileOptionalUnset, D>;
     select?: SelectArg<S, ProfileOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileOptionalInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -304,10 +306,10 @@ export interface ProfileOptionalModel {
   >(options: {
     where: ProfileOptionalFindUniqueWhere;
     create: ProfileOptionalCreateInput;
-    update?: D;
+    update?: DataArg<D, ProfileOptionalUpdateInput>;
     unset?: SafeUnset<ProfileOptionalUnset, D>;
     select?: SelectArg<S, ProfileOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileOptionalInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -326,10 +328,10 @@ export interface ProfileOptionalModel {
   >(options: {
     where: ProfileOptionalWhere;
     create: ProfileOptionalCreateInput;
-    update?: D;
+    update?: DataArg<D, ProfileOptionalUpdateInput>;
     unset?: SafeUnset<ProfileOptionalUnset, D>;
     select?: SelectArg<S, ProfileOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileOptionalInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -391,6 +393,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -602,7 +606,7 @@ export interface ProfileRequiredModel {
   >(options?: {
     where?: ProfileRequiredWhere;
     select?: SelectArg<S, ProfileRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileRequiredInclude>;
     compute?: C & { [K in keyof C & (keyof ProfileRequired | keyof ProfileRequiredWhere)]?: never };
     orderBy?: ProfileRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -621,7 +625,7 @@ export interface ProfileRequiredModel {
     orderBy?: ProfileRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ProfileRequiredInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetProfileRequiredPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -634,7 +638,7 @@ export interface ProfileRequiredModel {
   >(options: {
     where: ProfileRequiredFindUniqueWhere;
     select?: SelectArg<S, ProfileRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileRequiredInclude>;
     compute?: C & { [K in keyof C & (keyof ProfileRequired | keyof ProfileRequiredWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -647,7 +651,7 @@ export interface ProfileRequiredModel {
   >(options: {
     data: ProfileRequiredCreateInput;
     select?: SelectArg<S, ProfileRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileRequiredInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileRequiredPayload<S, I>>;
 
@@ -657,10 +661,10 @@ export interface ProfileRequiredModel {
     D extends ProfileRequiredUpdateInput = ProfileRequiredUpdateInput,
   >(options: {
     where: ProfileRequiredWhere;
-    data: D;
+    data: DataArg<D, ProfileRequiredUpdateInput>;
     unset?: SafeUnset<ProfileRequiredUnset, D>;
     select?: SelectArg<S, ProfileRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileRequiredInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileRequiredPayload<S, I>[]>;
 
@@ -671,10 +675,10 @@ export interface ProfileRequiredModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ProfileRequiredFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ProfileRequiredUpdateInput>;
     unset?: SafeUnset<ProfileRequiredUnset, D>;
     select?: SelectArg<S, ProfileRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileRequiredInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -693,10 +697,10 @@ export interface ProfileRequiredModel {
   >(options: {
     where: ProfileRequiredFindUniqueWhere;
     create: ProfileRequiredCreateInput;
-    update?: D;
+    update?: DataArg<D, ProfileRequiredUpdateInput>;
     unset?: SafeUnset<ProfileRequiredUnset, D>;
     select?: SelectArg<S, ProfileRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileRequiredInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -715,10 +719,10 @@ export interface ProfileRequiredModel {
   >(options: {
     where: ProfileRequiredWhere;
     create: ProfileRequiredCreateInput;
-    update?: D;
+    update?: DataArg<D, ProfileRequiredUpdateInput>;
     unset?: SafeUnset<ProfileRequiredUnset, D>;
     select?: SelectArg<S, ProfileRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileRequiredInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -780,6 +784,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -962,7 +968,7 @@ export interface ProfileSingleSidedModel {
   >(options?: {
     where?: ProfileSingleSidedWhere;
     select?: SelectArg<S, ProfileSingleSidedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileSingleSidedInclude>;
     compute?: C & { [K in keyof C & (keyof ProfileSingleSided | keyof ProfileSingleSidedWhere)]?: never };
     orderBy?: ProfileSingleSidedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -981,7 +987,7 @@ export interface ProfileSingleSidedModel {
     orderBy?: ProfileSingleSidedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, ProfileSingleSidedInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetProfileSingleSidedPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -994,7 +1000,7 @@ export interface ProfileSingleSidedModel {
   >(options: {
     where: ProfileSingleSidedFindUniqueWhere;
     select?: SelectArg<S, ProfileSingleSidedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileSingleSidedInclude>;
     compute?: C & { [K in keyof C & (keyof ProfileSingleSided | keyof ProfileSingleSidedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1007,7 +1013,7 @@ export interface ProfileSingleSidedModel {
   >(options: {
     data: ProfileSingleSidedCreateInput;
     select?: SelectArg<S, ProfileSingleSidedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileSingleSidedInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I>>;
 
@@ -1017,10 +1023,10 @@ export interface ProfileSingleSidedModel {
     D extends ProfileSingleSidedUpdateInput = ProfileSingleSidedUpdateInput,
   >(options: {
     where: ProfileSingleSidedWhere;
-    data: D;
+    data: DataArg<D, ProfileSingleSidedUpdateInput>;
     unset?: SafeUnset<ProfileSingleSidedUnset, D>;
     select?: SelectArg<S, ProfileSingleSidedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileSingleSidedInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I>[]>;
 
@@ -1031,10 +1037,10 @@ export interface ProfileSingleSidedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: ProfileSingleSidedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, ProfileSingleSidedUpdateInput>;
     unset?: SafeUnset<ProfileSingleSidedUnset, D>;
     select?: SelectArg<S, ProfileSingleSidedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileSingleSidedInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1053,10 +1059,10 @@ export interface ProfileSingleSidedModel {
   >(options: {
     where: ProfileSingleSidedFindUniqueWhere;
     create: ProfileSingleSidedCreateInput;
-    update?: D;
+    update?: DataArg<D, ProfileSingleSidedUpdateInput>;
     unset?: SafeUnset<ProfileSingleSidedUnset, D>;
     select?: SelectArg<S, ProfileSingleSidedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileSingleSidedInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1075,10 +1081,10 @@ export interface ProfileSingleSidedModel {
   >(options: {
     where: ProfileSingleSidedWhere;
     create: ProfileSingleSidedCreateInput;
-    update?: D;
+    update?: DataArg<D, ProfileSingleSidedUpdateInput>;
     unset?: SafeUnset<ProfileSingleSidedUnset, D>;
     select?: SelectArg<S, ProfileSingleSidedSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, ProfileSingleSidedInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1139,6 +1145,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1318,7 +1326,7 @@ export interface UserOptionalModel {
   >(options?: {
     where?: UserOptionalWhere;
     select?: SelectArg<S, UserOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserOptionalInclude>;
     compute?: C & { [K in keyof C & (keyof UserOptional | keyof UserOptionalWhere)]?: never };
     orderBy?: UserOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1337,7 +1345,7 @@ export interface UserOptionalModel {
     orderBy?: UserOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, UserOptionalInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetUserOptionalPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1350,7 +1358,7 @@ export interface UserOptionalModel {
   >(options: {
     where: UserOptionalFindUniqueWhere;
     select?: SelectArg<S, UserOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserOptionalInclude>;
     compute?: C & { [K in keyof C & (keyof UserOptional | keyof UserOptionalWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1363,7 +1371,7 @@ export interface UserOptionalModel {
   >(options: {
     data: UserOptionalCreateInput;
     select?: SelectArg<S, UserOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserOptionalInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserOptionalPayload<S, I>>;
 
@@ -1373,10 +1381,10 @@ export interface UserOptionalModel {
     D extends UserOptionalUpdateInput = UserOptionalUpdateInput,
   >(options: {
     where: UserOptionalWhere;
-    data: D;
+    data: DataArg<D, UserOptionalUpdateInput>;
     unset?: SafeUnset<UserOptionalUnset, D>;
     select?: SelectArg<S, UserOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserOptionalInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserOptionalPayload<S, I>[]>;
 
@@ -1387,10 +1395,10 @@ export interface UserOptionalModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UserOptionalFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UserOptionalUpdateInput>;
     unset?: SafeUnset<UserOptionalUnset, D>;
     select?: SelectArg<S, UserOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserOptionalInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1409,10 +1417,10 @@ export interface UserOptionalModel {
   >(options: {
     where: UserOptionalFindUniqueWhere;
     create: UserOptionalCreateInput;
-    update?: D;
+    update?: DataArg<D, UserOptionalUpdateInput>;
     unset?: SafeUnset<UserOptionalUnset, D>;
     select?: SelectArg<S, UserOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserOptionalInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1431,10 +1439,10 @@ export interface UserOptionalModel {
   >(options: {
     where: UserOptionalWhere;
     create: UserOptionalCreateInput;
-    update?: D;
+    update?: DataArg<D, UserOptionalUpdateInput>;
     unset?: SafeUnset<UserOptionalUnset, D>;
     select?: SelectArg<S, UserOptionalSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserOptionalInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1495,6 +1503,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1674,7 +1684,7 @@ export interface UserRequiredModel {
   >(options?: {
     where?: UserRequiredWhere;
     select?: SelectArg<S, UserRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserRequiredInclude>;
     compute?: C & { [K in keyof C & (keyof UserRequired | keyof UserRequiredWhere)]?: never };
     orderBy?: UserRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1693,7 +1703,7 @@ export interface UserRequiredModel {
     orderBy?: UserRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
     offset?: number;
-    include?: I;
+    include?: IncludeArg<I, UserRequiredInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<
     (GetUserRequiredPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
@@ -1706,7 +1716,7 @@ export interface UserRequiredModel {
   >(options: {
     where: UserRequiredFindUniqueWhere;
     select?: SelectArg<S, UserRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserRequiredInclude>;
     compute?: C & { [K in keyof C & (keyof UserRequired | keyof UserRequiredWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1719,7 +1729,7 @@ export interface UserRequiredModel {
   >(options: {
     data: UserRequiredCreateInput;
     select?: SelectArg<S, UserRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserRequiredInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserRequiredPayload<S, I>>;
 
@@ -1729,10 +1739,10 @@ export interface UserRequiredModel {
     D extends UserRequiredUpdateInput = UserRequiredUpdateInput,
   >(options: {
     where: UserRequiredWhere;
-    data: D;
+    data: DataArg<D, UserRequiredUpdateInput>;
     unset?: SafeUnset<UserRequiredUnset, D>;
     select?: SelectArg<S, UserRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserRequiredInclude>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserRequiredPayload<S, I>[]>;
 
@@ -1743,10 +1753,10 @@ export interface UserRequiredModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UserRequiredFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UserRequiredUpdateInput>;
     unset?: SafeUnset<UserRequiredUnset, D>;
     select?: SelectArg<S, UserRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserRequiredInclude>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select/include)
@@ -1765,10 +1775,10 @@ export interface UserRequiredModel {
   >(options: {
     where: UserRequiredFindUniqueWhere;
     create: UserRequiredCreateInput;
-    update?: D;
+    update?: DataArg<D, UserRequiredUpdateInput>;
     unset?: SafeUnset<UserRequiredUnset, D>;
     select?: SelectArg<S, UserRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserRequiredInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select/include)
@@ -1787,10 +1797,10 @@ export interface UserRequiredModel {
   >(options: {
     where: UserRequiredWhere;
     create: UserRequiredCreateInput;
-    update?: D;
+    update?: DataArg<D, UserRequiredUpdateInput>;
     unset?: SafeUnset<UserRequiredUnset, D>;
     select?: SelectArg<S, UserRequiredSelectFields>;
-    include?: I;
+    include?: IncludeArg<I, UserRequiredInclude>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1851,6 +1861,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1994,7 +2006,7 @@ export interface UserSingleSidedModel {
     D extends UserSingleSidedUpdateInput = UserSingleSidedUpdateInput,
   >(options: {
     where: UserSingleSidedWhere;
-    data: D;
+    data: DataArg<D, UserSingleSidedUpdateInput>;
     unset?: SafeUnset<UserSingleSidedUnset, D>;
     select?: SelectArg<S, UserSingleSidedSelectFields>;
     txn?: CerialTransaction;
@@ -2006,7 +2018,7 @@ export interface UserSingleSidedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: UserSingleSidedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, UserSingleSidedUpdateInput>;
     unset?: SafeUnset<UserSingleSidedUnset, D>;
     select?: SelectArg<S, UserSingleSidedSelectFields>;
     /**
@@ -2026,7 +2038,7 @@ export interface UserSingleSidedModel {
   >(options: {
     where: UserSingleSidedFindUniqueWhere;
     create: UserSingleSidedCreateInput;
-    update?: D;
+    update?: DataArg<D, UserSingleSidedUpdateInput>;
     unset?: SafeUnset<UserSingleSidedUnset, D>;
     select?: SelectArg<S, UserSingleSidedSelectFields>;
     /**
@@ -2046,7 +2058,7 @@ export interface UserSingleSidedModel {
   >(options: {
     where: UserSingleSidedWhere;
     create: UserSingleSidedCreateInput;
-    update?: D;
+    update?: DataArg<D, UserSingleSidedUpdateInput>;
     unset?: SafeUnset<UserSingleSidedUnset, D>;
     select?: SelectArg<S, UserSingleSidedSelectFields>;
     /**

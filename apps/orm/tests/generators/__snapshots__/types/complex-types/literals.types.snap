@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -199,7 +201,7 @@ export interface LiteralBasicModel {
     D extends LiteralBasicUpdateInput = LiteralBasicUpdateInput,
   >(options: {
     where: LiteralBasicWhere;
-    data: D;
+    data: DataArg<D, LiteralBasicUpdateInput>;
     unset?: SafeUnset<LiteralBasicUnset, D>;
     select?: SelectArg<S, LiteralBasicSelectFields>;
     txn?: CerialTransaction;
@@ -211,7 +213,7 @@ export interface LiteralBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralBasicUpdateInput>;
     unset?: SafeUnset<LiteralBasicUnset, D>;
     select?: SelectArg<S, LiteralBasicSelectFields>;
     /**
@@ -231,7 +233,7 @@ export interface LiteralBasicModel {
   >(options: {
     where: LiteralBasicFindUniqueWhere;
     create: LiteralBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralBasicUpdateInput>;
     unset?: SafeUnset<LiteralBasicUnset, D>;
     select?: SelectArg<S, LiteralBasicSelectFields>;
     /**
@@ -251,7 +253,7 @@ export interface LiteralBasicModel {
   >(options: {
     where: LiteralBasicWhere;
     create: LiteralBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralBasicUpdateInput>;
     unset?: SafeUnset<LiteralBasicUnset, D>;
     select?: SelectArg<S, LiteralBasicSelectFields>;
     /**
@@ -314,6 +316,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -453,7 +457,7 @@ export interface LiteralBroadModel {
     D extends LiteralBroadUpdateInput = LiteralBroadUpdateInput,
   >(options: {
     where: LiteralBroadWhere;
-    data: D;
+    data: DataArg<D, LiteralBroadUpdateInput>;
     unset?: SafeUnset<LiteralBroadUnset, D>;
     select?: SelectArg<S, LiteralBroadSelectFields>;
     txn?: CerialTransaction;
@@ -465,7 +469,7 @@ export interface LiteralBroadModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralBroadFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralBroadUpdateInput>;
     unset?: SafeUnset<LiteralBroadUnset, D>;
     select?: SelectArg<S, LiteralBroadSelectFields>;
     /**
@@ -485,7 +489,7 @@ export interface LiteralBroadModel {
   >(options: {
     where: LiteralBroadFindUniqueWhere;
     create: LiteralBroadCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralBroadUpdateInput>;
     unset?: SafeUnset<LiteralBroadUnset, D>;
     select?: SelectArg<S, LiteralBroadSelectFields>;
     /**
@@ -505,7 +509,7 @@ export interface LiteralBroadModel {
   >(options: {
     where: LiteralBroadWhere;
     create: LiteralBroadCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralBroadUpdateInput>;
     unset?: SafeUnset<LiteralBroadUnset, D>;
     select?: SelectArg<S, LiteralBroadSelectFields>;
     /**
@@ -568,6 +572,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -721,7 +727,7 @@ export interface LiteralDefaultsModel {
     D extends LiteralDefaultsUpdateInput = LiteralDefaultsUpdateInput,
   >(options: {
     where: LiteralDefaultsWhere;
-    data: D;
+    data: DataArg<D, LiteralDefaultsUpdateInput>;
     unset?: SafeUnset<LiteralDefaultsUnset, D>;
     select?: SelectArg<S, LiteralDefaultsSelectFields>;
     txn?: CerialTransaction;
@@ -733,7 +739,7 @@ export interface LiteralDefaultsModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralDefaultsFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralDefaultsUpdateInput>;
     unset?: SafeUnset<LiteralDefaultsUnset, D>;
     select?: SelectArg<S, LiteralDefaultsSelectFields>;
     /**
@@ -753,7 +759,7 @@ export interface LiteralDefaultsModel {
   >(options: {
     where: LiteralDefaultsFindUniqueWhere;
     create: LiteralDefaultsCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralDefaultsUpdateInput>;
     unset?: SafeUnset<LiteralDefaultsUnset, D>;
     select?: SelectArg<S, LiteralDefaultsSelectFields>;
     /**
@@ -773,7 +779,7 @@ export interface LiteralDefaultsModel {
   >(options: {
     where: LiteralDefaultsWhere;
     create: LiteralDefaultsCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralDefaultsUpdateInput>;
     unset?: SafeUnset<LiteralDefaultsUnset, D>;
     select?: SelectArg<S, LiteralDefaultsSelectFields>;
     /**
@@ -836,6 +842,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -967,7 +975,7 @@ export interface LiteralExtendedModel {
     D extends LiteralExtendedUpdateInput = LiteralExtendedUpdateInput,
   >(options: {
     where: LiteralExtendedWhere;
-    data: D;
+    data: DataArg<D, LiteralExtendedUpdateInput>;
     unset?: SafeUnset<LiteralExtendedUnset, D>;
     select?: SelectArg<S, LiteralExtendedSelectFields>;
     txn?: CerialTransaction;
@@ -979,7 +987,7 @@ export interface LiteralExtendedModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralExtendedFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralExtendedUpdateInput>;
     unset?: SafeUnset<LiteralExtendedUnset, D>;
     select?: SelectArg<S, LiteralExtendedSelectFields>;
     /**
@@ -999,7 +1007,7 @@ export interface LiteralExtendedModel {
   >(options: {
     where: LiteralExtendedFindUniqueWhere;
     create: LiteralExtendedCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralExtendedUpdateInput>;
     unset?: SafeUnset<LiteralExtendedUnset, D>;
     select?: SelectArg<S, LiteralExtendedSelectFields>;
     /**
@@ -1019,7 +1027,7 @@ export interface LiteralExtendedModel {
   >(options: {
     where: LiteralExtendedWhere;
     create: LiteralExtendedCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralExtendedUpdateInput>;
     unset?: SafeUnset<LiteralExtendedUnset, D>;
     select?: SelectArg<S, LiteralExtendedSelectFields>;
     /**
@@ -1082,6 +1090,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1223,7 +1233,7 @@ export interface LiteralNumberKindsModel {
     D extends LiteralNumberKindsUpdateInput = LiteralNumberKindsUpdateInput,
   >(options: {
     where: LiteralNumberKindsWhere;
-    data: D;
+    data: DataArg<D, LiteralNumberKindsUpdateInput>;
     unset?: SafeUnset<LiteralNumberKindsUnset, D>;
     select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     txn?: CerialTransaction;
@@ -1235,7 +1245,7 @@ export interface LiteralNumberKindsModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralNumberKindsFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralNumberKindsUpdateInput>;
     unset?: SafeUnset<LiteralNumberKindsUnset, D>;
     select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     /**
@@ -1255,7 +1265,7 @@ export interface LiteralNumberKindsModel {
   >(options: {
     where: LiteralNumberKindsFindUniqueWhere;
     create: LiteralNumberKindsCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralNumberKindsUpdateInput>;
     unset?: SafeUnset<LiteralNumberKindsUnset, D>;
     select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     /**
@@ -1275,7 +1285,7 @@ export interface LiteralNumberKindsModel {
   >(options: {
     where: LiteralNumberKindsWhere;
     create: LiteralNumberKindsCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralNumberKindsUpdateInput>;
     unset?: SafeUnset<LiteralNumberKindsUnset, D>;
     select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     /**
@@ -1339,6 +1349,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1475,7 +1487,7 @@ export interface LiteralNumericModel {
     D extends LiteralNumericUpdateInput = LiteralNumericUpdateInput,
   >(options: {
     where: LiteralNumericWhere;
-    data: D;
+    data: DataArg<D, LiteralNumericUpdateInput>;
     unset?: SafeUnset<LiteralNumericUnset, D>;
     select?: SelectArg<S, LiteralNumericSelectFields>;
     txn?: CerialTransaction;
@@ -1487,7 +1499,7 @@ export interface LiteralNumericModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralNumericFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralNumericUpdateInput>;
     unset?: SafeUnset<LiteralNumericUnset, D>;
     select?: SelectArg<S, LiteralNumericSelectFields>;
     /**
@@ -1507,7 +1519,7 @@ export interface LiteralNumericModel {
   >(options: {
     where: LiteralNumericFindUniqueWhere;
     create: LiteralNumericCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralNumericUpdateInput>;
     unset?: SafeUnset<LiteralNumericUnset, D>;
     select?: SelectArg<S, LiteralNumericSelectFields>;
     /**
@@ -1527,7 +1539,7 @@ export interface LiteralNumericModel {
   >(options: {
     where: LiteralNumericWhere;
     create: LiteralNumericCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralNumericUpdateInput>;
     unset?: SafeUnset<LiteralNumericUnset, D>;
     select?: SelectArg<S, LiteralNumericSelectFields>;
     /**
@@ -1590,6 +1602,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1730,7 +1744,7 @@ export interface LiteralObjectArrayModel {
     D extends LiteralObjectArrayUpdateInput = LiteralObjectArrayUpdateInput,
   >(options: {
     where: LiteralObjectArrayWhere;
-    data: D;
+    data: DataArg<D, LiteralObjectArrayUpdateInput>;
     unset?: SafeUnset<LiteralObjectArrayUnset, D>;
     select?: SelectArg<S, LiteralObjectArraySelectFields>;
     txn?: CerialTransaction;
@@ -1742,7 +1756,7 @@ export interface LiteralObjectArrayModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralObjectArrayFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralObjectArrayUpdateInput>;
     unset?: SafeUnset<LiteralObjectArrayUnset, D>;
     select?: SelectArg<S, LiteralObjectArraySelectFields>;
     /**
@@ -1762,7 +1776,7 @@ export interface LiteralObjectArrayModel {
   >(options: {
     where: LiteralObjectArrayFindUniqueWhere;
     create: LiteralObjectArrayCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralObjectArrayUpdateInput>;
     unset?: SafeUnset<LiteralObjectArrayUnset, D>;
     select?: SelectArg<S, LiteralObjectArraySelectFields>;
     /**
@@ -1782,7 +1796,7 @@ export interface LiteralObjectArrayModel {
   >(options: {
     where: LiteralObjectArrayWhere;
     create: LiteralObjectArrayCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralObjectArrayUpdateInput>;
     unset?: SafeUnset<LiteralObjectArrayUnset, D>;
     select?: SelectArg<S, LiteralObjectArraySelectFields>;
     /**
@@ -1845,6 +1859,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1976,7 +1992,7 @@ export interface LiteralUniqueModel {
     D extends LiteralUniqueUpdateInput = LiteralUniqueUpdateInput,
   >(options: {
     where: LiteralUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralUniqueUpdateInput>;
     unset?: SafeUnset<LiteralUniqueUnset, D>;
     select?: SelectArg<S, LiteralUniqueSelectFields>;
     txn?: CerialTransaction;
@@ -1988,7 +2004,7 @@ export interface LiteralUniqueModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralUniqueFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralUniqueUpdateInput>;
     unset?: SafeUnset<LiteralUniqueUnset, D>;
     select?: SelectArg<S, LiteralUniqueSelectFields>;
     /**
@@ -2008,7 +2024,7 @@ export interface LiteralUniqueModel {
   >(options: {
     where: LiteralUniqueFindUniqueWhere;
     create: LiteralUniqueCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralUniqueUpdateInput>;
     unset?: SafeUnset<LiteralUniqueUnset, D>;
     select?: SelectArg<S, LiteralUniqueSelectFields>;
     /**
@@ -2028,7 +2044,7 @@ export interface LiteralUniqueModel {
   >(options: {
     where: LiteralUniqueWhere;
     create: LiteralUniqueCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralUniqueUpdateInput>;
     unset?: SafeUnset<LiteralUniqueUnset, D>;
     select?: SelectArg<S, LiteralUniqueSelectFields>;
     /**
@@ -2092,6 +2108,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2231,7 +2249,7 @@ export interface LiteralWithBothModel {
     D extends LiteralWithBothUpdateInput = LiteralWithBothUpdateInput,
   >(options: {
     where: LiteralWithBothWhere;
-    data: D;
+    data: DataArg<D, LiteralWithBothUpdateInput>;
     unset?: SafeUnset<LiteralWithBothUnset, D>;
     select?: SelectArg<S, LiteralWithBothSelectFields>;
     txn?: CerialTransaction;
@@ -2243,7 +2261,7 @@ export interface LiteralWithBothModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralWithBothFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralWithBothUpdateInput>;
     unset?: SafeUnset<LiteralWithBothUnset, D>;
     select?: SelectArg<S, LiteralWithBothSelectFields>;
     /**
@@ -2263,7 +2281,7 @@ export interface LiteralWithBothModel {
   >(options: {
     where: LiteralWithBothFindUniqueWhere;
     create: LiteralWithBothCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithBothUpdateInput>;
     unset?: SafeUnset<LiteralWithBothUnset, D>;
     select?: SelectArg<S, LiteralWithBothSelectFields>;
     /**
@@ -2283,7 +2301,7 @@ export interface LiteralWithBothModel {
   >(options: {
     where: LiteralWithBothWhere;
     create: LiteralWithBothCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithBothUpdateInput>;
     unset?: SafeUnset<LiteralWithBothUnset, D>;
     select?: SelectArg<S, LiteralWithBothSelectFields>;
     /**
@@ -2347,6 +2365,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2512,7 +2532,7 @@ export interface LiteralWithObjectModel {
     D extends LiteralWithObjectUpdateInput = LiteralWithObjectUpdateInput,
   >(options: {
     where: LiteralWithObjectWhere;
-    data: D;
+    data: DataArg<D, LiteralWithObjectUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectUnset, D>;
     select?: SelectArg<S, LiteralWithObjectSelectFields>;
     txn?: CerialTransaction;
@@ -2524,7 +2544,7 @@ export interface LiteralWithObjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralWithObjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralWithObjectUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectUnset, D>;
     select?: SelectArg<S, LiteralWithObjectSelectFields>;
     /**
@@ -2544,7 +2564,7 @@ export interface LiteralWithObjectModel {
   >(options: {
     where: LiteralWithObjectFindUniqueWhere;
     create: LiteralWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithObjectUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectUnset, D>;
     select?: SelectArg<S, LiteralWithObjectSelectFields>;
     /**
@@ -2564,7 +2584,7 @@ export interface LiteralWithObjectModel {
   >(options: {
     where: LiteralWithObjectWhere;
     create: LiteralWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithObjectUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectUnset, D>;
     select?: SelectArg<S, LiteralWithObjectSelectFields>;
     /**
@@ -2628,6 +2648,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2767,7 +2789,7 @@ export interface LiteralWithObjectOptModel {
     D extends LiteralWithObjectOptUpdateInput = LiteralWithObjectOptUpdateInput,
   >(options: {
     where: LiteralWithObjectOptWhere;
-    data: D;
+    data: DataArg<D, LiteralWithObjectOptUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectOptUnset, D>;
     select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     txn?: CerialTransaction;
@@ -2779,7 +2801,7 @@ export interface LiteralWithObjectOptModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralWithObjectOptFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralWithObjectOptUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectOptUnset, D>;
     select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     /**
@@ -2799,7 +2821,7 @@ export interface LiteralWithObjectOptModel {
   >(options: {
     where: LiteralWithObjectOptFindUniqueWhere;
     create: LiteralWithObjectOptCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithObjectOptUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectOptUnset, D>;
     select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     /**
@@ -2819,7 +2841,7 @@ export interface LiteralWithObjectOptModel {
   >(options: {
     where: LiteralWithObjectOptWhere;
     create: LiteralWithObjectOptCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithObjectOptUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectOptUnset, D>;
     select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     /**
@@ -2885,6 +2907,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3045,7 +3069,7 @@ export interface LiteralWithObjectVariantModel {
     D extends LiteralWithObjectVariantUpdateInput = LiteralWithObjectVariantUpdateInput,
   >(options: {
     where: LiteralWithObjectVariantWhere;
-    data: D;
+    data: DataArg<D, LiteralWithObjectVariantUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectVariantUnset, D>;
     select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     txn?: CerialTransaction;
@@ -3057,7 +3081,7 @@ export interface LiteralWithObjectVariantModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralWithObjectVariantFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralWithObjectVariantUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectVariantUnset, D>;
     select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     /**
@@ -3077,7 +3101,7 @@ export interface LiteralWithObjectVariantModel {
   >(options: {
     where: LiteralWithObjectVariantFindUniqueWhere;
     create: LiteralWithObjectVariantCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithObjectVariantUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectVariantUnset, D>;
     select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     /**
@@ -3097,7 +3121,7 @@ export interface LiteralWithObjectVariantModel {
   >(options: {
     where: LiteralWithObjectVariantWhere;
     create: LiteralWithObjectVariantCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithObjectVariantUpdateInput>;
     unset?: SafeUnset<LiteralWithObjectVariantUnset, D>;
     select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     /**
@@ -3163,6 +3187,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3312,7 +3338,7 @@ export interface LiteralWithTupleModel {
     D extends LiteralWithTupleUpdateInput = LiteralWithTupleUpdateInput,
   >(options: {
     where: LiteralWithTupleWhere;
-    data: D;
+    data: DataArg<D, LiteralWithTupleUpdateInput>;
     unset?: SafeUnset<LiteralWithTupleUnset, D>;
     select?: SelectArg<S, LiteralWithTupleSelectFields>;
     txn?: CerialTransaction;
@@ -3324,7 +3350,7 @@ export interface LiteralWithTupleModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: LiteralWithTupleFindUniqueWhere;
-    data: D;
+    data: DataArg<D, LiteralWithTupleUpdateInput>;
     unset?: SafeUnset<LiteralWithTupleUnset, D>;
     select?: SelectArg<S, LiteralWithTupleSelectFields>;
     /**
@@ -3344,7 +3370,7 @@ export interface LiteralWithTupleModel {
   >(options: {
     where: LiteralWithTupleFindUniqueWhere;
     create: LiteralWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithTupleUpdateInput>;
     unset?: SafeUnset<LiteralWithTupleUnset, D>;
     select?: SelectArg<S, LiteralWithTupleSelectFields>;
     /**
@@ -3364,7 +3390,7 @@ export interface LiteralWithTupleModel {
   >(options: {
     where: LiteralWithTupleWhere;
     create: LiteralWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, LiteralWithTupleUpdateInput>;
     unset?: SafeUnset<LiteralWithTupleUnset, D>;
     select?: SelectArg<S, LiteralWithTupleSelectFields>;
     /**

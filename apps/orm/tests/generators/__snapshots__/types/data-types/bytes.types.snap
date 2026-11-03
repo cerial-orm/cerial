@@ -22,6 +22,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -231,7 +233,7 @@ export interface BytesBasicModel {
     D extends BytesBasicUpdateInput = BytesBasicUpdateInput,
   >(options: {
     where: BytesBasicWhere;
-    data: D;
+    data: DataArg<D, BytesBasicUpdateInput>;
     unset?: SafeUnset<BytesBasicUnset, D>;
     select?: SelectArg<S, BytesBasicSelectFields>;
     txn?: CerialTransaction;
@@ -243,7 +245,7 @@ export interface BytesBasicModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BytesBasicFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BytesBasicUpdateInput>;
     unset?: SafeUnset<BytesBasicUnset, D>;
     select?: SelectArg<S, BytesBasicSelectFields>;
     /**
@@ -263,7 +265,7 @@ export interface BytesBasicModel {
   >(options: {
     where: BytesBasicFindUniqueWhere;
     create: BytesBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, BytesBasicUpdateInput>;
     unset?: SafeUnset<BytesBasicUnset, D>;
     select?: SelectArg<S, BytesBasicSelectFields>;
     /**
@@ -283,7 +285,7 @@ export interface BytesBasicModel {
   >(options: {
     where: BytesBasicWhere;
     create: BytesBasicCreateInput;
-    update?: D;
+    update?: DataArg<D, BytesBasicUpdateInput>;
     unset?: SafeUnset<BytesBasicUnset, D>;
     select?: SelectArg<S, BytesBasicSelectFields>;
     /**
@@ -346,6 +348,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -507,7 +511,7 @@ export interface BytesWithObjectModel {
     D extends BytesWithObjectUpdateInput = BytesWithObjectUpdateInput,
   >(options: {
     where: BytesWithObjectWhere;
-    data: D;
+    data: DataArg<D, BytesWithObjectUpdateInput>;
     unset?: SafeUnset<BytesWithObjectUnset, D>;
     select?: SelectArg<S, BytesWithObjectSelectFields>;
     txn?: CerialTransaction;
@@ -519,7 +523,7 @@ export interface BytesWithObjectModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BytesWithObjectFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BytesWithObjectUpdateInput>;
     unset?: SafeUnset<BytesWithObjectUnset, D>;
     select?: SelectArg<S, BytesWithObjectSelectFields>;
     /**
@@ -539,7 +543,7 @@ export interface BytesWithObjectModel {
   >(options: {
     where: BytesWithObjectFindUniqueWhere;
     create: BytesWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, BytesWithObjectUpdateInput>;
     unset?: SafeUnset<BytesWithObjectUnset, D>;
     select?: SelectArg<S, BytesWithObjectSelectFields>;
     /**
@@ -559,7 +563,7 @@ export interface BytesWithObjectModel {
   >(options: {
     where: BytesWithObjectWhere;
     create: BytesWithObjectCreateInput;
-    update?: D;
+    update?: DataArg<D, BytesWithObjectUpdateInput>;
     unset?: SafeUnset<BytesWithObjectUnset, D>;
     select?: SelectArg<S, BytesWithObjectSelectFields>;
     /**
@@ -622,6 +626,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -771,7 +777,7 @@ export interface BytesWithTupleModel {
     D extends BytesWithTupleUpdateInput = BytesWithTupleUpdateInput,
   >(options: {
     where: BytesWithTupleWhere;
-    data: D;
+    data: DataArg<D, BytesWithTupleUpdateInput>;
     unset?: SafeUnset<BytesWithTupleUnset, D>;
     select?: SelectArg<S, BytesWithTupleSelectFields>;
     txn?: CerialTransaction;
@@ -783,7 +789,7 @@ export interface BytesWithTupleModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: BytesWithTupleFindUniqueWhere;
-    data: D;
+    data: DataArg<D, BytesWithTupleUpdateInput>;
     unset?: SafeUnset<BytesWithTupleUnset, D>;
     select?: SelectArg<S, BytesWithTupleSelectFields>;
     /**
@@ -803,7 +809,7 @@ export interface BytesWithTupleModel {
   >(options: {
     where: BytesWithTupleFindUniqueWhere;
     create: BytesWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, BytesWithTupleUpdateInput>;
     unset?: SafeUnset<BytesWithTupleUnset, D>;
     select?: SelectArg<S, BytesWithTupleSelectFields>;
     /**
@@ -823,7 +829,7 @@ export interface BytesWithTupleModel {
   >(options: {
     where: BytesWithTupleWhere;
     create: BytesWithTupleCreateInput;
-    update?: D;
+    update?: DataArg<D, BytesWithTupleUpdateInput>;
     unset?: SafeUnset<BytesWithTupleUnset, D>;
     select?: SelectArg<S, BytesWithTupleSelectFields>;
     /**

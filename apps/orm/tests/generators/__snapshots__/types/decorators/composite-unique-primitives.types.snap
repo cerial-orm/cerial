@@ -20,6 +20,8 @@ import type {
   ResolveFieldSelect,
   SafeUnset,
   SelectArg,
+  DataArg,
+  IncludeArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -243,7 +245,7 @@ export interface StaffModel {
 
   updateMany<S extends StaffSelect | undefined = undefined, D extends StaffUpdateInput = StaffUpdateInput>(options: {
     where: StaffWhere;
-    data: D;
+    data: DataArg<D, StaffUpdateInput>;
     unset?: SafeUnset<StaffUnset, D>;
     select?: SelectArg<S, StaffSelectFields>;
     txn?: CerialTransaction;
@@ -255,7 +257,7 @@ export interface StaffModel {
     R extends UpdateUniqueReturn = undefined,
   >(options: {
     where: StaffFindUniqueWhere;
-    data: D;
+    data: DataArg<D, StaffUpdateInput>;
     unset?: SafeUnset<StaffUnset, D>;
     select?: SelectArg<S, StaffSelectFields>;
     /**
@@ -275,7 +277,7 @@ export interface StaffModel {
   >(options: {
     where: StaffFindUniqueWhere;
     create: StaffCreateInput;
-    update?: D;
+    update?: DataArg<D, StaffUpdateInput>;
     unset?: SafeUnset<StaffUnset, D>;
     select?: SelectArg<S, StaffSelectFields>;
     /**
@@ -295,7 +297,7 @@ export interface StaffModel {
   >(options: {
     where: StaffWhere;
     create: StaffCreateInput;
-    update?: D;
+    update?: DataArg<D, StaffUpdateInput>;
     unset?: SafeUnset<StaffUnset, D>;
     select?: SelectArg<S, StaffSelectFields>;
     /**
