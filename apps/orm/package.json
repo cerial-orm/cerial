@@ -161,6 +161,7 @@
     "build": "tsdown",
     "build:watch": "tsdown --watch",
     "bench": "bun bench/index.ts",
+    "bench:live": "bun bench/live/nested-preread.ts",
     "prepublishOnly": "bun run build",
     "generate:test-client": "bun run bin/cerial.ts generate -s tests/e2e/schemas -o tests/e2e/generated",
     "generate:test-client-ts": "bun run bin/cerial.ts generate -s tests/e2e/schemas-ts -o tests/e2e/generated-ts",
