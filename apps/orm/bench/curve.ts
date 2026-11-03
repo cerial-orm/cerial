@@ -186,7 +186,7 @@ function treeStats(dir: string): TreeStats {
 }
 
 /** `node_modules` as a real consumer has it: `cerial` resolves through the built `dist/` */
-function linkDependencies(caseDir: string): void {
+export function linkDependencies(caseDir: string): void {
   const modules = join(caseDir, 'node_modules');
   mkdirSync(join(modules, '@types'), { recursive: true });
   symlinkSync(PACKAGE_ROOT, join(modules, 'cerial'));
