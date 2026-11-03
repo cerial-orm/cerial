@@ -69,6 +69,9 @@ jobs:
       # The compiler this job installed, not the pinned aliases
       - run: bun run typecheck:generated -- --resolved
         working-directory: apps/orm
+      # The 'ts' layout; `typecheck` above covers the default '.d.ts' layout
+      - run: bun run typecheck:layout
+        working-directory: apps/orm
 
   commit-hooks:
     runs-on: ubuntu-latest

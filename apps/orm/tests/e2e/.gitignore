@@ -2,3 +2,5 @@
 generated/
 generated-ts/
 typechecks-ts/
+generated-layout-ts/
+typechecks-layout/
