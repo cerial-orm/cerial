@@ -1,4 +1,4 @@
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { defineCommand } from 'citty';
 import { resolveConfig as resolveFormatConfig } from '../../formatter';
 import { loadConfig, resolveConfig } from '../config';
@@ -6,13 +6,17 @@ import { discoveredClientClassName, discoverSchemaRoots } from '../discover-root
 import type { FilterConfig } from '../filters';
 import { loadCerialIgnore, resolvePathFilter } from '../filters';
 import { formatSchema, listedCerialFiles } from '../format';
-import { applyFolderOverridesAndDiscover, generate } from '../generate';
+import { applyFolderOverridesAndDiscover, buildSchemaFilters, entryDatabasePins, generate } from '../generate';
 import { logger } from '../utils';
 import type { CLIOptions, LogOutputLevel } from '../validators';
 import type { WatchTarget } from '../watcher';
 import { startWatcher } from '../watcher';
 
-export async function buildWatchTargets(options: CLIOptions): Promise<WatchTarget[]> {
+/**
+ * `pins` compares every entry's tables, as generation does, so a target regenerates with the same database
+ * pins; it parses every entry and refuses a table two entries share, so only a run that generates asks for it.
+ */
+export async function buildWatchTargets(options: CLIOptions, { pins = false } = {}): Promise<WatchTarget[]> {
   const cwd = process.cwd();
 
   // -s flag path: load root .cerialignore
@@ -43,8 +47,11 @@ export async function buildWatchTargets(options: CLIOptions): Promise<WatchTarge
       ? resolvePathFilter({ rootConfig: rootFilterConfig, rootCerialIgnore, basePath: cwd })
       : undefined;
 
+    // Same directory one-shot generation scopes discovery, filters and out-of-scope matching to
+    const configDir = options.config ? dirname(resolve(options.config)) : cwd;
+
     let entries = resolveConfig(config);
-    entries = await applyFolderOverridesAndDiscover(entries, cwd, rootFilter);
+    entries = await applyFolderOverridesAndDiscover(entries, configDir, rootFilter);
 
     if (options.name) {
       entries = entries.filter((e) => e.name === options.name);
@@ -53,36 +60,22 @@ export async function buildWatchTargets(options: CLIOptions): Promise<WatchTarge
       entries = entries.map((e) => ({ ...e, output: options.output! }));
     }
 
-    const targets: WatchTarget[] = [];
-    for (const entry of entries) {
-      const schemaEntry = config.schemas?.[entry.name];
-      const schemaFilterConfig: FilterConfig | undefined = schemaEntry
-        ? { ignore: schemaEntry.ignore, exclude: schemaEntry.exclude, include: schemaEntry.include }
-        : undefined;
-      const folderCerialIgnore = (await loadCerialIgnore(entry.path)) ?? undefined;
+    const filters = await buildSchemaFilters(config, entries, rootFilterConfig, rootCerialIgnore, configDir);
+    const databasePins = pins ? await entryDatabasePins(entries, configDir, filters) : undefined;
 
-      const filter = resolvePathFilter({
-        rootConfig: rootFilterConfig,
-        schemaConfig: schemaFilterConfig,
-        rootCerialIgnore,
-        folderCerialIgnore,
-        basePath: cwd,
-        schemaPath: entry.path,
-      });
-
-      targets.push({
-        name: entry.name,
-        schemaPath: entry.path,
-        outputDir: entry.output,
-        clientClassName: entry.clientClassName,
-        typeFiles: entry.typeFiles,
-        configPath: options.config,
-        ...(entry.entry || entry.files ? { entry: entry.entry, files: entry.files, entryOnly: entry.entryOnly } : {}),
-        filter,
-      });
-    }
-
-    return targets;
+    return entries.map((entry) => ({
+      name: entry.name,
+      schemaPath: entry.path,
+      outputDir: entry.output,
+      clientClassName: entry.clientClassName,
+      typeFiles: entry.typeFiles,
+      configPath: options.config,
+      ...(entry.entry || entry.files ? { entry: entry.entry, files: entry.files, entryOnly: entry.entryOnly } : {}),
+      filter: filters.get(entry.name),
+      filterRoot: configDir,
+      connection: entry.connection,
+      databasePins: databasePins?.get(entry.name),
+    }));
   }
 
   // No config: the same discovery as one-shot generation (folder configs, then convention markers)
@@ -228,7 +221,7 @@ export const generateCommand = defineCommand({
     }
 
     if (options.watch) {
-      const targets = await buildWatchTargets(options);
+      const targets = await buildWatchTargets(options, { pins: true });
 
       // Watch mode with format: create custom callback that formats before generating
       if (options.format) {

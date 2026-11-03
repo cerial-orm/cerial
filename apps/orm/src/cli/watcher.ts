@@ -13,6 +13,7 @@ import type { FormatConfig } from '../formatter/types';
 import type { TypeFilesMode } from './config';
 import { isExcludedFile } from './filters/path-utils';
 import type { PathFilter } from './filters/types';
+import type { ConnectionConfig, DatabasePin } from '../types';
 import { formatSingleFile, listedCerialFiles } from './format';
 import type { SingleSchemaOptions } from './generate';
 import { generateSingleSchema } from './generate';
@@ -39,6 +40,12 @@ export interface WatchTarget extends WatchTargetBase {
   files?: string[];
   /** The config gave no `path`, so `schemaPath` is the folder of the entry and listed files and holds no schema files of its own */
   entryOnly?: boolean;
+  /** Directory a file outside the scope is matched from; the config's directory */
+  filterRoot?: string;
+  /** Resolved connection of the config entry */
+  connection?: ConnectionConfig;
+  /** Tables this entry shares with another entry */
+  databasePins?: DatabasePin[];
 }
 
 /** Watch target for format mode */
@@ -429,10 +436,18 @@ export function buildGenerateArgs(target: WatchTarget, cli: CliInvocation): stri
 /** What an in-process regeneration passes to `generateSingleSchema`, so watch and one-shot runs share one layout */
 export function singleSchemaOptions(target: WatchTarget): SingleSchemaOptions {
   return {
-    schemaPath: target.schemaPath,
+    // An entry-only target's path is the folder of its entry module; it holds no schema files of its own
+    schemaPath: target.entryOnly ? undefined : target.schemaPath,
+    entry: target.entry,
+    files: target.files,
     outputDir: target.outputDir,
     clientClassName: target.clientClassName,
     typeFiles: target.typeFiles,
+    filter: target.filter,
+    filterBase: target.schemaPath,
+    filterRoot: target.filterRoot,
+    connection: target.connection,
+    databasePins: target.databasePins,
     logLevel: 'minimal',
   };
 }

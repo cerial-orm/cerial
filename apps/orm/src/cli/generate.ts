@@ -475,6 +475,29 @@ export function schemaSource(
   };
 }
 
+/**
+ * Compare every entry's tables before the first one is written, and return the database pins of the entries
+ * that share a table. An entry that fails to parse or resolve is skipped here and reports its own error
+ * from the generation loop.
+ */
+export async function entryDatabasePins(
+  entries: ResolvedSchemaEntry[],
+  filterRoot?: string,
+  filters?: Map<string, PathFilter>,
+): Promise<Map<string, DatabasePin[]>> {
+  const entryModels: EntryModels[] = [];
+  for (const entry of entries) {
+    const { resolvedAST } = await buildResolvedSchemaAst({
+      ...schemaSource(entry, filterRoot),
+      filter: filters?.get(entry.name),
+    });
+    if (resolvedAST)
+      entryModels.push({ name: entry.name, models: resolvedAST.models, database: entry.explicitDatabase });
+  }
+
+  return validateEntryTableNames(entryModels);
+}
+
 /** Generate multiple schemas sequentially */
 export async function generateMultiSchema(
   entries: ResolvedSchemaEntry[],
@@ -484,19 +507,7 @@ export async function generateMultiSchema(
   const result: MultiGenerateResult = { success: true, results: {}, errors: [] };
 
   validateConnectionUrls(entries);
-
-  // Compare every entry's tables before the first one is written. An entry that fails to parse or
-  // resolve is skipped here and reports its own error from the generation loop.
-  const entryModels: EntryModels[] = [];
-  for (const entry of entries) {
-    const { resolvedAST } = await buildResolvedSchemaAst({
-      ...schemaSource(entry, options.filterRoot),
-      filter: filters?.get(entry.name),
-    });
-    if (resolvedAST)
-      entryModels.push({ name: entry.name, models: resolvedAST.models, database: entry.explicitDatabase });
-  }
-  const pins = validateEntryTableNames(entryModels);
+  const pins = await entryDatabasePins(entries, options.filterRoot, filters);
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i]!;
