@@ -1,12 +1,12 @@
-import { basename, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { defineCommand } from 'citty';
 import { resolveConfig as resolveFormatConfig } from '../../formatter';
-import { detectNestedSchemaRoots, loadConfig, resolveConfig } from '../config';
+import { loadConfig, resolveConfig } from '../config';
+import { discoveredClientClassName, discoverSchemaRoots } from '../discover-roots';
 import type { FilterConfig } from '../filters';
 import { loadCerialIgnore, resolvePathFilter } from '../filters';
 import { formatSchema, listedCerialFiles } from '../format';
 import { applyFolderOverridesAndDiscover, generate } from '../generate';
-import { findSchemaRoots } from '../resolvers';
 import { logger } from '../utils';
 import type { CLIOptions, LogOutputLevel } from '../validators';
 import type { WatchTarget } from '../watcher';
@@ -85,41 +85,19 @@ export async function buildWatchTargets(options: CLIOptions): Promise<WatchTarge
     return targets;
   }
 
-  // Convention marker path: build per-root filters
+  // No config: the same discovery as one-shot generation (folder configs, then convention markers)
   const rootCerialIgnore = (await loadCerialIgnore(cwd)) ?? undefined;
-  const markerRootFilter = rootCerialIgnore ? resolvePathFilter({ rootCerialIgnore, basePath: cwd }) : undefined;
-  const schemaRoots = await findSchemaRoots(cwd, markerRootFilter);
+  const found = await discoverSchemaRoots(cwd);
 
-  if (schemaRoots.length) {
-    // Check for marker-to-marker nesting
-    const typedRoots = schemaRoots.map(({ path: mp }) => ({
-      path: mp,
-      type: 'convention-marker' as const,
+  if (found) {
+    return found.roots.map((root) => ({
+      name: root.name,
+      schemaPath: root.dir,
+      outputDir: options.output ?? resolve(root.dir, root.output ?? 'client'),
+      clientClassName: discoveredClientClassName(found.roots, root),
+      typeFiles: root.typeFiles,
+      filter: root.filter,
     }));
-    const { ignored } = detectNestedSchemaRoots(typedRoots);
-    const validRoots = schemaRoots.filter(({ path: mp }) => !ignored.has(mp));
-
-    if (validRoots.length) {
-      const targets: WatchTarget[] = [];
-      for (const root of validRoots) {
-        const folderCerialIgnore = (await loadCerialIgnore(root.path)) ?? undefined;
-        const filter = resolvePathFilter({
-          rootCerialIgnore,
-          folderCerialIgnore,
-          basePath: cwd,
-          schemaPath: root.path,
-        });
-
-        targets.push({
-          name: basename(root.path),
-          schemaPath: root.path,
-          outputDir: options.output ?? resolve(root.path, 'client'),
-          filter,
-        });
-      }
-
-      return targets;
-    }
   }
 
   // Legacy fallback
