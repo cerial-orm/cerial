@@ -303,3 +303,19 @@ release process.
 ## License
 
 Apache 2.0 - See [LICENSE](LICENSE) for details.
+
+## Support
+
+If this project is useful to you, you can support its development with a crypto donation. Send each token on the network shown in its row: a token sent on a different network is lost. Check the address before sending, since transfers cannot be reversed.
+
+| Currency | Network | Address |
+| --- | --- | --- |
+| Bitcoin (BTC, sats) | Bitcoin | `bc1qv5s8uglprzeau7kcahyzxmfmz3mm6udl6f8jm7` |
+| Ethereum (ETH) and ERC-20 tokens (USDT, USDC, PEPE) | Ethereum (ERC-20) | `0x7Ff8EFF6f50AB78D5ce0bFE1703caD80eDC72720` |
+| Solana (SOL) and USDC, USDT (SPL) | Solana (SPL) | `5zz2GoavvjH2LGdhhbkMfYhCSiicTQPMEbqkgqUmPkmn` |
+| Tron (TRX) and USDT (TRC-20) | Tron (TRC-20) | `TRgnkC5Gg8kK6anLLXBab6krHTccidZNiw` |
+| XRP | XRP Ledger | `rNakYpM37RKp5sLKNJSAU6qqLBJPFxG62n` |
+| Sui (SUI) | Sui | `0xb8bfc91abcf0e08ccc2ff5d7efcf882640b35bd2459ce96cdd28e148d69b5f87` |
+| Dogecoin (DOGE) | Dogecoin | `DAeNv35ctLJ2ver4BjFcDZHpzTgiBWxFEj` |
+| Litecoin (LTC) | Litecoin | `ltc1qdj7kmwg3qdya3tghaxqwz0vjr0csx0664nu47e` |
+| Zcash (ZEC) | Zcash (transparent address) | `t1c7xH7MTksa2Cs4XNUsh3emCqd5xFLvWgK` |
