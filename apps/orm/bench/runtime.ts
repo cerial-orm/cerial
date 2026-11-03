@@ -12,7 +12,9 @@ export type Runtime = 'bun' | 'node';
 
 /**
  * Node cannot import the generated `.ts` tree (`ERR_UNSUPPORTED_DIR_IMPORT` on `./enums`), so the tree is compiled to
- * CommonJS first. These flags are the ones that work under the pinned 5.9 compiler.
+ * CommonJS first. These flags are the ones that work under the pinned 5.9 compiler. `--noCheck` skips type checking:
+ * the output is the same JS, and checking the 1000+ model trees exhausted the compiler's heap while measuring nothing
+ * the import timing uses (type equivalence is benched separately).
  */
 export const NODE_COMPILE_FLAGS: readonly string[] = [
   '--module',
@@ -25,6 +27,7 @@ export const NODE_COMPILE_FLAGS: readonly string[] = [
   'ESNext,DOM',
   '--esModuleInterop',
   '--skipLibCheck',
+  '--noCheck',
   '--types',
   'node',
   '--typeRoots',
@@ -111,7 +114,7 @@ async function compileForNode(caseDir: string): Promise<void> {
     stderr: 'pipe',
   });
   const [stdout, stderr, exitCode] = await Promise.all([proc.stdout.text(), proc.stderr.text(), proc.exited]);
-  // tsc still emits on a type error, so the exit code is what decides
+  // syntax and resolution errors still fail; type errors are not reported under --noCheck
   if (exitCode !== 0)
     throw new Error(`node compile step failed (exit ${exitCode}): ${(stderr || stdout).slice(0, 500)}`);
 }

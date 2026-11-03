@@ -84,4 +84,22 @@ withDist('import cost', () => {
       /import failed|compile step failed/,
     );
   }, 120_000);
+
+  test('the node compile skips type checking: a type error still compiles and imports', async () => {
+    const tamper = (genDir: string): void =>
+      appendFileSync(join(genDir, 'index.ts'), "\nexport const __typeError: number = 'not a number';\n");
+
+    const { imports } = await runRuntime({ bench: SMALL, processes: MIN_PROCESSES }, { allowStale: true, tamper });
+
+    expect(NODE_COMPILE_FLAGS).toContain('--noCheck');
+    expect(imports.map((row) => row.runtime)).toEqual(['bun', 'node']);
+  }, 120_000);
+
+  test('the node compile still refuses a syntax error', async () => {
+    const tamper = (genDir: string): void => appendFileSync(join(genDir, 'index.ts'), '\nexport const = ;\n');
+
+    await expect(runRuntime({ bench: SMALL, processes: MIN_PROCESSES }, { allowStale: true, tamper })).rejects.toThrow(
+      /failed/,
+    );
+  }, 120_000);
 });

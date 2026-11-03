@@ -45,7 +45,7 @@ Other modes:
 
 - `--include-depth` takes `--depths 1,2,3,4` and `--size 50`
 - `--editor` takes `--sizes` (default `100,500`) and the shared flags
-- `--runtime` takes `--sizes` and `--runs` (processes per runtime, at least 5, default 5). Without `--sizes` it uses the curve's default sizes, and the Node compile step runs out of memory at the large ones, so pass `--sizes 10,100,500`
+- `--runtime` takes `--sizes` and `--runs` (processes per runtime, at least 5, default 5). Without `--sizes` it uses the curve's default sizes. The Node compile step runs `tsc --noCheck`, so it only emits JavaScript and does not run out of memory at 1000 models and above
 - `bun run bench:live` takes `--iterations n` (default 100)
 
 ### Typical full baseline
@@ -58,7 +58,7 @@ bun run bench -- --sizes 100,500 --fields 30 --json "$TMPDIR/fields30.json"
 bun run bench -- --sizes 500 --case no-select
 bun run bench -- --include-depth
 bun run bench -- --editor
-bun run bench -- --runtime --sizes 10,100,500
+bun run bench -- --runtime
 bun run bench:live
 ```
 
