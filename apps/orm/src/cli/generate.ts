@@ -17,7 +17,7 @@ import type {
   SchemaAST,
   TupleRegistry,
 } from '../types';
-import type { CerialConfig, ResolvedSchemaEntry } from './config';
+import type { CerialConfig, ResolvedSchemaEntry, TypeFilesMode } from './config';
 import { loadConfig, resolveConfig, validateCombinedEntries } from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
@@ -64,6 +64,8 @@ export interface SingleSchemaOptions {
   connection?: ConnectionConfig;
   /** Tables this entry shares with another entry; the client refuses to connect to any other database */
   databasePins?: DatabasePin[];
+  /** Extension of the generated type-only files; absent means the default. Nothing reads it yet */
+  typeFiles?: TypeFilesMode;
 }
 
 /** Options for generating multiple schemas */
@@ -502,6 +504,7 @@ export async function generateMultiSchema(
       filter: filters?.get(entry.name),
       connection: entry.connection,
       databasePins: pins.get(entry.name),
+      typeFiles: entry.typeFiles,
     });
 
     result.results[entry.name] = singleResult;
@@ -723,6 +726,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
           verbose: options.verbose,
           clean: options.clean,
           filter: root.filter,
+          typeFiles: root.typeFiles,
         });
       }
 
@@ -731,6 +735,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
         path: root.dir,
         output: outputOf(root),
         clientClassName: discoveredClientClassName(found.roots, root),
+        typeFiles: root.typeFiles,
       }));
 
       // Check for duplicate names/outputs among discovered markers

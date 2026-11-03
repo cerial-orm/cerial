@@ -74,6 +74,8 @@ const JsIdentifierSchema = v.pipe(
   ),
 );
 
+const TypeFilesSchema = v.picklist(['dts', 'ts'], "typeFiles must be 'dts' or 'ts'");
+
 const SchemaEntrySchema = v.looseObject({
   path: v.optional(v.pipe(v.string("'path' must be a string"), v.minLength(1, "'path' must not be empty"))),
   entry: v.optional(v.pipe(v.string("'entry' must be a string"), v.minLength(1, "'entry' must not be empty"))),
@@ -86,6 +88,7 @@ const SchemaEntrySchema = v.looseObject({
   output: v.optional(v.string()),
   connection: v.optional(ConnectionSchema),
   format: v.optional(_FormatConfigSchema),
+  typeFiles: v.optional(TypeFilesSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
   include: v.optional(FilterPatternsSchema),
@@ -97,6 +100,7 @@ const CerialConfigSchema = v.looseObject({
   output: v.optional(v.string()),
   connection: v.optional(ConnectionSchema),
   format: v.optional(_FormatConfigSchema),
+  typeFiles: v.optional(TypeFilesSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
   include: v.optional(FilterPatternsSchema),
@@ -107,6 +111,7 @@ const FolderConfigSchema = v.looseObject({
   output: v.optional(v.string("'output' must be a string")),
   connection: v.optional(ConnectionSchema),
   format: v.optional(_FormatConfigSchema),
+  typeFiles: v.optional(TypeFilesSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
   include: v.optional(FilterPatternsSchema),

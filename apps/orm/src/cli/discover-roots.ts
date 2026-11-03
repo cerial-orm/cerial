@@ -1,4 +1,5 @@
 import { basename } from 'node:path';
+import type { TypeFilesMode } from './config';
 import { detectNestedSchemaRoots, findFolderConfigs, toClientClassName } from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
@@ -9,6 +10,8 @@ export interface DiscoveredRoot {
   readonly dir: string;
   /** The folder config's own `output`, relative to `dir`; markers have none */
   readonly output?: string;
+  /** The folder config's own `typeFiles`; markers have none */
+  readonly typeFiles?: TypeFilesMode;
   readonly filter: PathFilter;
 }
 
@@ -49,6 +52,7 @@ export async function discoverSchemaRoots(cwd: string): Promise<DiscoveredRoots 
         name: basename(dir),
         dir,
         output: config.output,
+        typeFiles: config.typeFiles,
         filter: resolvePathFilter({
           rootCerialIgnore,
           folderConfig: folderFilterConfig,

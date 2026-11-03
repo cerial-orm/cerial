@@ -7,6 +7,7 @@
 import { basename, resolve } from 'node:path';
 import type { ResolvedSchemaEntry } from './config';
 import {
+  DEFAULT_TYPE_FILES,
   detectConfigsInsideRootPaths,
   detectNestedSchemaRoots,
   findFolderConfigs,
@@ -32,6 +33,7 @@ export async function applyFolderOverridesAndDiscover(
         ...entry,
         ...(folderConfig.output ? { output: resolve(entry.path, folderConfig.output) } : {}),
         ...(folderConfig.connection ? { connection: folderConfig.connection } : {}),
+        ...(folderConfig.typeFiles ? { typeFiles: folderConfig.typeFiles } : {}),
       });
     } else {
       mergedEntries.push(entry);
@@ -60,6 +62,7 @@ export async function applyFolderOverridesAndDiscover(
       output: config.output ? resolve(dir, config.output) : resolve(dir, 'client'),
       clientClassName: toClientClassName(name),
       connection: config.connection,
+      typeFiles: config.typeFiles ?? DEFAULT_TYPE_FILES,
     };
   });
 

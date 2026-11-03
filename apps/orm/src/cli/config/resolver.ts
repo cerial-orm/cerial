@@ -7,6 +7,7 @@ import type { FormatConfig } from '../../formatter/types';
 import { isSchemaFile } from '../resolvers/schema-resolver';
 import { toClientClassName } from './name-utils';
 import type { CerialConfig, ResolvedSchemaEntry } from './types';
+import { DEFAULT_TYPE_FILES } from './types';
 
 /**
  * Resolve configuration to absolute paths and computed values
@@ -42,6 +43,7 @@ function resolveSingleSchema(config: CerialConfig, cwd: string): ResolvedSchemaE
       clientClassName: 'CerialClient',
       connection: config.connection,
       format,
+      typeFiles: config.typeFiles ?? DEFAULT_TYPE_FILES,
     },
   ];
 }
@@ -81,6 +83,7 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
       connection: entry.connection ?? config.connection,
       explicitDatabase: entry.connection?.database,
       format,
+      typeFiles: entry.typeFiles ?? config.typeFiles ?? DEFAULT_TYPE_FILES,
     };
   });
 }

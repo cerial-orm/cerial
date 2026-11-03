@@ -5,6 +5,12 @@
 import type { FormatConfig } from '../../formatter/types';
 import type { ConnectionConfig } from '../../types/metadata.types';
 
+/** How generated type-only files are named: `.d.ts` declaration files or plain `.ts` */
+export type TypeFilesMode = 'dts' | 'ts';
+
+/** What an absent `typeFiles` resolves to */
+export const DEFAULT_TYPE_FILES: TypeFilesMode = 'ts';
+
 /** The fields every schema entry shares */
 interface SchemaEntryBase {
   /** Output directory for generated client (optional, uses root output if not specified) */
@@ -13,6 +19,8 @@ interface SchemaEntryBase {
   connection?: ConnectionConfig;
   /** Formatting config for this schema (optional, uses root format if not specified) */
   format?: FormatConfig;
+  /** Extension of the generated type-only files (optional, uses root typeFiles if not specified) */
+  typeFiles?: TypeFilesMode;
   /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
   ignore?: string[];
   /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
@@ -52,6 +60,8 @@ export interface CerialConfig {
   connection?: ConnectionConfig;
   /** Root formatting config (used if SchemaEntry.format not specified) */
   format?: FormatConfig;
+  /** Root extension of the generated type-only files (used if SchemaEntry.typeFiles not specified) */
+  typeFiles?: TypeFilesMode;
   /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
   ignore?: string[];
   /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
@@ -73,6 +83,8 @@ export interface FolderConfig {
   connection?: ConnectionConfig;
   /** Formatting config for this schema */
   format?: FormatConfig;
+  /** Extension of the generated type-only files */
+  typeFiles?: TypeFilesMode;
   /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
   ignore?: string[];
   /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
@@ -108,4 +120,6 @@ export interface ResolvedSchemaEntry {
   explicitDatabase?: string;
   /** Formatting config for this schema (merged from root + per-schema overrides) */
   format?: FormatConfig;
+  /** Extension of the generated type-only files (entry over root, then folder config, else the default) */
+  typeFiles?: TypeFilesMode;
 }
