@@ -23,7 +23,7 @@ async function openLive<T>(
   const db = await getDb();
   let subscription;
   try {
-    subscription = await db.live<T>(new Table(table)).where(where);
+    subscription = await db.live(new Table(table)).where(where);
   } catch (error) {
     markSubscribeFailure(error);
     // The driver wraps every subscribe failure in a LiveSubscriptionError; classify the real cause.

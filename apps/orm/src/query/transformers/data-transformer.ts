@@ -170,7 +170,7 @@ export function transformOrValidateRecordId(tableName: string, value: RecordIdIn
 
   if (typeof value === 'number' || typeof value === 'bigint') return new RecordId(tableName, value);
   if (Array.isArray(value)) return new RecordId(tableName, value);
-  if (typeof value === 'object' && value !== null) return new RecordId(tableName, value);
+  if (typeof value === 'object' && value !== null) return new RecordId(tableName, value as Record<string, unknown>);
 
   throw new CerialValidationError(`Invalid RecordIdInput type: ${typeof value}`);
 }
