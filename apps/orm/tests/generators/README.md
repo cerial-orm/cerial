@@ -44,7 +44,11 @@ unexplained diff is a bug in the change, not in the snapshot.
    `oxfmt` formats the generated types, so a formatter upgrade is a legitimate reason for the types part
    to move; `tests/unit/generators/formatting-corpus.test.ts` guards the formatter's byte stability separately.
 3. A change that must preserve behaviour and types (a refactor, a performance change, a dependency
-   swap) never re-approves. If the snapshot moves, the change is wrong.
+   swap) keeps `ast/`, `ddl/` and `registry/` fixed: if one moves, the change is wrong. `types/` and
+   `shared/` compare bytes, so a reviewed generator change may move them when it carries a passing
+   `bun bench/type-equivalence.ts <before> <after>` run, the select guarantee checks
+   (`tests/e2e/typechecks/core/select-guarantees.check.ts`) and its reason in the commit body. Take
+   `<before>` with `cp -R` of the generated tree before the edit.
 
 Adding a schema to the corpus also adds snapshot files; the test names the missing file and the same
 command writes it.
