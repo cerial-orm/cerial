@@ -6,13 +6,13 @@ import { writeFile } from 'node:fs/promises';
 import type { LiteralMetadata, ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 
-/** Write models/index.ts barrel file (models only) */
+/** Write models/index.ts barrel file (models only). The type barrels use `export type *` so they hold no runtime */
 export async function writeModelsIndex(outputDir: string, models: ModelMetadata[]): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
 
   const filePath = `${modelsDir}/index.ts`;
-  const exports = models.map((m) => `export * from './${m.name.toLowerCase()}';`).join('\n');
+  const exports = models.map((m) => `export type * from './${m.name.toLowerCase()}';`).join('\n');
 
   const content = `/**
  * Generated model exports
@@ -36,7 +36,7 @@ export async function writeObjectsIndex(outputDir: string, objects: ObjectMetada
   await ensureDir(objectsDir);
 
   const filePath = `${objectsDir}/index.ts`;
-  const exports = objects.map((o) => `export * from './${o.name.toLowerCase()}';`).join('\n');
+  const exports = objects.map((o) => `export type * from './${o.name.toLowerCase()}';`).join('\n');
 
   const content = `/**
  * Generated object exports
@@ -60,7 +60,7 @@ export async function writeTuplesIndex(outputDir: string, tuples: TupleMetadata[
   await ensureDir(tuplesDir);
 
   const filePath = `${tuplesDir}/index.ts`;
-  const exports = tuples.map((t) => `export * from './${t.name.toLowerCase()}';`).join('\n');
+  const exports = tuples.map((t) => `export type * from './${t.name.toLowerCase()}';`).join('\n');
 
   const content = `/**
  * Generated tuple exports
@@ -84,7 +84,7 @@ export async function writeLiteralsIndex(outputDir: string, literals: LiteralMet
   await ensureDir(literalsDir);
 
   const filePath = `${literalsDir}/index.ts`;
-  const exports = literals.map((l) => `export * from './${l.name.toLowerCase()}';`).join('\n');
+  const exports = literals.map((l) => `export type * from './${l.name.toLowerCase()}';`).join('\n');
 
   const content = `/**
  * Generated literal exports
@@ -100,7 +100,7 @@ ${exports}
   return filePath;
 }
 
-/** Write enums/index.ts barrel file (enums only) */
+/** Write enums/index.ts barrel file (enums only). Stays `export *`: enums hold runtime consts */
 export async function writeEnumsIndex(outputDir: string, enums: LiteralMetadata[]): Promise<string> {
   if (!enums.length) return '';
 
