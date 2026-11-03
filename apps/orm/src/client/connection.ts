@@ -8,6 +8,7 @@
 
 import { Surreal } from 'surrealdb';
 import { CerialConnectionError, CerialNotConnectedError } from '../errors';
+import { wrapDatabaseError } from './model/wrap-database-error';
 import type { ConnectionConfig, ModelRegistry } from '../types';
 import type { EndableLive } from './live';
 import { clearModelCache, createModelProxy, type DatabaseProxy, type ProxyOptions } from './proxy';
@@ -71,7 +72,13 @@ async function connectSurreal(config: ConnectionConfig): Promise<Surreal> {
   const surreal = new Surreal();
 
   try {
-    await surreal.connect(`${config.url}/rpc`, { reconnect: { enabled: true, ...RECONNECT_OPTIONS } });
+    // Only the socket step is classified: a refused or exhausted connect is the connection error, while a
+    // rejected sign-in stays the driver's own error.
+    try {
+      await surreal.connect(`${config.url}/rpc`, { reconnect: { enabled: true, ...RECONNECT_OPTIONS } });
+    } catch (error) {
+      throw wrapDatabaseError(error, undefined, 'connect');
+    }
 
     if (config.auth) {
       await surreal.signin({
