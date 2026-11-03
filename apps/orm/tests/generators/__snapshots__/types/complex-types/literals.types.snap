@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -152,7 +153,7 @@ export interface LiteralBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralBasicWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralBasic | keyof LiteralBasicWhere)]?: never };
     orderBy?: LiteralBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -165,7 +166,7 @@ export interface LiteralBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralBasicWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralBasic | keyof LiteralBasicWhere)]?: never };
     orderBy?: LiteralBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -180,7 +181,7 @@ export interface LiteralBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralBasic | keyof LiteralBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -189,7 +190,7 @@ export interface LiteralBasicModel {
 
   create<S extends LiteralBasicSelect | undefined = undefined>(options: {
     data: LiteralBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralBasicPayload<S>>;
 
@@ -200,7 +201,7 @@ export interface LiteralBasicModel {
     where: LiteralBasicWhere;
     data: D;
     unset?: SafeUnset<LiteralBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralBasicPayload<S>[]>;
 
@@ -212,7 +213,7 @@ export interface LiteralBasicModel {
     where: LiteralBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -232,7 +233,7 @@ export interface LiteralBasicModel {
     create: LiteralBasicCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -252,7 +253,7 @@ export interface LiteralBasicModel {
     create: LiteralBasicCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -312,6 +313,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -405,7 +407,7 @@ export interface LiteralBroadModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralBroadWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralBroadSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralBroad | keyof LiteralBroadWhere)]?: never };
     orderBy?: LiteralBroadOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -418,7 +420,7 @@ export interface LiteralBroadModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralBroadWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralBroadSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralBroad | keyof LiteralBroadWhere)]?: never };
     orderBy?: LiteralBroadOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -433,7 +435,7 @@ export interface LiteralBroadModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralBroadFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralBroadSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralBroad | keyof LiteralBroadWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -442,7 +444,7 @@ export interface LiteralBroadModel {
 
   create<S extends LiteralBroadSelect | undefined = undefined>(options: {
     data: LiteralBroadCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralBroadSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralBroadPayload<S>>;
 
@@ -453,7 +455,7 @@ export interface LiteralBroadModel {
     where: LiteralBroadWhere;
     data: D;
     unset?: SafeUnset<LiteralBroadUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralBroadSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralBroadPayload<S>[]>;
 
@@ -465,7 +467,7 @@ export interface LiteralBroadModel {
     where: LiteralBroadFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralBroadUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralBroadSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -485,7 +487,7 @@ export interface LiteralBroadModel {
     create: LiteralBroadCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralBroadUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralBroadSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -505,7 +507,7 @@ export interface LiteralBroadModel {
     create: LiteralBroadCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralBroadUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralBroadSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -565,6 +567,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -672,7 +675,7 @@ export interface LiteralDefaultsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralDefaultsWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralDefaultsSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralDefaults | keyof LiteralDefaultsWhere)]?: never };
     orderBy?: LiteralDefaultsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -685,7 +688,7 @@ export interface LiteralDefaultsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralDefaultsWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralDefaultsSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralDefaults | keyof LiteralDefaultsWhere)]?: never };
     orderBy?: LiteralDefaultsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -700,7 +703,7 @@ export interface LiteralDefaultsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralDefaultsFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralDefaultsSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralDefaults | keyof LiteralDefaultsWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -709,7 +712,7 @@ export interface LiteralDefaultsModel {
 
   create<S extends LiteralDefaultsSelect | undefined = undefined>(options: {
     data: LiteralDefaultsCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralDefaultsSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralDefaultsPayload<S>>;
 
@@ -720,7 +723,7 @@ export interface LiteralDefaultsModel {
     where: LiteralDefaultsWhere;
     data: D;
     unset?: SafeUnset<LiteralDefaultsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralDefaultsSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralDefaultsPayload<S>[]>;
 
@@ -732,7 +735,7 @@ export interface LiteralDefaultsModel {
     where: LiteralDefaultsFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralDefaultsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralDefaultsSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -752,7 +755,7 @@ export interface LiteralDefaultsModel {
     create: LiteralDefaultsCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralDefaultsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralDefaultsSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -772,7 +775,7 @@ export interface LiteralDefaultsModel {
     create: LiteralDefaultsCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralDefaultsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralDefaultsSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -832,6 +835,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -917,7 +921,7 @@ export interface LiteralExtendedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralExtendedWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralExtendedSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralExtended | keyof LiteralExtendedWhere)]?: never };
     orderBy?: LiteralExtendedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -930,7 +934,7 @@ export interface LiteralExtendedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralExtendedWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralExtendedSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralExtended | keyof LiteralExtendedWhere)]?: never };
     orderBy?: LiteralExtendedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -945,7 +949,7 @@ export interface LiteralExtendedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralExtendedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralExtendedSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralExtended | keyof LiteralExtendedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -954,7 +958,7 @@ export interface LiteralExtendedModel {
 
   create<S extends LiteralExtendedSelect | undefined = undefined>(options: {
     data: LiteralExtendedCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralExtendedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralExtendedPayload<S>>;
 
@@ -965,7 +969,7 @@ export interface LiteralExtendedModel {
     where: LiteralExtendedWhere;
     data: D;
     unset?: SafeUnset<LiteralExtendedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralExtendedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralExtendedPayload<S>[]>;
 
@@ -977,7 +981,7 @@ export interface LiteralExtendedModel {
     where: LiteralExtendedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralExtendedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralExtendedSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -997,7 +1001,7 @@ export interface LiteralExtendedModel {
     create: LiteralExtendedCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralExtendedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralExtendedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1017,7 +1021,7 @@ export interface LiteralExtendedModel {
     create: LiteralExtendedCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralExtendedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralExtendedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1077,6 +1081,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1172,7 +1177,7 @@ export interface LiteralNumberKindsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralNumberKindsWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralNumberKinds | keyof LiteralNumberKindsWhere)]?: never };
     orderBy?: LiteralNumberKindsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1185,7 +1190,7 @@ export interface LiteralNumberKindsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralNumberKindsWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralNumberKinds | keyof LiteralNumberKindsWhere)]?: never };
     orderBy?: LiteralNumberKindsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1200,7 +1205,7 @@ export interface LiteralNumberKindsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralNumberKindsFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralNumberKinds | keyof LiteralNumberKindsWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1209,7 +1214,7 @@ export interface LiteralNumberKindsModel {
 
   create<S extends LiteralNumberKindsSelect | undefined = undefined>(options: {
     data: LiteralNumberKindsCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralNumberKindsPayload<S>>;
 
@@ -1220,7 +1225,7 @@ export interface LiteralNumberKindsModel {
     where: LiteralNumberKindsWhere;
     data: D;
     unset?: SafeUnset<LiteralNumberKindsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralNumberKindsPayload<S>[]>;
 
@@ -1232,7 +1237,7 @@ export interface LiteralNumberKindsModel {
     where: LiteralNumberKindsFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralNumberKindsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1252,7 +1257,7 @@ export interface LiteralNumberKindsModel {
     create: LiteralNumberKindsCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralNumberKindsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1272,7 +1277,7 @@ export interface LiteralNumberKindsModel {
     create: LiteralNumberKindsCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralNumberKindsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralNumberKindsSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1333,6 +1338,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1423,7 +1429,7 @@ export interface LiteralNumericModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralNumericWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralNumericSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralNumeric | keyof LiteralNumericWhere)]?: never };
     orderBy?: LiteralNumericOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1436,7 +1442,7 @@ export interface LiteralNumericModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralNumericWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralNumericSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralNumeric | keyof LiteralNumericWhere)]?: never };
     orderBy?: LiteralNumericOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1451,7 +1457,7 @@ export interface LiteralNumericModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralNumericFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralNumericSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralNumeric | keyof LiteralNumericWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1460,7 +1466,7 @@ export interface LiteralNumericModel {
 
   create<S extends LiteralNumericSelect | undefined = undefined>(options: {
     data: LiteralNumericCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralNumericSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralNumericPayload<S>>;
 
@@ -1471,7 +1477,7 @@ export interface LiteralNumericModel {
     where: LiteralNumericWhere;
     data: D;
     unset?: SafeUnset<LiteralNumericUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralNumericSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralNumericPayload<S>[]>;
 
@@ -1483,7 +1489,7 @@ export interface LiteralNumericModel {
     where: LiteralNumericFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralNumericUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralNumericSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1503,7 +1509,7 @@ export interface LiteralNumericModel {
     create: LiteralNumericCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralNumericUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralNumericSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1523,7 +1529,7 @@ export interface LiteralNumericModel {
     create: LiteralNumericCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralNumericUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralNumericSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1583,6 +1589,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1677,7 +1684,7 @@ export interface LiteralObjectArrayModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralObjectArrayWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralObjectArraySelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralObjectArray | keyof LiteralObjectArrayWhere)]?: never };
     orderBy?: LiteralObjectArrayOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1690,7 +1697,7 @@ export interface LiteralObjectArrayModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralObjectArrayWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralObjectArraySelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralObjectArray | keyof LiteralObjectArrayWhere)]?: never };
     orderBy?: LiteralObjectArrayOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1705,7 +1712,7 @@ export interface LiteralObjectArrayModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralObjectArrayFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralObjectArraySelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralObjectArray | keyof LiteralObjectArrayWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1714,7 +1721,7 @@ export interface LiteralObjectArrayModel {
 
   create<S extends LiteralObjectArraySelect | undefined = undefined>(options: {
     data: LiteralObjectArrayCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralObjectArraySelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralObjectArrayPayload<S>>;
 
@@ -1725,7 +1732,7 @@ export interface LiteralObjectArrayModel {
     where: LiteralObjectArrayWhere;
     data: D;
     unset?: SafeUnset<LiteralObjectArrayUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralObjectArraySelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralObjectArrayPayload<S>[]>;
 
@@ -1737,7 +1744,7 @@ export interface LiteralObjectArrayModel {
     where: LiteralObjectArrayFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralObjectArrayUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralObjectArraySelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1757,7 +1764,7 @@ export interface LiteralObjectArrayModel {
     create: LiteralObjectArrayCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralObjectArrayUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralObjectArraySelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1777,7 +1784,7 @@ export interface LiteralObjectArrayModel {
     create: LiteralObjectArrayCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralObjectArrayUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralObjectArraySelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1837,6 +1844,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1922,7 +1930,7 @@ export interface LiteralUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralUnique | keyof LiteralUniqueWhere)]?: never };
     orderBy?: LiteralUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1935,7 +1943,7 @@ export interface LiteralUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralUnique | keyof LiteralUniqueWhere)]?: never };
     orderBy?: LiteralUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1950,7 +1958,7 @@ export interface LiteralUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralUniqueFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralUnique | keyof LiteralUniqueWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1959,7 +1967,7 @@ export interface LiteralUniqueModel {
 
   create<S extends LiteralUniqueSelect | undefined = undefined>(options: {
     data: LiteralUniqueCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralUniqueSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralUniquePayload<S>>;
 
@@ -1970,7 +1978,7 @@ export interface LiteralUniqueModel {
     where: LiteralUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralUniqueSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralUniquePayload<S>[]>;
 
@@ -1982,7 +1990,7 @@ export interface LiteralUniqueModel {
     where: LiteralUniqueFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralUniqueSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -2002,7 +2010,7 @@ export interface LiteralUniqueModel {
     create: LiteralUniqueCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralUniqueSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -2022,7 +2030,7 @@ export interface LiteralUniqueModel {
     create: LiteralUniqueCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralUniqueSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2083,6 +2091,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2176,7 +2185,7 @@ export interface LiteralWithBothModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithBothWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithBothSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithBoth | keyof LiteralWithBothWhere)]?: never };
     orderBy?: LiteralWithBothOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2189,7 +2198,7 @@ export interface LiteralWithBothModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithBothWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithBothSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithBoth | keyof LiteralWithBothWhere)]?: never };
     orderBy?: LiteralWithBothOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -2204,7 +2213,7 @@ export interface LiteralWithBothModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralWithBothFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithBothSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithBoth | keyof LiteralWithBothWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2213,7 +2222,7 @@ export interface LiteralWithBothModel {
 
   create<S extends LiteralWithBothSelect | undefined = undefined>(options: {
     data: LiteralWithBothCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralWithBothSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithBothPayload<S>>;
 
@@ -2224,7 +2233,7 @@ export interface LiteralWithBothModel {
     where: LiteralWithBothWhere;
     data: D;
     unset?: SafeUnset<LiteralWithBothUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithBothSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithBothPayload<S>[]>;
 
@@ -2236,7 +2245,7 @@ export interface LiteralWithBothModel {
     where: LiteralWithBothFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralWithBothUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithBothSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -2256,7 +2265,7 @@ export interface LiteralWithBothModel {
     create: LiteralWithBothCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithBothUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithBothSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -2276,7 +2285,7 @@ export interface LiteralWithBothModel {
     create: LiteralWithBothCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithBothUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithBothSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2337,6 +2346,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2456,7 +2466,7 @@ export interface LiteralWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObject | keyof LiteralWithObjectWhere)]?: never };
     orderBy?: LiteralWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2469,7 +2479,7 @@ export interface LiteralWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObject | keyof LiteralWithObjectWhere)]?: never };
     orderBy?: LiteralWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -2484,7 +2494,7 @@ export interface LiteralWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObject | keyof LiteralWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2493,7 +2503,7 @@ export interface LiteralWithObjectModel {
 
   create<S extends LiteralWithObjectSelect | undefined = undefined>(options: {
     data: LiteralWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithObjectPayload<S>>;
 
@@ -2504,7 +2514,7 @@ export interface LiteralWithObjectModel {
     where: LiteralWithObjectWhere;
     data: D;
     unset?: SafeUnset<LiteralWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithObjectPayload<S>[]>;
 
@@ -2516,7 +2526,7 @@ export interface LiteralWithObjectModel {
     where: LiteralWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -2536,7 +2546,7 @@ export interface LiteralWithObjectModel {
     create: LiteralWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -2556,7 +2566,7 @@ export interface LiteralWithObjectModel {
     create: LiteralWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2617,6 +2627,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2710,7 +2721,7 @@ export interface LiteralWithObjectOptModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithObjectOptWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObjectOpt | keyof LiteralWithObjectOptWhere)]?: never };
     orderBy?: LiteralWithObjectOptOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2723,7 +2734,7 @@ export interface LiteralWithObjectOptModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithObjectOptWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObjectOpt | keyof LiteralWithObjectOptWhere)]?: never };
     orderBy?: LiteralWithObjectOptOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -2738,7 +2749,7 @@ export interface LiteralWithObjectOptModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralWithObjectOptFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObjectOpt | keyof LiteralWithObjectOptWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2747,7 +2758,7 @@ export interface LiteralWithObjectOptModel {
 
   create<S extends LiteralWithObjectOptSelect | undefined = undefined>(options: {
     data: LiteralWithObjectOptCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithObjectOptPayload<S>>;
 
@@ -2758,7 +2769,7 @@ export interface LiteralWithObjectOptModel {
     where: LiteralWithObjectOptWhere;
     data: D;
     unset?: SafeUnset<LiteralWithObjectOptUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithObjectOptPayload<S>[]>;
 
@@ -2770,7 +2781,7 @@ export interface LiteralWithObjectOptModel {
     where: LiteralWithObjectOptFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralWithObjectOptUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -2790,7 +2801,7 @@ export interface LiteralWithObjectOptModel {
     create: LiteralWithObjectOptCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithObjectOptUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -2810,7 +2821,7 @@ export interface LiteralWithObjectOptModel {
     create: LiteralWithObjectOptCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithObjectOptUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectOptSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2873,6 +2884,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2987,7 +2999,7 @@ export interface LiteralWithObjectVariantModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithObjectVariantWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObjectVariant | keyof LiteralWithObjectVariantWhere)]?: never };
     orderBy?: LiteralWithObjectVariantOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -3000,7 +3012,7 @@ export interface LiteralWithObjectVariantModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithObjectVariantWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObjectVariant | keyof LiteralWithObjectVariantWhere)]?: never };
     orderBy?: LiteralWithObjectVariantOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -3015,7 +3027,7 @@ export interface LiteralWithObjectVariantModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralWithObjectVariantFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithObjectVariant | keyof LiteralWithObjectVariantWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -3024,7 +3036,7 @@ export interface LiteralWithObjectVariantModel {
 
   create<S extends LiteralWithObjectVariantSelect | undefined = undefined>(options: {
     data: LiteralWithObjectVariantCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithObjectVariantPayload<S>>;
 
@@ -3035,7 +3047,7 @@ export interface LiteralWithObjectVariantModel {
     where: LiteralWithObjectVariantWhere;
     data: D;
     unset?: SafeUnset<LiteralWithObjectVariantUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithObjectVariantPayload<S>[]>;
 
@@ -3047,7 +3059,7 @@ export interface LiteralWithObjectVariantModel {
     where: LiteralWithObjectVariantFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralWithObjectVariantUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -3067,7 +3079,7 @@ export interface LiteralWithObjectVariantModel {
     create: LiteralWithObjectVariantCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithObjectVariantUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -3087,7 +3099,7 @@ export interface LiteralWithObjectVariantModel {
     create: LiteralWithObjectVariantCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithObjectVariantUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithObjectVariantSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -3150,6 +3162,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3253,7 +3266,7 @@ export interface LiteralWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithTuple | keyof LiteralWithTupleWhere)]?: never };
     orderBy?: LiteralWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -3266,7 +3279,7 @@ export interface LiteralWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LiteralWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithTuple | keyof LiteralWithTupleWhere)]?: never };
     orderBy?: LiteralWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -3281,7 +3294,7 @@ export interface LiteralWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LiteralWithTupleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LiteralWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof LiteralWithTuple | keyof LiteralWithTupleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -3290,7 +3303,7 @@ export interface LiteralWithTupleModel {
 
   create<S extends LiteralWithTupleSelect | undefined = undefined>(options: {
     data: LiteralWithTupleCreateInput;
-    select?: S;
+    select?: SelectArg<S, LiteralWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithTuplePayload<S>>;
 
@@ -3301,7 +3314,7 @@ export interface LiteralWithTupleModel {
     where: LiteralWithTupleWhere;
     data: D;
     unset?: SafeUnset<LiteralWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLiteralWithTuplePayload<S>[]>;
 
@@ -3313,7 +3326,7 @@ export interface LiteralWithTupleModel {
     where: LiteralWithTupleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LiteralWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithTupleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -3333,7 +3346,7 @@ export interface LiteralWithTupleModel {
     create: LiteralWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -3353,7 +3366,7 @@ export interface LiteralWithTupleModel {
     create: LiteralWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<LiteralWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LiteralWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

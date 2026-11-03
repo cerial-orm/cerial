@@ -29,12 +29,25 @@ const related = model('User', [field({ name: 'name' }), relationField('posts', '
 // A relation field with no relationInfo is not a relation for signature purposes
 const danglingRelation = model('User', [field({ name: 'posts', type: 'relation' })]);
 
+describe('select option', () => {
+  const wide = model('User', [field({ name: 'name' }), field({ name: 'email' })]);
+
+  test('a model of several selectable fields takes the declared fields interface', () => {
+    expect(generateFindManyMethod(wide)).toContain('select?: SelectArg<S, UserSelectFields>;');
+  });
+
+  test('a model with fewer than two selectable fields has no fields interface', () => {
+    expect(generateFindManyMethod(plain)).toContain('select?: SelectArg<S, UserSelect>;');
+    expect(generateFindManyMethod(plain)).not.toContain('UserSelectFields');
+  });
+});
+
 describe('generateFindOneMethod', () => {
   test('without relations', () => {
     expect(generateFindOneMethod(plain))
       .toBe(`findOne<S extends UserSelect | undefined = undefined, C extends Record<string, SqlFragment> = Record<never, never>>(options?: {
     where?: UserWhere;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -48,7 +61,7 @@ describe('generateFindOneMethod', () => {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserWhere;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -66,7 +79,7 @@ describe('generateFindManyMethod', () => {
     expect(generateFindManyMethod(plain))
       .toBe(`findMany<S extends UserSelect | undefined = undefined, C extends Record<string, SqlFragment> = Record<never, never>>(options?: {
     where?: UserWhere;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -82,7 +95,7 @@ describe('generateFindManyMethod', () => {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserWhere;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     orderBy?: UserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -98,7 +111,7 @@ describe('generateFindUniqueMethod', () => {
     expect(generateFindUniqueMethod(plain))
       .toBe(`findUnique<S extends UserSelect | undefined = undefined, C extends Record<string, SqlFragment> = Record<never, never>>(options: {
     where: UserFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<(GetUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null>;`);
@@ -111,7 +124,7 @@ describe('generateFindUniqueMethod', () => {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UserFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof User | keyof UserWhere)]?: never };
     txn?: CerialTransaction;
@@ -123,7 +136,7 @@ describe('generateCreateMethod', () => {
   test('without relations', () => {
     expect(generateCreateMethod(plain)).toBe(`create<S extends UserSelect | undefined = undefined>(options: {
     data: UserCreateInput;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserPayload<S>>;`);
   });
@@ -134,7 +147,7 @@ describe('generateCreateMethod', () => {
     I extends UserInclude | undefined = undefined
   >(options: {
     data: UserCreateInput;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserPayload<S, I>>;`);
@@ -150,7 +163,7 @@ describe('generateUpdateMethod', () => {
     where: UserWhere;
     data: D;
     unset?: SafeUnset<UserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserPayload<S>[]>;`);
   });
@@ -164,7 +177,7 @@ describe('generateUpdateMethod', () => {
     where: UserWhere;
     data: D;
     unset?: SafeUnset<UserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserPayload<S, I>[]>;`);
@@ -212,7 +225,7 @@ describe('generateUpdateUniqueMethod', () => {
     where: UserFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -234,7 +247,7 @@ describe('generateUpdateUniqueMethod', () => {
     where: UserFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     include?: I;
     /**
       * Return option for the updated record
@@ -259,7 +272,7 @@ describe('generateUpsertMethod', () => {
     create: UserCreateInput;
     update?: D;
     unset?: SafeUnset<UserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -279,7 +292,7 @@ describe('generateUpsertMethod', () => {
     create: UserCreateInput;
     update?: D;
     unset?: SafeUnset<UserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -302,7 +315,7 @@ describe('generateUpsertMethod', () => {
     create: UserCreateInput;
     update?: D;
     unset?: SafeUnset<UserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -324,7 +337,7 @@ describe('generateUpsertMethod', () => {
     create: UserCreateInput;
     update?: D;
     unset?: SafeUnset<UserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSelect>;
     include?: I;
     /**
      * Return option for the upserted record

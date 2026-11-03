@@ -36,6 +36,19 @@ const COMPUTE_GENERIC = 'C extends Record<string, SqlFragment> = Record<never, n
 /** The compute keys of a result row, each typed by its fragment's `T` */
 const COMPUTE_RESULT = '{ [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }';
 
+/**
+ * The select option. The contextual type of an argument comes from the signature after inference, where `S` is the
+ * literal written so far, so a bare `S` stops offering the remaining keys once one is typed and lets a typo next to a
+ * valid key through; `SelectArg` keeps the declared fields offered and refuses every key beyond them. Models with fewer
+ * than two selectable fields have no `{Model}SelectFields` interface, so their `Select` is the declared shape.
+ */
+function selectOption(model: ModelMetadata): string {
+  const selectable = model.fields.filter((f) => f.type !== 'relation').length;
+  const declared = selectable > 1 ? `${model.name}SelectFields` : `${model.name}Select`;
+
+  return `select?: SelectArg<S, ${declared}>;`;
+}
+
 /** An orderBy that also takes the compute keys; NoInfer keeps `C` coming from `compute` alone */
 function computeOrderBy(model: ModelMetadata): string {
   return `orderBy?: ${model.name}OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;`;
@@ -47,7 +60,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
     // No relations - simpler generic signature
     return `findOne<S extends ${model.name}Select | undefined = undefined, ${COMPUTE_GENERIC}>(options?: {
     where?: ${model.name}Where;
-    select?: S;
+    ${selectOption(model)}
     ${computeOption(model)}
     ${computeOrderBy(model)}
     txn?: CerialTransaction;
@@ -61,7 +74,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
     ${COMPUTE_GENERIC},
   >(options?: {
     where?: ${model.name}Where;
-    select?: S;
+    ${selectOption(model)}
     include?: I;
     ${computeOption(model)}
     ${computeOrderBy(model)}
@@ -75,7 +88,7 @@ export function generateFindManyMethod(model: ModelMetadata): string {
     // No relations - simpler generic signature
     return `findMany<S extends ${model.name}Select | undefined = undefined, ${COMPUTE_GENERIC}>(options?: {
     where?: ${model.name}Where;
-    select?: S;
+    ${selectOption(model)}
     ${computeOption(model)}
     ${computeOrderBy(model)}
     limit?: number;
@@ -91,7 +104,7 @@ export function generateFindManyMethod(model: ModelMetadata): string {
     ${COMPUTE_GENERIC},
   >(options?: {
     where?: ${model.name}Where;
-    select?: S;
+    ${selectOption(model)}
     ${computeOption(model)}
     ${computeOrderBy(model)}
     limit?: number;
@@ -434,7 +447,7 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
   if (!hasRelations(model)) {
     return `findUnique<S extends ${model.name}Select | undefined = undefined, ${COMPUTE_GENERIC}>(options: {
     where: ${model.name}FindUniqueWhere;
-    select?: S;
+    ${selectOption(model)}
     ${computeOption(model)}
     txn?: CerialTransaction;
   }): CerialQueryPromise<(Get${model.name}Payload<S> & ${COMPUTE_RESULT}) | null>;`;
@@ -446,7 +459,7 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
     ${COMPUTE_GENERIC},
   >(options: {
     where: ${model.name}FindUniqueWhere;
-    select?: S;
+    ${selectOption(model)}
     include?: I;
     ${computeOption(model)}
     txn?: CerialTransaction;
@@ -459,7 +472,7 @@ export function generateCreateMethod(model: ModelMetadata): string {
   if (!hasRelations(model)) {
     return `create<S extends ${model.name}Select | undefined = undefined>(options: {
     data: ${model.name}CreateInput;
-    select?: S;
+    ${selectOption(model)}
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S>>;`;
   }
@@ -469,7 +482,7 @@ export function generateCreateMethod(model: ModelMetadata): string {
     I extends ${model.name}Include | undefined = undefined
   >(options: {
     data: ${model.name}CreateInput;
-    select?: S;
+    ${selectOption(model)}
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S, I>>;`;
@@ -487,7 +500,7 @@ export function generateUpdateMethod(model: ModelMetadata): string {
     where: ${model.name}Where;
     data: D;
     unset?: SafeUnset<${model.name}Unset, D>;
-    select?: S;
+    ${selectOption(model)}
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S>[]>;`;
   }
@@ -500,7 +513,7 @@ export function generateUpdateMethod(model: ModelMetadata): string {
     where: ${model.name}Where;
     data: D;
     unset?: SafeUnset<${model.name}Unset, D>;
-    select?: S;
+    ${selectOption(model)}
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S, I>[]>;`;
@@ -548,7 +561,7 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
     where: ${model.name}FindUniqueWhere;
     data: D;
     unset?: SafeUnset<${model.name}Unset, D>;
-    select?: S;
+    ${selectOption(model)}
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -570,7 +583,7 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
     where: ${model.name}FindUniqueWhere;
     data: D;
     unset?: SafeUnset<${model.name}Unset, D>;
-    select?: S;
+    ${selectOption(model)}
     include?: I;
     /**
       * Return option for the updated record
@@ -608,7 +621,7 @@ function generateUpsertUniqueOverload(model: ModelMetadata): string {
     create: ${model.name}CreateInput;
     update?: D;
     unset?: SafeUnset<${model.name}Unset, D>;
-    select?: S;
+    ${selectOption(model)}
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -630,7 +643,7 @@ function generateUpsertUniqueOverload(model: ModelMetadata): string {
     create: ${model.name}CreateInput;
     update?: D;
     unset?: SafeUnset<${model.name}Unset, D>;
-    select?: S;
+    ${selectOption(model)}
     include?: I;
     /**
      * Return option for the upserted record
@@ -655,7 +668,7 @@ function generateUpsertArrayOverload(model: ModelMetadata): string {
     create: ${model.name}CreateInput;
     update?: D;
     unset?: SafeUnset<${model.name}Unset, D>;
-    select?: S;
+    ${selectOption(model)}
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -677,7 +690,7 @@ function generateUpsertArrayOverload(model: ModelMetadata): string {
     create: ${model.name}CreateInput;
     update?: D;
     unset?: SafeUnset<${model.name}Unset, D>;
-    select?: S;
+    ${selectOption(model)}
     include?: I;
     /**
      * Return option for the upserted record

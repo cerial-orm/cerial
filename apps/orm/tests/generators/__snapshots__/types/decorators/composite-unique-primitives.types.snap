@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -201,7 +202,7 @@ export interface StaffModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: StaffWhere;
-    select?: S;
+    select?: SelectArg<S, StaffSelectFields>;
     compute?: C & { [K in keyof C & (keyof Staff | keyof StaffWhere)]?: never };
     orderBy?: StaffOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -214,7 +215,7 @@ export interface StaffModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: StaffWhere;
-    select?: S;
+    select?: SelectArg<S, StaffSelectFields>;
     compute?: C & { [K in keyof C & (keyof Staff | keyof StaffWhere)]?: never };
     orderBy?: StaffOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -227,7 +228,7 @@ export interface StaffModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: StaffFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, StaffSelectFields>;
     compute?: C & { [K in keyof C & (keyof Staff | keyof StaffWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -236,7 +237,7 @@ export interface StaffModel {
 
   create<S extends StaffSelect | undefined = undefined>(options: {
     data: StaffCreateInput;
-    select?: S;
+    select?: SelectArg<S, StaffSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetStaffPayload<S>>;
 
@@ -244,7 +245,7 @@ export interface StaffModel {
     where: StaffWhere;
     data: D;
     unset?: SafeUnset<StaffUnset, D>;
-    select?: S;
+    select?: SelectArg<S, StaffSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetStaffPayload<S>[]>;
 
@@ -256,7 +257,7 @@ export interface StaffModel {
     where: StaffFindUniqueWhere;
     data: D;
     unset?: SafeUnset<StaffUnset, D>;
-    select?: S;
+    select?: SelectArg<S, StaffSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -276,7 +277,7 @@ export interface StaffModel {
     create: StaffCreateInput;
     update?: D;
     unset?: SafeUnset<StaffUnset, D>;
-    select?: S;
+    select?: SelectArg<S, StaffSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -296,7 +297,7 @@ export interface StaffModel {
     create: StaffCreateInput;
     update?: D;
     unset?: SafeUnset<StaffUnset, D>;
-    select?: S;
+    select?: SelectArg<S, StaffSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

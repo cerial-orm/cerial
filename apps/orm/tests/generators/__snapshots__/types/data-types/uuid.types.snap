@@ -21,6 +21,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -198,7 +199,7 @@ export interface UuidBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UuidBasicWhere;
-    select?: S;
+    select?: SelectArg<S, UuidBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidBasic | keyof UuidBasicWhere)]?: never };
     orderBy?: UuidBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -211,7 +212,7 @@ export interface UuidBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UuidBasicWhere;
-    select?: S;
+    select?: SelectArg<S, UuidBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidBasic | keyof UuidBasicWhere)]?: never };
     orderBy?: UuidBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -226,7 +227,7 @@ export interface UuidBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UuidBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UuidBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidBasic | keyof UuidBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -235,7 +236,7 @@ export interface UuidBasicModel {
 
   create<S extends UuidBasicSelect | undefined = undefined>(options: {
     data: UuidBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, UuidBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUuidBasicPayload<S>>;
 
@@ -246,7 +247,7 @@ export interface UuidBasicModel {
     where: UuidBasicWhere;
     data: D;
     unset?: SafeUnset<UuidBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUuidBasicPayload<S>[]>;
 
@@ -258,7 +259,7 @@ export interface UuidBasicModel {
     where: UuidBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UuidBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -278,7 +279,7 @@ export interface UuidBasicModel {
     create: UuidBasicCreateInput;
     update?: D;
     unset?: SafeUnset<UuidBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -298,7 +299,7 @@ export interface UuidBasicModel {
     create: UuidBasicCreateInput;
     update?: D;
     unset?: SafeUnset<UuidBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -361,6 +362,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -550,7 +552,7 @@ export interface UuidDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UuidDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, UuidDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidDecorated | keyof UuidDecoratedWhere)]?: never };
     orderBy?: UuidDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -563,7 +565,7 @@ export interface UuidDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UuidDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, UuidDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidDecorated | keyof UuidDecoratedWhere)]?: never };
     orderBy?: UuidDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -578,7 +580,7 @@ export interface UuidDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UuidDecoratedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UuidDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidDecorated | keyof UuidDecoratedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -587,7 +589,7 @@ export interface UuidDecoratedModel {
 
   create<S extends UuidDecoratedSelect | undefined = undefined>(options: {
     data: UuidDecoratedCreateInput;
-    select?: S;
+    select?: SelectArg<S, UuidDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUuidDecoratedPayload<S>>;
 
@@ -598,7 +600,7 @@ export interface UuidDecoratedModel {
     where: UuidDecoratedWhere;
     data: D;
     unset?: SafeUnset<UuidDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUuidDecoratedPayload<S>[]>;
 
@@ -610,7 +612,7 @@ export interface UuidDecoratedModel {
     where: UuidDecoratedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UuidDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidDecoratedSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -630,7 +632,7 @@ export interface UuidDecoratedModel {
     create: UuidDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<UuidDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -650,7 +652,7 @@ export interface UuidDecoratedModel {
     create: UuidDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<UuidDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -711,6 +713,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -840,7 +843,7 @@ export interface UuidWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UuidWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, UuidWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidWithObject | keyof UuidWithObjectWhere)]?: never };
     orderBy?: UuidWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -853,7 +856,7 @@ export interface UuidWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UuidWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, UuidWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidWithObject | keyof UuidWithObjectWhere)]?: never };
     orderBy?: UuidWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -868,7 +871,7 @@ export interface UuidWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UuidWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UuidWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidWithObject | keyof UuidWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -877,7 +880,7 @@ export interface UuidWithObjectModel {
 
   create<S extends UuidWithObjectSelect | undefined = undefined>(options: {
     data: UuidWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, UuidWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUuidWithObjectPayload<S>>;
 
@@ -888,7 +891,7 @@ export interface UuidWithObjectModel {
     where: UuidWithObjectWhere;
     data: D;
     unset?: SafeUnset<UuidWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUuidWithObjectPayload<S>[]>;
 
@@ -900,7 +903,7 @@ export interface UuidWithObjectModel {
     where: UuidWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UuidWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -920,7 +923,7 @@ export interface UuidWithObjectModel {
     create: UuidWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<UuidWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -940,7 +943,7 @@ export interface UuidWithObjectModel {
     create: UuidWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<UuidWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1001,6 +1004,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1109,7 +1113,7 @@ export interface UuidWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UuidWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, UuidWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidWithTuple | keyof UuidWithTupleWhere)]?: never };
     orderBy?: UuidWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1122,7 +1126,7 @@ export interface UuidWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UuidWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, UuidWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidWithTuple | keyof UuidWithTupleWhere)]?: never };
     orderBy?: UuidWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1137,7 +1141,7 @@ export interface UuidWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UuidWithTupleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UuidWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof UuidWithTuple | keyof UuidWithTupleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1146,7 +1150,7 @@ export interface UuidWithTupleModel {
 
   create<S extends UuidWithTupleSelect | undefined = undefined>(options: {
     data: UuidWithTupleCreateInput;
-    select?: S;
+    select?: SelectArg<S, UuidWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUuidWithTuplePayload<S>>;
 
@@ -1157,7 +1161,7 @@ export interface UuidWithTupleModel {
     where: UuidWithTupleWhere;
     data: D;
     unset?: SafeUnset<UuidWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUuidWithTuplePayload<S>[]>;
 
@@ -1169,7 +1173,7 @@ export interface UuidWithTupleModel {
     where: UuidWithTupleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UuidWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidWithTupleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1189,7 +1193,7 @@ export interface UuidWithTupleModel {
     create: UuidWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<UuidWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1209,7 +1213,7 @@ export interface UuidWithTupleModel {
     create: UuidWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<UuidWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UuidWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

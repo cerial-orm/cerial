@@ -5,6 +5,12 @@
  * written verbatim into the generated index.ts file.
  */
 
+/**
+ * How many select nesting levels get the unknown-key refusal (the model's own keys are level 1). Deeper sub-selects
+ * still compile and narrow; only the typo check stops there, which bounds the recursion on every compiler.
+ */
+export const SELECT_ARG_DEPTH = 5;
+
 /** Select/field resolution utility types */
 export const SELECT_UTILITY_TYPES = `
 /** A select object with at least one key: each key in turn required, the others optional. Required<T> keeps the
@@ -12,6 +18,14 @@ export const SELECT_UTILITY_TYPES = `
 export type AtLeastOne<T, R extends Required<T> = Required<T>> = {
   [K in keyof R]: { [P in K]: R[P] } & { [P in Exclude<keyof R, K>]?: R[P] };
 }[keyof R];
+/** The select argument: S as written, the declared fields for completion, and every key S adds beyond them refused,
+ * through the first ${SELECT_ARG_DEPTH} nesting levels (D counts the levels entered). NoInfer keeps S coming from the argument alone. */
+export type SelectArg<S, T, D extends unknown[] = []> = S &
+  NoInfer<T> & { [K in Exclude<keyof S, keyof T>]: never } & ([...D, 0]['length'] extends ${SELECT_ARG_DEPTH}
+    ? unknown
+    : { [K in SelectObjectKeys<S>]: SelectArg<S[K], Exclude<T[K & keyof T], boolean | undefined>, [...D, 0]> });
+/** The keys of S whose value is a nested select rather than a boolean */
+export type SelectObjectKeys<S> = { [K in keyof S]-?: S[K] extends object ? K : never }[keyof S];
 /** Check if a type is a tuple (fixed-length array) rather than a dynamic array */
 export type IsTuple<T> = T extends readonly any[]
   ? number extends T['length'] ? false : true

@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -189,7 +190,7 @@ export interface NmObjectDocModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NmObjectDocWhere;
-    select?: S;
+    select?: SelectArg<S, NmObjectDocSelectFields>;
     compute?: C & { [K in keyof C & (keyof NmObjectDoc | keyof NmObjectDocWhere)]?: never };
     orderBy?: NmObjectDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -202,7 +203,7 @@ export interface NmObjectDocModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NmObjectDocWhere;
-    select?: S;
+    select?: SelectArg<S, NmObjectDocSelectFields>;
     compute?: C & { [K in keyof C & (keyof NmObjectDoc | keyof NmObjectDocWhere)]?: never };
     orderBy?: NmObjectDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -217,7 +218,7 @@ export interface NmObjectDocModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: NmObjectDocFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, NmObjectDocSelectFields>;
     compute?: C & { [K in keyof C & (keyof NmObjectDoc | keyof NmObjectDocWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -226,7 +227,7 @@ export interface NmObjectDocModel {
 
   create<S extends NmObjectDocSelect | undefined = undefined>(options: {
     data: NmObjectDocCreateInput;
-    select?: S;
+    select?: SelectArg<S, NmObjectDocSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNmObjectDocPayload<S>>;
 
@@ -237,7 +238,7 @@ export interface NmObjectDocModel {
     where: NmObjectDocWhere;
     data: D;
     unset?: SafeUnset<NmObjectDocUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NmObjectDocSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNmObjectDocPayload<S>[]>;
 
@@ -249,7 +250,7 @@ export interface NmObjectDocModel {
     where: NmObjectDocFindUniqueWhere;
     data: D;
     unset?: SafeUnset<NmObjectDocUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NmObjectDocSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -269,7 +270,7 @@ export interface NmObjectDocModel {
     create: NmObjectDocCreateInput;
     update?: D;
     unset?: SafeUnset<NmObjectDocUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NmObjectDocSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -289,7 +290,7 @@ export interface NmObjectDocModel {
     create: NmObjectDocCreateInput;
     update?: D;
     unset?: SafeUnset<NmObjectDocUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NmObjectDocSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -350,6 +351,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -555,7 +557,7 @@ export interface NmTupleDocModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NmTupleDocWhere;
-    select?: S;
+    select?: SelectArg<S, NmTupleDocSelectFields>;
     compute?: C & { [K in keyof C & (keyof NmTupleDoc | keyof NmTupleDocWhere)]?: never };
     orderBy?: NmTupleDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -568,7 +570,7 @@ export interface NmTupleDocModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NmTupleDocWhere;
-    select?: S;
+    select?: SelectArg<S, NmTupleDocSelectFields>;
     compute?: C & { [K in keyof C & (keyof NmTupleDoc | keyof NmTupleDocWhere)]?: never };
     orderBy?: NmTupleDocOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -583,7 +585,7 @@ export interface NmTupleDocModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: NmTupleDocFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, NmTupleDocSelectFields>;
     compute?: C & { [K in keyof C & (keyof NmTupleDoc | keyof NmTupleDocWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -592,7 +594,7 @@ export interface NmTupleDocModel {
 
   create<S extends NmTupleDocSelect | undefined = undefined>(options: {
     data: NmTupleDocCreateInput;
-    select?: S;
+    select?: SelectArg<S, NmTupleDocSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNmTupleDocPayload<S>>;
 
@@ -603,7 +605,7 @@ export interface NmTupleDocModel {
     where: NmTupleDocWhere;
     data: D;
     unset?: SafeUnset<NmTupleDocUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NmTupleDocSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNmTupleDocPayload<S>[]>;
 
@@ -615,7 +617,7 @@ export interface NmTupleDocModel {
     where: NmTupleDocFindUniqueWhere;
     data: D;
     unset?: SafeUnset<NmTupleDocUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NmTupleDocSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -635,7 +637,7 @@ export interface NmTupleDocModel {
     create: NmTupleDocCreateInput;
     update?: D;
     unset?: SafeUnset<NmTupleDocUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NmTupleDocSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -655,7 +657,7 @@ export interface NmTupleDocModel {
     create: NmTupleDocCreateInput;
     update?: D;
     unset?: SafeUnset<NmTupleDocUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NmTupleDocSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

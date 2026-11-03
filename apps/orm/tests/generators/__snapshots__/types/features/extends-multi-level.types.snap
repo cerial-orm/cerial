@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -240,7 +241,7 @@ export interface ExtL4AltConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL4AltConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4AltConcrete | keyof ExtL4AltConcreteWhere)]?: never };
     orderBy?: ExtL4AltConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -253,7 +254,7 @@ export interface ExtL4AltConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL4AltConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4AltConcrete | keyof ExtL4AltConcreteWhere)]?: never };
     orderBy?: ExtL4AltConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -268,7 +269,7 @@ export interface ExtL4AltConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtL4AltConcreteFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4AltConcrete | keyof ExtL4AltConcreteWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -277,7 +278,7 @@ export interface ExtL4AltConcreteModel {
 
   create<S extends ExtL4AltConcreteSelect | undefined = undefined>(options: {
     data: ExtL4AltConcreteCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL4AltConcretePayload<S>>;
 
@@ -288,7 +289,7 @@ export interface ExtL4AltConcreteModel {
     where: ExtL4AltConcreteWhere;
     data: D;
     unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL4AltConcretePayload<S>[]>;
 
@@ -300,7 +301,7 @@ export interface ExtL4AltConcreteModel {
     where: ExtL4AltConcreteFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -320,7 +321,7 @@ export interface ExtL4AltConcreteModel {
     create: ExtL4AltConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -340,7 +341,7 @@ export interface ExtL4AltConcreteModel {
     create: ExtL4AltConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4AltConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -401,6 +402,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -627,7 +629,7 @@ export interface ExtL4ConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL4ConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4Concrete | keyof ExtL4ConcreteWhere)]?: never };
     orderBy?: ExtL4ConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -640,7 +642,7 @@ export interface ExtL4ConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL4ConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4Concrete | keyof ExtL4ConcreteWhere)]?: never };
     orderBy?: ExtL4ConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -655,7 +657,7 @@ export interface ExtL4ConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtL4ConcreteFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4Concrete | keyof ExtL4ConcreteWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -664,7 +666,7 @@ export interface ExtL4ConcreteModel {
 
   create<S extends ExtL4ConcreteSelect | undefined = undefined>(options: {
     data: ExtL4ConcreteCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL4ConcretePayload<S>>;
 
@@ -675,7 +677,7 @@ export interface ExtL4ConcreteModel {
     where: ExtL4ConcreteWhere;
     data: D;
     unset?: SafeUnset<ExtL4ConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL4ConcretePayload<S>[]>;
 
@@ -687,7 +689,7 @@ export interface ExtL4ConcreteModel {
     where: ExtL4ConcreteFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtL4ConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -707,7 +709,7 @@ export interface ExtL4ConcreteModel {
     create: ExtL4ConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL4ConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -727,7 +729,7 @@ export interface ExtL4ConcreteModel {
     create: ExtL4ConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL4ConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4ConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -788,6 +790,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -971,7 +974,7 @@ export interface ExtL4OmitConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL4OmitConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4OmitConcrete | keyof ExtL4OmitConcreteWhere)]?: never };
     orderBy?: ExtL4OmitConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -984,7 +987,7 @@ export interface ExtL4OmitConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL4OmitConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4OmitConcrete | keyof ExtL4OmitConcreteWhere)]?: never };
     orderBy?: ExtL4OmitConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -999,7 +1002,7 @@ export interface ExtL4OmitConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtL4OmitConcreteFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4OmitConcrete | keyof ExtL4OmitConcreteWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1008,7 +1011,7 @@ export interface ExtL4OmitConcreteModel {
 
   create<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options: {
     data: ExtL4OmitConcreteCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL4OmitConcretePayload<S>>;
 
@@ -1019,7 +1022,7 @@ export interface ExtL4OmitConcreteModel {
     where: ExtL4OmitConcreteWhere;
     data: D;
     unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL4OmitConcretePayload<S>[]>;
 
@@ -1031,7 +1034,7 @@ export interface ExtL4OmitConcreteModel {
     where: ExtL4OmitConcreteFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1051,7 +1054,7 @@ export interface ExtL4OmitConcreteModel {
     create: ExtL4OmitConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1071,7 +1074,7 @@ export interface ExtL4OmitConcreteModel {
     create: ExtL4OmitConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4OmitConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1132,6 +1135,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1346,7 +1350,7 @@ export interface ExtL4PickConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL4PickConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4PickConcrete | keyof ExtL4PickConcreteWhere)]?: never };
     orderBy?: ExtL4PickConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1359,7 +1363,7 @@ export interface ExtL4PickConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL4PickConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4PickConcrete | keyof ExtL4PickConcreteWhere)]?: never };
     orderBy?: ExtL4PickConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1374,7 +1378,7 @@ export interface ExtL4PickConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtL4PickConcreteFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL4PickConcrete | keyof ExtL4PickConcreteWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1383,7 +1387,7 @@ export interface ExtL4PickConcreteModel {
 
   create<S extends ExtL4PickConcreteSelect | undefined = undefined>(options: {
     data: ExtL4PickConcreteCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL4PickConcretePayload<S>>;
 
@@ -1394,7 +1398,7 @@ export interface ExtL4PickConcreteModel {
     where: ExtL4PickConcreteWhere;
     data: D;
     unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL4PickConcretePayload<S>[]>;
 
@@ -1406,7 +1410,7 @@ export interface ExtL4PickConcreteModel {
     where: ExtL4PickConcreteFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1426,7 +1430,7 @@ export interface ExtL4PickConcreteModel {
     create: ExtL4PickConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1446,7 +1450,7 @@ export interface ExtL4PickConcreteModel {
     create: ExtL4PickConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL4PickConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1507,6 +1511,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1743,7 +1748,7 @@ export interface ExtL5VeryDeepModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL5VeryDeepWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL5VeryDeep | keyof ExtL5VeryDeepWhere)]?: never };
     orderBy?: ExtL5VeryDeepOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1756,7 +1761,7 @@ export interface ExtL5VeryDeepModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL5VeryDeepWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL5VeryDeep | keyof ExtL5VeryDeepWhere)]?: never };
     orderBy?: ExtL5VeryDeepOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1771,7 +1776,7 @@ export interface ExtL5VeryDeepModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtL5VeryDeepFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL5VeryDeep | keyof ExtL5VeryDeepWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1780,7 +1785,7 @@ export interface ExtL5VeryDeepModel {
 
   create<S extends ExtL5VeryDeepSelect | undefined = undefined>(options: {
     data: ExtL5VeryDeepCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL5VeryDeepPayload<S>>;
 
@@ -1791,7 +1796,7 @@ export interface ExtL5VeryDeepModel {
     where: ExtL5VeryDeepWhere;
     data: D;
     unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL5VeryDeepPayload<S>[]>;
 
@@ -1803,7 +1808,7 @@ export interface ExtL5VeryDeepModel {
     where: ExtL5VeryDeepFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1823,7 +1828,7 @@ export interface ExtL5VeryDeepModel {
     create: ExtL5VeryDeepCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1843,7 +1848,7 @@ export interface ExtL5VeryDeepModel {
     create: ExtL5VeryDeepCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL5VeryDeepSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1904,6 +1909,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2203,7 +2209,7 @@ export interface ExtL6UltraDeepModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL6UltraDeepWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL6UltraDeep | keyof ExtL6UltraDeepWhere)]?: never };
     orderBy?: ExtL6UltraDeepOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2216,7 +2222,7 @@ export interface ExtL6UltraDeepModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtL6UltraDeepWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL6UltraDeep | keyof ExtL6UltraDeepWhere)]?: never };
     orderBy?: ExtL6UltraDeepOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -2231,7 +2237,7 @@ export interface ExtL6UltraDeepModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtL6UltraDeepFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtL6UltraDeep | keyof ExtL6UltraDeepWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2240,7 +2246,7 @@ export interface ExtL6UltraDeepModel {
 
   create<S extends ExtL6UltraDeepSelect | undefined = undefined>(options: {
     data: ExtL6UltraDeepCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL6UltraDeepPayload<S>>;
 
@@ -2251,7 +2257,7 @@ export interface ExtL6UltraDeepModel {
     where: ExtL6UltraDeepWhere;
     data: D;
     unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtL6UltraDeepPayload<S>[]>;
 
@@ -2263,7 +2269,7 @@ export interface ExtL6UltraDeepModel {
     where: ExtL6UltraDeepFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -2283,7 +2289,7 @@ export interface ExtL6UltraDeepModel {
     create: ExtL6UltraDeepCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -2303,7 +2309,7 @@ export interface ExtL6UltraDeepModel {
     create: ExtL6UltraDeepCreateInput;
     update?: D;
     unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtL6UltraDeepSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2364,6 +2370,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2557,7 +2564,7 @@ export interface ExtP4ConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtP4ConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtP4Concrete | keyof ExtP4ConcreteWhere)]?: never };
     orderBy?: ExtP4ConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2570,7 +2577,7 @@ export interface ExtP4ConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtP4ConcreteWhere;
-    select?: S;
+    select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtP4Concrete | keyof ExtP4ConcreteWhere)]?: never };
     orderBy?: ExtP4ConcreteOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -2585,7 +2592,7 @@ export interface ExtP4ConcreteModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtP4ConcreteFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtP4Concrete | keyof ExtP4ConcreteWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2594,7 +2601,7 @@ export interface ExtP4ConcreteModel {
 
   create<S extends ExtP4ConcreteSelect | undefined = undefined>(options: {
     data: ExtP4ConcreteCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtP4ConcretePayload<S>>;
 
@@ -2605,7 +2612,7 @@ export interface ExtP4ConcreteModel {
     where: ExtP4ConcreteWhere;
     data: D;
     unset?: SafeUnset<ExtP4ConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtP4ConcretePayload<S>[]>;
 
@@ -2617,7 +2624,7 @@ export interface ExtP4ConcreteModel {
     where: ExtP4ConcreteFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtP4ConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -2637,7 +2644,7 @@ export interface ExtP4ConcreteModel {
     create: ExtP4ConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtP4ConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -2657,7 +2664,7 @@ export interface ExtP4ConcreteModel {
     create: ExtP4ConcreteCreateInput;
     update?: D;
     unset?: SafeUnset<ExtP4ConcreteUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtP4ConcreteSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

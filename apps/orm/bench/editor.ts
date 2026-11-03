@@ -282,7 +282,9 @@ interface ServerAdapter {
   init(session: StdioSession, caseDir: string): Promise<void>;
   open(session: StdioSession, file: string, text: string): void;
   change(session: StdioSession, file: string, before: string, after: ProbeEdit): void;
-  completions(session: StdioSession, file: string, edit: ProbeEdit): Promise<number>;
+  /** Replaces the whole text of an open file */
+  replace(session: StdioSession, file: string, before: string, after: ProbeEdit): void;
+  completions(session: StdioSession, file: string, edit: ProbeEdit): Promise<string[]>;
   diagnostics(session: StdioSession, file: string): Promise<number>;
 }
 
@@ -290,6 +292,12 @@ function countOf(value: unknown, key: string | null): number {
   const list = key === null ? value : record(value)?.[key];
 
   return Array.isArray(list) ? list.length : 0;
+}
+
+function labelsOf(list: unknown, key: string): string[] {
+  if (!Array.isArray(list)) return [];
+
+  return list.map((item) => record(item)?.[key]).filter((label): label is string => typeof label === 'string');
 }
 
 const tsserverAdapter: ServerAdapter = {
@@ -318,11 +326,22 @@ const tsserverAdapter: ServerAdapter = {
       insertString: after.text.slice(before.length),
     });
   },
+  replace(session, file, before, after) {
+    const end = position(before, before.length);
+    session.notify('change', {
+      file,
+      line: 1,
+      offset: 1,
+      endLine: end.line + 1,
+      endOffset: end.character + 1,
+      insertString: after.text,
+    });
+  },
   async completions(session, file, edit) {
     const at = position(edit.text, edit.cursor);
     const body = await session.request('completionInfo', { file, line: at.line + 1, offset: at.character + 1 });
 
-    return countOf(body, 'entries');
+    return labelsOf(record(body)?.entries, 'name');
   },
   async diagnostics(session, file) {
     return countOf(await session.request('semanticDiagnosticsSync', { file }), null);
@@ -356,13 +375,16 @@ const lspAdapter: ServerAdapter = {
       contentChanges: [{ text: after.text }],
     });
   },
+  replace(session, file, before, after) {
+    lspAdapter.change(session, file, before, after);
+  },
   async completions(session, file, edit) {
     const body = await session.request('textDocument/completion', {
       textDocument: { uri: Bun.pathToFileURL(file).href },
       position: position(edit.text, edit.cursor),
     });
 
-    return Array.isArray(body) ? body.length : countOf(body, 'items');
+    return labelsOf(Array.isArray(body) ? body : record(body)?.items, 'label');
   },
   async diagnostics(session, file) {
     const body = await session.request('textDocument/diagnostic', {
@@ -418,7 +440,7 @@ export async function measureServer(caseDir: string, options: ServerOptions): Pr
       text = edit.text;
 
       started = performance.now();
-      completions = await adapter.completions(session, file, edit);
+      completions = (await adapter.completions(session, file, edit)).length;
       completionMs.push(performance.now() - started);
 
       started = performance.now();
@@ -694,4 +716,55 @@ export function formatEditor(result: EditorResult): string {
     'Language server: open = first diagnostics for the opened consumer; completion and diagnostics are timed after an appended statement (completion first, so it pays for the program update). 5.9.3 speaks tsserver, 7.0.2 speaks LSP over `tsc --lsp --stdio`. Medians.',
     servers,
   ].join('\n');
+}
+
+/**
+ * Completion labels at the `|` in `text`, as an editor would offer them. Each call replaces the whole of `consumer.ts` in
+ * the server, so one session serves several probes over the same generated tree.
+ */
+export class CompletionProbe {
+  private readonly adapter: ServerAdapter;
+  private readonly session: Promise<StdioSession>;
+  private readonly file: string;
+  private current: string | null = null;
+
+  constructor(
+    private readonly caseDir: string,
+    kind: ServerKind,
+    private readonly timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  ) {
+    this.adapter = kind === 'tsserver' ? tsserverAdapter : lspAdapter;
+    this.file = join(caseDir, 'consumer.ts');
+    this.session = this.start();
+  }
+
+  private async start(): Promise<StdioSession> {
+    const session = new StdioSession(await this.adapter.command(), this.caseDir, this.adapter.protocol, this.timeoutMs);
+    await this.adapter.init(session, this.caseDir);
+
+    return session;
+  }
+
+  async labels(textWithCursor: string): Promise<string[]> {
+    const cursor = textWithCursor.indexOf('|');
+    if (cursor === -1) throw new Error('probe text has no | cursor');
+    const text = textWithCursor.slice(0, cursor) + textWithCursor.slice(cursor + 1);
+    const edit: ProbeEdit = { text, cursor };
+    const session = await this.session;
+
+    if (this.current === null) {
+      this.adapter.open(session, this.file, text);
+    } else {
+      this.adapter.replace(session, this.file, this.current, edit);
+    }
+    this.current = text;
+    // Both servers load the project and apply the edit on the first request that needs types
+    await this.adapter.diagnostics(session, this.file);
+
+    return this.adapter.completions(session, this.file, edit);
+  }
+
+  async close(): Promise<void> {
+    (await this.session).kill();
+  }
 }

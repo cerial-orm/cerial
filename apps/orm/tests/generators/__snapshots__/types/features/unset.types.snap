@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -349,7 +350,7 @@ export interface UnsetTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UnsetTestWhere;
-    select?: S;
+    select?: SelectArg<S, UnsetTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof UnsetTest | keyof UnsetTestWhere)]?: never };
     orderBy?: UnsetTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -362,7 +363,7 @@ export interface UnsetTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UnsetTestWhere;
-    select?: S;
+    select?: SelectArg<S, UnsetTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof UnsetTest | keyof UnsetTestWhere)]?: never };
     orderBy?: UnsetTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -377,7 +378,7 @@ export interface UnsetTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UnsetTestFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UnsetTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof UnsetTest | keyof UnsetTestWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -386,7 +387,7 @@ export interface UnsetTestModel {
 
   create<S extends UnsetTestSelect | undefined = undefined>(options: {
     data: UnsetTestCreateInput;
-    select?: S;
+    select?: SelectArg<S, UnsetTestSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUnsetTestPayload<S>>;
 
@@ -397,7 +398,7 @@ export interface UnsetTestModel {
     where: UnsetTestWhere;
     data: D;
     unset?: SafeUnset<UnsetTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UnsetTestSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUnsetTestPayload<S>[]>;
 
@@ -409,7 +410,7 @@ export interface UnsetTestModel {
     where: UnsetTestFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UnsetTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UnsetTestSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -429,7 +430,7 @@ export interface UnsetTestModel {
     create: UnsetTestCreateInput;
     update?: D;
     unset?: SafeUnset<UnsetTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UnsetTestSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -449,7 +450,7 @@ export interface UnsetTestModel {
     create: UnsetTestCreateInput;
     update?: D;
     unset?: SafeUnset<UnsetTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UnsetTestSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

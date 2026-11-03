@@ -21,6 +21,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -200,7 +201,7 @@ export interface DurationBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DurationBasicWhere;
-    select?: S;
+    select?: SelectArg<S, DurationBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationBasic | keyof DurationBasicWhere)]?: never };
     orderBy?: DurationBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -213,7 +214,7 @@ export interface DurationBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DurationBasicWhere;
-    select?: S;
+    select?: SelectArg<S, DurationBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationBasic | keyof DurationBasicWhere)]?: never };
     orderBy?: DurationBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -228,7 +229,7 @@ export interface DurationBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DurationBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DurationBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationBasic | keyof DurationBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -237,7 +238,7 @@ export interface DurationBasicModel {
 
   create<S extends DurationBasicSelect | undefined = undefined>(options: {
     data: DurationBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, DurationBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDurationBasicPayload<S>>;
 
@@ -248,7 +249,7 @@ export interface DurationBasicModel {
     where: DurationBasicWhere;
     data: D;
     unset?: SafeUnset<DurationBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDurationBasicPayload<S>[]>;
 
@@ -260,7 +261,7 @@ export interface DurationBasicModel {
     where: DurationBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DurationBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -280,7 +281,7 @@ export interface DurationBasicModel {
     create: DurationBasicCreateInput;
     update?: D;
     unset?: SafeUnset<DurationBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -300,7 +301,7 @@ export interface DurationBasicModel {
     create: DurationBasicCreateInput;
     update?: D;
     unset?: SafeUnset<DurationBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -363,6 +364,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -504,7 +506,7 @@ export interface DurationDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DurationDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, DurationDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationDecorated | keyof DurationDecoratedWhere)]?: never };
     orderBy?: DurationDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -517,7 +519,7 @@ export interface DurationDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DurationDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, DurationDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationDecorated | keyof DurationDecoratedWhere)]?: never };
     orderBy?: DurationDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -532,7 +534,7 @@ export interface DurationDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DurationDecoratedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DurationDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationDecorated | keyof DurationDecoratedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -541,7 +543,7 @@ export interface DurationDecoratedModel {
 
   create<S extends DurationDecoratedSelect | undefined = undefined>(options: {
     data: DurationDecoratedCreateInput;
-    select?: S;
+    select?: SelectArg<S, DurationDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDurationDecoratedPayload<S>>;
 
@@ -552,7 +554,7 @@ export interface DurationDecoratedModel {
     where: DurationDecoratedWhere;
     data: D;
     unset?: SafeUnset<DurationDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDurationDecoratedPayload<S>[]>;
 
@@ -564,7 +566,7 @@ export interface DurationDecoratedModel {
     where: DurationDecoratedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DurationDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationDecoratedSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -584,7 +586,7 @@ export interface DurationDecoratedModel {
     create: DurationDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<DurationDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -604,7 +606,7 @@ export interface DurationDecoratedModel {
     create: DurationDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<DurationDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -664,6 +666,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -779,7 +782,7 @@ export interface DurationWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DurationWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, DurationWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationWithObject | keyof DurationWithObjectWhere)]?: never };
     orderBy?: DurationWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -792,7 +795,7 @@ export interface DurationWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DurationWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, DurationWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationWithObject | keyof DurationWithObjectWhere)]?: never };
     orderBy?: DurationWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -807,7 +810,7 @@ export interface DurationWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DurationWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DurationWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationWithObject | keyof DurationWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -816,7 +819,7 @@ export interface DurationWithObjectModel {
 
   create<S extends DurationWithObjectSelect | undefined = undefined>(options: {
     data: DurationWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, DurationWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDurationWithObjectPayload<S>>;
 
@@ -827,7 +830,7 @@ export interface DurationWithObjectModel {
     where: DurationWithObjectWhere;
     data: D;
     unset?: SafeUnset<DurationWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDurationWithObjectPayload<S>[]>;
 
@@ -839,7 +842,7 @@ export interface DurationWithObjectModel {
     where: DurationWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DurationWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -859,7 +862,7 @@ export interface DurationWithObjectModel {
     create: DurationWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<DurationWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -879,7 +882,7 @@ export interface DurationWithObjectModel {
     create: DurationWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<DurationWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -939,6 +942,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1051,7 +1055,7 @@ export interface DurationWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DurationWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, DurationWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationWithTuple | keyof DurationWithTupleWhere)]?: never };
     orderBy?: DurationWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1064,7 +1068,7 @@ export interface DurationWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DurationWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, DurationWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationWithTuple | keyof DurationWithTupleWhere)]?: never };
     orderBy?: DurationWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1079,7 +1083,7 @@ export interface DurationWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DurationWithTupleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DurationWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof DurationWithTuple | keyof DurationWithTupleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1088,7 +1092,7 @@ export interface DurationWithTupleModel {
 
   create<S extends DurationWithTupleSelect | undefined = undefined>(options: {
     data: DurationWithTupleCreateInput;
-    select?: S;
+    select?: SelectArg<S, DurationWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDurationWithTuplePayload<S>>;
 
@@ -1099,7 +1103,7 @@ export interface DurationWithTupleModel {
     where: DurationWithTupleWhere;
     data: D;
     unset?: SafeUnset<DurationWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDurationWithTuplePayload<S>[]>;
 
@@ -1111,7 +1115,7 @@ export interface DurationWithTupleModel {
     where: DurationWithTupleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DurationWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationWithTupleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1131,7 +1135,7 @@ export interface DurationWithTupleModel {
     create: DurationWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<DurationWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1151,7 +1155,7 @@ export interface DurationWithTupleModel {
     create: DurationWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<DurationWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DurationWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

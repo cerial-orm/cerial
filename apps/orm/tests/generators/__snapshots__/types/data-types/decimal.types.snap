@@ -21,6 +21,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -200,7 +201,7 @@ export interface DecimalBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DecimalBasicWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalBasic | keyof DecimalBasicWhere)]?: never };
     orderBy?: DecimalBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -213,7 +214,7 @@ export interface DecimalBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DecimalBasicWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalBasic | keyof DecimalBasicWhere)]?: never };
     orderBy?: DecimalBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -228,7 +229,7 @@ export interface DecimalBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DecimalBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalBasic | keyof DecimalBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -237,7 +238,7 @@ export interface DecimalBasicModel {
 
   create<S extends DecimalBasicSelect | undefined = undefined>(options: {
     data: DecimalBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, DecimalBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDecimalBasicPayload<S>>;
 
@@ -248,7 +249,7 @@ export interface DecimalBasicModel {
     where: DecimalBasicWhere;
     data: D;
     unset?: SafeUnset<DecimalBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDecimalBasicPayload<S>[]>;
 
@@ -260,7 +261,7 @@ export interface DecimalBasicModel {
     where: DecimalBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DecimalBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -280,7 +281,7 @@ export interface DecimalBasicModel {
     create: DecimalBasicCreateInput;
     update?: D;
     unset?: SafeUnset<DecimalBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -300,7 +301,7 @@ export interface DecimalBasicModel {
     create: DecimalBasicCreateInput;
     update?: D;
     unset?: SafeUnset<DecimalBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -363,6 +364,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -504,7 +506,7 @@ export interface DecimalDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DecimalDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalDecorated | keyof DecimalDecoratedWhere)]?: never };
     orderBy?: DecimalDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -517,7 +519,7 @@ export interface DecimalDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DecimalDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalDecorated | keyof DecimalDecoratedWhere)]?: never };
     orderBy?: DecimalDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -532,7 +534,7 @@ export interface DecimalDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DecimalDecoratedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalDecorated | keyof DecimalDecoratedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -541,7 +543,7 @@ export interface DecimalDecoratedModel {
 
   create<S extends DecimalDecoratedSelect | undefined = undefined>(options: {
     data: DecimalDecoratedCreateInput;
-    select?: S;
+    select?: SelectArg<S, DecimalDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDecimalDecoratedPayload<S>>;
 
@@ -552,7 +554,7 @@ export interface DecimalDecoratedModel {
     where: DecimalDecoratedWhere;
     data: D;
     unset?: SafeUnset<DecimalDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDecimalDecoratedPayload<S>[]>;
 
@@ -564,7 +566,7 @@ export interface DecimalDecoratedModel {
     where: DecimalDecoratedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DecimalDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalDecoratedSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -584,7 +586,7 @@ export interface DecimalDecoratedModel {
     create: DecimalDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<DecimalDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -604,7 +606,7 @@ export interface DecimalDecoratedModel {
     create: DecimalDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<DecimalDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -664,6 +666,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -779,7 +782,7 @@ export interface DecimalWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DecimalWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalWithObject | keyof DecimalWithObjectWhere)]?: never };
     orderBy?: DecimalWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -792,7 +795,7 @@ export interface DecimalWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DecimalWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalWithObject | keyof DecimalWithObjectWhere)]?: never };
     orderBy?: DecimalWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -807,7 +810,7 @@ export interface DecimalWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DecimalWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalWithObject | keyof DecimalWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -816,7 +819,7 @@ export interface DecimalWithObjectModel {
 
   create<S extends DecimalWithObjectSelect | undefined = undefined>(options: {
     data: DecimalWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, DecimalWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDecimalWithObjectPayload<S>>;
 
@@ -827,7 +830,7 @@ export interface DecimalWithObjectModel {
     where: DecimalWithObjectWhere;
     data: D;
     unset?: SafeUnset<DecimalWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDecimalWithObjectPayload<S>[]>;
 
@@ -839,7 +842,7 @@ export interface DecimalWithObjectModel {
     where: DecimalWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DecimalWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -859,7 +862,7 @@ export interface DecimalWithObjectModel {
     create: DecimalWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<DecimalWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -879,7 +882,7 @@ export interface DecimalWithObjectModel {
     create: DecimalWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<DecimalWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -939,6 +942,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1051,7 +1055,7 @@ export interface DecimalWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DecimalWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalWithTuple | keyof DecimalWithTupleWhere)]?: never };
     orderBy?: DecimalWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1064,7 +1068,7 @@ export interface DecimalWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DecimalWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalWithTuple | keyof DecimalWithTupleWhere)]?: never };
     orderBy?: DecimalWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1079,7 +1083,7 @@ export interface DecimalWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DecimalWithTupleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DecimalWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof DecimalWithTuple | keyof DecimalWithTupleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1088,7 +1092,7 @@ export interface DecimalWithTupleModel {
 
   create<S extends DecimalWithTupleSelect | undefined = undefined>(options: {
     data: DecimalWithTupleCreateInput;
-    select?: S;
+    select?: SelectArg<S, DecimalWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDecimalWithTuplePayload<S>>;
 
@@ -1099,7 +1103,7 @@ export interface DecimalWithTupleModel {
     where: DecimalWithTupleWhere;
     data: D;
     unset?: SafeUnset<DecimalWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDecimalWithTuplePayload<S>[]>;
 
@@ -1111,7 +1115,7 @@ export interface DecimalWithTupleModel {
     where: DecimalWithTupleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DecimalWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalWithTupleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1131,7 +1135,7 @@ export interface DecimalWithTupleModel {
     create: DecimalWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<DecimalWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1151,7 +1155,7 @@ export interface DecimalWithTupleModel {
     create: DecimalWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<DecimalWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DecimalWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

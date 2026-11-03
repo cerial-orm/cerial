@@ -21,6 +21,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -184,7 +185,7 @@ export interface BytesBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BytesBasicWhere;
-    select?: S;
+    select?: SelectArg<S, BytesBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesBasic | keyof BytesBasicWhere)]?: never };
     orderBy?: BytesBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -197,7 +198,7 @@ export interface BytesBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BytesBasicWhere;
-    select?: S;
+    select?: SelectArg<S, BytesBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesBasic | keyof BytesBasicWhere)]?: never };
     orderBy?: BytesBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -212,7 +213,7 @@ export interface BytesBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BytesBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, BytesBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesBasic | keyof BytesBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -221,7 +222,7 @@ export interface BytesBasicModel {
 
   create<S extends BytesBasicSelect | undefined = undefined>(options: {
     data: BytesBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, BytesBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBytesBasicPayload<S>>;
 
@@ -232,7 +233,7 @@ export interface BytesBasicModel {
     where: BytesBasicWhere;
     data: D;
     unset?: SafeUnset<BytesBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBytesBasicPayload<S>[]>;
 
@@ -244,7 +245,7 @@ export interface BytesBasicModel {
     where: BytesBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<BytesBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -264,7 +265,7 @@ export interface BytesBasicModel {
     create: BytesBasicCreateInput;
     update?: D;
     unset?: SafeUnset<BytesBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -284,7 +285,7 @@ export interface BytesBasicModel {
     create: BytesBasicCreateInput;
     update?: D;
     unset?: SafeUnset<BytesBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -344,6 +345,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -459,7 +461,7 @@ export interface BytesWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BytesWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, BytesWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesWithObject | keyof BytesWithObjectWhere)]?: never };
     orderBy?: BytesWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -472,7 +474,7 @@ export interface BytesWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BytesWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, BytesWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesWithObject | keyof BytesWithObjectWhere)]?: never };
     orderBy?: BytesWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -487,7 +489,7 @@ export interface BytesWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BytesWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, BytesWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesWithObject | keyof BytesWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -496,7 +498,7 @@ export interface BytesWithObjectModel {
 
   create<S extends BytesWithObjectSelect | undefined = undefined>(options: {
     data: BytesWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, BytesWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBytesWithObjectPayload<S>>;
 
@@ -507,7 +509,7 @@ export interface BytesWithObjectModel {
     where: BytesWithObjectWhere;
     data: D;
     unset?: SafeUnset<BytesWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBytesWithObjectPayload<S>[]>;
 
@@ -519,7 +521,7 @@ export interface BytesWithObjectModel {
     where: BytesWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<BytesWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -539,7 +541,7 @@ export interface BytesWithObjectModel {
     create: BytesWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<BytesWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -559,7 +561,7 @@ export interface BytesWithObjectModel {
     create: BytesWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<BytesWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -619,6 +621,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -722,7 +725,7 @@ export interface BytesWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BytesWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, BytesWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesWithTuple | keyof BytesWithTupleWhere)]?: never };
     orderBy?: BytesWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -735,7 +738,7 @@ export interface BytesWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BytesWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, BytesWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesWithTuple | keyof BytesWithTupleWhere)]?: never };
     orderBy?: BytesWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -750,7 +753,7 @@ export interface BytesWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BytesWithTupleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, BytesWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof BytesWithTuple | keyof BytesWithTupleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -759,7 +762,7 @@ export interface BytesWithTupleModel {
 
   create<S extends BytesWithTupleSelect | undefined = undefined>(options: {
     data: BytesWithTupleCreateInput;
-    select?: S;
+    select?: SelectArg<S, BytesWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBytesWithTuplePayload<S>>;
 
@@ -770,7 +773,7 @@ export interface BytesWithTupleModel {
     where: BytesWithTupleWhere;
     data: D;
     unset?: SafeUnset<BytesWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBytesWithTuplePayload<S>[]>;
 
@@ -782,7 +785,7 @@ export interface BytesWithTupleModel {
     where: BytesWithTupleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<BytesWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesWithTupleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -802,7 +805,7 @@ export interface BytesWithTupleModel {
     create: BytesWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<BytesWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -822,7 +825,7 @@ export interface BytesWithTupleModel {
     create: BytesWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<BytesWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BytesWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

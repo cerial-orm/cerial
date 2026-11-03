@@ -34,6 +34,7 @@ describe('Unknown select keys — negative cases', () => {
   });
 
   test('findMany throws on a typo key set to false', () => {
+    // @ts-expect-error — 'nmae' is not a field, testing runtime guard
     expect(() => client.db.BasicsUser.findMany({ select: { name: true, nmae: false } })).toThrow(unknown);
   });
 

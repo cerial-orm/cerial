@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -153,7 +154,7 @@ export interface AnyBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AnyBasicWhere;
-    select?: S;
+    select?: SelectArg<S, AnyBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyBasic | keyof AnyBasicWhere)]?: never };
     orderBy?: AnyBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -166,7 +167,7 @@ export interface AnyBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AnyBasicWhere;
-    select?: S;
+    select?: SelectArg<S, AnyBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyBasic | keyof AnyBasicWhere)]?: never };
     orderBy?: AnyBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -181,7 +182,7 @@ export interface AnyBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: AnyBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, AnyBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyBasic | keyof AnyBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -190,7 +191,7 @@ export interface AnyBasicModel {
 
   create<S extends AnyBasicSelect | undefined = undefined>(options: {
     data: AnyBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, AnyBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAnyBasicPayload<S>>;
 
@@ -201,7 +202,7 @@ export interface AnyBasicModel {
     where: AnyBasicWhere;
     data: D;
     unset?: SafeUnset<AnyBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAnyBasicPayload<S>[]>;
 
@@ -213,7 +214,7 @@ export interface AnyBasicModel {
     where: AnyBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<AnyBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -233,7 +234,7 @@ export interface AnyBasicModel {
     create: AnyBasicCreateInput;
     update?: D;
     unset?: SafeUnset<AnyBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -253,7 +254,7 @@ export interface AnyBasicModel {
     create: AnyBasicCreateInput;
     update?: D;
     unset?: SafeUnset<AnyBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -315,6 +316,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -529,7 +531,7 @@ export interface AnyDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AnyDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, AnyDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyDecorated | keyof AnyDecoratedWhere)]?: never };
     orderBy?: AnyDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -542,7 +544,7 @@ export interface AnyDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AnyDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, AnyDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyDecorated | keyof AnyDecoratedWhere)]?: never };
     orderBy?: AnyDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -557,7 +559,7 @@ export interface AnyDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: AnyDecoratedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, AnyDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyDecorated | keyof AnyDecoratedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -566,7 +568,7 @@ export interface AnyDecoratedModel {
 
   create<S extends AnyDecoratedSelect | undefined = undefined>(options: {
     data: AnyDecoratedCreateInput;
-    select?: S;
+    select?: SelectArg<S, AnyDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAnyDecoratedPayload<S>>;
 
@@ -577,7 +579,7 @@ export interface AnyDecoratedModel {
     where: AnyDecoratedWhere;
     data: D;
     unset?: SafeUnset<AnyDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAnyDecoratedPayload<S>[]>;
 
@@ -589,7 +591,7 @@ export interface AnyDecoratedModel {
     where: AnyDecoratedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<AnyDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyDecoratedSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -609,7 +611,7 @@ export interface AnyDecoratedModel {
     create: AnyDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<AnyDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -629,7 +631,7 @@ export interface AnyDecoratedModel {
     create: AnyDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<AnyDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -690,6 +692,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -792,7 +795,7 @@ export interface AnyUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AnyUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, AnyUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyUnique | keyof AnyUniqueWhere)]?: never };
     orderBy?: AnyUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -805,7 +808,7 @@ export interface AnyUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AnyUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, AnyUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyUnique | keyof AnyUniqueWhere)]?: never };
     orderBy?: AnyUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -820,7 +823,7 @@ export interface AnyUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: AnyUniqueFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, AnyUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyUnique | keyof AnyUniqueWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -829,7 +832,7 @@ export interface AnyUniqueModel {
 
   create<S extends AnyUniqueSelect | undefined = undefined>(options: {
     data: AnyUniqueCreateInput;
-    select?: S;
+    select?: SelectArg<S, AnyUniqueSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAnyUniquePayload<S>>;
 
@@ -840,7 +843,7 @@ export interface AnyUniqueModel {
     where: AnyUniqueWhere;
     data: D;
     unset?: SafeUnset<AnyUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyUniqueSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAnyUniquePayload<S>[]>;
 
@@ -852,7 +855,7 @@ export interface AnyUniqueModel {
     where: AnyUniqueFindUniqueWhere;
     data: D;
     unset?: SafeUnset<AnyUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyUniqueSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -872,7 +875,7 @@ export interface AnyUniqueModel {
     create: AnyUniqueCreateInput;
     update?: D;
     unset?: SafeUnset<AnyUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyUniqueSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -892,7 +895,7 @@ export interface AnyUniqueModel {
     create: AnyUniqueCreateInput;
     update?: D;
     unset?: SafeUnset<AnyUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyUniqueSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -952,6 +955,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1054,7 +1058,7 @@ export interface AnyWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AnyWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, AnyWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyWithObject | keyof AnyWithObjectWhere)]?: never };
     orderBy?: AnyWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1067,7 +1071,7 @@ export interface AnyWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AnyWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, AnyWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyWithObject | keyof AnyWithObjectWhere)]?: never };
     orderBy?: AnyWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1082,7 +1086,7 @@ export interface AnyWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: AnyWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, AnyWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof AnyWithObject | keyof AnyWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1091,7 +1095,7 @@ export interface AnyWithObjectModel {
 
   create<S extends AnyWithObjectSelect | undefined = undefined>(options: {
     data: AnyWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, AnyWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAnyWithObjectPayload<S>>;
 
@@ -1102,7 +1106,7 @@ export interface AnyWithObjectModel {
     where: AnyWithObjectWhere;
     data: D;
     unset?: SafeUnset<AnyWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAnyWithObjectPayload<S>[]>;
 
@@ -1114,7 +1118,7 @@ export interface AnyWithObjectModel {
     where: AnyWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<AnyWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1134,7 +1138,7 @@ export interface AnyWithObjectModel {
     create: AnyWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<AnyWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1154,7 +1158,7 @@ export interface AnyWithObjectModel {
     create: AnyWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<AnyWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AnyWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

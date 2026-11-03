@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -224,7 +225,7 @@ export interface BookModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BookWhere;
-    select?: S;
+    select?: SelectArg<S, BookSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Book | keyof BookWhere)]?: never };
     orderBy?: BookOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -239,7 +240,7 @@ export interface BookModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BookWhere;
-    select?: S;
+    select?: SelectArg<S, BookSelectFields>;
     compute?: C & { [K in keyof C & (keyof Book | keyof BookWhere)]?: never };
     orderBy?: BookOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -256,7 +257,7 @@ export interface BookModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BookFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, BookSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Book | keyof BookWhere)]?: never };
     txn?: CerialTransaction;
@@ -266,7 +267,7 @@ export interface BookModel {
 
   create<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options: {
     data: BookCreateInput;
-    select?: S;
+    select?: SelectArg<S, BookSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBookPayload<S, I>>;
@@ -279,7 +280,7 @@ export interface BookModel {
     where: BookWhere;
     data: D;
     unset?: SafeUnset<BookUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BookSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBookPayload<S, I>[]>;
@@ -293,7 +294,7 @@ export interface BookModel {
     where: BookFindUniqueWhere;
     data: D;
     unset?: SafeUnset<BookUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BookSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -315,7 +316,7 @@ export interface BookModel {
     create: BookCreateInput;
     update?: D;
     unset?: SafeUnset<BookUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BookSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -337,7 +338,7 @@ export interface BookModel {
     create: BookCreateInput;
     update?: D;
     unset?: SafeUnset<BookUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BookSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -398,6 +399,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -568,7 +570,7 @@ export interface PublisherModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: PublisherWhere;
-    select?: S;
+    select?: SelectArg<S, PublisherSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Publisher | keyof PublisherWhere)]?: never };
     orderBy?: PublisherOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -583,7 +585,7 @@ export interface PublisherModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: PublisherWhere;
-    select?: S;
+    select?: SelectArg<S, PublisherSelectFields>;
     compute?: C & { [K in keyof C & (keyof Publisher | keyof PublisherWhere)]?: never };
     orderBy?: PublisherOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -600,7 +602,7 @@ export interface PublisherModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: PublisherFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, PublisherSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Publisher | keyof PublisherWhere)]?: never };
     txn?: CerialTransaction;
@@ -613,7 +615,7 @@ export interface PublisherModel {
     I extends PublisherInclude | undefined = undefined,
   >(options: {
     data: PublisherCreateInput;
-    select?: S;
+    select?: SelectArg<S, PublisherSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetPublisherPayload<S, I>>;
@@ -626,7 +628,7 @@ export interface PublisherModel {
     where: PublisherWhere;
     data: D;
     unset?: SafeUnset<PublisherUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PublisherSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetPublisherPayload<S, I>[]>;
@@ -640,7 +642,7 @@ export interface PublisherModel {
     where: PublisherFindUniqueWhere;
     data: D;
     unset?: SafeUnset<PublisherUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PublisherSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -662,7 +664,7 @@ export interface PublisherModel {
     create: PublisherCreateInput;
     update?: D;
     unset?: SafeUnset<PublisherUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PublisherSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -684,7 +686,7 @@ export interface PublisherModel {
     create: PublisherCreateInput;
     update?: D;
     unset?: SafeUnset<PublisherUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PublisherSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record

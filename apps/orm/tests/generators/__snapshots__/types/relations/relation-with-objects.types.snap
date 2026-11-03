@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -222,7 +223,7 @@ export interface RelObjCompanyModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: RelObjCompanyWhere;
-    select?: S;
+    select?: SelectArg<S, RelObjCompanySelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof RelObjCompany | keyof RelObjCompanyWhere)]?: never };
     orderBy?: RelObjCompanyOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -237,7 +238,7 @@ export interface RelObjCompanyModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: RelObjCompanyWhere;
-    select?: S;
+    select?: SelectArg<S, RelObjCompanySelectFields>;
     compute?: C & { [K in keyof C & (keyof RelObjCompany | keyof RelObjCompanyWhere)]?: never };
     orderBy?: RelObjCompanyOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -254,7 +255,7 @@ export interface RelObjCompanyModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: RelObjCompanyFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, RelObjCompanySelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof RelObjCompany | keyof RelObjCompanyWhere)]?: never };
     txn?: CerialTransaction;
@@ -267,7 +268,7 @@ export interface RelObjCompanyModel {
     I extends RelObjCompanyInclude | undefined = undefined,
   >(options: {
     data: RelObjCompanyCreateInput;
-    select?: S;
+    select?: SelectArg<S, RelObjCompanySelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRelObjCompanyPayload<S, I>>;
@@ -280,7 +281,7 @@ export interface RelObjCompanyModel {
     where: RelObjCompanyWhere;
     data: D;
     unset?: SafeUnset<RelObjCompanyUnset, D>;
-    select?: S;
+    select?: SelectArg<S, RelObjCompanySelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRelObjCompanyPayload<S, I>[]>;
@@ -294,7 +295,7 @@ export interface RelObjCompanyModel {
     where: RelObjCompanyFindUniqueWhere;
     data: D;
     unset?: SafeUnset<RelObjCompanyUnset, D>;
-    select?: S;
+    select?: SelectArg<S, RelObjCompanySelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -316,7 +317,7 @@ export interface RelObjCompanyModel {
     create: RelObjCompanyCreateInput;
     update?: D;
     unset?: SafeUnset<RelObjCompanyUnset, D>;
-    select?: S;
+    select?: SelectArg<S, RelObjCompanySelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -338,7 +339,7 @@ export interface RelObjCompanyModel {
     create: RelObjCompanyCreateInput;
     update?: D;
     unset?: SafeUnset<RelObjCompanyUnset, D>;
-    select?: S;
+    select?: SelectArg<S, RelObjCompanySelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -399,6 +400,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -589,7 +591,7 @@ export interface RelObjEmployeeModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: RelObjEmployeeWhere;
-    select?: S;
+    select?: SelectArg<S, RelObjEmployeeSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof RelObjEmployee | keyof RelObjEmployeeWhere)]?: never };
     orderBy?: RelObjEmployeeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -604,7 +606,7 @@ export interface RelObjEmployeeModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: RelObjEmployeeWhere;
-    select?: S;
+    select?: SelectArg<S, RelObjEmployeeSelectFields>;
     compute?: C & { [K in keyof C & (keyof RelObjEmployee | keyof RelObjEmployeeWhere)]?: never };
     orderBy?: RelObjEmployeeOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -621,7 +623,7 @@ export interface RelObjEmployeeModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: RelObjEmployeeFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, RelObjEmployeeSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof RelObjEmployee | keyof RelObjEmployeeWhere)]?: never };
     txn?: CerialTransaction;
@@ -634,7 +636,7 @@ export interface RelObjEmployeeModel {
     I extends RelObjEmployeeInclude | undefined = undefined,
   >(options: {
     data: RelObjEmployeeCreateInput;
-    select?: S;
+    select?: SelectArg<S, RelObjEmployeeSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRelObjEmployeePayload<S, I>>;
@@ -647,7 +649,7 @@ export interface RelObjEmployeeModel {
     where: RelObjEmployeeWhere;
     data: D;
     unset?: SafeUnset<RelObjEmployeeUnset, D>;
-    select?: S;
+    select?: SelectArg<S, RelObjEmployeeSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetRelObjEmployeePayload<S, I>[]>;
@@ -661,7 +663,7 @@ export interface RelObjEmployeeModel {
     where: RelObjEmployeeFindUniqueWhere;
     data: D;
     unset?: SafeUnset<RelObjEmployeeUnset, D>;
-    select?: S;
+    select?: SelectArg<S, RelObjEmployeeSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -683,7 +685,7 @@ export interface RelObjEmployeeModel {
     create: RelObjEmployeeCreateInput;
     update?: D;
     unset?: SafeUnset<RelObjEmployeeUnset, D>;
-    select?: S;
+    select?: SelectArg<S, RelObjEmployeeSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -705,7 +707,7 @@ export interface RelObjEmployeeModel {
     create: RelObjEmployeeCreateInput;
     update?: D;
     unset?: SafeUnset<RelObjEmployeeUnset, D>;
-    select?: S;
+    select?: SelectArg<S, RelObjEmployeeSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record

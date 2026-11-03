@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -245,7 +246,7 @@ export interface ContentItemModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ContentItemWhere;
-    select?: S;
+    select?: SelectArg<S, ContentItemSelectFields>;
     compute?: C & { [K in keyof C & (keyof ContentItem | keyof ContentItemWhere)]?: never };
     orderBy?: ContentItemOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -258,7 +259,7 @@ export interface ContentItemModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ContentItemWhere;
-    select?: S;
+    select?: SelectArg<S, ContentItemSelectFields>;
     compute?: C & { [K in keyof C & (keyof ContentItem | keyof ContentItemWhere)]?: never };
     orderBy?: ContentItemOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -273,7 +274,7 @@ export interface ContentItemModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ContentItemFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ContentItemSelectFields>;
     compute?: C & { [K in keyof C & (keyof ContentItem | keyof ContentItemWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -282,7 +283,7 @@ export interface ContentItemModel {
 
   create<S extends ContentItemSelect | undefined = undefined>(options: {
     data: ContentItemCreateInput;
-    select?: S;
+    select?: SelectArg<S, ContentItemSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetContentItemPayload<S>>;
 
@@ -293,7 +294,7 @@ export interface ContentItemModel {
     where: ContentItemWhere;
     data: D;
     unset?: SafeUnset<ContentItemUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ContentItemSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetContentItemPayload<S>[]>;
 
@@ -305,7 +306,7 @@ export interface ContentItemModel {
     where: ContentItemFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ContentItemUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ContentItemSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -325,7 +326,7 @@ export interface ContentItemModel {
     create: ContentItemCreateInput;
     update?: D;
     unset?: SafeUnset<ContentItemUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ContentItemSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -345,7 +346,7 @@ export interface ContentItemModel {
     create: ContentItemCreateInput;
     update?: D;
     unset?: SafeUnset<ContentItemUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ContentItemSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

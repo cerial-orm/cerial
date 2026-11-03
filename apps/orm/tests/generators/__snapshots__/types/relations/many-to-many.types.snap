@@ -18,6 +18,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -227,7 +228,7 @@ export interface CourseModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: CourseWhere;
-    select?: S;
+    select?: SelectArg<S, CourseSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Course | keyof CourseWhere)]?: never };
     orderBy?: CourseOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -242,7 +243,7 @@ export interface CourseModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: CourseWhere;
-    select?: S;
+    select?: SelectArg<S, CourseSelectFields>;
     compute?: C & { [K in keyof C & (keyof Course | keyof CourseWhere)]?: never };
     orderBy?: CourseOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -259,7 +260,7 @@ export interface CourseModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: CourseFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, CourseSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Course | keyof CourseWhere)]?: never };
     txn?: CerialTransaction;
@@ -269,7 +270,7 @@ export interface CourseModel {
 
   create<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options: {
     data: CourseCreateInput;
-    select?: S;
+    select?: SelectArg<S, CourseSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetCoursePayload<S, I>>;
@@ -282,7 +283,7 @@ export interface CourseModel {
     where: CourseWhere;
     data: D;
     unset?: SafeUnset<CourseUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CourseSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetCoursePayload<S, I>[]>;
@@ -296,7 +297,7 @@ export interface CourseModel {
     where: CourseFindUniqueWhere;
     data: D;
     unset?: SafeUnset<CourseUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CourseSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -318,7 +319,7 @@ export interface CourseModel {
     create: CourseCreateInput;
     update?: D;
     unset?: SafeUnset<CourseUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CourseSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -340,7 +341,7 @@ export interface CourseModel {
     create: CourseCreateInput;
     update?: D;
     unset?: SafeUnset<CourseUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CourseSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -401,6 +402,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -607,7 +609,7 @@ export interface StudentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: StudentWhere;
-    select?: S;
+    select?: SelectArg<S, StudentSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Student | keyof StudentWhere)]?: never };
     orderBy?: StudentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -622,7 +624,7 @@ export interface StudentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: StudentWhere;
-    select?: S;
+    select?: SelectArg<S, StudentSelectFields>;
     compute?: C & { [K in keyof C & (keyof Student | keyof StudentWhere)]?: never };
     orderBy?: StudentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -639,7 +641,7 @@ export interface StudentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: StudentFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, StudentSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Student | keyof StudentWhere)]?: never };
     txn?: CerialTransaction;
@@ -649,7 +651,7 @@ export interface StudentModel {
 
   create<S extends StudentSelect | undefined = undefined, I extends StudentInclude | undefined = undefined>(options: {
     data: StudentCreateInput;
-    select?: S;
+    select?: SelectArg<S, StudentSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetStudentPayload<S, I>>;
@@ -662,7 +664,7 @@ export interface StudentModel {
     where: StudentWhere;
     data: D;
     unset?: SafeUnset<StudentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, StudentSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetStudentPayload<S, I>[]>;
@@ -676,7 +678,7 @@ export interface StudentModel {
     where: StudentFindUniqueWhere;
     data: D;
     unset?: SafeUnset<StudentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, StudentSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -698,7 +700,7 @@ export interface StudentModel {
     create: StudentCreateInput;
     update?: D;
     unset?: SafeUnset<StudentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, StudentSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -720,7 +722,7 @@ export interface StudentModel {
     create: StudentCreateInput;
     update?: D;
     unset?: SafeUnset<StudentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, StudentSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record

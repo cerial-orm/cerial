@@ -18,6 +18,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -181,7 +182,7 @@ export interface ReadonlyRecordModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ReadonlyRecordWhere;
-    select?: S;
+    select?: SelectArg<S, ReadonlyRecordSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof ReadonlyRecord | keyof ReadonlyRecordWhere)]?: never };
     orderBy?: ReadonlyRecordOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -196,7 +197,7 @@ export interface ReadonlyRecordModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ReadonlyRecordWhere;
-    select?: S;
+    select?: SelectArg<S, ReadonlyRecordSelectFields>;
     compute?: C & { [K in keyof C & (keyof ReadonlyRecord | keyof ReadonlyRecordWhere)]?: never };
     orderBy?: ReadonlyRecordOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -213,7 +214,7 @@ export interface ReadonlyRecordModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ReadonlyRecordFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ReadonlyRecordSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof ReadonlyRecord | keyof ReadonlyRecordWhere)]?: never };
     txn?: CerialTransaction;
@@ -226,7 +227,7 @@ export interface ReadonlyRecordModel {
     I extends ReadonlyRecordInclude | undefined = undefined,
   >(options: {
     data: ReadonlyRecordCreateInput;
-    select?: S;
+    select?: SelectArg<S, ReadonlyRecordSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetReadonlyRecordPayload<S, I>>;
@@ -239,7 +240,7 @@ export interface ReadonlyRecordModel {
     where: ReadonlyRecordWhere;
     data: D;
     unset?: SafeUnset<ReadonlyRecordUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ReadonlyRecordSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetReadonlyRecordPayload<S, I>[]>;
@@ -253,7 +254,7 @@ export interface ReadonlyRecordModel {
     where: ReadonlyRecordFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ReadonlyRecordUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ReadonlyRecordSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -275,7 +276,7 @@ export interface ReadonlyRecordModel {
     create: ReadonlyRecordCreateInput;
     update?: D;
     unset?: SafeUnset<ReadonlyRecordUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ReadonlyRecordSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -297,7 +298,7 @@ export interface ReadonlyRecordModel {
     create: ReadonlyRecordCreateInput;
     update?: D;
     unset?: SafeUnset<ReadonlyRecordUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ReadonlyRecordSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -359,6 +360,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -560,7 +562,7 @@ export interface ReadonlyTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ReadonlyTestWhere;
-    select?: S;
+    select?: SelectArg<S, ReadonlyTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof ReadonlyTest | keyof ReadonlyTestWhere)]?: never };
     orderBy?: ReadonlyTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -573,7 +575,7 @@ export interface ReadonlyTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ReadonlyTestWhere;
-    select?: S;
+    select?: SelectArg<S, ReadonlyTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof ReadonlyTest | keyof ReadonlyTestWhere)]?: never };
     orderBy?: ReadonlyTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -588,7 +590,7 @@ export interface ReadonlyTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ReadonlyTestFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ReadonlyTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof ReadonlyTest | keyof ReadonlyTestWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -597,7 +599,7 @@ export interface ReadonlyTestModel {
 
   create<S extends ReadonlyTestSelect | undefined = undefined>(options: {
     data: ReadonlyTestCreateInput;
-    select?: S;
+    select?: SelectArg<S, ReadonlyTestSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetReadonlyTestPayload<S>>;
 
@@ -608,7 +610,7 @@ export interface ReadonlyTestModel {
     where: ReadonlyTestWhere;
     data: D;
     unset?: SafeUnset<ReadonlyTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ReadonlyTestSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetReadonlyTestPayload<S>[]>;
 
@@ -620,7 +622,7 @@ export interface ReadonlyTestModel {
     where: ReadonlyTestFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ReadonlyTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ReadonlyTestSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -640,7 +642,7 @@ export interface ReadonlyTestModel {
     create: ReadonlyTestCreateInput;
     update?: D;
     unset?: SafeUnset<ReadonlyTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ReadonlyTestSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -660,7 +662,7 @@ export interface ReadonlyTestModel {
     create: ReadonlyTestCreateInput;
     update?: D;
     unset?: SafeUnset<ReadonlyTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ReadonlyTestSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

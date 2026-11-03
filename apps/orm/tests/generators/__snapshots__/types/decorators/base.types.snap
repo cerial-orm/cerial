@@ -18,6 +18,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -257,7 +258,7 @@ export interface ArrayDecoratorTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ArrayDecoratorTestWhere;
-    select?: S;
+    select?: SelectArg<S, ArrayDecoratorTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof ArrayDecoratorTest | keyof ArrayDecoratorTestWhere)]?: never };
     orderBy?: ArrayDecoratorTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -270,7 +271,7 @@ export interface ArrayDecoratorTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ArrayDecoratorTestWhere;
-    select?: S;
+    select?: SelectArg<S, ArrayDecoratorTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof ArrayDecoratorTest | keyof ArrayDecoratorTestWhere)]?: never };
     orderBy?: ArrayDecoratorTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -285,7 +286,7 @@ export interface ArrayDecoratorTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ArrayDecoratorTestFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ArrayDecoratorTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof ArrayDecoratorTest | keyof ArrayDecoratorTestWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -294,7 +295,7 @@ export interface ArrayDecoratorTestModel {
 
   create<S extends ArrayDecoratorTestSelect | undefined = undefined>(options: {
     data: ArrayDecoratorTestCreateInput;
-    select?: S;
+    select?: SelectArg<S, ArrayDecoratorTestSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetArrayDecoratorTestPayload<S>>;
 
@@ -305,7 +306,7 @@ export interface ArrayDecoratorTestModel {
     where: ArrayDecoratorTestWhere;
     data: D;
     unset?: SafeUnset<ArrayDecoratorTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ArrayDecoratorTestSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetArrayDecoratorTestPayload<S>[]>;
 
@@ -317,7 +318,7 @@ export interface ArrayDecoratorTestModel {
     where: ArrayDecoratorTestFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ArrayDecoratorTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ArrayDecoratorTestSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -337,7 +338,7 @@ export interface ArrayDecoratorTestModel {
     create: ArrayDecoratorTestCreateInput;
     update?: D;
     unset?: SafeUnset<ArrayDecoratorTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ArrayDecoratorTestSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -357,7 +358,7 @@ export interface ArrayDecoratorTestModel {
     create: ArrayDecoratorTestCreateInput;
     update?: D;
     unset?: SafeUnset<ArrayDecoratorTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ArrayDecoratorTestSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -417,6 +418,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -531,7 +533,7 @@ export interface ScalarArraysModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ScalarArraysWhere;
-    select?: S;
+    select?: SelectArg<S, ScalarArraysSelectFields>;
     compute?: C & { [K in keyof C & (keyof ScalarArrays | keyof ScalarArraysWhere)]?: never };
     orderBy?: ScalarArraysOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -544,7 +546,7 @@ export interface ScalarArraysModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ScalarArraysWhere;
-    select?: S;
+    select?: SelectArg<S, ScalarArraysSelectFields>;
     compute?: C & { [K in keyof C & (keyof ScalarArrays | keyof ScalarArraysWhere)]?: never };
     orderBy?: ScalarArraysOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -559,7 +561,7 @@ export interface ScalarArraysModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ScalarArraysFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ScalarArraysSelectFields>;
     compute?: C & { [K in keyof C & (keyof ScalarArrays | keyof ScalarArraysWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -568,7 +570,7 @@ export interface ScalarArraysModel {
 
   create<S extends ScalarArraysSelect | undefined = undefined>(options: {
     data: ScalarArraysCreateInput;
-    select?: S;
+    select?: SelectArg<S, ScalarArraysSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetScalarArraysPayload<S>>;
 
@@ -579,7 +581,7 @@ export interface ScalarArraysModel {
     where: ScalarArraysWhere;
     data: D;
     unset?: SafeUnset<ScalarArraysUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ScalarArraysSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetScalarArraysPayload<S>[]>;
 
@@ -591,7 +593,7 @@ export interface ScalarArraysModel {
     where: ScalarArraysFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ScalarArraysUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ScalarArraysSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -611,7 +613,7 @@ export interface ScalarArraysModel {
     create: ScalarArraysCreateInput;
     update?: D;
     unset?: SafeUnset<ScalarArraysUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ScalarArraysSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -631,7 +633,7 @@ export interface ScalarArraysModel {
     create: ScalarArraysCreateInput;
     update?: D;
     unset?: SafeUnset<ScalarArraysUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ScalarArraysSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

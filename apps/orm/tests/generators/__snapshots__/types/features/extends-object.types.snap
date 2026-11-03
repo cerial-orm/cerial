@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -186,7 +187,7 @@ export interface ExtAddressUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtAddressUserWhere;
-    select?: S;
+    select?: SelectArg<S, ExtAddressUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtAddressUser | keyof ExtAddressUserWhere)]?: never };
     orderBy?: ExtAddressUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -199,7 +200,7 @@ export interface ExtAddressUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtAddressUserWhere;
-    select?: S;
+    select?: SelectArg<S, ExtAddressUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtAddressUser | keyof ExtAddressUserWhere)]?: never };
     orderBy?: ExtAddressUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -214,7 +215,7 @@ export interface ExtAddressUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtAddressUserFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtAddressUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtAddressUser | keyof ExtAddressUserWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -223,7 +224,7 @@ export interface ExtAddressUserModel {
 
   create<S extends ExtAddressUserSelect | undefined = undefined>(options: {
     data: ExtAddressUserCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtAddressUserSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtAddressUserPayload<S>>;
 
@@ -234,7 +235,7 @@ export interface ExtAddressUserModel {
     where: ExtAddressUserWhere;
     data: D;
     unset?: SafeUnset<ExtAddressUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtAddressUserSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtAddressUserPayload<S>[]>;
 
@@ -246,7 +247,7 @@ export interface ExtAddressUserModel {
     where: ExtAddressUserFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtAddressUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtAddressUserSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -266,7 +267,7 @@ export interface ExtAddressUserModel {
     create: ExtAddressUserCreateInput;
     update?: D;
     unset?: SafeUnset<ExtAddressUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtAddressUserSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -286,7 +287,7 @@ export interface ExtAddressUserModel {
     create: ExtAddressUserCreateInput;
     update?: D;
     unset?: SafeUnset<ExtAddressUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtAddressUserSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -346,6 +347,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -457,7 +459,7 @@ export interface ExtChainModelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtChainModelWhere;
-    select?: S;
+    select?: SelectArg<S, ExtChainModelSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtChainModel | keyof ExtChainModelWhere)]?: never };
     orderBy?: ExtChainModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -470,7 +472,7 @@ export interface ExtChainModelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtChainModelWhere;
-    select?: S;
+    select?: SelectArg<S, ExtChainModelSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtChainModel | keyof ExtChainModelWhere)]?: never };
     orderBy?: ExtChainModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -485,7 +487,7 @@ export interface ExtChainModelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtChainModelFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtChainModelSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtChainModel | keyof ExtChainModelWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -494,7 +496,7 @@ export interface ExtChainModelModel {
 
   create<S extends ExtChainModelSelect | undefined = undefined>(options: {
     data: ExtChainModelCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtChainModelSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtChainModelPayload<S>>;
 
@@ -505,7 +507,7 @@ export interface ExtChainModelModel {
     where: ExtChainModelWhere;
     data: D;
     unset?: SafeUnset<ExtChainModelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtChainModelSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtChainModelPayload<S>[]>;
 
@@ -517,7 +519,7 @@ export interface ExtChainModelModel {
     where: ExtChainModelFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtChainModelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtChainModelSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -537,7 +539,7 @@ export interface ExtChainModelModel {
     create: ExtChainModelCreateInput;
     update?: D;
     unset?: SafeUnset<ExtChainModelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtChainModelSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -557,7 +559,7 @@ export interface ExtChainModelModel {
     create: ExtChainModelCreateInput;
     update?: D;
     unset?: SafeUnset<ExtChainModelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtChainModelSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

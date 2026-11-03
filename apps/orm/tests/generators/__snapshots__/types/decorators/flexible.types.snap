@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -155,9 +156,9 @@ export type FlexUserUnset = {
 export interface FlexUserSelectFields {
   id?: boolean;
   name?: boolean;
-  address?: boolean | FlexAddressSelect;
-  shipping?: boolean | FlexAddressSelect;
-  tags?: boolean | FlexAddressSelect;
+  address?: boolean | (FlexAddressSelect & Record<string, unknown>);
+  shipping?: boolean | (FlexAddressSelect & Record<string, unknown>);
+  tags?: boolean | (FlexAddressSelect & Record<string, unknown>);
   profile?: boolean | FlexProfileSelect;
   strictAddress?: boolean | FlexAddressSelect;
 }
@@ -193,7 +194,7 @@ export interface FlexUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: FlexUserWhere;
-    select?: S;
+    select?: SelectArg<S, FlexUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof FlexUser | keyof FlexUserWhere)]?: never };
     orderBy?: FlexUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -206,7 +207,7 @@ export interface FlexUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: FlexUserWhere;
-    select?: S;
+    select?: SelectArg<S, FlexUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof FlexUser | keyof FlexUserWhere)]?: never };
     orderBy?: FlexUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -221,7 +222,7 @@ export interface FlexUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: FlexUserFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, FlexUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof FlexUser | keyof FlexUserWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -230,7 +231,7 @@ export interface FlexUserModel {
 
   create<S extends FlexUserSelect | undefined = undefined>(options: {
     data: FlexUserCreateInput;
-    select?: S;
+    select?: SelectArg<S, FlexUserSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetFlexUserPayload<S>>;
 
@@ -241,7 +242,7 @@ export interface FlexUserModel {
     where: FlexUserWhere;
     data: D;
     unset?: SafeUnset<FlexUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, FlexUserSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetFlexUserPayload<S>[]>;
 
@@ -253,7 +254,7 @@ export interface FlexUserModel {
     where: FlexUserFindUniqueWhere;
     data: D;
     unset?: SafeUnset<FlexUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, FlexUserSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -273,7 +274,7 @@ export interface FlexUserModel {
     create: FlexUserCreateInput;
     update?: D;
     unset?: SafeUnset<FlexUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, FlexUserSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -293,7 +294,7 @@ export interface FlexUserModel {
     create: FlexUserCreateInput;
     update?: D;
     unset?: SafeUnset<FlexUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, FlexUserSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -495,7 +496,7 @@ export interface FlexProfileWhere {
 
 export interface FlexProfileSelectFields {
   bio?: boolean;
-  metadata?: boolean | FlexMetaSelect;
+  metadata?: boolean | (FlexMetaSelect & Record<string, unknown>);
 }
 
 export type FlexProfileSelect = AtLeastOne<FlexProfileSelectFields>;

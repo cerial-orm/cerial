@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -211,7 +212,7 @@ export interface ProfileOptionalModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ProfileOptionalWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileOptionalSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof ProfileOptional | keyof ProfileOptionalWhere)]?: never };
     orderBy?: ProfileOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -226,7 +227,7 @@ export interface ProfileOptionalModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ProfileOptionalWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileOptionalSelectFields>;
     compute?: C & { [K in keyof C & (keyof ProfileOptional | keyof ProfileOptionalWhere)]?: never };
     orderBy?: ProfileOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -243,7 +244,7 @@ export interface ProfileOptionalModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ProfileOptionalFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileOptionalSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof ProfileOptional | keyof ProfileOptionalWhere)]?: never };
     txn?: CerialTransaction;
@@ -256,7 +257,7 @@ export interface ProfileOptionalModel {
     I extends ProfileOptionalInclude | undefined = undefined,
   >(options: {
     data: ProfileOptionalCreateInput;
-    select?: S;
+    select?: SelectArg<S, ProfileOptionalSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileOptionalPayload<S, I>>;
@@ -269,7 +270,7 @@ export interface ProfileOptionalModel {
     where: ProfileOptionalWhere;
     data: D;
     unset?: SafeUnset<ProfileOptionalUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileOptionalSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileOptionalPayload<S, I>[]>;
@@ -283,7 +284,7 @@ export interface ProfileOptionalModel {
     where: ProfileOptionalFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ProfileOptionalUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileOptionalSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -305,7 +306,7 @@ export interface ProfileOptionalModel {
     create: ProfileOptionalCreateInput;
     update?: D;
     unset?: SafeUnset<ProfileOptionalUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileOptionalSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -327,7 +328,7 @@ export interface ProfileOptionalModel {
     create: ProfileOptionalCreateInput;
     update?: D;
     unset?: SafeUnset<ProfileOptionalUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileOptionalSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -389,6 +390,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -599,7 +601,7 @@ export interface ProfileRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ProfileRequiredWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileRequiredSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof ProfileRequired | keyof ProfileRequiredWhere)]?: never };
     orderBy?: ProfileRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -614,7 +616,7 @@ export interface ProfileRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ProfileRequiredWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileRequiredSelectFields>;
     compute?: C & { [K in keyof C & (keyof ProfileRequired | keyof ProfileRequiredWhere)]?: never };
     orderBy?: ProfileRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -631,7 +633,7 @@ export interface ProfileRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ProfileRequiredFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileRequiredSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof ProfileRequired | keyof ProfileRequiredWhere)]?: never };
     txn?: CerialTransaction;
@@ -644,7 +646,7 @@ export interface ProfileRequiredModel {
     I extends ProfileRequiredInclude | undefined = undefined,
   >(options: {
     data: ProfileRequiredCreateInput;
-    select?: S;
+    select?: SelectArg<S, ProfileRequiredSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileRequiredPayload<S, I>>;
@@ -657,7 +659,7 @@ export interface ProfileRequiredModel {
     where: ProfileRequiredWhere;
     data: D;
     unset?: SafeUnset<ProfileRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileRequiredSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileRequiredPayload<S, I>[]>;
@@ -671,7 +673,7 @@ export interface ProfileRequiredModel {
     where: ProfileRequiredFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ProfileRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -693,7 +695,7 @@ export interface ProfileRequiredModel {
     create: ProfileRequiredCreateInput;
     update?: D;
     unset?: SafeUnset<ProfileRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -715,7 +717,7 @@ export interface ProfileRequiredModel {
     create: ProfileRequiredCreateInput;
     update?: D;
     unset?: SafeUnset<ProfileRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -777,6 +779,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -958,7 +961,7 @@ export interface ProfileSingleSidedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ProfileSingleSidedWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileSingleSidedSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof ProfileSingleSided | keyof ProfileSingleSidedWhere)]?: never };
     orderBy?: ProfileSingleSidedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -973,7 +976,7 @@ export interface ProfileSingleSidedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ProfileSingleSidedWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileSingleSidedSelectFields>;
     compute?: C & { [K in keyof C & (keyof ProfileSingleSided | keyof ProfileSingleSidedWhere)]?: never };
     orderBy?: ProfileSingleSidedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -990,7 +993,7 @@ export interface ProfileSingleSidedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ProfileSingleSidedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ProfileSingleSidedSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof ProfileSingleSided | keyof ProfileSingleSidedWhere)]?: never };
     txn?: CerialTransaction;
@@ -1003,7 +1006,7 @@ export interface ProfileSingleSidedModel {
     I extends ProfileSingleSidedInclude | undefined = undefined,
   >(options: {
     data: ProfileSingleSidedCreateInput;
-    select?: S;
+    select?: SelectArg<S, ProfileSingleSidedSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I>>;
@@ -1016,7 +1019,7 @@ export interface ProfileSingleSidedModel {
     where: ProfileSingleSidedWhere;
     data: D;
     unset?: SafeUnset<ProfileSingleSidedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileSingleSidedSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I>[]>;
@@ -1030,7 +1033,7 @@ export interface ProfileSingleSidedModel {
     where: ProfileSingleSidedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ProfileSingleSidedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileSingleSidedSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -1052,7 +1055,7 @@ export interface ProfileSingleSidedModel {
     create: ProfileSingleSidedCreateInput;
     update?: D;
     unset?: SafeUnset<ProfileSingleSidedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileSingleSidedSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -1074,7 +1077,7 @@ export interface ProfileSingleSidedModel {
     create: ProfileSingleSidedCreateInput;
     update?: D;
     unset?: SafeUnset<ProfileSingleSidedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ProfileSingleSidedSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -1135,6 +1138,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1313,7 +1317,7 @@ export interface UserOptionalModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserOptionalWhere;
-    select?: S;
+    select?: SelectArg<S, UserOptionalSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof UserOptional | keyof UserOptionalWhere)]?: never };
     orderBy?: UserOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -1328,7 +1332,7 @@ export interface UserOptionalModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserOptionalWhere;
-    select?: S;
+    select?: SelectArg<S, UserOptionalSelectFields>;
     compute?: C & { [K in keyof C & (keyof UserOptional | keyof UserOptionalWhere)]?: never };
     orderBy?: UserOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1345,7 +1349,7 @@ export interface UserOptionalModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UserOptionalFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UserOptionalSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof UserOptional | keyof UserOptionalWhere)]?: never };
     txn?: CerialTransaction;
@@ -1358,7 +1362,7 @@ export interface UserOptionalModel {
     I extends UserOptionalInclude | undefined = undefined,
   >(options: {
     data: UserOptionalCreateInput;
-    select?: S;
+    select?: SelectArg<S, UserOptionalSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserOptionalPayload<S, I>>;
@@ -1371,7 +1375,7 @@ export interface UserOptionalModel {
     where: UserOptionalWhere;
     data: D;
     unset?: SafeUnset<UserOptionalUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserOptionalSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserOptionalPayload<S, I>[]>;
@@ -1385,7 +1389,7 @@ export interface UserOptionalModel {
     where: UserOptionalFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UserOptionalUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserOptionalSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -1407,7 +1411,7 @@ export interface UserOptionalModel {
     create: UserOptionalCreateInput;
     update?: D;
     unset?: SafeUnset<UserOptionalUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserOptionalSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -1429,7 +1433,7 @@ export interface UserOptionalModel {
     create: UserOptionalCreateInput;
     update?: D;
     unset?: SafeUnset<UserOptionalUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserOptionalSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -1490,6 +1494,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1668,7 +1673,7 @@ export interface UserRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserRequiredWhere;
-    select?: S;
+    select?: SelectArg<S, UserRequiredSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof UserRequired | keyof UserRequiredWhere)]?: never };
     orderBy?: UserRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -1683,7 +1688,7 @@ export interface UserRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserRequiredWhere;
-    select?: S;
+    select?: SelectArg<S, UserRequiredSelectFields>;
     compute?: C & { [K in keyof C & (keyof UserRequired | keyof UserRequiredWhere)]?: never };
     orderBy?: UserRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1700,7 +1705,7 @@ export interface UserRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UserRequiredFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UserRequiredSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof UserRequired | keyof UserRequiredWhere)]?: never };
     txn?: CerialTransaction;
@@ -1713,7 +1718,7 @@ export interface UserRequiredModel {
     I extends UserRequiredInclude | undefined = undefined,
   >(options: {
     data: UserRequiredCreateInput;
-    select?: S;
+    select?: SelectArg<S, UserRequiredSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserRequiredPayload<S, I>>;
@@ -1726,7 +1731,7 @@ export interface UserRequiredModel {
     where: UserRequiredWhere;
     data: D;
     unset?: SafeUnset<UserRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserRequiredSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserRequiredPayload<S, I>[]>;
@@ -1740,7 +1745,7 @@ export interface UserRequiredModel {
     where: UserRequiredFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UserRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -1762,7 +1767,7 @@ export interface UserRequiredModel {
     create: UserRequiredCreateInput;
     update?: D;
     unset?: SafeUnset<UserRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -1784,7 +1789,7 @@ export interface UserRequiredModel {
     create: UserRequiredCreateInput;
     update?: D;
     unset?: SafeUnset<UserRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -1845,6 +1850,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1942,7 +1948,7 @@ export interface UserSingleSidedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserSingleSidedWhere;
-    select?: S;
+    select?: SelectArg<S, UserSingleSidedSelectFields>;
     compute?: C & { [K in keyof C & (keyof UserSingleSided | keyof UserSingleSidedWhere)]?: never };
     orderBy?: UserSingleSidedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1955,7 +1961,7 @@ export interface UserSingleSidedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: UserSingleSidedWhere;
-    select?: S;
+    select?: SelectArg<S, UserSingleSidedSelectFields>;
     compute?: C & { [K in keyof C & (keyof UserSingleSided | keyof UserSingleSidedWhere)]?: never };
     orderBy?: UserSingleSidedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1970,7 +1976,7 @@ export interface UserSingleSidedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: UserSingleSidedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, UserSingleSidedSelectFields>;
     compute?: C & { [K in keyof C & (keyof UserSingleSided | keyof UserSingleSidedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1979,7 +1985,7 @@ export interface UserSingleSidedModel {
 
   create<S extends UserSingleSidedSelect | undefined = undefined>(options: {
     data: UserSingleSidedCreateInput;
-    select?: S;
+    select?: SelectArg<S, UserSingleSidedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserSingleSidedPayload<S>>;
 
@@ -1990,7 +1996,7 @@ export interface UserSingleSidedModel {
     where: UserSingleSidedWhere;
     data: D;
     unset?: SafeUnset<UserSingleSidedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSingleSidedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetUserSingleSidedPayload<S>[]>;
 
@@ -2002,7 +2008,7 @@ export interface UserSingleSidedModel {
     where: UserSingleSidedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<UserSingleSidedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSingleSidedSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -2022,7 +2028,7 @@ export interface UserSingleSidedModel {
     create: UserSingleSidedCreateInput;
     update?: D;
     unset?: SafeUnset<UserSingleSidedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSingleSidedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -2042,7 +2048,7 @@ export interface UserSingleSidedModel {
     create: UserSingleSidedCreateInput;
     update?: D;
     unset?: SafeUnset<UserSingleSidedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, UserSingleSidedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

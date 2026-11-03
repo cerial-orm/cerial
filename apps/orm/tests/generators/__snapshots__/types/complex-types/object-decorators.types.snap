@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -158,7 +159,7 @@ export interface ObjDecUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ObjDecUserWhere;
-    select?: S;
+    select?: SelectArg<S, ObjDecUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ObjDecUser | keyof ObjDecUserWhere)]?: never };
     orderBy?: ObjDecUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -171,7 +172,7 @@ export interface ObjDecUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ObjDecUserWhere;
-    select?: S;
+    select?: SelectArg<S, ObjDecUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ObjDecUser | keyof ObjDecUserWhere)]?: never };
     orderBy?: ObjDecUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -186,7 +187,7 @@ export interface ObjDecUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ObjDecUserFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ObjDecUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ObjDecUser | keyof ObjDecUserWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -195,7 +196,7 @@ export interface ObjDecUserModel {
 
   create<S extends ObjDecUserSelect | undefined = undefined>(options: {
     data: ObjDecUserCreateInput;
-    select?: S;
+    select?: SelectArg<S, ObjDecUserSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetObjDecUserPayload<S>>;
 
@@ -206,7 +207,7 @@ export interface ObjDecUserModel {
     where: ObjDecUserWhere;
     data: D;
     unset?: SafeUnset<ObjDecUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ObjDecUserSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetObjDecUserPayload<S>[]>;
 
@@ -218,7 +219,7 @@ export interface ObjDecUserModel {
     where: ObjDecUserFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ObjDecUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ObjDecUserSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -238,7 +239,7 @@ export interface ObjDecUserModel {
     create: ObjDecUserCreateInput;
     update?: D;
     unset?: SafeUnset<ObjDecUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ObjDecUserSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -258,7 +259,7 @@ export interface ObjDecUserModel {
     create: ObjDecUserCreateInput;
     update?: D;
     unset?: SafeUnset<ObjDecUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ObjDecUserSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

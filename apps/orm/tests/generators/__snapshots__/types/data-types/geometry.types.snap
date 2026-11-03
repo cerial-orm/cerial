@@ -39,6 +39,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -230,7 +231,7 @@ export interface GeometryBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: GeometryBasicWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryBasic | keyof GeometryBasicWhere)]?: never };
     orderBy?: GeometryBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -243,7 +244,7 @@ export interface GeometryBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: GeometryBasicWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryBasic | keyof GeometryBasicWhere)]?: never };
     orderBy?: GeometryBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -258,7 +259,7 @@ export interface GeometryBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: GeometryBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryBasic | keyof GeometryBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -267,7 +268,7 @@ export interface GeometryBasicModel {
 
   create<S extends GeometryBasicSelect | undefined = undefined>(options: {
     data: GeometryBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, GeometryBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetGeometryBasicPayload<S>>;
 
@@ -278,7 +279,7 @@ export interface GeometryBasicModel {
     where: GeometryBasicWhere;
     data: D;
     unset?: SafeUnset<GeometryBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetGeometryBasicPayload<S>[]>;
 
@@ -290,7 +291,7 @@ export interface GeometryBasicModel {
     where: GeometryBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<GeometryBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -310,7 +311,7 @@ export interface GeometryBasicModel {
     create: GeometryBasicCreateInput;
     update?: D;
     unset?: SafeUnset<GeometryBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -330,7 +331,7 @@ export interface GeometryBasicModel {
     create: GeometryBasicCreateInput;
     update?: D;
     unset?: SafeUnset<GeometryBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -410,6 +411,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -552,7 +554,7 @@ export interface GeometryMultiModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: GeometryMultiWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryMultiSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryMulti | keyof GeometryMultiWhere)]?: never };
     orderBy?: GeometryMultiOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -565,7 +567,7 @@ export interface GeometryMultiModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: GeometryMultiWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryMultiSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryMulti | keyof GeometryMultiWhere)]?: never };
     orderBy?: GeometryMultiOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -580,7 +582,7 @@ export interface GeometryMultiModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: GeometryMultiFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryMultiSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryMulti | keyof GeometryMultiWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -589,7 +591,7 @@ export interface GeometryMultiModel {
 
   create<S extends GeometryMultiSelect | undefined = undefined>(options: {
     data: GeometryMultiCreateInput;
-    select?: S;
+    select?: SelectArg<S, GeometryMultiSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetGeometryMultiPayload<S>>;
 
@@ -600,7 +602,7 @@ export interface GeometryMultiModel {
     where: GeometryMultiWhere;
     data: D;
     unset?: SafeUnset<GeometryMultiUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryMultiSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetGeometryMultiPayload<S>[]>;
 
@@ -612,7 +614,7 @@ export interface GeometryMultiModel {
     where: GeometryMultiFindUniqueWhere;
     data: D;
     unset?: SafeUnset<GeometryMultiUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryMultiSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -632,7 +634,7 @@ export interface GeometryMultiModel {
     create: GeometryMultiCreateInput;
     update?: D;
     unset?: SafeUnset<GeometryMultiUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryMultiSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -652,7 +654,7 @@ export interface GeometryMultiModel {
     create: GeometryMultiCreateInput;
     update?: D;
     unset?: SafeUnset<GeometryMultiUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryMultiSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -712,6 +714,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -821,7 +824,7 @@ export interface GeometryWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: GeometryWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryWithObject | keyof GeometryWithObjectWhere)]?: never };
     orderBy?: GeometryWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -834,7 +837,7 @@ export interface GeometryWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: GeometryWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryWithObject | keyof GeometryWithObjectWhere)]?: never };
     orderBy?: GeometryWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -849,7 +852,7 @@ export interface GeometryWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: GeometryWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryWithObject | keyof GeometryWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -858,7 +861,7 @@ export interface GeometryWithObjectModel {
 
   create<S extends GeometryWithObjectSelect | undefined = undefined>(options: {
     data: GeometryWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, GeometryWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetGeometryWithObjectPayload<S>>;
 
@@ -869,7 +872,7 @@ export interface GeometryWithObjectModel {
     where: GeometryWithObjectWhere;
     data: D;
     unset?: SafeUnset<GeometryWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetGeometryWithObjectPayload<S>[]>;
 
@@ -881,7 +884,7 @@ export interface GeometryWithObjectModel {
     where: GeometryWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<GeometryWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -901,7 +904,7 @@ export interface GeometryWithObjectModel {
     create: GeometryWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<GeometryWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -921,7 +924,7 @@ export interface GeometryWithObjectModel {
     create: GeometryWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<GeometryWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -981,6 +984,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1087,7 +1091,7 @@ export interface GeometryWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: GeometryWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryWithTuple | keyof GeometryWithTupleWhere)]?: never };
     orderBy?: GeometryWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1100,7 +1104,7 @@ export interface GeometryWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: GeometryWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryWithTuple | keyof GeometryWithTupleWhere)]?: never };
     orderBy?: GeometryWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1115,7 +1119,7 @@ export interface GeometryWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: GeometryWithTupleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, GeometryWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof GeometryWithTuple | keyof GeometryWithTupleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1124,7 +1128,7 @@ export interface GeometryWithTupleModel {
 
   create<S extends GeometryWithTupleSelect | undefined = undefined>(options: {
     data: GeometryWithTupleCreateInput;
-    select?: S;
+    select?: SelectArg<S, GeometryWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetGeometryWithTuplePayload<S>>;
 
@@ -1135,7 +1139,7 @@ export interface GeometryWithTupleModel {
     where: GeometryWithTupleWhere;
     data: D;
     unset?: SafeUnset<GeometryWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetGeometryWithTuplePayload<S>[]>;
 
@@ -1147,7 +1151,7 @@ export interface GeometryWithTupleModel {
     where: GeometryWithTupleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<GeometryWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryWithTupleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1167,7 +1171,7 @@ export interface GeometryWithTupleModel {
     create: GeometryWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<GeometryWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1187,7 +1191,7 @@ export interface GeometryWithTupleModel {
     create: GeometryWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<GeometryWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, GeometryWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

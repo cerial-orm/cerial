@@ -18,6 +18,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -112,7 +113,7 @@ export interface ArticleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ArticleWhere;
-    select?: S;
+    select?: SelectArg<S, ArticleSelectFields>;
     compute?: C & { [K in keyof C & (keyof Article | keyof ArticleWhere)]?: never };
     orderBy?: ArticleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -125,7 +126,7 @@ export interface ArticleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ArticleWhere;
-    select?: S;
+    select?: SelectArg<S, ArticleSelectFields>;
     compute?: C & { [K in keyof C & (keyof Article | keyof ArticleWhere)]?: never };
     orderBy?: ArticleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -140,7 +141,7 @@ export interface ArticleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ArticleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ArticleSelectFields>;
     compute?: C & { [K in keyof C & (keyof Article | keyof ArticleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -149,7 +150,7 @@ export interface ArticleModel {
 
   create<S extends ArticleSelect | undefined = undefined>(options: {
     data: ArticleCreateInput;
-    select?: S;
+    select?: SelectArg<S, ArticleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetArticlePayload<S>>;
 
@@ -160,7 +161,7 @@ export interface ArticleModel {
     where: ArticleWhere;
     data: D;
     unset?: SafeUnset<ArticleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ArticleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetArticlePayload<S>[]>;
 
@@ -172,7 +173,7 @@ export interface ArticleModel {
     where: ArticleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ArticleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ArticleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -192,7 +193,7 @@ export interface ArticleModel {
     create: ArticleCreateInput;
     update?: D;
     unset?: SafeUnset<ArticleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ArticleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -212,7 +213,7 @@ export interface ArticleModel {
     create: ArticleCreateInput;
     update?: D;
     unset?: SafeUnset<ArticleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ArticleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -272,6 +273,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -464,7 +466,7 @@ export interface AuthorModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AuthorWhere;
-    select?: S;
+    select?: SelectArg<S, AuthorSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Author | keyof AuthorWhere)]?: never };
     orderBy?: AuthorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -479,7 +481,7 @@ export interface AuthorModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AuthorWhere;
-    select?: S;
+    select?: SelectArg<S, AuthorSelectFields>;
     compute?: C & { [K in keyof C & (keyof Author | keyof AuthorWhere)]?: never };
     orderBy?: AuthorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -496,7 +498,7 @@ export interface AuthorModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: AuthorFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, AuthorSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Author | keyof AuthorWhere)]?: never };
     txn?: CerialTransaction;
@@ -506,7 +508,7 @@ export interface AuthorModel {
 
   create<S extends AuthorSelect | undefined = undefined, I extends AuthorInclude | undefined = undefined>(options: {
     data: AuthorCreateInput;
-    select?: S;
+    select?: SelectArg<S, AuthorSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAuthorPayload<S, I>>;
@@ -519,7 +521,7 @@ export interface AuthorModel {
     where: AuthorWhere;
     data: D;
     unset?: SafeUnset<AuthorUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AuthorSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAuthorPayload<S, I>[]>;
@@ -533,7 +535,7 @@ export interface AuthorModel {
     where: AuthorFindUniqueWhere;
     data: D;
     unset?: SafeUnset<AuthorUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AuthorSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -555,7 +557,7 @@ export interface AuthorModel {
     create: AuthorCreateInput;
     update?: D;
     unset?: SafeUnset<AuthorUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AuthorSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -577,7 +579,7 @@ export interface AuthorModel {
     create: AuthorCreateInput;
     update?: D;
     unset?: SafeUnset<AuthorUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AuthorSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -639,6 +641,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -805,7 +808,7 @@ export interface CommentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: CommentWhere;
-    select?: S;
+    select?: SelectArg<S, CommentSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Comment | keyof CommentWhere)]?: never };
     orderBy?: CommentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -820,7 +823,7 @@ export interface CommentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: CommentWhere;
-    select?: S;
+    select?: SelectArg<S, CommentSelectFields>;
     compute?: C & { [K in keyof C & (keyof Comment | keyof CommentWhere)]?: never };
     orderBy?: CommentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -837,7 +840,7 @@ export interface CommentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: CommentFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, CommentSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Comment | keyof CommentWhere)]?: never };
     txn?: CerialTransaction;
@@ -847,7 +850,7 @@ export interface CommentModel {
 
   create<S extends CommentSelect | undefined = undefined, I extends CommentInclude | undefined = undefined>(options: {
     data: CommentCreateInput;
-    select?: S;
+    select?: SelectArg<S, CommentSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetCommentPayload<S, I>>;
@@ -860,7 +863,7 @@ export interface CommentModel {
     where: CommentWhere;
     data: D;
     unset?: SafeUnset<CommentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CommentSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetCommentPayload<S, I>[]>;
@@ -874,7 +877,7 @@ export interface CommentModel {
     where: CommentFindUniqueWhere;
     data: D;
     unset?: SafeUnset<CommentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CommentSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -896,7 +899,7 @@ export interface CommentModel {
     create: CommentCreateInput;
     update?: D;
     unset?: SafeUnset<CommentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CommentSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -918,7 +921,7 @@ export interface CommentModel {
     create: CommentCreateInput;
     update?: D;
     unset?: SafeUnset<CommentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CommentSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -980,6 +983,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1206,7 +1210,7 @@ export interface PostRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: PostRequiredWhere;
-    select?: S;
+    select?: SelectArg<S, PostRequiredSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof PostRequired | keyof PostRequiredWhere)]?: never };
     orderBy?: PostRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -1221,7 +1225,7 @@ export interface PostRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: PostRequiredWhere;
-    select?: S;
+    select?: SelectArg<S, PostRequiredSelectFields>;
     compute?: C & { [K in keyof C & (keyof PostRequired | keyof PostRequiredWhere)]?: never };
     orderBy?: PostRequiredOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1238,7 +1242,7 @@ export interface PostRequiredModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: PostRequiredFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, PostRequiredSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof PostRequired | keyof PostRequiredWhere)]?: never };
     txn?: CerialTransaction;
@@ -1251,7 +1255,7 @@ export interface PostRequiredModel {
     I extends PostRequiredInclude | undefined = undefined,
   >(options: {
     data: PostRequiredCreateInput;
-    select?: S;
+    select?: SelectArg<S, PostRequiredSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetPostRequiredPayload<S, I>>;
@@ -1264,7 +1268,7 @@ export interface PostRequiredModel {
     where: PostRequiredWhere;
     data: D;
     unset?: SafeUnset<PostRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PostRequiredSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetPostRequiredPayload<S, I>[]>;
@@ -1278,7 +1282,7 @@ export interface PostRequiredModel {
     where: PostRequiredFindUniqueWhere;
     data: D;
     unset?: SafeUnset<PostRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PostRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -1300,7 +1304,7 @@ export interface PostRequiredModel {
     create: PostRequiredCreateInput;
     update?: D;
     unset?: SafeUnset<PostRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PostRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -1322,7 +1326,7 @@ export interface PostRequiredModel {
     create: PostRequiredCreateInput;
     update?: D;
     unset?: SafeUnset<PostRequiredUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PostRequiredSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record

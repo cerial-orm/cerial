@@ -18,6 +18,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -149,7 +150,7 @@ export interface ExtLiteralContainerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtLiteralContainerWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralContainer | keyof ExtLiteralContainerWhere)]?: never };
     orderBy?: ExtLiteralContainerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -162,7 +163,7 @@ export interface ExtLiteralContainerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtLiteralContainerWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralContainer | keyof ExtLiteralContainerWhere)]?: never };
     orderBy?: ExtLiteralContainerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -177,7 +178,7 @@ export interface ExtLiteralContainerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtLiteralContainerFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralContainer | keyof ExtLiteralContainerWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -186,7 +187,7 @@ export interface ExtLiteralContainerModel {
 
   create<S extends ExtLiteralContainerSelect | undefined = undefined>(options: {
     data: ExtLiteralContainerCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtLiteralContainerPayload<S>>;
 
@@ -197,7 +198,7 @@ export interface ExtLiteralContainerModel {
     where: ExtLiteralContainerWhere;
     data: D;
     unset?: SafeUnset<ExtLiteralContainerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtLiteralContainerPayload<S>[]>;
 
@@ -209,7 +210,7 @@ export interface ExtLiteralContainerModel {
     where: ExtLiteralContainerFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtLiteralContainerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -229,7 +230,7 @@ export interface ExtLiteralContainerModel {
     create: ExtLiteralContainerCreateInput;
     update?: D;
     unset?: SafeUnset<ExtLiteralContainerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -249,7 +250,7 @@ export interface ExtLiteralContainerModel {
     create: ExtLiteralContainerCreateInput;
     update?: D;
     unset?: SafeUnset<ExtLiteralContainerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralContainerSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -312,6 +313,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -436,7 +438,7 @@ export interface ExtLiteralModelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtLiteralModelWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralModelSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralModel | keyof ExtLiteralModelWhere)]?: never };
     orderBy?: ExtLiteralModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -449,7 +451,7 @@ export interface ExtLiteralModelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtLiteralModelWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralModelSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralModel | keyof ExtLiteralModelWhere)]?: never };
     orderBy?: ExtLiteralModelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -464,7 +466,7 @@ export interface ExtLiteralModelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtLiteralModelFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralModelSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralModel | keyof ExtLiteralModelWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -473,7 +475,7 @@ export interface ExtLiteralModelModel {
 
   create<S extends ExtLiteralModelSelect | undefined = undefined>(options: {
     data: ExtLiteralModelCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralModelSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtLiteralModelPayload<S>>;
 
@@ -484,7 +486,7 @@ export interface ExtLiteralModelModel {
     where: ExtLiteralModelWhere;
     data: D;
     unset?: SafeUnset<ExtLiteralModelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralModelSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtLiteralModelPayload<S>[]>;
 
@@ -496,7 +498,7 @@ export interface ExtLiteralModelModel {
     where: ExtLiteralModelFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtLiteralModelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralModelSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -516,7 +518,7 @@ export interface ExtLiteralModelModel {
     create: ExtLiteralModelCreateInput;
     update?: D;
     unset?: SafeUnset<ExtLiteralModelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralModelSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -536,7 +538,7 @@ export interface ExtLiteralModelModel {
     create: ExtLiteralModelCreateInput;
     update?: D;
     unset?: SafeUnset<ExtLiteralModelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralModelSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -596,6 +598,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -686,7 +689,7 @@ export interface ExtLiteralQuotedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtLiteralQuotedWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralQuoted | keyof ExtLiteralQuotedWhere)]?: never };
     orderBy?: ExtLiteralQuotedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -699,7 +702,7 @@ export interface ExtLiteralQuotedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtLiteralQuotedWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralQuoted | keyof ExtLiteralQuotedWhere)]?: never };
     orderBy?: ExtLiteralQuotedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -714,7 +717,7 @@ export interface ExtLiteralQuotedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtLiteralQuotedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtLiteralQuoted | keyof ExtLiteralQuotedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -723,7 +726,7 @@ export interface ExtLiteralQuotedModel {
 
   create<S extends ExtLiteralQuotedSelect | undefined = undefined>(options: {
     data: ExtLiteralQuotedCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtLiteralQuotedPayload<S>>;
 
@@ -734,7 +737,7 @@ export interface ExtLiteralQuotedModel {
     where: ExtLiteralQuotedWhere;
     data: D;
     unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtLiteralQuotedPayload<S>[]>;
 
@@ -746,7 +749,7 @@ export interface ExtLiteralQuotedModel {
     where: ExtLiteralQuotedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -766,7 +769,7 @@ export interface ExtLiteralQuotedModel {
     create: ExtLiteralQuotedCreateInput;
     update?: D;
     unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -786,7 +789,7 @@ export interface ExtLiteralQuotedModel {
     create: ExtLiteralQuotedCreateInput;
     update?: D;
     unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtLiteralQuotedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

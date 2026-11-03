@@ -743,7 +743,12 @@ function tupleFieldHasObjectsDeep(tupleInfo: TupleFieldMetadata, visited: Set<st
 
 /** Get the select type for a field (boolean for primitives, boolean | ObjectSelect for objects, boolean | TupleSelect for tuples with objects) */
 function getFieldSelectType(field: FieldMetadata): string {
-  if (field.type === 'object' && field.objectInfo) return `boolean | ${field.objectInfo.objectName}Select`;
+  if (field.type === 'object' && field.objectInfo) {
+    // @flexible is per field: it takes undeclared sub-keys, which SelectArg would otherwise refuse as typos
+    if (field.isFlexible) return `boolean | (${field.objectInfo.objectName}Select & Record<string, unknown>)`;
+
+    return `boolean | ${field.objectInfo.objectName}Select`;
+  }
   if (field.type === 'tuple' && field.tupleInfo && tupleFieldHasObjectsDeep(field.tupleInfo)) {
     return `boolean | ${field.tupleInfo.tupleName}Select`;
   }

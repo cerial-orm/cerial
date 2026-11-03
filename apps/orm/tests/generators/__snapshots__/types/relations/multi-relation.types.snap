@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -251,7 +252,7 @@ export interface DocumentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DocumentWhere;
-    select?: S;
+    select?: SelectArg<S, DocumentSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Document | keyof DocumentWhere)]?: never };
     orderBy?: DocumentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -266,7 +267,7 @@ export interface DocumentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DocumentWhere;
-    select?: S;
+    select?: SelectArg<S, DocumentSelectFields>;
     compute?: C & { [K in keyof C & (keyof Document | keyof DocumentWhere)]?: never };
     orderBy?: DocumentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -283,7 +284,7 @@ export interface DocumentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DocumentFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DocumentSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Document | keyof DocumentWhere)]?: never };
     txn?: CerialTransaction;
@@ -293,7 +294,7 @@ export interface DocumentModel {
 
   create<S extends DocumentSelect | undefined = undefined, I extends DocumentInclude | undefined = undefined>(options: {
     data: DocumentCreateInput;
-    select?: S;
+    select?: SelectArg<S, DocumentSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDocumentPayload<S, I>>;
@@ -306,7 +307,7 @@ export interface DocumentModel {
     where: DocumentWhere;
     data: D;
     unset?: SafeUnset<DocumentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DocumentSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDocumentPayload<S, I>[]>;
@@ -320,7 +321,7 @@ export interface DocumentModel {
     where: DocumentFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DocumentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DocumentSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -342,7 +343,7 @@ export interface DocumentModel {
     create: DocumentCreateInput;
     update?: D;
     unset?: SafeUnset<DocumentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DocumentSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -364,7 +365,7 @@ export interface DocumentModel {
     create: DocumentCreateInput;
     update?: D;
     unset?: SafeUnset<DocumentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DocumentSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -425,6 +426,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -646,7 +648,7 @@ export interface WriterModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: WriterWhere;
-    select?: S;
+    select?: SelectArg<S, WriterSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Writer | keyof WriterWhere)]?: never };
     orderBy?: WriterOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -661,7 +663,7 @@ export interface WriterModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: WriterWhere;
-    select?: S;
+    select?: SelectArg<S, WriterSelectFields>;
     compute?: C & { [K in keyof C & (keyof Writer | keyof WriterWhere)]?: never };
     orderBy?: WriterOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -678,7 +680,7 @@ export interface WriterModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: WriterFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, WriterSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Writer | keyof WriterWhere)]?: never };
     txn?: CerialTransaction;
@@ -688,7 +690,7 @@ export interface WriterModel {
 
   create<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options: {
     data: WriterCreateInput;
-    select?: S;
+    select?: SelectArg<S, WriterSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetWriterPayload<S, I>>;
@@ -701,7 +703,7 @@ export interface WriterModel {
     where: WriterWhere;
     data: D;
     unset?: SafeUnset<WriterUnset, D>;
-    select?: S;
+    select?: SelectArg<S, WriterSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetWriterPayload<S, I>[]>;
@@ -715,7 +717,7 @@ export interface WriterModel {
     where: WriterFindUniqueWhere;
     data: D;
     unset?: SafeUnset<WriterUnset, D>;
-    select?: S;
+    select?: SelectArg<S, WriterSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -737,7 +739,7 @@ export interface WriterModel {
     create: WriterCreateInput;
     update?: D;
     unset?: SafeUnset<WriterUnset, D>;
-    select?: S;
+    select?: SelectArg<S, WriterSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -759,7 +761,7 @@ export interface WriterModel {
     create: WriterCreateInput;
     update?: D;
     unset?: SafeUnset<WriterUnset, D>;
-    select?: S;
+    select?: SelectArg<S, WriterSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record

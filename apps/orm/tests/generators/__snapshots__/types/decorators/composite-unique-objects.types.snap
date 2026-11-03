@@ -18,6 +18,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -125,7 +126,7 @@ export interface DepotModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DepotWhere;
-    select?: S;
+    select?: SelectArg<S, DepotSelectFields>;
     compute?: C & { [K in keyof C & (keyof Depot | keyof DepotWhere)]?: never };
     orderBy?: DepotOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -138,7 +139,7 @@ export interface DepotModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: DepotWhere;
-    select?: S;
+    select?: SelectArg<S, DepotSelectFields>;
     compute?: C & { [K in keyof C & (keyof Depot | keyof DepotWhere)]?: never };
     orderBy?: DepotOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -151,7 +152,7 @@ export interface DepotModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: DepotFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, DepotSelectFields>;
     compute?: C & { [K in keyof C & (keyof Depot | keyof DepotWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -160,7 +161,7 @@ export interface DepotModel {
 
   create<S extends DepotSelect | undefined = undefined>(options: {
     data: DepotCreateInput;
-    select?: S;
+    select?: SelectArg<S, DepotSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDepotPayload<S>>;
 
@@ -168,7 +169,7 @@ export interface DepotModel {
     where: DepotWhere;
     data: D;
     unset?: SafeUnset<DepotUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DepotSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetDepotPayload<S>[]>;
 
@@ -180,7 +181,7 @@ export interface DepotModel {
     where: DepotFindUniqueWhere;
     data: D;
     unset?: SafeUnset<DepotUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DepotSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -200,7 +201,7 @@ export interface DepotModel {
     create: DepotCreateInput;
     update?: D;
     unset?: SafeUnset<DepotUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DepotSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -220,7 +221,7 @@ export interface DepotModel {
     create: DepotCreateInput;
     update?: D;
     unset?: SafeUnset<DepotUnset, D>;
-    select?: S;
+    select?: SelectArg<S, DepotSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -281,6 +282,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -425,7 +427,7 @@ export interface WarehouseModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: WarehouseWhere;
-    select?: S;
+    select?: SelectArg<S, WarehouseSelectFields>;
     compute?: C & { [K in keyof C & (keyof Warehouse | keyof WarehouseWhere)]?: never };
     orderBy?: WarehouseOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -438,7 +440,7 @@ export interface WarehouseModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: WarehouseWhere;
-    select?: S;
+    select?: SelectArg<S, WarehouseSelectFields>;
     compute?: C & { [K in keyof C & (keyof Warehouse | keyof WarehouseWhere)]?: never };
     orderBy?: WarehouseOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -453,7 +455,7 @@ export interface WarehouseModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: WarehouseFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, WarehouseSelectFields>;
     compute?: C & { [K in keyof C & (keyof Warehouse | keyof WarehouseWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -462,7 +464,7 @@ export interface WarehouseModel {
 
   create<S extends WarehouseSelect | undefined = undefined>(options: {
     data: WarehouseCreateInput;
-    select?: S;
+    select?: SelectArg<S, WarehouseSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetWarehousePayload<S>>;
 
@@ -473,7 +475,7 @@ export interface WarehouseModel {
     where: WarehouseWhere;
     data: D;
     unset?: SafeUnset<WarehouseUnset, D>;
-    select?: S;
+    select?: SelectArg<S, WarehouseSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetWarehousePayload<S>[]>;
 
@@ -485,7 +487,7 @@ export interface WarehouseModel {
     where: WarehouseFindUniqueWhere;
     data: D;
     unset?: SafeUnset<WarehouseUnset, D>;
-    select?: S;
+    select?: SelectArg<S, WarehouseSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -505,7 +507,7 @@ export interface WarehouseModel {
     create: WarehouseCreateInput;
     update?: D;
     unset?: SafeUnset<WarehouseUnset, D>;
-    select?: S;
+    select?: SelectArg<S, WarehouseSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -525,7 +527,7 @@ export interface WarehouseModel {
     create: WarehouseCreateInput;
     update?: D;
     unset?: SafeUnset<WarehouseUnset, D>;
-    select?: S;
+    select?: SelectArg<S, WarehouseSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

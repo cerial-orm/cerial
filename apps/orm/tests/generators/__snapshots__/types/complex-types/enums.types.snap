@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -147,7 +148,7 @@ export interface EnumBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumBasicWhere;
-    select?: S;
+    select?: SelectArg<S, EnumBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumBasic | keyof EnumBasicWhere)]?: never };
     orderBy?: EnumBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -160,7 +161,7 @@ export interface EnumBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumBasicWhere;
-    select?: S;
+    select?: SelectArg<S, EnumBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumBasic | keyof EnumBasicWhere)]?: never };
     orderBy?: EnumBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -175,7 +176,7 @@ export interface EnumBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: EnumBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, EnumBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumBasic | keyof EnumBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -184,7 +185,7 @@ export interface EnumBasicModel {
 
   create<S extends EnumBasicSelect | undefined = undefined>(options: {
     data: EnumBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, EnumBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumBasicPayload<S>>;
 
@@ -195,7 +196,7 @@ export interface EnumBasicModel {
     where: EnumBasicWhere;
     data: D;
     unset?: SafeUnset<EnumBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumBasicPayload<S>[]>;
 
@@ -207,7 +208,7 @@ export interface EnumBasicModel {
     where: EnumBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<EnumBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -227,7 +228,7 @@ export interface EnumBasicModel {
     create: EnumBasicCreateInput;
     update?: D;
     unset?: SafeUnset<EnumBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -247,7 +248,7 @@ export interface EnumBasicModel {
     create: EnumBasicCreateInput;
     update?: D;
     unset?: SafeUnset<EnumBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -307,6 +308,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -415,7 +417,7 @@ export interface EnumDefaultsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumDefaultsWhere;
-    select?: S;
+    select?: SelectArg<S, EnumDefaultsSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumDefaults | keyof EnumDefaultsWhere)]?: never };
     orderBy?: EnumDefaultsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -428,7 +430,7 @@ export interface EnumDefaultsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumDefaultsWhere;
-    select?: S;
+    select?: SelectArg<S, EnumDefaultsSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumDefaults | keyof EnumDefaultsWhere)]?: never };
     orderBy?: EnumDefaultsOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -443,7 +445,7 @@ export interface EnumDefaultsModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: EnumDefaultsFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, EnumDefaultsSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumDefaults | keyof EnumDefaultsWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -452,7 +454,7 @@ export interface EnumDefaultsModel {
 
   create<S extends EnumDefaultsSelect | undefined = undefined>(options: {
     data: EnumDefaultsCreateInput;
-    select?: S;
+    select?: SelectArg<S, EnumDefaultsSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumDefaultsPayload<S>>;
 
@@ -463,7 +465,7 @@ export interface EnumDefaultsModel {
     where: EnumDefaultsWhere;
     data: D;
     unset?: SafeUnset<EnumDefaultsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumDefaultsSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumDefaultsPayload<S>[]>;
 
@@ -475,7 +477,7 @@ export interface EnumDefaultsModel {
     where: EnumDefaultsFindUniqueWhere;
     data: D;
     unset?: SafeUnset<EnumDefaultsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumDefaultsSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -495,7 +497,7 @@ export interface EnumDefaultsModel {
     create: EnumDefaultsCreateInput;
     update?: D;
     unset?: SafeUnset<EnumDefaultsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumDefaultsSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -515,7 +517,7 @@ export interface EnumDefaultsModel {
     create: EnumDefaultsCreateInput;
     update?: D;
     unset?: SafeUnset<EnumDefaultsUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumDefaultsSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -575,6 +577,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -657,7 +660,7 @@ export interface EnumLiteralRefModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumLiteralRefWhere;
-    select?: S;
+    select?: SelectArg<S, EnumLiteralRefSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumLiteralRef | keyof EnumLiteralRefWhere)]?: never };
     orderBy?: EnumLiteralRefOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -670,7 +673,7 @@ export interface EnumLiteralRefModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumLiteralRefWhere;
-    select?: S;
+    select?: SelectArg<S, EnumLiteralRefSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumLiteralRef | keyof EnumLiteralRefWhere)]?: never };
     orderBy?: EnumLiteralRefOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -685,7 +688,7 @@ export interface EnumLiteralRefModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: EnumLiteralRefFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, EnumLiteralRefSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumLiteralRef | keyof EnumLiteralRefWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -694,7 +697,7 @@ export interface EnumLiteralRefModel {
 
   create<S extends EnumLiteralRefSelect | undefined = undefined>(options: {
     data: EnumLiteralRefCreateInput;
-    select?: S;
+    select?: SelectArg<S, EnumLiteralRefSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumLiteralRefPayload<S>>;
 
@@ -705,7 +708,7 @@ export interface EnumLiteralRefModel {
     where: EnumLiteralRefWhere;
     data: D;
     unset?: SafeUnset<EnumLiteralRefUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumLiteralRefSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumLiteralRefPayload<S>[]>;
 
@@ -717,7 +720,7 @@ export interface EnumLiteralRefModel {
     where: EnumLiteralRefFindUniqueWhere;
     data: D;
     unset?: SafeUnset<EnumLiteralRefUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumLiteralRefSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -737,7 +740,7 @@ export interface EnumLiteralRefModel {
     create: EnumLiteralRefCreateInput;
     update?: D;
     unset?: SafeUnset<EnumLiteralRefUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumLiteralRefSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -757,7 +760,7 @@ export interface EnumLiteralRefModel {
     create: EnumLiteralRefCreateInput;
     update?: D;
     unset?: SafeUnset<EnumLiteralRefUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumLiteralRefSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -817,6 +820,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -932,7 +936,7 @@ export interface EnumMultipleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumMultipleWhere;
-    select?: S;
+    select?: SelectArg<S, EnumMultipleSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumMultiple | keyof EnumMultipleWhere)]?: never };
     orderBy?: EnumMultipleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -945,7 +949,7 @@ export interface EnumMultipleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumMultipleWhere;
-    select?: S;
+    select?: SelectArg<S, EnumMultipleSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumMultiple | keyof EnumMultipleWhere)]?: never };
     orderBy?: EnumMultipleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -960,7 +964,7 @@ export interface EnumMultipleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: EnumMultipleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, EnumMultipleSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumMultiple | keyof EnumMultipleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -969,7 +973,7 @@ export interface EnumMultipleModel {
 
   create<S extends EnumMultipleSelect | undefined = undefined>(options: {
     data: EnumMultipleCreateInput;
-    select?: S;
+    select?: SelectArg<S, EnumMultipleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumMultiplePayload<S>>;
 
@@ -980,7 +984,7 @@ export interface EnumMultipleModel {
     where: EnumMultipleWhere;
     data: D;
     unset?: SafeUnset<EnumMultipleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumMultipleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumMultiplePayload<S>[]>;
 
@@ -992,7 +996,7 @@ export interface EnumMultipleModel {
     where: EnumMultipleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<EnumMultipleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumMultipleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1012,7 +1016,7 @@ export interface EnumMultipleModel {
     create: EnumMultipleCreateInput;
     update?: D;
     unset?: SafeUnset<EnumMultipleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumMultipleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1032,7 +1036,7 @@ export interface EnumMultipleModel {
     create: EnumMultipleCreateInput;
     update?: D;
     unset?: SafeUnset<EnumMultipleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumMultipleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1092,6 +1096,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1179,7 +1184,7 @@ export interface EnumUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, EnumUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumUnique | keyof EnumUniqueWhere)]?: never };
     orderBy?: EnumUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1192,7 +1197,7 @@ export interface EnumUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, EnumUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumUnique | keyof EnumUniqueWhere)]?: never };
     orderBy?: EnumUniqueOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1207,7 +1212,7 @@ export interface EnumUniqueModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: EnumUniqueFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, EnumUniqueSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumUnique | keyof EnumUniqueWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1216,7 +1221,7 @@ export interface EnumUniqueModel {
 
   create<S extends EnumUniqueSelect | undefined = undefined>(options: {
     data: EnumUniqueCreateInput;
-    select?: S;
+    select?: SelectArg<S, EnumUniqueSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumUniquePayload<S>>;
 
@@ -1227,7 +1232,7 @@ export interface EnumUniqueModel {
     where: EnumUniqueWhere;
     data: D;
     unset?: SafeUnset<EnumUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumUniqueSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumUniquePayload<S>[]>;
 
@@ -1239,7 +1244,7 @@ export interface EnumUniqueModel {
     where: EnumUniqueFindUniqueWhere;
     data: D;
     unset?: SafeUnset<EnumUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumUniqueSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1259,7 +1264,7 @@ export interface EnumUniqueModel {
     create: EnumUniqueCreateInput;
     update?: D;
     unset?: SafeUnset<EnumUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumUniqueSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1279,7 +1284,7 @@ export interface EnumUniqueModel {
     create: EnumUniqueCreateInput;
     update?: D;
     unset?: SafeUnset<EnumUniqueUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumUniqueSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1340,6 +1345,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1456,7 +1462,7 @@ export interface EnumWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, EnumWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumWithObject | keyof EnumWithObjectWhere)]?: never };
     orderBy?: EnumWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1469,7 +1475,7 @@ export interface EnumWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: EnumWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, EnumWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumWithObject | keyof EnumWithObjectWhere)]?: never };
     orderBy?: EnumWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1484,7 +1490,7 @@ export interface EnumWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: EnumWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, EnumWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof EnumWithObject | keyof EnumWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1493,7 +1499,7 @@ export interface EnumWithObjectModel {
 
   create<S extends EnumWithObjectSelect | undefined = undefined>(options: {
     data: EnumWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, EnumWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumWithObjectPayload<S>>;
 
@@ -1504,7 +1510,7 @@ export interface EnumWithObjectModel {
     where: EnumWithObjectWhere;
     data: D;
     unset?: SafeUnset<EnumWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetEnumWithObjectPayload<S>[]>;
 
@@ -1516,7 +1522,7 @@ export interface EnumWithObjectModel {
     where: EnumWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<EnumWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1536,7 +1542,7 @@ export interface EnumWithObjectModel {
     create: EnumWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<EnumWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1556,7 +1562,7 @@ export interface EnumWithObjectModel {
     create: EnumWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<EnumWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, EnumWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

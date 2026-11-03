@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -289,7 +290,7 @@ export interface ExtCrossAdminModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossAdminWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossAdminSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossAdmin | keyof ExtCrossAdminWhere)]?: never };
     orderBy?: ExtCrossAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -302,7 +303,7 @@ export interface ExtCrossAdminModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossAdminWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossAdminSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossAdmin | keyof ExtCrossAdminWhere)]?: never };
     orderBy?: ExtCrossAdminOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -317,7 +318,7 @@ export interface ExtCrossAdminModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtCrossAdminFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossAdminSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossAdmin | keyof ExtCrossAdminWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -326,7 +327,7 @@ export interface ExtCrossAdminModel {
 
   create<S extends ExtCrossAdminSelect | undefined = undefined>(options: {
     data: ExtCrossAdminCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtCrossAdminSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossAdminPayload<S>>;
 
@@ -337,7 +338,7 @@ export interface ExtCrossAdminModel {
     where: ExtCrossAdminWhere;
     data: D;
     unset?: SafeUnset<ExtCrossAdminUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossAdminSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossAdminPayload<S>[]>;
 
@@ -349,7 +350,7 @@ export interface ExtCrossAdminModel {
     where: ExtCrossAdminFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtCrossAdminUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossAdminSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -369,7 +370,7 @@ export interface ExtCrossAdminModel {
     create: ExtCrossAdminCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossAdminUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossAdminSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -389,7 +390,7 @@ export interface ExtCrossAdminModel {
     create: ExtCrossAdminCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossAdminUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossAdminSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -450,6 +451,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -640,7 +642,7 @@ export interface ExtCrossModeratorModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossModeratorWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossModerator | keyof ExtCrossModeratorWhere)]?: never };
     orderBy?: ExtCrossModeratorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -653,7 +655,7 @@ export interface ExtCrossModeratorModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossModeratorWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossModerator | keyof ExtCrossModeratorWhere)]?: never };
     orderBy?: ExtCrossModeratorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -668,7 +670,7 @@ export interface ExtCrossModeratorModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtCrossModeratorFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossModerator | keyof ExtCrossModeratorWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -677,7 +679,7 @@ export interface ExtCrossModeratorModel {
 
   create<S extends ExtCrossModeratorSelect | undefined = undefined>(options: {
     data: ExtCrossModeratorCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossModeratorPayload<S>>;
 
@@ -688,7 +690,7 @@ export interface ExtCrossModeratorModel {
     where: ExtCrossModeratorWhere;
     data: D;
     unset?: SafeUnset<ExtCrossModeratorUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossModeratorPayload<S>[]>;
 
@@ -700,7 +702,7 @@ export interface ExtCrossModeratorModel {
     where: ExtCrossModeratorFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtCrossModeratorUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -720,7 +722,7 @@ export interface ExtCrossModeratorModel {
     create: ExtCrossModeratorCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossModeratorUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -740,7 +742,7 @@ export interface ExtCrossModeratorModel {
     create: ExtCrossModeratorCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossModeratorUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossModeratorSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -801,6 +803,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1065,7 +1068,7 @@ export interface ExtCrossPremiumModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossPremiumWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossPremium | keyof ExtCrossPremiumWhere)]?: never };
     orderBy?: ExtCrossPremiumOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1078,7 +1081,7 @@ export interface ExtCrossPremiumModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossPremiumWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossPremium | keyof ExtCrossPremiumWhere)]?: never };
     orderBy?: ExtCrossPremiumOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1093,7 +1096,7 @@ export interface ExtCrossPremiumModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtCrossPremiumFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossPremium | keyof ExtCrossPremiumWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1102,7 +1105,7 @@ export interface ExtCrossPremiumModel {
 
   create<S extends ExtCrossPremiumSelect | undefined = undefined>(options: {
     data: ExtCrossPremiumCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossPremiumPayload<S>>;
 
@@ -1113,7 +1116,7 @@ export interface ExtCrossPremiumModel {
     where: ExtCrossPremiumWhere;
     data: D;
     unset?: SafeUnset<ExtCrossPremiumUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossPremiumPayload<S>[]>;
 
@@ -1125,7 +1128,7 @@ export interface ExtCrossPremiumModel {
     where: ExtCrossPremiumFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtCrossPremiumUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1145,7 +1148,7 @@ export interface ExtCrossPremiumModel {
     create: ExtCrossPremiumCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossPremiumUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1165,7 +1168,7 @@ export interface ExtCrossPremiumModel {
     create: ExtCrossPremiumCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossPremiumUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPremiumSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1226,6 +1229,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1411,7 +1415,7 @@ export interface ExtCrossPrivateModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossPrivateWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossPrivate | keyof ExtCrossPrivateWhere)]?: never };
     orderBy?: ExtCrossPrivateOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1424,7 +1428,7 @@ export interface ExtCrossPrivateModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossPrivateWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossPrivate | keyof ExtCrossPrivateWhere)]?: never };
     orderBy?: ExtCrossPrivateOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1439,7 +1443,7 @@ export interface ExtCrossPrivateModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtCrossPrivateFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossPrivate | keyof ExtCrossPrivateWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1448,7 +1452,7 @@ export interface ExtCrossPrivateModel {
 
   create<S extends ExtCrossPrivateSelect | undefined = undefined>(options: {
     data: ExtCrossPrivateCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossPrivatePayload<S>>;
 
@@ -1459,7 +1463,7 @@ export interface ExtCrossPrivateModel {
     where: ExtCrossPrivateWhere;
     data: D;
     unset?: SafeUnset<ExtCrossPrivateUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossPrivatePayload<S>[]>;
 
@@ -1471,7 +1475,7 @@ export interface ExtCrossPrivateModel {
     where: ExtCrossPrivateFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtCrossPrivateUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1491,7 +1495,7 @@ export interface ExtCrossPrivateModel {
     create: ExtCrossPrivateCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossPrivateUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1511,7 +1515,7 @@ export interface ExtCrossPrivateModel {
     create: ExtCrossPrivateCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossPrivateUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossPrivateSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -1572,6 +1576,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1866,7 +1871,7 @@ export interface ExtCrossProfileModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossProfileWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossProfileSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossProfile | keyof ExtCrossProfileWhere)]?: never };
     orderBy?: ExtCrossProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1879,7 +1884,7 @@ export interface ExtCrossProfileModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossProfileWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossProfileSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossProfile | keyof ExtCrossProfileWhere)]?: never };
     orderBy?: ExtCrossProfileOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1894,7 +1899,7 @@ export interface ExtCrossProfileModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtCrossProfileFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossProfileSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossProfile | keyof ExtCrossProfileWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1903,7 +1908,7 @@ export interface ExtCrossProfileModel {
 
   create<S extends ExtCrossProfileSelect | undefined = undefined>(options: {
     data: ExtCrossProfileCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtCrossProfileSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossProfilePayload<S>>;
 
@@ -1914,7 +1919,7 @@ export interface ExtCrossProfileModel {
     where: ExtCrossProfileWhere;
     data: D;
     unset?: SafeUnset<ExtCrossProfileUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossProfileSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossProfilePayload<S>[]>;
 
@@ -1926,7 +1931,7 @@ export interface ExtCrossProfileModel {
     where: ExtCrossProfileFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtCrossProfileUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossProfileSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1946,7 +1951,7 @@ export interface ExtCrossProfileModel {
     create: ExtCrossProfileCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossProfileUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossProfileSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1966,7 +1971,7 @@ export interface ExtCrossProfileModel {
     create: ExtCrossProfileCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossProfileUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossProfileSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -2027,6 +2032,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2239,7 +2245,7 @@ export interface ExtCrossUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossUserWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossUser | keyof ExtCrossUserWhere)]?: never };
     orderBy?: ExtCrossUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -2252,7 +2258,7 @@ export interface ExtCrossUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: ExtCrossUserWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossUser | keyof ExtCrossUserWhere)]?: never };
     orderBy?: ExtCrossUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -2267,7 +2273,7 @@ export interface ExtCrossUserModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: ExtCrossUserFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, ExtCrossUserSelectFields>;
     compute?: C & { [K in keyof C & (keyof ExtCrossUser | keyof ExtCrossUserWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -2276,7 +2282,7 @@ export interface ExtCrossUserModel {
 
   create<S extends ExtCrossUserSelect | undefined = undefined>(options: {
     data: ExtCrossUserCreateInput;
-    select?: S;
+    select?: SelectArg<S, ExtCrossUserSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossUserPayload<S>>;
 
@@ -2287,7 +2293,7 @@ export interface ExtCrossUserModel {
     where: ExtCrossUserWhere;
     data: D;
     unset?: SafeUnset<ExtCrossUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossUserSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetExtCrossUserPayload<S>[]>;
 
@@ -2299,7 +2305,7 @@ export interface ExtCrossUserModel {
     where: ExtCrossUserFindUniqueWhere;
     data: D;
     unset?: SafeUnset<ExtCrossUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossUserSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -2319,7 +2325,7 @@ export interface ExtCrossUserModel {
     create: ExtCrossUserCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossUserSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -2339,7 +2345,7 @@ export interface ExtCrossUserModel {
     create: ExtCrossUserCreateInput;
     update?: D;
     unset?: SafeUnset<ExtCrossUserUnset, D>;
-    select?: S;
+    select?: SelectArg<S, ExtCrossUserSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

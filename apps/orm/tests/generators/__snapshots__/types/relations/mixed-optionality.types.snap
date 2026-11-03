@@ -18,6 +18,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -190,7 +191,7 @@ export interface AgentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AgentWhere;
-    select?: S;
+    select?: SelectArg<S, AgentSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Agent | keyof AgentWhere)]?: never };
     orderBy?: AgentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -205,7 +206,7 @@ export interface AgentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: AgentWhere;
-    select?: S;
+    select?: SelectArg<S, AgentSelectFields>;
     compute?: C & { [K in keyof C & (keyof Agent | keyof AgentWhere)]?: never };
     orderBy?: AgentOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -222,7 +223,7 @@ export interface AgentModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: AgentFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, AgentSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Agent | keyof AgentWhere)]?: never };
     txn?: CerialTransaction;
@@ -232,7 +233,7 @@ export interface AgentModel {
 
   create<S extends AgentSelect | undefined = undefined, I extends AgentInclude | undefined = undefined>(options: {
     data: AgentCreateInput;
-    select?: S;
+    select?: SelectArg<S, AgentSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAgentPayload<S, I>>;
@@ -245,7 +246,7 @@ export interface AgentModel {
     where: AgentWhere;
     data: D;
     unset?: SafeUnset<AgentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AgentSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetAgentPayload<S, I>[]>;
@@ -259,7 +260,7 @@ export interface AgentModel {
     where: AgentFindUniqueWhere;
     data: D;
     unset?: SafeUnset<AgentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AgentSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -281,7 +282,7 @@ export interface AgentModel {
     create: AgentCreateInput;
     update?: D;
     unset?: SafeUnset<AgentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AgentSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -303,7 +304,7 @@ export interface AgentModel {
     create: AgentCreateInput;
     update?: D;
     unset?: SafeUnset<AgentUnset, D>;
-    select?: S;
+    select?: SelectArg<S, AgentSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -364,6 +365,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -537,7 +539,7 @@ export interface CustomerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: CustomerWhere;
-    select?: S;
+    select?: SelectArg<S, CustomerSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Customer | keyof CustomerWhere)]?: never };
     orderBy?: CustomerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -552,7 +554,7 @@ export interface CustomerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: CustomerWhere;
-    select?: S;
+    select?: SelectArg<S, CustomerSelectFields>;
     compute?: C & { [K in keyof C & (keyof Customer | keyof CustomerWhere)]?: never };
     orderBy?: CustomerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -569,7 +571,7 @@ export interface CustomerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: CustomerFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, CustomerSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Customer | keyof CustomerWhere)]?: never };
     txn?: CerialTransaction;
@@ -579,7 +581,7 @@ export interface CustomerModel {
 
   create<S extends CustomerSelect | undefined = undefined, I extends CustomerInclude | undefined = undefined>(options: {
     data: CustomerCreateInput;
-    select?: S;
+    select?: SelectArg<S, CustomerSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetCustomerPayload<S, I>>;
@@ -592,7 +594,7 @@ export interface CustomerModel {
     where: CustomerWhere;
     data: D;
     unset?: SafeUnset<CustomerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CustomerSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetCustomerPayload<S, I>[]>;
@@ -606,7 +608,7 @@ export interface CustomerModel {
     where: CustomerFindUniqueWhere;
     data: D;
     unset?: SafeUnset<CustomerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CustomerSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -628,7 +630,7 @@ export interface CustomerModel {
     create: CustomerCreateInput;
     update?: D;
     unset?: SafeUnset<CustomerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CustomerSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -650,7 +652,7 @@ export interface CustomerModel {
     create: CustomerCreateInput;
     update?: D;
     unset?: SafeUnset<CustomerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, CustomerSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -712,6 +714,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -956,7 +959,7 @@ export interface PurchaseOrderModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: PurchaseOrderWhere;
-    select?: S;
+    select?: SelectArg<S, PurchaseOrderSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof PurchaseOrder | keyof PurchaseOrderWhere)]?: never };
     orderBy?: PurchaseOrderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -971,7 +974,7 @@ export interface PurchaseOrderModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: PurchaseOrderWhere;
-    select?: S;
+    select?: SelectArg<S, PurchaseOrderSelectFields>;
     compute?: C & { [K in keyof C & (keyof PurchaseOrder | keyof PurchaseOrderWhere)]?: never };
     orderBy?: PurchaseOrderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -988,7 +991,7 @@ export interface PurchaseOrderModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: PurchaseOrderFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, PurchaseOrderSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof PurchaseOrder | keyof PurchaseOrderWhere)]?: never };
     txn?: CerialTransaction;
@@ -1001,7 +1004,7 @@ export interface PurchaseOrderModel {
     I extends PurchaseOrderInclude | undefined = undefined,
   >(options: {
     data: PurchaseOrderCreateInput;
-    select?: S;
+    select?: SelectArg<S, PurchaseOrderSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetPurchaseOrderPayload<S, I>>;
@@ -1014,7 +1017,7 @@ export interface PurchaseOrderModel {
     where: PurchaseOrderWhere;
     data: D;
     unset?: SafeUnset<PurchaseOrderUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PurchaseOrderSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetPurchaseOrderPayload<S, I>[]>;
@@ -1028,7 +1031,7 @@ export interface PurchaseOrderModel {
     where: PurchaseOrderFindUniqueWhere;
     data: D;
     unset?: SafeUnset<PurchaseOrderUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PurchaseOrderSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -1050,7 +1053,7 @@ export interface PurchaseOrderModel {
     create: PurchaseOrderCreateInput;
     update?: D;
     unset?: SafeUnset<PurchaseOrderUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PurchaseOrderSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -1072,7 +1075,7 @@ export interface PurchaseOrderModel {
     create: PurchaseOrderCreateInput;
     update?: D;
     unset?: SafeUnset<PurchaseOrderUnset, D>;
-    select?: S;
+    select?: SelectArg<S, PurchaseOrderSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record

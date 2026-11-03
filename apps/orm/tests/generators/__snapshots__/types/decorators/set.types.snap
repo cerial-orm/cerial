@@ -21,6 +21,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -170,7 +171,7 @@ export interface SetBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: SetBasicWhere;
-    select?: S;
+    select?: SelectArg<S, SetBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof SetBasic | keyof SetBasicWhere)]?: never };
     orderBy?: SetBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -183,7 +184,7 @@ export interface SetBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: SetBasicWhere;
-    select?: S;
+    select?: SelectArg<S, SetBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof SetBasic | keyof SetBasicWhere)]?: never };
     orderBy?: SetBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -198,7 +199,7 @@ export interface SetBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: SetBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, SetBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof SetBasic | keyof SetBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -207,7 +208,7 @@ export interface SetBasicModel {
 
   create<S extends SetBasicSelect | undefined = undefined>(options: {
     data: SetBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, SetBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetSetBasicPayload<S>>;
 
@@ -218,7 +219,7 @@ export interface SetBasicModel {
     where: SetBasicWhere;
     data: D;
     unset?: SafeUnset<SetBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, SetBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetSetBasicPayload<S>[]>;
 
@@ -230,7 +231,7 @@ export interface SetBasicModel {
     where: SetBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<SetBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, SetBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -250,7 +251,7 @@ export interface SetBasicModel {
     create: SetBasicCreateInput;
     update?: D;
     unset?: SafeUnset<SetBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, SetBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -270,7 +271,7 @@ export interface SetBasicModel {
     create: SetBasicCreateInput;
     update?: D;
     unset?: SafeUnset<SetBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, SetBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

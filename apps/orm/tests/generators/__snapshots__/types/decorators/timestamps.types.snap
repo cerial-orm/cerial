@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -195,7 +196,7 @@ export interface TimestampTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: TimestampTestWhere;
-    select?: S;
+    select?: SelectArg<S, TimestampTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof TimestampTest | keyof TimestampTestWhere)]?: never };
     orderBy?: TimestampTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -208,7 +209,7 @@ export interface TimestampTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: TimestampTestWhere;
-    select?: S;
+    select?: SelectArg<S, TimestampTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof TimestampTest | keyof TimestampTestWhere)]?: never };
     orderBy?: TimestampTestOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -223,7 +224,7 @@ export interface TimestampTestModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: TimestampTestFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, TimestampTestSelectFields>;
     compute?: C & { [K in keyof C & (keyof TimestampTest | keyof TimestampTestWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -232,7 +233,7 @@ export interface TimestampTestModel {
 
   create<S extends TimestampTestSelect | undefined = undefined>(options: {
     data: TimestampTestCreateInput;
-    select?: S;
+    select?: SelectArg<S, TimestampTestSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetTimestampTestPayload<S>>;
 
@@ -243,7 +244,7 @@ export interface TimestampTestModel {
     where: TimestampTestWhere;
     data: D;
     unset?: SafeUnset<TimestampTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, TimestampTestSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetTimestampTestPayload<S>[]>;
 
@@ -255,7 +256,7 @@ export interface TimestampTestModel {
     where: TimestampTestFindUniqueWhere;
     data: D;
     unset?: SafeUnset<TimestampTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, TimestampTestSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -275,7 +276,7 @@ export interface TimestampTestModel {
     create: TimestampTestCreateInput;
     update?: D;
     unset?: SafeUnset<TimestampTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, TimestampTestSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -295,7 +296,7 @@ export interface TimestampTestModel {
     create: TimestampTestCreateInput;
     update?: D;
     unset?: SafeUnset<TimestampTestUnset, D>;
-    select?: S;
+    select?: SelectArg<S, TimestampTestSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

@@ -5,7 +5,8 @@
  * Run: bun run typecheck
  *
  * Each `@ts-expect-error` fails the build when the select it covers starts compiling, so a select form that is
- * looser than the at-least-one-key union cannot land unnoticed.
+ * looser than the at-least-one-key union cannot land unnoticed. The method section goes through `findMany`, where the
+ * select is inferred from the argument and a typo next to a valid key needs `SelectArg` to be refused.
  */
 
 import type { CerialId } from 'cerial';
@@ -16,9 +17,13 @@ import type {
   GetObjectTestUserPayload,
   GetRelObjCompanyPayload,
   GetTupleObjInTuplePayload,
+  GetUnsetTestPayload,
   ObjectTestUserSelect,
 } from '../../generated';
+import type { CerialClient } from '../../generated/client';
 import type { Flat } from '../helpers';
+
+declare const db: CerialClient['db'];
 
 // =============================================================================
 // Refusals on a model
@@ -139,4 +144,99 @@ type IncludedObjectSelect = GetRelObjCompanyPayload<
 Test.checks([
   Test.check<Flat<IncludedObjectSelect['employees']>, { homeAddress: { city: string } }[], Test.Pass>(),
   Test.check<IncludedObjectSelect['id'], CerialId<string>, Test.Pass>(),
+]);
+
+// =============================================================================
+// Refusals through a method call, where `select` is inferred from the argument
+// =============================================================================
+
+// @ts-expect-error -- a typo next to a valid key is refused
+export const callTypoNextToKey = db.ObjectTestUser.findMany({ select: { name: true, nope: true } });
+
+// @ts-expect-error -- a typo alone is refused
+export const callTypoAlone = db.ObjectTestUser.findMany({ select: { nope: true } });
+
+// @ts-expect-error -- a typo inside a nested object select is refused
+export const callNestedTypo = db.ObjectTestUser.findMany({ select: { address: { nope: true } } });
+
+// @ts-expect-error -- a typo next to a valid sub-key of a nested object select is refused
+export const callNestedTypoNextToKey = db.ObjectTestUser.findMany({ select: { address: { city: true, nope: true } } });
+
+export const callDeepTypo = db.ObjectTestUser.findMany({
+  // @ts-expect-error -- a typo two object levels down, next to valid keys, is refused
+  select: { locations: { label: { city: true, nope: true } } },
+});
+
+export const callOk = db.ObjectTestUser.findMany({ select: { name: true, address: { city: true } } });
+export const callFalseKeys = db.ObjectTestUser.findMany({ select: { name: true, address: false } });
+
+// A recursive `SelectArg`/`Parameters` formulation can silently turn the whole signature into `never`
+type FindManyArgs = Parameters<typeof db.ObjectTestUser.findMany>;
+Test.checks([
+  Test.check<[FindManyArgs] extends [never] ? 1 : 0, 0, Test.Pass>(),
+  Test.check<undefined extends FindManyArgs[0] ? 1 : 0, 1, Test.Pass>(),
+  Test.check<'select' extends keyof NonNullable<FindManyArgs[0]> ? 1 : 0, 1, Test.Pass>(),
+]);
+
+// @flexible is per field: it takes undeclared sub-keys, a strict field of the same object type does not
+export const flexibleSubKey = db.FlexUser.findMany({ select: { address: { city: true, extra: true } } });
+export const strictSubKey = db.FlexUser.findMany({
+  // @ts-expect-error -- a strict field refuses an undeclared sub-key
+  select: { strictAddress: { city: true, extra: true } },
+});
+
+// =============================================================================
+// Depth: the typo check covers the first five select levels (the model's own keys are level 1)
+// =============================================================================
+
+// UnsetTest.tree is a self-referencing object, so its select nests as deep as the caller writes.
+// Level 5 is the last checked one: model, tree, child, child, child.
+export const depthLastCheckedTypo = db.UnsetTest.findMany({
+  // @ts-expect-error -- a typo at the last checked level is refused
+  select: { tree: { child: { child: { child: { nope: true } } } } },
+});
+
+export const depthLastCheckedTypoNextToKey = db.UnsetTest.findMany({
+  // @ts-expect-error -- a typo at the last checked level, next to a valid key, is refused
+  select: { tree: { child: { child: { child: { payload: true, nope: true } } } } },
+});
+
+export const depthLastChecked = db.UnsetTest.findMany({
+  select: { tree: { child: { child: { child: { payload: true } } } } },
+});
+
+// Level 6 is past the cap: an unknown key compiles there, and a valid selection still compiles and narrows
+export const depthPastCap = db.UnsetTest.findMany({
+  select: { tree: { child: { child: { child: { child: { payload: true } } } } } },
+});
+// The documented limit of the cap: a typo this deep is not caught, so this must keep compiling
+export const depthPastCapTypo = db.UnsetTest.findMany({
+  select: { tree: { child: { child: { child: { child: { payload: true, nope: true } } } } } },
+});
+export const depthFarPastCap = db.UnsetTest.findMany({
+  select: {
+    tree: { child: { child: { child: { child: { child: { child: { child: { child: { payload: true } } } } } } } } },
+  },
+});
+
+type DeepSelect = {
+  tree: { child: { child: { child: { child: { child: { child: { child: { child: { payload: true } } } } } } } } };
+};
+type DeepNarrowed = GetUnsetTestPayload<DeepSelect, undefined>;
+type DeepLeaf = NonNullable<
+  NonNullable<
+    NonNullable<
+      NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<NonNullable<NonNullable<DeepNarrowed['tree']>['child']>['child']>['child']>['child']
+        >['child']
+      >['child']
+    >['child']
+  >['child']
+>;
+
+Test.checks([
+  Test.check<keyof DeepNarrowed, 'tree', Test.Pass>(),
+  Test.check<keyof DeepLeaf, 'payload', Test.Pass>(),
+  Test.check<DeepLeaf['payload'], string, Test.Pass>(),
 ]);

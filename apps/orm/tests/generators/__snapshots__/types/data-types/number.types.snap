@@ -19,6 +19,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -198,7 +199,7 @@ export interface NumberBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NumberBasicWhere;
-    select?: S;
+    select?: SelectArg<S, NumberBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberBasic | keyof NumberBasicWhere)]?: never };
     orderBy?: NumberBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -211,7 +212,7 @@ export interface NumberBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NumberBasicWhere;
-    select?: S;
+    select?: SelectArg<S, NumberBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberBasic | keyof NumberBasicWhere)]?: never };
     orderBy?: NumberBasicOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -226,7 +227,7 @@ export interface NumberBasicModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: NumberBasicFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, NumberBasicSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberBasic | keyof NumberBasicWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -235,7 +236,7 @@ export interface NumberBasicModel {
 
   create<S extends NumberBasicSelect | undefined = undefined>(options: {
     data: NumberBasicCreateInput;
-    select?: S;
+    select?: SelectArg<S, NumberBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNumberBasicPayload<S>>;
 
@@ -246,7 +247,7 @@ export interface NumberBasicModel {
     where: NumberBasicWhere;
     data: D;
     unset?: SafeUnset<NumberBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberBasicSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNumberBasicPayload<S>[]>;
 
@@ -258,7 +259,7 @@ export interface NumberBasicModel {
     where: NumberBasicFindUniqueWhere;
     data: D;
     unset?: SafeUnset<NumberBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberBasicSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -278,7 +279,7 @@ export interface NumberBasicModel {
     create: NumberBasicCreateInput;
     update?: D;
     unset?: SafeUnset<NumberBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -298,7 +299,7 @@ export interface NumberBasicModel {
     create: NumberBasicCreateInput;
     update?: D;
     unset?: SafeUnset<NumberBasicUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberBasicSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -359,6 +360,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -500,7 +502,7 @@ export interface NumberDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NumberDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, NumberDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberDecorated | keyof NumberDecoratedWhere)]?: never };
     orderBy?: NumberDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -513,7 +515,7 @@ export interface NumberDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NumberDecoratedWhere;
-    select?: S;
+    select?: SelectArg<S, NumberDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberDecorated | keyof NumberDecoratedWhere)]?: never };
     orderBy?: NumberDecoratedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -528,7 +530,7 @@ export interface NumberDecoratedModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: NumberDecoratedFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, NumberDecoratedSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberDecorated | keyof NumberDecoratedWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -537,7 +539,7 @@ export interface NumberDecoratedModel {
 
   create<S extends NumberDecoratedSelect | undefined = undefined>(options: {
     data: NumberDecoratedCreateInput;
-    select?: S;
+    select?: SelectArg<S, NumberDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNumberDecoratedPayload<S>>;
 
@@ -548,7 +550,7 @@ export interface NumberDecoratedModel {
     where: NumberDecoratedWhere;
     data: D;
     unset?: SafeUnset<NumberDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberDecoratedSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNumberDecoratedPayload<S>[]>;
 
@@ -560,7 +562,7 @@ export interface NumberDecoratedModel {
     where: NumberDecoratedFindUniqueWhere;
     data: D;
     unset?: SafeUnset<NumberDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberDecoratedSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -580,7 +582,7 @@ export interface NumberDecoratedModel {
     create: NumberDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<NumberDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -600,7 +602,7 @@ export interface NumberDecoratedModel {
     create: NumberDecoratedCreateInput;
     update?: D;
     unset?: SafeUnset<NumberDecoratedUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberDecoratedSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -661,6 +663,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -791,7 +794,7 @@ export interface NumberWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NumberWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, NumberWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberWithObject | keyof NumberWithObjectWhere)]?: never };
     orderBy?: NumberWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -804,7 +807,7 @@ export interface NumberWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NumberWithObjectWhere;
-    select?: S;
+    select?: SelectArg<S, NumberWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberWithObject | keyof NumberWithObjectWhere)]?: never };
     orderBy?: NumberWithObjectOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -819,7 +822,7 @@ export interface NumberWithObjectModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: NumberWithObjectFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, NumberWithObjectSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberWithObject | keyof NumberWithObjectWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -828,7 +831,7 @@ export interface NumberWithObjectModel {
 
   create<S extends NumberWithObjectSelect | undefined = undefined>(options: {
     data: NumberWithObjectCreateInput;
-    select?: S;
+    select?: SelectArg<S, NumberWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNumberWithObjectPayload<S>>;
 
@@ -839,7 +842,7 @@ export interface NumberWithObjectModel {
     where: NumberWithObjectWhere;
     data: D;
     unset?: SafeUnset<NumberWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberWithObjectSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNumberWithObjectPayload<S>[]>;
 
@@ -851,7 +854,7 @@ export interface NumberWithObjectModel {
     where: NumberWithObjectFindUniqueWhere;
     data: D;
     unset?: SafeUnset<NumberWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberWithObjectSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -871,7 +874,7 @@ export interface NumberWithObjectModel {
     create: NumberWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<NumberWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -891,7 +894,7 @@ export interface NumberWithObjectModel {
     create: NumberWithObjectCreateInput;
     update?: D;
     unset?: SafeUnset<NumberWithObjectUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberWithObjectSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
@@ -952,6 +955,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1070,7 +1074,7 @@ export interface NumberWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NumberWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, NumberWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberWithTuple | keyof NumberWithTupleWhere)]?: never };
     orderBy?: NumberWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -1083,7 +1087,7 @@ export interface NumberWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: NumberWithTupleWhere;
-    select?: S;
+    select?: SelectArg<S, NumberWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberWithTuple | keyof NumberWithTupleWhere)]?: never };
     orderBy?: NumberWithTupleOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -1098,7 +1102,7 @@ export interface NumberWithTupleModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: NumberWithTupleFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, NumberWithTupleSelectFields>;
     compute?: C & { [K in keyof C & (keyof NumberWithTuple | keyof NumberWithTupleWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -1107,7 +1111,7 @@ export interface NumberWithTupleModel {
 
   create<S extends NumberWithTupleSelect | undefined = undefined>(options: {
     data: NumberWithTupleCreateInput;
-    select?: S;
+    select?: SelectArg<S, NumberWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNumberWithTuplePayload<S>>;
 
@@ -1118,7 +1122,7 @@ export interface NumberWithTupleModel {
     where: NumberWithTupleWhere;
     data: D;
     unset?: SafeUnset<NumberWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberWithTupleSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetNumberWithTuplePayload<S>[]>;
 
@@ -1130,7 +1134,7 @@ export interface NumberWithTupleModel {
     where: NumberWithTupleFindUniqueWhere;
     data: D;
     unset?: SafeUnset<NumberWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberWithTupleSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -1150,7 +1154,7 @@ export interface NumberWithTupleModel {
     create: NumberWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<NumberWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -1170,7 +1174,7 @@ export interface NumberWithTupleModel {
     create: NumberWithTupleCreateInput;
     update?: D;
     unset?: SafeUnset<NumberWithTupleUnset, D>;
-    select?: S;
+    select?: SelectArg<S, NumberWithTupleSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records

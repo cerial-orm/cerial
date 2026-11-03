@@ -18,6 +18,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -187,7 +188,7 @@ export interface BloggerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BloggerWhere;
-    select?: S;
+    select?: SelectArg<S, BloggerSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Blogger | keyof BloggerWhere)]?: never };
     orderBy?: BloggerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
@@ -202,7 +203,7 @@ export interface BloggerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: BloggerWhere;
-    select?: S;
+    select?: SelectArg<S, BloggerSelectFields>;
     compute?: C & { [K in keyof C & (keyof Blogger | keyof BloggerWhere)]?: never };
     orderBy?: BloggerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -219,7 +220,7 @@ export interface BloggerModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: BloggerFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, BloggerSelectFields>;
     include?: I;
     compute?: C & { [K in keyof C & (keyof Blogger | keyof BloggerWhere)]?: never };
     txn?: CerialTransaction;
@@ -229,7 +230,7 @@ export interface BloggerModel {
 
   create<S extends BloggerSelect | undefined = undefined, I extends BloggerInclude | undefined = undefined>(options: {
     data: BloggerCreateInput;
-    select?: S;
+    select?: SelectArg<S, BloggerSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBloggerPayload<S, I>>;
@@ -242,7 +243,7 @@ export interface BloggerModel {
     where: BloggerWhere;
     data: D;
     unset?: SafeUnset<BloggerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BloggerSelectFields>;
     include?: I;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetBloggerPayload<S, I>[]>;
@@ -256,7 +257,7 @@ export interface BloggerModel {
     where: BloggerFindUniqueWhere;
     data: D;
     unset?: SafeUnset<BloggerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BloggerSelectFields>;
     include?: I;
     /**
      * Return option for the updated record
@@ -278,7 +279,7 @@ export interface BloggerModel {
     create: BloggerCreateInput;
     update?: D;
     unset?: SafeUnset<BloggerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BloggerSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -300,7 +301,7 @@ export interface BloggerModel {
     create: BloggerCreateInput;
     update?: D;
     unset?: SafeUnset<BloggerUnset, D>;
-    select?: S;
+    select?: SelectArg<S, BloggerSelectFields>;
     include?: I;
     /**
      * Return option for the upserted record
@@ -361,6 +362,7 @@ import type {
   UpsertArrayReturnType,
   ResolveFieldSelect,
   SafeUnset,
+  SelectArg,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -458,7 +460,7 @@ export interface LabelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LabelWhere;
-    select?: S;
+    select?: SelectArg<S, LabelSelectFields>;
     compute?: C & { [K in keyof C & (keyof Label | keyof LabelWhere)]?: never };
     orderBy?: LabelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     txn?: CerialTransaction;
@@ -471,7 +473,7 @@ export interface LabelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options?: {
     where?: LabelWhere;
-    select?: S;
+    select?: SelectArg<S, LabelSelectFields>;
     compute?: C & { [K in keyof C & (keyof Label | keyof LabelWhere)]?: never };
     orderBy?: LabelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
     limit?: number;
@@ -484,7 +486,7 @@ export interface LabelModel {
     C extends Record<string, SqlFragment> = Record<never, never>,
   >(options: {
     where: LabelFindUniqueWhere;
-    select?: S;
+    select?: SelectArg<S, LabelSelectFields>;
     compute?: C & { [K in keyof C & (keyof Label | keyof LabelWhere)]?: never };
     txn?: CerialTransaction;
   }): CerialQueryPromise<
@@ -493,7 +495,7 @@ export interface LabelModel {
 
   create<S extends LabelSelect | undefined = undefined>(options: {
     data: LabelCreateInput;
-    select?: S;
+    select?: SelectArg<S, LabelSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLabelPayload<S>>;
 
@@ -501,7 +503,7 @@ export interface LabelModel {
     where: LabelWhere;
     data: D;
     unset?: SafeUnset<LabelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LabelSelectFields>;
     txn?: CerialTransaction;
   }): CerialQueryPromise<GetLabelPayload<S>[]>;
 
@@ -513,7 +515,7 @@ export interface LabelModel {
     where: LabelFindUniqueWhere;
     data: D;
     unset?: SafeUnset<LabelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LabelSelectFields>;
     /**
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
@@ -533,7 +535,7 @@ export interface LabelModel {
     create: LabelCreateInput;
     update?: D;
     unset?: SafeUnset<LabelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LabelSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted record (supports select)
@@ -553,7 +555,7 @@ export interface LabelModel {
     create: LabelCreateInput;
     update?: D;
     unset?: SafeUnset<LabelUnset, D>;
-    select?: S;
+    select?: SelectArg<S, LabelSelectFields>;
     /**
      * Return option for the upserted record
      * - undefined/null/'after': returns upserted records
