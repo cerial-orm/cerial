@@ -1,8 +1,18 @@
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { CORPUS_CONSUMER_SPEC, consumerSource, syntheticConsumerSpec } from './consumer';
 import { type Compiler, DEFAULT_MAX_OLD_SPACE_MB, runTsc } from './compilers';
+import { CASES, type CaseName, type Tree, isCaseName, CASE_NAMES } from './cases';
 import { syntheticSchema } from './schema';
 
 export const DEFAULT_SIZES: readonly number[] = [10, 50, 100, 250, 500, 1000, 1250, 1500];
@@ -20,6 +30,8 @@ export interface BenchOptions {
   readonly ceiling: number | null;
   /** Heap limit for 5.9 runs; the default is what makes the ceiling the same on every machine */
   readonly heapMb: number;
+  /** Named transform applied to each generated tree before it is checked; absent measures the tree as generated */
+  readonly case?: CaseName | null;
 }
 
 export interface CaseRow {
@@ -67,14 +79,14 @@ function parseInteger(flag: string, text: string, min: number): number {
   return parseIntegerList(flag, text, min)[0]!;
 }
 
-/** Reads `--sizes 10,50 --runs 3 --compiler 5.9|7|all --fields n --json path --ceiling n --heap-mb n`; refuses anything else */
+/** Reads `--sizes 10,50 --runs 3 --compiler 5.9|7|all --fields n --json path --ceiling n --heap-mb n --case name`; refuses anything else */
 export function parseBenchArgs(argv: readonly string[]): BenchOptions {
   const values = new Map<string, string>();
 
   for (let i = 0; i < argv.length; i += 2) {
     const flag = argv[i]!;
     const value = argv[i + 1];
-    if (!['--sizes', '--runs', '--compiler', '--fields', '--json', '--ceiling', '--heap-mb'].includes(flag)) {
+    if (!['--sizes', '--runs', '--compiler', '--fields', '--json', '--ceiling', '--heap-mb', '--case'].includes(flag)) {
       throw new Error(`unknown argument "${flag}"`);
     }
     if (value === undefined || value.startsWith('--')) throw new Error(`${flag} needs a value`);
@@ -92,6 +104,11 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
       : [...DEFAULT_SIZES];
   if (ceiling !== null && !sizes.includes(ceiling)) sizes.push(ceiling);
 
+  const benchCase = values.get('--case') ?? null;
+  if (benchCase !== null && !isCaseName(benchCase)) {
+    throw new Error(`--case takes ${CASE_NAMES.join(', ')}, got "${benchCase}"`);
+  }
+
   return {
     sizes,
     runs: values.has('--runs') ? parseInteger('--runs', values.get('--runs')!, 1) : 3,
@@ -100,6 +117,7 @@ export function parseBenchArgs(argv: readonly string[]): BenchOptions {
     json: values.get('--json') ?? null,
     ceiling,
     heapMb: values.has('--heap-mb') ? parseInteger('--heap-mb', values.get('--heap-mb')!, 1) : DEFAULT_MAX_OLD_SPACE_MB,
+    case: benchCase,
   };
 }
 
@@ -182,6 +200,31 @@ function linkDependencies(caseDir: string): void {
   symlinkSync(dirname(nodeTypes), join(modules, '@types', 'node'));
 }
 
+/** `gen/**` and `consumer.ts` of a case directory, keyed by path relative to it */
+export function readTree(caseDir: string): Tree {
+  const tree = new Map<string, string>([['consumer.ts', readFileSync(join(caseDir, 'consumer.ts'), 'utf8')]]);
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else tree.set(relative(caseDir, path), readFileSync(path, 'utf8'));
+    }
+  };
+  walk(join(caseDir, 'gen'));
+
+  return tree;
+}
+
+/** Replaces `gen/` and `consumer.ts` with `tree`, so a renamed or removed file does not linger */
+export function writeTree(caseDir: string, tree: Tree): void {
+  rmSync(join(caseDir, 'gen'), { recursive: true, force: true });
+
+  for (const [path, text] of tree) {
+    mkdirSync(dirname(join(caseDir, path)), { recursive: true });
+    writeFileSync(join(caseDir, path), text);
+  }
+}
+
 async function generate(schemaDir: string, genDir: string): Promise<number> {
   const started = performance.now();
   const proc = Bun.spawn(
@@ -202,20 +245,14 @@ interface CaseInput {
   readonly consumer: string;
 }
 
-/** Generates the tree `runs` times for the codegen median, then compiles it `runs` times per compiler */
-async function measureCase(root: string, input: CaseInput, options: BenchOptions, index: number): Promise<CaseRow[]> {
-  const caseDir = join(root, `case-${index}`);
-  const genDir = join(caseDir, 'gen');
-  mkdirSync(caseDir, { recursive: true });
-  linkDependencies(caseDir);
-  writeFileSync(join(caseDir, 'consumer.ts'), input.consumer);
+function writeTsconfig(caseDir: string, skipLibCheck: boolean): void {
   writeFileSync(
     join(caseDir, 'tsconfig.json'),
     JSON.stringify({
       compilerOptions: {
         strict: true,
         noEmit: true,
-        skipLibCheck: true,
+        skipLibCheck,
         target: 'ESNext',
         module: 'preserve',
         moduleResolution: 'bundler',
@@ -227,6 +264,15 @@ async function measureCase(root: string, input: CaseInput, options: BenchOptions
       include: ['consumer.ts', 'gen/**/*.ts'],
     }),
   );
+}
+
+/** Generates the tree `runs` times for the codegen median, then compiles it `runs` times per compiler */
+async function measureCase(root: string, input: CaseInput, options: BenchOptions, index: number): Promise<CaseRow[]> {
+  const caseDir = join(root, `case-${index}`);
+  const genDir = join(caseDir, 'gen');
+  mkdirSync(caseDir, { recursive: true });
+  linkDependencies(caseDir);
+  writeFileSync(join(caseDir, 'consumer.ts'), input.consumer);
 
   const codegen: number[] = [];
   for (let run = 0; run < options.runs; run++) {
@@ -234,49 +280,57 @@ async function measureCase(root: string, input: CaseInput, options: BenchOptions
     codegen.push(await generate(input.schemaDir, genDir));
   }
 
+  const benchCase = options.case ? CASES[options.case] : null;
+  if (benchCase) writeTree(caseDir, benchCase.transform(readTree(caseDir)));
+
   const stats = treeStats(genDir);
   const rows: CaseRow[] = [];
 
-  for (const compiler of options.compilers) {
-    const checks: number[] = [];
-    let first: { instantiations: number; types: number; memoryKb: number } | null = null;
-    let state: CaseRow['state'] = 'ok';
+  for (const variant of benchCase?.variants ?? [{ label: '', skipLibCheck: true }]) {
+    writeTsconfig(caseDir, variant.skipLibCheck);
+    const name = `${input.name}${options.case ? ` ${options.case}` : ''}${variant.label}`;
 
-    for (let run = 0; run < options.runs; run++) {
-      const result = await runTsc(compiler, caseDir, {
-        countedRoots: [genDir, join(caseDir, 'consumer.ts')],
-        maxOldSpaceMb: options.heapMb,
+    for (const compiler of options.compilers) {
+      const checks: number[] = [];
+      let first: { instantiations: number; types: number; memoryKb: number } | null = null;
+      let state: CaseRow['state'] = 'ok';
+
+      for (let run = 0; run < options.runs; run++) {
+        const result = await runTsc(compiler, caseDir, {
+          countedRoots: [genDir, join(caseDir, 'consumer.ts')],
+          maxOldSpaceMb: options.heapMb,
+        });
+        if (result.state === 'heap-exhausted' || !result.metrics) {
+          state = 'heap-exhausted';
+          break;
+        }
+
+        const { instantiations, types, memoryKb, checkSeconds } = result.metrics;
+        if (first && (first.types !== types || first.instantiations !== instantiations)) {
+          throw new Error(
+            `${input.name} ${compiler}: types and instantiations differ between runs (${first.types}/${first.instantiations} then ${types}/${instantiations})`,
+          );
+        }
+        first ??= { instantiations, types, memoryKb };
+        checks.push(checkSeconds);
+      }
+
+      rows.push({
+        name,
+        compiler,
+        size: input.size,
+        state,
+        checkSeconds: checks.length ? median(checks) : null,
+        instantiations: first?.instantiations ?? null,
+        types: first?.types ?? null,
+        memoryMb: first ? Math.round(first.memoryKb / 1024) : null,
+        outputBytes: stats.bytes,
+        files: stats.files,
+        largestFile: stats.largest,
+        largestFileBytes: stats.largestBytes,
+        codegenMs: Math.round(median(codegen)),
       });
-      if (result.state === 'heap-exhausted' || !result.metrics) {
-        state = 'heap-exhausted';
-        break;
-      }
-
-      const { instantiations, types, memoryKb, checkSeconds } = result.metrics;
-      if (first && (first.types !== types || first.instantiations !== instantiations)) {
-        throw new Error(
-          `${input.name} ${compiler}: types and instantiations differ between runs (${first.types}/${first.instantiations} then ${types}/${instantiations})`,
-        );
-      }
-      first ??= { instantiations, types, memoryKb };
-      checks.push(checkSeconds);
     }
-
-    rows.push({
-      name: input.name,
-      compiler,
-      size: input.size,
-      state,
-      checkSeconds: checks.length ? median(checks) : null,
-      instantiations: first?.instantiations ?? null,
-      types: first?.types ?? null,
-      memoryMb: first ? Math.round(first.memoryKb / 1024) : null,
-      outputBytes: stats.bytes,
-      files: stats.files,
-      largestFile: stats.largest,
-      largestFileBytes: stats.largestBytes,
-      codegenMs: Math.round(median(codegen)),
-    });
   }
 
   return rows;
