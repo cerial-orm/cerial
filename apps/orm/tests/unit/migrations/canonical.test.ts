@@ -41,7 +41,7 @@ describe('canonicalType', () => {
   });
 
   test('an optional tuple element reads back as the server renders it', () => {
-    // INFO FOR TABLE ... STRUCTURE on 3.3.0 returns `[float, none | float]` for `[float, option<float>]`
+    // INFO FOR TABLE ... STRUCTURE on 4.0.0 returns `[float, none | float]` for `[float, option<float>]`
     expect(canonicalType('[float, option<float>]')).toBe(canonicalType('[float, none | float]'));
     expect(canonicalType('[float, option<float>]')).toBe('[float, float | none]');
   });

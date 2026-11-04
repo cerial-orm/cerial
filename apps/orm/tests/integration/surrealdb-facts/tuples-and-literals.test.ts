@@ -372,7 +372,7 @@ describe('the optional tuple plus optional object initialisation', () => {
     expect(await ok(db, 'SELECT * FROM d:1;')).toEqual([{ id: 'd:1', name: 'n' }]);
   });
 
-  test('the statement that triggered it on 3.3.0 cannot be issued, so there is nothing to initialise', async () => {
+  test('the element DEFINE that triggered the old bug is refused, so there is nothing to initialise', async () => {
     const db = await scratch('bug_trigger');
     await ok(db, DEFINE);
 

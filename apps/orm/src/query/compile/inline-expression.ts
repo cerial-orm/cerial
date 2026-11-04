@@ -1,9 +1,9 @@
 /**
  * The one SurrealQL expression Cerial writes into query text instead of binding it.
  *
- * A fixed-length tuple type literal refuses NONE in a position, so the server's own
- * `DEFINE FIELD t[N] ... DEFAULT` can never fire for a tuple element (measured against
- * SurrealDB 3.3.0). A tuple element's `@createdAt` / `@updatedAt` is therefore written
+ * A fixed-length tuple type literal refuses NONE in a position, and SurrealDB 4.0.0 refuses
+ * `DEFINE FIELD t[N]` under a tuple-literal parent outright, so the server can never default
+ * a tuple element (measured against 4.0.0). A tuple element's `@createdAt` / `@updatedAt` is therefore written
  * into the array literal as `time::now()`, so the timestamp comes from the database
  * clock like every model field's `DEFAULT time::now()`.
  *

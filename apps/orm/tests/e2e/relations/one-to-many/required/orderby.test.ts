@@ -142,6 +142,6 @@ describe('E2E One-to-Many Required: OrderBy', () => {
   });
 
   // NOTE: Relation orderBy (e.g., orderBy: { author: { name: 'asc' } }) is not supported.
-  // SurrealDB 3.x does not resolve record-link dot notation in ORDER BY clauses.
+  // SurrealDB 4.0 still does not resolve record-link dot notation in ORDER BY clauses.
   // Ordering by related fields silently returns insertion order.
 });

@@ -4,7 +4,7 @@
  * This file is verified with `tsc --noEmit`, NOT executed at runtime.
  * Run: bun run typecheck
  *
- * SurrealDB 3.3.0 cannot generate a union id, so the id is required in create.
+ * SurrealDB 4.0.0 cannot generate a union id, so the id is required in create.
  *
  * Every shape is compared with `Test.check`, which fails on a wider or a
  * narrower type.

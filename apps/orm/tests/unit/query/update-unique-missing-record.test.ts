@@ -1,7 +1,7 @@
 /**
  * Unit tests: updateUnique and upsert on a record that does not exist.
  *
- * SurrealDB 3.x answers UPDATE ONLY and UPSERT ONLY on a missing record with a null result, not an
+ * SurrealDB 4.0 answers UPDATE ONLY on a missing record with a null result, not an
  * error, so "not found" is the null path. The builders once also turned an error whose message
  * contained a SurrealDB 2.x sentence into null; that read prose, and it hid real failures.
  */
