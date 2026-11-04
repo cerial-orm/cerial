@@ -173,6 +173,72 @@ describe('applyPlan', () => {
     expect(await leaseRows(db)).toEqual([]);
   });
 
+  describe('a failing statement mid-script', () => {
+    const PERSON = [
+      'DEFINE TABLE OVERWRITE person SCHEMAFULL',
+      'DEFINE FIELD OVERWRITE email ON TABLE person TYPE string',
+    ];
+    const NOTE = 'DEFINE FIELD OVERWRITE note ON TABLE person TYPE option<string>';
+    const UNIQUE = 'DEFINE INDEX uq_email ON TABLE person FIELDS email UNIQUE';
+
+    async function seeded(label: string, second: string): Promise<{ db: Surreal; person: ApplyModel }> {
+      const db = await scratch(label);
+      await db
+        .query(`${PERSON.join(';')}; CREATE person:a SET email = 'x'; CREATE person:b SET email = '${second}';`)
+        .collect();
+      const person = await model(label, 'Person', 'person', [...PERSON, NOTE, UNIQUE]);
+
+      return { db, person };
+    }
+
+    test('negative: a statement after a harmless one fails and the harmless one is rolled back', async () => {
+      const { db, person } = await seeded('mid_fail', 'x');
+
+      const error = await applyPlan(db, plan(NOTE, UNIQUE), options([person])).catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(CerialMigrationError);
+      expect((error as CerialMigrationError).statement?.text).toBe(UNIQUE);
+      const live = (await readLiveSchema(db)).tables.find((t) => t.name === 'person')!;
+      expect(live.fields.map((f) => f.path)).toEqual([['email']]);
+      expect(live.indexes).toEqual([]);
+      expect((await readState(db, SCHEMA)).models.has('Person')).toBe(false);
+    });
+
+    test('positive: the same plan over rows that do not clash commits both statements and the state', async () => {
+      const { db, person } = await seeded('mid_ok', 'y');
+
+      const result = await applyPlan(db, plan(NOTE, UNIQUE), options([person]));
+
+      expect(result.executed).toEqual([NOTE, UNIQUE]);
+      const live = (await readLiveSchema(db)).tables.find((t) => t.name === 'person')!;
+      expect(live.fields.map((f) => f.path)).toEqual([['email'], ['note']]);
+      expect(live.indexes.map((i) => i.name)).toEqual(['uq_email']);
+      expect((await readState(db, SCHEMA)).models.get('Person')?.fingerprint).toBe(person.fingerprint);
+    });
+
+    test('a RETURN among the statements does not end the transaction: later ones run and commit', async () => {
+      const { db, person } = await seeded('mid_return', 'y');
+
+      const result = await applyPlan(db, plan(NOTE, 'RETURN 1', UNIQUE), options([person]));
+
+      expect(result.applied).toEqual(['Person']);
+      const live = (await readLiveSchema(db)).tables.find((t) => t.name === 'person')!;
+      expect(live.indexes.map((i) => i.name)).toEqual(['uq_email']);
+      expect(await rowStatus(db, 'Person')).toBe('applied');
+    });
+
+    test('a failure after a RETURN still rolls back the statements before it', async () => {
+      const { db, person } = await seeded('mid_return_fail', 'x');
+
+      const error = await applyPlan(db, plan(NOTE, 'RETURN 1', UNIQUE), options([person])).catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(CerialMigrationError);
+      expect((error as CerialMigrationError).statement?.text).toBe(UNIQUE);
+      const live = (await readLiveSchema(db)).tables.find((t) => t.name === 'person')!;
+      expect(live.fields.map((f) => f.path)).toEqual([['email']]);
+    });
+  });
+
   test('a re-read that disagrees throws naming the table and the row stays pending', async () => {
     const db = await scratch('mismatch');
     const user = await model('mismatch', 'User', 'user', [
