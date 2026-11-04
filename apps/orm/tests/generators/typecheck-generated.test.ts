@@ -3,7 +3,7 @@
  * only on that tree. Each case is a negative paired with the unseeded positive.
  */
 
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, describe, expect, setDefaultTimeout, test } from 'bun:test';
 import {
   cpSync,
   existsSync,
@@ -42,6 +42,9 @@ function seededCopy(seed?: (root: string) => void): string {
 
   return root;
 }
+
+// Each case spawns a full compiler run, which outlasts the 5 s default on a loaded machine
+setDefaultTimeout(120_000);
 
 beforeAll(() => {
   if (!existsSync(GENERATED)) throw new Error('Run `bun run generate:test-client` first');
