@@ -139,7 +139,7 @@ const features = [
 const stats = [
   { value: '63+', label: 'Test schemas' },
   { value: '2600+', label: 'Unit tests' },
-  { value: '3.x', label: 'SurrealDB support' },
+  { value: '4.x', label: 'SurrealDB support' },
   { value: 'Apache 2.0', label: 'License' },
 ];
 

@@ -127,7 +127,7 @@ const users = await client.db.User.findMany({
 Returns users where **no** location has a latitude less than -90.
 
 :::caution
-The `none` quantifier is implemented internally as `!(arr.any(...))` syntax rather than `NOT arr.any(...)`. This is for SurrealDB 3.x compatibility. The behavior is identical — records where zero elements match the condition.
+The `none` quantifier is implemented internally as `!(arr.any(...))` syntax rather than `NOT arr.any(...)`. This is for SurrealDB 4.0 compatibility. The behavior is identical — records where zero elements match the condition.
 :::
 
 ## Combining Object Filters with Other Conditions
@@ -342,7 +342,7 @@ const users = await client.db.User.findMany({
 ```
 
 :::caution
-The `none` quantifier uses `!(arr.any(...))` syntax internally for SurrealDB 3.x compatibility. This is handled automatically — you just use `none` in your filter object.
+The `none` quantifier uses `!(arr.any(...))` syntax internally for SurrealDB 4.0 compatibility. This is handled automatically — you just use `none` in your filter object.
 :::
 
 ## Complex Quantifier Conditions

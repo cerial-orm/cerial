@@ -184,7 +184,7 @@ const users = await client.db.User.findMany({
 ```
 
 :::caution
-The `none` quantifier uses `!(arr.any(...))` syntax internally for SurrealDB 3.x compatibility. This is handled automatically — you just use `none` in your filter object.
+The `none` quantifier uses `!(arr.any(...))` syntax internally for SurrealDB 4.0 compatibility. This is handled automatically — you just use `none` in your filter object.
 :::
 
 ## Complex Quantifier Conditions

@@ -57,7 +57,7 @@ Whether the `id` field is required or optional in the create input depends on th
 The rule is: the ID is optional only for a plain `Record @id`, `Record(string)` or `Record(uuid)`, because SurrealDB can generate one. For everything else, you must provide the ID yourself.
 
 :::note
-Union IDs always require an explicit ID, even when the union contains `string` or `uuid`. In a union like `Record(string, int)` or `Record(uuid, int)`, SurrealDB 3.3.0 refuses to generate one.
+Union IDs always require an explicit ID, even when the union contains `string` or `uuid`. In a union like `Record(string, int)` or `Record(uuid, int)`, SurrealDB 4.0 refuses to generate one.
 :::
 
 ## Practical Examples

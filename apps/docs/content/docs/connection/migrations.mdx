@@ -13,7 +13,7 @@ Migrations execute SurrealQL statements that define the structure of your databa
 - **`DEFINE FIELD`** defines fields with types, defaults, and constraints
 - **`DEFINE INDEX`** creates indexes for [`@unique`](/schema/decorators/unique) fields
 
-These statements are idempotent. Running them multiple times has the same effect as running them once. Cerial emits every `DEFINE` with `OVERWRITE`, which replaces an existing definition of the same name, so migrations are safe to re-run. `OVERWRITE` only replaces what the statement names. `DEFINE TABLE OVERWRITE` leaves the table's existing fields and indexes in place, and no emitted statement ever removes a field, index or table that your schema no longer mentions (see [Removing a field](#schema-changes)). Measured on SurrealDB 3.3.0.
+These statements are idempotent. Running them multiple times has the same effect as running them once. Cerial emits every `DEFINE` with `OVERWRITE`, which replaces an existing definition of the same name, so migrations are safe to re-run. `OVERWRITE` only replaces what the statement names. `DEFINE TABLE OVERWRITE` leaves the table's existing fields and indexes in place, and no emitted statement ever removes a field, index or table that your schema no longer mentions (see [Removing a field](#schema-changes)). Measured on SurrealDB 4.0.
 
 ## Lazy Migration (Default)
 

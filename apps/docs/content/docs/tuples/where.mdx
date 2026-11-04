@@ -146,7 +146,7 @@ const users = await client.db.User.findMany({
 Returns users where **no** history entry has a latitude less than -90.
 
 :::caution
-The `none` quantifier is implemented internally as `!(arr.any(...))` syntax rather than `NOT arr.any(...)`. This is for SurrealDB 3.x compatibility. The behavior is identical — records where zero elements match the condition.
+The `none` quantifier is implemented internally as `!(arr.any(...))` syntax rather than `NOT arr.any(...)`. This is for SurrealDB 4.0 compatibility. The behavior is identical — records where zero elements match the condition.
 :::
 
 ## Generated Where Type

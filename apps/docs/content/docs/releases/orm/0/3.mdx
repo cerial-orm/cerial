@@ -10,7 +10,7 @@ development branch and is not available on npm.
 
 ## 0.3.0
 
-**SurrealDB compatibility:** 3.3.0 | **SDK:** surrealdb 2.0.9
+**SurrealDB compatibility:** 4.0.0 | **SDK:** surrealdb 2.2.1
 
 ### Security
 
@@ -704,7 +704,7 @@ development branch and is not available on npm.
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a
   conflict from the structured error the server sends, not from the wording of
   its message. SurrealDB sends that detail from 3.1.0 and this release targets
-  3.3.0. A server older than 3.1.0 reports conflicts without it, so those
+  4.0.0. A server older than 3.1.0 reports conflicts without it, so those
   conflicts are no longer retried.
 - **Breaking.** Enum and literal field values are now checked against the variants the
   schema permits. `status: 'actve'` on an enum allowing only `active` and `archived`
@@ -770,8 +770,25 @@ development branch and is not available on npm.
   gets its own message saying what the field actually is. Setting a relation to
   `false` or `undefined` is still an opt-out, not an error.
 - Upgraded the bundled SurrealDB JavaScript SDK (`surrealdb`) from 2.0.4 to 2.0.9.
-- The supported SurrealDB version moves to 3.3.0. The full suite is tested against
-  it; see the SurrealDB Compatibility page. 0.2.x remains on 3.1.5.
+- **Breaking.** 0.3.0 requires SurrealDB 4.0.0. SurrealDB 3.x is no longer
+  supported, and 0.2.x remains on 3.1.5 for anyone who stays there. The full suite
+  is tested against 4.0.0; see the SurrealDB Compatibility page.
+- **Breaking.** 0.3.0 requires `surrealdb` 2.2.1 (it was 2.0.4 in 0.2.x).
+  Upgrade the SDK before you upgrade the server, then move the server to 4.0.0.
+  The server upgrade is one-way: a database that SurrealDB 4.0 has written to
+  cannot go back to 3.x, so take a backup first.
+- **Breaking.** `cerial migrate` follows SurrealDB 4.0's compatibility level 4.
+  Removing a field deletes its stored values from every row, so the plan marks it
+  destructive and says so. Changing a field's type over existing rows converts
+  each value, and a value that does not convert gets the field's `@default`, or
+  is cleared when the field is optional. That overwrites data, so it needs
+  `--allow-data-loss` as well as `--allow-destructive`. A type change with
+  neither a `@default` nor an optional field is a plan error that names the
+  field and the fix. See [Migrations](/connection/migrations).
+- `Decimal[]` fields can now use `@set`. 0.2.x refused the combination. See
+  [@set](/schema/decorators/arrays/set).
+- Wrong members of a tuple or literal are refused on `create` and on every update
+  form, instead of being left for the database to reject.
 - **Breaking.** A typed `@id` that SurrealDB cannot generate is now required in
   `create`. This affects `Record(int)`, `Record(number)`, and tuple and object
   ids, which were previously optional in the generated `Create` type even though
@@ -779,7 +796,7 @@ development branch and is not available on npm.
   and plain `Record @id` are unchanged and still optional.
 - **Breaking.** Union IDs now require an explicit id in `create`, including unions
   that contain `string` or `uuid` such as `Record(string, int)` or
-  `Record(uuid, int)`. SurrealDB 3.3.0 refuses to generate a record id when the
+  `Record(uuid, int)`. SurrealDB 4.0 refuses to generate a record id when the
   `id` field is a union type, so omitting the id is now a compile error and would
   fail at runtime. Plain `Record @id`, `Record(string)` and `Record(uuid)` are
   unchanged and still generate their id.
@@ -908,7 +925,7 @@ development branch and is not available on npm.
   reserves has changed between versions and a name that parses now may stop parsing after an
   upgrade. One of them was already failing: a `select` on a field named `value` produced
   `SELECT value FROM ...`, which SurrealDB rejects outright, so that query had no working
-  form. The list is pinned to SurrealDB 3.3.0.
+  form. The list is pinned to SurrealDB 4.0.0.
 - **Breaking.** `!!private` now holds across the whole `extends` chain. With
   `A extends B extends C`, a field marked `!!private` in `C` could be redeclared in `A`
   and `cerial generate` accepted it, so the modifier only protected a member from the

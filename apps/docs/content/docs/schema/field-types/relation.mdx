@@ -161,7 +161,7 @@ N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirec
 
 ## Filtering & OrderBy
 
-Relation fields are **excluded** from `Where` types and `OrderBy` types. You can't filter or sort by a relation field directly. SurrealDB 3.x doesn't resolve record-link dot notation in `ORDER BY`.
+Relation fields are **excluded** from `Where` types and `OrderBy` types. You can't filter or sort by a relation field directly. SurrealDB 4.0 doesn't resolve record-link dot notation in `ORDER BY`.
 
 To filter by related data, use nested where inside `include` or restructure your query to filter on the FK Record field instead.
 
