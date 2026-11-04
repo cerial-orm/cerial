@@ -2,11 +2,11 @@
  * Unit tests: wrapDatabaseError classifies a unique-index violation, and only that.
  *
  * The database sends prose with no structured field, so the text is parsed once, at this boundary.
- * The texts below are the ones SurrealDB 3.3.0 sends, probed live.
+ * The texts below are the ones SurrealDB 4.0 sends, probed live.
  */
 
 import { describe, expect, test } from 'bun:test';
-import { AlreadyExistsError, InternalError, SurrealError, ThrownError } from 'surrealdb';
+import { AlreadyExistsError, InternalError, SurrealError, ThrownError, ValidationError } from 'surrealdb';
 import { wrapDatabaseError } from '../../../src/client/model/wrap-database-error';
 import { CerialDatabaseError, CerialUniqueConstraintError } from '../../../src/errors';
 
@@ -112,7 +112,11 @@ describe('unique-constraint classification', () => {
       internal("Database index uq already contains 'a', with record t:a"),
       internal("The Database index `uq` already contains 'a', with record `t:a`"),
       internal("Database index `uq` already contains 'a', with record `t:a` and more"),
-      internal('Found NONE for field `email`, with record `t:a`, but expected a string'),
+      internal("Couldn't coerce value for field `email` of `t:a`: Expected `string` but found `NONE`"),
+      new ValidationError({
+        kind: 'Validation',
+        message: "Couldn't coerce value for field `email` of `t:a`: Expected `string` but found `NONE`",
+      }),
       // A THROW from SurrealQL is kind Thrown; only an Internal error is a violation.
       new ThrownError({ kind: 'Thrown', message: "Database index `uq` already contains 'a', with record `t:a`" }),
       // The same text as a THROW or a bare driver error, for the duplicate-id wording.
