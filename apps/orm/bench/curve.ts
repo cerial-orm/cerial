@@ -252,7 +252,7 @@ export interface CaseInput {
   readonly consumer: string;
 }
 
-function writeTsconfig(caseDir: string, skipLibCheck: boolean): void {
+function writeTsconfig(caseDir: string, skipLibCheck: boolean, consumerOnly = false): void {
   writeFileSync(
     join(caseDir, 'tsconfig.json'),
     JSON.stringify({
@@ -268,7 +268,7 @@ function writeTsconfig(caseDir: string, skipLibCheck: boolean): void {
         typeRoots: ['./node_modules/@types'],
         noUncheckedIndexedAccess: true,
       },
-      include: ['consumer.ts', 'gen/**/*.ts'],
+      include: consumerOnly ? ['consumer.ts'] : ['consumer.ts', 'gen/**/*.ts'],
     }),
   );
 }
@@ -299,7 +299,7 @@ export async function measureCase(
   const rows: CaseRow[] = [];
 
   for (const variant of benchCase?.variants ?? [{ label: '', skipLibCheck: true }]) {
-    writeTsconfig(caseDir, variant.skipLibCheck);
+    writeTsconfig(caseDir, variant.skipLibCheck, benchCase?.consumerOnly);
     const name = `${input.name}${options.case ? ` ${options.case}` : ''}${variant.label}`;
 
     for (const compiler of options.compilers) {

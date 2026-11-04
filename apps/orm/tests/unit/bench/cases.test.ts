@@ -24,6 +24,10 @@ afterAll(() => {
 
 const MODEL = `import type { Object as O, Any as A } from 'ts-toolbelt';
 
+export interface User {
+  id: string;
+}
+
 export interface UserSelectFields {
   id?: boolean;
   name?: boolean;
@@ -149,6 +153,73 @@ describe('case names', () => {
     expect(parseBenchArgs([]).case).toBeNull();
     expect(() => parseBenchArgs(['--case', 'nope'])).toThrow('--case takes');
   });
+});
+
+const REGISTRY = `/**
+ * Generated model registry
+ */
+
+import type { ModelRegistry, ObjectRegistry, TupleRegistry } from 'cerial';
+
+export const modelRegistry: ModelRegistry = {
+  User: {
+    name: 'User',
+    fields: [
+      {
+        name: 'id',
+        type: 'record',
+      },
+    ],
+  },
+  Post: {
+    name: 'Post',
+    fields: [],
+  },
+};
+
+export type { ModelRegistry };
+
+export const objectRegistry: ObjectRegistry = {
+  Address: {
+    name: 'Address',
+    fields: [],
+  },
+};
+
+export type { ObjectRegistry };
+
+export const tupleRegistry: TupleRegistry = {};
+
+export type { TupleRegistry };
+`;
+
+const MIGRATIONS = `/**
+ * Generated migration statements
+ */
+
+export type ModelName = 'User' | 'Post';
+
+export const modelNames = ['User', 'Post'] as const;
+
+export const migrationsByModel: Record<ModelName, string[]> = {
+  User: [
+    'DEFINE TABLE OVERWRITE user SCHEMAFULL;',
+    'DEFINE FIELD OVERWRITE name ON TABLE user TYPE string;',
+  ],
+  Post: [
+    'DEFINE TABLE OVERWRITE post SCHEMAFULL;',
+  ],
+};
+
+export function getMigrationModelNames(): ModelName[] {
+  return [...modelNames];
+}
+`;
+
+const INTERNAL = treeOf({
+  ...Object.fromEntries(FULL),
+  'gen/internal/model-registry.ts': REGISTRY,
+  'gen/internal/migrations.ts': MIGRATIONS,
 });
 
 const DTS_TREE: Tree = new Map(
@@ -330,25 +401,104 @@ describe('transforms on a tree with the pattern', () => {
 
   test('a transform never changes its input', () => {
     const before = new Map(FULL);
+    const internalBefore = new Map(INTERNAL);
     for (const name of CASE_NAMES.filter(
-      (name) => name !== 'dts' && !HEAVY_NAMES.includes(name) && !ARG_NAMES.includes(name),
+      (name) => name !== 'dts' && name !== 'split-output' && !HEAVY_NAMES.includes(name) && !ARG_NAMES.includes(name),
     )) {
       CASES[name].transform(FULL);
     }
     CASES.dts.transform(DTS_TREE);
+    CASES['split-output'].transform(INTERNAL);
     const heavyBefore = new Map(HEAVY);
     CASES['heavy-select-no-arg'].transform(HEAVY);
     CASES['heavy-write-no-arg'].transform(HEAVY);
     CASES['heavy-include-no-arg'].transform(HEAVY);
 
     expect(FULL).toEqual(before);
+    expect(INTERNAL).toEqual(internalBefore);
     expect(HEAVY).toEqual(heavyBefore);
+  });
+});
+
+describe('split-output and the barrel cases', () => {
+  const split = CASES['split-output'].transform(INTERNAL);
+
+  test('split-output writes one file per registry entry and per model migration', () => {
+    expect([...split.keys()].filter((path) => path.startsWith('gen/internal/')).sort()).toEqual([
+      'gen/internal/migrations.ts',
+      'gen/internal/migrations/post.ts',
+      'gen/internal/migrations/user.ts',
+      'gen/internal/model-registry.ts',
+      'gen/internal/registry/models/post.ts',
+      'gen/internal/registry/models/user.ts',
+      'gen/internal/registry/objects/address.ts',
+    ]);
+    expect(file(split, 'gen/internal/registry/models/user.ts')).toContain(
+      "export const entry: ModelRegistry[string] = {\n    name: 'User',",
+    );
+    expect(file(split, 'gen/internal/migrations/post.ts')).toBe(
+      "export const statements: string[] = [\n    'DEFINE TABLE OVERWRITE post SCHEMAFULL;',\n  ];\n",
+    );
+  });
+
+  test('the aggregators export the names the originals did and hold no entry body', () => {
+    const exported = (text: string): string[] =>
+      [...text.matchAll(/^export (?:const|type|function) (\w+)/gm), ...text.matchAll(/^export type \{ (\w+) \}/gm)]
+        .map((match) => match[1]!)
+        .sort();
+
+    for (const path of ['gen/internal/model-registry.ts', 'gen/internal/migrations.ts']) {
+      expect(exported(file(split, path))).toEqual(exported(file(INTERNAL, path)));
+    }
+    expect(file(split, 'gen/internal/model-registry.ts')).toContain(
+      "import { entry as models0 } from './registry/models/user';",
+    );
+    expect(file(split, 'gen/internal/model-registry.ts')).toContain('  User: models0,\n  Post: models1,\n');
+    expect(file(split, 'gen/internal/model-registry.ts')).toContain('export const tupleRegistry: TupleRegistry = {};');
+    expect(file(split, 'gen/internal/model-registry.ts')).not.toContain("name: 'User'");
+    expect(file(split, 'gen/internal/migrations.ts')).toContain('  User: statements0,\n  Post: statements1,\n');
+    expect(file(split, 'gen/internal/migrations.ts')).not.toContain('DEFINE TABLE');
+  });
+
+  test('split-output leaves the rest of the tree as it was', () => {
+    for (const [path, text] of FULL) expect(split.get(path)).toBe(text);
+  });
+
+  test('split-output refuses a registry entry in a shape it does not read', () => {
+    const odd = treeOf({
+      ...Object.fromEntries(INTERNAL),
+      'gen/internal/model-registry.ts': REGISTRY.replace('  Post: {', '  // stray\n  Post: {'),
+    });
+
+    expect(() => CASES['split-output'].transform(odd)).toThrow('shape the transform does not read');
+  });
+
+  test('split-output refuses a tree with no internal files', () => {
+    expect(() => CASES['split-output'].transform(FULL)).toThrow('no internal registry or migrations');
+  });
+
+  test('the barrel cases build a consumer for the same model from the two barrels, checked alone', () => {
+    const fromModels = CASES['barrel-models'].transform(FULL);
+    const fromRoot = CASES['barrel-root'].transform(FULL);
+
+    expect(file(fromModels, 'consumer.ts')).toContain("import type { User } from './gen/models';");
+    expect(file(fromRoot, 'consumer.ts')).toContain("import type { User } from './gen';");
+    expect(file(fromModels, 'consumer.ts')).toContain('export type Probe = User;');
+    expect(CASES['barrel-models'].consumerOnly).toBe(true);
+    expect(CASES['barrel-root'].consumerOnly).toBe(true);
+    expect(CASES.dts.consumerOnly).toBeUndefined();
+  });
+
+  test('a barrel case refuses a tree with no model to import', () => {
+    const tree = treeOf({ 'consumer.ts': '', 'gen/index.ts': 'export {};\n' });
+
+    expect(() => CASES['barrel-models'].transform(tree)).toThrow('no model interface');
   });
 });
 
 describe('transforms on a tree without the pattern', () => {
   test.each(CASE_NAMES)('%s throws', (name: CaseName) => {
-    expect(() => CASES[name].transform(EMPTY)).toThrow(/case (no-|flat-|dts|ts|heavy-)/);
+    expect(() => CASES[name].transform(EMPTY)).toThrow(/case (no-|flat-|dts|ts|heavy-|split-|barrel-)/);
   });
 
   test.each(HEAVY_NAMES)('%s throws when the tree has no UnsetTest to select from', (name) => {
@@ -479,6 +629,9 @@ withDist('every case compiles clean', () => {
     ['no-compute', ['3 no-compute']],
     ['dts', ['3 dts', '3 dts skipLibCheck=false']],
     ['ts', ['3 ts', '3 ts skipLibCheck=false']],
+    ['split-output', ['3 split-output']],
+    ['barrel-models', ['3 barrel-models']],
+    ['barrel-root', ['3 barrel-root']],
   ];
 
   test.each(ALL)(
