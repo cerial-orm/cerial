@@ -210,8 +210,12 @@ function typesText(parsed: SchemaAST, files: Generated['files']): string {
   return sections.join('\n');
 }
 
-/** Generated files that belong to no one declaration, so they are snapshotted whole. */
-const sharedPaths = (): string[] => [...first.all.keys()].filter((p) => !first.files.has(p)).sort();
+/**
+ * Generated files that belong to no one declaration, so they are snapshotted whole. The registry
+ * chunks are left out: `registry/*.snap` already pins the content they hold.
+ */
+const sharedPaths = (): string[] =>
+  [...first.all.keys()].filter((p) => !first.files.has(p) && !p.startsWith('internal/registry/')).sort();
 const sharedSnapshotPath = (path: string): string => join(SNAPSHOT_DIR, 'shared', `${path}.snap`);
 
 function snapshotPath(part: Part, schemaFile: string): string {

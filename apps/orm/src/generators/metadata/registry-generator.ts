@@ -457,3 +457,89 @@ export function createObjectRegistry(objects: ObjectMetadata[]): ObjectRegistry 
 
   return registry;
 }
+
+/** Entries per registry chunk file; a chunk's size stays fixed however large the schema grows. */
+export const REGISTRY_CHUNK_SIZE = 50;
+
+export type RegistryKind = 'models' | 'objects' | 'tuples' | 'literals';
+
+const REGISTRY_TYPE: Record<RegistryKind, string> = {
+  models: 'ModelRegistry',
+  objects: 'ObjectRegistry',
+  tuples: 'TupleRegistry',
+  literals: 'LiteralRegistry',
+};
+
+const REGISTRY_CONST: Record<RegistryKind, string> = {
+  models: 'modelRegistry',
+  objects: 'objectRegistry',
+  tuples: 'tupleRegistry',
+  literals: 'literalRegistry',
+};
+
+/** Path of a chunk file relative to `internal/`, without extension */
+export function registryChunkPath(kind: RegistryKind, index: number): string {
+  return `registry/${kind}/chunk-${index}`;
+}
+
+/** One file of `REGISTRY_CHUNK_SIZE` entries per chunk, in declaration order */
+export function generateRegistryChunks(
+  kind: RegistryKind,
+  entries: ModelMetadata[] | ObjectMetadata[] | TupleMetadata[] | LiteralMetadata[],
+): string[] {
+  const generate = {
+    models: generateModelMetadata,
+    objects: generateObjectMetadata,
+    tuples: generateTupleMetadata,
+    literals: generateLiteralMetadataCode,
+  }[kind] as (entry: unknown) => string;
+  const chunks: string[] = [];
+
+  for (let start = 0; start < entries.length; start += REGISTRY_CHUNK_SIZE) {
+    const body = entries
+      .slice(start, start + REGISTRY_CHUNK_SIZE)
+      .map(generate)
+      .join(',\n');
+    chunks.push(`/**
+ * Generated registry chunk
+ * Do not edit manually
+ */
+
+import type { ${REGISTRY_TYPE[kind]} } from 'cerial';
+
+export const chunk: ${REGISTRY_TYPE[kind]} = {
+${body}
+};
+`);
+  }
+
+  return chunks;
+}
+
+/** The aggregator: spreads the chunks in order so the key order matches a single registry */
+export function generateRegistryAggregatorCode(chunkCounts: Record<RegistryKind, number>): string {
+  const kinds = (Object.keys(REGISTRY_TYPE) as RegistryKind[]).filter((k) => k === 'models' || chunkCounts[k]);
+  const imports: string[] = [];
+  const bodies: string[] = [];
+
+  for (const kind of kinds) {
+    const names = Array.from({ length: chunkCounts[kind] }, (_, i) => `${kind}${i}`);
+    names.forEach((name, i) => imports.push(`import { chunk as ${name} } from './${registryChunkPath(kind, i)}';`));
+    bodies.push(`export const ${REGISTRY_CONST[kind]}: ${REGISTRY_TYPE[kind]} = {
+${names.map((name) => `  ...${name},`).join('\n')}
+};
+
+export type { ${REGISTRY_TYPE[kind]} };
+`);
+  }
+
+  return `/**
+ * Generated model registry
+ * Do not edit manually
+ */
+
+import type { ${kinds.map((k) => REGISTRY_TYPE[k]).join(', ')} } from 'cerial';
+${imports.join('\n')}
+
+${bodies.join('\n')}`;
+}

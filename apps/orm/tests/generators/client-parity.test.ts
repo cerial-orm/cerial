@@ -35,7 +35,10 @@ function firstDifference(left: string, right: string): string {
 }
 
 function registryTables(dir: string): string[] {
-  const source = readFileSync(join(dir, 'internal', 'model-registry.ts'), 'utf8');
+  const chunks = join(dir, 'internal', 'registry', 'models');
+  const source = readdirSync(chunks)
+    .map((file) => readFileSync(join(chunks, file), 'utf8'))
+    .join('\n');
 
   return [...source.matchAll(/tableName: '([^']+)'/g)].map((match) => match[1]!).sort();
 }

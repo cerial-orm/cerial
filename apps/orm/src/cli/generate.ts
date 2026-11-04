@@ -374,9 +374,9 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       // Generate files
       logger.progress('Generating files...');
 
-      const registryPath = await writeModelRegistry(stagingDir, models, objects, tuples, literals);
-      result.files.push(registryPath);
-      if (logLevel === 'full') logger.fileCreated(toFinal(registryPath));
+      const registryPaths = await writeModelRegistry(stagingDir, models, objects, tuples, literals);
+      result.files.push(...registryPaths);
+      if (logLevel === 'full') registryPaths.forEach((f) => logger.fileCreated(toFinal(f)));
 
       const objectRegistry = objRegistry;
       const tupleRegistry = tupRegistry;
@@ -428,7 +428,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       if (logLevel === 'medium') {
         const modelFiles = clientFiles.filter((f) => f.includes('/models/') && !/\/index(\.d)?\.ts$/.test(f));
         logger.info(`  ${modelFiles.length} model files`);
-        logger.info(`  3 internal files`);
+        logger.info(`  ${registryPaths.length + 3} internal files`);
         logger.info(`  ${clientFiles.length - modelFiles.length} client files`);
       }
 

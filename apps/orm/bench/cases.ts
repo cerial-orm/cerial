@@ -25,7 +25,6 @@ export const CASE_NAMES = [
   'heavy-write-no-arg',
   'heavy-include',
   'heavy-include-no-arg',
-  'split-output',
   'barrel-models',
   'barrel-root',
 ] as const;
@@ -231,91 +230,6 @@ function heavyArg(name: CaseName, kind: 'write' | 'include', ablated: boolean): 
   };
 }
 
-const REGISTRY_DECL = /^export const (\w+Registry): (\w+) = \{\n([\s\S]*?)\n\};$/gm;
-const REGISTRY_ENTRY = /^ {2}(\w+): (?:\{.*\}|\{\n[\s\S]*?\n {2}\}),$/gm;
-const MIGRATIONS_DECL = /^export const migrationsByModel: Record<ModelName, string\[\]> = \{\n([\s\S]*?)\n\};$/m;
-const MIGRATION_ENTRY = /^ {2}(\w+): (?:\[.*\]|\[\n[\s\S]*?\n {2}\]),$/gm;
-
-interface Entry {
-  readonly name: string;
-  readonly text: string;
-}
-
-/** The entries of an object literal body, throwing when anything in the body is not an entry of the expected shape */
-function entriesOf(body: string, pattern: RegExp, where: string): Entry[] {
-  const entries = [...body.matchAll(pattern)].map((match) => ({ name: match[1]!, text: match[0] }));
-  if (entries.map((entry) => entry.text).join('\n') !== body) {
-    throw new Error(`case split-output: ${where} has entries in a shape the transform does not read`);
-  }
-
-  return entries;
-}
-
-/** Everything after the first line, up to the trailing comma: the value an entry's key points at */
-function valueOf(entry: Entry): string {
-  return entry.text.slice(entry.text.indexOf(': ') + 2, -1);
-}
-
-function splitFileName(name: string): string {
-  return name.toLowerCase();
-}
-
-/**
- * Moves each registry entry and each model's migration statements into a file of its own and leaves `internal/model-registry.ts`
- * and `internal/migrations.ts` as aggregators that export the same names. The values are the generator's own text, so the
- * split changes where they live and nothing about what they are.
- */
-function splitOutput(tree: Tree): Tree {
-  const next = new Map(tree);
-  const registryPath = 'gen/internal/model-registry.ts';
-  const migrationsPath = 'gen/internal/migrations.ts';
-  const registry = tree.get(registryPath);
-  const migrations = tree.get(migrationsPath);
-  if (registry === undefined || migrations === undefined) {
-    throw new Error('case split-output: the generated tree has no internal registry or migrations file');
-  }
-
-  const registryImports: string[] = [];
-  const splitRegistry = registry.replace(REGISTRY_DECL, (_whole, constName: string, type: string, body: string) => {
-    const dir = `${constName.slice(0, -'Registry'.length).toLowerCase()}s`;
-    const entries = entriesOf(body, REGISTRY_ENTRY, constName);
-    const keys = entries.map((entry, index) => {
-      const file = splitFileName(entry.name);
-      next.set(
-        `gen/internal/registry/${dir}/${file}.ts`,
-        `import type { ${type} } from 'cerial';\n\nexport const entry: ${type}[string] = ${valueOf(entry)};\n`,
-      );
-      registryImports.push(`import { entry as ${dir}${index} } from './registry/${dir}/${file}';`);
-
-      return `  ${entry.name}: ${dir}${index},`;
-    });
-
-    return `export const ${constName}: ${type} = {${keys.length ? `\n${keys.join('\n')}\n` : ''}};`;
-  });
-  if (splitRegistry === registry || !registryImports.length) {
-    throw new Error('case split-output: the model registry has no entries to move');
-  }
-  next.set(registryPath, splitRegistry.replace(/^(import type .*\n)/m, `$1${registryImports.join('\n')}\n`));
-
-  const migrationImports: string[] = [];
-  const splitMigrations = migrations.replace(MIGRATIONS_DECL, (_whole, body: string) => {
-    const keys = entriesOf(body, MIGRATION_ENTRY, 'migrationsByModel').map((entry, index) => {
-      const file = splitFileName(entry.name);
-      next.set(`gen/internal/migrations/${file}.ts`, `export const statements: string[] = ${valueOf(entry)};\n`);
-      migrationImports.push(`import { statements as statements${index} } from './migrations/${file}';`);
-
-      return `  ${entry.name}: statements${index},`;
-    });
-
-    return `export const migrationsByModel: Record<ModelName, string[]> = {\n${keys.join('\n')}\n};`;
-  });
-  if (splitMigrations === migrations || !migrationImports.length) {
-    throw new Error('case split-output: the migrations file has no model statements to move');
-  }
-
-  return next.set(migrationsPath, `${migrationImports.join('\n')}\n${splitMigrations}`);
-}
-
 /** The first model's interface name, read from the barrel of `gen/models` so the same case runs on any schema */
 function firstModel(tree: Tree, name: CaseName): string {
   for (const path of [...tree.keys()].sort()) {
@@ -375,7 +289,6 @@ export const CASES: Record<CaseName, BenchCase> = {
   'heavy-write-no-arg': heavyArg('heavy-write-no-arg', 'write', true),
   'heavy-include': heavyArg('heavy-include', 'include', false),
   'heavy-include-no-arg': heavyArg('heavy-include-no-arg', 'include', true),
-  'split-output': { transform: splitOutput, variants: [DEFAULT_VARIANT] },
   'barrel-models': {
     consumerOnly: true,
     transform: barrel('barrel-models', './gen/models'),
