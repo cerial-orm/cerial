@@ -124,10 +124,10 @@ describe('config-based multi-schema generation', () => {
     });
 
     it('should generate model-registry for each schema', async () => {
-      const authRegistry = await Bun.file(join(authOutput, 'internal', 'model-registry.ts')).text();
+      const authRegistry = await Bun.file(join(authOutput, 'internal', 'registry', 'models', 'chunk-0.ts')).text();
       expect(authRegistry).toContain('MsAuthUser');
 
-      const cmsRegistry = await Bun.file(join(cmsOutput, 'internal', 'model-registry.ts')).text();
+      const cmsRegistry = await Bun.file(join(cmsOutput, 'internal', 'registry', 'models', 'chunk-0.ts')).text();
       expect(cmsRegistry).toContain('MsCmsPage');
     });
   });
