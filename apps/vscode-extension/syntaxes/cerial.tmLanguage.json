@@ -82,7 +82,7 @@
     },
 
     "built_in_types": {
-      "match": "\\b(String|Email|Int|Float|Bool|Date|Number|Record|Relation|Uuid|Duration|Decimal|Bytes|Geometry|Any)\\b",
+      "match": "\\b(String|Email|Int|Float|Bool|Date|Number|Record|Relation|Uuid|Duration|Decimal|Bytes|Geometry|Any|Int8|Uint8|Int16|Uint16|Int32|Uint32|Uint64|Float16|Float32)\\b",
       "name": "support.type.primitive.cerial"
     },
 

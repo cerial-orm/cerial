@@ -116,4 +116,18 @@ describe('completion reads the registry', () => {
     expect(labels.filter((label) => !label.endsWith('[]')).sort()).toEqual([...names].sort());
     expect(labels.filter((label) => label.endsWith('[]')).sort()).toEqual(names.map((name) => `${name}[]`).sort());
   });
+
+  test('field type completion offers the nine sized numbers with their types, and no Int64 or Float64', () => {
+    const items = getFieldTypeCompletions(null, testPath('none.cerial'), null);
+    const labels = items.map((item) => item.label);
+
+    for (const name of ['Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Uint64', 'Float16', 'Float32']) {
+      expect(labels).toContain(name);
+      expect(labels).toContain(`${name}[]`);
+    }
+    expect(items.find((item) => item.label === 'Uint64')!.detail).toBe('bigint (SurrealDB: u64)');
+    expect(items.find((item) => item.label === 'Float16')!.detail).toBe('number (SurrealDB: f16)');
+    expect(labels).not.toContain('Int64');
+    expect(labels).not.toContain('Float64');
+  });
 });

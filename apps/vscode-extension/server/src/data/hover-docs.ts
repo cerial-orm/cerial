@@ -18,6 +18,8 @@ export interface FieldTypeDoc {
   tsType: string;
   surrealType: string;
   description: string;
+  example?: string;
+  constraints?: string;
 }
 
 /** Documentation for a decorator */
@@ -38,6 +40,8 @@ export interface DecoratorDetail {
 export interface FieldTypeDetail {
   tsType: string;
   surrealType: string;
+  example?: string;
+  constraints?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -60,15 +64,64 @@ export const FIELD_TYPE_DETAIL: Readonly<Record<string, FieldTypeDetail>> = {
   Geometry: { tsType: 'CerialGeometry', surrealType: 'geometry' },
   Any: { tsType: 'CerialAny', surrealType: 'any' },
   Number: { tsType: 'number', surrealType: 'number' },
-  Int8: { tsType: 'number', surrealType: 'i8' },
-  Uint8: { tsType: 'number', surrealType: 'u8' },
-  Int16: { tsType: 'number', surrealType: 'i16' },
-  Uint16: { tsType: 'number', surrealType: 'u16' },
-  Int32: { tsType: 'number', surrealType: 'i32' },
-  Uint32: { tsType: 'number', surrealType: 'u32' },
-  Uint64: { tsType: 'bigint', surrealType: 'u64' },
-  Float16: { tsType: 'number', surrealType: 'f16' },
-  Float32: { tsType: 'number', surrealType: 'f32' },
+  Int8: {
+    tsType: 'number',
+    surrealType: 'i8',
+    example: 'field Int8',
+    constraints: 'Whole numbers from -128 to 127. A value outside the range is refused before it is sent.',
+  },
+  Uint8: {
+    tsType: 'number',
+    surrealType: 'u8',
+    example: 'field Uint8',
+    constraints: 'Whole numbers from 0 to 255. A value outside the range is refused before it is sent.',
+  },
+  Int16: {
+    tsType: 'number',
+    surrealType: 'i16',
+    example: 'field Int16',
+    constraints: 'Whole numbers from -32768 to 32767. A value outside the range is refused before it is sent.',
+  },
+  Uint16: {
+    tsType: 'number',
+    surrealType: 'u16',
+    example: 'field Uint16',
+    constraints: 'Whole numbers from 0 to 65535. A value outside the range is refused before it is sent.',
+  },
+  Int32: {
+    tsType: 'number',
+    surrealType: 'i32',
+    example: 'field Int32',
+    constraints:
+      'Whole numbers from -2147483648 to 2147483647. A value outside the range is refused before it is sent.',
+  },
+  Uint32: {
+    tsType: 'number',
+    surrealType: 'u32',
+    example: 'field Uint32',
+    constraints: 'Whole numbers from 0 to 4294967295. A value outside the range is refused before it is sent.',
+  },
+  Uint64: {
+    tsType: 'bigint',
+    surrealType: 'u64',
+    example: 'field Uint64',
+    constraints:
+      'Whole numbers from 0 to 18446744073709551615. Read back as bigint; accepts a bigint or a safe integer number. A value outside the range is refused before it is sent.',
+  },
+  Float16: {
+    tsType: 'number',
+    surrealType: 'f16',
+    example: 'field Float16',
+    constraints:
+      'Half precision: values are rounded to the nearest representable value (0.1 is stored as 0.0999755859375), and the largest finite value is 65504. Filter values are rounded the same way.',
+  },
+  Float32: {
+    tsType: 'number',
+    surrealType: 'f32',
+    example: 'field Float32',
+    constraints:
+      'Single precision: values are rounded to the nearest representable value (16777217 is stored as 16777216), and a value beyond the range is refused. Filter values are rounded the same way.',
+  },
 };
 
 export const DECORATOR_DETAIL: Readonly<Record<string, DecoratorDetail>> = {
@@ -199,7 +252,13 @@ export const FIELD_TYPE_DOCS: Readonly<Record<string, FieldTypeDoc>> = Object.fr
 
     return [
       entry.name,
-      { tsType: detail?.tsType ?? '', surrealType: detail?.surrealType ?? '', description: entry.description },
+      {
+        tsType: detail?.tsType ?? '',
+        surrealType: detail?.surrealType ?? '',
+        description: entry.description,
+        example: detail?.example,
+        constraints: detail?.constraints,
+      },
     ];
   }),
 );

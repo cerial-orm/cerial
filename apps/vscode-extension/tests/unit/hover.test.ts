@@ -28,6 +28,47 @@ describe('Hover Logic', () => {
     });
   });
 
+  describe('sized number hover detail', () => {
+    const ranges: Record<string, string> = {
+      Int8: '-128 to 127',
+      Uint8: '0 to 255',
+      Int16: '-32768 to 32767',
+      Uint16: '0 to 65535',
+      Int32: '-2147483648 to 2147483647',
+      Uint32: '0 to 4294967295',
+      Uint64: '0 to 18446744073709551615',
+    };
+
+    for (const [name, range] of Object.entries(ranges)) {
+      test(`${name} documents its range ${range}`, () => {
+        const doc = FIELD_TYPE_DOCS[name]!;
+
+        expect(doc.example).toBe(`field ${name}`);
+        expect(doc.constraints).toContain(range);
+      });
+    }
+
+    test('Uint64 reads back as bigint, the others as number', () => {
+      expect(FIELD_TYPE_DOCS.Uint64!.tsType).toBe('bigint');
+      for (const name of ['Int8', 'Uint8', 'Int16', 'Uint16', 'Int32', 'Uint32', 'Float16', 'Float32']) {
+        expect(FIELD_TYPE_DOCS[name]!.tsType).toBe('number');
+      }
+    });
+
+    test('Float16 and Float32 carry a rounding note and no integer range', () => {
+      for (const name of ['Float16', 'Float32']) {
+        expect(FIELD_TYPE_DOCS[name]!.constraints).toContain('rounded');
+        expect(FIELD_TYPE_DOCS[name]!.constraints).not.toContain('Whole numbers');
+      }
+    });
+
+    test('the unsized types gain no sized detail', () => {
+      expect(FIELD_TYPE_DOCS.Int!.constraints).toBeUndefined();
+      expect(FIELD_TYPE_DOCS.Int64).toBeUndefined();
+      expect(FIELD_TYPE_DOCS.Float64).toBeUndefined();
+    });
+  });
+
   describe('DECORATOR_DOCS completeness', () => {
     for (const [name, entry] of DECORATOR_REGISTRY) {
       test(`resolves ${name} from the registry`, () => {

@@ -149,6 +149,9 @@ function buildFieldTypeHover(word: string): string | null {
     `| \`${doc.tsType}\` | \`${doc.surrealType}\` |`,
   ];
 
+  if (doc.example) lines.push('', '```cerial', doc.example, '```');
+  if (doc.constraints) lines.push('', `**Constraints:** ${doc.constraints}`);
+
   return lines.join('\n');
 }
 

@@ -131,6 +131,15 @@ describe('Primitive Types', () => {
     'Bytes',
     'Geometry',
     'Any',
+    'Int8',
+    'Uint8',
+    'Int16',
+    'Uint16',
+    'Int32',
+    'Uint32',
+    'Uint64',
+    'Float16',
+    'Float32',
   ];
 
   for (const typeName of primitives) {
@@ -140,6 +149,14 @@ describe('Primitive Types', () => {
       const fieldLine = lines[1];
       const typeTok = findToken(fieldLine.tokens, typeName);
       assertScope(typeTok, 'support.type.primitive.cerial');
+    });
+  }
+
+  for (const typeName of ['Int64', 'Float64', 'Int8s', 'Uint128']) {
+    it(`${typeName} is not a built-in type`, async () => {
+      const lines = await tokenizeFixtureLines(`model Test {\n  field ${typeName}\n}`);
+      const typeTok = findToken(lines[1].tokens, typeName);
+      expect(typeTok.scopes).not.toContain('support.type.primitive.cerial');
     });
   }
 
