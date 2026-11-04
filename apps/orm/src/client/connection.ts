@@ -6,11 +6,12 @@
  * This prevents socket exhaustion from rapid open/close cycles.
  */
 
-import { Surreal } from 'surrealdb';
+import type { Surreal } from 'surrealdb';
 import { CerialConnectionError, CerialNotConnectedError } from '../errors';
 import { wrapDatabaseError } from './model/wrap-database-error';
 import type { ConnectionConfig, ModelRegistry } from '../types';
 import type { EndableLive } from './live';
+import { createSurreal } from './transaction-begin';
 import { clearModelCache, createModelProxy, type DatabaseProxy, type ProxyOptions } from './proxy';
 
 /** Default connection name */
@@ -69,7 +70,7 @@ const RECONNECT_OPTIONS = {
 
 /** Create and authenticate a fresh Surreal connection */
 async function connectSurreal(config: ConnectionConfig): Promise<Surreal> {
-  const surreal = new Surreal();
+  const surreal = createSurreal();
 
   try {
     // Only the socket step is classified: a refused or exhausted connect is the connection error, while a

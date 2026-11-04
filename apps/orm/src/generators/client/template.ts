@@ -12,7 +12,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, applyUnmatched, verifySchema, warnAutoChange, warnAutoInProduction, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, beginTransaction, validateBeginOptions, applyUnmatched, verifySchema, warnAutoChange, warnAutoInProduction, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionBeginOptions, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { manifest } from './internal/manifest';
@@ -583,7 +583,7 @@ ${_generateTransactionOverloads()}
    * The transaction is automatically committed on success or cancelled on error.
    *
    * @param fn - Callback receiving a transaction client with model access
-   * @param options - Optional transaction options (e.g., timeout)
+   * @param options - Optional transaction options (timeout, retries, isolation, readOnly)
    * @returns The callback's return value
    *
    * @example
@@ -603,6 +603,7 @@ ${_generateTransactionOverloads()}
   /**
    * Begin a manual transaction for explicit commit/cancel control.
    *
+   * @param options - Optional begin options: \`isolation\` ('snapshot' or 'serializable') and \`readOnly\`
    * @returns A transaction client with commit() and cancel() methods
    *
    * @example
@@ -617,26 +618,28 @@ ${_generateTransactionOverloads()}
    * }
    * \`\`\`
    */
-   $transaction(): Promise<CerialTransaction & TypedDb>;
+   $transaction(options?: TransactionBeginOptions): Promise<CerialTransaction & TypedDb>;
 
    async $transaction(
-     arg?: (CerialQueryPromise<any> | ((prev: any[]) => any))[] | ((tx: any) => unknown),
+     arg?: (CerialQueryPromise<any> | ((prev: any[]) => any))[] | ((tx: any) => unknown) | TransactionBeginOptions,
      options?: TransactionOptions,
    ): Promise<unknown> {
     if (!this._db) throw new CerialNotConnectedError('Not connected. Call connect() first.', { operation: '$transaction' });
 
-    // Manual mode: no arguments
-    if (arg === undefined) {
+    // Manual mode: no argument, or a plain object of begin options
+    if (arg === undefined || (typeof arg === 'object' && arg !== null && !Array.isArray(arg))) {
+      validateBeginOptions(arg, true);
       const surreal = this.getTransactionSurreal();
       if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: '$transaction' });
       await this.ensureMigrated();
-      const sdkTxn = await surreal.beginTransaction();
+      const sdkTxn = await beginTransaction(surreal, arg);
 
       return createCerialTransactionProxy(sdkTxn, modelRegistry, this._includeStatementInErrors);
     }
 
     // Callback mode: function argument
     if (typeof arg === 'function') {
+      validateBeginOptions(options);
       const surreal = this.getTransactionSurreal();
       if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: '$transaction' });
       await this.ensureMigrated();
@@ -647,7 +650,7 @@ ${_generateTransactionOverloads()}
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          const sdkTxn = await surreal.beginTransaction();
+          const sdkTxn = await beginTransaction(surreal, options);
           const tx = createCerialTransactionProxy(sdkTxn, modelRegistry, this._includeStatementInErrors);
 
           let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -695,6 +698,7 @@ ${_generateTransactionOverloads()}
     }
 
     // Array mode
+    validateBeginOptions(options);
     if (!arg.length) return [] as any;
 
     const surreal = this.getTransactionSurreal();

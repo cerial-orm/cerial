@@ -12,10 +12,21 @@ import type { CerialQueryPromise } from '../query/cerial-query-promise';
  */
 export type TransactionCallbackFn<R> = (tx: TransactionClient) => Promise<R> | R;
 
+/** Isolation level of a transaction. */
+export type TransactionIsolation = 'snapshot' | 'serializable';
+
+/** Options every `$transaction` mode accepts, sent when the transaction begins. */
+export interface TransactionBeginOptions {
+  /** Isolation level. Default `'snapshot'` (the server default). */
+  isolation?: TransactionIsolation;
+  /** Refuse every write in the transaction. Default `false`. */
+  readOnly?: boolean;
+}
+
 /**
- * Options for transaction execution
+ * Options for transaction execution (array and callback modes)
  */
-export interface TransactionOptions {
+export interface TransactionOptions extends TransactionBeginOptions {
   /** Optional timeout in milliseconds for the transaction */
   timeout?: number;
   /** Number of retry attempts on transaction conflict (default: 0 — no retry) */

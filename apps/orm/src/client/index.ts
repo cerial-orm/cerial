@@ -19,3 +19,4 @@ export { createClientRawStatement } from './raw-statement';
 export { wrapDatabaseError } from './model/wrap-database-error';
 // Unknown-model guard
 export { guardUnknownModels } from './unknown-model-guard';
+export { beginTransaction, createSurreal, validateBeginOptions } from './transaction-begin';

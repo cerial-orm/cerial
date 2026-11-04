@@ -4,6 +4,7 @@
 
 import { BoundQuery, isRetryableConflict, type Surreal, SurrealTransaction } from 'surrealdb';
 import type { ModelMetadata, ModelRegistry, SelectClause, TransactionOptions } from '../types';
+import { beginTransaction } from '../client/transaction-begin';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { mapRawResult, mapResult, mapSingleResult } from './mappers';
@@ -432,7 +433,7 @@ export async function executeClientTransaction(
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const txn = await db.beginTransaction();
+      const txn = await beginTransaction(db, options);
       // SurrealTransaction extends SurrealQueryable — cast to Surreal for query() access
       const txnDb = txn as unknown as Surreal;
 

@@ -15,6 +15,7 @@ import {
   CerialDatabaseError,
   CerialError,
   CerialSessionLostError,
+  CerialTransactionError,
   CerialUniqueConstraintError,
 } from '../../errors';
 import type { CompiledQuery } from '../../query/compile/types';
@@ -26,6 +27,13 @@ import type { CompiledQuery } from '../../query/compile/types';
  * The record may itself hold backticks (``user:`u-a` ``), so it runs to the closing one at the end.
  */
 const UNIQUE_VIOLATION = /^Database index `([^`]+)` already contains ([\s\S]+), with record `(.+)`$/;
+
+/**
+ * What the server says when a write reaches a read-only transaction: "Cannot run CREATE on a read only
+ * transaction" for a statement (kind `Internal`), "Couldn't write to a read only transaction" for DDL
+ * (kind `Query`). Neither carries a structured field.
+ */
+const READ_ONLY_WRITE = /(?:on|to) a read only transaction/;
 
 /** What the driver throws when the socket is gone, being re-opened, or never opened. */
 const CONNECTION_LOSS = [
@@ -79,6 +87,10 @@ export function wrapDatabaseError(
       `${call} failed, the database connection is unavailable: ${error.message}`,
       context,
     );
+  }
+
+  if (READ_ONLY_WRITE.test(error.message)) {
+    return new CerialTransactionError(`${call} failed, the transaction is read-only: ${error.message}`, context);
   }
 
   const unique = error instanceof InternalError ? UNIQUE_VIOLATION.exec(error.message) : null;
