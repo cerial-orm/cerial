@@ -32,6 +32,7 @@ export function convertModel(model: ASTModel): ModelMetadata {
     kind: d.kind,
     name: d.name,
     fields: [...d.fields],
+    ...(d.nullsNotDistinct && { nullsNotDistinct: true as const }),
   }));
 
   return {

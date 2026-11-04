@@ -86,7 +86,7 @@ export function optionsToken(entry: DecoratorEntry, value: unknown): string {
   const { args, name } = entry;
   switch (args.kind) {
     case 'nameAndFields': {
-      const parts = value as { name?: unknown; fields?: unknown } | null;
+      const parts = value as { name?: unknown; fields?: unknown; nullsNotDistinct?: unknown } | null;
       const fields = parts?.fields;
       if (typeof parts?.name !== 'string' || !WORD.test(parts.name)) {
         throw new Error(`${name} needs a plain name, got ${JSON.stringify(parts?.name)}`);
@@ -99,7 +99,16 @@ export function optionsToken(entry: DecoratorEntry, value: unknown): string {
         throw new Error(`${name} needs a non-empty list of field paths, got ${JSON.stringify(fields)}`);
       }
 
-      return `${name}(${parts.name}, [${fields.join(', ')}])`;
+      // `false` is the same as absent; the key exists only on entries that list options
+      const option = parts.nullsNotDistinct;
+      if (option !== undefined && typeof option !== 'boolean') {
+        throw new Error(`${name} nullsNotDistinct must be true or false, got ${JSON.stringify(option)}`);
+      }
+      if (option && !args.options?.includes('nullsNotDistinct')) {
+        throw new Error(`${name} cannot take nullsNotDistinct: it only applies to @@unique`);
+      }
+
+      return `${name}(${parts.name}, [${fields.join(', ')}]${option ? ', nullsNotDistinct' : ''})`;
     }
     case 'none':
     case 'choice':

@@ -51,15 +51,24 @@ export interface NamedFields<Key extends string = string> {
   readonly fields: readonly CompositeFieldPath<Key>[];
 }
 
+/** `NamedFields` for a directive whose registry entry lists trailing options (`@@unique`). */
+export interface NamedFieldsWithOptions<Key extends string = string> extends NamedFields<Key> {
+  /** `false` and absent are the same */
+  readonly nullsNotDistinct?: boolean;
+}
+
 /**
  * The value of an options key, by argument shape; `never` for a shape that chains. A directive kind may
  * repeat on a model, so the value is one entry or a list of them, in declaration order.
  */
 export type OptionValue<A extends ArgumentShape, Key extends string = string> = A extends {
   readonly kind: 'nameAndFields';
+  readonly options: readonly string[];
 }
-  ? NamedFields<Key> | readonly NamedFields<Key>[]
-  : never;
+  ? NamedFieldsWithOptions<Key> | readonly NamedFieldsWithOptions<Key>[]
+  : A extends { readonly kind: 'nameAndFields' }
+    ? NamedFields<Key> | readonly NamedFields<Key>[]
+    : never;
 
 /** A decorator name without its sigil: the chain method name or the options key. */
 export type BareName<N extends string> = N extends `@@${infer X}` ? X : N extends `@${infer X}` ? X : never;

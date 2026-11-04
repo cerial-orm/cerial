@@ -27,10 +27,11 @@ export const modelLevelDecorators = [
   {
     name: '@@unique',
     constructId: 'directive.unique',
-    args: { kind: 'nameAndFields' },
+    args: { kind: 'nameAndFields', options: ['nullsNotDistinct'] },
     targets: ['model'],
     excludes: [],
-    description: 'Creates a unique composite index over several fields: @@unique(name, [a, b.c]).',
+    description:
+      'Creates a unique composite index over several fields: @@unique(name, [a, b.c]). A trailing nullsNotDistinct allows only one null per column combination.',
     parse: parseDirective,
   },
 ] as const satisfies readonly DecoratorEntry[];

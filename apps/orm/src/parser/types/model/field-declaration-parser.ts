@@ -13,7 +13,7 @@ import { isValidFieldName } from '../../../utils/validation-utils';
 import { createField, createPosition, createRange } from '../ast';
 import { matchDecoratorToken } from '../../registry';
 import { isTypeName, toleratesUnresolvedTypes } from '../../unresolved-types';
-import { hasValidSortArgument } from '../field-decorators';
+import { hasValidSortArgument, hasValidUniqueArgument, invalidUniqueArgumentMessage } from '../field-decorators';
 import {
   extractLiteralName,
   extractObjectName,
@@ -93,6 +93,11 @@ export function parseDecorators(line: string, lineNumber: number, errors?: strin
           errors?.push(
             `Decorator '${token}${stray}' on '${declarationName}' has an invalid argument. Use @sort, @sort(true), @sort(false), @sort(asc) or @sort(desc)`,
           );
+      } else if (entry.name === '@unique') {
+        // Same stray-group rule as @sort: the token regex stops at the first ')'
+        const stray = line.slice(col + token.length).match(/^\s*(?:\([^)]*\))+/)?.[0] ?? '';
+        if (hasValidUniqueArgument(token) && !stray) decorators.push(entry.parse(token, range) as ASTDecorator);
+        else errors?.push(invalidUniqueArgumentMessage(`${token}${stray}`));
       } else {
         decorators.push(entry.parse(token, range) as ASTDecorator);
       }

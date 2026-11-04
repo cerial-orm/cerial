@@ -38,6 +38,8 @@ export function fieldToMetadata(field: ASTField): FieldMetadata {
     defaultValue: getDecorator(field, 'default')?.value,
   };
 
+  if (getDecorator(field, 'unique')?.value === 'nullsNotDistinct') metadata.uniqueNullsNotDistinct = true;
+
   // Handle array type (Record[])
   if (field.isArray) {
     metadata.isArray = true;
@@ -103,6 +105,7 @@ export function modelToMetadata(model: ASTModel): ModelMetadata {
     kind: d.kind,
     name: d.name,
     fields: [...d.fields],
+    ...(d.nullsNotDistinct && { nullsNotDistinct: true as const }),
   }));
 
   return {

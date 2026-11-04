@@ -71,7 +71,7 @@ describe('Hover Logic', () => {
       const doc = DECORATOR_DOCS[key];
 
       expect(doc).toBeDefined();
-      expect(doc!.signature).toBe('@unique');
+      expect(doc!.signature).toBe('@unique | @unique(nullsNotDistinct)');
     });
 
     test('node info for field provides type data', () => {

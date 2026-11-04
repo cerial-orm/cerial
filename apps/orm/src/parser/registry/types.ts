@@ -39,8 +39,11 @@ export type ArgumentShape =
   | { readonly kind: 'name' }
   /** `@default(value)`: one literal, required. */
   | { readonly kind: 'literal'; readonly forms: readonly LiteralForm[] }
-  /** `@@index(name, [a, b.c])`: an index name and a list of field paths, dotted into nested objects. */
-  | { readonly kind: 'nameAndFields' };
+  /**
+   * `@@index(name, [a, b.c])`: an index name and a list of field paths, dotted into nested objects.
+   * `options` lists the words a trailing argument may take: `@@unique(name, [a, b], nullsNotDistinct)`.
+   */
+  | { readonly kind: 'nameAndFields'; readonly options?: readonly string[] };
 
 /** Turns a decorator token such as `@sort(asc)` into its AST node. */
 export type DecoratorHandler = (token: string, range: SourceRange) => ASTDecorator | ASTCompositeDirective;

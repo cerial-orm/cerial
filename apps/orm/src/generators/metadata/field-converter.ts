@@ -44,6 +44,8 @@ export function convertField(field: ASTField): FieldMetadata {
     defaultAlwaysValue: defaultAlwaysDecorator?.value,
   };
 
+  if (getDecorator(field, 'unique')?.value === 'nullsNotDistinct') metadata.uniqueNullsNotDistinct = true;
+
   // Handle array type (Record[])
   if (field.isArray) {
     metadata.isArray = true;

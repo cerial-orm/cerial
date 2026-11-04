@@ -34,8 +34,10 @@ describe('registry: model-level directives', () => {
   test('both are model-level only and use the nameAndFields shape', () => {
     for (const name of ['@@index', '@@unique']) {
       expect(entryFor(name).targets).toEqual(['model']);
-      expect(entryFor(name).args).toEqual({ kind: 'nameAndFields' });
+      expect(entryFor(name).args).toMatchObject({ kind: 'nameAndFields' });
     }
+    expect(entryFor('@@unique').args).toEqual({ kind: 'nameAndFields', options: ['nullsNotDistinct'] });
+    expect(entryFor('@@index').args).toEqual({ kind: 'nameAndFields' });
   });
 
   test('@index and @@index are separate entries', () => {

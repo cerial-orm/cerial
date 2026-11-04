@@ -54,6 +54,8 @@ export interface ASTCompositeDirective {
   name: string;
   /** Field references (supports dot notation for object subfields, e.g. "address.city") */
   fields: string[];
+  /** `nullsNotDistinct` third argument of @@unique: a stored null counts as one value (SurrealDB 4.0) */
+  nullsNotDistinct?: true;
   /** Source range for error reporting */
   range: SourceRange;
   origin: Origin;

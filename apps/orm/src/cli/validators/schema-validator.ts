@@ -6,7 +6,7 @@ import { getDecorator, hasDecorator } from '../../parser/types/ast';
 import type { Origin, SchemaAST } from '../../types';
 import { located } from './origin-location';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
-import { validateCompositeDirectives } from './composite-directive-validator';
+import { validateCompositeDirectives, validateUniqueNullsNotDistinct } from './composite-directive-validator';
 import { validateEnums } from './enum-validator';
 import { validateLiteralFieldReferences, validateLiterals } from './literal-validator';
 import {
@@ -964,6 +964,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateRecordIdTypes(ast),
     ...validateModelFieldIndexes(ast),
     ...validateCompositeDirectives(ast),
+    ...validateUniqueNullsNotDistinct(ast),
     ...validateTuples(ast),
     ...validateLiterals(ast),
     ...validateLiteralFieldReferences(ast),

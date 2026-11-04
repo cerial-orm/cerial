@@ -106,7 +106,7 @@ export function formatDecorator(decorator: ASTDecorator): string {
 
 /** Format a composite directive from AST */
 export function formatDirective(directive: ASTCompositeDirective): string {
-  return `@@${directive.kind}(${directive.name}, [${directive.fields.join(', ')}])`;
+  return `@@${directive.kind}(${directive.name}, [${directive.fields.join(', ')}]${directive.nullsNotDistinct ? ', nullsNotDistinct' : ''})`;
 }
 
 /**

@@ -107,6 +107,7 @@ function directiveLayout(directive: ASTCompositeDirective): Layout {
   return objectOf([
     { key: 'name', value: quote(directive.name) },
     { key: 'fields', value: arrayOf(directive.fields.map(quote)) },
+    ...(directive.nullsNotDistinct ? [{ key: 'nullsNotDistinct', value: 'true' }] : []),
   ]);
 }
 

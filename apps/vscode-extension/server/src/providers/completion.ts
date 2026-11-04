@@ -1212,6 +1212,17 @@ export function getDecoratorCompletions(
       continue;
     }
 
+    // A decorator whose argument is optional is offered bare as well, since the bare form is the common one
+    if (entry.args.kind === 'choice' && entry.args.optional) {
+      items.push({
+        label: entry.name,
+        kind: CompletionItemKind.Property,
+        detail: entry.description,
+        insertText: entry.name,
+        insertTextFormat: InsertTextFormat.PlainText,
+      });
+    }
+
     items.push({
       label: decoratorLabel(entry),
       kind: CompletionItemKind.Property,

@@ -30,6 +30,8 @@ export interface FieldMetadata {
   isId: boolean;
   /** Whether the field has @unique decorator */
   isUnique: boolean;
+  /** @unique(nullsNotDistinct): the unique index treats null as one value, so at most one record holds null */
+  uniqueNullsNotDistinct?: true;
   /** Whether the field has @index decorator */
   isIndexed?: boolean;
   /** Timestamp decorator: 'now' (computed), 'createdAt' (default), 'updatedAt' (default always) */
@@ -181,6 +183,8 @@ export interface CompositeIndex {
   name: string;
   /** Field references (supports dot notation for object subfields) */
   fields: string[];
+  /** @@unique(name, [..], nullsNotDistinct) */
+  nullsNotDistinct?: true;
 }
 
 /** Metadata for a model/table */

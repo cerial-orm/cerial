@@ -24,7 +24,7 @@ describe('registry dispatch', () => {
   type Range = Parameters<typeof parseIdDecorator>[0];
   const cases: [string, (token: string, range: Range) => ASTDecorator][] = [
     ['@id', (_t, r) => parseIdDecorator(r)],
-    ['@unique', (_t, r) => parseUniqueDecorator(r)],
+    ['@unique', parseUniqueDecorator],
     ['@distinct', (_t, r) => parseDistinctDecorator(r)],
     ['@nullable', (_t, r) => parseNullableDecorator(r)],
     ['@createdAt', (_t, r) => parseCreatedAtDecorator(r)],

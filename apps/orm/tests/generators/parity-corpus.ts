@@ -304,6 +304,7 @@ const PROBES = {
   'decorator.onDelete.NoAction': hasDecorator('onDelete', 'NoAction'),
   'decorator.key': hasDecorator('key'),
   'decorator.distinct': hasDecorator('distinct'),
+  'decorator.unique.nulls-not-distinct': hasDecorator('unique', 'nullsNotDistinct'),
   'decorator.sort': hasDecorator('sort', true),
   'decorator.sort.false': hasDecorator('sort', false),
   'decorator.set': hasDecorator('set'),
@@ -323,6 +324,8 @@ const PROBES = {
 
   'directive.index': directive('index'),
   'directive.unique': directive('unique'),
+  'directive.unique.nulls-not-distinct': (c) =>
+    c.ast.models.some((m) => (m.directives ?? []).some((d) => d.kind === 'unique' && d.nullsNotDistinct)),
   'directive.dot-notation': (c) =>
     c.ast.models.some((m) => m.directives?.some((d) => d.fields.some((f) => f.includes('.')))),
   'directive.index.primitive': directive('index', ['primitive']),

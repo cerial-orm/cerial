@@ -17,10 +17,17 @@ export function parseCompositeDirective(
 ): { directive: ASTCompositeDirective } | { error: string } {
   const trimmed = removeComments(line).trim();
 
-  const match = trimmed.match(/^@@(index|unique)\(\s*(\w+)\s*,\s*\[([^\]]+)\]\s*\)$/);
+  const match = trimmed.match(/^@@(index|unique)\(\s*(\w+)\s*,\s*\[([^\]]+)\]\s*(?:,\s*(\w+)\s*)?\)$/);
   if (!match) {
     return {
       error: `Invalid composite directive syntax: ${trimmed}. Expected @@index(name, [field1, field2, ...]) or @@unique(name, [field1, field2, ...])`,
+    };
+  }
+
+  const option = match[4];
+  if (option !== undefined && option !== 'nullsNotDistinct') {
+    return {
+      error: `Invalid @@${match[1]} argument '${option}'. Expected @@unique(${match[2]}, [...]) or @@unique(${match[2]}, [...], nullsNotDistinct).`,
     };
   }
 
@@ -39,5 +46,5 @@ export function parseCompositeDirective(
 
   const range = createRange(createPosition(lineNumber, 0, 0), createPosition(lineNumber, trimmed.length, 0));
 
-  return { directive: createCompositeDirective(kind, name, fields, range) };
+  return { directive: createCompositeDirective(kind, name, fields, range, option ? true : undefined) };
 }

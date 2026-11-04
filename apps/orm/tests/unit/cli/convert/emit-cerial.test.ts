@@ -72,6 +72,29 @@ describe('one file per origin', () => {
   });
 });
 
+describe('nullsNotDistinct, TypeScript to .cerial', () => {
+  const Account = model(
+    'Account',
+    {
+      id: f.record().id(),
+      nickname: f.string().optional().nullable().unique('nullsNotDistinct'),
+      slug: f.string().optional().nullable(),
+    },
+    { unique: { name: 'nickSlug', fields: ['nickname', 'slug'], nullsNotDistinct: true } },
+  );
+  const ast = materialise([place(Account, '/p/account.schema.ts', 'Account')]);
+  const [file] = emitCerial(ast);
+
+  test('the field and the directive keep the option', () => {
+    expect(file!.text).toContain('@unique(nullsNotDistinct)');
+    expect(file!.text).toContain('@@unique(nickSlug, [nickname, slug], nullsNotDistinct)');
+  });
+
+  test('the text reparses to the same AST, with no validation error', () => {
+    expect(runPassThree([{ path: file!.path, content: file!.text }]).errors).toEqual([]);
+  });
+});
+
 describe('the reparse gate', () => {
   test('accepts all five declaration kinds with extends, read before inheritance resolves', () => {
     const Base = model('Base', { id: f.record().id(), kind: f.string() }, { abstract: true });

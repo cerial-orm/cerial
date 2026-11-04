@@ -319,6 +319,13 @@ describe('decorators', () => {
     expect(roundTrip('Int[] @sort(false)')).toBe("f.int().array().sort('desc')");
   });
 
+  test('@unique writes its option as the builder argument, and plain @unique writes none', () => {
+    expect(roundTrip('String? @nullable @unique(nullsNotDistinct)')).toBe(
+      "f.string().optional().nullable().unique('nullsNotDistinct')",
+    );
+    expect(roundTrip('String? @nullable @unique')).toBe('f.string().optional().nullable().unique()');
+  });
+
   test('a default is written as the value the parser read, quotes and all', () => {
     expect(roundTrip('String @default("it\'s")')).toBe(`f.string().default("it's")`);
     expect(roundTrip('String @default(\'say "hi"\')')).toBe(`f.string().default('say "hi"')`);

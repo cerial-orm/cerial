@@ -15,12 +15,12 @@ export const identityDecorators = [
   {
     name: '@unique',
     constructId: 'decorator.unique',
-    args: { kind: 'none' },
+    args: { kind: 'choice', choices: ['nullsNotDistinct'], optional: true },
     targets: ['modelField', 'objectField'],
     excludes: ['@index'],
     description:
-      'Creates a unique index on the field, so no two records can share its value. Not allowed on array fields.',
-    parse: (_token, range) => parseUniqueDecorator(range),
+      'Creates a unique index on the field, so no two records can share its value. Not allowed on array fields. @unique(nullsNotDistinct) also allows only one null.',
+    parse: parseUniqueDecorator,
   },
   {
     name: '@index',

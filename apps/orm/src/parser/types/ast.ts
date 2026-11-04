@@ -95,8 +95,12 @@ export function createCompositeDirective(
   name: string,
   fields: string[],
   range: SourceRange,
+  nullsNotDistinct?: true,
 ): ASTCompositeDirective {
-  return { kind, name, fields, range, origin: createDslOrigin(range) };
+  const directive: ASTCompositeDirective = { kind, name, fields, range, origin: createDslOrigin(range) };
+  if (nullsNotDistinct) directive.nullsNotDistinct = true;
+
+  return directive;
 }
 
 /** Create an AST model node */

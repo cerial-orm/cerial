@@ -317,6 +317,11 @@ export const PARITY_MANIFEST = [
   // Decorators (48-75)
   row('decorator.id', 'decorator', 'corpus', [48], '@id'),
   row('decorator.unique', 'decorator', 'corpus', [49], '@unique'),
+  // SurrealDB 4.0 UNIQUE NULLS NOT DISTINCT; not in the original inventory
+  outOfReach(
+    row('decorator.unique.nulls-not-distinct', 'decorator', 'corpus', [], '@unique(nullsNotDistinct)'),
+    'an argument form of @unique, held by decorator.unique',
+  ),
   row('decorator.index', 'decorator', 'corpus', [50], '@index'),
   row('decorator.now', 'decorator', 'corpus', [51], '@now'),
   row('decorator.createdAt', 'decorator', 'corpus', [52], '@createdAt'),
@@ -416,6 +421,16 @@ export const PARITY_MANIFEST = [
       '@@index mixing object sub-fields and record fields',
     ),
     'a field-kind combination of @@index, held by the @@index entry (directive.index)',
+  ),
+  outOfReach(
+    row(
+      'directive.unique.nulls-not-distinct',
+      'composite-directive',
+      'corpus',
+      [],
+      '@@unique(name, [fields], nullsNotDistinct)',
+    ),
+    'an argument form of @@unique, held by the @@unique entry (directive.unique)',
   ),
   outOfReach(
     row('directive.unique.primitive', 'composite-directive', 'corpus', [77], '@@unique over primitive fields only'),

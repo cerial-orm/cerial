@@ -19,6 +19,6 @@ export { extractOnDeleteAction, isValidOnDeleteAction, parseOnDeleteDecorator } 
 export { parseReadonlyDecorator } from './readonly-parser';
 export { parseSetDecorator } from './set-parser';
 export { extractSortValue, hasValidSortArgument, parseSortDecorator } from './sort-parser';
-export { parseUniqueDecorator } from './unique-parser';
+export { hasValidUniqueArgument, invalidUniqueArgumentMessage, parseUniqueDecorator } from './unique-parser';
 export { parseUpdatedAtDecorator } from './updated-at-parser';
 export { parseUuid4Decorator, parseUuid7Decorator, parseUuidDecorator } from './uuid-decorator-parser';

@@ -185,6 +185,7 @@ const HAND_ROWS: Record<HandId, BuilderMethod> = {
   'decorator.onDelete.Restrict': how('.onDelete@relation', ".onDelete('Restrict')"),
   'decorator.onDelete.NoAction': how('.onDelete@relation', ".onDelete('NoAction')"),
   'decorator.sort.false': how('.sort@field', '.sort(false)'),
+  'decorator.unique.nulls-not-distinct': how('.unique@field', ".unique('nullsNotDistinct')"),
 
   'directive.dot-notation': how('{ index }', 'a field path is a string that may be dotted, in either directive'),
   'directive.index.primitive': how('{ index }', 'a list of primitive field names'),
@@ -193,6 +194,7 @@ const HAND_ROWS: Record<HandId, BuilderMethod> = {
   'directive.index.primitive+object': how('{ index }', 'primitive names and dotted paths in one list'),
   'directive.index.primitive+record': how('{ index }', 'primitive and record names in one list'),
   'directive.index.object+record': how('{ index }', 'dotted paths and record names in one list'),
+  'directive.unique.nulls-not-distinct': how('{ unique }', 'nullsNotDistinct: true on the entry'),
   'directive.unique.primitive': how('{ unique }', 'a list of primitive field names'),
   'directive.unique.object': how('{ unique }', 'a list of dotted object sub-field paths'),
   'directive.unique.record': how('{ unique }', 'a list of record field names'),

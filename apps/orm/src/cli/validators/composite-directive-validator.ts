@@ -2,9 +2,14 @@
  * Composite directive validator - @@index and @@unique rules
  */
 
-import type { ASTModel, SchemaAST } from '../../types';
+import type { ASTField, ASTModel, SchemaAST } from '../../types';
 import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
+
+/** Whether a field can store null as a value: @nullable, or type Any (which accepts null natively) */
+export function holdsNull(field: ASTField): boolean {
+  return field.type === 'any' || field.decorators.some((d) => d.type === 'nullable');
+}
 
 /**
  * Resolve a dot-notation field reference against a model and its object definitions.
@@ -18,6 +23,8 @@ function resolveCompositeField(
 ): {
   valid: boolean;
   isOptional: boolean;
+  /** Whether the column can hold null: @nullable, or type Any */
+  canHoldNull: boolean;
   isRelation: boolean;
   isArray: boolean;
   isId: boolean;
@@ -27,13 +34,15 @@ function resolveCompositeField(
 
   // Top-level field lookup
   const topField = model.fields.find((f) => f.name === parts[0]);
-  if (!topField) return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+  if (!topField)
+    return { valid: false, isOptional: false, canHoldNull: false, isRelation: false, isArray: false, isId: false };
 
   // Single-part reference (e.g., "email", "authorId")
   if (parts.length === 1) {
     return {
       valid: true,
       isOptional: topField.isOptional,
+      canHoldNull: holdsNull(topField),
       isRelation: topField.type === 'relation',
       isArray: !!topField.isArray,
       isId: topField.decorators.some((d) => d.type === 'id'),
@@ -42,22 +51,24 @@ function resolveCompositeField(
 
   // Dot-notation: must be an object type field
   if (topField.type !== 'object' || !topField.objectName) {
-    return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+    return { valid: false, isOptional: false, canHoldNull: false, isRelation: false, isArray: false, isId: false };
   }
 
   // Walk the dot-notation path through nested objects
   let currentObjectName = topField.objectName;
   for (let i = 1; i < parts.length; i++) {
     const objectDef = ast.objects.find((o) => o.name === currentObjectName);
-    if (!objectDef) return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+    if (!objectDef)
+      return { valid: false, isOptional: false, canHoldNull: false, isRelation: false, isArray: false, isId: false };
 
     const subField = objectDef.fields.find((f) => f.name === parts[i]);
-    if (!subField) return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+    if (!subField)
+      return { valid: false, isOptional: false, canHoldNull: false, isRelation: false, isArray: false, isId: false };
 
     // If there are more parts, this must also be an object type
     if (i < parts.length - 1) {
       if (subField.type !== 'object' || !subField.objectName) {
-        return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+        return { valid: false, isOptional: false, canHoldNull: false, isRelation: false, isArray: false, isId: false };
       }
       currentObjectName = subField.objectName;
     } else {
@@ -65,6 +76,7 @@ function resolveCompositeField(
       return {
         valid: true,
         isOptional: topField.isOptional || subField.isOptional,
+        canHoldNull: holdsNull(subField),
         isRelation: false,
         isArray: !!subField.isArray,
         isId: false,
@@ -72,7 +84,7 @@ function resolveCompositeField(
     }
   }
 
-  return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+  return { valid: false, isOptional: false, canHoldNull: false, isRelation: false, isArray: false, isId: false };
 }
 
 /** Validate the @@index and @@unique directives on every model */
@@ -104,6 +116,23 @@ export function validateCompositeDirectives(ast: SchemaAST): SchemaValidationErr
       for (const fieldRef of directive.fields) {
         if (seenFields.has(fieldRef)) push(`Duplicate field '${fieldRef}' in composite ${label}`);
         seenFields.add(fieldRef);
+      }
+
+      if (directive.nullsNotDistinct) {
+        if (directive.kind !== 'unique') {
+          push(`${label} cannot take nullsNotDistinct: it only applies to @@unique.`);
+        } else if (
+          directive.fields.length &&
+          directive.fields.every((ref) => {
+            const resolved = resolveCompositeField(ref, model, ast);
+
+            return resolved.valid && !resolved.canHoldNull;
+          })
+        ) {
+          push(
+            `${label} has nullsNotDistinct but none of its fields (${directive.fields.join(', ')}) can hold null, so the option changes nothing. Add @nullable to one of them, or drop the option.`,
+          );
+        }
       }
 
       const wholeObjectFields = new Set<string>();
@@ -147,6 +176,28 @@ export function validateCompositeDirectives(ast: SchemaAST): SchemaValidationErr
       }
     }
   }
+
+  return errors;
+}
+
+/** Refuse @unique(nullsNotDistinct) on a field that cannot hold null, where the option changes nothing */
+export function validateUniqueNullsNotDistinct(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+  const check = (fields: readonly ASTField[], owner: string, scope: { model?: string }) => {
+    for (const field of fields) {
+      const unique = field.decorators.find((d) => d.type === 'unique');
+      if (unique?.value !== 'nullsNotDistinct' || holdsNull(field)) continue;
+      errors.push({
+        message: `Field '${field.name}' in ${owner} has @unique(nullsNotDistinct) but cannot hold null, so the option changes nothing: a unique index never compares NONE. Add @nullable, or use @unique.`,
+        ...scope,
+        field: field.name,
+        ...located(field.origin),
+      });
+    }
+  };
+
+  for (const model of ast.models) check(model.fields, `model ${model.name}`, { model: model.name });
+  for (const object of ast.objects) check(object.fields, `object ${object.name}`, {});
 
   return errors;
 }

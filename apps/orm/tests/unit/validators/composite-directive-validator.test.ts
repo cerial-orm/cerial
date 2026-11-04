@@ -319,3 +319,153 @@ describe('Composite Directive Validator', () => {
     });
   });
 });
+
+describe('nullsNotDistinct refusals', () => {
+  const COLUMNS = `
+    id Record @id
+    tenantId Record? @nullable
+    slug String? @nullable
+    code String
+    label String`;
+
+  test('@unique(nullsNotDistinct) on a @nullable field is accepted', () => {
+    const { parseErrors, validationErrors } = parseAndValidate(`
+      model User {
+        id Record @id
+        nickname String? @nullable @unique(nullsNotDistinct)
+      }
+    `);
+
+    expect(parseErrors).toHaveLength(0);
+    expect(validationErrors).toHaveLength(0);
+  });
+
+  test('@unique(nullsNotDistinct) on an Any field is accepted, since Any holds null', () => {
+    const { validationErrors } = parseAndValidate(`
+      model User {
+        id Record @id
+        extra Any @unique(nullsNotDistinct)
+      }
+    `);
+
+    expect(validationErrors).toHaveLength(0);
+  });
+
+  test('refused on a field that cannot hold null, naming the field and model', () => {
+    const { validationErrors } = parseAndValidate(`
+      model User {
+        id Record @id
+        nickname String? @unique(nullsNotDistinct)
+      }
+    `);
+
+    expect(validationErrors).toHaveLength(1);
+    expect(validationErrors[0]!.message).toBe(
+      "Field 'nickname' in model User has @unique(nullsNotDistinct) but cannot hold null, so the option changes nothing: a unique index never compares NONE. Add @nullable, or use @unique.",
+    );
+  });
+
+  test('refused on a required field, and plain @unique on the same field is accepted', () => {
+    expect(
+      parseAndValidate('model U {\n  id Record @id\n  e String @unique(nullsNotDistinct)\n}\n').validationErrors,
+    ).toHaveLength(1);
+    expect(parseAndValidate('model U {\n  id Record @id\n  e String @unique\n}\n').validationErrors).toHaveLength(0);
+  });
+
+  test('refused on an object field that cannot hold null, naming the object', () => {
+    const { validationErrors } = parseAndValidate(`
+      object Profile {
+        handle String? @unique(nullsNotDistinct)
+      }
+      model User {
+        id Record @id
+        profile Profile?
+      }
+    `);
+
+    expect(validationErrors).toHaveLength(1);
+    expect(validationErrors[0]!.message).toContain("Field 'handle' in object Profile has @unique(nullsNotDistinct)");
+  });
+
+  test('accepted on a @nullable object field', () => {
+    const { validationErrors } = parseAndValidate(`
+      object Profile {
+        handle String? @nullable @unique(nullsNotDistinct)
+      }
+      model User {
+        id Record @id
+        profile Profile?
+      }
+    `);
+
+    expect(validationErrors).toHaveLength(0);
+  });
+
+  test('composite with one nullable column is accepted', () => {
+    const { validationErrors } = parseAndValidate(
+      `model T {${COLUMNS}\n    @@unique(tenantSlug, [tenantId, code], nullsNotDistinct)\n  }`,
+    );
+
+    expect(validationErrors).toHaveLength(0);
+  });
+
+  test('composite with two nullable columns is accepted', () => {
+    const { validationErrors } = parseAndValidate(
+      `model T {${COLUMNS}\n    @@unique(tenantSlug, [tenantId, slug], nullsNotDistinct)\n  }`,
+    );
+
+    expect(validationErrors).toHaveLength(0);
+  });
+
+  test('composite with no nullable column is refused, naming the directive and its fields', () => {
+    const { validationErrors } = parseAndValidate(
+      `model T {${COLUMNS}\n    @@unique(codeLabel, [code, label], nullsNotDistinct)\n  }`,
+    );
+
+    expect(validationErrors).toHaveLength(1);
+    expect(validationErrors[0]!.message).toBe(
+      '@@unique("codeLabel") has nullsNotDistinct but none of its fields (code, label) can hold null, so the option changes nothing. Add @nullable to one of them, or drop the option.',
+    );
+  });
+
+  test('the same composite without the option is accepted', () => {
+    const { validationErrors } = parseAndValidate(`model T {${COLUMNS}\n    @@unique(codeLabel, [code, label])\n  }`);
+
+    expect(validationErrors).toHaveLength(0);
+  });
+
+  test('a dotted path counts the sub-field, not its parent', () => {
+    const base = (sub: string) => `
+      object Addr {
+        city String?${sub}
+      }
+      model T {
+        id Record @id
+        code String
+        addr Addr
+        @@unique(byCity, [code, addr.city], nullsNotDistinct)
+      }
+    `;
+
+    expect(parseAndValidate(base('')).validationErrors).toHaveLength(1);
+    expect(parseAndValidate(base(' @nullable')).validationErrors).toHaveLength(0);
+  });
+
+  test('refused on @@index, naming the directive', () => {
+    const { parseErrors, validationErrors } = parseAndValidate(
+      `model T {${COLUMNS}\n    @@index(byTenant, [tenantId, slug], nullsNotDistinct)\n  }`,
+    );
+
+    expect(parseErrors).toHaveLength(0);
+    expect(validationErrors).toHaveLength(1);
+    expect(validationErrors[0]!.message).toBe(
+      '@@index("byTenant") cannot take nullsNotDistinct: it only applies to @@unique.',
+    );
+  });
+
+  test('@@index without the option is accepted', () => {
+    expect(
+      parseAndValidate(`model T {${COLUMNS}\n    @@index(byTenant, [tenantId, slug])\n  }`).validationErrors,
+    ).toHaveLength(0);
+  });
+});

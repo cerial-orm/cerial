@@ -45,7 +45,11 @@ describe('completion reads the registry', () => {
     test(`${blockType} block offers exactly the registry decorators for ${target}`, () => {
       const expected = [...DECORATOR_REGISTRY.values()]
         .filter((entry) => entry.targets.includes(target) || (blockType === 'model' && entry.targets.includes('model')))
-        .map((entry) => labelOf(entry.name));
+        .flatMap((entry) =>
+          entry.args.kind === 'choice' && entry.args.optional
+            ? [entry.name, labelOf(entry.name)]
+            : [labelOf(entry.name)],
+        );
 
       expect(
         complete(blockType)

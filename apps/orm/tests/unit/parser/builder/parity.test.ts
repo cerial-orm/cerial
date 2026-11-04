@@ -13,7 +13,7 @@ describe('builder nodes equal the parser nodes', () => {
   const chain = createChain('modelField', { kind: 'relation' });
 
   test('none: @unique', () => {
-    expect(chain.unique().decorators()).toEqual([parseUniqueDecorator(BUILDER_RANGE)]);
+    expect(chain.unique().decorators()).toEqual([parseUniqueDecorator('@unique', BUILDER_RANGE)]);
   });
 
   test('choice: @onDelete, and @sort with and without its optional argument', () => {

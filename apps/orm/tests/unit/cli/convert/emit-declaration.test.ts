@@ -190,6 +190,28 @@ describe('options', () => {
     expect(result.built.models[0]!.directives!.map((d) => d.name)).toEqual(['byA', 'byAB', 'uniqueSlot']);
   });
 
+  test('writes nullsNotDistinct on a composite unique, and none on a plain one', async () => {
+    const result = await roundTripText(
+      [
+        'model Slot {',
+        '  id Record @id',
+        '  tenantId Record? @nullable',
+        '  slug String? @nullable',
+        '  @@unique(tenantSlug, [tenantId, slug], nullsNotDistinct)',
+        '  @@unique(plain, [tenantId, slug])',
+        '}',
+        'model Solo {\n  id Record @id\n  a String? @nullable\n  b String\n  @@unique(onlyAB, [a, b], nullsNotDistinct)\n}',
+        '',
+      ].join('\n'),
+    );
+    expect(result.differences).toEqual([]);
+    expect(result.text).toContain("{ name: 'tenantSlug', fields: ['tenantId', 'slug'], nullsNotDistinct: true }");
+    expect(result.text).toContain("{ name: 'plain', fields: ['tenantId', 'slug'] }");
+    expect(result.text).toContain('nullsNotDistinct: true');
+    expect(result.built.models[0]!.directives!.map((d) => d.nullsNotDistinct)).toEqual([true, undefined]);
+    expect(result.built.models[1]!.directives![0]!.nullsNotDistinct).toBe(true);
+  });
+
   test('writes tuples in the record form when all are named, the array form otherwise', async () => {
     const result = await roundTripText(
       [

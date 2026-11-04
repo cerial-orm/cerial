@@ -6,6 +6,7 @@
  * empty, delete this file and the ledger test, and the strict test becomes the only gate.
  *
  * The sized number types wait for their e2e schema.
+ * The UNIQUE NULLS NOT DISTINCT forms wait for their e2e schema.
  *
  * Where the obvious schema will not just work:
  * - A construct on the e2e corpus that needs a new schema file also needs its tables registered in
@@ -24,4 +25,6 @@ export const KNOWN_GAPS: readonly CorpusConstructId[] = [
   'type.uint64',
   'type.float16',
   'type.float32',
+  'decorator.unique.nulls-not-distinct',
+  'directive.unique.nulls-not-distinct',
 ];

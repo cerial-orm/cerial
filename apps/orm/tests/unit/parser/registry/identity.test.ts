@@ -12,6 +12,11 @@ describe('registry: identity decorators', () => {
     expect(entryFor('@id').excludes).toEqual(['@nullable', '@readonly']);
   });
 
+  test('@unique takes the optional nullsNotDistinct choice, like @sort takes its direction', () => {
+    expect(entryFor('@unique').args).toEqual({ kind: 'choice', choices: ['nullsNotDistinct'], optional: true });
+    expectSameAsDispatch('@unique', ['@unique(nullsNotDistinct)']);
+  });
+
   test('@id is a model-field decorator only', () => {
     expect(entryFor('@id').targets).toEqual(['modelField']);
   });
