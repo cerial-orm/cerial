@@ -133,10 +133,8 @@ Additive statements are live in the file. Destructive and data-loss statements a
 -- Commented statements are not applied. Review them, then uncomment and apply with --allow-destructive.
 
 DEFINE FIELD OVERWRITE phone ON TABLE user TYPE option<string>;
--- cerial:destructive removing a field leaves its values behind
+-- cerial:destructive removing the field deletes its stored values from every row, and a deleted value cannot be restored
 -- REMOVE FIELD nickname ON TABLE user;
--- cerial:destructive unsetting a field deletes its stored values
--- UPDATE user UNSET nickname;
 ```
 
 To approve a destructive statement, review it, remove the leading `-- `, and apply the file with the flag the header names.
@@ -152,7 +150,7 @@ bunx cerial migrate apply cerial/migrations/20261103T101500Z-default.surql
 |---|---|
 | `--from-schema` | Diff the live database against the schema and apply the result |
 | `--allow-destructive` | Allow changes that can invalidate or remove data |
-| `--allow-data-loss` | Allow removing a table with its rows (with `--allow-destructive`) |
+| `--allow-data-loss` | Allow removing a table with its rows, or a type change that overwrites values that do not convert (with `--allow-destructive`) |
 
 `apply` needs exactly one of `--from-schema` or a plan file. Anything else exits 2.
 
@@ -181,12 +179,18 @@ Every change belongs to one of three classes:
 | Class | Examples | Needs |
 |---|---|---|
 | Additive | A new table, field or index | Nothing |
-| Destructive | Removing a field or index, a type change, a new required field with no default | `--allow-destructive` |
-| Data loss | Removing a table | `--allow-destructive` and `--allow-data-loss` |
+| Destructive | Removing a field or index, a type change the new type already accepts | `--allow-destructive` |
+| Data loss | Removing a table, a type change that may overwrite values | `--allow-destructive` and `--allow-data-loss` |
 
-The two flags are separate because they authorise different things. `--allow-destructive` accepts changes that can leave existing rows unable to be written, or drop a structure, and a separate step (an `UNSET`, a backfill) deals with the data. `REMOVE TABLE` is the one operation that destroys rows with no separate step, so it needs `--allow-data-loss` as well, and `--allow-data-loss` alone is not enough.
+The two flags are separate because they authorise different things. `--allow-destructive` accepts changes that drop a structure or delete a field's values. `--allow-data-loss` is for the changes that can overwrite a value you stored, so it is never implied by the first.
 
-A removed field is applied as `REMOVE FIELD` followed by `UPDATE ... UNSET` in one transaction, because removing the definition alone leaves values behind that block every later write to the row.
+**Removing a field deletes its values.** On SurrealDB 4.0, removing a field's definition also deletes what every row stored in it, and nothing brings it back. Copy the values somewhere first if you need them, and take a backup before applying.
+
+**Changing a field's type converts the rows that fit.** Where the new type does not already accept every old value, the plan converts each stored value to the new type. A row whose value does not convert gets the field's `@default`, or is left without the field when it is optional. Because that overwrites a stored value, the step needs `--allow-data-loss`. A field that is neither optional nor has a `@default` has nothing to fall back to: the plan refuses and names the field. Add a `@default`, make the field optional, or convert the rows yourself and run the plan again. A table with no rows needs none of this.
+
+**A new required field is filled from its `@default`** on a table that already has rows. Without a default the plan refuses and names the field, for the same reason. A default computed when a row is written, such as `@createdAt`, cannot fill existing rows; make the field optional or fill the rows yourself.
+
+**An index over a field a step is filling or converting** cannot be built in the same transaction. The plan refuses and says to apply twice: first without the index, then with it. An index over any other field is built before the data steps.
 
 A table is proposed for removal only when Cerial created it. A live table the schema does not declare and that migration state does not list as managed is reported as unmanaged and never touched. Cerial does not detect renames: a renamed field is a removal plus an addition.
 

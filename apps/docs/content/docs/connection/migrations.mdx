@@ -142,8 +142,8 @@ Every difference between the generated schema and the database belongs to one cl
 | Class | Meaning | Schema change that causes it |
 |---|---|---|
 | `additive` | Adds a structure and cannot affect existing rows | A new `phone String?` field on `User`, a new model, a new `@unique` |
-| `destructive` | Drops a structure, or can leave existing rows unable to be written | Removing `nickname` from `User`, changing `age Int` to `age String`, adding a required `String` field with no default |
-| `data-loss` | Destroys rows with no separate step | Deleting `model Post` from the schema |
+| `destructive` | Drops a structure or deletes a field's stored values | Removing `nickname` from `User`, widening `age Int` to `age Int?` |
+| `data-loss` | Destroys rows, or can overwrite a stored value | Deleting `model Post` from the schema, changing `age Int` to `age String` |
 | `unmanaged` | Something Cerial has no concept for, or did not create | An event or function you defined by hand, a table the schema never declared |
 
 An unmanaged item is reported and never changed, and it never fails `'verify'`. A table is only proposed for removal when Cerial created it.
@@ -158,7 +158,7 @@ To roll back, restore the database from a backup, then fix forward: change the s
 
 ## Atomicity
 
-A failed apply rolls back as a unit on the memory backend of SurrealDB 3.3.0, which is the only backend this behaviour has been measured on. Other backends have not been measured, so atomicity is not promised for them. After a failed apply, check the database with `cerial migrate status` before retrying.
+A failed apply rolls back as a unit on the memory backend of SurrealDB 4.0, which is the only backend this behaviour has been measured on. Other backends have not been measured, so atomicity is not promised for them. After a failed apply, check the database with `cerial migrate status` before retrying.
 
 ## Migration State
 
@@ -383,26 +383,15 @@ model User {
 }
 ```
 
-Regenerate and the new `DEFINE FIELD OVERWRITE phone ON TABLE user TYPE option<string | null>` statement is included. Existing records have `NONE` for the new field until updated. A required field with no default has no value to give existing rows, so their next write to the row is refused until they hold one.
+Regenerate and the new `DEFINE FIELD OVERWRITE phone ON TABLE user TYPE option<string | null>` statement is included. Existing records have `NONE` for the new field until updated. A required field with no default has no value to give existing rows, so SurrealDB 4.0 refuses to add it to a table that already has rows. `cerial migrate` fills the rows from the field's `@default` and refuses the plan, naming the field, when there is none.
 
 :::warning
-**Removing a field** from the schema removes its `DEFINE FIELD` statement from the generated migrations, but the client's migrations never emit `REMOVE FIELD`. The field **keeps both its definition and its data** in SurrealDB, and `SELECT *` still returns it. Re-running migrations does not change this, and `DEFINE TABLE OVERWRITE` does not remove fields from a table either.
-
-If you drop the definition yourself with `REMOVE FIELD <name> ON TABLE <table>;`, the stored values stay on every row that held one, and **every later write to such a row fails** (`Found field '<name>', but no such field exists`) until the value is unset. Reads are unaffected and nothing is lost, but the row cannot be updated. Remove the definition and unset the values together, in this order, in one transaction:
-
-```sql
-BEGIN;
-REMOVE FIELD <name> ON TABLE <table>;
-UPDATE <table> UNSET <name>;
-COMMIT;
-```
-
-Unsetting first and removing the definition second fails with a coercion error and rolls the whole transaction back. To remove a single child of an object field, unset the child path (`UNSET <parent>.<child>`); the row keeps an empty parent object.
+**Removing a field** deletes its stored values. [`cerial migrate`](/cli/migrate) plans the removal as a destructive step, and once applied the value is gone from every row. The client's own `'auto'` migrations never remove a field: the definition and its data stay in SurrealDB, and `DEFINE TABLE OVERWRITE` does not remove fields from a table either. If you remove a definition yourself with `REMOVE FIELD <name> ON TABLE <table>;`, SurrealDB 4.0 deletes the stored values on every row at that point. Copy them first if you need them, and take a backup before any removal.
 :::
 
 **Changing a field type:**
 
-Changing a field type regenerates the `DEFINE FIELD` with the new type. SurrealDB 3.3.0 accepts the new definition over existing rows and leaves their values untouched, so reads still return the old value. The next write that touches such a row fails with `Couldn't coerce value for field` until that row holds a value of the new type. Setting the field to a valid value repairs the row.
+Changing a field type regenerates the `DEFINE FIELD` with the new type. SurrealDB 4.0 refuses the change over rows unless the new type accepts every value already stored. `cerial migrate` handles that by converting each stored value to the new type and giving rows whose value does not convert the field's `@default`, or leaving the field absent when it is optional, and it asks for `--allow-data-loss` because that overwrites stored values. A field with neither a default nor an optional type is refused in the plan, naming the field; add a `@default`, make the field optional, or convert the rows yourself. See [What needs approval](/cli/migrate#what-needs-approval).
 
 ## Known Limitation: Tuple + Object Interaction
 
