@@ -7,7 +7,22 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { run, withScratchDatabase, type ScratchDatabase } from './helpers';
 
-import { BS, BT, FF, NAME_CASES, PAYLOAD, quote, quotePath, TERMINATORS, VT } from './hostile-names';
+import {
+  BS,
+  BT,
+  CR,
+  FF,
+  LF,
+  LS,
+  NAME_CASES,
+  NEL,
+  PAYLOAD,
+  PS,
+  quote,
+  quotePath,
+  TERMINATORS,
+  VT,
+} from './hostile-names';
 
 let db: ScratchDatabase;
 
@@ -68,29 +83,60 @@ describe('plain interpolation of a name read from INFO', () => {
   });
 });
 
+/**
+ * On 4.0 only LF ends a `--`, `#` or `//` comment (a CRLF ends it through its LF); CR, NEL, LS, PS, VT and FF
+ * no longer do, and a `/* *\/` comment ends only at its closing mark. The escaping guards still escape every
+ * one of them, which is wider than the server needs and so safe.
+ */
+const COMMENT_OPENERS = ['--', '#', '//'] as const;
+
 describe('a comment built from a name holding a terminator', () => {
-  for (const [label, raw] of TERMINATORS) {
-    test(`${label} ends the comment and the next line runs`, async () => {
-      expect(await victimRows()).toBe(1);
+  for (const opener of COMMENT_OPENERS) {
+    for (const [label, raw] of [
+      ['LF', LF],
+      ['CRLF', CR + LF],
+    ] as const) {
+      test(`${opener}: ${label} ends the comment and the next line runs`, async () => {
+        expect(await victimRows()).toBe(1);
 
-      await run(db, `-- REMOVE TABLE nl${raw}${PAYLOAD}`);
+        await run(db, `${opener} REMOVE TABLE nl${raw}${PAYLOAD}`);
 
-      expect(await victimRows()).toBe(0);
-      expect(await tableNames()).not.toContain('victim');
-    });
+        expect(await victimRows()).toBe(0);
+        expect(await tableNames()).not.toContain('victim');
+      });
+    }
+
+    for (const [label, raw] of [
+      ['CR', CR],
+      ['NEL', NEL],
+      ['LS', LS],
+      ['PS', PS],
+      ['VT', VT],
+      ['FF', FF],
+    ] as const) {
+      test(`${opener}: ${label} does not end the comment`, async () => {
+        const results = await run(db, `${opener} REMOVE TABLE nl${raw}${PAYLOAD}`);
+
+        expect(results).toEqual([]);
+        expect(await victimRows()).toBe(1);
+      });
+    }
   }
 
-  for (const [label, raw] of [
-    ['VT', VT],
-    ['FF', FF],
-  ] as const) {
-    test(`${label} does not end the comment`, async () => {
-      const results = await run(db, `-- REMOVE TABLE nl${raw}${PAYLOAD}`);
+  for (const [label, raw] of [...TERMINATORS.map(([l, r]) => [l, r] as const), ['VT', VT], ['FF', FF]]) {
+    test(`/* */: ${label} inside a block comment does not end it`, async () => {
+      const results = await run(db, `/* REMOVE TABLE nl${raw}${PAYLOAD} */`);
 
       expect(results).toEqual([]);
       expect(await victimRows()).toBe(1);
     });
   }
+
+  test('/* */: a statement after the closing mark runs', async () => {
+    await run(db, `/* note */ ${PAYLOAD}`);
+
+    expect(await victimRows()).toBe(0);
+  });
 });
 
 describe('REMOVE TABLE with a quoted name', () => {
