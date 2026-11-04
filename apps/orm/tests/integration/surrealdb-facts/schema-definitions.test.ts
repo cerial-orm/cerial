@@ -266,7 +266,9 @@ describe('array-of-objects sub-field path field.*.sub', () => {
     );
     expect(results[4]!.status).toBe('OK');
     expect(String(results[5]!.result)).toContain('already contains');
-    const indexes = (results[6]!.result as { indexes: { name: string; cols: string[]; index: string }[] }).indexes;
+    const indexes = (
+      results[6]!.result as { indexes: { name: string; cols: string[]; index: string; table: string }[] }
+    ).indexes;
     expect(indexes).toEqual([{ cols: ['a.*.x'], index: 'UNIQUE', name: 'i', table: 'ao5' }]);
   });
 });
