@@ -12,6 +12,7 @@ import type { ASTDecorator, ASTField } from '../../../types';
 import { isValidFieldName } from '../../../utils/validation-utils';
 import { createField, createPosition, createRange } from '../ast';
 import { matchDecoratorToken } from '../../registry';
+import { SIZED_NUMBER_TYPES } from '../field-types/sized-number-parser';
 import { isTypeName, toleratesUnresolvedTypes } from '../../unresolved-types';
 import { hasValidSortArgument, hasValidUniqueArgument, invalidUniqueArgumentMessage } from '../field-decorators';
 import {
@@ -22,6 +23,8 @@ import {
   parseFieldType,
   parseRecordIdTypes,
 } from '../field-types';
+
+const SIZED_NUMBER_NAMES = SIZED_NUMBER_TYPES.map((t) => t.name).join(', ');
 
 /** Result of parsing a field line */
 export interface FieldParseResult {
@@ -187,7 +190,7 @@ export function parseFieldDeclaration(
   if (!fieldType) {
     return {
       field: null,
-      error: `Invalid field type: ${typeStr}. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).`,
+      error: `Invalid field type: ${typeStr}. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, a sized number (${SIZED_NUMBER_NAMES}), or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).`,
     };
   }
 

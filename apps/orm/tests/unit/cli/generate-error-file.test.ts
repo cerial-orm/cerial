@@ -49,7 +49,7 @@ describe('generate error file attribution', () => {
     const { errors, dir } = await run({ 'post.cerial': 'model User {\n  id Record @id\n  name Bogus\n}\n' });
 
     expect(errors).toEqual([
-      `${join(dir, 'post.cerial')}:3: Invalid field type: Bogus. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).`,
+      `${join(dir, 'post.cerial')}:3: Invalid field type: Bogus. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, a sized number (Int8, Uint8, Int16, Uint16, Int32, Uint32, Uint64, Float16, Float32), or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).`,
     ]);
   });
 

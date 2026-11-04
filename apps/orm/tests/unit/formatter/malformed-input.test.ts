@@ -38,7 +38,7 @@ describe('formatter malformed input: rejected with an error result', () => {
   it('should report an array type whose bracket is never closed', () => {
     expectError(
       lines(...MODEL, '  n String[', '}'),
-      'Invalid field type: String[. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).',
+      'Invalid field type: String[. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, a sized number (Int8, Uint8, Int16, Uint16, Int32, Uint32, Uint64, Float16, Float32), or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).',
       3,
     );
   });
@@ -46,7 +46,7 @@ describe('formatter malformed input: rejected with an error result', () => {
   it('should report an unknown field type', () => {
     expectError(
       lines(...MODEL, '  n Bogus', '}'),
-      'Invalid field type: Bogus. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).',
+      'Invalid field type: Bogus. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, a sized number (Int8, Uint8, Int16, Uint16, Int32, Uint32, Uint64, Float16, Float32), or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).',
       3,
     );
   });
@@ -62,7 +62,7 @@ describe('formatter malformed input: rejected with an error result', () => {
   it('should report only the first of several errors', () => {
     expectError(
       lines(...MODEL, '  a Bogus', '  b AlsoBogus', '}'),
-      'Invalid field type: Bogus. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).',
+      'Invalid field type: Bogus. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, a sized number (Int8, Uint8, Int16, Uint16, Int32, Uint32, Uint64, Float16, Float32), or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).',
       3,
     );
   });
