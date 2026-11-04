@@ -6,7 +6,8 @@
  */
 
 import { afterAll, afterEach, describe, expect, it, spyOn } from 'bun:test';
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { generateSingleSchema } from '../../src/cli/generate';
@@ -72,6 +73,22 @@ describe('generate output is written only after every generator returns', () => 
       expect(await Bun.file(join(outputDir, 'internal', 'model-registry.ts')).exists()).toBe(false);
     });
   }
+
+  it('a directory emptied of stale files is removed, and one holding other files is kept', async () => {
+    const { schemaDir, outputDir } = await setup();
+    await generateSingleSchema({ schemaPath: schemaDir, outputDir, logLevel: 'minimal' });
+    await mkdir(join(outputDir, 'gone', 'nested'), { recursive: true });
+    await writeFile(join(outputDir, 'gone', 'nested', 'stale.ts'), 'export {};\n', 'utf8');
+    await mkdir(join(outputDir, 'kept'), { recursive: true });
+    await writeFile(join(outputDir, 'kept', 'stale.ts'), 'export {};\n', 'utf8');
+    await writeFile(join(outputDir, 'kept', 'notes.txt'), 'keep me\n', 'utf8');
+
+    const again = await generateSingleSchema({ schemaPath: schemaDir, outputDir, logLevel: 'minimal' });
+    expect(again.success).toBe(true);
+    expect(existsSync(join(outputDir, 'gone'))).toBe(false);
+    expect(existsSync(join(outputDir, 'kept', 'stale.ts'))).toBe(false);
+    expect(existsSync(join(outputDir, 'kept', 'notes.txt'))).toBe(true);
+  });
 
   it('a successful regeneration still replaces the output, and --clean drops stale files', async () => {
     const { schemaDir, outputDir } = await setup();

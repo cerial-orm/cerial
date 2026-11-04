@@ -99,6 +99,7 @@ async function cleanOutputDir(outputDir: string): Promise<void> {
 async function removeStaleFiles(outputDir: string, generatedFiles: string[]): Promise<string[]> {
   const generatedSet = new Set(generatedFiles.map((f) => resolve(f)));
   const staleFiles: string[] = [];
+  const dirs: string[] = [];
 
   async function scan(dir: string): Promise<void> {
     let entries;
@@ -112,13 +113,7 @@ async function removeStaleFiles(outputDir: string, generatedFiles: string[]): Pr
       const fullPath = `${dir}/${entry.name}`;
       if (entry.isDirectory()) {
         await scan(fullPath);
-        // Remove directory if it became empty after cleaning
-        try {
-          const remaining = await readdir(fullPath);
-          if (!remaining.length) await rm(fullPath, { recursive: true, force: true });
-        } catch {
-          // Ignore errors on cleanup
-        }
+        dirs.push(fullPath);
       } else if (entry.isFile() && entry.name.endsWith('.ts') && !generatedSet.has(resolve(fullPath))) {
         staleFiles.push(fullPath);
       }
@@ -127,6 +122,15 @@ async function removeStaleFiles(outputDir: string, generatedFiles: string[]): Pr
 
   await scan(outputDir);
   await Promise.all(staleFiles.map((f) => rm(f, { force: true })));
+
+  // Children come before their parents, so a directory emptied by the removals above goes too
+  for (const dir of dirs) {
+    try {
+      if (!(await readdir(dir)).length) await rm(dir, { recursive: true, force: true });
+    } catch {
+      // Ignore errors on cleanup
+    }
+  }
 
   return staleFiles;
 }
