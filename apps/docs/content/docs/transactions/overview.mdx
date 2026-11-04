@@ -63,6 +63,10 @@ const result = await client.$transaction(
 
 The default backoff uses exponential with jitter: `(attempt) => 2 ** attempt * 10 + Math.random() * 10`. Each retry begins a **fresh transaction**.
 
+:::note
+SurrealDB 4.0 retries a standalone write conflict on the server (a single statement, outside a transaction), so concurrent plain writes such as `updateMany` calls rarely surface a conflict. A transaction is not retried by the server: if two transactions change the same record, the later commit fails, and `retries` is what runs it again.
+:::
+
 :::caution
 Manual mode (`const txn = await client.$transaction()`) does not support retry options — you control the lifecycle yourself.
 :::
