@@ -268,10 +268,11 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
 
     // Transform and validate data
-    const transformedData = transformData(cleanData, this.model, 'update');
-
-    const dataValidation = validateUpdateData(transformedData, this.model);
+    // Validate before transform: the transform coerces values (Math.floor on an int member) and would hide a bad one
+    const dataValidation = validateUpdateData(cleanData, this.model);
     if (!dataValidation.valid) throw validationFailure('data', dataValidation.errors, this.model, 'updateMany');
+
+    const transformedData = transformData(cleanData, this.model, 'update');
 
     // Validate unset fields
     if (unset) {
@@ -347,10 +348,11 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
 
     // Transform and validate data
-    const transformedData = transformData(cleanData, this.model, 'update');
-
-    const dataValidation = validateUpdateData(transformedData, this.model);
+    // Validate before transform: the transform coerces values (Math.floor on an int member) and would hide a bad one
+    const dataValidation = validateUpdateData(cleanData, this.model);
     if (!dataValidation.valid) throw validationFailure('data', dataValidation.errors, this.model, 'updateUnique');
+
+    const transformedData = transformData(cleanData, this.model, 'update');
 
     // Validate unset fields
     if (unset) {
@@ -586,9 +588,9 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Transform and validate update data (only if update provided)
     let transformedUpdateData: Record<string, unknown> = {};
     if (updateData) {
-      transformedUpdateData = transformData(cleanUpdateData, this.model, 'update');
-      const updateValidation = validateUpdateData(transformedUpdateData, this.model);
+      const updateValidation = validateUpdateData(cleanUpdateData, this.model);
       if (!updateValidation.valid) throw validationFailure('data', updateValidation.errors, this.model, 'upsert');
+      transformedUpdateData = transformData(cleanUpdateData, this.model, 'update');
     }
 
     // Validate unset fields (applies to update portion of upsert)
@@ -884,10 +886,11 @@ export function compileUpdateMany(
 
   refuseFragmentInValue(data, 'data', { model: model.name, operation: 'updateMany' });
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
-  const transformedData = transformData(cleanData, model, 'update');
-
-  const dataValidation = validateUpdateData(transformedData, model);
+  // Validate before transform: the transform coerces values (Math.floor on an int member) and would hide a bad one
+  const dataValidation = validateUpdateData(cleanData, model);
   if (!dataValidation.valid) throw validationFailure('data', dataValidation.errors, model, 'updateMany');
+
+  const transformedData = transformData(cleanData, model, 'update');
 
   // Validate unset fields
   if (unset) {
@@ -942,10 +945,11 @@ export function compileUpdateUnique(
 
   refuseFragmentInValue(data, 'data', { model: model.name, operation: 'updateUnique' });
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
-  const transformedData = transformData(cleanData, model, 'update');
-
-  const dataValidation = validateUpdateData(transformedData, model);
+  // Validate before transform: the transform coerces values (Math.floor on an int member) and would hide a bad one
+  const dataValidation = validateUpdateData(cleanData, model);
   if (!dataValidation.valid) throw validationFailure('data', dataValidation.errors, model, 'updateUnique');
+
+  const transformedData = transformData(cleanData, model, 'update');
 
   // Validate unset fields
   if (unset) {
@@ -1202,9 +1206,9 @@ export function compileUpsert(
   if (updateData) {
     const { cleanData: cleanUpdateData, nestedOps } = extractNestedOperations(updateData, model);
     updateNestedOps = nestedOps;
-    transformedUpdateData = transformData(cleanUpdateData, model, 'update');
-    const updateValidation = validateUpdateData(transformedUpdateData, model);
+    const updateValidation = validateUpdateData(cleanUpdateData, model);
     if (!updateValidation.valid) throw validationFailure('data', updateValidation.errors, model, 'upsert');
+    transformedUpdateData = transformData(cleanUpdateData, model, 'update');
   }
 
   // Validate unset fields (applies to update portion of upsert)
