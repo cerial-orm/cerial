@@ -13,7 +13,7 @@ import type { RecordId } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
 import type { RecordIdInput } from '../../utils/cerial-id';
-import type { CompiledQuery } from '../compile/types';
+import type { CompiledQuery, TargetCheckMap } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
@@ -247,6 +247,8 @@ export interface NestedWriteOptions {
    * create half passes the id from its `where`, the same record the plain upsert's CREATE targets
    */
   recordId?: RecordId;
+  /** The public call, named in the error a missing connect or set target raises; defaults to the builder's own */
+  operation?: string;
   /** Update only: return the row as it was before the write, projected through `select` and `include` */
   returnBefore?: boolean;
   select?: SelectClause;
@@ -279,10 +281,14 @@ interface TargetCheck {
   fieldName: string;
 }
 
+/** A `connect` or `set` in `nestedOps`, with the record ids it links to */
+interface NestedTargetCheck extends TargetCheck {
+  verb: 'connect' | 'set';
+}
+
 /**
- * Statements that abort the transaction when a linked record is missing. The runtime check in
- * assertNestedTargetsExist gives the caller a typed error first; this is the backstop for the paths that
- * run a compiled query without it ($transaction array mode) and for a record deleted in between.
+ * Statements that abort the transaction when a linked record is missing. Only for the builds that run
+ * inside an outer transaction (`transactionMode`), where the executor does not read a guard's result.
  */
 function buildTargetCheckStatements(checks: TargetCheck[], vars: Record<string, unknown>): string[] {
   const statements: string[] = [];
@@ -299,6 +305,79 @@ function buildTargetCheckStatements(checks: TargetCheck[], vars: Record<string, 
   });
 
   return statements;
+}
+
+/**
+ * The records a write links to, in the order a missing one is reported: fields in `nestedOps` order,
+ * `connect` before `set` within a field. `disconnect` is not checked: removing a link that does not exist
+ * leaves the state the caller asked for.
+ */
+function collectTargetChecks(
+  model: ModelMetadata,
+  nestedOps: Map<string, NestedOperation>,
+  registry: ModelRegistry,
+): NestedTargetCheck[] {
+  const checks: NestedTargetCheck[] = [];
+  for (const [fieldName, op] of nestedOps) {
+    const field = model.fields.find((f) => f.name === fieldName);
+    const targetModel = field?.relationInfo ? registry[field.relationInfo.targetModel] : undefined;
+    if (!targetModel) continue;
+
+    if (isNestedConnect(op)) {
+      const ids = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
+      if (ids.length) checks.push({ targetModel, targetIds: ids, fieldName, verb: 'connect' });
+    }
+    if (isNestedSet(op) && op.set.length) checks.push({ targetModel, targetIds: op.set, fieldName, verb: 'set' });
+  }
+
+  return checks;
+}
+
+interface TargetGuard {
+  /** Statements that open the guard, placed right after BEGIN */
+  header: string[];
+  map: TargetCheckMap;
+}
+
+/**
+ * Reads every linked record and returns the position of the first missing one, or NONE. The write sits
+ * in an IF block that runs only when none is missing, so a missing record raises no database error: the
+ * executor reads the returned position and throws the typed error. `at` is the RETURN's index in the
+ * results of the text with its BEGIN.
+ */
+function buildTargetGuard(
+  checks: NestedTargetCheck[],
+  vars: Record<string, unknown>,
+  model: ModelMetadata,
+  operation: string,
+): TargetGuard | null {
+  if (!checks.length) return null;
+
+  const reads: string[] = [];
+  const entries: TargetCheckMap['entries'][number][] = [];
+  checks.forEach((check, idx) => {
+    check.targetIds.forEach((targetId, idIdx) => {
+      const varName = `validate_${idx}_${idIdx}`;
+      const recordId = transformOrValidateRecordId(check.targetModel.tableName, targetId);
+      vars[varName] = recordId;
+      reads.push(`(SELECT VALUE id FROM ONLY $${varName})`);
+      entries.push({
+        field: check.fieldName,
+        verb: check.verb,
+        targetModel: check.targetModel.name,
+        id: recordId.toString(),
+      });
+    });
+  });
+
+  return {
+    header: [
+      `LET $target_missing = [${reads.join(', ')}].find_index(NONE);`,
+      'RETURN $target_missing;',
+      'IF $target_missing IS NONE {',
+    ],
+    map: { at: 2, model: model.name, operation, entries },
+  };
 }
 
 /**
@@ -507,8 +586,8 @@ export function buildCreateWithNestedTransaction(
     }
   }
 
-  // Add validation for connected records (verify they exist before creating)
-  statements.push(...buildTargetCheckStatements(connectValidations, vars));
+  // Verify connected records exist before creating; a standalone write does it in the guard built at the end
+  if (transactionMode) statements.push(...buildTargetCheckStatements(connectValidations, vars));
 
   // Build the main create with field updates
   const finalData = { ...data };
@@ -620,12 +699,23 @@ export function buildCreateWithNestedTransaction(
     }
   });
 
-  if (!transactionMode) statements.push('COMMIT TRANSACTION;');
-  statements.push(buildNestedReturn('$result', true, model, registry, options, includeCtx));
+  const returnStatement = buildNestedReturn('$result', true, model, registry, options, includeCtx);
+  const guard = transactionMode
+    ? null
+    : buildTargetGuard(collectTargetChecks(model, nestedOps, registry), vars, model, options.operation ?? 'create');
+  if (guard) {
+    // After BEGIN; the block scopes its LETs, so the RETURN that reads them moves inside it
+    statements.splice(1, 0, ...guard.header);
+    statements.push(returnStatement, '};', 'COMMIT TRANSACTION;');
+  } else {
+    if (!transactionMode) statements.push('COMMIT TRANSACTION;');
+    statements.push(returnStatement);
+  }
 
   return {
     text: statements.join('\n'),
     vars: { ...vars, ...includeCtx.getCollected() },
+    ...(guard && { targetCheck: guard.map }),
   };
 }
 
@@ -933,7 +1023,7 @@ export function buildUpdateWithNestedTransaction(
   // statements that follow; the transaction stays one round trip
   if (returnBefore) {
     const fields = buildSelectFields(options.select, model, options.include, registry, includeCtx);
-    statements.push(`LET $before = (SELECT ${fields} FROM ${model.tableName} ${whereClause.text});`);
+    statements.push(`LET $prior = (SELECT ${fields} FROM ${model.tableName} ${whereClause.text});`);
   }
 
   // Build the main update
@@ -945,9 +1035,8 @@ export function buildUpdateWithNestedTransaction(
     statements.push(`LET $result = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
   }
 
-  // After the update rather than before it: a statement ahead of a failing UPDATE makes the driver report
-  // "failed transaction" in place of the database's own reason. The THROW still rolls everything back
-  statements.push(...buildTargetCheckStatements(targetChecks, vars));
+  // A standalone write checks its targets in the guard built at the end
+  if (transactionMode) statements.push(...buildTargetCheckStatements(targetChecks, vars));
 
   // Statements that act on the matched row only run when the where matched something, so a
   // non-matching where writes nothing, as on the plain path
@@ -1019,13 +1108,24 @@ export function buildUpdateWithNestedTransaction(
 
   if (postStatements.length) statements.push(`IF $result[0] {\n${postStatements.join('\n')}\n};`);
 
-  if (!transactionMode) statements.push('COMMIT TRANSACTION;');
-  statements.push(
-    returnBefore ? 'RETURN $before;' : buildNestedReturn('$result', false, model, registry, options, includeCtx),
-  );
+  const returnStatement = returnBefore
+    ? 'RETURN $prior;'
+    : buildNestedReturn('$result', false, model, registry, options, includeCtx);
+  const guard = transactionMode
+    ? null
+    : buildTargetGuard(collectTargetChecks(model, nestedOps, registry), vars, model, options.operation ?? 'updateMany');
+  if (guard) {
+    // After BEGIN; the block scopes its LETs, so the RETURN that reads them moves inside it
+    statements.splice(1, 0, ...guard.header);
+    statements.push(returnStatement, '};', 'COMMIT TRANSACTION;');
+  } else {
+    if (!transactionMode) statements.push('COMMIT TRANSACTION;');
+    statements.push(returnStatement);
+  }
 
   return {
     text: statements.join('\n'),
     vars: { ...vars, ...includeCtx.getCollected() },
+    ...(guard && { targetCheck: guard.map }),
   };
 }

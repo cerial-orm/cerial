@@ -26,7 +26,6 @@ import type {
   WhereClause,
 } from '../types';
 import {
-  assertNestedTargetsExist,
   buildCountQuery,
   buildCreateQuery,
   buildCreateWithNestedTransaction,
@@ -235,7 +234,6 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // If there are nested operations, use the transaction builder
     if (nestedOps.size > 0 && this.registry) {
-      await assertNestedTargetsExist(this.db, this.model, nestedOps, this.registry, 'create');
       const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry, {
         select,
         include,
@@ -286,7 +284,6 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // If there are nested operations, use the transaction builder
     if (nestedOps.size > 0 && this.registry) {
-      await assertNestedTargetsExist(this.db, this.model, nestedOps, this.registry, 'updateMany');
       const query = buildUpdateWithNestedTransaction(
         this.model,
         where,
@@ -369,14 +366,13 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // to updateMany on the same where clause and takes the first result.
     if (nestedOps.size > 0 && this.registry) {
       // For now, use updateMany with the same where clause and return first result
-      await assertNestedTargetsExist(this.db, this.model, nestedOps, this.registry, 'updateUnique');
       const query = buildUpdateWithNestedTransaction(
         this.model,
         expandedWhere,
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         this.registry,
-        { returnBefore: returnOption === 'before', select, include },
+        { returnBefore: returnOption === 'before', select, include, operation: 'updateUnique' },
       );
       const result = await executeQuery(this.db, query);
       // A non-matching where returns no row; handleUpdateUniqueResult tells null from undefined
@@ -736,11 +732,11 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       // Record doesn't exist - use create path
       if (Object.keys(createData).length === 0) return null; // No create data, nothing to do
 
-      await assertNestedTargetsExist(this.db, this.model, createNestedOps, this.registry!, 'upsert');
       const { buildCreateWithNestedTransaction: buildCreateNested } = await import('./builders/nested-builder');
       const query = buildCreateNested(this.model, createData, createNestedOps as Map<string, any>, this.registry!, {
         select,
         include,
+        operation: 'upsert',
         // An id in the where names the record to create, exactly as the plain upsert's CREATE does;
         // without it the nested create lands on a server-generated id the caller never asked for
         recordId: hasId ? recordIdFromWhere(this.model, where) : undefined,
@@ -764,7 +760,6 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       return mapSingleResult<T>(await this.readExisting(where, hasId, select, include), this.model, select);
     }
 
-    await assertNestedTargetsExist(this.db, this.model, updateNestedOps, this.registry!, 'upsert');
     const { buildUpdateWithNestedTransaction: buildUpdateNested } = await import('./builders/nested-builder');
     const query = buildUpdateNested(
       this.model,
@@ -775,6 +770,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       {
         select,
         include,
+        operation: 'upsert',
       },
     );
     const result = await executeQuery(this.db, query);
@@ -968,7 +964,7 @@ export function compileUpdateUnique(
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         registry,
-        { returnBefore: returnOption === 'before', select, include },
+        { returnBefore: returnOption === 'before', select, include, operation: 'updateUnique' },
       ),
       // One row or none, read the way the plain nested path reads it
       resultType: returnOption === true ? 'boolean' : 'single',

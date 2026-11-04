@@ -40,7 +40,6 @@ export {
   type NestedDisconnect,
   type NestedOperation,
 } from './nested-builder';
-export { assertNestedTargetsExist } from './nested-targets';
 
 export { collectRelatedModelNames } from './related-models';
 export {

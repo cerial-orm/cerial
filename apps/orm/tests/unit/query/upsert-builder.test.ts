@@ -770,7 +770,7 @@ describe('upsert-builder', () => {
       const query = nested({ email: 'author@test.com' }, { name: 'Updated Author' }, { returnOption: 'before' });
 
       expect(query.text.trim()).toEndWith('RETURN IF $up_exists { $up_result };');
-      expect(query.text).toContain('LET $u_before');
+      expect(query.text).toContain('LET $u_prior');
     });
 
     test('with nothing to write to an existing row it reads the row back', () => {

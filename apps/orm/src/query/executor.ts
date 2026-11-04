@@ -6,7 +6,8 @@ import { BoundQuery, isRetryableConflict, type Surreal, SurrealTransaction } fro
 import type { ModelMetadata, ModelRegistry, SelectClause, TransactionOptions } from '../types';
 import { beginTransaction } from '../client/transaction-begin';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
-import type { CompiledQuery } from './compile/types';
+import { CerialValidationError } from '../errors';
+import type { CompiledQuery, TargetCheckMap } from './compile/types';
 import { mapRawResult, mapResult, mapSingleResult } from './mappers';
 import { executeRawStatement } from './raw-statement';
 
@@ -54,6 +55,34 @@ function createBoundQuery(query: CompiledQuery): BoundQuery {
   return new BoundQuery(query.text, query.vars);
 }
 
+/**
+ * Throws the typed error for a guarded nested write whose guard found a missing target. The guard's
+ * RETURN holds the position of the first missing record, or NONE when all exist. It is read before any
+ * result walk: on a miss the write's block yields NONE, which a walk would pass off as an empty result.
+ * A value that is not a mapped position is not this check's to explain, so it is thrown as a plain error
+ * for `wrapDatabaseError` to pass through; nothing here reads an error's message.
+ */
+function assertTargetsPresent(
+  results: readonly unknown[] | undefined,
+  check: TargetCheckMap | undefined,
+  stripped: boolean,
+): void {
+  if (!check) return;
+
+  // A stripped BEGIN takes its result with it, so the guard's position moves up by one
+  const at = check.at - (stripped ? 1 : 0);
+  const value = results?.[at];
+  if (value === null || value === undefined) return;
+
+  const entry = typeof value === 'number' ? check.entries[value] : undefined;
+  if (!entry) throw new Error(`Nested target check returned an unmapped value at statement ${at}`);
+
+  throw new CerialValidationError(
+    `Field "${entry.field}" on model "${check.model}": cannot ${entry.verb} ${entry.targetModel} record "${entry.id}" because it does not exist`,
+    { model: check.model, field: entry.field, operation: check.operation },
+  );
+}
+
 /** Execute a compiled query */
 export async function executeQuery<T = unknown>(
   db: Surreal,
@@ -69,6 +98,7 @@ export async function executeQuery<T = unknown>(
   const effectiveQuery = queryText !== query.text ? { text: queryText, vars: query.vars } : query;
   const boundQuery = createBoundQuery(effectiveQuery);
   const results = await db.query<[T[]]>(boundQuery).collect();
+  assertTargetsPresent(results, query.targetCheck, effectiveQuery !== query);
 
   // For simple queries, return first result set
   // For transactions with RETURN at the end, walk backwards to find the result array
@@ -108,6 +138,7 @@ export async function executeQuerySingle<T = unknown>(
       const effectiveQuery = queryText !== query.text ? { text: queryText, vars: query.vars } : query;
       const boundQuery = createBoundQuery(effectiveQuery);
       const results = await db.query<T[]>(boundQuery).collect();
+      assertTargetsPresent(results, query.targetCheck, effectiveQuery !== query);
 
       // For transactions with RETURN at the end, get the last non-null result
       // Walk backwards to find the first non-null/non-empty result
@@ -226,7 +257,7 @@ export function prefixQueryVars(query: CompiledQuery, prefix: string): CompiledQ
     text = text.replace(varRegex, `$${prefix}${name}`);
   }
 
-  return { text, vars };
+  return { text, vars, ...(query.targetCheck && { targetCheck: query.targetCheck }) };
 }
 
 /**
@@ -401,6 +432,7 @@ async function executeMultiStatementInTransaction(
   const innerText = stripTransactionWrapper(query.text);
   const boundQuery = new BoundQuery(innerText, query.vars);
   const results = await db.query(boundQuery).collect();
+  assertTargetsPresent(results, query.targetCheck, true);
   const rawResult = extractRawResult(results);
 
   return mapTransactionResult(rawResult, item.resultType, item.metadata, item.select);

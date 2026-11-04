@@ -194,8 +194,10 @@ describe('nested-builder', () => {
 
       expect(query.text).toContain('BEGIN TRANSACTION');
       // Validation for connected record existence
-      expect(query.text).toContain('LET $exists_0_0 = (SELECT id FROM ONLY $validate_0_0)');
-      expect(query.text).toContain('IF $exists_0_0 IS NONE { THROW "Cannot connect to non-existent Profile record" }');
+      expect(query.text).toContain(
+        'LET $target_missing = [(SELECT VALUE id FROM ONLY $validate_0_0)].find_index(NONE);',
+      );
+      expect(query.text).toContain('IF $target_missing IS NONE {');
       // profileId is embedded in CONTENT variable (bound via $content_main)
       expect(query.text).toContain('CONTENT $content_main');
       expect(query.vars).toHaveProperty('validate_0_0'); // Validation var for profile:123
@@ -210,9 +212,9 @@ describe('nested-builder', () => {
 
       expect(query.text).toContain('BEGIN TRANSACTION');
       // Validation for connected record existence
-      expect(query.text).toContain('LET $exists_0_0 = (SELECT id FROM ONLY $validate_0_0)');
-      expect(query.text).toContain('IF $exists_0_0 IS NONE { THROW "Cannot connect to non-existent Tag record" }');
-      expect(query.text).toContain('LET $exists_0_1 = (SELECT id FROM ONLY $validate_0_1)');
+      expect(query.text).toContain(
+        'LET $target_missing = [(SELECT VALUE id FROM ONLY $validate_0_0), (SELECT VALUE id FROM ONLY $validate_0_1)].find_index(NONE);',
+      );
       // Uses parameterized variable for tag IDs
       expect(query.text).toContain('tagIds = $tags_connect');
       expect(query.vars).toHaveProperty('tags_connect');
@@ -441,7 +443,7 @@ describe('nested-builder', () => {
         include: { tags: true },
       });
 
-      expect(query.text).toContain('RETURN $before;');
+      expect(query.text).toContain('RETURN $prior;');
     });
   });
 });
