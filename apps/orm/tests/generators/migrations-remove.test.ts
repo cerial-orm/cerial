@@ -18,11 +18,11 @@ function only(
 }
 
 describe('emitRemove', () => {
-  test('a live-only field is removed and its values unset', () => {
+  test('a live-only field is removed with no UNSET after it, since 4.0 deletes the values itself', () => {
     const live = schema([table('t', [field('a', 'string'), field('b', 'string')])]);
     const d = only(schema([table('t', [field('a', 'string')])]), live, 'field-extra');
 
-    expect(emitRemove(d, live)).toEqual(['REMOVE FIELD `b` ON `t`;', 'UPDATE `t` UNSET `b`;']);
+    expect(emitRemove(d, live)).toEqual(['REMOVE FIELD `b` ON `t`;']);
   });
 
   test('a live-only index is removed', () => {
@@ -40,7 +40,7 @@ describe('emitRemove', () => {
     expect(() => emitRemove(only(EMPTY, live, 'table-extra-unmanaged'), live)).toThrow(CerialMigrationError);
   });
 
-  test('indexes over the field go first, then children deepest first, then the field, then the unset', () => {
+  test('indexes over the field go first, then children deepest first, then the field', () => {
     const live = schema([
       table(
         't',
@@ -65,15 +65,14 @@ describe('emitRemove', () => {
       'REMOVE FIELD `o`.`x` ON `t`;',
       'REMOVE FIELD `o`.`z` ON `t`;',
       'REMOVE FIELD `o` ON `t`;',
-      'UPDATE `t` UNSET `o`;',
     ]);
   });
 
-  test('removing only a child unsets that path, not its parent', () => {
+  test('removing only a child removes that path, not its parent', () => {
     const live = schema([table('t', [field('p', 'object'), field('p.x', 'string')])]);
     const d = diffSchema(schema([table('t', [field('p', 'object')])]), live, { managedTables: [] })[0]!;
 
-    expect(emitRemove(d, live)).toEqual(['REMOVE FIELD `p`.`x` ON `t`;', 'UPDATE `t` UNSET `p`.`x`;']);
+    expect(emitRemove(d, live)).toEqual(['REMOVE FIELD `p`.`x` ON `t`;']);
   });
 
   test('an array element is not removed on its own, and goes with its parent', () => {
@@ -85,11 +84,7 @@ describe('emitRemove', () => {
     const parent = found.find((d) => d.field!.length === 1)!;
 
     expect(emitRemove(element, live)).toEqual([]);
-    expect(emitRemove(parent, live)).toEqual([
-      'REMOVE FIELD `arr`.* ON `t`;',
-      'REMOVE FIELD `arr` ON `t`;',
-      'UPDATE `t` UNSET `arr`;',
-    ]);
+    expect(emitRemove(parent, live)).toEqual(['REMOVE FIELD `arr`.* ON `t`;', 'REMOVE FIELD `arr` ON `t`;']);
   });
 
   test('a difference that adds, redefines or is unmanaged throws and yields no statement', () => {

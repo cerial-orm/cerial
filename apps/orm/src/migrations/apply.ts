@@ -111,6 +111,18 @@ function suffixed(piece: StatePiece, suffix: string): StatePiece {
   return { query, bindings };
 }
 
+/** What the operator does about a refusal that asks for a data migration the plan could not derive. */
+function hint(message: string): string {
+  if (/MIGRATE EXISTING ROWS|Cannot migrate field/.test(message)) {
+    return '. Existing rows need a conversion: add a @default or make the field optional, or migrate the rows by hand, then apply again';
+  }
+  if (/in the transaction that runs migration/.test(message)) {
+    return '. Apply the schema twice: first without the index, then with it';
+  }
+
+  return '';
+}
+
 function reportFailure(
   responses: readonly { success: boolean; error?: { message: string } }[],
   statements: readonly string[],
@@ -127,7 +139,7 @@ function reportFailure(
     });
   }
 
-  return new CerialMigrationError(`The migration was rolled back; ${ddl} failed: ${message}`, {
+  return new CerialMigrationError(`The migration was rolled back; ${ddl} failed: ${message}${hint(message)}`, {
     cause: responses[index]?.error,
     statement: { text: ddl, vars: {} },
   });
@@ -232,7 +244,8 @@ async function applyUnderLease(
     }
   }
   const tail = merge([lease.holderCheck(), ...pieces]);
-  const script = ['BEGIN', ...runnable, tail.query, 'COMMIT', ''].join(';\n');
+  // The `;` sits on its own line so a statement ending in a `--` comment cannot swallow it.
+  const script = ['BEGIN', ...runnable, tail.query, 'COMMIT', ''].join('\n;\n');
 
   let responses;
   try {

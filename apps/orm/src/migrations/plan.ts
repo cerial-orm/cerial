@@ -1,7 +1,8 @@
 import { CerialMigrationError } from '../errors';
 import type { SchemaDifference } from './diff';
+import { emitMigrate } from './emit-migrate';
 import { emitRemove, type KeepIndex } from './emit-remove';
-import { parseFieldIdiom, quoteIdent } from './quote';
+import { parseFieldIdiom, quoteFieldPath, quoteIdent } from './quote';
 import type { DifferenceClass, FieldPath, SchemaModel } from './types';
 
 /** One step of a plan. A report has no `statement`: it is shown to the reader and never run. */
@@ -71,9 +72,6 @@ export function indexDesiredStatements(statements: readonly string[]): DesiredSt
   );
 }
 
-const TYPE_CHANGE_NOTE =
-  'Cerial writes no data step, so rows already holding the old type refuse writes until they are migrated';
-
 const describe = (d: SchemaDifference): string =>
   [d.kind, d.table && quoteIdent(d.table), d.field && pathKey(d.field), d.index && quoteIdent(d.index)]
     .filter(Boolean)
@@ -82,6 +80,9 @@ const describe = (d: SchemaDifference): string =>
 function missing(d: SchemaDifference): never {
   throw new CerialMigrationError(`Cannot plan '${describe(d)}': the desired schema holds no statement for it.`);
 }
+
+const covers = (a: FieldPath, b: FieldPath): boolean =>
+  isStrictPrefix(a, b) || isStrictPrefix(b, a) || pathKey(a) === pathKey(b);
 
 const isElement = (path: FieldPath): boolean => typeof path.at(-1) !== 'string';
 
@@ -118,6 +119,35 @@ function dropCovered(
 }
 
 /**
+ * Throws when an index must be defined after a migration it reads: the server refuses that in one transaction, and
+ * splitting the transaction would give up the rollback of the whole plan. The fix is two migrations.
+ */
+function assertIndexesFollowMigrations(
+  migrating: readonly { table: string; path: FieldPath }[],
+  defined: readonly { table: string; index: string; columns: readonly FieldPath[] }[],
+  live: SchemaModel,
+  desired: DesiredStatements,
+): void {
+  const kept = live.tables.flatMap((t) =>
+    t.indexes
+      .filter((ix) => desired.get(t.name)?.indexes.has(ix.name))
+      .map((ix) => ({ table: t.name, index: ix.name, columns: ix.columns })),
+  );
+  for (const { table, path } of migrating) {
+    const clash = [...defined, ...kept].find((ix) => ix.table === table && ix.columns.some((c) => covers(c, path)));
+    if (!clash) continue;
+
+    throw new CerialMigrationError(
+      [
+        `Cannot plan field ${quoteFieldPath(path)} on table ${quoteIdent(table)} in one transaction: index ${quoteIdent(clash.index)} reads it, `,
+        'and SurrealDB refuses to build or keep an index over rows a migration in the same transaction rewrites. ',
+        'Apply the schema twice: first without that index, then with it.',
+      ].join(''),
+    );
+  }
+}
+
+/**
  * Turns a difference list into the ordered steps that converge the live schema on the desired one: new tables
  * (each with its fields), new fields, changed fields, indexes, then removals, then reports of what Cerial does not
  * manage. A forward step is the generated statement for exactly that construct; an unchanged index is never
@@ -147,7 +177,13 @@ export function buildMigrationPlan(
   const order = (table: string, key: string, kind: 'fields' | 'indexes'): number =>
     [...desired.keys()].indexOf(table) * 1e6 + [...desired.get(table)![kind].keys()].indexOf(key);
 
-  const stages: { at: number; item: MigrationPlanItem }[][] = [[], [], [], [], [], []];
+  // A migration (a MIGRATE clause or a REMOVE FIELD) forbids a DEFINE INDEX on its table later in the same
+  // transaction, and an index needs its field defined first, so: plain definitions, index removals, index
+  // definitions, then migrating steps, then the rest of the removals and the reports.
+  const [TABLES, ADDED, CHANGED, INDEX_REMOVED, INDEX_DEFINED, MIGRATING, REMOVED, REPORTS] = [0, 1, 2, 3, 4, 5, 6, 7];
+  const stages: { at: number; item: MigrationPlanItem }[][] = Array.from({ length: 8 }, () => []);
+  const migrating: { table: string; path: FieldPath }[] = [];
+  const indexed: { table: string; index: string; columns: readonly FieldPath[] }[] = [];
   const fieldStatement = (d: SchemaDifference, table: string, t: TableStatements): string | undefined => {
     const key = pathKey(d.field ?? []);
     const statement = t.fields.get(key);
@@ -167,18 +203,21 @@ export function buildMigrationPlan(
     switch (d.kind) {
       case 'table-missing': {
         const [table, t] = tableOf(d);
-        stages[0]!.push({ at: order(table, '', 'fields'), item: forward(d, t.define) });
+        stages[TABLES]!.push({ at: order(table, '', 'fields'), item: forward(d, t.define) });
         for (const [key, statement] of t.fields) {
-          stages[0]!.push({ at: order(table, key, 'fields'), item: forward(d, statement) });
+          stages[TABLES]!.push({ at: order(table, key, 'fields'), item: forward(d, statement) });
         }
         for (const [key, statement] of t.indexes) {
-          stages[3]!.push({ at: order(table, key, 'indexes'), item: { ...forward(d, statement), construct: 'index' } });
+          stages[INDEX_DEFINED]!.push({
+            at: order(table, key, 'indexes'),
+            item: { ...forward(d, statement), construct: 'index' },
+          });
         }
         break;
       }
       case 'table-mode-changed': {
         const [table, t] = tableOf(d);
-        stages[2]!.push({ at: order(table, '', 'fields'), item: forward(d, t.define) });
+        stages[CHANGED]!.push({ at: order(table, '', 'fields'), item: forward(d, t.define) });
         break;
       }
       case 'field-missing':
@@ -187,10 +226,23 @@ export function buildMigrationPlan(
         const [table, t] = tableOf(d);
         const statement = fieldStatement(d, table, t);
         if (statement === undefined) break;
-        const reason = d.changes?.includes('kind') ? [d.reason, TYPE_CHANGE_NOTE].join('. ') : d.reason;
-        stages[d.kind === 'field-changed' ? 2 : 1]!.push({
-          at: order(table, pathKey(d.field ?? []), 'fields'),
-          item: forward(d, statement, reason),
+        const step = emitMigrate(
+          d,
+          statement,
+          live.tables.some((t) => t.name === table && t.populated),
+        );
+        const at = order(table, pathKey(d.field ?? []), 'fields');
+        if (!step) {
+          stages[d.kind === 'field-changed' ? CHANGED : ADDED]!.push({ at, item: forward(d, statement) });
+          break;
+        }
+        migrating.push({ table, path: d.field ?? [] });
+        stages[MIGRATING]!.push({
+          at,
+          item: {
+            ...forward(d, step.statement, [d.reason, step.reason].join('; ')),
+            ...(step.overwrites && { class: 'data-loss' as const }),
+          },
         });
         break;
       }
@@ -200,18 +252,29 @@ export function buildMigrationPlan(
         const [table, t] = tableOf(d);
         const statement = t.indexes.get(d.index ?? '');
         if (statement === undefined) return missing(d);
-        stages[3]!.push({ at: order(table, d.index!, 'indexes'), item: forward(d, statement) });
+        indexed.push({ table, index: d.index!, columns: d.desiredIndex?.columns ?? [] });
+        stages[INDEX_DEFINED]!.push({ at: order(table, d.index!, 'indexes'), item: forward(d, statement) });
         break;
       }
       case 'field-extra':
       case 'index-extra':
       case 'table-extra-managed':
-        for (const statement of emitRemove(d, live, keepIndex)) stages[4]!.push({ at: 0, item: forward(d, statement) });
+        for (const statement of emitRemove(d, live, keepIndex)) {
+          stages[statement.startsWith('REMOVE INDEX ') ? INDEX_REMOVED : REMOVED]!.push({
+            at: 0,
+            item: forward(d, statement),
+          });
+        }
         break;
       default:
-        stages[5]!.push({ at: 0, item: { class: d.class, reason: d.reason, construct: d.construct, table: d.table } });
+        stages[REPORTS]!.push({
+          at: 0,
+          item: { class: d.class, reason: d.reason, construct: d.construct, table: d.table },
+        });
     }
   }
+
+  assertIndexesFollowMigrations(migrating, indexed, live, desired);
 
   return stages.flatMap((stage) => stage.sort((a, b) => a.at - b.at).map((entry) => entry.item));
 }

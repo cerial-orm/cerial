@@ -194,11 +194,16 @@ export async function readLiveSchema(surreal: Surreal): Promise<SchemaModel> {
 
   if (!managed.length) return { tables: [], unmanaged };
 
-  const infos = await runAll(
-    surreal,
-    managed.map((row) => `INFO FOR TABLE ${quoteIdent(row.name)} STRUCTURE`),
-  );
-  const tables = managed.map((row, index) => readTable(row, infos[index] as TableInfo, unmanaged));
+  // One request: each table's INFO, then a one-row probe of each, since a data migration is needed only where rows exist.
+  const results = await runAll(surreal, [
+    ...managed.map((row) => `INFO FOR TABLE ${quoteIdent(row.name)} STRUCTURE`),
+    ...managed.map((row) => `SELECT id FROM ${quoteIdent(row.name)} LIMIT 1`),
+  ]);
+  const tables = managed.map((row, index) => {
+    const table = readTable(row, results[index] as TableInfo, unmanaged);
+
+    return (results[managed.length + index] as unknown[]).length ? { ...table, populated: true as const } : table;
+  });
 
   return { tables, unmanaged };
 }

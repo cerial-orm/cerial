@@ -266,7 +266,8 @@ describe('writes nothing to the database', () => {
   test('INFO FOR DB is equal before and after, and rows stay', async () => {
     const { dir, db, name, out } = await syncedNote('readonly');
     await db.query("CREATE note:1 SET title = 'kept'").collect();
-    await db.query('DEFINE FIELD OVERWRITE title ON TABLE note TYPE int').collect();
+    // A tighter ASSERT on the same type is accepted over rows; a type change would need a conversion step.
+    await db.query("DEFINE FIELD OVERWRITE title ON TABLE note TYPE string ASSERT $value != ''").collect();
     await db.query('REMOVE FIELD body ON TABLE note').collect();
     const before = await dbInfo(db);
     const result = await plan(dir, name, out);

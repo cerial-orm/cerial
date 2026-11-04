@@ -30,6 +30,12 @@ export interface SchemaDifference {
   readonly name?: string;
   /** The attributes of a field that differ, for `field-changed`. */
   readonly changes?: readonly string[];
+  /** The field as the schema defines it, for a field the plan adds or changes. */
+  readonly desiredField?: FieldModel;
+  /** The field as the database holds it, for `field-changed`. */
+  readonly liveField?: FieldModel;
+  /** The index as the schema defines it, for an index the plan adds or changes. */
+  readonly desiredIndex?: IndexModel;
   /** Additive in effect, but applying it can be refused by data already stored. */
   readonly mayFailAtApply?: true;
   readonly reason: string;
@@ -66,7 +72,8 @@ const CLASSIFICATIONS: Readonly<Record<DifferenceKind, Classification>> = {
   'field-missing-required': {
     class: 'destructive',
     construct: 'field',
-    reason: 'a required field with no default makes later writes to existing rows fail',
+    reason:
+      'a required field with no default has no value for existing rows, so a table that holds rows cannot take it',
   },
   'index-missing': {
     class: 'additive',
@@ -76,7 +83,7 @@ const CLASSIFICATIONS: Readonly<Record<DifferenceKind, Classification>> = {
   'field-extra': {
     class: 'destructive',
     construct: 'field',
-    reason: 'removing the field leaves its stored values behind and blocks writes until they are unset',
+    reason: 'removing the field deletes its stored values from every row, and a deleted value cannot be restored',
   },
   'index-extra': {
     class: 'destructive',
@@ -86,7 +93,8 @@ const CLASSIFICATIONS: Readonly<Record<DifferenceKind, Classification>> = {
   'field-changed': {
     class: 'destructive',
     construct: 'field',
-    reason: 'redefining a field leaves stored values as they are and the next write to a row that no longer fits fails',
+    reason:
+      'redefining a field changes how its stored values are read; a type that does not accept every stored value needs a conversion step',
   },
   'index-changed': {
     class: 'additive',
@@ -131,6 +139,9 @@ interface Subject {
   readonly name?: string;
   readonly construct?: string;
   readonly changes?: readonly string[];
+  readonly desiredField?: FieldModel;
+  readonly liveField?: FieldModel;
+  readonly desiredIndex?: IndexModel;
   readonly mayFailAtApply?: true;
 }
 
@@ -202,6 +213,7 @@ function diffIndex(table: string, desired: IndexModel, live: IndexModel): Schema
   return difference(kind, {
     table,
     index: desired.name,
+    desiredIndex: desired,
     ...(kind === 'index-unique-added' && { mayFailAtApply: true as const }),
   });
 }
@@ -219,12 +231,20 @@ function diffTable(desired: TableModel, live: TableModel): SchemaDifference[] {
     const found = liveFields.get(key);
     if (!found) {
       result.push(
-        difference(isRequired(field) ? 'field-missing-required' : 'field-missing', { table, field: field.path }),
+        difference(isRequired(field) ? 'field-missing-required' : 'field-missing', {
+          table,
+          field: field.path,
+          desiredField: field,
+        }),
       );
       continue;
     }
     const changes = changedAttributes(field, found);
-    if (changes.length) result.push(difference('field-changed', { table, field: field.path, changes }));
+    if (changes.length) {
+      result.push(
+        difference('field-changed', { table, field: field.path, changes, desiredField: field, liveField: found }),
+      );
+    }
   }
   for (const [key, field] of liveFields) {
     if (!desiredFields.has(key)) result.push(difference('field-extra', { table, field: field.path }));
@@ -233,7 +253,7 @@ function diffTable(desired: TableModel, live: TableModel): SchemaDifference[] {
   for (const [name, index] of desiredIndexes) {
     const found = liveIndexes.get(name);
     if (!found) {
-      result.push(difference('index-missing', { table, index: name }));
+      result.push(difference('index-missing', { table, index: name, desiredIndex: index }));
       continue;
     }
     const changed = diffIndex(table, index, found);

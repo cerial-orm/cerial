@@ -58,15 +58,16 @@ describe('OVERWRITE does not cascade', () => {
     expect(after.indexes).toEqual(before.indexes);
   });
 
-  test('DEFINE FIELD OVERWRITE with a new type changes neither the stored row nor the read', async () => {
+  // Changed on 4.0 (compatibility level 4): 3.3.0 accepted the change and left the stored row alone.
+  test('DEFINE FIELD OVERWRITE with a new type over rows is refused and changes neither the row nor the read', async () => {
     await run(db, 'DEFINE TABLE r SCHEMAFULL; DEFINE FIELD OVERWRITE s ON r TYPE string; CREATE r:1 SET s = "text";');
     const [before] = await run(db, 'SELECT * FROM r;');
 
     const [overwritten] = await run(db, 'DEFINE FIELD OVERWRITE s ON r TYPE int;');
-    expect(overwritten!.status).toBe('OK');
+    expect(overwritten!.status).toBe('ERR');
+    expect(String(overwritten!.result)).toContain('MIGRATE EXISTING ROWS');
 
     const [after] = await run(db, 'SELECT * FROM r;');
-    expect(after!.status).toBe('OK');
     expect(after!.result).toEqual(before!.result);
     expect((after!.result as { s: unknown }[])[0]!.s).toBe('text');
   });

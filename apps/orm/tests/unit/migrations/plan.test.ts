@@ -103,7 +103,6 @@ describe('buildMigrationPlan order', () => {
       'DEFINE INDEX OVERWRITE user_name_index ON TABLE user COLUMNS name;',
       'DEFINE INDEX OVERWRITE post_title_index ON TABLE post COLUMNS title;',
       'REMOVE FIELD `old` ON `user`;',
-      'UPDATE `user` UNSET `old`;',
       'REMOVE TABLE `gone`;',
       undefined,
     ]);
@@ -118,19 +117,27 @@ describe('buildMigrationPlan order', () => {
     expect(plan(desired, live).map((i) => i.statement)).toEqual([
       'DEFINE FIELD OVERWRITE email ON TABLE user TYPE string;',
       'REMOVE FIELD `mail` ON `user`;',
-      'UPDATE `user` UNSET `mail`;',
     ]);
   });
 });
 
 describe('buildMigrationPlan reasons and reports', () => {
-  test('a changed type says Cerial writes no data step', () => {
+  test('a changed type on a table with no rows is the bare definition and says it needs a conversion step', () => {
     const live = schema([table('user', [field('id', 'record<user>'), field('name', 'int'), field('email', 'string')])]);
     const [item] = plan(schema([table('user', USER_FIELDS)]), live);
 
     expect(item!.class).toBe('destructive');
-    expect(item!.reason).toContain('Cerial writes no data step');
-    expect(item!.reason).toContain('rows already holding the old type refuse writes');
+    expect(item!.statement).not.toContain('MIGRATE');
+    expect(item!.reason).toContain('conversion step');
+  });
+
+  test('a field removal says it deletes the stored values', () => {
+    const live = schema([table('user', [...USER_FIELDS, field('legacy', 'string')])]);
+    const item = plan(schema([table('user', USER_FIELDS)]), live).find((i) => i.statement?.startsWith('REMOVE FIELD'));
+
+    expect(item!.class).toBe('destructive');
+    expect(item!.reason).toContain('deletes its stored values');
+    expect(item!.reason).not.toContain('left behind');
   });
 
   test('a change that is not a type change does not carry the type note', () => {
@@ -165,7 +172,7 @@ describe('buildMigrationPlan reasons and reports', () => {
     const items = plan(schema([table('user', USER_FIELDS), table('post', [field('title', 'string')])]), live, ['gone']);
 
     expect(items.some((i) => i.statement?.startsWith('REMOVE TABLE'))).toBe(true);
-    expect(items.some((i) => i.statement?.startsWith('UPDATE'))).toBe(true);
+    expect(items.some((i) => i.statement?.startsWith('REMOVE FIELD'))).toBe(true);
     for (const item of items.filter((i) => i.statement !== undefined)) {
       expect(['user', 'post', 'gone']).toContain(item.table!);
     }
@@ -205,10 +212,8 @@ describe('buildMigrationPlan covered differences', () => {
       'REMOVE INDEX `user_o_x_index` ON `user`;',
       'REMOVE FIELD `o`.`x` ON `user`;',
       'REMOVE FIELD `o` ON `user`;',
-      'UPDATE `user` UNSET `o`;',
       'REMOVE FIELD `arr`.`*` ON `user`;',
       'REMOVE FIELD `arr` ON `user`;',
-      'UPDATE `user` UNSET `arr`;',
     ]);
   });
 

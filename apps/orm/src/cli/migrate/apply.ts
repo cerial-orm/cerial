@@ -265,7 +265,12 @@ function classifyStatement(s: FileStatement, fresh: ReadonlyMap<string, Migratio
         reason: 'removing a table destroys its rows with no separate data step',
       };
     case 'REMOVE FIELD':
-      return { ...base, class: 'destructive', construct: 'field', reason: 'removing a field leaves its values behind' };
+      return {
+        ...base,
+        class: 'destructive',
+        construct: 'field',
+        reason: 'removing a field deletes its stored values',
+      };
     case 'REMOVE INDEX':
       return { ...base, class: 'destructive', construct: 'index', reason: 'removing an index drops a structure' };
     case 'UPDATE UNSET':
@@ -360,7 +365,8 @@ async function planFromFile(
   const refused = parsed.statements
     .flatMap((s) => {
       if (s.verb.startsWith('DEFINE')) {
-        return generated.has(s.text)
+        // A MIGRATE clause is added by the plan itself, so a definition the fresh plan carries is Cerial's own text.
+        return generated.has(s.text) || fresh.has(normalise(s.text))
           ? []
           : [{ line: s.line, why: 'this definition is hand-written, not one Cerial generates for the schema' }];
       }

@@ -19,6 +19,9 @@ const config: ConnectionConfig = {
   database: 'main',
   auth: { username: 'root', password: 'root' },
 };
+// The email field is defined before the rows exist: on 4.0 a required field cannot be added over rows, so the
+// failure these tests need (a UNIQUE index over duplicates) is the one the migration reaches.
+const SEEDED_DUPLICATES = `REMOVE TABLE IF EXISTS ${TABLE}; DEFINE TABLE ${TABLE} SCHEMAFULL; DEFINE FIELD email ON ${TABLE} TYPE string; CREATE ${TABLE}:a SET email = 'dup'; CREATE ${TABLE}:b SET email = 'dup';`;
 const SCHEMA = `model MigFailProbe {
   id Record @id
   email String @unique
@@ -127,10 +130,7 @@ describe('migration failure handling', () => {
   test('a migration that fails is recorded and its DDL is not re-run', async () => {
     const client = new Client();
     await client.connect(config);
-    await raw(
-      client,
-      `REMOVE TABLE IF EXISTS ${TABLE}; CREATE ${TABLE}:a SET email = 'dup'; CREATE ${TABLE}:b SET email = 'dup';`,
-    );
+    await raw(client, SEEDED_DUPLICATES);
     try {
       let firstError: unknown;
       const first = await countDdl(client, async () => {
@@ -161,10 +161,7 @@ describe('migration failure handling', () => {
   test('a failed migration reaches the caller as a migration error, a failed query does not', async () => {
     const client = new Client();
     await client.connect(config);
-    await raw(
-      client,
-      `REMOVE TABLE IF EXISTS ${TABLE}; CREATE ${TABLE}:a SET email = 'dup'; CREATE ${TABLE}:b SET email = 'dup';`,
-    );
+    await raw(client, SEEDED_DUPLICATES);
     try {
       const error = await client.MigFailProbe.findMany().catch((e: unknown) => e);
 

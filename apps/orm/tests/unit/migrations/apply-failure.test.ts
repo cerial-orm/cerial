@@ -68,3 +68,69 @@ describe('applyPlan: which response is the cause', () => {
     expect(error.statement?.text).toBe('DEFINE TABLE OVERWRITE user SCHEMAFULL');
   });
 });
+
+describe('applyPlan: the script it sends', () => {
+  async function sent(statements: string[]): Promise<string> {
+    let script = '';
+    const surreal = {
+      query: (text: string) => ({
+        responses: async () => {
+          if (text.startsWith('BEGIN')) script = text;
+
+          return text.startsWith('BEGIN') ? [ok, ...statements.map(() => ok), ok, ok] : [ok];
+        },
+        collect: async () => [{ tables: {} }],
+      }),
+    } as unknown as Surreal;
+    const steps = statements.map((statement) => ({
+      statement,
+      class: 'additive' as const,
+      reason: 'r',
+      construct: 'field',
+      table: 'user',
+    }));
+    await applyPlan(surreal, steps, options);
+
+    return script;
+  }
+
+  test('a statement ending in a comment does not swallow the semicolon that ends it', async () => {
+    const script = await sent([
+      'DEFINE FIELD OVERWRITE a ON TABLE user TYPE string -- why',
+      'DEFINE FIELD b ON TABLE user TYPE int',
+    ]);
+
+    expect(script).toContain('-- why\n;\nDEFINE FIELD b');
+    expect(script).not.toMatch(/--[^\n]*;/);
+  });
+
+  test('near miss: a plain statement is still terminated and the script still ends in COMMIT', async () => {
+    const script = await sent(['DEFINE FIELD a ON TABLE user TYPE string']);
+
+    expect(script).toContain('DEFINE FIELD a ON TABLE user TYPE string\n;\n');
+    expect(script).toContain('COMMIT\n;\n');
+  });
+});
+
+describe('applyPlan: a refusal that asks for a data migration', () => {
+  test('is reported with what to do about it', async () => {
+    const error = await failureOf([
+      ok,
+      fail('Cannot change field `age` of table `user`: add MIGRATE EXISTING ROWS to say what existing rows hold'),
+      fail('Cannot COMMIT: the transaction was aborted due to a prior error'),
+    ]);
+
+    expect(error.message).toContain('`age`');
+    expect(error.message).toContain('add a @default or make the field optional');
+  });
+
+  test('near miss: another failure carries no data-migration advice', async () => {
+    const error = await failureOf([
+      ok,
+      fail('The field already exists'),
+      fail('Cannot COMMIT: the transaction was aborted'),
+    ]);
+
+    expect(error.message).not.toContain('@default');
+  });
+});

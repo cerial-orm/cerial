@@ -113,7 +113,7 @@ describe('in sync, for each authoring form', () => {
 describe('drift and pending changes', () => {
   test('a hand-added field exits 1 and names the table and the field', async () => {
     const { dir, db, name } = await syncedNote('handfield');
-    await db.query('DEFINE FIELD secret ON TABLE note TYPE string').collect();
+    await db.query('DEFINE FIELD secret ON TABLE note TYPE option<string>').collect();
     const result = await status(dir, name);
 
     expect(result.exitCode).toBe(1);
@@ -187,7 +187,7 @@ describe('writes nothing', () => {
   test('INFO FOR DB is equal before and after, no state table appears, and rows stay', async () => {
     const { dir, db, name } = await syncedNote('readonly');
     await db.query("CREATE note:1 SET title = 'kept'").collect();
-    await db.query('DEFINE FIELD secret ON TABLE note TYPE string').collect();
+    await db.query('DEFINE FIELD secret ON TABLE note TYPE option<string>').collect();
     await db.query('REMOVE FIELD body ON TABLE note').collect();
     const before = await dbInfo(db);
 
@@ -207,7 +207,7 @@ describe('writes nothing', () => {
 describe('--json', () => {
   test('prints one object with the classes as keys', async () => {
     const { dir, db, name } = await syncedNote('json');
-    await db.query('DEFINE FIELD secret ON TABLE note TYPE string').collect();
+    await db.query('DEFINE FIELD secret ON TABLE note TYPE option<string>').collect();
     await db.query('REMOVE FIELD body ON TABLE note').collect();
     await db.query('DEFINE EVENT audit ON TABLE note WHEN true THEN (RETURN 1)').collect();
     const result = await status(dir, name, ['--json']);

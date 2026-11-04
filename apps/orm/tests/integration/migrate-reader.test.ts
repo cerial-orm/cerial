@@ -303,6 +303,16 @@ describe('readLiveSchema', () => {
     expect(calls).toBe(2);
   });
 
+  test('marks a table populated only when it holds a row, and leaves the field and index shape alone', async () => {
+    const db = await scratch('populated');
+    await exec(db, 'DEFINE TABLE full SCHEMAFULL; DEFINE TABLE bare SCHEMAFULL; CREATE full:1; ');
+
+    const { tables } = await readLiveSchema(db);
+
+    expect(tables.find((t) => t.name === 'full')!.populated).toBe(true);
+    expect('populated' in tables.find((t) => t.name === 'bare')!).toBe(false);
+  });
+
   test('a failed statement throws CerialMigrationError naming it', async () => {
     const db = await scratch('failed');
     await exec(db, 'DEFINE TABLE t SCHEMAFULL;');

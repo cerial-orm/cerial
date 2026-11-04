@@ -39,6 +39,8 @@ export interface TableModel {
    * a view). Absent for the table Cerial defines, so the desired side never carries it.
    */
   readonly mode?: string;
+  /** Set by the live reader when the table holds at least one row; never part of the table's shape or fingerprint. */
+  readonly populated?: true;
   readonly fields: readonly FieldModel[];
   readonly indexes: readonly IndexModel[];
 }

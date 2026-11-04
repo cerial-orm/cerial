@@ -46,19 +46,18 @@ function removeField(
   );
   const on = quoteIdent(table);
 
-  // Indexes first, then children deepest first, then the field; the UNSET comes last because it fails while the
-  // field is still defined, and removing the field alone leaves every stored value write-blocking its row.
+  // Indexes first, then children deepest first, then the field. On SurrealDB 4.0 the removal deletes the stored
+  // values itself, and an `UPDATE ... UNSET` after it is refused because the field no longer exists.
   return [
     ...indexes.map((ix) => `REMOVE INDEX ${quoteIdent(ix.name)} ON ${on};`),
     ...descendants.map((p) => `REMOVE FIELD ${quoteFieldPath(p)} ON ${on};`),
     `REMOVE FIELD ${quoteFieldPath(path)} ON ${on};`,
-    `UPDATE ${on} UNSET ${quoteFieldPath(path)};`,
   ];
 }
 
 /**
  * The `REMOVE` statements for one difference that removes something live: a live-only field (with the indexes over
- * it and the fields beneath it, then an `UPDATE ... UNSET`), a live-only index, or a managed table Cerial created.
+ * it and the fields beneath it), a live-only index, or a managed table Cerial created.
  * Any other difference throws, including a changed field or a missing required one, which redefine rather than
  * remove. `live` supplies the children and indexes a field removal must clear first; nothing here reads a database.
  * An index `keepIndex` names is left to its own definition step: removing it with the field would clash with the

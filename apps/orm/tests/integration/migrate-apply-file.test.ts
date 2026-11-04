@@ -316,26 +316,30 @@ describe('the class comes from the statement and the live schema', () => {
     expect(await rowsOf(fixture.db, 'extra')).toHaveLength(1);
   });
 
-  test('a DEFINE FIELD OVERWRITE that changes a live type needs --allow-destructive, and --allow-data-loss is not asked for', async () => {
+  test('a type change over rows carries a conversion, needs both flags, and keeps what converts', async () => {
     const fixture = await planned('typechg', { 'app/schema.cerial': NOTE }, { 'app/schema.cerial': NOTE_BODY_INT });
-    expect(fixture.text).toContain('-- cerial:destructive');
+    await fixture.db.query("UPDATE note:1 SET body = '42'").collect();
+    expect(fixture.text).toContain('-- cerial:data-loss');
+    expect(fixture.text).toContain('MIGRATE EXISTING ROWS AS');
     await writeFile(fixture.file, uncomment(fixture.text));
     const typeBefore = await infoOf(fixture.db, 'TABLE note');
 
-    const refused = await apply(fixture.dir, fixture.name, [fixture.file]);
+    const refused = await apply(fixture.dir, fixture.name, [fixture.file, '--allow-destructive']);
 
     expect(refused.exitCode).toBe(1);
-    expect(refused.stderr).toContain('--allow-destructive');
-    expect(refused.stderr).not.toContain('--allow-data-loss');
+    expect(refused.stderr).toContain('--allow-data-loss');
     expect(await infoOf(fixture.db, 'TABLE note')).toEqual(typeBefore);
-    await expectNoteRowsIntact(fixture.db);
+    expect((await rowsOf(fixture.db, 'note')).map((r) => r.body)).toEqual(['42', 'and me']);
 
-    const allowed = await apply(fixture.dir, fixture.name, [fixture.file, '--allow-destructive']);
+    const allowed = await apply(fixture.dir, fixture.name, [fixture.file, ...BOTH]);
 
     expect(allowed.stderr).toBe('');
     expect(allowed.exitCode).toBe(0);
     expect(await infoOf(fixture.db, 'TABLE note')).not.toEqual(typeBefore);
-    expect(await rowsOf(fixture.db, 'note')).toHaveLength(2);
+    const rows = await rowsOf(fixture.db, 'note');
+    expect(rows.map((r) => r.title)).toEqual(['first', 'second']);
+    // '42' converts; 'and me' does not and gets the optional field's fallback, NONE
+    expect(rows.map((r) => r.body)).toEqual([42, undefined]);
   });
 
   test('a hand-written redefinition of a live field is refused by line even with every flag', async () => {

@@ -148,9 +148,10 @@ describe('applyPlan', () => {
       .query(`DEFINE TABLE person SCHEMAFULL; DEFINE FIELD email ON TABLE person TYPE string;
       CREATE person:a SET email = 'x'; CREATE person:b SET email = 'x';`)
       .collect();
+    // The plan's order: an index is built before a migrating step of its table, which the server forbids after it.
     const ddl = [
-      'DEFINE FIELD OVERWRITE age ON TABLE person TYPE int DEFAULT 0',
       'DEFINE INDEX uq_email ON TABLE person FIELDS email UNIQUE',
+      'DEFINE FIELD OVERWRITE age ON TABLE person TYPE int DEFAULT 0 MIGRATE EXISTING ROWS AS seed_age USING 0',
     ];
     const person = await model('uniq', 'Person', 'person', [
       'DEFINE TABLE OVERWRITE person SCHEMAFULL',
@@ -161,7 +162,7 @@ describe('applyPlan', () => {
     const error = await applyPlan(db, plan(...ddl), options([person])).catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(CerialMigrationError);
-    expect((error as CerialMigrationError).statement?.text).toBe(ddl[1]!);
+    expect((error as CerialMigrationError).statement?.text).toBe(ddl[0]!);
     expect((error as CerialMigrationError).message).not.toMatch(/failed transaction$/);
     const live = (await readLiveSchema(db)).tables.find((t) => t.name === 'person')!;
     expect(live.fields.map((f) => f.path)).toEqual([['email']]);

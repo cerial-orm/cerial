@@ -43,25 +43,26 @@ const SEED_AB = `DEFINE TABLE t SCHEMAFULL;
   CREATE t:1 SET a = 'x', b = 'y';`;
 
 describe('REMOVE FIELD over stored data', () => {
-  test('the stored value is still returned by SELECT *', async () => {
+  // Changed on 4.0 (compatibility level 4): 3.3.0 returned the value and refused every write.
+  test('the stored value is deleted', async () => {
     const db = await scratch('rm_read');
     await run(db, SEED_AB);
     expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', b: 'y' }]);
 
     await ok(db, 'REMOVE FIELD b ON t;');
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', b: 'y' }]);
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x' }]);
   });
 
-  test('every write to the row fails, including a write to another field', async () => {
+  test('writes to the row succeed', async () => {
     const db = await scratch('rm_write');
     await run(db, SEED_AB);
     await ok(db, 'REMOVE FIELD b ON t;');
 
-    expect(await err(db, "UPDATE t:1 SET a = 'z';")).toContain("Found field 'b', but no such field exists");
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', b: 'y' }]);
+    await ok(db, "UPDATE t:1 SET a = 'z';");
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z' }]);
 
-    expect(await err(db, "UPDATE t:1 MERGE { a: 'z' };")).toContain("Found field 'b', but no such field exists");
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', b: 'y' }]);
+    await ok(db, "UPDATE t:1 MERGE { a: 'q' };");
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'q' }]);
   });
 
   test('UNSET of the removed field is the one write that succeeds, and it clears the value', async () => {
@@ -113,32 +114,29 @@ describe('REMOVE FIELD on a parent object', () => {
   const fieldNames = async (db: ScratchDatabase) =>
     Object.keys(((await ok(db, 'INFO FOR TABLE t;')) as { fields: Record<string, string> }).fields).sort();
 
-  test('REMOVE FIELD parent leaves parent.x defined', async () => {
+  // Changed on 4.0: removing the parent takes its children's definitions and the stored object with it.
+  test('REMOVE FIELD parent removes parent.x and the stored object', async () => {
     const db = await scratch('parent_left');
     await run(db, SEED_P);
     await ok(db, 'REMOVE FIELD p ON t;');
 
-    expect(await fieldNames(db)).toEqual(['a', 'p.x']);
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', p: { x: 'y' } }]);
+    expect(await fieldNames(db)).toEqual(['a']);
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x' }]);
   });
 
-  // The note expected writes to fail here; on this server they succeed and p.x is still enforced.
-  test('with the parent removed and the child kept, writes still succeed and p.x is still enforced', async () => {
+  test('with the parent removed, writes to other fields succeed and p is no longer a field', async () => {
     const db = await scratch('parent_writes');
     await run(db, SEED_P);
     await ok(db, 'REMOVE FIELD p ON t;');
 
     await ok(db, "UPDATE t:1 SET a = 'z';");
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z', p: { x: 'y' } }]);
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z' }]);
 
-    await ok(db, "UPDATE t:1 SET p = { x: 'r' };");
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z', p: { x: 'r' } }]);
-
-    expect(await err(db, 'UPDATE t:1 UNSET p;')).toContain("Couldn't coerce value for field `p.x`");
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z', p: { x: 'r' } }]);
+    expect(await err(db, "UPDATE t:1 SET p = { x: 'r' };")).toContain("Found field 'p', but no such field exists");
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z' }]);
   });
 
-  test('removing the child first and then the parent makes every write fail', async () => {
+  test('removing the child first and then the parent deletes the object and keeps writes working', async () => {
     const db = await scratch('parent_children_first');
     await run(db, SEED_P);
 
@@ -146,13 +144,8 @@ describe('REMOVE FIELD on a parent object', () => {
     expect(await fieldNames(db)).toEqual(['a', 'p']);
     await ok(db, 'REMOVE FIELD p ON t;');
     expect(await fieldNames(db)).toEqual(['a']);
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', p: { x: 'y' } }]);
-
-    expect(await err(db, "UPDATE t:1 SET a = 'z';")).toContain("Found field 'p', but no such field exists");
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', p: { x: 'y' } }]);
-
-    await ok(db, 'UPDATE t:1 UNSET p;');
     expect(await rows(db)).toEqual([{ id: 't:1', a: 'x' }]);
+
     await ok(db, "UPDATE t:1 SET a = 'z';");
     expect(await rows(db)).toEqual([{ id: 't:1', a: 'z' }]);
   });
@@ -181,13 +174,14 @@ describe('removing a parent object and its children in one transaction', () => {
     expect(await rows(db)).toEqual([{ id: 't:1', a: 'z' }]);
   });
 
-  test('the same removals without the UNSET leave p in the row and block every write', async () => {
+  test('the same removals without the UNSET delete p and leave the row writable', async () => {
     const db = await scratch('parent_txn_no_unset');
     await run(db, SEED_P);
 
     await run(db, 'BEGIN; REMOVE FIELD p.x ON t; REMOVE FIELD p ON t; COMMIT;');
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x', p: { x: 'y' } }]);
-    expect(await err(db, "UPDATE t:1 SET a = 'z';")).toContain("Found field 'p', but no such field exists");
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'x' }]);
+    await ok(db, "UPDATE t:1 SET a = 'z';");
+    expect(await rows(db)).toEqual([{ id: 't:1', a: 'z' }]);
   });
 
   test('removing only p.x with UNSET p.x keeps p, as an empty object, and the row stays writable', async () => {
@@ -205,19 +199,32 @@ describe('removing a parent object and its children in one transaction', () => {
 });
 
 describe('DEFINE FIELD OVERWRITE with a new type over stored data', () => {
-  test('succeeds, reads return the old value, and a write fails with a coercion error', async () => {
+  // Changed on 4.0 (compatibility level 4): 3.3.0 accepted the change and left the old value in place.
+  test('is refused unless the new type accepts every old value, and the row is untouched', async () => {
     const db = await scratch('type_change');
     await run(db, "DEFINE TABLE t SCHEMAFULL; DEFINE FIELD a ON t TYPE string; CREATE t:1 SET a = 's';");
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 's' }]);
 
-    await ok(db, 'DEFINE FIELD OVERWRITE a ON t TYPE int;');
+    expect(await err(db, 'DEFINE FIELD OVERWRITE a ON t TYPE int;')).toContain('MIGRATE EXISTING ROWS');
     expect(await rows(db)).toEqual([{ id: 't:1', a: 's' }]);
+    await ok(db, "UPDATE t:1 SET a = 'u';");
+  });
 
-    expect(await err(db, "UPDATE t:1 SET a = 's';")).toContain("Couldn't coerce value for field `a`");
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 's' }]);
+  test('with MIGRATE EXISTING ROWS converts what casts and gives the rest the fallback', async () => {
+    const db = await scratch('type_change_migrate');
+    await run(
+      db,
+      "DEFINE TABLE t SCHEMAFULL; DEFINE FIELD a ON t TYPE string; CREATE t:1 SET a = '7'; CREATE t:2 SET a = 's';",
+    );
 
+    await ok(
+      db,
+      'DEFINE FIELD OVERWRITE a ON t TYPE int MIGRATE EXISTING ROWS AS to_int USING <int>$value FALLBACK 0;',
+    );
+    expect(await rows(db)).toEqual([
+      { id: 't:1', a: 7 },
+      { id: 't:2', a: 0 },
+    ]);
     await ok(db, 'UPDATE t:1 SET a = 5;');
-    expect(await rows(db)).toEqual([{ id: 't:1', a: 5 }]);
   });
 });
 
