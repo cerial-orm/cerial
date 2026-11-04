@@ -36,6 +36,9 @@ interface StructureInfo {
   fields: FieldRow[];
   indexes: IndexRow[];
   events: unknown[];
+  lives: unknown[];
+  tables: unknown[];
+  migrations: { generation: number; guaranteed: unknown[]; migrations: unknown[] };
 }
 
 const scratch: ScratchDatabase[] = [];
@@ -90,11 +93,28 @@ describe('INFO FOR TABLE STRUCTURE keys', () => {
     info = await structure(db);
   });
 
-  test('the top-level keys are arrays', () => {
-    expect(Object.keys(info).sort()).toEqual(['events', 'fields', 'indexes', 'lives', 'tables']);
-    expect(Array.isArray(info.fields)).toBe(true);
-    expect(Array.isArray(info.indexes)).toBe(true);
-    expect(Array.isArray(info.events)).toBe(true);
+  test('the top-level keys are arrays, plus a migrations object that 3.3.0 did not have', () => {
+    expect(Object.keys(info).sort()).toEqual(['events', 'fields', 'indexes', 'lives', 'migrations', 'tables']);
+    for (const key of ['events', 'fields', 'indexes', 'lives', 'tables'] as const) {
+      expect(Array.isArray(info[key])).toBe(true);
+    }
+  });
+
+  test('migrations is an object, not an array, so a reader that walks array-valued keys passes over it', () => {
+    expect(Array.isArray(info.migrations)).toBe(false);
+    expect(Object.keys(info.migrations).sort()).toEqual(['generation', 'guaranteed', 'migrations']);
+    expect(typeof info.migrations.generation).toBe('number');
+    expect(info.migrations.guaranteed).toEqual([]);
+    expect(info.migrations.migrations).toEqual([]);
+  });
+
+  test('every array-valued key other than fields and indexes is empty on a table with only fields and indexes', () => {
+    const rest = Object.entries(info).filter(
+      ([key, value]) => !['fields', 'indexes'].includes(key) && Array.isArray(value),
+    );
+
+    expect(rest.map(([key]) => key).sort()).toEqual(['events', 'lives', 'tables']);
+    for (const [, value] of rest) expect(value).toEqual([]);
   });
 
   test('a bare field carries name, kind, table and readonly, and none of the optional keys', () => {
@@ -178,6 +198,58 @@ describe('renderings that differ from the emitted text', () => {
 });
 
 describe('the auto-created element field', () => {
+  test('array<object> produces a name.* field of kind object with no key beyond the bare four', async () => {
+    const db = await open('element_obj');
+    await run(
+      db,
+      'DEFINE TABLE t SCHEMAFULL; DEFINE FIELD a ON t TYPE array<object>; DEFINE FIELD a.*.x ON t TYPE string;',
+    );
+
+    const info = await structure(db);
+    const element = field(info, 'a.*');
+
+    expect(element.kind).toBe('object');
+    expect(Object.keys(element).sort()).toEqual(['kind', 'name', 'permissions', 'readonly', 'table']);
+    expect(info.fields.map((row) => row.name)).toEqual(['a', 'a.*', 'a.*.x']);
+  });
+
+  test('FLEXIBLE on the array parent is copied onto the .* element and not onto the parent of a strict array', async () => {
+    const db = await open('element_flex');
+    await run(
+      db,
+      'DEFINE TABLE t SCHEMAFULL; DEFINE FIELD f ON t TYPE array<object> FLEXIBLE; DEFINE FIELD s ON t TYPE array<object>;',
+    );
+    const info = await structure(db);
+
+    expect(field(info, 'f').flexible).toBe(true);
+    expect(field(info, 'f.*').flexible).toBe(true);
+    expect('flexible' in field(info, 's')).toBe(false);
+    expect('flexible' in field(info, 's.*')).toBe(false);
+  });
+
+  test('set<string> and array<option<string>> each produce an element field typed as the member', async () => {
+    const db = await open('element_set');
+    await run(
+      db,
+      'DEFINE TABLE t SCHEMAFULL; DEFINE FIELD s ON t TYPE set<string>; DEFINE FIELD o ON t TYPE array<option<string>>;',
+    );
+    const info = await structure(db);
+
+    expect(field(info, 's.*').kind).toBe('string');
+    expect(field(info, 'o').kind).toBe('array<none | string>');
+    expect(field(info, 'o.*').kind).toBe('none | string');
+  });
+
+  test('a scalar, an object and a tuple parent produce no element field', async () => {
+    const db = await open('element_none');
+    await run(
+      db,
+      'DEFINE TABLE t SCHEMAFULL; DEFINE FIELD s ON t TYPE string; DEFINE FIELD o ON t TYPE object; DEFINE FIELD p ON t TYPE [int, string];',
+    );
+
+    expect((await structure(db)).fields.map((row) => row.name)).toEqual(['o', 'p', 's']);
+  });
+
   test('TYPE array<string> produces a live name.* field nothing emitted', async () => {
     const db = await open('element');
     await run(db, 'DEFINE TABLE t SCHEMAFULL; DEFINE FIELD tags ON t TYPE array<string>;');
@@ -186,6 +258,132 @@ describe('the auto-created element field', () => {
     const element = field(await structure(db), 'tags.*');
     expect(element.kind).toBe('string');
     expect(Object.keys((await text(db)).fields).sort()).toEqual(['tags', 'tags.*']);
+  });
+});
+
+describe('the kind each field type reads back as', () => {
+  /** [emitted TYPE, STRUCTURE kind]; equal strings are the ones that survive unchanged. */
+  const KINDS: readonly (readonly [string, string])[] = [
+    ['string', 'string'],
+    ['int', 'int'],
+    ['float', 'float'],
+    ['number', 'number'],
+    ['bool', 'bool'],
+    ['datetime', 'datetime'],
+    ['duration', 'duration'],
+    ['uuid', 'uuid'],
+    ['bytes', 'bytes'],
+    ['decimal', 'decimal'],
+    ['geometry', 'geometry'],
+    ['any', 'any'],
+    ['object', 'object'],
+    ['int | null', 'int | null'],
+    ['option<object>', 'none | object'],
+    ['option<string | null>', 'none | string | null'],
+    ['record<k>', 'record<k>'],
+    ['record', 'record'],
+    ['record<k | other>', 'record<k | other>'],
+    ['option<record<k>>', 'none | record<k>'],
+    ['array<record<k>>', 'array<record<k>>'],
+    ['set<string>', 'set<string>'],
+    ['array<datetime>', 'array<datetime>'],
+    ['array<int, 3>', 'array<int, 3>'],
+    ['array<option<string>>', 'array<none | string>'],
+    ['[float, option<float>]', '[float, none | float]'],
+    ['[string, int | null]', '[string, int | null]'],
+    ['option<[string, datetime, int, int]>', 'none | [string, datetime, int, int]'],
+    ['array<[int, option<string>]>', 'array<[int, none | string]>'],
+    ["'a' | 'b'", "'a' | 'b'"],
+    ['1 | 2 | 3', '1 | 2 | 3'],
+    ['{ a: int, b: option<string> } | "x"', "{ a: int, b: none | string } | 'x'"],
+  ];
+  let db: ScratchDatabase;
+  let info: StructureInfo;
+
+  beforeAll(async () => {
+    db = await open('kinds');
+    const defines = KINDS.map(([emitted], i) => `DEFINE FIELD f${i} ON t TYPE ${emitted};`);
+    for (const result of await run(db, `DEFINE TABLE t SCHEMAFULL; ${defines.join('\n')}`)) {
+      expect(result.status).toBe('OK');
+    }
+    info = await structure(db);
+  });
+
+  test('every kind in the e2e schemas reads back as pinned, in STRUCTURE', () => {
+    for (const [i, [emitted, readback]] of KINDS.entries()) {
+      expect([emitted, field(info, `f${i}`).kind]).toEqual([emitted, readback]);
+    }
+  });
+
+  test('the text form carries the same kind after TYPE', async () => {
+    const definitions = (await text(db)).fields;
+
+    for (const [i, [, readback]] of KINDS.entries()) {
+      expect(definitions[`f${i}`]).toStartWith(`DEFINE FIELD f${i} ON t TYPE ${readback} `);
+    }
+  });
+
+  test('the optional forms differ from their required form, so drift between them is real', () => {
+    const kind = (emitted: string) => field(info, `f${KINDS.findIndex(([e]) => e === emitted)}`).kind;
+
+    expect(kind('option<object>')).not.toBe(kind('object'));
+    expect(kind('[float, option<float>]')).not.toBe('[float, float]');
+    expect(kind('int | null')).not.toBe(kind('int'));
+  });
+});
+
+describe('defaults, computed values and indexes as they read back', () => {
+  let db: ScratchDatabase;
+  let info: StructureInfo;
+
+  beforeAll(async () => {
+    db = await open('defaults');
+    const results = await run(
+      db,
+      `DEFINE TABLE t SCHEMAFULL;
+       DEFINE FIELD id7 ON t TYPE string DEFAULT rand::uuid::v7();
+       DEFINE FIELD id4 ON t TYPE string DEFAULT rand::uuid::v4();
+       DEFINE FIELD ts ON t TYPE datetime DEFAULT ALWAYS time::now();
+       DEFINE FIELD dur ON t TYPE duration DEFAULT 1h30m;
+       DEFINE FIELD comp ON t TYPE datetime COMPUTED time::now();
+       DEFINE FIELD arr ON t TYPE array<object>;
+       DEFINE FIELD s ON t TYPE string;
+       DEFINE FIELD n ON t TYPE int;
+       DEFINE INDEX ip ON t FIELDS s;
+       DEFINE INDEX iu ON t FIELDS s, n UNIQUE;
+       DEFINE INDEX ia ON t FIELDS arr.*.x;`,
+    );
+    for (const result of results) expect(result.status).toBe('OK');
+    info = await structure(db);
+  });
+
+  test('a uuid default reads back with its namespace backticked, and time::now() does not', () => {
+    expect(field(info, 'id7').default).toBe('`rand`::uuid::v7()');
+    expect(field(info, 'id4').default).toBe('`rand`::uuid::v4()');
+    expect(field(info, 'ts').default).toBe('time::now()');
+    expect(field(info, 'ts').default_always).toBe(true);
+  });
+
+  test('a duration default reads back unquoted and a COMPUTED field carries computed, not value', () => {
+    expect(field(info, 'dur').default).toBe('1h30m');
+    const comp = field(info, 'comp') as FieldRow & { computed?: string };
+
+    expect(comp.computed).toBe('time::now()');
+    expect('value' in comp).toBe(false);
+  });
+
+  test('a plain field gains no default, computed or value key', () => {
+    for (const absent of ['default', 'default_always', 'computed', 'value']) {
+      expect(absent in field(info, 's')).toBe(false);
+    }
+  });
+
+  test('an index over an array element path keeps the .* in cols; a unique composite lists its columns in order', () => {
+    const named = (name: string) => info.indexes.find((row) => row.name === name)!;
+
+    expect(named('ia').cols).toEqual(['arr.*.x']);
+    expect(named('iu')).toEqual({ name: 'iu', table: 't', cols: ['s', 'n'], index: 'UNIQUE' });
+    expect(named('ip').index).toBe('');
   });
 });
 
@@ -200,6 +398,7 @@ describe('names', () => {
        DEFINE FIELD plain ON t TYPE string;
        DEFINE FIELD \`a b\` ON t TYPE string;
        DEFINE FIELD \`a.b\` ON t TYPE string;
+       DEFINE FIELD \`o y\` ON t TYPE object;
        DEFINE FIELD \`o y\`.z ON t TYPE string;
        DEFINE FIELD \`é\` ON t TYPE string;
        DEFINE FIELD \`select\` ON t TYPE string;
@@ -225,6 +424,16 @@ describe('names', () => {
     }
     expect(keys).not.toContain('`select`');
     expect(keys).not.toContain('`value`');
+  });
+
+  test('a nested field whose parent is not defined is refused, so an unnamed parent never reaches INFO', async () => {
+    const [refused] = await run(db, 'DEFINE FIELD `p q`.z ON t TYPE string;');
+
+    expect(refused!.status).toBe('ERR');
+    expect(refused!.result).toBe(
+      'Cannot define field ``p q`.z`: the field ``p q`` it is nested in is not defined. Define ``p q`` first',
+    );
+    expect((await structure(db)).fields.map((row) => row.name)).not.toContain('`p q`.z');
   });
 
   test('an index name comes back raw', async () => {
@@ -259,25 +468,45 @@ describe('INFO FOR DB keys', () => {
     'analyzers',
     'apis',
     'buckets',
+    'compatibility',
     'configs',
+    'extensions',
     'functions',
     'models',
-    'modules',
     'params',
     'sequences',
     'tables',
+    'types',
     'users',
   ];
+  const COLLECTIONS = KEYS.filter((key) => key !== 'compatibility');
 
-  test('an empty database lists every key, as empty objects in text and empty arrays in STRUCTURE', async () => {
+  test('an empty database lists every key: collections as empty objects in text and empty arrays in STRUCTURE', async () => {
     const [dbText, dbStructure] = await run(db, 'INFO FOR DB; INFO FOR DB STRUCTURE;');
 
     expect(Object.keys(dbText!.result as object).sort()).toEqual(KEYS);
     expect(Object.keys(dbStructure!.result as object).sort()).toEqual(KEYS);
-    for (const key of KEYS) {
+    for (const key of COLLECTIONS) {
       expect((dbText!.result as Record<string, unknown>)[key]).toEqual({});
       expect((dbStructure!.result as Record<string, unknown>)[key]).toEqual([]);
     }
+  });
+
+  test('compatibility is a number, the same in text and STRUCTURE, and is not a collection', async () => {
+    const [dbText, dbStructure] = await run(db, 'INFO FOR DB; INFO FOR DB STRUCTURE;');
+    const asText = dbText!.result as Record<string, unknown>;
+    const asRows = dbStructure!.result as Record<string, unknown>;
+
+    expect(asText.compatibility).toBe(4);
+    expect(asRows.compatibility).toBe(4);
+    expect(Array.isArray(asRows.compatibility)).toBe(false);
+  });
+
+  test('modules, a key 3.3.0 listed, is gone', async () => {
+    const [dbText, dbStructure] = await run(db, 'INFO FOR DB; INFO FOR DB STRUCTURE;');
+
+    expect('modules' in (dbText!.result as object)).toBe(false);
+    expect('modules' in (dbStructure!.result as object)).toBe(false);
   });
 
   test('each key reports a definition made in the database', async () => {
@@ -306,7 +535,7 @@ describe('INFO FOR DB keys', () => {
     for (const key of ['functions', 'params', 'analyzers', 'accesses', 'users', 'tables']) {
       expect(asRows[key]!.map((row) => row.name)).toEqual(Object.keys(asText[key]!));
     }
-    for (const key of ['apis', 'buckets', 'configs', 'models', 'modules', 'sequences']) {
+    for (const key of ['apis', 'buckets', 'configs', 'models', 'sequences', 'types', 'extensions']) {
       expect(asRows[key]).toEqual([]);
     }
   });
