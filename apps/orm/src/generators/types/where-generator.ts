@@ -3,7 +3,7 @@
  */
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
-import { schemaTypeToTsType } from '../../utils/type-utils';
+import { SIZED_NUMBER_SURREAL_TYPES, schemaTypeToTsInputType } from '../../utils/type-utils';
 import { getLiteralTypeName, getLiteralWhereName } from './enums';
 import { getGeometryInputType } from './geometry-helpers';
 
@@ -130,7 +130,7 @@ function generateArrayFieldOps(elementType: string): string {
 
 /** Generate field where type */
 export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRegistry): string {
-  const tsType = schemaTypeToTsType(field.type);
+  const tsType = schemaTypeToTsInputType(field.type);
   const { isRequired, isId, isNullable } = field;
 
   // @nullable fields can be queried with `null` directly (filter for null values)
@@ -175,7 +175,12 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   }
 
   // For numeric types, include all comparison operators and between
-  if (field.type === 'int' || field.type === 'float' || field.type === 'number') {
+  if (
+    field.type === 'int' ||
+    field.type === 'float' ||
+    field.type === 'number' ||
+    field.type in SIZED_NUMBER_SURREAL_TYPES
+  ) {
     return `${nullablePrefix}${tsType} | (
     ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &

@@ -5,6 +5,7 @@
 import { getDecorator, hasDecorator } from '../../parser/types/ast';
 import type { Origin, SchemaAST } from '../../types';
 import { located } from './origin-location';
+import { SIZED_NUMBER_SURREAL_TYPES } from '../../utils/type-utils';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
 import { validateCompositeDirectives, validateUniqueNullsNotDistinct } from './composite-directive-validator';
 import { validateEnums } from './enum-validator';
@@ -871,6 +872,7 @@ const SET_ALLOWED_TYPES = new Set([
   'bytes',
   'geometry',
   'any',
+  ...Object.keys(SIZED_NUMBER_SURREAL_TYPES),
 ]);
 
 /** Validate @set decorator on model and object fields */

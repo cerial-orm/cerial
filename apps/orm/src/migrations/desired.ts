@@ -16,6 +16,7 @@ import type {
   ModelRegistry,
   ObjectMetadata,
   ObjectRegistry,
+  SchemaFieldType,
   TupleRegistry,
 } from '../types';
 import { buildFieldModel } from './canonical';
@@ -33,6 +34,9 @@ interface Decorators {
   readonly defaultValue?: unknown;
   readonly defaultAlwaysValue?: unknown;
   readonly uuidDecorator?: 'uuid' | 'uuid4' | 'uuid7';
+  /** Sized number fields write their `@default` with a kind suffix. */
+  readonly type?: SchemaFieldType;
+  readonly isArray?: boolean;
 }
 
 const withoutPrefix = (clause: string | undefined, prefix: string): string | undefined => clause?.slice(prefix.length);
@@ -49,6 +53,7 @@ function fieldModel(
     decorators.defaultValue,
     decorators.defaultAlwaysValue,
     decorators.uuidDecorator,
+    decorators.isArray ? undefined : decorators.type,
   );
   const always = clause?.startsWith('DEFAULT ALWAYS ') ?? false;
 

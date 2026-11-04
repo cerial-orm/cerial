@@ -88,6 +88,7 @@ export {
   isPrimitiveType,
   isString,
   schemaTypeToSurrealType,
+  schemaTypeToTsInputType,
   schemaTypeToTsType,
 } from './type-utils';
 export type { ValidationResult } from './validation-utils';

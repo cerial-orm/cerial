@@ -11,7 +11,7 @@ import type {
   ObjectRegistry,
   TupleRegistry,
 } from '../../types';
-import { schemaTypeToTsType } from '../../utils/type-utils';
+import { schemaTypeToTsInputType } from '../../utils/type-utils';
 import { getLiteralTypeName } from './enums';
 import { literalNeedsInputType } from './literals';
 import { getRecordInputType } from './record-type-helpers';
@@ -131,7 +131,7 @@ function getFieldInputType(
     return lit.literalName;
   }
 
-  return schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
+  return schemaTypeToTsInputType(field.type as Parameters<typeof schemaTypeToTsInputType>[0]);
 }
 
 /**
@@ -219,7 +219,7 @@ function resolveCompositeFieldType(parts: string[], model: ModelMetadata, object
 
     if (i === parts.length - 1) {
       // Final field — return its type
-      const tsType = schemaTypeToTsType(subField.type as Parameters<typeof schemaTypeToTsType>[0]);
+      const tsType = schemaTypeToTsInputType(subField.type as Parameters<typeof schemaTypeToTsInputType>[0]);
       const nullSuffix = !subField.isRequired ? ' | null' : '';
 
       return `${tsType}${nullSuffix}`;
@@ -330,7 +330,7 @@ function collectUniqueSubfieldPaths(
         results.push(...collectUniqueSubfieldPaths(nested, objectRegistry, [...prefix, field.name], nextVisited));
       }
     } else if (field.isUnique) {
-      const tsType = schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
+      const tsType = schemaTypeToTsInputType(field.type as Parameters<typeof schemaTypeToTsInputType>[0]);
       const nullSuffix = !field.isRequired ? ' | null' : '';
       results.push({
         path: [...prefix, field.name],

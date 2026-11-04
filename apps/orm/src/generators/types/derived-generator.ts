@@ -16,7 +16,7 @@ import type {
   TupleFieldMetadata,
   TupleRegistry,
 } from '../../types';
-import { schemaTypeToTsType } from '../../utils/type-utils';
+import { schemaTypeToTsInputType } from '../../utils/type-utils';
 import { getLiteralTypeName } from './enums';
 import { getGeometryInputType } from './geometry-helpers';
 import { literalNeedsInputType } from './literals';
@@ -43,7 +43,7 @@ function getInputType(field: FieldMetadata, tupleRegistry?: TupleRegistry, objec
     return lit.literalName;
   }
 
-  return schemaTypeToTsType(field.type);
+  return schemaTypeToTsInputType(field.type);
 }
 
 /** Get fields that should be omitted from create (auto-generated or computed) */
@@ -295,6 +295,15 @@ function getArrayElementType(
     email: 'string',
     int: 'number',
     float: 'number',
+    int8: 'number',
+    uint8: 'number',
+    int16: 'number',
+    uint16: 'number',
+    int32: 'number',
+    uint32: 'number',
+    uint64: '(bigint | number)',
+    float16: 'number',
+    float32: 'number',
     bool: 'boolean',
     date: 'Date',
     record: 'RecordIdInput',

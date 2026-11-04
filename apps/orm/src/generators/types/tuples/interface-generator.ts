@@ -7,7 +7,7 @@
  */
 
 import type { ObjectRegistry, TupleElementMetadata, TupleMetadata, TupleRegistry } from '../../../types';
-import { schemaTypeToTsType } from '../../../utils/type-utils';
+import { schemaTypeToTsInputType, schemaTypeToTsType } from '../../../utils/type-utils';
 import { getLiteralTypeName } from '../enums';
 import { literalNeedsInputType } from '../literals';
 
@@ -49,7 +49,7 @@ function getElementInputType(element: TupleElementMetadata): string {
     return lit.literalName;
   }
 
-  return schemaTypeToTsType(element.type);
+  return schemaTypeToTsInputType(element.type);
 }
 
 /**

@@ -144,6 +144,7 @@ export function generateDefineField(
     field.defaultValue,
     field.defaultAlwaysValue,
     field.uuidDecorator,
+    field.isArray ? undefined : field.type,
   );
   if (defaultClause) parts.push(defaultClause);
 
@@ -350,6 +351,7 @@ export function generateObjectFieldDefines(
         subField.defaultValue,
         subField.defaultAlwaysValue,
         subField.uuidDecorator,
+        subField.isArray ? undefined : subField.type,
       );
       if (defaultClause) parts.push(defaultClause);
 

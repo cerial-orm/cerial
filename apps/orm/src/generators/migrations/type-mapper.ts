@@ -15,6 +15,7 @@ import type {
   TupleFieldMetadata,
   TupleRegistry,
 } from '../../types';
+import { SIZED_NUMBER_SURREAL_TYPES } from '../../utils/type-utils';
 import { escapeSurqlString } from '../shared';
 
 /** SurrealQL type string */
@@ -34,10 +35,20 @@ export type SurrealQLType =
   | 'decimal'
   | 'bytes'
   | 'geometry'
-  | 'any';
+  | 'any'
+  | 'i8'
+  | 'u8'
+  | 'i16'
+  | 'u16'
+  | 'i32'
+  | 'u32'
+  | 'u64'
+  | 'f16'
+  | 'f32';
 
 /** Mapping from schema types to SurrealQL types */
 const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
+  ...(SIZED_NUMBER_SURREAL_TYPES as Record<keyof typeof SIZED_NUMBER_SURREAL_TYPES, SurrealQLType>),
   string: 'string',
   email: 'string',
   int: 'int',
@@ -485,8 +496,22 @@ export function generateAssertClause(schemaType: SchemaFieldType, isArray?: bool
 
 const DURATION_LITERAL = /^(\d+(ns|us|µs|ms|[smhdwy]))+$/;
 
+/**
+ * Format a `@default` on a sized number field. The kind suffix makes the literal carry its kind (INFO echoes
+ * it verbatim) and is what lets a `Uint64` default above the signed 64-bit range parse at all.
+ */
+function formatSizedDefault(value: unknown, schemaType: SchemaFieldType): string | undefined {
+  const kind = SIZED_NUMBER_SURREAL_TYPES[schemaType as keyof typeof SIZED_NUMBER_SURREAL_TYPES];
+  if (!kind || (typeof value !== 'number' && typeof value !== 'bigint')) return undefined;
+
+  return `${value}${kind}`;
+}
+
 /** Format a value for a DEFAULT clause */
-function formatDefaultValue(value: unknown): string {
+function formatDefaultValue(value: unknown, schemaType?: SchemaFieldType): string {
+  const sized = schemaType ? formatSizedDefault(value, schemaType) : undefined;
+  if (sized) return sized;
+
   if (typeof value === 'string') {
     // Duration literal: one or more digit+unit pairs, matched in full because the value is emitted unquoted
     if (DURATION_LITERAL.test(value)) return value;
@@ -505,6 +530,7 @@ export function generateDefaultClause(
   defaultValue?: unknown,
   defaultAlwaysValue?: unknown,
   uuidDecorator?: 'uuid' | 'uuid4' | 'uuid7',
+  schemaType?: SchemaFieldType,
 ): string | undefined {
   // @now is COMPUTED, not DEFAULT — handled by generateComputedClause
   // @createdAt uses DEFAULT time::now() — set on creation when field is absent
@@ -517,9 +543,9 @@ export function generateDefaultClause(
   if (uuidDecorator === 'uuid7') return 'DEFAULT rand::uuid::v7()';
 
   // @defaultAlways(value) uses DEFAULT ALWAYS — re-set on every write when field is absent
-  if (defaultAlwaysValue !== undefined) return `DEFAULT ALWAYS ${formatDefaultValue(defaultAlwaysValue)}`;
+  if (defaultAlwaysValue !== undefined) return `DEFAULT ALWAYS ${formatDefaultValue(defaultAlwaysValue, schemaType)}`;
 
-  if (defaultValue !== undefined) return `DEFAULT ${formatDefaultValue(defaultValue)}`;
+  if (defaultValue !== undefined) return `DEFAULT ${formatDefaultValue(defaultValue, schemaType)}`;
 
   return undefined;
 }

@@ -9,7 +9,7 @@
  */
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry, TupleRegistry } from '../../types';
-import { schemaTypeToTsType } from '../../utils/type-utils';
+import { schemaTypeToTsInputType, schemaTypeToTsType } from '../../utils/type-utils';
 import { getLiteralTypeName } from './enums';
 import { getGeometryInputType, getGeometryOutputType } from './geometry-helpers';
 import { literalNeedsInputType } from './literals';
@@ -64,7 +64,7 @@ function getInputType(field: FieldMetadata, tupleRegistry?: TupleRegistry, objec
     return lit.literalName;
   }
 
-  return schemaTypeToTsType(field.type);
+  return schemaTypeToTsInputType(field.type);
 }
 
 /**

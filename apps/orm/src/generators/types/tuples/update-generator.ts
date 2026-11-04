@@ -20,7 +20,7 @@
  */
 
 import type { TupleElementMetadata, TupleFieldMetadata, TupleMetadata } from '../../../types';
-import { schemaTypeToTsType } from '../../../utils/type-utils';
+import { schemaTypeToTsInputType } from '../../../utils/type-utils';
 
 /**
  * Get the input type name for a tuple element in update context.
@@ -30,7 +30,7 @@ function getElementInputType(element: TupleElementMetadata): string {
   if (element.type === 'object' && element.objectInfo) return `${element.objectInfo.objectName}Input`;
   if (element.type === 'tuple' && element.tupleInfo) return `${element.tupleInfo.tupleName}Input`;
 
-  return schemaTypeToTsType(element.type);
+  return schemaTypeToTsInputType(element.type);
 }
 
 /**
@@ -68,7 +68,7 @@ function getElementUpdateType(element: TupleElementMetadata): string {
     const updateName = `${element.tupleInfo.tupleName}Update`;
     baseType = `${arrayForm} | ${updateName}`;
   } else {
-    baseType = schemaTypeToTsType(element.type);
+    baseType = schemaTypeToTsInputType(element.type);
   }
 
   // Add nullable/optional modifiers
