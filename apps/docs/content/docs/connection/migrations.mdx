@@ -287,18 +287,22 @@ DEFINE FIELD OVERWRITE coords ON TABLE user TYPE [float, float | null];
 DEFINE FIELD OVERWRITE history ON TABLE user TYPE array<[float, float]>;
 ```
 
-**Sub-field constraints** are only emitted for tuple elements that need them: elements with decorators ([`@default`](/schema/decorators/default), `@defaultAlways`, [`@createdAt`](/schema/decorators/created-at), [`@updatedAt`](/schema/decorators/updated-at)) and object or nested-tuple elements:
+Tuple elements never get a `DEFINE FIELD` of their own. The type literal carries everything the database checks: element types, count, optionality and `| null` for `@nullable` elements.
+
+An object element, and any object or tuple nested inside it, is written into the literal as an inline object type, so the database enforces its required keys and rejects keys it does not declare:
 
 ```sql
--- Element with @default
-DEFINE FIELD OVERWRITE data[0] ON TABLE user TYPE string DEFAULT 'hello';
-
--- Object element with sub-fields
-DEFINE FIELD OVERWRITE data[2] ON TABLE user TYPE object;
-DEFINE FIELD OVERWRITE data[2].name ON TABLE user TYPE string;
+-- tuple Located { tag String, Address } with object Address { street String, zip Int? }
+DEFINE FIELD OVERWRITE place ON TABLE user TYPE [string, { street: string, zip: option<int> }];
 ```
 
-Plain primitive elements (with no decorators, including `@nullable` ones, whose `| null` lives in the tuple's type literal) do **not** get sub-field `DEFINE FIELD` statements. The parent tuple type literal already enforces their types. This is intentional, to avoid a [known SurrealDB issue](#known-limitation-tuple--object-interaction) where sub-field constraints on tuple elements can cause incorrect initialization.
+An object marked [`@flexible`](/schema/decorators/flexible) inside an element, or an object that refers to itself, cannot be written as a literal. It is typed as a plain `object`, the tuple field is declared `FLEXIBLE` so extra keys are kept, and Cerial checks the declared keys of that object itself:
+
+```sql
+DEFINE FIELD OVERWRITE data ON TABLE user TYPE [string, { lat: float, meta: object }] FLEXIBLE;
+```
+
+Decorators on the sub-fields of an object element ([`@default`](/schema/decorators/default), `@defaultAlways`, [`@createdAt`](/schema/decorators/created-at), [`@updatedAt`](/schema/decorators/updated-at), `@uuid`) are applied by Cerial when you write the tuple, not by the database. A value you pass always wins over the default.
 
 ### ID Fields
 
