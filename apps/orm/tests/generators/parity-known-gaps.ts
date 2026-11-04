@@ -5,8 +5,8 @@
  * being edited out; the coverage test fails on a stale entry so the list cannot rot. When it is
  * empty, delete this file and the ledger test, and the strict test becomes the only gate.
  *
- * The sized number types wait for their e2e schema.
- * The UNIQUE NULLS NOT DISTINCT forms wait for their e2e schema.
+ * The sized number types wait for an e2e schema that exercises them.
+ * The UNIQUE NULLS NOT DISTINCT forms wait for theirs.
  *
  * Where the obvious schema will not just work:
  * - A construct on the e2e corpus that needs a new schema file also needs its tables registered in
