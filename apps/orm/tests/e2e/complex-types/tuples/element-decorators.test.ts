@@ -80,17 +80,14 @@ describe('E2E Tuples: @createdAt, @updatedAt and @defaultAlways elements', () =>
     expect(await client.db.TupleStamped.count()).toBe(0);
   });
 
-  // Records a gap rather than endorsing it: a String element is not type-checked, so a number or an
-  // object reaches String() and is stored as '5' or '[object Object]'. A model String field refuses
-  // all three with CerialValidationError, so the two paths disagree. Until the decorators fired, the
-  // write failed on arity before the value was ever stored, which is why nothing caught this.
-  test('a String element coerces instead of refusing, unlike a model String field', async () => {
-    const result = await client.db.TupleStamped.create({
-      // @ts-expect-error the label element is a String
-      data: { name: 'coerced', stamp: { label: 5 } },
-    });
-
-    expect(result.stamp[0]).toBe('5');
+  // A String element refuses a number, as a model String field does, instead of storing '5'.
+  test('a String element refuses a number, like a model String field', async () => {
+    await expect(
+      (async () => {
+        // @ts-expect-error the label element is a String
+        await client.db.TupleStamped.create({ data: { name: 'refused-element', stamp: { label: 5 } } });
+      })(),
+    ).rejects.toThrow('stamp.label must be of type string');
     await expect(
       (async () => {
         await client.db.TupleStamped.create({ data: { name: 'refused', label: 5 } as never });

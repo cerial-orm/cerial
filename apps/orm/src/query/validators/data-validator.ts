@@ -38,16 +38,26 @@ const BROAD_TYPE_FIELD_TYPES: Record<string, SchemaFieldType> = {
   Date: 'date',
 };
 
+/** Names no model: a variant's errors only decide whether it matches, and are never shown. */
+const VARIANT_MODEL: ModelMetadata = { name: '', tableName: '', fields: [] };
+
 function matchesVariant(value: unknown, variant: ResolvedLiteralVariant): boolean {
   switch (variant.kind) {
     case 'broadType':
       return validateFieldType(value, BROAD_TYPE_FIELD_TYPES[variant.typeName] ?? 'any');
-    // Shapes are not deep-checked here — the database enforces the inline type
-    // Tuples accept array or object form on input
+    // The database enforces these inline, so the members are checked here too: a wrong member type or
+    // an undeclared key would otherwise reach it. Tuples accept array or object form on input.
     case 'tupleRef':
-      return validateFieldType(value, 'tuple');
+      return (
+        validateFieldType(value, 'tuple') &&
+        !validateSubValue(value, { type: 'tuple', tupleInfo: variant.tupleInfo }, VARIANT_MODEL, '', false, true).length
+      );
     case 'objectRef':
-      return validateFieldType(value, 'object');
+      return (
+        validateFieldType(value, 'object') &&
+        !validateSubValue(value, { type: 'object', objectInfo: variant.objectInfo }, VARIANT_MODEL, '', false, true)
+          .length
+      );
     default:
       return value === variant.value;
   }
@@ -448,6 +458,8 @@ type WalkField = Pick<
 
 /**
  * Validate a value nested inside an object or tuple, to any depth.
+ * `inline` is true inside a tuple element or a literal variant, whose members the database checks
+ * against an inline type: an undeclared key in a strict object is refused there rather than dropped.
  * `partial` is true while the builder merges the value key by key (an update's object or object-form
  * tuple), where an undeclared key would be dropped. A value it binds whole (array element, `{ set }`
  * contents, push item) is not partial. Enum fields carry `type: 'literal'`, so one branch covers both.
@@ -458,6 +470,7 @@ function validateSubValue(
   model: ModelMetadata,
   path: string,
   partial: boolean,
+  inline = false,
 ): DataValidationError[] {
   if (value === undefined || isNone(value)) return [];
 
@@ -469,43 +482,50 @@ function validateSubValue(
     return error ? [error] : [];
   }
 
-  if (field.type !== 'object' && field.type !== 'tuple') return [];
+  if (field.type !== 'object' && field.type !== 'tuple') {
+    // A relation is virtual and an array field's operation object ({ push }, { set }) is not a value
+    if (field.type === 'relation' || (field.isArray && isObject(value))) return [];
+    // The database refuses a member of the wrong type; a whole float in an int member is an int in JS
+    const error = validateFieldValue(path, value, { ...field, isRequired: false });
+
+    return error ? [error] : [];
+  }
 
   if (field.isArray) {
     const element = { ...field, isArray: false };
     if (Array.isArray(value))
-      return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false));
+      return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false, inline));
     if (!isObject(value)) return [];
 
     // { push } and { set } carry whole elements; updateWhere and unset are not value-checked
     const errors: DataValidationError[] = [];
     if (value.set !== undefined && Array.isArray(value.set))
-      errors.push(...validateSubValue(value.set, field, model, path, false));
+      errors.push(...validateSubValue(value.set, field, model, path, false, inline));
     if (value.push !== undefined) {
       const items =
         Array.isArray(value.push) && !(field.tupleInfo && isSingleTupleInput(value.push, field.tupleInfo))
           ? value.push
           : [value.push];
       items.forEach((item, i) => {
-        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false));
+        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false, inline));
       });
     }
 
     return errors;
   }
 
-  if (isObject(value) && isSetWrapper(value)) return validateSubValue(value.set, field, model, path, false);
+  if (isObject(value) && isSetWrapper(value)) return validateSubValue(value.set, field, model, path, false, inline);
 
   if (field.type === 'tuple') {
     if (!field.tupleInfo) return [];
     if (Array.isArray(value)) return validateTupleArray(value, field.tupleInfo, model, path);
 
-    return isObject(value) ? validateTupleData(value, field.tupleInfo, model, path, partial) : [];
+    return isObject(value) ? validateTupleData(value, field.tupleInfo, model, path, partial, inline) : [];
   }
 
   if (!field.objectInfo || !isObject(value)) return [];
 
-  return validateObjectData(value, field.objectInfo.fields, field.isFlexible, model, path, partial);
+  return validateObjectData(value, field.objectInfo.fields, field.isFlexible, model, path, partial, inline);
 }
 
 /**
@@ -520,6 +540,7 @@ function validateObjectData(
   model: ModelMetadata,
   path: string,
   partial: boolean,
+  inline: boolean,
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
 
@@ -530,11 +551,11 @@ function validateObjectData(
     const subPath = `${path}.${key}`;
 
     if (!subField) {
-      if (partial && !isFlexible) errors.push(unknownSubKey(subPath, model));
+      if ((partial || inline) && !isFlexible) errors.push(unknownSubKey(subPath, model));
       continue;
     }
 
-    errors.push(...validateSubValue(value, subField, model, subPath, partial));
+    errors.push(...validateSubValue(value, subField, model, subPath, partial, inline));
   }
 
   return errors;
@@ -548,7 +569,7 @@ function validateTupleArray(
   path: string,
 ): DataValidationError[] {
   return tupleInfo.elements.flatMap((element) =>
-    validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false),
+    validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false, true),
   );
 }
 
@@ -559,6 +580,7 @@ function validateTupleData(
   model: ModelMetadata,
   path: string,
   partial: boolean,
+  inline: boolean,
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
 
@@ -569,12 +591,12 @@ function validateTupleData(
     const subPath = `${path}.${key}`;
 
     if (!element) {
-      if (partial) errors.push(unknownSubKey(subPath, model));
+      if (partial || inline) errors.push(unknownSubKey(subPath, model));
       continue;
     }
 
     // Tuple elements are never flexible
-    errors.push(...validateSubValue(value, element, model, subPath, partial));
+    errors.push(...validateSubValue(value, element, model, subPath, partial, true));
   }
 
   return errors;

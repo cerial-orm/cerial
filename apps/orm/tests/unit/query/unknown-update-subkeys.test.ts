@@ -183,7 +183,11 @@ describe('validateUpdateData objects inside tuples', () => {
 
   test('accepts an array-form tuple replace and a { set } element', () => {
     expect(errorsFor({ pair: [{ label: 'a' }, { note: 'b' }] })).toEqual([]);
-    expect(errorsFor({ pair: { mid: { set: { whatever: 1 } } } })).toEqual([]);
+    expect(errorsFor({ pair: { mid: { set: { note: 'b' } } } })).toEqual([]);
+  });
+
+  test('refuses an undeclared key in a { set } element, which the inline tuple type would refuse', () => {
+    expect(errorsFor({ pair: { mid: { set: { whatever: 1 } } } }).map((e) => e.field)).toEqual(['pair.mid.whatever']);
   });
 });
 

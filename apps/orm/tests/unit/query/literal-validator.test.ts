@@ -25,6 +25,18 @@ function literalField(
   };
 }
 
+const box = {
+  objectName: 'Box',
+  fields: [{ name: 'a', type: 'int' as const, isId: false, isUnique: false, isRequired: false }],
+};
+const pair = {
+  tupleName: 'Pair',
+  elements: [
+    { name: 'a', index: 0, type: 'int' as const, isOptional: false },
+    { index: 1, type: 'int' as const, isOptional: true },
+  ],
+};
+
 const str = (value: string): ResolvedLiteralVariant => ({ kind: 'string', value });
 
 const testModel: ModelMetadata = {
@@ -47,11 +59,11 @@ const testModel: ModelMetadata = {
     ]),
     literalField('mixed', [str('low'), { kind: 'int', value: 2 }, { kind: 'broadType', typeName: 'Bool' }]),
     literalField('shape', [
-      { kind: 'objectRef', objectName: 'Box', objectInfo: { objectName: 'Box', fields: [] } },
-      { kind: 'tupleRef', tupleName: 'Pair', tupleInfo: { tupleName: 'Pair', elements: [] } },
+      { kind: 'objectRef', objectName: 'Box', objectInfo: box },
+      { kind: 'tupleRef', tupleName: 'Pair', tupleInfo: pair },
     ]),
-    literalField('objOnly', [{ kind: 'objectRef', objectName: 'Box', objectInfo: { objectName: 'Box', fields: [] } }]),
-    literalField('tupOnly', [{ kind: 'tupleRef', tupleName: 'Pair', tupleInfo: { tupleName: 'Pair', elements: [] } }]),
+    literalField('objOnly', [{ kind: 'objectRef', objectName: 'Box', objectInfo: box }]),
+    literalField('tupOnly', [{ kind: 'tupleRef', tupleName: 'Pair', tupleInfo: pair }]),
   ],
 };
 
@@ -174,6 +186,7 @@ describe('Literal value validation', () => {
 
   test('tupleRef variant accepts the object form of a tuple', () => {
     expect(createErrors({ tupOnly: { a: 1 } })).toEqual([]);
+    expect(createErrors({ tupOnly: { z: 1 } })).toHaveLength(1);
   });
 
   test('ref variants reject the wrong container and primitives', () => {
