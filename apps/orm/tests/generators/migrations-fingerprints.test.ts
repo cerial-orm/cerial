@@ -43,7 +43,7 @@ describe('modelFingerprints', () => {
     const spy = spyOn(writer, 'writeMigrationFile').mockImplementation(async (...args: Args) => {
       captured = args;
 
-      return '';
+      return [];
     });
     const outputDir = mkdtempSync(join(tmpdir(), 'cerial-fingerprints-'));
     cleanup.push(outputDir);
@@ -58,7 +58,7 @@ describe('modelFingerprints', () => {
 
     if (!captured) throw new Error('the generator did not write a migration file');
     const [, models, objects, tuples, literals] = captured;
-    const emitted = readFingerprints(generatePerModelMigrationCode(models, objects, tuples, literals));
+    const emitted = readFingerprints(generatePerModelMigrationCode(models, objects, tuples, literals).aggregator);
     const registry = Object.fromEntries(models.map((m) => [m.name, m]));
     const tables = buildDesiredSchema(registry, objects, tuples, literals).tables;
 
@@ -69,7 +69,7 @@ describe('modelFingerprints', () => {
 
   test('emitted literal matches the desired table fingerprint for a registry', () => {
     const registry = parseModelRegistry(SCHEMA('String'));
-    const emitted = readFingerprints(generatePerModelMigrationCode(Object.values(registry)));
+    const emitted = readFingerprints(generatePerModelMigrationCode(Object.values(registry)).aggregator);
     const tables = buildDesiredSchema(registry).tables;
 
     expect(Object.keys(emitted)).toEqual(Object.keys(registry));
@@ -77,8 +77,12 @@ describe('modelFingerprints', () => {
   });
 
   test('a one-field change moves only that model', () => {
-    const before = readFingerprints(generatePerModelMigrationCode(Object.values(parseModelRegistry(SCHEMA('String')))));
-    const after = readFingerprints(generatePerModelMigrationCode(Object.values(parseModelRegistry(SCHEMA('Int')))));
+    const before = readFingerprints(
+      generatePerModelMigrationCode(Object.values(parseModelRegistry(SCHEMA('String')))).aggregator,
+    );
+    const after = readFingerprints(
+      generatePerModelMigrationCode(Object.values(parseModelRegistry(SCHEMA('Int')))).aggregator,
+    );
 
     expect(after.User).not.toBe(before.User);
     expect(after.Post).toBe(before.Post);

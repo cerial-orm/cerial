@@ -10,6 +10,13 @@ import {
 } from '../../src/generators/migrations/define-generator';
 import { parseModelRegistry } from '../test-helpers';
 
+/** The aggregator and its chunks as one text, since the statements now live in the chunks */
+const migrationSource = (...args: Parameters<typeof generatePerModelMigrationCode>): string => {
+  const { aggregator, chunks } = generatePerModelMigrationCode(...args);
+
+  return [aggregator, ...chunks].join('\n');
+};
+
 // Parse models using DSL
 const singleModelDsl = `
 model User {
@@ -87,7 +94,7 @@ describe('Migration Generator', () => {
     test('generates ModelName type union for single model', () => {
       const registry = parseModelRegistry(singleModelDsl);
       const models = Object.values(registry).filter((m): m is NonNullable<typeof m> => m !== undefined);
-      const code = generatePerModelMigrationCode(models);
+      const code = migrationSource(models);
 
       expect(code).toContain("export type ModelName = 'User';");
     });
@@ -95,7 +102,7 @@ describe('Migration Generator', () => {
     test('generates ModelName type union for multiple models', () => {
       const registry = parseModelRegistry(multiModelDsl);
       const models = Object.values(registry).filter((m): m is NonNullable<typeof m> => m !== undefined);
-      const code = generatePerModelMigrationCode(models);
+      const code = migrationSource(models);
 
       expect(code).toContain('export type ModelName =');
       expect(code).toContain("'User'");
@@ -106,7 +113,7 @@ describe('Migration Generator', () => {
     test('generates modelNames const array', () => {
       const registry = parseModelRegistry(multiModelDsl);
       const models = Object.values(registry).filter((m): m is NonNullable<typeof m> => m !== undefined);
-      const code = generatePerModelMigrationCode(models);
+      const code = migrationSource(models);
 
       expect(code).toContain('export const modelNames =');
       expect(code).toContain('as const');
@@ -115,7 +122,7 @@ describe('Migration Generator', () => {
     test('generates migrationsByModel with typed Record', () => {
       const registry = parseModelRegistry(singleModelDsl);
       const models = Object.values(registry).filter((m): m is NonNullable<typeof m> => m !== undefined);
-      const code = generatePerModelMigrationCode(models);
+      const code = migrationSource(models);
 
       expect(code).toContain('export const migrationsByModel: Record<ModelName, string[]>');
       expect(code).toContain('User: [');
@@ -124,7 +131,7 @@ describe('Migration Generator', () => {
     test('generates getModelMigrationQuery with typed parameter', () => {
       const registry = parseModelRegistry(singleModelDsl);
       const models = Object.values(registry).filter((m): m is NonNullable<typeof m> => m !== undefined);
-      const code = generatePerModelMigrationCode(models);
+      const code = migrationSource(models);
 
       expect(code).toContain('export function getModelMigrationQuery(modelName: ModelName): string');
     });
@@ -132,7 +139,7 @@ describe('Migration Generator', () => {
     test('generates getMigrationModelNames with typed return', () => {
       const registry = parseModelRegistry(singleModelDsl);
       const models = Object.values(registry).filter((m): m is NonNullable<typeof m> => m !== undefined);
-      const code = generatePerModelMigrationCode(models);
+      const code = migrationSource(models);
 
       expect(code).toContain('export function getMigrationModelNames(): ModelName[]');
     });
@@ -140,7 +147,7 @@ describe('Migration Generator', () => {
     test('does not generate flat migrationStatements array', () => {
       const registry = parseModelRegistry(singleModelDsl);
       const models = Object.values(registry).filter((m): m is NonNullable<typeof m> => m !== undefined);
-      const code = generatePerModelMigrationCode(models);
+      const code = migrationSource(models);
 
       // Should NOT contain the old flat array export
       expect(code).not.toContain('export const migrationStatements: string[]');
@@ -150,7 +157,7 @@ describe('Migration Generator', () => {
     test('generates correct migration statements per model', () => {
       const registry = parseModelRegistry(singleModelDsl);
       const models = Object.values(registry).filter((m): m is NonNullable<typeof m> => m !== undefined);
-      const code = generatePerModelMigrationCode(models);
+      const code = migrationSource(models);
 
       // Check User model statements
       expect(code).toContain('DEFINE TABLE OVERWRITE user SCHEMAFULL');

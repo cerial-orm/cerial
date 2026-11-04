@@ -57,13 +57,15 @@ describe('cerial generate (subprocess)', () => {
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('Found 1 model(s)');
-    expect(result.stdout).toContain('Generated 9 files');
+    expect(result.stdout).toContain('Generated 10 files');
     for (const file of [
       'client.ts',
       'index.ts',
       'models/user.d.ts',
       'internal/model-registry.ts',
       'internal/registry/models/chunk-0.ts',
+      'internal/migrations.ts',
+      'internal/migrations/chunk-0.ts',
       'internal/manifest.ts',
     ]) {
       expect(existsSync(join(dir, 'out', file))).toBe(true);

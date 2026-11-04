@@ -381,15 +381,15 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       const objectRegistry = objRegistry;
       const tupleRegistry = tupRegistry;
       const literalRegistry = litRegistry;
-      const migrationPath = await writeMigrationFile(
+      const migrationPaths = await writeMigrationFile(
         stagingDir,
         models,
         objectRegistry,
         tupleRegistry,
         literalRegistry,
       );
-      result.files.push(migrationPath);
-      if (logLevel === 'full') logger.fileCreated(toFinal(migrationPath));
+      result.files.push(...migrationPaths);
+      if (logLevel === 'full') migrationPaths.forEach((f) => logger.fileCreated(toFinal(f)));
 
       const manifestPath = await writeManifestFile(stagingDir, models, objectRegistry, tupleRegistry, literalRegistry);
       result.files.push(manifestPath);
@@ -428,7 +428,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       if (logLevel === 'medium') {
         const modelFiles = clientFiles.filter((f) => f.includes('/models/') && !/\/index(\.d)?\.ts$/.test(f));
         logger.info(`  ${modelFiles.length} model files`);
-        logger.info(`  ${registryPaths.length + 3} internal files`);
+        logger.info(`  ${registryPaths.length + migrationPaths.length + 2} internal files`);
         logger.info(`  ${clientFiles.length - modelFiles.length} client files`);
       }
 

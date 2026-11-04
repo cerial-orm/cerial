@@ -412,7 +412,7 @@ async function generatedFingerprints(folder: string): Promise<Record<string, str
     meta.objectRegistry,
     meta.tupleRegistry,
     meta.literalRegistry,
-  );
+  ).aggregator;
   const block = /modelFingerprints[^{]*\{([^}]*)\}/.exec(code)![1]!;
 
   return Object.fromEntries([...block.matchAll(/(\w+): '([0-9a-f]+)'/g)].map((m) => [m[1]!, m[2]!]));

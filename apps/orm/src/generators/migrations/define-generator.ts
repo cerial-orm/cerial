@@ -15,6 +15,7 @@ import type {
 } from '../../types';
 import { buildDesiredSchema } from '../../migrations/desired';
 import { fingerprint, schemaFingerprint } from '../../migrations/fingerprint';
+import { REGISTRY_CHUNK_SIZE } from '../metadata/registry-generator';
 import { escapeTsString } from '../shared';
 import {
   generateAssertClause,
@@ -817,13 +818,25 @@ export function generateModelMigrationMap(
   return map;
 }
 
-/** Generate TypeScript code for per-model migrations */
+/** Path of a migration chunk file relative to `internal/`, without extension */
+export function migrationChunkPath(index: number): string {
+  return `migrations/chunk-${index}`;
+}
+
+export interface MigrationCode {
+  /** The body of `internal/migrations.ts` */
+  aggregator: string;
+  /** One file per `REGISTRY_CHUNK_SIZE` models, in declaration order */
+  chunks: string[];
+}
+
+/** Generate TypeScript code for per-model migrations: chunk files plus the aggregator that spreads them */
 export function generatePerModelMigrationCode(
   models: ModelMetadata[],
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
   literalRegistry?: LiteralRegistry,
-): string {
+): MigrationCode {
   const registry: ModelRegistry = {};
   for (const model of models) {
     registry[model.name] = model;
@@ -838,12 +851,26 @@ export function generatePerModelMigrationCode(
     tupleRegistry,
     literalRegistry,
   );
-  const mapEntries = Object.entries(migrationMap)
-    .map(([modelName, modelStatements]) => {
-      const modelStatementsStr = modelStatements.map((s) => `    '${escapeTsString(s)}'`).join(',\n');
-      return `  ${modelName}: [\n${modelStatementsStr}\n  ]`;
-    })
-    .join(',\n');
+  const mapEntries = Object.entries(migrationMap).map(([modelName, modelStatements]) => {
+    const modelStatementsStr = modelStatements.map((s) => `    '${escapeTsString(s)}'`).join(',\n');
+    return `  ${modelName}: [\n${modelStatementsStr}\n  ]`;
+  });
+  const chunks: string[] = [];
+  for (let start = 0; start < mapEntries.length; start += REGISTRY_CHUNK_SIZE) {
+    chunks.push(`/**
+ * Generated migration chunk
+ * Do not edit manually
+ */
+
+export const chunk = {
+${mapEntries.slice(start, start + REGISTRY_CHUNK_SIZE).join(',\n')}
+};
+`);
+  }
+  const chunkImports = chunks
+    .map((_, i) => `import { chunk as chunk${i} } from './${migrationChunkPath(i)}';`)
+    .join('\n');
+  const chunkSpreads = chunks.map((_, i) => `  ...chunk${i},`).join('\n');
 
   // Fingerprints come from the full in-process metadata, not the emitted registry, which omits some decorators.
   const desiredTables = buildDesiredSchema(registry, objectRegistry, tupleRegistry, literalRegistry).tables;
@@ -862,7 +889,9 @@ export function generatePerModelMigrationCode(
     .map((name) => `'${name}'`)
     .join(', ');
 
-  return `/** Union type of all model names */
+  const aggregator = `${chunkImports}
+
+/** Union type of all model names */
 export type ModelName = ${modelNameUnion};
 
 /** All model names as const array */
@@ -870,7 +899,7 @@ export const modelNames = [${modelNamesArray}] as const;
 
 /** Migration statements grouped by model */
 export const migrationsByModel: Record<ModelName, string[]> = {
-${mapEntries}
+${chunkSpreads}
 };
 
 /** Fingerprint of each model's desired table, for comparing against the stored state without a schema */
@@ -892,4 +921,6 @@ export function getMigrationModelNames(): ModelName[] {
   return [...modelNames];
 }
 `;
+
+  return { aggregator, chunks };
 }
