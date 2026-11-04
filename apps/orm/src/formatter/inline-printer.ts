@@ -14,6 +14,7 @@ import type {
   ExtendsFilter,
   Origin,
 } from '../types';
+import { SIZED_NUMBER_TYPES } from '../parser/types/field-types/sized-number-parser';
 import type { CommentMap } from './comment-attacher';
 import type { SourceLayout } from './layout';
 import type { FormatConfig } from './types';
@@ -35,6 +36,7 @@ const TYPE_DISPLAY: Record<string, string> = {
   bytes: 'Bytes',
   geometry: 'Geometry',
   any: 'Any',
+  ...Object.fromEntries(SIZED_NUMBER_TYPES.map((t) => [t.fieldType, t.name])),
 };
 
 /** Build extends clause for inline construct headers */
