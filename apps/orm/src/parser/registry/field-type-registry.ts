@@ -11,6 +11,7 @@ import { getIntFieldType, isIntType } from '../types/field-types/int-parser';
 import { getNumberFieldType, isNumberType } from '../types/field-types/number-parser';
 import { getRecordFieldType, isRecordType } from '../types/field-types/record-parser';
 import { getRelationFieldType, isRelationType } from '../types/field-types/relation-parser';
+import { SIZED_NUMBER_TYPES } from '../types/field-types/sized-number-parser';
 import { getStringFieldType, isStringType } from '../types/field-types/string-parser';
 import { getUuidFieldType, isUuidType } from '../types/field-types/uuid-parser';
 import type { FieldTypeEntry } from './types';
@@ -70,6 +71,13 @@ const FIELD_TYPES: readonly FieldTypeEntry[] = [
     description: 'An auto-detected numeric type that accepts both integers and decimals.',
     match: (_token, base) => isNumberType(base),
   },
+  ...SIZED_NUMBER_TYPES.map((t): FieldTypeEntry => ({
+    name: t.name,
+    constructId: t.constructId,
+    fieldType: t.fieldType,
+    description: `A fixed-width number stored as SurrealDB ${t.surreal}; values outside its range are refused before sending.`,
+    match: (_token, base) => base === t.name,
+  })),
   {
     name: 'Uuid',
     constructId: 'type.uuid',

@@ -60,6 +60,15 @@ export const FIELD_TYPE_DETAIL: Readonly<Record<string, FieldTypeDetail>> = {
   Geometry: { tsType: 'CerialGeometry', surrealType: 'geometry' },
   Any: { tsType: 'CerialAny', surrealType: 'any' },
   Number: { tsType: 'number', surrealType: 'number' },
+  Int8: { tsType: 'number', surrealType: 'i8' },
+  Uint8: { tsType: 'number', surrealType: 'u8' },
+  Int16: { tsType: 'number', surrealType: 'i16' },
+  Uint16: { tsType: 'number', surrealType: 'u16' },
+  Int32: { tsType: 'number', surrealType: 'i32' },
+  Uint32: { tsType: 'number', surrealType: 'u32' },
+  Uint64: { tsType: 'bigint', surrealType: 'u64' },
+  Float16: { tsType: 'number', surrealType: 'f16' },
+  Float32: { tsType: 'number', surrealType: 'f32' },
 };
 
 export const DECORATOR_DETAIL: Readonly<Record<string, DecoratorDetail>> = {

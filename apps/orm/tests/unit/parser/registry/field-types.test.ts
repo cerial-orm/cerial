@@ -15,6 +15,10 @@ import { getIntFieldType, isIntType } from '../../../../src/parser/types/field-t
 import { getNumberFieldType, isNumberType } from '../../../../src/parser/types/field-types/number-parser';
 import { getRecordFieldType, isRecordType } from '../../../../src/parser/types/field-types/record-parser';
 import { getRelationFieldType, isRelationType } from '../../../../src/parser/types/field-types/relation-parser';
+import {
+  getSizedNumberFieldType,
+  SIZED_NUMBER_TYPES,
+} from '../../../../src/parser/types/field-types/sized-number-parser';
 import { getStringFieldType, isStringType } from '../../../../src/parser/types/field-types/string-parser';
 import { getUuidFieldType, isUuidType } from '../../../../src/parser/types/field-types/uuid-parser';
 
@@ -27,6 +31,12 @@ const REFERENCE: [string, (t: string) => boolean, () => SchemaFieldType, 'base' 
   ['Bool', isBoolType, getBoolFieldType, 'base'],
   ['Float', isFloatType, getFloatFieldType, 'base'],
   ['Number', isNumberType, getNumberFieldType, 'base'],
+  ...SIZED_NUMBER_TYPES.map((t): [string, (token: string) => boolean, () => SchemaFieldType, 'base'] => [
+    t.name,
+    (token) => token === t.name,
+    () => getSizedNumberFieldType(t.name)!,
+    'base',
+  ]),
   ['Uuid', isUuidType, getUuidFieldType, 'base'],
   ['Duration', isDurationType, getDurationFieldType, 'base'],
   ['Decimal', isDecimalType, getDecimalFieldType, 'base'],

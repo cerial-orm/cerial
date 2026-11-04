@@ -3,6 +3,24 @@
  */
 
 import type { SchemaFieldType } from '../types/common.types';
+import type { SizedNumberFieldType } from '../parser/types/field-types/sized-number-parser';
+
+/** Sized numbers parse today; their generated and migrated forms arrive with C1's generator rows. */
+function assertNotSized(type: SchemaFieldType): asserts type is Exclude<SchemaFieldType, SizedNumberFieldType> {
+  if (SIZED_NUMBER_FIELD_TYPES.has(type)) throw new Error(`The ${type} field type is not yet supported`);
+}
+
+const SIZED_NUMBER_FIELD_TYPES: ReadonlySet<SchemaFieldType> = new Set<SizedNumberFieldType>([
+  'int8',
+  'uint8',
+  'int16',
+  'uint16',
+  'int32',
+  'uint32',
+  'uint64',
+  'float16',
+  'float32',
+]);
 
 /** Check if value is a string */
 export function isString(value: unknown): value is string {
@@ -66,7 +84,8 @@ export function getSchemaFieldType(typeStr: string): SchemaFieldType | null {
 
 /** Map schema field type to TypeScript type string */
 export function schemaTypeToTsType(type: SchemaFieldType): string {
-  const typeMap: Record<SchemaFieldType, string> = {
+  assertNotSized(type);
+  const typeMap: Record<Exclude<SchemaFieldType, SizedNumberFieldType>, string> = {
     string: 'string',
     email: 'string',
     int: 'number',
@@ -92,7 +111,8 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
 
 /** Map schema field type to SurrealDB type string */
 export function schemaTypeToSurrealType(type: SchemaFieldType): string {
-  const typeMap: Record<SchemaFieldType, string> = {
+  assertNotSized(type);
+  const typeMap: Record<Exclude<SchemaFieldType, SizedNumberFieldType>, string> = {
     string: 'string',
     email: 'string',
     int: 'int',

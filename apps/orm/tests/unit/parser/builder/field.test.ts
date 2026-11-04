@@ -34,8 +34,8 @@ describe('field factories', () => {
     ].sort();
 
     expect(Object.keys(f).sort()).toEqual(expected);
-    // 13 non-relation types besides Record, plus record, the four reference factories and the two relation helpers
-    expect(expected).toHaveLength(20);
+    // 22 non-relation types besides Record, plus record, the four reference factories and the two relation helpers
+    expect(expected).toHaveLength(29);
   });
 
   test.each(SIMPLE.map((e) => [e.name, e.fieldType] as const))(

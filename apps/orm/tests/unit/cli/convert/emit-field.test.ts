@@ -249,7 +249,7 @@ describe('field types', () => {
   });
 
   test('every registry field type is covered by a case above', () => {
-    expect(FIELD_TYPE_REGISTRY.size).toBe(15);
+    expect(FIELD_TYPE_REGISTRY.size).toBe(24);
     for (const entry of FIELD_TYPE_REGISTRY.values()) {
       const line = entry.fieldType === 'relation' ? 'Relation @field(target) @model(U)' : entry.name;
 

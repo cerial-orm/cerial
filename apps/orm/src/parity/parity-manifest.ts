@@ -161,6 +161,16 @@ export const PARITY_MANIFEST = [
   row('type.bytes', 'scalar-type', 'corpus', [32], 'Bytes'),
   row('type.geometry', 'scalar-type', 'corpus', [33], 'Geometry'),
   row('type.any', 'scalar-type', 'corpus', [34], 'Any'),
+  // Sized numbers (SurrealDB 4.0); not in the original inventory
+  row('type.int8', 'scalar-type', 'corpus', [], 'Int8'),
+  row('type.uint8', 'scalar-type', 'corpus', [], 'Uint8'),
+  row('type.int16', 'scalar-type', 'corpus', [], 'Int16'),
+  row('type.uint16', 'scalar-type', 'corpus', [], 'Uint16'),
+  row('type.int32', 'scalar-type', 'corpus', [], 'Int32'),
+  row('type.uint32', 'scalar-type', 'corpus', [], 'Uint32'),
+  row('type.uint64', 'scalar-type', 'corpus', [], 'Uint64'),
+  row('type.float16', 'scalar-type', 'corpus', [], 'Float16'),
+  row('type.float32', 'scalar-type', 'corpus', [], 'Float32'),
 
   // Record id types (35-38)
   row('recordid.untyped', 'record-id-type', 'corpus', [35], 'Record untyped'),

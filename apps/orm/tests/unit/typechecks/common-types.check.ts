@@ -141,6 +141,15 @@ type ExpectedFieldTypes =
   | 'decimal'
   | 'bytes'
   | 'geometry'
-  | 'any';
+  | 'any'
+  | 'int8'
+  | 'uint8'
+  | 'int16'
+  | 'uint16'
+  | 'int32'
+  | 'uint32'
+  | 'uint64'
+  | 'float16'
+  | 'float32';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);
