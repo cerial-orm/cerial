@@ -28,7 +28,9 @@ db-client/
 ├── enums/                # Enum values and types (.ts, they exist at runtime)
 ├── internal/
 │   ├── model-registry.ts # Runtime metadata (fields, relations, decorators)
+│   ├── registry/         # Registry chunks, 50 entries each (models/, objects/, tuples/, literals/)
 │   ├── migrations.ts     # DEFINE TABLE/FIELD/INDEX statements
+│   ├── migrations/       # Migration chunks, 50 models each (chunk-1.ts, chunk-2.ts, ...)
 │   └── index.ts          # Internal exports
 └── index.ts              # Main entry: CerialClient + all types
 ```
@@ -281,6 +283,10 @@ const userMeta = modelRegistry.get('User');
 // { fields: [...], relations: [...], decorators: [...] }
 ```
 
+### Chunk files
+
+The registry is written in pieces so that no generated file grows with the schema. Models, objects, tuples and literals each get their own folder under `internal/registry/`, split into `chunk-1.ts`, `chunk-2.ts` and so on with 50 entries per file. `internal/model-registry.ts` imports them and exports the same registry as before, so your imports do not change. Chunks are always `.ts`, whatever `typeFiles` is set to, because they hold runtime values.
+
 ## internal/migrations.ts
 
 Contains the SurrealQL migration statements generated from your schema. These are executed when you call `client.migrate()` or automatically before the first query.
@@ -310,6 +316,8 @@ DEFINE FIELD title ON TABLE post TYPE string;
 DEFINE FIELD content ON TABLE post TYPE option<string | null>;
 DEFINE FIELD authorId ON TABLE post TYPE record<user>;
 ```
+
+Migrations are chunked the same way: `internal/migrations/chunk-<n>.ts` holds the statements for 50 models each, and `internal/migrations.ts` keeps its name and exports.
 
 Key details about generated migrations:
 
@@ -369,7 +377,7 @@ bunx cerial generate --watch
 
 ### Automatic Cleanup
 
-When you regenerate, stale files from previous generations are automatically removed. If you rename a model from `User` to `Account`, the old `models/user.ts` is deleted and `models/account.ts` is created. Empty directories left behind are also cleaned up.
+When you regenerate, stale files from previous generations are automatically removed. If you rename a model from `User` to `Account`, the old `models/user.ts` is deleted and `models/account.ts` is created. Empty directories left behind are also cleaned up, including a directory whose files were all stale, such as `internal/registry/objects/` once your schema has no objects left.
 
 For a guaranteed clean slate (e.g., after major schema restructuring), use the `--clean` flag to wipe the entire output directory before generating:
 

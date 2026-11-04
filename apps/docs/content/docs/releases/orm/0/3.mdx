@@ -373,6 +373,10 @@ development branch and is not available on npm.
 
 ### Fixed
 
+- Regenerating now removes an output directory whose files were all stale, such
+  as `internal/registry/objects/` after the last object is deleted from the
+  schema. Before, the empty directory stayed behind.
+
 - `cerial generate --watch` now honours folder-level configs when there is no
   root config. Before, a watch run without a root config ignored them.
 
@@ -639,6 +643,20 @@ development branch and is not available on npm.
   new `typeFiles: 'ts'` option to keep the old layout. See
   [Generated Output](/cli/generated-output#why-declaration-files) and
   [`typeFiles`](/cli/configuration#typefiles).
+
+- The generated runtime registry and migrations are now written as chunk files of
+  50 entries each, so no single generated file grows with the schema. Before, a
+  2,500-model schema produced a 14 MB registry file that overflowed the TypeScript
+  5.9 parser's stack. `internal/model-registry.ts` and `internal/migrations.ts`
+  keep their names and exports, so imports do not change. The chunks sit under
+  `internal/registry/` and `internal/migrations/`, and they are `.ts` files with
+  either `typeFiles` value. See
+  [Generated Output](/cli/generated-output#internalmodel-registryts).
+
+- **Breaking.** `writeModelRegistry` and `writeMigrationFile`, exported from
+  `cerial/generators`, now resolve to `string[]`, every path they wrote, instead
+  of one `string`. Code that used the resolved value as a single path needs to
+  read the first entry, or loop over the list.
 
 - **Breaking.** Cerial now requires Node.js 22.12 or newer (`engines` is `>=22.12.0`).
   Node 20 is no longer supported. TypeScript configs and schemas are loaded through
