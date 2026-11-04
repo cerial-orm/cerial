@@ -11,9 +11,8 @@ import {
   validateModelNames,
   validateRelations,
   validateSchema,
-  validateTupleObjectCombination,
 } from '../../../src/cli/validators/schema-validator';
-import type { ASTTuple, ASTTupleElement, SchemaAST } from '../../../src/types';
+import type { ASTTuple, SchemaAST } from '../../../src/types';
 import { createASTField, createASTModel } from './helpers';
 import { createDslOrigin } from '../../../src/parser';
 
@@ -317,295 +316,45 @@ describe('Schema Validator', () => {
     });
   });
 
-  describe('validateTupleObjectCombination', () => {
-    const defaultRange = { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } };
+  describe('optional tuple with a decorated element beside an optional object', () => {
+    const range = { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } };
 
-    function createTupleElement(overrides: Partial<ASTTupleElement> = {}): ASTTupleElement {
-      return { origin: createDslOrigin(), type: 'string', isOptional: false, ...overrides };
-    }
-
-    function createTuple(overrides: Partial<ASTTuple> = {}): ASTTuple {
-      return {
-        name: 'TestTuple',
-        elements: [],
-        range: defaultRange,
-        origin: createDslOrigin(defaultRange),
-        ...overrides,
+    // SurrealDB 4.0 leaves the absent tuple NONE (facts: tuples-and-literals.test.ts), so the
+    // combination the ORM once refused is a valid schema.
+    test('is accepted', () => {
+      const tuple: ASTTuple = {
+        name: 'Pair',
+        elements: [
+          {
+            origin: createDslOrigin(),
+            type: 'int',
+            isOptional: false,
+            decorators: [{ type: 'default', range, origin: createDslOrigin(range) }],
+          },
+          { origin: createDslOrigin(), type: 'string', isOptional: true },
+        ],
+        range,
+        origin: createDslOrigin(range),
       };
-    }
-
-    test('passes when model has no optional objects', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
         enums: [],
-        tuples: [
-          createTuple({
-            name: 'MyTuple',
-            elements: [createTupleElement({ type: 'string' }), createTupleElement({ type: 'float', isOptional: true })],
-          }),
-        ],
+        tuples: [tuple],
         literals: [],
         models: [
           createASTModel({
-            name: 'Test',
+            name: 'Place',
             fields: [
-              createASTField({ name: 'data', type: 'tuple', tupleName: 'MyTuple', isOptional: true }),
-              createASTField({ name: 'addr', type: 'object', objectName: 'Addr', isOptional: false }),
-            ],
-          }),
-        ],
-      };
-
-      const errors = validateTupleObjectCombination(ast);
-      expect(errors).toHaveLength(0);
-    });
-
-    test('passes when optional tuple has no optional elements', () => {
-      const ast: SchemaAST = {
-        source: '',
-        objects: [],
-        enums: [],
-        tuples: [
-          createTuple({
-            name: 'MyTuple',
-            elements: [createTupleElement({ type: 'string' }), createTupleElement({ type: 'float' })],
-          }),
-        ],
-        literals: [],
-        models: [
-          createASTModel({
-            name: 'Test',
-            fields: [
-              createASTField({ name: 'data', type: 'tuple', tupleName: 'MyTuple', isOptional: true }),
+              createASTField({ name: 'pair', type: 'tuple', tupleName: 'Pair', isOptional: true }),
               createASTField({ name: 'addr', type: 'object', objectName: 'Addr', isOptional: true }),
             ],
           }),
         ],
       };
 
-      const errors = validateTupleObjectCombination(ast);
-      expect(errors).toHaveLength(0);
-    });
-
-    test('passes when optional tuple has optional elements but no decorated required elements', () => {
-      const ast: SchemaAST = {
-        source: '',
-        objects: [],
-        enums: [],
-        tuples: [
-          createTuple({
-            name: 'MyTuple',
-            elements: [
-              createTupleElement({ type: 'string' }), // required, no decorator → safe
-              createTupleElement({ type: 'float', isOptional: true }),
-            ],
-          }),
-        ],
-        literals: [],
-        models: [
-          createASTModel({
-            name: 'Test',
-            fields: [
-              createASTField({ name: 'data', type: 'tuple', tupleName: 'MyTuple', isOptional: true }),
-              createASTField({ name: 'addr', type: 'object', objectName: 'Addr', isOptional: true }),
-            ],
-          }),
-        ],
-      };
-
-      const errors = validateTupleObjectCombination(ast);
-      expect(errors).toHaveLength(0);
-    });
-
-    test('errors when optional tuple has decorated required element + optional object', () => {
-      const ast: SchemaAST = {
-        source: '',
-        objects: [],
-        enums: [],
-        tuples: [
-          createTuple({
-            name: 'MyTuple',
-            elements: [
-              createTupleElement({
-                type: 'string',
-                decorators: [
-                  { type: 'default', value: 'hello', range: defaultRange, origin: createDslOrigin(defaultRange) },
-                ],
-              }),
-              createTupleElement({ type: 'float', isOptional: true }),
-            ],
-          }),
-        ],
-        literals: [],
-        models: [
-          createASTModel({
-            name: 'Test',
-            fields: [
-              createASTField({ name: 'data', type: 'tuple', tupleName: 'MyTuple', isOptional: true }),
-              createASTField({ name: 'addr', type: 'object', objectName: 'Addr', isOptional: true }),
-            ],
-          }),
-        ],
-      };
-
-      const errors = validateTupleObjectCombination(ast);
-      expect(errors).toHaveLength(1);
-      expect(errors[0]!.message).toContain('SurrealDB bug');
-      expect(errors[0]!.model).toBe('Test');
-      expect(errors[0]!.field).toBe('data');
-    });
-
-    test('errors with @defaultAlways on required element', () => {
-      const ast: SchemaAST = {
-        source: '',
-        objects: [],
-        enums: [],
-        tuples: [
-          createTuple({
-            name: 'MyTuple',
-            elements: [
-              createTupleElement({
-                type: 'date',
-                decorators: [{ type: 'updatedAt', range: defaultRange, origin: createDslOrigin(defaultRange) }],
-              }),
-              createTupleElement({ type: 'float', isOptional: true }),
-            ],
-          }),
-        ],
-        literals: [],
-        models: [
-          createASTModel({
-            name: 'Test',
-            fields: [
-              createASTField({ name: 'data', type: 'tuple', tupleName: 'MyTuple', isOptional: true }),
-              createASTField({ name: 'shipping', type: 'object', objectName: 'Addr', isOptional: true }),
-            ],
-          }),
-        ],
-      };
-
-      const errors = validateTupleObjectCombination(ast);
-      expect(errors).toHaveLength(1);
-      expect(errors[0]!.message).toContain('decorated required element');
-    });
-
-    test('passes when tuple field is required (not optional)', () => {
-      const ast: SchemaAST = {
-        source: '',
-        objects: [],
-        enums: [],
-        tuples: [
-          createTuple({
-            name: 'MyTuple',
-            elements: [
-              createTupleElement({
-                type: 'string',
-                decorators: [
-                  { type: 'default', value: 'x', range: defaultRange, origin: createDslOrigin(defaultRange) },
-                ],
-              }),
-              createTupleElement({ type: 'float', isOptional: true }),
-            ],
-          }),
-        ],
-        literals: [],
-        models: [
-          createASTModel({
-            name: 'Test',
-            fields: [
-              createASTField({ name: 'data', type: 'tuple', tupleName: 'MyTuple', isOptional: false }),
-              createASTField({ name: 'addr', type: 'object', objectName: 'Addr', isOptional: true }),
-            ],
-          }),
-        ],
-      };
-
-      const errors = validateTupleObjectCombination(ast);
-      expect(errors).toHaveLength(0);
-    });
-
-    test('lists all optional object fields in error message', () => {
-      const ast: SchemaAST = {
-        source: '',
-        objects: [],
-        enums: [],
-        tuples: [
-          createTuple({
-            name: 'MyTuple',
-            elements: [
-              createTupleElement({
-                type: 'string',
-                decorators: [
-                  { type: 'default', value: 'x', range: defaultRange, origin: createDslOrigin(defaultRange) },
-                ],
-              }),
-              createTupleElement({ type: 'float', isOptional: true }),
-            ],
-          }),
-        ],
-        literals: [],
-        models: [
-          createASTModel({
-            name: 'Test',
-            fields: [
-              createASTField({ name: 'data', type: 'tuple', tupleName: 'MyTuple', isOptional: true }),
-              createASTField({ name: 'addr', type: 'object', objectName: 'Addr', isOptional: true }),
-              createASTField({ name: 'ship', type: 'object', objectName: 'Addr', isOptional: true }),
-            ],
-          }),
-        ],
-      };
-
-      const errors = validateTupleObjectCombination(ast);
-      expect(errors).toHaveLength(1);
-      expect(errors[0]!.message).toContain('addr, ship');
-    });
-
-    test('errors for multiple problematic tuples on same model', () => {
-      const ast: SchemaAST = {
-        source: '',
-        objects: [],
-        enums: [],
-        tuples: [
-          createTuple({
-            name: 'Tuple1',
-            elements: [
-              createTupleElement({
-                type: 'string',
-                decorators: [
-                  { type: 'default', value: 'a', range: defaultRange, origin: createDslOrigin(defaultRange) },
-                ],
-              }),
-              createTupleElement({ type: 'int', isOptional: true }),
-            ],
-          }),
-          createTuple({
-            name: 'Tuple2',
-            elements: [
-              createTupleElement({
-                type: 'date',
-                decorators: [{ type: 'createdAt', range: defaultRange, origin: createDslOrigin(defaultRange) }],
-              }),
-              createTupleElement({ type: 'float', isOptional: true }),
-            ],
-          }),
-        ],
-        literals: [],
-        models: [
-          createASTModel({
-            name: 'Test',
-            fields: [
-              createASTField({ name: 't1', type: 'tuple', tupleName: 'Tuple1', isOptional: true }),
-              createASTField({ name: 't2', type: 'tuple', tupleName: 'Tuple2', isOptional: true }),
-              createASTField({ name: 'obj', type: 'object', objectName: 'Addr', isOptional: true }),
-            ],
-          }),
-        ],
-      };
-
-      const errors = validateTupleObjectCombination(ast);
-      expect(errors).toHaveLength(2);
+      const errors = validateSchema(ast).errors;
+      expect(errors.filter((e) => e.field === 'pair')).toEqual([]);
     });
   });
 });

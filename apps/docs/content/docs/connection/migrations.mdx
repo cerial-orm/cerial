@@ -392,14 +392,3 @@ Regenerate and the new `DEFINE FIELD OVERWRITE phone ON TABLE user TYPE option<s
 **Changing a field type:**
 
 Changing a field type regenerates the `DEFINE FIELD` with the new type. SurrealDB 4.0 refuses the change over rows unless the new type accepts every value already stored. `cerial migrate` handles that by converting each stored value to the new type and giving rows whose value does not convert the field's `@default`, or leaving the field absent when it is optional, and it asks for `--allow-data-loss` because that overwrites stored values. A field with neither a default nor an optional type is refused in the plan, naming the field; add a `@default`, make the field optional, or convert the rows yourself. See [What needs approval](/cli/migrate#what-needs-approval).
-
-## Known Limitation: Tuple + Object Interaction
-
-SurrealDB has a bug where optional tuple fields with sub-field constraints (`DEFINE FIELD field[N]`) can be incorrectly initialized as `{}` (empty object) instead of NONE when:
-
-1. The model has an optional tuple field with per-element `DEFINE FIELD` sub-field constraints
-2. The model also has an optional object field with its own sub-field constraints
-
-Cerial mitigates this by skipping sub-field `DEFINE FIELD` statements for primitive tuple elements that don't need them (no decorators). The parent tuple type literal already enforces element types, so the sub-field constraints are redundant for plain primitives.
-
-For models that combine optional tuples with required-decorated elements (which _need_ sub-field constraints) and optional object fields, Cerial's schema validator reports an error at generation time. This prevents deploying a schema that would trigger the bug.
