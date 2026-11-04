@@ -111,7 +111,3 @@ model User {
 ```
 
 The deduplication and sorting are enforced at the database level, just like on model fields.
-
-## Implementation Detail
-
-Cerial automatically wraps set field values with a `<set>` cast in generated queries. SurrealDB 3.x doesn't auto-coerce arrays to sets, so this cast ensures values are properly stored as sets even when passed as regular arrays.

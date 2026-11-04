@@ -184,7 +184,6 @@ model User {
 - **Auto-sort** — Values are maintained in sorted order by the database
 - **Output type** — `CerialSet<T>` — a branded array type (`T[] & { readonly __cerialSet: true }`)
 - **Input type** — Accepts regular arrays (no special input type needed)
-- **Cast** — Cerial automatically wraps set field values with a `<set>` cast in queries
 
 ```typescript
 const user = await client.db.User.create({
@@ -202,7 +201,6 @@ console.log(user.tags); // ['alpha', 'beta', 'gamma'] — deduplicated and sorte
 :::caution
 `@set` is **not allowed** on these array types:
 
-- **`Decimal[]`** — SurrealDB has a bug with `set<decimal>`
 - **`Object[]`** — Objects cannot be deduplicated by the database
 - **`Tuple[]`** — Tuples cannot be deduplicated by the database
 - **`Record[]`** — Record references cannot use set semantics

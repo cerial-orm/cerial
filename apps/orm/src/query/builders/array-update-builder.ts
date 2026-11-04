@@ -34,7 +34,7 @@ export function buildPushOperation(
     const varBinding = ctx.bind(field, 'push', pushValue, fieldMetadata.type);
 
     return {
-      clause: `${field} = set::union(${field}, <set>${varBinding.placeholder})`,
+      clause: `${field} = set::union(${field}, ${varBinding.placeholder})`,
       vars: varBinding.vars,
     };
   }
@@ -60,7 +60,7 @@ export function buildUnsetOperation(
     const varBinding = ctx.bind(field, 'unset', unsetValue, fieldMetadata.type);
 
     return {
-      clause: `${field} = set::difference(${field}, <set>${varBinding.placeholder})`,
+      clause: `${field} = set::difference(${field}, ${varBinding.placeholder})`,
       vars: varBinding.vars,
     };
   }
@@ -85,10 +85,8 @@ export function buildArrayUpdateClause(
   // Direct array assignment (overwrite)
   if (Array.isArray(value)) {
     const rendered = bindWithInlineExpressions(ctx, field, 'set', value, fieldMetadata.type);
-    const placeholder = fieldMetadata.isSet ? `<set>${rendered.text}` : rendered.text;
-
     return {
-      clause: `${field} = ${placeholder}`,
+      clause: `${field} = ${rendered.text}`,
       vars: rendered.vars,
     };
   }

@@ -41,7 +41,7 @@ export function applyDefaultValues<T extends Record<string, unknown>>(data: T, m
 }
 
 /**
- * Build SET clauses for CREATE, wrapping @set fields with <set> cast.
+ * Build SET clauses for CREATE.
  * Returns SET clause parts and variables.
  */
 export function buildCreateSetClauses(
@@ -57,8 +57,7 @@ export function buildCreateSetClauses(
 
     const fieldMetadata = model.fields.find((f) => f.name === field);
     const rendered = bindWithInlineExpressions(ctx, field, 'create', value, fieldMetadata?.type || 'string');
-    const placeholder = fieldMetadata?.isSet ? `<set>${rendered.text}` : rendered.text;
-    setParts.push(`${field} = ${placeholder}`);
+    setParts.push(`${field} = ${rendered.text}`);
     Object.assign(setVars, rendered.vars);
   }
 

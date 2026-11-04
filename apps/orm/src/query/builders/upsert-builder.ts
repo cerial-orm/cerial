@@ -95,7 +95,7 @@ function buildUpsertFieldClause(
     const rendered = bindWithInlineExpressions(ctx, fieldName, prefix, value, fieldMetadata?.type || 'string');
     Object.assign(vars, rendered.vars);
 
-    return fieldMetadata?.isSet ? `<set>${rendered.text}` : rendered.text;
+    return rendered.text;
   };
 
   if (inCreate && inUpdate) {
@@ -180,8 +180,7 @@ function buildUpsertSetClauses(
         // Create has a value, update doesn't — preserve create value, NONE on update
         const binding = ctx.bind(fieldName, 'create', createValue, fieldMetadata?.type || 'string');
         Object.assign(setVars, binding.vars);
-        const placeholder = fieldMetadata?.isSet ? `<set>${binding.placeholder}` : binding.placeholder;
-        setParts.push(`${fieldName} = IF $this == NONE THEN ${placeholder} ELSE NONE END`);
+        setParts.push(`${fieldName} = IF $this == NONE THEN ${binding.placeholder} ELSE NONE END`);
         continue;
       }
     }

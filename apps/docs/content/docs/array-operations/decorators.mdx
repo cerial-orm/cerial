@@ -191,7 +191,7 @@ post.tags.forEach((tag) => console.log(tag));
 
 ### Input
 
-Input accepts regular arrays. Cerial automatically wraps set field values with a `<set>` cast when building the query, since SurrealDB 3.x doesn't auto-coerce arrays to sets.
+Input accepts regular arrays. SurrealDB turns them into sets, so you never convert them yourself.
 
 ```typescript
 await client.db.Post.updateMany({
@@ -206,7 +206,6 @@ await client.db.Post.updateMany({
 
 | Excluded Type | Reason |
 |---|---|
-| `Decimal[]` | SurrealDB `set<decimal>` has a known bug |
 | `Object[]` | Complex types not supported in sets |
 | `Tuple[]` | Complex types not supported in sets |
 | `Record[]` | Record references not supported in sets |
