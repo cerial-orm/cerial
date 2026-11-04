@@ -57,7 +57,7 @@ describe('Set Decorator Validator', () => {
       expect(errors[0]!.message).toContain("'count'");
     });
 
-    test('should fail for @set on Decimal[] field', () => {
+    test('should pass for @set on Decimal[] field', () => {
       const ast = createAST([
         createModel({
           fields: [
@@ -71,12 +71,7 @@ describe('Set Decorator Validator', () => {
         }),
       ]);
 
-      const errors = validateSetDecorator(ast);
-      expect(errors).toHaveLength(2);
-      expect(errors[0]!.message).toContain('@set is not allowed on Decimal[] fields');
-      expect(errors[0]!.message).toContain('SurrealDB set<decimal> has known issues');
-      expect(errors[0]!.message).toContain("'prices'");
-      expect(errors[1]!.message).toContain('@set is only allowed on primitive array fields');
+      expect(validateSetDecorator(ast)).toHaveLength(0);
     });
 
     test('should fail for @set on object[] field', () => {
@@ -606,7 +601,7 @@ describe('Set Decorator Validator', () => {
       expect(errors).toHaveLength(0);
     });
 
-    test('should fail for @set on Decimal[] even with other decorators', () => {
+    test('should pass for @set on Decimal[] with other decorators', () => {
       const ast = createAST([
         createModel({
           fields: [
@@ -620,10 +615,7 @@ describe('Set Decorator Validator', () => {
         }),
       ]);
 
-      const errors = validateSetDecorator(ast);
-      expect(errors).toHaveLength(2);
-      expect(errors[0]!.message).toContain('Decimal[]');
-      expect(errors[1]!.message).toContain('primitive array fields');
+      expect(validateSetDecorator(ast)).toHaveLength(0);
     });
   });
 });

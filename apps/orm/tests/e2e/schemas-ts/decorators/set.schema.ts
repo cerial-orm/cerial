@@ -7,3 +7,9 @@ export const SetBasic = model('SetBasic', {
   numbers: f.int().array().set(),
   uuids: f.uuid().array().set(),
 });
+
+export const SetDecimal = model('SetDecimal', {
+  id: f.record().id(),
+  name: f.string(),
+  prices: f.decimal().array().set(),
+});

@@ -177,6 +177,7 @@ import type {
   ReadonlyTest,
   ReadonlyRecord,
   SetBasic,
+  SetDecimal,
   TimestampTest,
   ExtCrossUser,
   ExtCrossAdmin,
@@ -393,6 +394,7 @@ import type {
   ReadonlyTestModel,
   ReadonlyRecordModel,
   SetBasicModel,
+  SetDecimalModel,
   TimestampTestModel,
   ExtCrossUserModel,
   ExtCrossAdminModel,
@@ -617,6 +619,7 @@ export interface TypedDb {
   ReadonlyTest: ReadonlyTestModel;
   ReadonlyRecord: ReadonlyRecordModel;
   SetBasic: SetBasicModel;
+  SetDecimal: SetDecimalModel;
   TimestampTest: TimestampTestModel;
   ExtCrossUser: ExtCrossUserModel;
   ExtCrossAdmin: ExtCrossAdminModel;
@@ -1343,6 +1346,10 @@ export class CerialClient {
 
   get SetBasic(): SetBasicModel {
     return this._ensureDb().SetBasic;
+  }
+
+  get SetDecimal(): SetDecimalModel {
+    return this._ensureDb().SetDecimal;
   }
 
   get TimestampTest(): TimestampTestModel {

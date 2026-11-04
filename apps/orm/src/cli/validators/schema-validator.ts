@@ -938,6 +938,7 @@ const SET_ALLOWED_TYPES = new Set([
   'date',
   'uuid',
   'duration',
+  'decimal',
   'number',
   'bytes',
   'geometry',
@@ -968,13 +969,6 @@ export function validateSetDecorator(ast: SchemaAST): SchemaValidationError[] {
       });
 
       return;
-    }
-
-    if (field.type === 'decimal') {
-      errors.push({
-        message: `@set is not allowed on Decimal[] fields (SurrealDB set<decimal> has known issues). Field '${field.name}' in ${parentName}.`,
-        ...located(field.origin),
-      });
     }
 
     if (!SET_ALLOWED_TYPES.has(field.type)) {

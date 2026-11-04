@@ -31,10 +31,14 @@ model ErrTypeSetNonArray {
   tag String @set
 }
 
-// Error 5: @set on Decimal[] (SurrealDB bug)
-model ErrTypeSetDecimal {
+// Error 5: @set on Object[] (only primitive arrays can be sets)
+object ErrTypeSetItem {
+  label String
+}
+
+model ErrTypeSetObjects {
   id Record @id
-  amounts Decimal[] @set
+  items ErrTypeSetItem[] @set
 }
 
 // Error 6: @set combined with @distinct (mutually exclusive)

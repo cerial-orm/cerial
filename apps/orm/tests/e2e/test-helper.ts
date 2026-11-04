@@ -199,7 +199,7 @@ export const tables = {
   readonly: ['readonly_test', 'readonly_record'],
   timestamps: ['timestamp_test'],
   defaultAlways: ['content_item'],
-  set: ['set_basic'],
+  set: ['set_basic', 'set_decimal'],
   indexes: ['staff', 'warehouse', 'registration', 'attendee', 'workshop', 'depot', 'ticket', 'booking'],
   scalarArrays: ['scalar_arrays'],
   flexible: ['flex_user'],

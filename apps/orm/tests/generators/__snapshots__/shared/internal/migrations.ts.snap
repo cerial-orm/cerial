@@ -135,6 +135,7 @@ export type ModelName =
   | 'ReadonlyTest'
   | 'ReadonlyRecord'
   | 'SetBasic'
+  | 'SetDecimal'
   | 'TimestampTest'
   | 'ExtCrossUser'
   | 'ExtCrossAdmin'
@@ -354,6 +355,7 @@ export const modelNames = [
   'ReadonlyTest',
   'ReadonlyRecord',
   'SetBasic',
+  'SetDecimal',
   'TimestampTest',
   'ExtCrossUser',
   'ExtCrossAdmin',
@@ -583,6 +585,7 @@ export const modelFingerprints: Record<ModelName, string> = {
   ReadonlyTest: 'e999e092292b2f27798eee321d9c96e4d81b3096ee687f417779b4207ef67627',
   ReadonlyRecord: 'd9a43af2c3f1767c8d191f44711efaf7730ef9affc735f5063cc17c4fa4b7267',
   SetBasic: 'ba48ca1f2e104162f1bb8ce4f67dd29e804478af3d6c85710ad2d0a56e7b81e0',
+  SetDecimal: '1d895397119d5b0b75580bc2d893b44844b258696ec281eabad5196a4908a256',
   TimestampTest: '04018afb03a258d26e0e83d80c6632a0198e1edd2313fc960852afa72c113f2e',
   ExtCrossUser: 'fa5e8f642d8ab7f50dcd1b8a400e30104c41bfa328a3112d64b5053b366e4993',
   ExtCrossAdmin: 'f34c1c1cd57c70680f5b4a9faa0ec38f713030d176dde37270940c3ec8bec878',
@@ -678,7 +681,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = 'ae1fd6b18cd949cc4e3bd7783d7e023bc793a51f7b71ec3006b1b8ecfae8c20a';
+export const wholeSchemaFingerprint = '04663eb8cd78eeaa88954668f33baefa2f60b1e1a91ad56c40a097174416f8ff';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

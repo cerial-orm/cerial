@@ -69,8 +69,7 @@ Use `@set` when you want automatic deduplication and sorting. Use `@distinct` or
 ## Restrictions
 
 - **Array fields only** — `@set` requires `[]` on the field type
-- **Primitive types only** — Allowed on `String[]`, `Int[]`, `Float[]`, `Bool[]`, `Date[]`, `Uuid[]`, `Duration[]`, `Number[]`, `Bytes[]`, `Geometry[]`, `Any[]`
-- **Not on Decimal[]** — SurrealDB has known issues with `set<decimal>`
+- **Primitive types only** — Allowed on `String[]`, `Int[]`, `Float[]`, `Bool[]`, `Date[]`, `Uuid[]`, `Duration[]`, `Number[]`, `Decimal[]`, `Bytes[]`, `Geometry[]`, `Any[]`
 - **Not on Object[], Tuple[], Record[]** — Only primitive array types are supported
 - **Not with @distinct** — Redundant, sets are inherently distinct
 - **Not with @sort** — Redundant, sets are inherently sorted
@@ -88,6 +87,7 @@ model Example {
   uuids Uuid[] @set
   durations Duration[] @set
   numbers Number[] @set
+  prices Decimal[] @set
   bytes Bytes[] @set
   geometries Geometry[] @set
   anyValues Any[] @set

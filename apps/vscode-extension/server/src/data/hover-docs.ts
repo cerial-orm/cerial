@@ -84,7 +84,7 @@ export const DECORATOR_DETAIL: Readonly<Record<string, DecoratorDetail>> = {
   '@flexible': { example: 'metadata Metadata @flexible', constraints: 'Only allowed on object-typed fields.' },
   '@set': {
     example: 'tags String[] @set',
-    constraints: 'Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort.',
+    constraints: 'Not allowed on Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort.',
   },
   '@distinct': {
     example: 'categories String[] @distinct',

@@ -312,3 +312,282 @@ export interface SetBasicModel {
 
   getTableName(): string;
 }
+
+// ===== models/setdecimal.ts =====
+/**
+ * Generated types for SetDecimal
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+export interface SetDecimal {
+  id: CerialId<string>;
+  name: string;
+  prices: CerialSet<CerialDecimal>;
+}
+
+export interface SetDecimalInput {
+  id?: string;
+  name: string;
+  prices: CerialDecimalInput[];
+}
+
+export interface SetDecimalWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  prices?:
+    | CerialDecimalInput[]
+    | {
+        has?: CerialDecimalInput;
+        hasAll?: CerialDecimalInput[];
+        hasAny?: CerialDecimalInput[];
+        isEmpty?: boolean;
+      };
+  $raw?: SqlFragment;
+  AND?: SetDecimalWhere[];
+  OR?: SetDecimalWhere[];
+  NOT?: SetDecimalWhere;
+}
+
+export type SetDecimalWhereInput = SetDecimalWhere;
+
+export type SetDecimalFindUniqueWhere = { id: RecordIdInput<string> } & Omit<SetDecimalWhere, 'id'>;
+
+export type SetDecimalCreate = O.Optional<SetDecimalInput, 'id' | 'prices'>;
+
+export type SetDecimalNestedCreate = O.Optional<SetDecimalInput, 'id' | 'prices'>;
+
+export type SetDecimalCreateInput = SetDecimalCreate;
+
+export type SetDecimalUpdate = Partial<O.Omit<SetDecimalInput, 'id' | 'prices'>> & {
+  prices?:
+    | CerialDecimalInput[]
+    | {
+        push?: CerialDecimalInput | CerialDecimalInput[];
+        unset?: CerialDecimalInput | CerialDecimalInput[];
+      };
+};
+
+export type SetDecimalUpdateInput = SetDecimalUpdate;
+
+export type SetDecimalUnset = {};
+
+export interface SetDecimalSelectFields {
+  id?: boolean;
+  name?: boolean;
+  prices?: boolean;
+}
+
+export type SetDecimalSelect = AtLeastOne<SetDecimalSelectFields>;
+
+export interface SetDecimalOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  prices?: 'asc' | 'desc';
+}
+
+export type SetDecimal$Relations = {};
+
+export type GetSetDecimalPayload<S extends SetDecimalSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends SetDecimalSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SetDecimal
+          ? ResolveFieldSelect<SetDecimal[K], S[K]>
+          : never;
+      }
+    : SetDecimal,
+  'flat'
+>;
+
+export interface SetDecimalModel {
+  findOne<
+    S extends SetDecimalSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SetDecimalWhere;
+    select?: SelectArg<S, SetDecimalSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SetDecimal | keyof SetDecimalWhere)]?: never };
+    orderBy?: SetDecimalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSetDecimalPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SetDecimalSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SetDecimalWhere;
+    select?: SelectArg<S, SetDecimalSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SetDecimal | keyof SetDecimalWhere)]?: never };
+    orderBy?: SetDecimalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSetDecimalPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SetDecimalSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SetDecimalFindUniqueWhere;
+    select?: SelectArg<S, SetDecimalSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SetDecimal | keyof SetDecimalWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSetDecimalPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SetDecimalSelect | undefined = undefined>(options: {
+    data: SetDecimalCreateInput;
+    select?: SelectArg<S, SetDecimalSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetDecimalPayload<S>>;
+
+  updateMany<
+    S extends SetDecimalSelect | undefined = undefined,
+    D extends SetDecimalUpdateInput = SetDecimalUpdateInput,
+  >(options: {
+    where: SetDecimalWhere;
+    data: DataArg<D, SetDecimalUpdateInput>;
+    unset?: SafeUnset<SetDecimalUnset, D>;
+    select?: SelectArg<S, SetDecimalSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetDecimalPayload<S>[]>;
+
+  updateUnique<
+    S extends SetDecimalSelect | undefined = undefined,
+    D extends SetDecimalUpdateInput = SetDecimalUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SetDecimalFindUniqueWhere;
+    data: DataArg<D, SetDecimalUpdateInput>;
+    unset?: SafeUnset<SetDecimalUnset, D>;
+    select?: SelectArg<S, SetDecimalSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SetDecimal | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSetDecimalPayload<S>, R>>;
+
+  upsert<
+    S extends SetDecimalSelect | undefined = undefined,
+    D extends SetDecimalUpdateInput = SetDecimalUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SetDecimalFindUniqueWhere;
+    create: SetDecimalCreateInput;
+    update?: DataArg<D, SetDecimalUpdateInput>;
+    unset?: SafeUnset<SetDecimalUnset, D>;
+    select?: SelectArg<S, SetDecimalSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSetDecimalPayload<S>, R>>;
+
+  upsert<
+    S extends SetDecimalSelect | undefined = undefined,
+    D extends SetDecimalUpdateInput = SetDecimalUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SetDecimalWhere;
+    create: SetDecimalCreateInput;
+    update?: DataArg<D, SetDecimalUpdateInput>;
+    unset?: SafeUnset<SetDecimalUnset, D>;
+    select?: SelectArg<S, SetDecimalSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSetDecimalPayload<S>, R>>;
+
+  deleteMany(options: { where: SetDecimalWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SetDecimalFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SetDecimal | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SetDecimal, R>>;
+
+  count(where?: SetDecimalWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SetDecimalWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SetDecimalWhere }): Promise<import('cerial').CerialLiveHandle<SetDecimal>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

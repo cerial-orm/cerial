@@ -5,3 +5,9 @@ model SetBasic {
   numbers Int[] @set
   uuids Uuid[] @set
 }
+
+model SetDecimal {
+  id Record @id
+  name String
+  prices Decimal[] @set
+}
