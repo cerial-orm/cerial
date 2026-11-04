@@ -341,7 +341,7 @@ The pipeline shape is the same each time:
 
 Do NOT use SurrealDB reserved keywords as field names, model names, object names, tuple names or enum names in `.cerial` schema files. SurrealDB's parser will misinterpret them, causing migration failures. `cerial generate` refuses them, case-insensitively.
 
-The list is not kept here. `RESERVED_KEYWORDS` in `apps/orm/src/cli/validators/reserved-keyword-validator.ts` is the one source: it is pinned to SurrealDB 3.3.0 and must be re-diffed against the parser on every SurrealDB bump. Read it there rather than copying it back into this file.
+The list is not kept here. `RESERVED_KEYWORDS` in `apps/orm/src/cli/validators/reserved-keyword-validator.ts` is the one source: it is pinned to SurrealDB 4.0.0 and must be re-diffed against the parser on every SurrealDB bump. Read it there rather than copying it back into this file.
 
 ## Gotchas
 

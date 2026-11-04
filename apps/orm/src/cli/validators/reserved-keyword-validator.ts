@@ -10,10 +10,11 @@ import type { SchemaValidationError } from './schema-validator';
  * Names refused as a model, object, tuple, enum or field name. Matching is case-insensitive, as
  * SurrealDB's own keyword sets are.
  *
- * Pinned to SurrealDB 3.3.0: the 44 `RESERVED_KEYWORD` entries of `common/src/keywords.rs`, the 55
- * words the project guide used to list, `and` (measured unusable bare, absent from the source set) and
- * `access` (a statement starter the source omits). The set changed between 2.6.5 and 3.3.0, so re-diff
- * it against the parser source on every SurrealDB bump.
+ * Pinned to SurrealDB 4.0.0: the 44 `RESERVED_KEYWORD` entries of `common/src/keywords.rs` (identical
+ * at 3.3.0 and v4.0.0), the 55 words the project guide used to list, `and` (measured unusable bare,
+ * absent from the source set), `access` (a statement starter the source omits), and `explain` and
+ * `overwrite` (measured refused bare on 4.0, absent from the source set). The set changed between
+ * 2.6.5 and 3.3.0, so re-diff it against the parser source on every SurrealDB bump.
  */
 export const RESERVED_KEYWORDS: ReadonlySet<string> = new Set([
   'access',
@@ -37,6 +38,7 @@ export const RESERVED_KEYWORDS: ReadonlySet<string> = new Set([
   'diff',
   'else',
   'end',
+  'explain',
   'false',
   'fetch',
   'field',
@@ -67,6 +69,7 @@ export const RESERVED_KEYWORDS: ReadonlySet<string> = new Set([
   'or',
   'order',
   'outside',
+  'overwrite',
   'parallel',
   'patch',
   'rand',

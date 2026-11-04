@@ -15,8 +15,8 @@ const reserved = (source: string) =>
     .filter((m) => m.startsWith('Reserved keyword'));
 
 describe('Reserved Keyword Validator', () => {
-  test('the list holds the 76 pinned words', () => {
-    expect(RESERVED_KEYWORDS.size).toBe(76);
+  test('the list holds the 78 pinned words', () => {
+    expect(RESERVED_KEYWORDS.size).toBe(78);
   });
 
   test('accepts a schema using only allowed names', () => {
@@ -92,5 +92,31 @@ describe('Reserved Keyword Validator', () => {
   test('refuses the words the source set omits and the owner added', () => {
     for (const word of ['access', 'and', 'tb', 'sequence', 'upsert', 'content'])
       expect(isReservedKeyword(word)).toBe(true);
+  });
+
+  describe.each(['explain', 'overwrite'])('4.0 word %s', (word) => {
+    const cap = word[0]!.toUpperCase() + word.slice(1);
+
+    test('is in the list, in any case', () => {
+      expect(isReservedKeyword(word)).toBe(true);
+      expect(isReservedKeyword(word.toUpperCase())).toBe(true);
+      expect(isReservedKeyword(cap)).toBe(true);
+    });
+
+    test.each([
+      ['field', `model User {\n  id Record @id\n  ${word} String\n}`],
+      ['model', `model ${cap} {\n  id Record @id\n}`],
+      ['object', `object ${cap} {\n  label String\n}`],
+      ['tuple', `tuple ${cap} {\n  Int,\n  Int\n}`],
+      ['enum', `enum ${cap} { A }`],
+    ])('refuses it as a %s name', (_kind, source) => {
+      expect(reserved(source)).toHaveLength(1);
+    });
+
+    test('accepts a near-miss name', () => {
+      const near = `${word}s`;
+      expect(isReservedKeyword(near)).toBe(false);
+      expect(reserved(`model User {\n  id Record @id\n  ${near} String\n  my${cap} String\n}`)).toEqual([]);
+    });
   });
 });
