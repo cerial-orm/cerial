@@ -5,8 +5,8 @@
 import { afterAll, describe, expect, test } from 'bun:test';
 import { Surreal } from 'surrealdb';
 import { CerialMigrationError } from '../../src/errors';
-import { quoteIdent, readLiveSchema } from '../../src/migrations';
-import type { TableModel } from '../../src/migrations';
+import { buildFieldModel, diffSchema, quoteIdent, readLiveSchema } from '../../src/migrations';
+import type { SchemaModel, TableModel } from '../../src/migrations';
 
 const URL = 'http://127.0.0.1:8000';
 const opened: Surreal[] = [];
@@ -141,6 +141,81 @@ describe('readLiveSchema', () => {
 
     expect(paths).not.toContain('["loose",{"element":true}]');
     expect(paths).toContain('["strict",{"element":true}]');
+  });
+
+  describe('4.0 shapes read with no false drift', () => {
+    const DDL = [
+      'DEFINE TABLE doc SCHEMAFULL',
+      'DEFINE FIELD OVERWRITE pair ON TABLE doc TYPE [{ x: float, y: float }, { x: float, y: float }]',
+      'DEFINE FIELD OVERWRITE deep ON TABLE doc TYPE [string, { name: string, age: option<int>, pos: [float, { payload: string }] }]',
+      'DEFINE FIELD OVERWRITE loose ON TABLE doc TYPE [string, object] FLEXIBLE',
+      "DEFINE FIELD OVERWRITE optPair ON TABLE doc TYPE option<[string, { grade: 'LOW' | 'HIGH' }]>",
+      'DEFINE FIELD `after` ON TABLE doc TYPE string',
+      'DEFINE FIELD `select` ON TABLE doc TYPE option<int>',
+      'DEFINE FIELD items ON TABLE doc TYPE array<object>',
+      'DEFINE FIELD items.*.sku ON TABLE doc TYPE string',
+      'DEFINE FIELD items.*.qty ON TABLE doc TYPE int',
+      'DEFINE INDEX by_sku ON TABLE doc FIELDS items.*.sku',
+    ];
+    const desired: SchemaModel = {
+      tables: [
+        {
+          name: 'doc',
+          fields: [
+            buildFieldModel({ path: ['pair'], kind: '[{ x: float, y: float }, { x: float, y: float }]' }),
+            buildFieldModel({
+              path: ['deep'],
+              kind: '[string, { name: string, age: option<int>, pos: [float, { payload: string }] }]',
+            }),
+            buildFieldModel({ path: ['loose'], kind: '[string, object]', flexible: true }),
+            buildFieldModel({ path: ['optPair'], kind: "option<[string, { grade: 'LOW' | 'HIGH' }]>" }),
+            buildFieldModel({ path: ['after'], kind: 'string' }),
+            buildFieldModel({ path: ['select'], kind: 'option<int>' }),
+            buildFieldModel({ path: ['items'], kind: 'array<object>' }),
+            buildFieldModel({ path: ['items', { element: true }, 'sku'], kind: 'string' }),
+            buildFieldModel({ path: ['items', { element: true }, 'qty'], kind: 'int' }),
+          ],
+          indexes: [],
+        },
+      ],
+      unmanaged: [],
+    };
+
+    test('a freshly defined schema matches, and the implicit items.* field is not read as extra', async () => {
+      const db = await scratch('shapes40');
+      await exec(db, DDL.join(';\n'));
+
+      const live = await readLiveSchema(db);
+      const doc = table(live.tables, 'doc');
+      const paths = doc.fields.map((f) => JSON.stringify(f.path));
+
+      expect(live.unmanaged).toEqual([]);
+      expect(paths).toContain('["after"]');
+      expect(paths).toContain('["select"]');
+      expect(paths).not.toContain('["items",{"element":true}]');
+      expect(doc.fields.find((f) => f.path[0] === 'loose')?.flexible).toBe(true);
+      const fieldDrift = diffSchema(desired, live, { managedTables: [] }).filter((d) => d.field);
+
+      expect(fieldDrift).toEqual([]);
+    });
+
+    test('a real change to each shape is reported', async () => {
+      const db = await scratch('shapes40_drift');
+      await exec(
+        db,
+        DDL.join(';\n')
+          .replace('{ x: float, y: float }, { x: float, y: float }]', '{ x: float, y: int }, { x: float, y: float }]')
+          .replace('TYPE [string, object] FLEXIBLE', 'TYPE [string, object]')
+          .replace('`after` ON TABLE doc TYPE string', '`after` ON TABLE doc TYPE int'),
+      );
+
+      const changed = diffSchema(desired, await readLiveSchema(db), { managedTables: [] })
+        .filter((d) => d.kind === 'field-changed')
+        .map((d) => `${d.field![0]}:${d.changes!.join(',')}`)
+        .sort();
+
+      expect(changed).toEqual(['after:kind', 'loose:flexible', 'pair:kind']);
+    });
   });
 
   test('reports events, functions, params, table and field permissions and non-normal tables as unmanaged', async () => {
