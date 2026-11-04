@@ -25,6 +25,7 @@ export {
   buildDeleteWithCascade,
   getRecordIdFromWhere,
 } from './delete-builder';
+export { buildGroupByQuery } from './group-by-builder';
 export { applyDefaultValues, buildCreateQuery, stripComputedFields } from './insert-builder';
 export {
   buildCreateWithNestedTransaction,

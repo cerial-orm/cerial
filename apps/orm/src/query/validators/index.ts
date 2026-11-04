@@ -10,6 +10,8 @@ export {
   validateUnset,
   validateUpdateData,
 } from './data-validator';
+export type { GroupByAggregate, GroupByArgs, GroupByFieldMap, GroupByKeys } from './group-by-validator';
+export { GROUP_BY_AGGREGATES, GROUP_BY_ALL, groupByCountFields, validateGroupBy } from './group-by-validator';
 export { refuseFragmentInValue } from './fragment-value';
 export type { ValidationProblem } from './failure';
 export { validationFailure } from './failure';
