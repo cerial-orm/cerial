@@ -27,7 +27,7 @@ updates:
       prefix: chore(orm)
     ignore:
       # The SDK major intentionally lags the server major: no 3.x line is
-      # published, and 2.x is the line that supports SurrealDB 3.x servers.
+      # published, and 2.x is the line that supports SurrealDB 4.x servers.
       # Patch and minor updates are wanted; a major needs a deliberate review
       # of the compatibility matrix.
       - dependency-name: surrealdb

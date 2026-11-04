@@ -16,7 +16,7 @@ bun test tests/unit tests/generators   # no database needed
 bun run test:full                      # everything, database needed
 ```
 
-`docker-compose.yml` pins `surrealdb/surrealdb:v3.3.0` with the `memory` backend,
+`docker-compose.yml` pins `surrealdb/surrealdb:v4.0.0` with the `memory` backend,
 the same version and backend CI tests against. The suites expect
 `http://127.0.0.1:8000` with `root`/`root` and namespace and database both `main`,
 hardcoded in `apps/orm/tests/e2e/test-helper.ts`. Any SurrealDB answering there

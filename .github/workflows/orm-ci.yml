@@ -118,8 +118,8 @@ jobs:
           # Keep in step with docs/surrealdb-compatibility.mdx.
           # Checksum is of surreal-$SURREAL_VERSION.linux-amd64.tgz from the
           # GitHub release; re-compute it when bumping the version.
-          SURREAL_VERSION: v3.3.0
-          SURREAL_SHA256: 44aeab565f7e7e39d2d0bf0583c8aae648babc91373c70b2658288d95bbbcd55
+          SURREAL_VERSION: v4.0.0
+          SURREAL_SHA256: e910760179b9f13d0773ce98ac50f9a537051156365239284c2dc687adf3049d
         run: |
           curl -sSfL -o surreal.tgz \
             "https://github.com/surrealdb/surrealdb/releases/download/${SURREAL_VERSION}/surreal-${SURREAL_VERSION}.linux-amd64.tgz"
