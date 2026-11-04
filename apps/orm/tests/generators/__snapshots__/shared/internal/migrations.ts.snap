@@ -479,21 +479,21 @@ export const modelFingerprints: Record<ModelName, string> = {
   LiteralNumberKinds: '3f23142205c40a5430d26e5a3a87bb84361669dc86eef138f7d93255ac90fbb4',
   LiteralObjectArray: '99e77fc12e7f0464af7ad44795e55eff2cd151e7c7e22ba310558d256aa5bdef',
   NmObjectDoc: '4ea61cbc15702a162d8ce3daf98f682a42b030e8918503123616f76d0ade1bd2',
-  NmTupleDoc: 'b719ee5656004bd502c475360754ee4d927e8ff0f02d306c6e8766a1216fbab9',
+  NmTupleDoc: 'ac523df259c286ab1d33672a98abf04028535e5a21c1fc1bb9d7a3cf8c0a75c2',
   ObjDecUser: '7cfc23c130970c9ce607c4d1611563e7b1e624b4ee9ce594a83377e1aa637db3',
   ObjectTestUser: 'e3e69eaa8dfe1d7f96f620bc9a51af3726aa6ccabc54a1a9b25b4a7988dcebc1',
   ObjectTestOrder: 'ef8b3c42396bb058a350d856c90e2b3a99a465424bd5f873650e47a0eba9f3df',
   TupleBasic: '4b162d2a2dab9be6ba55190718d1c36067dff03edaffb2e13418ebf871e93d7c',
-  TupleNested: '8749cf8a735e671cd03f8d591b56ca495cb3ffb6f19e7e79d07c86a3a5a027a7',
-  TupleObjInTuple: '2870a91a76316bc3d3a5b4f74ae0a346e6a59edbfadf6d58cfec21b40a1b16c2',
+  TupleNested: '0e31413664a223f5f91f7bf3cb9d9e70aa21488cc84d0991d1ce095efdec20c8',
+  TupleObjInTuple: '7da82a7f52fbe15a259ba39d1568f0e2e987be7fa932fe7fbb057a13b53772c7',
   TupleInObj: '77897adaf9d72de1ae7ad06ad66cd3690ff015d24b32ff174c0a127b63f27960',
   TupleWithRelation: 'b06c675f143e0ad428e06ec215a77cf8c0068b8be7cd0ff7026b30bf1b7809d0',
   TupleRelatedPost: '162025612c35819f04cec7a90e7c80dede7d75b459c1780cc48a5261b9f93158',
-  TupleDeepNest: '810f75f43fec0f28000872e55b831c9fa73f495b8b51bd7f28d0f6e3f7d83282',
+  TupleDeepNest: '23f74374042d885f90e70e9b10f970fef6776a640633ef76a7240cd9b3bb34b6',
   TupleNullable: 'bf1e135c20cb037d8d149e8fa51f5e8dfabbcca7f102acddc7d57bc8fdb1cb07',
-  TupleStamped: '5b4db65ce5530ed3531c54088f765e009ee26872eb656e3f2c4f459284ac9575',
-  TupleDefaulted: 'e1240fa874a6e3f4d9311eb2a6d57fc835eadcb9a7223e427736794c573fed50',
-  TupleDecoratedNest: '1df2afdcbefc82946d5640bdc4d39fd3ac43185b61b16674ca65d02210314159',
+  TupleStamped: 'a70dda647efeabc96bdfdde00c86e48163fc2e38655a6500d4be3e326032e861',
+  TupleDefaulted: '6594d9a3b0a0a73e5d4eb5ecaac34f26674166f038fcf791cd5cbb1c8f35f619',
+  TupleDecoratedNest: '72a6a189391be59f985b3a47735c0e6a9d25639cd47da2f3c961303ce41904df',
   TupleLiteralElement: '200fd7eaa091b8e820c8202796a8a4d1d599afcd05253e10a1b09fe0f816826b',
   BasicsUser: 'a6af1cfc99a02146c803170715d861b228c0d10e8584211b32b63cbb42558f87',
   BasicsProfile: '6a350c5b869f2618c47c3966bdebb6866f92e8c50e750595d5a75eb8a136be25',
@@ -622,7 +622,7 @@ export const modelFingerprints: Record<ModelName, string> = {
   ExtRelPostArchive: '606586a16e530d5ee1f9ba44c71b9b3834aae743e9a0cc93ba67a6f6340fd7ef',
   ExtRelComment: 'fdfbf32ba9afbddb74f12964512df18430cbc5371814c028b49491b7284ec984',
   ExtRelCommentModerated: 'd492d2e6284a74256c6d86047f04ca22341020ea16173b6038eb3f9bb700f5da',
-  ExtTupleModel: '548c188a153c6d2f7b73d3182813d60e4a4129722e1e27e38c5680a8b1f40afa',
+  ExtTupleModel: 'b4b1088163e3f42e5afd47d7022f171fc852e2097607e3152cfae020a51fadb8',
   ExtTupleByName: '634f8b70f44dd47f7c9e941ae6bce6b163c51f38767f23748ddf4c7e19425c4e',
   IntIdModel: '3a91b01b58181be3b258639a2afd8d25993dffcfcba2070c550b3c6124657980',
   NumberIdModel: 'ec2880bacb07b0b9a5bfb97e28831c2eeadbd38bbe00b1ec4f695415e5fa53a1',
@@ -635,7 +635,7 @@ export const modelFingerprints: Record<ModelName, string> = {
   FkTargetIntId: '5835fa263930f16c21572b81208c222764791ed8b1de46af4ed3f28af92fe266',
   FkChildModel: '739e337893eb3ba650c7852a56568ab0bee319913aa314aa7f722745bcd7ea11',
   StandaloneRefModel: 'dd70a95b99ca9178a0c4b3edd74e7d910422979ad802e55908036172b3bc81d5',
-  UnsetTest: 'd611e0b37abc99e16393240728a70c9b3d6eeeec0cd073c242dea253efe918c2',
+  UnsetTest: '307b6413b7e0f48d3a57cc601746119458808ca314e73d286f1b4a82524961fe',
   KitchenSinkUser: '3baa369c05b490eee859d31a4c91b629f7837203721fd407e8287c82ee3670ac',
   KitchenSinkProfile: '169aded5ae5871b30953fd93043a3040182c84942c3785d132bd51ed8e77485c',
   KitchenSinkPost: '58041bbce5211bdd438d1861c2174672c9cbf5a965ecec1a7d1a3513d632098c',
@@ -678,7 +678,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = 'ce377f483cf78d80c03df66e9b55fa5203594f57f2646ec2e5904fa8c3f027a0';
+export const wholeSchemaFingerprint = 'ae1fd6b18cd949cc4e3bd7783d7e023bc793a51f7b71ec3006b1b8ecfae8c20a';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

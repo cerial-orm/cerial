@@ -21,6 +21,7 @@ export {
   generateLiteralSurrealType,
   generateTupleSurrealTypeLiteral,
   generateTypeClause,
+  fieldTypeNeedsFlexible,
   generateValueClause,
   getTypeAssertion,
   hasTypeAssertion,

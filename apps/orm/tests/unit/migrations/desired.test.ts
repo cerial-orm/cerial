@@ -133,8 +133,7 @@ describe('buildDesiredSchema fixtures', () => {
     expect(schema.tables[0]!.fields.map((f) => f.path.length)).toEqual([1]);
   });
 
-  test('a tuple defines only decorated elements, and an array tuple goes through the element step', () => {
-    const tuples: TupleRegistry = {};
+  test('a tuple defines no element of its own, whatever the element carries, and an array tuple is one field', () => {
     const info = {
       tupleName: 'Pair',
       elements: [
@@ -150,15 +149,27 @@ describe('buildDesiredSchema fixtures', () => {
         ]),
       ),
       {},
-      tuples,
+      {},
       {},
     );
 
+    expect(schema.tables[0]!.fields.map((f) => JSON.stringify(f.path))).toEqual(['["pos"]', '["trail"]']);
     expect(find(schema, 'spot', 'pos')?.kind).toBe('[float, float]');
-    expect(find(schema, 'spot', 'pos[0]')).toBeUndefined();
-    expect(find(schema, 'spot', 'pos[1]')).toMatchObject({ kind: 'float', default: '1.5' });
     expect(find(schema, 'spot', 'trail')?.kind).toBe('array<[float, float]>');
-    expect(find(schema, 'spot', 'trail', '*[1]')).toMatchObject({ default: '1.5' });
+  });
+
+  test('a tuple holding a flexible object is a flexible field, a strict object element is not', () => {
+    const strict = { objectName: 'Strict', fields: [field('k', 'string')] };
+    const open = { objectName: 'Open', fields: [field('meta', 'object', { isFlexible: true, objectInfo: strict })] };
+    const tupleOf = (objectInfo: typeof strict): FieldMetadata =>
+      field('data', 'tuple', {
+        tupleInfo: { tupleName: 'T', elements: [{ index: 0, type: 'object' as const, isOptional: false, objectInfo }] },
+      });
+    const schema = (f: FieldMetadata) => buildDesiredSchema(registryOf(model('Box', [f])), {}, {}, {});
+
+    expect(find(schema(tupleOf(open)), 'box', 'data')).toMatchObject({ kind: '[{ meta: object }]', flexible: true });
+    expect(find(schema(tupleOf(strict)), 'box', 'data')?.kind).toBe('[{ k: string }]');
+    expect(find(schema(tupleOf(strict)), 'box', 'data')?.flexible).toBeFalsy();
   });
 
   test('a literal, an enum and a @set render their types', () => {

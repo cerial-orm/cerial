@@ -2,18 +2,29 @@
  * Unit Tests: Tuple Migration Generator
  *
  * Tests DEFINE TABLE/FIELD generation for tuple-typed fields,
- * including sub-element definitions, nested tuples, objects in tuples.
+ * including nested tuples and object elements, which are inline literal types because
+ * SurrealDB 4.0 refuses every `DEFINE FIELD t[N]` under a tuple literal.
  */
 
 import { describe, expect, test } from 'bun:test';
+import { generateModelDefineStatements } from '../../../src/generators/migrations/define-generator';
 import {
-  generateModelDefineStatements,
-  generateTupleFieldDefines,
-} from '../../../src/generators/migrations/define-generator';
-import { generateTupleSurrealTypeLiteral, generateTypeClause } from '../../../src/generators/migrations/type-mapper';
-import type { ObjectRegistry, TupleRegistry } from '../../../src/types';
+  fieldTypeNeedsFlexible,
+  generateTupleSurrealTypeLiteral,
+  generateTypeClause,
+} from '../../../src/generators/migrations/type-mapper';
+import type { FieldMetadata, ObjectRegistry, TupleElementMetadata, TupleRegistry } from '../../../src/types';
 import { elem, field, mdl, ti } from './helpers';
 
+const objectOf = (objectName: string, fields: FieldMetadata[]): { objectName: string; fields: FieldMetadata[] } => ({
+  objectName,
+  fields,
+});
+const address = objectOf('Address', [
+  field({ name: 'street', type: 'string' }),
+  field({ name: 'zip', type: 'int', isRequired: false }),
+  field({ name: 'tag', type: 'string', isNullable: true }),
+]);
 const emptyTupleRegistry: TupleRegistry = {};
 const emptyObjRegistry: ObjectRegistry = {};
 
@@ -67,21 +78,55 @@ describe('Tuple Migration Generator', () => {
       expect(result).toBe('[datetime]');
     });
 
-    test('should generate object element as object', () => {
+    test('should render an object element with no resolved fields as a bare object', () => {
       const info = ti('WithObj', [
         elem({ index: 0, type: 'string' }),
         elem({ index: 1, type: 'object', objectInfo: { objectName: 'Address', fields: [] } }),
       ]);
-      const result = generateTupleSurrealTypeLiteral(info);
-      expect(result).toBe('[string, object]');
+      expect(generateTupleSurrealTypeLiteral(info)).toBe('[string, object]');
     });
 
-    test('should generate optional object element', () => {
-      const info = ti('MaybeObj', [
-        elem({ index: 0, type: 'object', objectInfo: { objectName: 'Address', fields: [] }, isOptional: true }),
+    test('should render an object element as an inline literal object', () => {
+      const info = ti('Located', [
+        elem({ index: 0, type: 'string' }),
+        elem({ index: 1, type: 'object', objectInfo: address }),
       ]);
-      const result = generateTupleSurrealTypeLiteral(info);
-      expect(result).toBe('[option<object>]');
+      expect(generateTupleSurrealTypeLiteral(info)).toBe(
+        '[string, { street: string, zip: option<int>, tag: string | null }]',
+      );
+    });
+
+    test('should render an optional object element as option of a literal', () => {
+      const info = ti('MaybeObj', [elem({ index: 0, type: 'object', objectInfo: address, isOptional: true })]);
+      expect(generateTupleSurrealTypeLiteral(info)).toBe(
+        '[option<{ street: string, zip: option<int>, tag: string | null }>]',
+      );
+    });
+
+    test('should render objects and tuples nested in an object element as literals', () => {
+      const pair = ti('Pair', [elem({ index: 0, type: 'int' }), elem({ index: 1, type: 'int' })]);
+      const geo = objectOf('Geo', [
+        field({ name: 'lat', type: 'float' }),
+        field({ name: 'pair', type: 'tuple', tupleInfo: pair }),
+        field({ name: 'pairs', type: 'tuple', isArray: true, tupleInfo: pair }),
+        field({ name: 'inner', type: 'object', isRequired: false, objectInfo: address }),
+        field({ name: 'inners', type: 'object', isArray: true, objectInfo: address }),
+      ]);
+      const info = ti('Deep', [elem({ index: 0, type: 'object', objectInfo: geo })]);
+      expect(generateTupleSurrealTypeLiteral(info)).toBe(
+        '[{ lat: float, pair: [int, int], pairs: array<[int, int]>, inner: option<{ street: string, zip: option<int>, tag: string | null }>, inners: array<{ street: string, zip: option<int>, tag: string | null }> }]',
+      );
+    });
+
+    test('should leave a sub-field default out of the type, as a required key', () => {
+      const stamped = objectOf('Stamped', [
+        field({ name: 'at', type: 'date', timestampDecorator: 'createdAt' }),
+        field({ name: 'n', type: 'int', defaultValue: 3 }),
+        field({ name: 'id2', type: 'uuid', uuidDecorator: 'uuid7' }),
+        field({ name: 'live', type: 'date', timestampDecorator: 'now' }),
+      ]);
+      const info = ti('S', [elem({ index: 0, type: 'object', objectInfo: stamped })]);
+      expect(generateTupleSurrealTypeLiteral(info)).toBe('[{ at: datetime, n: int, id2: uuid }]');
     });
 
     test('should generate optional nested tuple', () => {
@@ -144,144 +189,92 @@ describe('Tuple Migration Generator', () => {
     });
   });
 
-  describe('generateTupleFieldDefines', () => {
-    // NOTE: After SurrealDB bug mitigation, primitive elements WITHOUT decorators
-    // are skipped (parent tuple type literal already enforces types including | null).
-    // Sub-field DEFINE statements are only emitted for:
-    //   - Elements with decorators (@default, @defaultAlways, @createdAt, @updatedAt)
-    //   - Object elements (need sub-field structure)
-    //   - Nested tuple elements (need sub-field structure)
+  describe('flexible object members', () => {
+    const flexibleGeo = objectOf('Geo', [
+      field({ name: 'lat', type: 'float' }),
+      field({ name: 'meta', type: 'object', isFlexible: true, objectInfo: address }),
+    ]);
+    const tupleField = (elements: TupleElementMetadata[], overrides: Partial<FieldMetadata> = {}): FieldMetadata =>
+      field({ name: 'data', type: 'tuple', tupleInfo: ti('T', elements), ...overrides });
 
-    test('should skip sub-field defines for primitive elements without decorators', () => {
-      const info = ti('Coordinate', [elem({ index: 0, type: 'float' }), elem({ index: 1, type: 'float' })]);
-
-      const stmts = generateTupleFieldDefines('location', 'user', info, emptyTupleRegistry, emptyObjRegistry);
-
-      // Primitive elements without decorators should NOT produce sub-field defines
-      expect(stmts.some((s) => s.includes('location[0]'))).toBe(false);
-      expect(stmts.some((s) => s.includes('location[1]'))).toBe(false);
+    test('a @flexible object inside an element is a bare object and the field is FLEXIBLE', () => {
+      const f = tupleField([elem({ index: 0, type: 'object', objectInfo: flexibleGeo })]);
+      expect(generateTypeClause('tuple', true, f)).toBe('TYPE [{ lat: float, meta: object }]');
+      expect(fieldTypeNeedsFlexible(f)).toBe(true);
     });
 
-    test('should skip sub-field defines for optional primitive elements without decorators', () => {
-      const info = ti('MaybePoint', [
-        elem({ index: 0, type: 'float' }),
-        elem({ index: 1, type: 'float', isOptional: true }),
+    test('a self-referencing object inside an element is a bare object and the field is FLEXIBLE', () => {
+      const node = objectOf('Node', []);
+      node.fields.push(
+        field({ name: 'label', type: 'string' }),
+        field({ name: 'next', type: 'object', isRequired: false, objectInfo: { objectName: 'Node', fields: [] } }),
+      );
+      const f = tupleField([elem({ index: 0, type: 'object', objectInfo: node })]);
+      expect(generateTypeClause('tuple', true, f)).toBe('TYPE [{ label: string, next: option<object> }]');
+      expect(fieldTypeNeedsFlexible(f)).toBe(true);
+    });
+
+    test('a strict object, a primitive tuple and a plain field never get FLEXIBLE', () => {
+      expect(fieldTypeNeedsFlexible(tupleField([elem({ index: 0, type: 'object', objectInfo: address })]))).toBe(false);
+      expect(fieldTypeNeedsFlexible(tupleField([elem({ index: 0, type: 'int' })]))).toBe(false);
+      expect(fieldTypeNeedsFlexible(field({ name: 'x', type: 'string' }))).toBe(false);
+    });
+
+    test('FLEXIBLE is emitted on the DEFINE FIELD for a required, optional and array tuple field', () => {
+      const els = [elem({ index: 0, type: 'string' }), elem({ index: 1, type: 'object', objectInfo: flexibleGeo })];
+      const m = mdl('T', 't', [
+        field({ name: 'id', type: 'record', isId: true }),
+        tupleField(els, { name: 'a' }),
+        tupleField(els, { name: 'b', isRequired: false }),
+        tupleField(els, { name: 'c', isArray: true }),
+        tupleField([elem({ index: 0, type: 'object', objectInfo: address })], { name: 'strict' }),
       ]);
 
-      const stmts = generateTupleFieldDefines('point', 'user', info, emptyTupleRegistry, emptyObjRegistry);
-
-      // Both elements lack decorators/@nullable — skipped
-      expect(stmts.some((s) => s.includes('point[0]'))).toBe(false);
-      expect(stmts.some((s) => s.includes('point[1]'))).toBe(false);
-    });
-
-    test('should emit sub-field for element with @default decorator', () => {
-      const info = ti('WithDefault', [
-        elem({ index: 0, type: 'string', defaultValue: 'hello' }),
-        elem({ index: 1, type: 'float', isOptional: true }),
+      expect(generateModelDefineStatements(m, undefined, undefined, emptyObjRegistry, emptyTupleRegistry)).toEqual([
+        'DEFINE TABLE OVERWRITE t SCHEMAFULL;',
+        'DEFINE FIELD OVERWRITE a ON TABLE t TYPE [string, { lat: float, meta: object }] FLEXIBLE;',
+        'DEFINE FIELD OVERWRITE b ON TABLE t TYPE option<[string, { lat: float, meta: object }]> FLEXIBLE;',
+        'DEFINE FIELD OVERWRITE c ON TABLE t TYPE array<[string, { lat: float, meta: object }]> FLEXIBLE;',
+        'DEFINE FIELD OVERWRITE strict ON TABLE t TYPE [{ street: string, zip: option<int>, tag: string | null }];',
       ]);
-
-      const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
-
-      // Element with @default gets sub-field
-      expect(stmts.some((s) => s.includes('data[0]') && s.includes("DEFAULT 'hello'"))).toBe(true);
-      // Plain optional element without decorator is skipped
-      expect(stmts.some((s) => s.includes('data[1]'))).toBe(false);
     });
+  });
 
-    test('should skip sub-field for @nullable-only element (parent type literal enforces it)', () => {
-      const info = ti('NullableTuple', [
-        elem({ index: 0, type: 'string' }),
-        elem({ index: 1, type: 'float', isNullable: true }),
-      ]);
-
-      const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
-
-      expect(stmts.some((s) => s.includes('data[0]'))).toBe(false);
-      expect(stmts.some((s) => s.includes('data[1]'))).toBe(false);
-    });
-
-    test('should emit sub-field for @nullable element with @default decorator', () => {
-      const info = ti('NullableWithDefault', [
-        elem({ index: 0, type: 'string' }),
-        elem({ index: 1, type: 'float', isNullable: true, defaultValue: 0.0 }),
-      ]);
-
-      const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
-
-      expect(stmts.some((s) => s.includes('data[0]'))).toBe(false);
-      const nullableStmt = stmts.find((s) => s.includes('data[1]'));
-      expect(nullableStmt).toBeDefined();
-      expect(nullableStmt).toContain('| null');
-      expect(nullableStmt).toContain('DEFAULT 0');
-    });
-
-    test('should generate nested tuple sub-element defines', () => {
-      const inner = ti('Inner', [elem({ index: 0, type: 'int' }), elem({ index: 1, type: 'int' })]);
-      const info = ti('Outer', [
-        elem({ index: 0, type: 'string' }),
-        elem({ index: 1, type: 'tuple', tupleInfo: inner }),
-      ]);
-
-      const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
-
-      // Primitive element without decorator is skipped
-      expect(stmts.some((s) => s.includes('data[0]'))).toBe(false);
-      // Nested tuple element gets sub-field define
-      expect(stmts.some((s) => s.includes('data[1]') && s.includes('[int, int]'))).toBe(true);
-      // Nested tuple's primitive elements without decorators are also skipped
-      expect(stmts.some((s) => s.includes('data[1][0]'))).toBe(false);
-      expect(stmts.some((s) => s.includes('data[1][1]'))).toBe(false);
-    });
-
-    test('should generate object-typed element with DEFINE FIELD for object sub-fields', () => {
-      const addrFields = [
-        field({ name: 'street', type: 'string', isRequired: true }),
-        field({ name: 'city', type: 'string', isRequired: true }),
-      ];
-      const info = ti('Located', [
-        elem({ index: 0, type: 'string' }),
-        elem({
-          index: 1,
-          type: 'object',
-          objectInfo: {
-            objectName: 'Address',
-            fields: addrFields,
-          },
+  describe('element sub-field statements', () => {
+    // 4.0 refuses `DEFINE FIELD t[N]` under a tuple literal (and `t[N].x` under it), so no element
+    // gets a statement of its own, whatever it carries.
+    test('emits only the parent for decorated, nullable, nested and object elements', () => {
+      const inner = ti('Inner', [elem({ index: 0, type: 'int' }), elem({ index: 1, type: 'int', defaultValue: 1 })]);
+      const m = mdl('T', 't', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({
+          name: 'data',
+          type: 'tuple',
+          tupleInfo: ti('Mixed', [
+            elem({ index: 0, type: 'string', defaultValue: 'hello' }),
+            elem({ index: 1, type: 'float', isNullable: true, defaultValue: 0 }),
+            elem({ index: 2, type: 'date', timestampDecorator: 'createdAt' }),
+            elem({ index: 3, type: 'date', timestampDecorator: 'updatedAt', isOptional: true }),
+            elem({ index: 4, type: 'int', defaultAlwaysValue: 7 }),
+            elem({ index: 5, type: 'tuple', tupleInfo: inner }),
+            elem({ index: 6, type: 'object', objectInfo: address }),
+          ]),
+        }),
+        field({
+          name: 'history',
+          type: 'tuple',
+          isArray: true,
+          tupleInfo: ti('Coordinate', [elem({ index: 0, type: 'float' }), elem({ index: 1, type: 'float' })]),
         }),
       ]);
 
-      const objRegistry: ObjectRegistry = {
-        Address: { name: 'Address', fields: addrFields },
-      };
+      const registry: TupleRegistry = { Inner: { name: 'Inner', elements: inner.elements } };
 
-      const stmts = generateTupleFieldDefines('place', 'user', info, emptyTupleRegistry, objRegistry);
-
-      // Primitive element without decorator is skipped
-      expect(stmts.some((s) => s.includes('place[0]'))).toBe(false);
-      // Object element always gets sub-field defines
-      expect(stmts.some((s) => s.includes('place[1]') && s.includes('TYPE object'))).toBe(true);
-      expect(stmts.some((s) => s.includes('place[1].street') && s.includes('TYPE string'))).toBe(true);
-      expect(stmts.some((s) => s.includes('place[1].city') && s.includes('TYPE string'))).toBe(true);
-    });
-
-    test('should skip sub-field defines for array path primitive elements without decorators', () => {
-      const info = ti('Coordinate', [elem({ index: 0, type: 'float' }), elem({ index: 1, type: 'float' })]);
-
-      const stmts = generateTupleFieldDefines('history.*', 'user', info, emptyTupleRegistry, emptyObjRegistry);
-
-      // Primitive elements without decorators are skipped even with array path
-      expect(stmts.some((s) => s.includes('history.*[0]'))).toBe(false);
-      expect(stmts.some((s) => s.includes('history.*[1]'))).toBe(false);
-    });
-
-    test('should skip sub-field define for single primitive element without decorator', () => {
-      const info = ti('Single', [elem({ index: 0, type: 'string' })]);
-
-      const stmts = generateTupleFieldDefines('tag', 'user', info, emptyTupleRegistry, emptyObjRegistry);
-
-      // Single primitive element without decorator is skipped
-      expect(stmts.some((s) => s.includes('tag[0]'))).toBe(false);
+      expect(generateModelDefineStatements(m, undefined, undefined, emptyObjRegistry, registry)).toEqual([
+        'DEFINE TABLE OVERWRITE t SCHEMAFULL;',
+        'DEFINE FIELD OVERWRITE data ON TABLE t TYPE [string, float | null, datetime, option<datetime>, int, [int, int], { street: string, zip: option<int>, tag: string | null }];',
+        'DEFINE FIELD OVERWRITE history ON TABLE t TYPE array<[float, float]>;',
+      ]);
     });
   });
 

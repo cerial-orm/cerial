@@ -5,6 +5,7 @@
 import { Decimal, Duration, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type {
+  FieldMetadata,
   LiteralFieldMetadata,
   ModelMetadata,
   ObjectFieldMetadata,
@@ -351,6 +352,55 @@ export function tupleElementUpdateRefresh(element: TupleElementMetadata): unknow
 }
 
 /**
+ * The value an omitted sub-field of an object tuple element takes, or undefined when it has no decorator.
+ *
+ * An object element is an inline literal type with no `DEFINE FIELD t[N].x` behind it, so the database has
+ * no default to fire and a sub-field default is a required key the ORM fills. Precedence mirrors
+ * `generateDefaultClause`: timestamp, uuid, `@defaultAlways`, `@default`. `@now` is computed on read and
+ * has no key in the type.
+ */
+function objectSubFieldDefault(field: FieldMetadata): unknown {
+  if (field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') return TIME_NOW;
+  if (field.uuidDecorator === 'uuid4') return CerialUuid.v4().toNative();
+  if (field.uuidDecorator) return CerialUuid.v7().toNative();
+
+  const value = field.defaultAlwaysValue !== undefined ? field.defaultAlwaysValue : field.defaultValue;
+  if (value === undefined) return undefined;
+  if (field.isArray && Array.isArray(value)) return value.map((item) => transformValue(item, field.type));
+
+  return transformValue(value, field.type);
+}
+
+/** Fill every omitted decorated sub-field of an object tuple element, at any object depth. A supplied value wins. */
+function fillObjectElementDefaults(
+  data: Record<string, unknown>,
+  objectInfo: ObjectFieldMetadata,
+): Record<string, unknown> {
+  const result = { ...data };
+
+  for (const field of objectInfo.fields) {
+    const value = result[field.name];
+
+    if (value === undefined) {
+      const filled = objectSubFieldDefault(field);
+      if (filled !== undefined) result[field.name] = filled;
+      continue;
+    }
+
+    if (field.type !== 'object' || !field.objectInfo || typeof value !== 'object' || value === null) continue;
+
+    const nested = field.objectInfo;
+    const fillItem = (item: unknown): unknown =>
+      typeof item === 'object' && item !== null && !Array.isArray(item)
+        ? fillObjectElementDefaults(item as Record<string, unknown>, nested)
+        : item;
+    result[field.name] = Array.isArray(value) ? value.map(fillItem) : fillItem(value);
+  }
+
+  return result;
+}
+
+/**
  * Transform tuple data based on tupleInfo element definitions.
  * Handles object elements, nested tuple elements, record elements, and primitive elements.
  * Accepts both array form [a, b] and object form { 0: a, 1: b, name: a } — normalizes to array.
@@ -392,7 +442,10 @@ function transformTupleData(data: unknown, tupleInfo: TupleFieldMetadata): unkno
 
     if (element.type === 'object' && element.objectInfo) {
       if (typeof value === 'object' && !Array.isArray(value)) {
-        arr[element.index] = transformObjectData(value as Record<string, unknown>, element.objectInfo);
+        arr[element.index] = fillObjectElementDefaults(
+          transformObjectData(value as Record<string, unknown>, element.objectInfo),
+          element.objectInfo,
+        );
       }
     } else if (element.type === 'tuple' && element.tupleInfo) {
       arr[element.index] = transformTupleData(value, element.tupleInfo);
@@ -466,7 +519,12 @@ function transformTupleElementUpdate(
     if (element.type === 'object' && element.objectInfo) {
       if (isSetWrapper(value)) {
         // { set: ObjectInput } — transform the full object value
-        result[key] = { set: transformObjectData(value.set as Record<string, unknown>, element.objectInfo, 'update') };
+        result[key] = {
+          set: fillObjectElementDefaults(
+            transformObjectData(value.set as Record<string, unknown>, element.objectInfo, 'update'),
+            element.objectInfo,
+          ),
+        };
       } else if (typeof value === 'object' && !Array.isArray(value)) {
         // Partial object merge — transform the provided fields
         result[key] = transformObjectData(value as Record<string, unknown>, element.objectInfo, 'update');

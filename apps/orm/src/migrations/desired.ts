@@ -1,10 +1,10 @@
 import {
+  fieldTypeNeedsFlexible,
   generateAssertClause,
   generateComputedClause,
   generateDefaultClause,
   generateIdTypeClause,
   generateLiteralSurrealType,
-  generateTupleSurrealTypeLiteral,
   generateTypeClause,
   generateValueClause,
   mapToSurrealType,
@@ -16,7 +16,6 @@ import type {
   ModelRegistry,
   ObjectMetadata,
   ObjectRegistry,
-  TupleFieldMetadata,
   TupleRegistry,
 } from '../types';
 import { buildFieldModel } from './canonical';
@@ -151,62 +150,10 @@ function objectSubFields(
         value: operations.length ? `IF $value THEN $value${operations.join('')} ELSE [] END` : undefined,
         assert: withoutPrefix(generateAssertClause(sub.type, sub.isArray), 'ASSERT '),
         readonly: sub.isReadonly,
+        // An array sub-field of tuples is typed `array<array>`, which holds no object member
+        flexible: !(sub.isArray && sub.type === 'tuple') && fieldTypeNeedsFlexible(sub),
       }),
     );
-  }
-}
-
-function wrapElement(base: string, optional: boolean, nullable: boolean | undefined): string {
-  if (!optional) return nullable ? `${base} | null` : base;
-
-  return nullable ? `option<${base} | null>` : `option<${base}>`;
-}
-
-function tupleElements(
-  path: string,
-  tuple: TupleFieldMetadata,
-  context: Context,
-  visited: ReadonlySet<string>,
-  fields: FieldModel[],
-  indexes: IndexModel[],
-  table: string,
-): void {
-  for (const element of tuple.elements) {
-    const elementPath = `${path}[${element.index}]`;
-
-    if (element.type === 'tuple' && element.tupleInfo) {
-      const key = `tuple:${element.tupleInfo.tupleName}`;
-      if (visited.has(key)) continue;
-
-      const literal = generateTupleSurrealTypeLiteral(element.tupleInfo, context.tupleRegistry);
-      fields.push(fieldModel(elementPath, wrapElement(literal, !!element.isOptional, element.isNullable), element));
-      tupleElements(elementPath, element.tupleInfo, context, new Set(visited).add(key), fields, indexes, table);
-    } else if (element.type === 'object' && element.objectInfo) {
-      const name = element.objectInfo.objectName;
-      const key = `object:${name}`;
-      if (visited.has(key)) continue;
-
-      fields.push(fieldModel(elementPath, element.isOptional ? 'option<object>' : 'object', element));
-      const object = context.objectRegistry[name];
-      if (object) {
-        // The emitter collects sub-field indexes for model object fields only, never under a tuple.
-        objectSubFields(elementPath, object, context, new Set(visited).add(key), fields, [], table);
-      }
-    } else if (
-      element.timestampDecorator ||
-      element.defaultValue !== undefined ||
-      element.defaultAlwaysValue !== undefined
-    ) {
-      // A primitive element without a decorator is already enforced by the parent tuple type, and defining it
-      // trips a SurrealDB bug that initialises an absent optional tuple as `{}`.
-      fields.push(
-        fieldModel(
-          elementPath,
-          wrapElement(mapToSurrealType(element.type), !!element.isOptional, element.isNullable),
-          element,
-        ),
-      );
-    }
   }
 }
 
@@ -263,7 +210,10 @@ function topLevelField(
         )!,
         field,
         {
-          flexible: (field.isFlexible && field.type === 'object') || cyclic,
+          flexible:
+            (field.isFlexible && field.type === 'object') ||
+            cyclic ||
+            fieldTypeNeedsFlexible(field, context.tupleRegistry),
           value: withoutPrefix(generateValueClause(field, model), 'VALUE '),
           assert: withoutPrefix(generateAssertClause(field.type, field.isArray), 'ASSERT '),
           readonly: field.isReadonly,
@@ -285,18 +235,6 @@ function topLevelField(
         table,
       );
     }
-  }
-
-  if (field.type === 'tuple' && field.tupleInfo) {
-    tupleElements(
-      field.isArray ? `${field.name}.*` : field.name,
-      field.tupleInfo,
-      context,
-      new Set([`tuple:${field.tupleInfo.tupleName}`]),
-      fields,
-      indexes,
-      table,
-    );
   }
 }
 

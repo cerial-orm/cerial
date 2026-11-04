@@ -123,7 +123,11 @@ function broadTypeToSurreal(typeName: string): string {
 }
 
 /** Generate the SurrealQL type string for a single literal variant */
-function variantToSurrealType(variant: ResolvedLiteralVariant, tupleRegistry?: TupleRegistry): string {
+function variantToSurrealType(
+  variant: ResolvedLiteralVariant,
+  tupleRegistry?: TupleRegistry,
+  state?: InlineTypeState,
+): string {
   switch (variant.kind) {
     case 'string':
       return `'${escapeSurqlString(variant.value)}'`;
@@ -135,65 +139,98 @@ function variantToSurrealType(variant: ResolvedLiteralVariant, tupleRegistry?: T
     case 'broadType':
       return broadTypeToSurreal(variant.typeName);
     case 'tupleRef':
-      return generateTupleSurrealTypeLiteral(variant.tupleInfo, tupleRegistry);
+      return generateTupleSurrealTypeLiteral(variant.tupleInfo, tupleRegistry, state);
     case 'objectRef':
-      return generateObjectSurrealTypeLiteral(variant.objectInfo, tupleRegistry);
+      return generateObjectSurrealTypeLiteral(variant.objectInfo, tupleRegistry, state);
   }
 }
 
 /**
- * Generate the inline SurrealQL object type literal for an object variant in a literal.
- * Produces `{ fieldName: type, ... }` with proper optional/nullable modifiers.
- *
- * Only type-level modifiers (optional, @nullable) are expressed — decorators like
- * @default, @createdAt, @readonly cannot be represented in inline type syntax.
+ * Records whether an inline type holds a bare `object`. SurrealDB 4.0 keeps an `object` member of a
+ * tuple or literal type strict unless the owning field is `FLEXIBLE`, and refuses `FLEXIBLE` on a type
+ * that holds no `object`, so the field gets the clause only when this is set.
  */
-export function generateObjectSurrealTypeLiteral(
-  objectInfo: ObjectFieldMetadata,
-  tupleRegistry?: TupleRegistry,
-): string {
-  const fieldParts = objectInfo.fields.map((field) => {
-    const fieldType = generateObjectFieldSurrealType(field, tupleRegistry);
+export interface InlineTypeState {
+  flexible: boolean;
+}
 
-    return `${field.name}: ${fieldType}`;
-  });
+/**
+ * Render an object inside an inline type. A `@flexible` or self-referencing object cannot be written as
+ * a literal (a literal is always strict, and a cycle has no finite literal), so it is a bare `object`
+ * and the owning field becomes `FLEXIBLE`; the ORM validator checks its declared keys.
+ */
+function inlineObjectType(
+  objectInfo: ObjectFieldMetadata,
+  flexible: boolean | undefined,
+  tupleRegistry: TupleRegistry | undefined,
+  state: InlineTypeState | undefined,
+  visited: ReadonlySet<string>,
+): string {
+  if (flexible || visited.has(objectInfo.objectName) || !objectInfo.fields.length) {
+    if (state) state.flexible = true;
+
+    return 'object';
+  }
+
+  const nested = new Set(visited).add(objectInfo.objectName);
+  const fieldParts = objectInfo.fields
+    // A @now field is COMPUTED, which only a top-level field can be, so it has no place in a value
+    .filter((field) => field.timestampDecorator !== 'now')
+    .map((field) => `${field.name}: ${generateObjectFieldSurrealType(field, tupleRegistry, state, nested)}`);
 
   return `{ ${fieldParts.join(', ')} }`;
 }
 
 /**
- * Generate the SurrealQL type for a single field inside an inline object literal.
- * Handles primitives, arrays, and literal-typed sub-fields.
+ * Generate the inline SurrealQL object type literal for an object variant in a literal or an object
+ * element of a tuple. Produces `{ fieldName: type, ... }` with proper optional/nullable modifiers.
+ *
+ * Only type-level modifiers (optional, @nullable) are expressed. Decorators like @default,
+ * @createdAt, @readonly cannot be represented in inline type syntax, so a sub-field default is a
+ * required key that the ORM fills on write.
  */
-function generateObjectFieldSurrealType(field: FieldMetadata, tupleRegistry?: TupleRegistry): string {
-  // Array fields: array<baseType>
-  if (field.isArray) {
-    let baseType: string;
-    if (field.type === 'literal' && field.literalInfo) {
-      baseType = generateLiteralSurrealType(field.literalInfo, tupleRegistry);
-    } else {
-      baseType = mapToSurrealType(field.type);
-    }
+export function generateObjectSurrealTypeLiteral(
+  objectInfo: ObjectFieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  state?: InlineTypeState,
+  visited: ReadonlySet<string> = new Set(),
+): string {
+  return inlineObjectType(objectInfo, false, tupleRegistry, state, visited);
+}
 
-    return `array<${baseType}>`;
-  }
-
-  // Literal-typed sub-fields: inline the literal union
+/**
+ * Generate the SurrealQL type for a single field inside an inline object literal.
+ * Handles primitives, arrays, literal-typed, object and tuple sub-fields.
+ */
+function generateObjectFieldSurrealType(
+  field: FieldMetadata,
+  tupleRegistry: TupleRegistry | undefined,
+  state: InlineTypeState | undefined,
+  visited: ReadonlySet<string>,
+): string {
+  let baseType: string;
   if (field.type === 'literal' && field.literalInfo) {
-    const literalUnion = generateLiteralSurrealType(field.literalInfo, tupleRegistry);
-
-    return wrapTypeModifiers(literalUnion, field.isRequired, field.isNullable);
+    baseType = generateLiteralSurrealType(field.literalInfo, tupleRegistry, state);
+  } else if (field.type === 'object' && field.objectInfo) {
+    baseType = inlineObjectType(field.objectInfo, field.isFlexible, tupleRegistry, state, visited);
+  } else if (field.type === 'tuple' && field.tupleInfo) {
+    baseType = generateTupleSurrealTypeLiteral(field.tupleInfo, tupleRegistry, state, visited);
+  } else {
+    baseType = mapToSurrealType(field.type);
   }
 
-  // Primitive fields
-  const baseType = mapToSurrealType(field.type);
+  if (field.isArray) return `array<${baseType}>`;
 
   return wrapTypeModifiers(baseType, field.isRequired, field.isNullable);
 }
 
 /** Generate the pipe-separated union type string for a literal field */
-export function generateLiteralSurrealType(literalInfo: LiteralFieldMetadata, tupleRegistry?: TupleRegistry): string {
-  return literalInfo.variants.map((v) => variantToSurrealType(v, tupleRegistry)).join(' | ');
+export function generateLiteralSurrealType(
+  literalInfo: LiteralFieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  state?: InlineTypeState,
+): string {
+  return literalInfo.variants.map((v) => variantToSurrealType(v, tupleRegistry, state)).join(' | ');
 }
 
 /**
@@ -380,17 +417,25 @@ export function generateIdTypeClause(
  * - @nullable → T | null
  * - optional + @nullable → option<T | null>
  */
-function generateTupleElementSurrealType(element: TupleElementMetadata, tupleRegistry?: TupleRegistry): string {
+function generateTupleElementSurrealType(
+  element: TupleElementMetadata,
+  tupleRegistry: TupleRegistry | undefined,
+  state: InlineTypeState | undefined,
+  visited: ReadonlySet<string>,
+): string {
   let baseType: string;
 
   if (element.type === 'tuple' && element.tupleInfo && tupleRegistry) {
     // Nested tuple: recurse to build [type1, type2, ...]
-    baseType = generateTupleSurrealTypeLiteral(element.tupleInfo, tupleRegistry);
+    baseType = generateTupleSurrealTypeLiteral(element.tupleInfo, tupleRegistry, state, visited);
   } else if (element.type === 'literal' && element.literalInfo) {
     // `literal` is not a kind name in a type position, so inline the variant union
-    baseType = generateLiteralSurrealType(element.literalInfo, tupleRegistry);
+    baseType = generateLiteralSurrealType(element.literalInfo, tupleRegistry, state);
   } else if (element.type === 'object') {
-    baseType = 'object';
+    // 4.0 refuses `DEFINE FIELD t[N]`, so the database sees an object element only through this literal
+    baseType = element.objectInfo
+      ? inlineObjectType(element.objectInfo, false, tupleRegistry, state, visited)
+      : 'object';
   } else {
     baseType = mapToSurrealType(element.type);
   }
@@ -402,10 +447,28 @@ function generateTupleElementSurrealType(element: TupleElementMetadata, tupleReg
  * Generate the SurrealDB typed array literal for a tuple: [float, float]
  * This is used in DEFINE FIELD TYPE clauses.
  */
-export function generateTupleSurrealTypeLiteral(tupleInfo: TupleFieldMetadata, tupleRegistry?: TupleRegistry): string {
-  const elementTypes = tupleInfo.elements.map((e) => generateTupleElementSurrealType(e, tupleRegistry));
+export function generateTupleSurrealTypeLiteral(
+  tupleInfo: TupleFieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  state?: InlineTypeState,
+  visited: ReadonlySet<string> = new Set(),
+): string {
+  const elementTypes = tupleInfo.elements.map((e) => generateTupleElementSurrealType(e, tupleRegistry, state, visited));
 
   return `[${elementTypes.join(', ')}]`;
+}
+
+/**
+ * True when a tuple or literal field's type holds an `object` member, so the field needs `FLEXIBLE` on 4.0.
+ * Judged from the same rendering `generateTypeClause` uses, so the clause and the type never disagree.
+ */
+export function fieldTypeNeedsFlexible(field: FieldMetadata, tupleRegistry?: TupleRegistry): boolean {
+  const state: InlineTypeState = { flexible: false };
+  if (field.type === 'tuple' && field.tupleInfo) generateTupleSurrealTypeLiteral(field.tupleInfo, tupleRegistry, state);
+  else if (field.type === 'literal' && field.literalInfo)
+    generateLiteralSurrealType(field.literalInfo, tupleRegistry, state);
+
+  return state.flexible;
 }
 
 /**

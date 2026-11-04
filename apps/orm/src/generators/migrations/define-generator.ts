@@ -10,7 +10,6 @@ import type {
   ModelRegistry,
   ObjectMetadata,
   ObjectRegistry,
-  TupleFieldMetadata,
   TupleRegistry,
 } from '../../types';
 import { buildDesiredSchema } from '../../migrations/desired';
@@ -18,12 +17,12 @@ import { fingerprint, schemaFingerprint } from '../../migrations/fingerprint';
 import { REGISTRY_CHUNK_SIZE } from '../metadata/registry-generator';
 import { escapeTsString } from '../shared';
 import {
+  fieldTypeNeedsFlexible,
   generateAssertClause,
   generateComputedClause,
   generateDefaultClause,
   generateIdTypeClause,
   generateLiteralSurrealType,
-  generateTupleSurrealTypeLiteral,
   generateTypeClause,
   generateValueClause,
   mapToSurrealType,
@@ -127,6 +126,9 @@ export function generateDefineField(
   if (field.isFlexible && field.type === 'object') {
     parts.push('FLEXIBLE');
   }
+
+  // A tuple or literal type holding a bare `object` is strict on 4.0 unless the field is FLEXIBLE
+  if (fieldTypeNeedsFlexible(field, tupleRegistry)) parts.push('FLEXIBLE');
 
   // Add VALUE clause for array fields (distinct, sort)
   const valueClause = generateValueClause(field, model);
@@ -326,6 +328,8 @@ export function generateObjectFieldDefines(
         const typeClause = generateTypeClause(subField.type, subField.isRequired, subField);
         if (typeClause) parts.push(typeClause);
       }
+      // An array sub-field of tuples is typed `array<array>`, which holds no object member
+      if (!(subField.isArray && subField.type === 'tuple') && fieldTypeNeedsFlexible(subField)) parts.push('FLEXIBLE');
 
       // Add VALUE clause for array fields with @distinct/@sort decorators
       if (subField.isArray && (subField.isDistinct || subField.sortOrder)) {
@@ -451,183 +455,6 @@ function objectHasCycles(
   return false;
 }
 
-/**
- * Generate DEFINE FIELD statements for tuple sub-elements (recursive).
- * Each sub-element uses index notation: parentPath[N]
- * For nested tuples: parentPath[N][M]
- * For object elements: parentPath[N].fieldName
- *
- * @param fieldPath - The path prefix (e.g., "coords" or "data[1]")
- * @param tableName - The table name for ON TABLE clause
- * @param tupleInfo - The tuple metadata whose elements we're defining
- * @param tupleRegistry - Registry of all tuples (for nested tuple resolution)
- * @param objectRegistry - Registry of all objects (for object element resolution)
- * @param options - DEFINE FIELD options
- * @param visited - Set of tuple/object names already visited (cycle detection)
- */
-export function generateTupleFieldDefines(
-  fieldPath: string,
-  tableName: string,
-  tupleInfo: TupleFieldMetadata,
-  tupleRegistry: TupleRegistry,
-  objectRegistry: ObjectRegistry,
-  options: DefineFieldOptions = {},
-  visited: Set<string> = new Set(),
-): string[] {
-  const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
-  const statements: string[] = [];
-
-  for (const element of tupleInfo.elements) {
-    const elementPath = `${fieldPath}[${element.index}]`;
-
-    if (element.type === 'tuple' && element.tupleInfo) {
-      // Nested tuple element — define with tuple type literal
-      const nestedTupleName = element.tupleInfo.tupleName;
-
-      // Cycle detection
-      if (visited.has(`tuple:${nestedTupleName}`)) {
-        // Self-referencing tuple — SurrealDB can't handle infinite depth, skip sub-definitions
-        continue;
-      }
-
-      const tupleLiteral = generateTupleSurrealTypeLiteral(element.tupleInfo, tupleRegistry);
-      const parts: string[] = ['DEFINE FIELD'];
-      if (opts.overwrite) parts.push('OVERWRITE');
-      else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
-      parts.push(elementPath);
-      parts.push('ON TABLE');
-      parts.push(tableName);
-
-      // Nested tuple elements can be optional and/or @nullable
-      if (!element.isOptional && !element.isNullable) {
-        parts.push(`TYPE ${tupleLiteral}`);
-      } else if (!element.isOptional && element.isNullable) {
-        parts.push(`TYPE ${tupleLiteral} | null`);
-      } else if (element.isOptional && !element.isNullable) {
-        parts.push(`TYPE option<${tupleLiteral}>`);
-      } else {
-        parts.push(`TYPE option<${tupleLiteral} | null>`);
-      }
-
-      // Add DEFAULT/timestamp clause for element decorators
-      const nestedDefault = generateDefaultClause(
-        element.timestampDecorator,
-        element.defaultValue,
-        element.defaultAlwaysValue,
-      );
-      if (nestedDefault) parts.push(nestedDefault);
-
-      statements.push(`${parts.join(' ')};`);
-
-      // Recursively define nested tuple elements
-      const nestedVisited = new Set(visited);
-      nestedVisited.add(`tuple:${nestedTupleName}`);
-      statements.push(
-        ...generateTupleFieldDefines(
-          elementPath,
-          tableName,
-          element.tupleInfo,
-          tupleRegistry,
-          objectRegistry,
-          options,
-          nestedVisited,
-        ),
-      );
-    } else if (element.type === 'object' && element.objectInfo) {
-      // Object element — define with object type and recurse into sub-fields
-      const objectName = element.objectInfo.objectName;
-
-      if (visited.has(`object:${objectName}`)) {
-        // Cycle — skip sub-definitions
-        continue;
-      }
-
-      const parts: string[] = ['DEFINE FIELD'];
-      if (opts.overwrite) parts.push('OVERWRITE');
-      else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
-      parts.push(elementPath);
-      parts.push('ON TABLE');
-      parts.push(tableName);
-
-      // Object elements can be optional but not @nullable (validated)
-      if (element.isOptional) {
-        parts.push('TYPE option<object>');
-      } else {
-        parts.push('TYPE object');
-      }
-
-      // Add DEFAULT/timestamp clause for element decorators
-      const elementDefault = generateDefaultClause(
-        element.timestampDecorator,
-        element.defaultValue,
-        element.defaultAlwaysValue,
-      );
-      if (elementDefault) parts.push(elementDefault);
-
-      statements.push(`${parts.join(' ')};`);
-
-      // Recursively define object sub-fields
-      const objectMeta = objectRegistry[objectName];
-      if (objectMeta) {
-        const nestedVisited = new Set(visited);
-        nestedVisited.add(`object:${objectName}`);
-        statements.push(
-          ...generateObjectFieldDefines(elementPath, tableName, objectMeta, objectRegistry, options, nestedVisited),
-        );
-      }
-    } else {
-      // Primitive element — the parent tuple type literal already enforces element
-      // types, length, and optionality (including | null for @nullable), so sub-field
-      // constraints are only needed when the element has a decorator (DEFAULT / timestamp).
-      //
-      // Elements that are ONLY @nullable (no other decorators) do NOT need a sub-field
-      // constraint — the parent type literal `[..., float | null, ...]` already enforces
-      // the nullable type. Emitting a redundant `DEFINE FIELD tuple[N] TYPE float | null`
-      // triggers a SurrealDB bug where sub-field constraints on tuple elements within
-      // optional tuples cause the tuple to be initialized as {} (empty object) when the
-      // parent is absent (NONE) and any option<object> field with sub-fields exists on
-      // the same table.
-      const hasDecorator = !!(
-        element.timestampDecorator ||
-        element.defaultValue !== undefined ||
-        element.defaultAlwaysValue !== undefined
-      );
-      const needsSubField = hasDecorator;
-
-      if (needsSubField) {
-        const surrealType = mapToSurrealType(element.type);
-        const parts: string[] = ['DEFINE FIELD'];
-        if (opts.overwrite) parts.push('OVERWRITE');
-        else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
-        parts.push(elementPath);
-        parts.push('ON TABLE');
-        parts.push(tableName);
-
-        if (!element.isOptional && !element.isNullable) {
-          parts.push(`TYPE ${surrealType}`);
-        } else if (!element.isOptional && element.isNullable) {
-          parts.push(`TYPE ${surrealType} | null`);
-        } else if (element.isOptional && !element.isNullable) {
-          parts.push(`TYPE option<${surrealType}>`);
-        } else {
-          parts.push(`TYPE option<${surrealType} | null>`);
-        }
-
-        const elementDefault = generateDefaultClause(
-          element.timestampDecorator,
-          element.defaultValue,
-          element.defaultAlwaysValue,
-        );
-        if (elementDefault) parts.push(elementDefault);
-
-        statements.push(`${parts.join(' ')};`);
-      }
-    }
-  }
-
-  return statements;
-}
-
 /** Generate all DEFINE statements for a single model */
 export function generateModelDefineStatements(
   model: ModelMetadata,
@@ -687,23 +514,6 @@ export function generateModelDefineStatements(
           );
         }
       }
-    }
-
-    // For tuple fields, generate sub-element DEFINE statements
-    if (field.type === 'tuple' && field.tupleInfo && tupleRegistry) {
-      const fieldPath = field.isArray ? `${field.name}.*` : field.name;
-      const visited = new Set<string>([`tuple:${field.tupleInfo.tupleName}`]);
-      statements.push(
-        ...generateTupleFieldDefines(
-          fieldPath,
-          model.tableName,
-          field.tupleInfo,
-          tupleRegistry,
-          objectRegistry ?? {},
-          fieldOptions,
-          visited,
-        ),
-      );
     }
   }
 
