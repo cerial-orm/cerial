@@ -182,7 +182,9 @@ function declaredIdentities(parent: object): string[] {
   return definition.variants.map((spec) => getVariantIdentity(resolveVariant(spec, definition.name)));
 }
 
-function resolveVariant(spec: VariantSpec, literalName: string): ASTLiteralVariant {
+function resolveVariant(original: VariantSpec, literalName: string): ASTLiteralVariant {
+  // Copy first: a getter or Proxy could answer differently on a later read than on the one checked
+  const spec = { ...original } as VariantSpec;
   switch (spec.kind) {
     case 'tupleRef':
       return { kind: 'tupleRef', tupleName: referenceName(spec.ref, 'tuple') };
@@ -195,7 +197,51 @@ function resolveVariant(spec: VariantSpec, literalName: string): ASTLiteralVaria
       return { kind: 'literalRef', literalName: target };
     }
     default:
-      return { ...spec };
+      checkPrimitiveVariant(spec, literalName);
+
+      return spec;
+  }
+}
+
+/** JSON.stringify throws on a BigInt, which would hide the literal in the message */
+const show = (v: unknown): string => (typeof v === 'bigint' ? `${v}n` : (JSON.stringify(v) ?? String(v)));
+
+const BROAD_TYPE_NAMES: ReadonlySet<string> = new Set<BroadTypeName>(['String', 'Int', 'Float', 'Bool', 'Date']);
+
+/**
+ * A hand-built `{ kind, value }` reaches the migration DDL and the generated registry code as written, so a
+ * value that does not match its kind is refused here, at the one place every variant passes through.
+ */
+function checkPrimitiveVariant(spec: object, literalName: string): void {
+  const { kind, value, typeName } = spec as { kind?: unknown; value?: unknown; typeName?: unknown };
+  const refuse = (call: string, need: string, got: unknown): never => {
+    throw new Error(`Literal ${literalName}: ${call} needs ${need}, got ${show(got)}`);
+  };
+  switch (kind) {
+    case 'string':
+      if (typeof value !== 'string') refuse('variant.string', 'a string', value);
+
+      return;
+    case 'int':
+      if (typeof value !== 'number' || !Number.isSafeInteger(value)) refuse('variant.int', 'a safe integer', value);
+
+      return;
+    case 'float':
+      if (typeof value !== 'number' || !Number.isFinite(value)) refuse('variant.float', 'a finite number', value);
+
+      return;
+    case 'bool':
+      if (typeof value !== 'boolean') refuse('variant.bool', 'true or false', value);
+
+      return;
+    case 'broadType':
+      if (typeof typeName !== 'string' || !BROAD_TYPE_NAMES.has(typeName)) {
+        refuse('variant.broadType', `one of ${[...BROAD_TYPE_NAMES].join(', ')}`, typeName);
+      }
+
+      return;
+    default:
+      throw new Error(`Literal ${literalName}: unknown variant kind ${show(kind)}`);
   }
 }
 

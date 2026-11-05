@@ -201,3 +201,68 @@ describe('literal builder', () => {
     });
   });
 });
+
+describe('literalNode refuses a value that does not match its kind', () => {
+  const bad: unknown[] = [
+    { kind: 'bool', value: 'true; x' },
+    { kind: 'int', value: '1' },
+    { kind: 'int', value: 1e21 },
+    { kind: 'float', value: '1.5' },
+    { kind: 'float', value: NaN },
+    { kind: 'broadType', typeName: 'Evil' },
+    { kind: 'raw', value: 1 },
+  ];
+  for (const spec of bad) {
+    test(JSON.stringify(spec) ?? String(spec), () => {
+      expect(() => literalNode(literal('Bad', [spec as never]))).toThrow(/Literal Bad:/);
+    });
+  }
+
+  test('accepts 1, 2.5, true, a string and each broad type', () => {
+    const node = literalNode(
+      literal('Good', [
+        variant.int(1),
+        variant.float(2.5),
+        variant.bool(true),
+        variant.string('a'),
+        ...(['String', 'Int', 'Float', 'Bool', 'Date'] as const).map((t) => variant.broadType(t)),
+      ]),
+    );
+    expect(node.variants).toHaveLength(9);
+  });
+});
+
+describe('literalNode reads each variant once and names it on any value', () => {
+  test('a getter that changes its answer cannot pass the check', () => {
+    let reads = 0;
+    const spec = {
+      kind: 'int',
+      get value() {
+        return reads++ === 0 ? 1 : '1; REMOVE TABLE t';
+      },
+    };
+    const node = literalNode(literal('Flip', [spec as never]));
+    expect(node.variants[0]).toEqual({ kind: 'int', value: 1 });
+  });
+
+  test('a Proxy that switches kind after the first read is checked as one consistent variant', () => {
+    let reads = 0;
+    const spec = new Proxy({ kind: 'bool', value: true } as Record<string, unknown>, {
+      get: (t, k) => (k === 'kind' && reads++ > 0 ? 'int' : t[k as string]),
+    });
+    const node = literalNode(literal('Switch', [spec as never]));
+    expect(node.variants[0]).toEqual({ kind: 'bool', value: true });
+  });
+
+  test('a BigInt value is refused naming the literal', () => {
+    expect(() => literalNode(literal('Big', [{ kind: 'int', value: 5n } as never]))).toThrow(/Literal Big:.*5n/);
+  });
+});
+
+describe('a quote in a decorator string argument stays in the value', () => {
+  test.each(["a'b", "a') @readonly @default('x"])('default %s', (text) => {
+    const node = fieldNode(f.string().default(text), 'n');
+    expect(node.decorators.map((d) => d.type)).toEqual(['default']);
+    expect(node.decorators[0]).toMatchObject({ value: text });
+  });
+});

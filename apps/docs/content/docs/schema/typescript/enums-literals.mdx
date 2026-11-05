@@ -63,7 +63,7 @@ export const Levels = enumeration('Levels', [1, 2]);
 | Object | `Point` | `variant.object(Point)` |
 | Literal or enum | `Status` | `variant.literal(Status)` |
 
-`variant.int` and `variant.float` are separate because `.cerial` tells them apart by the decimal point, and a JavaScript number cannot carry one. `variant.int(1.5)` throws.
+`variant.int` and `variant.float` are separate because `.cerial` tells them apart by the decimal point, and a JavaScript number cannot carry one. `variant.int(1.5)` throws. A variant is checked when the schema loads, wherever it came from: an integer must be a safe integer, a float a finite number, a boolean a real `true` or `false`, and a broad type one of the five names above. A variant object built by hand whose value does not match its kind is refused, naming the literal and the variant, and nothing is generated.
 
 ### Primitive variants
 

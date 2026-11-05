@@ -546,3 +546,41 @@ literal Extended { Base, 'b' }
     });
   });
 });
+
+describe('Literal Validator — primitive variant values', () => {
+  const build = (variants: unknown[]) => {
+    const { ast } = parse("literal L { 'a' }\n");
+    ast.literals[0]!.variants = variants as never;
+
+    return validateAll(ast).filter((e) => e.message.includes('Literal L:'));
+  };
+
+  test('refuses a value that does not match its kind', () => {
+    expect(build([{ kind: 'int', value: '1; REMOVE TABLE t' }])).toHaveLength(1);
+    expect(build([{ kind: 'int', value: 1.5 }])).toHaveLength(1);
+    expect(build([{ kind: 'float', value: Infinity }])).toHaveLength(1);
+    expect(build([{ kind: 'bool', value: 'true; REMOVE TABLE t' }])).toHaveLength(1);
+    expect(build([{ kind: 'broadType', typeName: 'Evil' }])).toHaveLength(1);
+    expect(build([{ kind: 'string', value: 5 }])).toHaveLength(1);
+  });
+
+  test('allows each well-formed primitive variant', () => {
+    expect(
+      build([
+        { kind: 'int', value: 1 },
+        { kind: 'float', value: 2.5 },
+        { kind: 'bool', value: true },
+        { kind: 'string', value: 'a' },
+        { kind: 'broadType', typeName: 'Date' },
+      ]),
+    ).toHaveLength(0);
+  });
+});
+
+describe('Literal Validator — BigInt value', () => {
+  test('names the literal instead of failing to serialise', () => {
+    const { ast } = parse("literal L { 'a' }\n");
+    ast.literals[0]!.variants = [{ kind: 'int', value: 5n }] as never;
+    expect(validateAll(ast).some((e) => e.message.includes('Literal L:') && e.message.includes('5n'))).toBe(true);
+  });
+});

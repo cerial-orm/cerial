@@ -36,6 +36,35 @@ function hasCircularRef(ast: SchemaAST, name: string, visited: Set<string>): boo
   return literal.variants.some((v) => v.kind === 'literalRef' && hasCircularRef(ast, v.literalName, new Set(visited)));
 }
 
+const BROAD_TYPES: ReadonlySet<string> = new Set(['String', 'Int', 'Float', 'Bool', 'Date']);
+
+/** Why a primitive variant's value does not match its kind, for any AST source that reaches DDL and codegen */
+function badPrimitive(variant: ASTLiteralVariant): string | undefined {
+  const shown = (v: unknown): string => (typeof v === 'bigint' ? `${v}n` : (JSON.stringify(v) ?? String(v)));
+  // The AST may come from anywhere, so the declared types are not trusted
+  const value: unknown = (variant as { value?: unknown }).value;
+  switch (variant.kind) {
+    case 'string':
+      return typeof value === 'string' ? undefined : `string variant needs a string, got ${shown(value)}`;
+    case 'int':
+      return typeof value === 'number' && Number.isSafeInteger(value)
+        ? undefined
+        : `int variant needs a safe integer, got ${shown(value)}`;
+    case 'float':
+      return typeof value === 'number' && Number.isFinite(value)
+        ? undefined
+        : `float variant needs a finite number, got ${shown(value)}`;
+    case 'bool':
+      return typeof value === 'boolean' ? undefined : `bool variant needs true or false, got ${shown(value)}`;
+    case 'broadType':
+      return BROAD_TYPES.has(variant.typeName)
+        ? undefined
+        : `broad type variant needs one of ${[...BROAD_TYPES].join(', ')}, got ${shown(variant.typeName)}`;
+    default:
+      return undefined;
+  }
+}
+
 /** Validate literal definitions */
 export function validateLiterals(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
@@ -48,6 +77,11 @@ export function validateLiterals(ast: SchemaAST): SchemaValidationError[] {
       const key = variantKey(variant);
       if (seen.has(key)) push(`Duplicate variant in literal ${literal.name}`);
       seen.add(key);
+    }
+
+    for (const variant of literal.variants) {
+      const bad = badPrimitive(variant);
+      if (bad) push(`Literal ${literal.name}: ${bad}`);
     }
 
     for (const variant of literal.variants) {

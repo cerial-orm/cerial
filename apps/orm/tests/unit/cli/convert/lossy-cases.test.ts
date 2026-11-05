@@ -745,7 +745,7 @@ describe('rows that refuse, --to cerial', () => {
 
   row('ast-mismatch', async () => {
     // A variant the printer writes in a form the parser reads as something else, which no check lists
-    await project({ 'big.schema.ts': mod("export const Big = literal('Big', [variant.int(1e21)]);") });
+    await project({ 'big.schema.ts': mod("export const Big = literal('Big', [variant.float(1e21)]);") });
 
     const message = await refused(() => toCerial());
 
