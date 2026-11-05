@@ -86,7 +86,7 @@ jobs:
       - run: bun run tooling/hooks/check-tree.ts
       # Own tsconfig: the repo-root program also loads apps/docs globals that break these files.
       - run: bunx tsc --noEmit -p tooling
-      - run: bun test tooling/hooks
+      - run: bun test tooling/hooks tooling/release
 
   node-typescript:
     name: TypeScript schemas and convert on Node ${{ matrix.node }}
