@@ -2,7 +2,7 @@
   "name": "cerial-vscode",
   "displayName": "Cerial",
   "description": "Language support for .cerial schema files",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "cerial",
   "license": "Apache-2.0",
   "icon": "icons/cerial-icon.png",

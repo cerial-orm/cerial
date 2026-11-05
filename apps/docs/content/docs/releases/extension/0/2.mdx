@@ -1,0 +1,51 @@
+---
+title: Extension v0.2.x
+description: Release notes for Cerial VS Code extension v0.2.x — new field types and options, registry-driven editing support and a higher minimum VS Code version.
+---
+
+## 0.2.0
+
+Adds editor support for the sized number types and `nullsNotDistinct`, makes completion, hover and highlighting follow the decorators and field types Cerial knows, and shows duplicate declaration names in the editor.
+
+### Download
+
+| Version | Download |
+|---------|----------|
+| v0.2.0 | [cerial-vscode-0.2.0.vsix](https://github.com/cerial-orm/cerial/releases/download/ext-v0.2.0/cerial-vscode-0.2.0.vsix) |
+
+### Breaking
+
+- **Minimum VS Code version is now 1.108.** The extension requires VS Code `^1.108.0` (January 2026), up from `^1.96.0`. VS Code releases older than 1.108, and forks such as Cursor that are still based on an older VS Code, cannot install this version. Stay on v0.1.0 or update your editor.
+
+### Added
+
+#### Field Types
+
+- Hover and syntax highlighting for the nine sized number types
+- `Decimal[]` with `@set` is accepted without a diagnostic
+
+#### Decorators
+
+- Completion and hover for the `nullsNotDistinct` option on `@unique` and `@@unique`
+- Hover now explains all four `@sort` spellings, and `asc` and `desc` are highlighted like `true` and `false`
+
+### Changed
+
+#### IntelliSense and Hover
+
+- Completion and hover are built from the same decorator and field type definitions Cerial itself uses, so they match the Cerial release the extension ships alongside instead of a hand-kept copy
+- Any decorator is highlighted, not only a fixed list
+
+#### Diagnostics
+
+- Duplicate declaration names are shown in the editor, and the message names both places the name is declared, including a name used across different kinds of declaration
+- Schema validation in the editor runs the same checks as `cerial generate`, so errors found when generating also show while you edit
+
+### Fixed
+
+- A schema entry without a path no longer stops workspace indexing
+- A `@sort` error names the declaration it belongs to
+
+### Other
+
+- Updated the language client and server libraries to the latest major version

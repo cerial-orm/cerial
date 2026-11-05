@@ -64,7 +64,7 @@
     },
     "apps/vscode-extension": {
       "name": "cerial-vscode",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "dependencies": {
         "ignore": "^7.0.14",
         "vscode-languageclient": "^11.0.0",
