@@ -6,6 +6,7 @@
     "email",
     "int",
     "float",
+    "sized-numbers",
     "bool",
     "date",
     "record",

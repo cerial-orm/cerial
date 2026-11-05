@@ -16,6 +16,8 @@ Cerial supports 15 built-in field types plus user-defined enums, tuples, objects
 | `Int` | `number` | `int` | Whole numbers |
 | `Float` | `number` | `float` | IEEE 754 double-precision |
 | `Number` | `number` | `number` | Auto-detect int or float |
+| `Int8`, `Uint8`, `Int16`, `Uint16`, `Int32`, `Uint32`, `Float16`, `Float32` | `number` | `i8`, `u8`, `i16`, `u16`, `i32`, `u32`, `f16`, `f32` | Fixed-width numbers, see [Sized Numbers](/schema/field-types/sized-numbers) |
+| `Uint64` | `bigint` (input `bigint \| number`) | `u64` | Unsigned 64-bit integer |
 | `Bool` | `boolean` | `bool` | `true` or `false` |
 | `Date` | `Date` | `datetime` | JavaScript `Date` object |
 | `Uuid` | `CerialUuid` / `CerialUuidInput` | `uuid` | Wrapper class with comparison and formatting |
@@ -129,6 +131,7 @@ These types have dedicated wrapper classes with rich APIs for construction, comp
 
 - [Uuid](/schema/field-types/uuid) — UUID identifiers with v4/v7 generation, comparison, and auto-generation decorators.
 - [Number](/schema/field-types/number) — Auto-detect numeric type — accepts both integers and decimals.
+- [Sized Numbers](/schema/field-types/sized-numbers) — Int8 to Uint64, Float16 and Float32 for fixed ranges and precision.
 - [Duration](/schema/field-types/duration) — Time durations with unit accessors, comparison, and string parsing.
 - [Decimal](/schema/field-types/decimal) — Arbitrary-precision decimals with immutable arithmetic for financial calculations.
 - [Bytes](/schema/field-types/bytes) — Binary data with base64 encoding, Uint8Array conversion, and Buffer support.

@@ -5,6 +5,14 @@ description: Complete reference of all TypeScript types Cerial generates per mod
 
 Cerial generates a comprehensive set of TypeScript types for every model, object, tuple, literal, and enum in your schema. These types power autocompletion, compile-time validation, and runtime type safety across all query operations.
 
+## Sized Number Types
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+[Sized number](/schema/field-types/sized-numbers) fields (`Int8`, `Uint8`, `Int16`, `Uint16`, `Int32`, `Uint32`, `Float16`, `Float32`) generate `number`. `Uint64` generates `bigint` in the output type and `bigint | number` in create, update and where types. The `Where` type for a sized field has the same operators as `Int`.
+
 ## Types Per Model
 
 For each model in your schema, Cerial generates the following types:

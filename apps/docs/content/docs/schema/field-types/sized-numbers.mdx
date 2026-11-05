@@ -1,0 +1,139 @@
+---
+title: Sized Numbers
+description: Int8, Uint8, Int16, Uint16, Int32, Uint32, Uint64, Float16 and Float32 field types for numbers with a fixed range or precision.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Sized number types store a number in a fixed width, and the database refuses a value outside it. Use them when a field has a known range (a channel 0 to 255, a pixel component) or when a smaller float is enough. Everything else keeps using [Int](/schema/field-types/int) and [Float](/schema/field-types/float), which are already 64-bit; there is no `Int64` or `Float64`.
+
+## Schema Syntax
+
+```cerial
+model Sensor {
+  id Record @id
+  channel Uint8
+  offset Int16? @default(-40)
+  reading Float32
+  coarse Float16 @nullable
+  counter Uint64 @default(0)
+  samples Uint16[]
+  tags Int8[] @set
+  calib Calibration?
+}
+
+object Calibration {
+  gain Float32
+  steps Uint32
+}
+
+tuple Pixel {
+  Uint8,
+  Uint8,
+  Uint8
+}
+```
+
+## Types
+
+| Type | Holds | TypeScript output | TypeScript input |
+| --- | --- | --- | --- |
+| `Int8` | -128 to 127 | `number` | `number` |
+| `Uint8` | 0 to 255 | `number` | `number` |
+| `Int16` | -32768 to 32767 | `number` | `number` |
+| `Uint16` | 0 to 65535 | `number` | `number` |
+| `Int32` | -2147483648 to 2147483647 | `number` | `number` |
+| `Uint32` | 0 to 4294967295 | `number` | `number` |
+| `Uint64` | 0 to 18446744073709551615 | `bigint` | `bigint \| number` |
+| `Float16` | about 3 significant digits, max ±65504 | `number` | `number` |
+| `Float32` | about 7 significant digits, max ±3.4028234663852886e38 | `number` | `number` |
+
+Integer types take whole numbers only. Both the `where` and `data` types of a sized field match its input type.
+
+## Uint64 Is a bigint
+
+A `Uint64` field always reads back as a `bigint`, even for small values, so one type is exact at every magnitude. On input, pass a `bigint`, or a `number` that is a safe integer (`Number.isSafeInteger`). A `number` past `Number.MAX_SAFE_INTEGER` is refused, because it may already be rounded before Cerial sees it.
+
+```typescript
+const row = await client.db.Sensor.create({
+  data: { channel: 3, reading: 1.5, coarse: 2, counter: 18446744073709551615n },
+});
+
+row.counter; // 18446744073709551615n (bigint)
+
+await client.db.Sensor.updateUnique({
+  where: { id: row.id },
+  data: { counter: 42 }, // a safe integer number is accepted
+});
+```
+
+`JSON.stringify` throws on a `bigint`. Convert before serialising:
+
+```typescript
+JSON.stringify({ counter: row.counter.toString() });
+```
+
+## Float16 and Float32 Round
+
+The database rounds a float to its width on write, and you read the rounded value back:
+
+```typescript
+const row = await client.db.Sensor.create({
+  data: { channel: 1, reading: 0.1, coarse: 0.1, counter: 0 },
+});
+
+row.coarse;  // 0.0999755859375 (Float16)
+row.reading; // 0.10000000149011612 (Float32)
+```
+
+Filters round the same way, so `where: { coarse: 0.1 }` finds the row you just wrote with `0.1`:
+
+```typescript
+const found = await client.db.Sensor.findMany({
+  where: { coarse: 0.1 },
+});
+```
+
+## Out-of-Range Values Are Refused
+
+Cerial checks the value before sending the query and names the field and the range:
+
+| Input | Error message |
+| --- | --- |
+| `channel: 1.5` | `Field "channel" is Uint8 and expects a whole number, got 1.5` |
+| `channel: 256` | `Field "channel" is Uint8 and holds 0 to 255, got 256` |
+| `counter: -1` | `Field "counter" is Uint64 and holds 0 to 18446744073709551615, got -1` |
+| `counter: 9007199254740993` | `Field "counter" is Uint64: 9007199254740993 is past Number.MAX_SAFE_INTEGER and may already be rounded; pass a bigint` |
+| `channel: 5n` | `Field "channel" is Uint8 and expects a number, got a bigint` |
+| `coarse: 70000` | `Field "coarse" is Float16 and holds at most ±65504, got 70000` |
+| `samples: [1, 70000]` | `Field "samples[1]" is Uint16 and holds 0 to 65535, got 70000` |
+
+The same checks apply to filter values. A `@default` outside the type's range fails `cerial generate`.
+
+## Where They Work
+
+Sized types work wherever `Int` and `Float` do:
+
+- Optional (`?`) and `@nullable`
+- Arrays and `@set`
+- Fields of objects and elements of tuples
+- `@default`
+
+`@createdAt`, `@updatedAt`, `@now` and the `@uuid` decorators are not available on them.
+
+## Filtering and Ordering
+
+Sized types take the same operators and `orderBy` as `Int`: `eq`, `neq`, `not`, `gt`, `gte`, `lt`, `lte`, `between`, `in`, `notIn`, plus `isNone`, `isNull` and `isDefined` where the field allows them. See [Comparison Operators](/filtering/comparison).
+
+```typescript
+const bright = await client.db.Sensor.findMany({
+  where: { channel: { between: [200, 255] } },
+  orderBy: { counter: 'desc' },
+});
+```
+
+## Raw Writes into a Number Field
+
+A `Uint64` value written with raw SurrealQL into a [Number](/schema/field-types/number) field loses precision above 2^53 when Cerial reads it. Declare the field `Uint64` to read it exactly.

@@ -260,6 +260,22 @@ users[0].email; // TypeScript error!
 | `select: { obj: true }` | `{ obj: FullObjectType }` |
 | `include: { rel: { select: { a: true } } }` | `Model & { rel: { a: TypeOfA } }` |
 
+## Sized Numbers
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Sized number fields resolve like any other scalar, including under `select`: `number` for every sized type except `Uint64`, which resolves to `bigint`.
+
+```typescript
+const sensor = await client.db.Sensor.findOne({
+  where: { id: '123' },
+  select: { channel: true, counter: true },
+});
+// sensor: { channel: number; counter: bigint } | null
+```
+
 ## Typed Tuples in Transactions
 
 When using [`$transaction`](/transactions), each query's return type is preserved at its position in the result array:

@@ -168,6 +168,8 @@ const users = await client.db.User.findMany({
 
 ## Supported Types
 
+The sized number types ([Int8 to Uint64, Float16, Float32](/schema/field-types/sized-numbers)) take the same operators as Int.
+
 | Operator | String | Int | Float | Number | Date | Bool | Email | Uuid | Duration | Decimal | Bytes | Any |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `eq` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
