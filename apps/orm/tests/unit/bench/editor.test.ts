@@ -299,7 +299,10 @@ withDist('against the real servers', () => {
     const before = await Bun.file(join(caseDir, 'consumer.ts')).text();
     const timings = await measureIncremental('5.9', caseDir, 'BenchModel0', 1);
 
-    expect(timings.coldMs).toBeGreaterThan(timings.noopMs);
+    // Wall times of separate processes reorder under load; the compiler's own counts do not
+    expect(timings.instantiations.noop).toBe(0);
+    expect(timings.instantiations.edit).toBeGreaterThan(0);
+    expect(timings.instantiations.cold).toBeGreaterThan(timings.instantiations.edit ?? Infinity);
     expect(timings.recheckMs).toBeCloseTo(Math.max(0, timings.editMs - timings.noopMs), 5);
     expect(await Bun.file(join(caseDir, 'consumer.ts')).text()).toBe(before);
   }, 120_000);

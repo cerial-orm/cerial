@@ -492,6 +492,15 @@ export interface IncrementalTimings {
   readonly recheckMs: number;
   /** `Check time` the compiler itself reports for the edited run */
   readonly editCheckSeconds: number | null;
+  /**
+   * Type instantiations each run reports: the no-op run reports none, which is what makes `noopMs` process cost alone,
+   * and the edit reports fewer than the cold run. Counts, so machine load cannot reorder them; null when not reported
+   */
+  readonly instantiations: {
+    readonly cold: number | null;
+    readonly noop: number | null;
+    readonly edit: number | null;
+  };
 }
 
 async function timedTsc(
@@ -536,6 +545,8 @@ export async function measureIncremental(
   const edits: number[] = [];
   const noops: number[] = [];
   const checks: number[] = [];
+  const editCounts: number[] = [];
+  const noopCounts: number[] = [];
 
   // The next compiler and the servers start from the consumer as generated
   try {
@@ -547,7 +558,12 @@ export async function measureIncremental(
       edits.push(edit.ms);
       const check = /^Check time:\s+([\d.]+)s/m.exec(edit.stdout);
       if (check) checks.push(Number(check[1]));
-      noops.push((await timedTsc(compiler, caseDir, infoFile)).ms);
+      const editCount = instantiationsOf(edit.stdout);
+      if (editCount !== null) editCounts.push(editCount);
+      const noop = await timedTsc(compiler, caseDir, infoFile);
+      noops.push(noop.ms);
+      const noopCount = instantiationsOf(noop.stdout);
+      if (noopCount !== null) noopCounts.push(noopCount);
     }
   } finally {
     writeFileSync(file, original);
@@ -562,7 +578,18 @@ export async function measureIncremental(
     editMs,
     recheckMs: Math.max(0, editMs - noopMs),
     editCheckSeconds: checks.length ? median(checks) : null,
+    instantiations: {
+      cold: instantiationsOf(cold.stdout),
+      noop: noopCounts.length ? median(noopCounts) : null,
+      edit: editCounts.length ? median(editCounts) : null,
+    },
   };
+}
+
+function instantiationsOf(stdout: string): number | null {
+  const match = /^Instantiations:\s+(\d+)/m.exec(stdout);
+
+  return match ? Number(match[1]) : null;
 }
 
 export interface IncrementalRow extends IncrementalTimings {
