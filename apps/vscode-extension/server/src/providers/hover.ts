@@ -19,7 +19,7 @@ import type {
   ASTObject,
   ASTTuple,
 } from '../../../../orm/src/types';
-import { DECORATOR_DOCS, FIELD_TYPE_DOCS } from '../data/hover-docs';
+import { DECORATOR_DOCS, FIELD_TYPE_DOCS, OPTION_DOCS } from '../data/hover-docs';
 import type { WorkspaceIndexer } from '../indexer';
 import { findNodeAtPosition, getWordRangeAtPosition } from '../utils/ast-location';
 import { lspToCerial } from '../utils/position';
@@ -155,6 +155,15 @@ function buildFieldTypeHover(word: string): string | null {
   return lines.join('\n');
 }
 
+/** Hover for an option word inside a decorator's parentheses, or null when the line is not that decorator. */
+export function buildOptionHover(word: string, lineText: string): string | null {
+  const doc = OPTION_DOCS[word];
+  if (!doc) return null;
+  const onDecorator = doc.decorators.some((name) => new RegExp(`${name}\\([^)]*\\b${word}\\b`).test(lineText));
+
+  return onDecorator ? doc.text : null;
+}
+
 function buildDecoratorHover(name: string): string | null {
   // Strip leading @ if present
   const key = name.startsWith('@') ? name.slice(1) : name;
@@ -269,6 +278,10 @@ export function registerHoverProvider(
 
     // Find AST node at position
     const nodeInfo = findNodeAtPosition(ast, cerialPos);
+
+    // 0. Option word inside decorator parentheses, e.g. @unique(nullsNotDistinct)
+    const optionHover = buildOptionHover(word, source.split('\n')[params.position.line] ?? '');
+    if (optionHover) return { contents: { kind: MarkupKind.Markdown, value: optionHover } };
 
     // 1. Decorator hover — AST says we're on a decorator, or word matches @decorator
     if (nodeInfo?.kind === 'decorator') {

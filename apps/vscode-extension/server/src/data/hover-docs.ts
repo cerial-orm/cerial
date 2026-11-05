@@ -126,7 +126,16 @@ export const FIELD_TYPE_DETAIL: Readonly<Record<string, FieldTypeDetail>> = {
 
 export const DECORATOR_DETAIL: Readonly<Record<string, DecoratorDetail>> = {
   '@id': { example: 'id Record @id', constraints: 'Exactly one per model. Must be a Record field.' },
-  '@unique': { example: 'email Email @unique' },
+  '@unique': {
+    example: 'email Email? @unique(nullsNotDistinct)',
+    constraints:
+      'Plain @unique lets several records hold null. @unique(nullsNotDistinct) allows at most one record with null, and needs a field that can hold null (optional or @nullable). NONE values are still not compared.',
+  },
+  '@@unique': {
+    example: '@@unique(slotKey, [teamId, deletedAt], nullsNotDistinct)',
+    constraints:
+      'A trailing nullsNotDistinct allows at most one record per combination of values, nulls included. It needs at least one nullable column. Not available on @@index. NONE values are still not compared.',
+  },
   '@default': {
     example: 'name String @default("anonymous")',
     constraints: 'Mutually exclusive with @defaultAlways, @createdAt, @updatedAt, @now, @uuid/@uuid4/@uuid7.',
@@ -240,10 +249,34 @@ function signatureOf(entry: DecoratorEntry): string {
       return `${name}(${name.replace(/^@+/, '')}Name)`;
     case 'literal':
       return `${name}(value)`;
-    case 'nameAndFields':
-      return `${name}(name, [field1, field2])`;
+    case 'nameAndFields': {
+      const call = `${name}(name, [field1, field2])`;
+      if (!args.options?.length) return call;
+
+      return `${call} | ${name}(name, [field1, field2], ${args.options.join(' | ')})`;
+    }
   }
 }
+
+/** Hover text for a decorator option word such as `nullsNotDistinct`, keyed by the word. */
+export const OPTION_DOCS: Readonly<Record<string, { readonly decorators: readonly string[]; readonly text: string }>> =
+  {
+    nullsNotDistinct: {
+      decorators: ['@unique', '@@unique'],
+      text: [
+        '**nullsNotDistinct**',
+        '',
+        'Treats null as a value for uniqueness, so at most one record can hold null (for @@unique, one record per combination, nulls included). Without it, any number of records may hold null. NONE values are still not compared.',
+        '',
+        'Needs a field that can hold null (optional or @nullable); on @@unique, at least one nullable column. Not available on @@index.',
+        '',
+        '```cerial',
+        'email Email? @unique(nullsNotDistinct)',
+        '@@unique(slotKey, [teamId, deletedAt], nullsNotDistinct)',
+        '```',
+      ].join('\n'),
+    },
+  };
 
 /** Field type docs by type name as written in a schema (`String`, `Record`). */
 export const FIELD_TYPE_DOCS: Readonly<Record<string, FieldTypeDoc>> = Object.fromEntries(

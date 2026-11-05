@@ -28,6 +28,7 @@ import {
   type DecoratorEntry,
   type DecoratorTarget,
   FIELD_TYPE_REGISTRY,
+  getDecoratorEntry,
 } from '../../../../orm/src/parser/registry';
 import type { ASTField, SchemaAST } from '../../../../orm/src/types';
 import { FIELD_TYPE_DETAIL } from '../data/hover-docs';
@@ -814,6 +815,36 @@ export function isInsideDefaultParens(lineText: string, character: number): bool
 }
 
 // ---------------------------------------------------------------------------
+// Decorator option completions: @unique(nullsNotDistinct), @@unique(name, [a, b], nullsNotDistinct)
+// ---------------------------------------------------------------------------
+
+/**
+ * Offer the words a decorator's argument list accepts when the cursor is inside it: the registry's
+ * `choice` words, or a `nameAndFields` entry's `options` once the field list has closed and a comma follows.
+ * Returns null when the cursor is not in such a position, so other contexts keep handling the line.
+ */
+export function getDecoratorOptionCompletions(lineText: string, character: number): CompletionItem[] | null {
+  const beforeCursor = lineText.slice(0, character);
+  const match = /(@@?[A-Za-z]+)\(([^)]*)$/.exec(beforeCursor);
+  if (!match) return null;
+  const entry = getDecoratorEntry(match[1]!);
+  if (!entry) return null;
+  const inside = match[2]!;
+  let words: readonly string[] = [];
+  if (entry.args.kind === 'choice') words = entry.args.choices.filter((c) => c !== 'true' && c !== 'false');
+  else if (entry.args.kind === 'nameAndFields' && /\]\s*,\s*[A-Za-z]*$/.test(inside)) words = entry.args.options ?? [];
+  if (!words.length) return null;
+
+  return words.map((word) => ({
+    label: word,
+    kind: CompletionItemKind.EnumMember,
+    detail: entry.description,
+    insertText: word,
+    insertTextFormat: InsertTextFormat.PlainText,
+  }));
+}
+
+// ---------------------------------------------------------------------------
 // @model() argument completions
 // ---------------------------------------------------------------------------
 
@@ -1281,6 +1312,10 @@ export function registerCompletionProvider(
     if (isInsideFieldParens(lineText, params.position.character)) {
       return getFieldArgCompletions(ast, blockContext);
     }
+
+    // 2.5. Inside a decorator whose arguments are a fixed set of words
+    const optionItems = getDecoratorOptionCompletions(lineText, params.position.character);
+    if (optionItems) return optionItems;
 
     // 3. Inside Record() parentheses
     if (isInsideRecordParens(lineText, params.position.character)) {
