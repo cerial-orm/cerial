@@ -75,7 +75,7 @@ const users = await client.db.User.findMany({
 | --- | --- | --- |
 | [Comparison](/filtering/comparison) | `eq`, `neq`, `not`, `gt`, `gte`, `lt`, `lte` | String, Int, Float, Number, Date, Bool, Email, Uuid, Duration, Decimal, Bytes, Any |
 | [String](/filtering/string-operators) | `contains`, `startsWith`, `endsWith` | String, Email |
-| [Array Field](/filtering/array-operators) | `has`, `hasAll`, `hasAny`, `isEmpty` | Array fields (`String[]`, `Int[]`, etc.) |
+| [Array Field](/filtering/array-operators) | `has`, `hasAll`, `hasAny`, `isEmpty`, `isNone` | Array fields (`String[]`, `Int[]`, etc.) |
 | [Scalar Membership](/filtering/array-operators#scalar-membership-operators) | `in`, `notIn` | All scalar fields |
 | [Logical](/filtering/logical-operators) | `AND`, `OR`, `NOT` | Structural combinators |
 | Special | `between` | Numeric, Date, String (lexicographic) |

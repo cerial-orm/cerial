@@ -78,6 +78,33 @@ const usersWithNicknames = await client.db.User.findMany({
 });
 ```
 
+An array that is absent matches neither `isEmpty: true` nor `isEmpty: false`, and the query does not fail. A top-level array always exists, but an array field inside an optional object is absent when the object is.
+
+### isNone
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Array fields that can be absent, meaning array fields inside an optional object, accept `isNone`. `isNone: true` matches only records where the array is absent, and `isNone: false` matches records where it is present (empty or not). Using `isNone` on a field that is always present is a type error.
+
+```typescript
+// Settings is an optional object with a `tags String[]` field
+const withoutTags = await client.db.User.findMany({
+  where: { settings: { tags: { isNone: true } } },
+});
+```
+
+To match both an empty array and an absent one, combine the two with `OR`:
+
+```typescript
+const noTags = await client.db.User.findMany({
+  where: {
+    OR: [{ settings: { tags: { isEmpty: true } } }, { settings: { tags: { isNone: true } } }],
+  },
+});
+```
+
 ## Scalar Membership Operators
 
 These operators work on scalar (non-array) fields. They check whether the field's value is present in a provided list of values.
@@ -125,7 +152,8 @@ It's important to understand the difference — array field operators check what
 | `has` | Array fields | Does the array contain this element? |
 | `hasAll` | Array fields | Does the array contain ALL of these elements? |
 | `hasAny` | Array fields | Does the array contain ANY of these elements? |
-| `isEmpty` | Array fields | Is the array empty? |
+| `isEmpty` | Array fields | Is the array present and empty (`true`) or present and non-empty (`false`)? |
+| `isNone` | Array fields inside an optional object | Is the array absent? |
 | `in` | Scalar fields | Is the field value in this list? |
 | `notIn` | Scalar fields | Is the field value NOT in this list? |
 
