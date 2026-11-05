@@ -70,6 +70,7 @@ Every page in this section assumes these.
 2. **The first argument is the schema name.** `model('User', ...)` declares `User`. Keep the const and the name the same.
 3. **A reference is a declaration, a function returning one, or a name.** Pass the declaration itself when it is already defined above. Pass a function (`() => Post`) when it is defined further down or the two refer to each other. A bare name string (`'Post'`) is an escape hatch for module graphs that import each other in a cycle. Prefer the first two, because TypeScript checks them and does not check a string.
 4. **The schema entry is the unit of resolution.** All declarations of one schema entry resolve together, in any order. A declaration cannot refer to one in another schema entry, exactly as in `.cerial`. Cross-entry references are not possible.
+5. **Names follow the same rules as in `.cerial`.** A name that is not a plain identifier, or is a property name of `Object.prototype` (`constructor`, `toString`, `valueOf` and the rest) or `prototype`, throws when the module loads. Declaration names cannot be JavaScript reserved words. See [Naming rules](/schema/overview/#naming-rules).
 
 ## Self-referencing declarations
 

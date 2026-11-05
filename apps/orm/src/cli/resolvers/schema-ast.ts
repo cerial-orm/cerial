@@ -21,7 +21,7 @@ import {
 } from '../passes';
 import { logger } from '../utils';
 import type { SchemaValidationError } from '../validators';
-import { validateDuplicateNames, validateExtends } from '../validators';
+import { validateDuplicateNames, validateExtends, validateGeneratedNames } from '../validators';
 import { isTypescriptSchemaFile, resolveSchemas, resolveSinglePath } from './schema-resolver';
 
 const HANDLES_MODULE = /(^|\/)cerial\/handles\.ts$/;
@@ -223,8 +223,12 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
 
   // Pass 1 writes the handles the TypeScript modules may import, so it runs before they are imported
   const handlesFile = handlesPath(root);
-  const priorHandles =
-    options.preserveHandles && mixing && existsSync(handlesFile) ? await readFile(handlesFile) : undefined;
+  // Kept for every mixed entry: a refused schema must leave handles.ts as it was found, never newly written
+  const priorHandles = mixing && existsSync(handlesFile) ? await readFile(handlesFile) : undefined;
+  const restoreHandles = async (): Promise<void> => {
+    if (priorHandles) await writeFile(handlesFile, priorHandles);
+    else await syncHandles(root, null);
+  };
   let declared: NameSets = NO_NAMES;
   let typescriptAST = emptyAst();
   try {
@@ -250,22 +254,25 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
         enums: new Set(typescriptAST.enums.map((e) => e.name)),
       };
     }
-  } finally {
-    if (options.preserveHandles && mixing) {
-      if (priorHandles) await writeFile(handlesFile, priorHandles);
-      else await syncHandles(root, null);
-    }
+  } catch (error) {
+    if (mixing) await restoreHandles();
+    throw error;
   }
+  // `generate` keeps the file it wrote for a schema that loads, and restores it for one that is refused
+  if (options.preserveHandles && mixing) await restoreHandles();
 
   const parsed = runPassThree(schemaContents, declared);
   result.parseErrors.push(...parsed.errors);
   result.combinedAST = parsed.ast;
 
+  // An ordinary parse error keeps the handles: the TypeScript modules need them while the typo is fixed
   if (result.parseErrors.length) return result;
 
   result.combinedAST = mixing ? mergeDeclarations(parsed.ast, typescriptAST) : parsed.ast;
+  validateAndResolve(result, result.combinedAST);
+  if (mixing && result.extendsErrors.length) await restoreHandles();
 
-  return validateAndResolve(result, result.combinedAST);
+  return result;
 }
 
 function hasDeclarations(ast: SchemaAST): boolean {
@@ -277,7 +284,12 @@ function hasDeclarations(ast: SchemaAST): boolean {
 function validateAndResolve(result: SchemaAstResult, combinedAST: SchemaAST): SchemaAstResult {
   // Validate extends and name uniqueness on the RAW AST: resolution keys types by name, so a duplicate
   // declaration (including one in another file) would be silently dropped before any later check saw it
-  result.extendsErrors = [...validateDuplicateNames(combinedAST), ...validateExtends(combinedAST)];
+  // Names are checked here, on every declaration including abstract models, so the CLI and the editor agree
+  result.extendsErrors = [
+    ...validateGeneratedNames(combinedAST),
+    ...validateDuplicateNames(combinedAST),
+    ...validateExtends(combinedAST),
+  ];
   if (result.extendsErrors.length) return result;
 
   // Resolve inheritance — flatten extends chains, apply pick/omit, strip private markers

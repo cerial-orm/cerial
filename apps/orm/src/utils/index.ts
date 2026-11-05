@@ -59,6 +59,7 @@ export type { CerialSet } from './cerial-set';
 export type { CerialUuidInput } from './cerial-uuid';
 // CerialUuid - UUID wrapper
 export { CerialUuid, isCerialUuid } from './cerial-uuid';
+export { generatedNameProblem, isGeneratedName } from './generated-name';
 export type { CerialNone } from './none';
 // NONE sentinel
 export { isNone, NONE } from './none';

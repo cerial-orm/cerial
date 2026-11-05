@@ -1,13 +1,14 @@
 import { CerialGenerationError } from '../../errors';
-import { IDENTIFIER_PATTERN } from '../tokenizer';
+import { generatedNameProblem } from '../../utils/generated-name';
 
 /**
  * Refuse a name the schema text cannot spell. A name from TypeScript skips the lexer, so `model('a b')`
  * would print as `model a b {` and read back as a model called `a`.
  */
 export function checkedIdentifier(kind: string, name: unknown): string {
-  if (typeof name === 'string' && IDENTIFIER_PATTERN.test(name)) return name;
-  throw new CerialGenerationError(`Invalid ${kind} name ${JSON.stringify(name)}: a name must be an identifier`);
+  const problem = generatedNameProblem(name, kind);
+  if (problem === undefined) return name as string;
+  throw new CerialGenerationError(`Invalid ${kind} name ${JSON.stringify(name)}: ${problem}`);
 }
 
 /** Refuse every key of a field body that is not an identifier. */

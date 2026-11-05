@@ -9,6 +9,7 @@ import { SIZED_NUMBER_SURREAL_TYPES } from '../../utils/type-utils';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
 import { validateCompositeDirectives, validateUniqueNullsNotDistinct } from './composite-directive-validator';
 import { validateEnums } from './enum-validator';
+import { validateGeneratedNames } from './generated-name-validator';
 import { validateLiteralFieldReferences, validateLiterals } from './literal-validator';
 import {
   validateNoOptionalAnyFields,
@@ -971,6 +972,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateLiterals(ast),
     ...validateLiteralFieldReferences(ast),
     ...validateEnums(ast),
+    ...validateGeneratedNames(ast),
   ];
 
   return {

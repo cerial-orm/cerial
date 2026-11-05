@@ -1,4 +1,4 @@
-model class {
+model object {
   id Record @id
   label String
 }

@@ -401,7 +401,8 @@ export const LOSSY_CASES: readonly LossyCase[] = [
   },
   {
     id: 'reserved-word-binding',
-    construct: 'A declaration named like a reserved word or a builder import (`class`, `f`, `model`)',
+    construct:
+      'A declaration named like a builder import (`f`, `model`). A reserved word such as `class` is refused by the generated-name rule',
     direction: 'to-ts',
     action: 'expand',
     reason:
@@ -410,10 +411,12 @@ export const LOSSY_CASES: readonly LossyCase[] = [
   },
   {
     id: 'proto-field-key',
-    construct: 'A field named `__proto__`',
+    construct:
+      'A field or tuple element named like an `Object.prototype` member (`__proto__`, `constructor`, `toString`, `valueOf`) or `prototype`',
     direction: 'to-ts',
-    action: 'expand',
-    reason: 'Written as a computed key so it becomes an own property rather than a prototype assignment.',
+    action: 'refuse',
+    reason:
+      'The generated-name rule refuses these names for every kind of name, so the emitted module fails to load and nothing is written.',
     comment: null,
   },
 ];

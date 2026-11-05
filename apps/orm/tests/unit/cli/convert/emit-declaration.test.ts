@@ -474,7 +474,8 @@ describe('directives', () => {
 });
 
 describe('identifier safety', () => {
-  const RESERVED = ['class', 'f', 'model', 'e', 'variant', 'enumeration', 'let', 'undefined', 'object'];
+  // ES reserved words are refused as declaration names (the generated-name rule), so only builder imports collide
+  const RESERVED = ['f', 'model', 'e', 'variant', 'enumeration', 'undefined', 'object'];
 
   test('binds a reserved name safely', async () => {
     for (const name of RESERVED) {
@@ -489,10 +490,10 @@ describe('identifier safety', () => {
 
   test('extends reaches a reserved parent through its binding', async () => {
     const result = await roundTripText(
-      'abstract model class {\n  id Record @id\n}\nmodel Child extends class[!id] {\n  name String\n}\n',
+      'abstract model f {\n  id Record @id\n}\nmodel Child extends f[!id] {\n  name String\n}\n',
     );
     expect(result.differences).toEqual([]);
-    expect(declarationOf(result, 'Child').text).toContain("{ extends: _class.omit('id') }");
+    expect(declarationOf(result, 'Child').text).toContain("{ extends: _f.omit('id') }");
   });
 
   test('ordinary names get no alias', async () => {
@@ -508,16 +509,16 @@ describe('identifier safety', () => {
   test('every declaration kind binds a reserved name', async () => {
     const result = await roundTripText(
       [
-        'enum default { a, b }',
-        "literal new { 'x', 1 }",
-        'object this {\n  v Int\n}',
-        'tuple delete {\n  Int\n}',
-        'model class {\n  id Record @id\n  o this\n}',
+        'enum e { a, b }',
+        "literal variant { 'x', 1 }",
+        'object f {\n  v Int\n}',
+        'tuple model {\n  Int\n}',
+        'model object {\n  id Record @id\n  o f\n}',
         '',
       ].join('\n'),
     );
     expect(result.differences).toEqual([]);
-    expect(result.declarations.map((d) => d.binding)).toEqual(['_default', '_new', '_this', '_delete', '_class']);
+    expect(result.declarations.map((d) => d.binding)).toEqual(['_e', '_variant', '_f', '_model', '_object']);
   });
 
   test('an alias never lands on a name the module already uses', () => {
@@ -536,20 +537,14 @@ describe('identifier safety', () => {
     }
   });
 
-  test('emits __proto__ as a computed key', async () => {
-    const result = await roundTripText(
-      [
-        'object Holder {\n  __proto__ String\n  plain Int\n}',
-        'tuple Pair {\n  __proto__ Int,\n  other Int\n}',
-        'model Doc {\n  id Record @id\n  __proto__ String\n}',
-        '',
-      ].join('\n'),
-    );
-    expect(result.differences).toEqual([]);
-    expect(result.text).toContain("['__proto__']: f.string()");
-    expect(result.text).toContain("['__proto__']: e.int()");
-    expect(result.built.objects[0]!.fields.map((field) => field.name)).toEqual(['__proto__', 'plain']);
-    expect(result.built.models[0]!.fields.map((field) => field.name)).toEqual(['id', '__proto__']);
+  test('__proto__ is refused as a field and tuple element name when the module loads', async () => {
+    for (const source of [
+      'object Holder {\n  __proto__ String\n}',
+      'tuple Pair {\n  __proto__ Int,\n  other Int\n}',
+      'model Doc {\n  id Record @id\n  __proto__ String\n}',
+    ]) {
+      await expect(roundTripText(`${source}\n`)).rejects.toThrow("'__proto__' is reserved");
+    }
   });
 
   test('an ordinary field name is written bare', async () => {

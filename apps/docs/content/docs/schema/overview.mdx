@@ -159,6 +159,16 @@ model User extends BaseModel {
 }
 ```
 
+## Naming Rules
+
+Every name in a schema ends up in generated code, so one rule holds for all of them: model, object, tuple, literal and enum names, field names, tuple element names, enum values and the names of `@@index` and `@@unique` directives.
+
+- A name starts with a letter or an underscore and holds only letters, digits and underscores. `lat2` and `_y` are valid; `7E` and `x-1` are not.
+- Every property name of `Object.prototype` (`constructor`, `__proto__`, `toString`, `valueOf`, `hasOwnProperty` and the rest) and `prototype` are refused for every kind of name, including field names and enum and literal values. A field called `toString` would clash with the inherited member in the generated types.
+- Model, object, tuple, literal and enum names also cannot be JavaScript reserved words such as `class`, `typeof` or `delete`. A field, tuple element or enum value may be one.
+
+`cerial generate` refuses a schema that breaks the rule and writes nothing, naming the kind, the owner and the name.
+
 ## Inheritance
 
 All five building blocks support `extends` for schema-level inheritance. A child type inherits all fields (or values) from its parent:

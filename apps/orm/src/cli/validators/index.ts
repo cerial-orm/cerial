@@ -8,6 +8,7 @@ export { validateCompositeDirectives, validateUniqueNullsNotDistinct } from './c
 export type { EntryModels } from './entry-table-validator';
 export { validateEntryTableNames } from './entry-table-validator';
 export { validateEnums } from './enum-validator';
+export { validateGeneratedNames } from './generated-name-validator';
 export {
   validateAbstractRules,
   validateEmptyTypes,

@@ -894,8 +894,8 @@ describe('rows that refuse or expand, --to ts', () => {
     await toTs();
 
     const text = await readFile(join(root, 'reserved.schema.ts'), 'utf8');
-    expect(text).toContain("const _class = model('class', {");
-    expect(text).toContain('export { _class as class };');
+    expect(text).toContain("const _object = model('object', {");
+    expect(text).toContain('export { _object as object };');
     expect(text).toContain("const _f = model('f', {");
     expect(text).toContain('export { _f as f };');
   });
@@ -903,10 +903,8 @@ describe('rows that refuse or expand, --to ts', () => {
   row('proto-field-key', async () => {
     await project({ 'doc.cerial': await fixture('proto.cerial') });
 
-    await toTs();
-
-    const text = await readFile(join(root, 'doc.schema.ts'), 'utf8');
-    expect(text).toContain("['__proto__']: f.string()");
+    // The generated-name rule refuses `__proto__` when the emitted module loads
+    expect(await refused(() => toTs())).toContain("'__proto__' is reserved");
   });
 });
 

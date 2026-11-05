@@ -6,7 +6,7 @@ import type { Extendable, ExtendsTarget, VisibleOf } from './extends';
 import type { LiteralHandle } from './literal';
 import { dslHandleInfo } from './handle';
 import { checkedIdentifier } from './identifier';
-import { IDENTIFIER_PATTERN } from '../tokenizer';
+import { generatedNameProblem } from '../../utils/generated-name';
 import { numberDeclaration, sharedWeakMap } from './shared-state';
 
 interface EnumDefinition {
@@ -40,7 +40,9 @@ export function enumeration<
   checkedIdentifier('enum', name);
   // Same rule as the parser: bare identifiers, never a boolean word, which also keeps quotes and separators out
   for (const value of values) {
-    if (typeof value !== 'string' || !IDENTIFIER_PATTERN.test(value) || value === 'true' || value === 'false') {
+    const problem = generatedNameProblem(value, 'enum value');
+    if (problem?.includes('is reserved')) throw new Error(`Enum ${name}: invalid value '${value}': ${problem}`);
+    if (problem !== undefined || value === 'true' || value === 'false') {
       throw new Error(`Enum ${name}: invalid value '${value}'. Values must be valid identifiers`);
     }
   }

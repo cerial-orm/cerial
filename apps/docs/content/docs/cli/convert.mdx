@@ -258,8 +258,8 @@ A package-provided field set is refused rather than expanded. Convert does not l
 | A cycle made purely of `extends` across files | Refused | Refused by name, because no load order of `extends` across those files exists. |
 | A cycle of one `extends` and a relation or reference back to the child | Converted | The back reference is written as a bare name string, which the builder accepts for cyclic graphs. |
 | `@@index` and `@@unique` interleaved on one model, which a builder option object cannot order | Converted | Indexes and uniques are grouped by kind, with a warning naming the model. Only their order changes. |
-| A declaration named like a reserved word or a builder import (`class`, `f`, `model`) | Converted | The module uses a safe binding with an aliased export. The `.cerial` name is kept in the first argument. |
-| A field named `__proto__` | Converted | Written as a computed key so it is a normal field. |
+| A declaration named like a builder import (`f`, `model`). A reserved word such as `class` is refused by the generated-name rule | Converted | The module uses a safe binding with an aliased export. The `.cerial` name is kept in the first argument. |
+| A field or tuple element named like an `Object.prototype` member (`__proto__`, `constructor`, `toString`, `valueOf`) or `prototype` | Refused | The generated-name rule refuses these names for every kind of name, so the emitted module fails to load and nothing is written. |
 
 ### Both directions
 
