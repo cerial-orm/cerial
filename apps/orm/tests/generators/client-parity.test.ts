@@ -53,7 +53,8 @@ describe('client generated from TypeScript', () => {
       [join(E2E_DIR, 'schemas'), cerialDir],
       [join(E2E_DIR, 'schemas-ts'), tsDir],
     ] as const) {
-      const result = await generate({ schema, output, verbose: false });
+      // The scratch output is outside the repo; this test is about the generated client, not the output guard
+      const result = await generate({ schema, output, verbose: false, allowUnsafeOutput: true });
       if (!result.success) throw new Error(`generation failed for ${schema}: ${result.errors.join(', ')}`);
     }
   });

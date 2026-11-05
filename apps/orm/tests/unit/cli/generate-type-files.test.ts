@@ -49,7 +49,8 @@ function listFiles(dir: string): string[] {
     for (const entry of readdirSync(current, { withFileTypes: true })) {
       const path = join(current, entry.name);
       if (entry.isDirectory()) walk(path);
-      else found.push(relative(dir, path));
+      // The manifest records this layout's files; it is not one of them
+      else if (entry.name !== '.cerial-output.json') found.push(relative(dir, path));
     }
   };
   walk(dir);

@@ -117,7 +117,8 @@ const walk = (dir: string, root: string = dir, out: Sizes = {}): Sizes => {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) walk(path, root, out);
-    else out[relative(root, path).split('\\').join('/')] = statSync(path).size;
+    else if (entry.name !== '.cerial-output.json')
+      out[relative(root, path).split('\\').join('/')] = statSync(path).size;
   }
 
   return out;

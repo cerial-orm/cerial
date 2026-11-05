@@ -112,7 +112,9 @@ async function generate(outputDir: string): Promise<Generated> {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const path = join(dir, entry.name);
       if (entry.isDirectory()) walk(path);
-      else all.set(keyOf(relative(outputDir, path)), readFileSync(path, 'utf8'));
+      // The manifest lists the files of this layout, so it is not one of the generated files
+      else if (entry.name !== '.cerial-output.json')
+        all.set(keyOf(relative(outputDir, path)), readFileSync(path, 'utf8'));
     }
   };
   walk(outputDir);

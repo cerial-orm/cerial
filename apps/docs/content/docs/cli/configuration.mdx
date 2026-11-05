@@ -216,6 +216,8 @@ When no `output` is specified on a schema entry, Cerial defaults to `{schemaPath
 
 If you set a root `output`, schemas without their own `output` use the root as a base. Explicit per-schema `output` values always take priority.
 
+An `output` that resolves outside the project root (the folder holding the root config), or to a directory that contains a schema source, is refused. Pass `--allow-unsafe-output` to `generate` to allow it. Generate only deletes files listed in the output's `.cerial-output.json`; see [Generate](/cli/generate#output-directory-safety).
+
 ## Schema Discovery
 
 When you run `cerial generate` without the `-s` flag, Cerial looks for schemas through a priority chain.

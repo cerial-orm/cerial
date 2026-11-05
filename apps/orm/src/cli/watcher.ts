@@ -46,6 +46,10 @@ export interface WatchTarget extends WatchTargetBase {
   connection?: ConnectionConfig;
   /** Tables this entry shares with another entry */
   databasePins?: DatabasePin[];
+  /** The user passed `--allow-unsafe-output`, so every regeneration may write to that output */
+  allowUnsafeOutput?: boolean;
+  /** Directory the output must stay inside: the config's directory, else the working directory */
+  projectRoot?: string;
 }
 
 /** Watch target for format mode */
@@ -430,7 +434,17 @@ export function buildGenerateArgs(target: WatchTarget, cli: CliInvocation): stri
       ? ['-n', target.name, ...(target.configPath ? ['-C', target.configPath] : [])]
       : ['-s', target.schemaPath];
 
-  return [...(cli.args ?? []), cli.entry, 'generate', ...select, '-o', target.outputDir, '--log', 'minimal'];
+  return [
+    ...(cli.args ?? []),
+    cli.entry,
+    'generate',
+    ...select,
+    '-o',
+    target.outputDir,
+    ...(target.allowUnsafeOutput ? ['--allow-unsafe-output'] : []),
+    '--log',
+    'minimal',
+  ];
 }
 
 /** What an in-process regeneration passes to `generateSingleSchema`, so watch and one-shot runs share one layout */
@@ -448,6 +462,8 @@ export function singleSchemaOptions(target: WatchTarget): SingleSchemaOptions {
     filterRoot: target.filterRoot,
     connection: target.connection,
     databasePins: target.databasePins,
+    allowUnsafeOutput: target.allowUnsafeOutput,
+    projectRoot: target.projectRoot,
     logLevel: 'minimal',
   };
 }

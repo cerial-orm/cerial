@@ -33,6 +33,13 @@ async function snapshot(dir: string): Promise<Record<string, string>> {
   return out;
 }
 
+/** Records files in the manifest as the previous run having written them, so the sweep may remove them */
+async function listInManifest(outputDir: string, extra: string[]): Promise<void> {
+  const path = join(outputDir, '.cerial-output.json');
+  const manifest = JSON.parse(await readFile(path, 'utf8')) as { files: string[] };
+  await writeFile(path, JSON.stringify({ files: [...manifest.files, ...extra] }), 'utf8');
+}
+
 async function setup(): Promise<{ schemaDir: string; outputDir: string }> {
   const base = await mkdtemp(join(tmpdir(), 'cerial-atomic-output-'));
   cleanups.push(() => rm(base, { recursive: true, force: true }));
@@ -82,6 +89,7 @@ describe('generate output is written only after every generator returns', () => 
     await mkdir(join(outputDir, 'kept'), { recursive: true });
     await writeFile(join(outputDir, 'kept', 'stale.ts'), 'export {};\n', 'utf8');
     await writeFile(join(outputDir, 'kept', 'notes.txt'), 'keep me\n', 'utf8');
+    await listInManifest(outputDir, ['gone/nested/stale.ts', 'kept/stale.ts']);
 
     const again = await generateSingleSchema({ schemaPath: schemaDir, outputDir, logLevel: 'minimal' });
     expect(again.success).toBe(true);
@@ -90,11 +98,12 @@ describe('generate output is written only after every generator returns', () => 
     expect(existsSync(join(outputDir, 'kept', 'notes.txt'))).toBe(true);
   });
 
-  it('a successful regeneration still replaces the output, and --clean drops stale files', async () => {
+  it('a successful regeneration still replaces the output, and --clean keeps files cerial did not write', async () => {
     const { schemaDir, outputDir } = await setup();
     await generateSingleSchema({ schemaPath: schemaDir, outputDir, logLevel: 'minimal' });
     await writeFile(join(outputDir, 'stale.ts'), 'export {};\n', 'utf8');
     await writeFile(join(outputDir, 'notes.txt'), 'keep me\n', 'utf8');
+    await listInManifest(outputDir, ['stale.ts']);
 
     const again = await generateSingleSchema({ schemaPath: schemaDir, outputDir, logLevel: 'minimal' });
     expect(again.success).toBe(true);
@@ -104,7 +113,7 @@ describe('generate output is written only after every generator returns', () => 
 
     const cleaned = await generateSingleSchema({ schemaPath: schemaDir, outputDir, logLevel: 'minimal', clean: true });
     expect(cleaned.success).toBe(true);
-    expect(await Bun.file(join(outputDir, 'notes.txt')).exists()).toBe(false);
+    expect(await Bun.file(join(outputDir, 'notes.txt')).exists()).toBe(true);
     expect(await Bun.file(join(outputDir, 'internal', 'model-registry.ts')).exists()).toBe(true);
   });
 });

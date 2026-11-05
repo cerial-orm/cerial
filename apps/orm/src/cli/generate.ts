@@ -2,9 +2,9 @@
  * Generate command - orchestrates the generation process
  */
 
-import { cp, mkdtemp, readdir, rm } from 'node:fs/promises';
+import { cp, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
@@ -23,6 +23,15 @@ import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { discoveredClientClassName, discoverSchemaRoots } from './discover-roots';
 import type { DiscoveredRoot } from './discover-roots';
+import {
+  assertNoUnclaimedTargets,
+  assertSafeOutput,
+  OUTPUT_MANIFEST_NAME,
+  outputManifestContent,
+  readOutputManifest,
+  removeListedFiles,
+} from './output-guard';
+import { moduleGraph } from '../parser/builder/load';
 import { buildResolvedSchemaAst } from './resolvers';
 import { buildSchemaMetadata } from './schema-metadata';
 import { logger } from './utils';
@@ -66,6 +75,12 @@ export interface SingleSchemaOptions {
   databasePins?: DatabasePin[];
   /** Extension of the generated type-only files; absent means the default */
   typeFiles?: TypeFilesMode;
+  /** Directory the output must stay inside; absent means the output may be anywhere */
+  projectRoot?: string;
+  /** Schema entry folders, entry modules and listed files of the whole run, which the output must not contain */
+  protectedPaths?: string[];
+  /** Write to an output directory outside the project root or holding a schema source */
+  allowUnsafeOutput?: boolean;
 }
 
 /** Options for generating multiple schemas */
@@ -75,6 +90,10 @@ export interface MultiSchemaOptions {
   logLevel?: LogOutputLevel;
   verbose?: boolean;
   clean?: boolean;
+  projectRoot?: string;
+  /** Every entry of the config, not only the targeted ones; defaults to the entries being generated */
+  protectedPaths?: string[];
+  allowUnsafeOutput?: boolean;
 }
 
 /** Result from generating multiple schemas */
@@ -82,57 +101,6 @@ export interface MultiGenerateResult {
   success: boolean;
   results: Record<string, GenerateResult>;
   errors: string[];
-}
-
-/**
- * Delete the entire output directory and all its contents.
- * Used when the --clean flag is passed.
- */
-async function cleanOutputDir(outputDir: string): Promise<void> {
-  await rm(outputDir, { recursive: true, force: true });
-}
-
-/**
- * Remove stale .ts files from the output directory that were not part of the current generation.
- * Recursively scans the output tree, deletes orphaned .ts files, and removes empty directories.
- */
-async function removeStaleFiles(outputDir: string, generatedFiles: string[]): Promise<string[]> {
-  const generatedSet = new Set(generatedFiles.map((f) => resolve(f)));
-  const staleFiles: string[] = [];
-  const dirs: string[] = [];
-
-  async function scan(dir: string): Promise<void> {
-    let entries;
-    try {
-      entries = await readdir(dir, { withFileTypes: true });
-    } catch {
-      return;
-    }
-
-    for (const entry of entries) {
-      const fullPath = `${dir}/${entry.name}`;
-      if (entry.isDirectory()) {
-        await scan(fullPath);
-        dirs.push(fullPath);
-      } else if (entry.isFile() && entry.name.endsWith('.ts') && !generatedSet.has(resolve(fullPath))) {
-        staleFiles.push(fullPath);
-      }
-    }
-  }
-
-  await scan(outputDir);
-  await Promise.all(staleFiles.map((f) => rm(f, { force: true })));
-
-  // Children come before their parents, so a directory emptied by the removals above goes too
-  for (const dir of dirs) {
-    try {
-      if (!(await readdir(dir)).length) await rm(dir, { recursive: true, force: true });
-    } catch {
-      // Ignore errors on cleanup
-    }
-  }
-
-  return staleFiles;
 }
 
 /**
@@ -366,6 +334,19 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       }
     }
 
+    await assertSafeOutput({
+      outputDir,
+      // A TypeScript entry also loads what it imports, and generate would overwrite any of those in the output
+      sources: [
+        ...schemaFiles,
+        ...typescriptFiles,
+        ...(typescriptFiles.length ? await moduleGraph(typescriptFiles) : []),
+      ],
+      protectedPaths: options.protectedPaths,
+      projectRoot: options.projectRoot,
+      allowUnsafeOutput: options.allowUnsafeOutput,
+    });
+
     // Generators write as they go, so they target a staging directory and the real output is
     // only touched once every one of them has returned: a throw leaves the previous output intact.
     const stagingDir = await mkdtemp(`${tmpdir()}/cerial-generate-`);
@@ -435,15 +416,19 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
 
       result.files = result.files.map(toFinal);
 
-      if (options.clean) {
-        logger.progress('Cleaning output directory...');
-        await cleanOutputDir(outputDir);
-      }
+      // Only what the previous run recorded is ever deleted; a missing manifest deletes nothing
+      const previous = await readOutputManifest(outputDir);
+      await writeFile(join(stagingDir, OUTPUT_MANIFEST_NAME), outputManifestContent(outputDir, result.files));
+      await assertNoUnclaimedTargets(outputDir, result.files, previous, options.allowUnsafeOutput);
+      const written = new Set(result.files.map((f) => resolve(f)));
 
       await cp(stagingDir, outputDir, { recursive: true });
 
-      if (!options.clean) {
-        const staleFiles = await removeStaleFiles(outputDir, result.files);
+      if (!previous) {
+        logger.info('No manifest from a previous run in the output directory: nothing removed');
+      } else {
+        // --clean and the plain run remove the same files: nothing is deleted until the copy has succeeded
+        const staleFiles = await removeListedFiles(outputDir, previous, written);
         if (staleFiles.length) {
           logger.info(`Removed ${staleFiles.length} stale file(s)`);
           if (logLevel === 'full') staleFiles.forEach((f) => logger.debug(`  removed ${f}`));
@@ -504,6 +489,11 @@ export async function entryDatabasePins(
   return validateEntryTableNames(entryModels);
 }
 
+/** Where each entry's declarations live: its folder, entry module and listed files */
+export function entrySources(entries: ResolvedSchemaEntry[]): string[] {
+  return entries.flatMap((entry) => [entry.path, ...(entry.entry ? [entry.entry] : []), ...(entry.files ?? [])]);
+}
+
 /** Generate multiple schemas sequentially */
 export async function generateMultiSchema(
   entries: ResolvedSchemaEntry[],
@@ -526,6 +516,9 @@ export async function generateMultiSchema(
       logLevel: options.logLevel,
       verbose: options.verbose,
       clean: options.clean,
+      projectRoot: options.projectRoot,
+      protectedPaths: options.protectedPaths ?? entrySources(entries),
+      allowUnsafeOutput: options.allowUnsafeOutput,
       filter: filters?.get(entry.name),
       connection: entry.connection,
       databasePins: pins.get(entry.name),
@@ -669,6 +662,8 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       logLevel: options.log,
       verbose: options.verbose,
       clean: options.clean,
+      projectRoot: cwd,
+      allowUnsafeOutput: options.allowUnsafeOutput,
       filter: rootFilter,
     });
   }
@@ -715,6 +710,9 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
           verbose: options.verbose,
           clean: options.clean,
           filterRoot: configDir,
+          projectRoot: configDir,
+          protectedPaths: entrySources(allEntries),
+          allowUnsafeOutput: options.allowUnsafeOutput,
         },
         filters,
       );
@@ -750,6 +748,8 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
           logLevel: options.log,
           verbose: options.verbose,
           clean: options.clean,
+          projectRoot: cwd,
+          allowUnsafeOutput: options.allowUnsafeOutput,
           filter: root.filter,
           typeFiles: root.typeFiles,
         });
@@ -772,6 +772,8 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
           logLevel: options.log,
           verbose: options.verbose,
           clean: options.clean,
+          projectRoot: cwd,
+          allowUnsafeOutput: options.allowUnsafeOutput,
         },
         new Map(found.roots.map((root) => [root.name, root.filter])),
       );
@@ -802,6 +804,8 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     logLevel: options.log,
     verbose: options.verbose,
     clean: options.clean,
+    projectRoot: cwd,
+    allowUnsafeOutput: options.allowUnsafeOutput,
     filter: legacyFilter,
   });
 }

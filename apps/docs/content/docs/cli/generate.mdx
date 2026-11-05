@@ -17,7 +17,8 @@ bunx cerial generate [options]
 | `--output <path>` | `-o` | Output directory for generated client | - |
 | `--config <path>` | `-C` | Path to config file | - |
 | `--name <name>` | `-n` | Target a specific schema by name (multi-schema) | - |
-| `--clean` | `-c` | Delete entire output directory before generating | `false` |
+| `--clean` | `-c` | Delete the files the previous run wrote before generating | `false` |
+| `--allow-unsafe-output` | - | Allow an output directory outside the project root or one that contains schema sources | `false` |
 | `--watch` | `-w` | Watch for schema changes and regenerate | `false` |
 | `--verbose` | `-v` | Verbose output showing generation details | `false` |
 | `--log <level>` | `-l` | Log output level: `minimal`, `medium`, or `full` | `minimal` |
@@ -100,13 +101,21 @@ bunx cerial generate --watch --format
 
 ### Clean output
 
-Delete the entire output directory before generating, ensuring a completely fresh output with no leftover files:
+Delete the files the previous run wrote before generating, so the output holds exactly what this run produces:
 
 ```bash
 bunx cerial generate -s ./schemas -o ./db-client --clean
 ```
 
-Without `--clean`, stale files from previous generations (types for renamed or removed models, for example) are automatically detected and removed after generating. The `--clean` flag is useful when you want a guaranteed clean slate, such as after major schema restructuring.
+`--clean` removes only the files listed in the output's `.cerial-output.json`, plus directories that removal leaves empty. Any other file in the output directory, such as one you added yourself, is kept. Without `--clean`, files the previous run wrote that this run no longer produces (types for renamed or removed models, for example) are removed after generating.
+
+### Output directory safety
+
+Generate refuses an output directory that lies outside the project root (the folder holding the root config, or the current directory when there is none) and one that contains a schema source (a `.cerial` file or a TypeScript schema module). Symlinks are resolved first. The error names the path. To write there anyway, pass `--allow-unsafe-output`:
+
+```bash
+bunx cerial generate -s ./schemas -o ../shared/db-client --allow-unsafe-output
+```
 
 ### Verbose output
 
@@ -211,9 +220,9 @@ All generated files are formatted with Biome and written to the output directory
 
 ### 9. Stale File Cleanup
 
-After writing all files, the generator scans the output directory for `.ts` files that weren't part of the current generation and removes them. This handles renamed or deleted models, objects, and tuples without requiring a full directory wipe. Empty directories left behind are also cleaned up.
+After writing all files, the generator removes the files its previous run recorded in `.cerial-output.json` that this run did not write. This handles renamed or deleted models, objects, and tuples. Empty directories left behind are also cleaned up. Files cerial never wrote are never touched.
 
-If `--clean` was used, this step is skipped since the directory was already wiped before generating.
+If the output has no `.cerial-output.json` (the first run, or an output from an older version), nothing is removed and the run logs that. Delete such leftovers by hand once.
 
 ## Typical Workflow
 
@@ -247,4 +256,4 @@ bunx cerial generate --watch
 
 **Output directory not created**: The generator creates the output directory if it doesn't exist. If you're getting permission errors, check your file system permissions.
 
-**Stale types after renaming**: The automatic cleanup should handle this. If files linger, run with `--clean` to wipe the output directory and regenerate fresh.
+**Stale types after renaming**: The automatic cleanup should handle this. If files linger, they were either not written by cerial or come from a run before `.cerial-output.json` existed; delete them by hand, or run with `--clean` once a manifest exists.

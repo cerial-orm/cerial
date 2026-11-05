@@ -13,6 +13,7 @@ export interface CLIOptions {
   verbose?: boolean;
   log?: LogOutputLevel;
   clean?: boolean;
+  allowUnsafeOutput?: boolean;
   name?: string;
   config?: string;
   yes?: boolean;

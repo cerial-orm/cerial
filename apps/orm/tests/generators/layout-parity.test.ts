@@ -20,7 +20,11 @@ const trees = {} as Record<TypeFilesMode, Map<string, string>>;
 
 function walk(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)],
+    entry.isDirectory()
+      ? walk(join(dir, entry.name))
+      : entry.name === '.cerial-output.json'
+        ? []
+        : [join(dir, entry.name)],
   );
 }
 

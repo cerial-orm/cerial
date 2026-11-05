@@ -377,9 +377,9 @@ bunx cerial generate --watch
 
 ### Automatic Cleanup
 
-When you regenerate, stale files from previous generations are automatically removed. If you rename a model from `User` to `Account`, the old `models/user.ts` is deleted and `models/account.ts` is created. Empty directories left behind are also cleaned up, including a directory whose files were all stale, such as `internal/registry/objects/` once your schema has no objects left.
+When you regenerate, files the previous run wrote that this run no longer produces are removed. Cerial lists what it wrote in `.cerial-output.json` in the output directory and deletes only files listed there, so a file you added yourself is never removed. Commit or ignore `.cerial-output.json` together with the rest of the output. An output without that file (a first run, or one from an older version) has nothing removed. If you rename a model from `User` to `Account`, the old `models/user.ts` is deleted and `models/account.ts` is created. Empty directories left behind are also cleaned up, including a directory whose files were all stale, such as `internal/registry/objects/` once your schema has no objects left.
 
-For a guaranteed clean slate (e.g., after major schema restructuring), use the `--clean` flag to wipe the entire output directory before generating:
+For a guaranteed clean slate (e.g., after major schema restructuring), use the `--clean` flag to remove every file the previous run wrote before generating (files cerial did not write are kept):
 
 ```bash
 bunx cerial generate --clean

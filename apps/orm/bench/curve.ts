@@ -235,6 +235,8 @@ async function generate(schemaDir: string, genDir: string, typeFiles?: 'ts'): Pr
     source.splice(0, source.length, '-C', config);
   }
   const proc = Bun.spawn(['node', join(PACKAGE_ROOT, 'dist', 'bin', 'cerial.mjs'), 'generate', ...source, '-y'], {
+    // The case directory is the project root, so its `gen` output is inside it
+    cwd: dirname(genDir),
     stdout: 'pipe',
     stderr: 'pipe',
   });

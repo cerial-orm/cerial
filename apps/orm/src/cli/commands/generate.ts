@@ -29,6 +29,7 @@ export async function buildWatchTargets(options: CLIOptions, { pins = false } = 
         schemaPath: options.schema,
         outputDir: options.output!,
         filter,
+        projectRoot: cwd,
       },
     ];
   }
@@ -73,6 +74,7 @@ export async function buildWatchTargets(options: CLIOptions, { pins = false } = 
       ...(entry.entry || entry.files ? { entry: entry.entry, files: entry.files, entryOnly: entry.entryOnly } : {}),
       filter: filters.get(entry.name),
       filterRoot: configDir,
+      projectRoot: configDir,
       connection: entry.connection,
       databasePins: databasePins?.get(entry.name),
     }));
@@ -90,6 +92,7 @@ export async function buildWatchTargets(options: CLIOptions, { pins = false } = 
       clientClassName: discoveredClientClassName(found.roots, root),
       typeFiles: root.typeFiles,
       filter: root.filter,
+      projectRoot: cwd,
     }));
   }
 
@@ -101,6 +104,7 @@ export async function buildWatchTargets(options: CLIOptions, { pins = false } = 
       schemaPath: options.schema ?? './schemas',
       outputDir: options.output!,
       filter: legacyFilter,
+      projectRoot: cwd,
     },
   ];
 }
@@ -134,7 +138,11 @@ export const generateCommand = defineCommand({
     clean: {
       type: 'boolean',
       alias: 'c',
-      description: 'Delete entire output directory before generating',
+      description: 'Delete the files the previous run wrote before generating',
+    },
+    'allow-unsafe-output': {
+      type: 'boolean',
+      description: 'Allow an output directory outside the project root or one that contains schema sources',
     },
     watch: {
       type: 'boolean',
@@ -178,6 +186,7 @@ export const generateCommand = defineCommand({
       name: args.name,
       config: args.config,
       clean: args.clean,
+      allowUnsafeOutput: args['allow-unsafe-output'],
       watch: args.watch,
       format: args.format,
       verbose: args.verbose,
@@ -221,7 +230,10 @@ export const generateCommand = defineCommand({
     }
 
     if (options.watch) {
-      const targets = await buildWatchTargets(options, { pins: true });
+      const targets = (await buildWatchTargets(options, { pins: true })).map((target) => ({
+        ...target,
+        allowUnsafeOutput: options.allowUnsafeOutput,
+      }));
 
       // Watch mode with format: create custom callback that formats before generating
       if (options.format) {

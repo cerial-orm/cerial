@@ -1,5 +1,10 @@
 import { afterAll, describe, expect, it } from 'bun:test';
-import { shouldTriggerRegeneration, holdsTypescriptModules, buildGenerateArgs } from '../../../src/cli/watcher';
+import {
+  shouldTriggerRegeneration,
+  holdsTypescriptModules,
+  buildGenerateArgs,
+  singleSchemaOptions,
+} from '../../../src/cli/watcher';
 import type { TypescriptEntryScope, WatchTarget } from '../../../src/cli/watcher';
 import { removeTempProjects, tempProject } from '../../registration-project';
 
@@ -69,5 +74,14 @@ describe('watching an entry module', () => {
     expect(args).toContain('app');
     expect(args).toContain('-C');
     expect(args).not.toContain('-s');
+  });
+
+  it('regeneration forwards --allow-unsafe-output only when the user passed it', () => {
+    const cli = { execPath: 'node', entry: 'cli.js' };
+    const target: WatchTarget = { schemaPath: '/p/schemas', outputDir: '/elsewhere/client' };
+
+    expect(buildGenerateArgs(target, cli)).not.toContain('--allow-unsafe-output');
+    expect(buildGenerateArgs({ ...target, allowUnsafeOutput: true }, cli)).toContain('--allow-unsafe-output');
+    expect(singleSchemaOptions({ ...target, allowUnsafeOutput: true }).allowUnsafeOutput).toBe(true);
   });
 });

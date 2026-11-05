@@ -30,7 +30,7 @@ function writeSchema(schemaDir: string, content: string, filename = 'test.cerial
 
 function runGenerate(schemaDir: string, outputDir: string): { exitCode: number; stderr: string } {
   try {
-    execSync(`bun bin/cerial.ts generate -s "${schemaDir}" -o "${outputDir}"`, {
+    execSync(`bun bin/cerial.ts generate -s "${schemaDir}" -o "${outputDir}" --allow-unsafe-output`, {
       cwd: process.cwd(),
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
