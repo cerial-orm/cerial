@@ -92,7 +92,7 @@ Each schema gets its own client class, derived from the schema name in your conf
 | `my-api` | `MyApiCerialClient` |
 | `user_data` | `UserDataCerialClient` |
 
-The name is PascalCased from the config key, with `CerialClient` appended. Hyphens and underscores act as word separators.
+The name is PascalCased from the config key, with `CerialClient` appended. Hyphens and underscores act as word separators. A schema name must start with a letter and use only letters, digits, hyphens and underscores, so `a b`, `$x` and `1db` are refused. For a schema found from a folder, set `name` in the folder config when the folder's own name is not one.
 
 A single unnamed schema (using the `schema` shorthand) generates the default `CerialClient`.
 

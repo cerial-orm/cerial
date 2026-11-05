@@ -18,7 +18,13 @@ import type {
   TupleRegistry,
 } from '../types';
 import type { CerialConfig, ResolvedSchemaEntry, TypeFilesMode } from './config';
-import { DEFAULT_TYPE_FILES, loadConfig, resolveConfig, validateCombinedEntries } from './config';
+import {
+  assertClientClassName,
+  DEFAULT_TYPE_FILES,
+  loadConfig,
+  resolveConfig,
+  validateCombinedEntries,
+} from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { discoveredClientClassName, discoverSchemaRoots } from './discover-roots';
@@ -217,6 +223,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
 
   // Throws, like the cross-entry check, so no file is written and the caller cannot treat it as a soft failure
   validateConnectionUrls([{ name: clientClassName ?? 'default', connection }]);
+  if (clientClassName) assertClientClassName(clientClassName);
 
   try {
     const {

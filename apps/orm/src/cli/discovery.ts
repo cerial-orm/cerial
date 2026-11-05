@@ -12,6 +12,7 @@ import {
   detectNestedSchemaRoots,
   findFolderConfigs,
   loadFolderConfig,
+  assertFolderSchemaName,
   toClientClassName,
   validateCombinedEntries,
 } from './config';
@@ -55,6 +56,7 @@ export async function applyFolderOverridesAndDiscover(
 
   const discoveredEntries: ResolvedSchemaEntry[] = discovered.map(({ dir, config }) => {
     const name = config.name ?? basename(dir);
+    assertFolderSchemaName(name, dir);
 
     return {
       name,
@@ -108,6 +110,7 @@ export async function applyFolderOverridesAndDiscover(
 
   const markerEntries: ResolvedSchemaEntry[] = deduplicatedMarkers.map(({ path: mp }) => {
     const name = basename(mp);
+    assertFolderSchemaName(name, mp);
 
     return {
       name,

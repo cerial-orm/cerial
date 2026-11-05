@@ -1,6 +1,6 @@
 import { basename } from 'node:path';
 import type { TypeFilesMode } from './config';
-import { detectNestedSchemaRoots, findFolderConfigs, toClientClassName } from './config';
+import { assertFolderSchemaName, detectNestedSchemaRoots, findFolderConfigs, toClientClassName } from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { findSchemaRoots } from './resolvers';
@@ -48,8 +48,10 @@ export async function discoverSchemaRoots(cwd: string): Promise<DiscoveredRoots 
         include: config.include,
       };
       const folderCerialIgnore = (await loadCerialIgnore(dir)) ?? undefined;
+      const name = config.name ?? basename(dir);
+      assertFolderSchemaName(name, dir);
       roots.push({
-        name: basename(dir),
+        name,
         dir,
         output: config.output,
         typeFiles: config.typeFiles,
@@ -76,6 +78,7 @@ export async function discoverSchemaRoots(cwd: string): Promise<DiscoveredRoots 
   const roots: DiscoveredRoot[] = [];
   for (const { path } of validRoots) {
     const folderCerialIgnore = (await loadCerialIgnore(path)) ?? undefined;
+    assertFolderSchemaName(basename(path), path);
     roots.push({
       name: basename(path),
       dir: path,

@@ -40,19 +40,24 @@ describe('validateConfig', () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  it('should reject schema names that are not valid JS identifiers', () => {
-    const config: CerialConfig = {
-      schemas: {
-        'my-auth': { path: './schemas/auth.cerial', output: './client/auth' },
-      },
-    };
+  it('accepts a hyphenated schema name, as documented', () => {
+    const result = validateConfig({
+      schemas: { 'my-auth': { path: './schemas/auth.cerial', output: './client/auth' } },
+    });
 
-    const result = validateConfig(config);
-
-    expect(result.valid).toBe(false);
-    expect(result.errors.length).toBeGreaterThan(0);
-    expect(result.errors[0]?.message).toContain('my-auth');
+    expect(result.valid).toBe(true);
   });
+
+  for (const bad of ['$x', 'a b', '1db']) {
+    it(`rejects the schema name ${JSON.stringify(bad)}`, () => {
+      const result = validateConfig({
+        schemas: { [bad]: { path: './schemas/auth.cerial', output: './client/auth' } },
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.errors[0]?.message).toContain(bad);
+    });
+  }
 
   it('should reject schema names that are reserved', () => {
     const config: CerialConfig = {

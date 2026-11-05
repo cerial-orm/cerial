@@ -83,7 +83,7 @@ export function generateClientClass(
   * What the client knows of each model without a schema: its DDL, its table and the fingerprint the DDL leaves behind
   */
 const migrationContext: LazyMigrationContext = {
-  schemaName: '${clientClassName}',
+  schemaName: ${JSON.stringify(clientClassName)},
   cerialVersion: '${pkg.version}',
   models: Object.fromEntries(
     getMigrationModelNames().map((name) => [

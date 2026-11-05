@@ -6,6 +6,7 @@ import { dirname, resolve } from 'node:path';
 import fg from 'fast-glob';
 import * as v from 'valibot';
 import { CerialGenerationError } from '../../errors';
+import { findDuplicateClassNames, schemaNameProblem } from './name-utils';
 import type { FormatConfig } from '../../formatter/types';
 import { FORMAT_DEFAULTS } from '../../formatter/types';
 import type { CerialConfig, ResolvedSchemaEntry } from './types';
@@ -19,6 +20,14 @@ export interface ConfigValidationResult {
   valid: boolean;
   errors: ConfigValidationError[];
   warnings?: ConfigValidationError[];
+}
+
+/** A schema name is carried as a string and PascalCased into a class name, so `-` is allowed but nothing that could break out of either */
+export const SCHEMA_NAME_PATTERN = /^[A-Za-z][A-Za-z0-9]*(?:[-_][A-Za-z0-9]+)*_*$/;
+
+/** Schema names `validateConfig` refuses, shared so `cerial init` derives around them */
+export function isReservedSchemaName(name: string): boolean {
+  return _RESERVED_NAMES_ERROR.has(name);
 }
 
 const _RESERVED_NAMES_ERROR = new Set(['default', 'index']);
@@ -281,11 +290,20 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
     const outputPaths = new Set<string>();
     const schemaPaths: string[] = [];
 
+    const duplicate = findDuplicateClassNames(schemaNames);
+    if (duplicate) {
+      errors.push({
+        field: `schemas.${duplicate[1]}`,
+        message: `Schema names "${duplicate[0]}" and "${duplicate[1]}" generate the same client class and share migration state; rename one`,
+      });
+    }
+
     for (const name of schemaNames) {
-      if (!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name)) {
+      const nameProblem = schemaNameProblem(name);
+      if (nameProblem) {
         errors.push({
           field: `schemas.${name}`,
-          message: `Schema name "${name}" must be a valid JavaScript identifier (alphanumeric, underscore, dollar sign)`,
+          message: `Schema name "${name}" is not valid: ${nameProblem}`,
         });
       }
 
@@ -436,6 +454,13 @@ export function validateCombinedEntries(
         );
       }
     }
+  }
+
+  const duplicate = findDuplicateClassNames([...rootEntries, ...discoveredEntries].map((e) => e.name));
+  if (duplicate) {
+    throw new CerialGenerationError(
+      `Schema names '${duplicate[0]}' and '${duplicate[1]}' generate the same client class and share migration state. Add a 'name' field to one of them.`,
+    );
   }
 }
 

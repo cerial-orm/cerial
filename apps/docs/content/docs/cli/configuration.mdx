@@ -299,7 +299,7 @@ export default {
 };
 ```
 
-The name must be a valid JavaScript identifier (letters, numbers, `_`, `$`). Reserved names like `default` and `index` are not allowed.
+The name must start with a letter and use only letters, digits, hyphens and underscores (no `$`). Reserved names like `default` and `index` are not allowed. A directory whose basename does not fit (`a b`, `$x`) is refused at generate, naming the directory; set `name` in its folder config to a valid one. Cerial never renames a folder for you.
 
 ### Example
 
