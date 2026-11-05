@@ -774,6 +774,48 @@ describe('upsert-builder', () => {
       expect(query.text).toContain('LET $u_prior');
     });
 
+    test('without a connect or set it issues no check', () => {
+      const query = nested({ email: 'author@test.com' }, { name: 'Updated Author' });
+
+      expect(query.targetCheck).toBeUndefined();
+      expect(query.text).not.toContain('up_missing');
+    });
+
+    test('a connect in either half hoists one check ahead of the branch, with the RETURN inside the block', () => {
+      const query = buildUpsertWithNestedTransaction(
+        authorModel,
+        { email: 'author@test.com' },
+        { name: 'Author', email: 'author@test.com' },
+        {},
+        new Map([['profile', { connect: 'author_profile:a' }]]),
+        new Map([['profile', { connect: 'author_profile:b' }]]),
+        {},
+        registry,
+      );
+      const lines = query.text.split('\n');
+
+      expect(lines.slice(0, 2)).toEqual([
+        'BEGIN TRANSACTION;',
+        expect.stringContaining('LET $up_exists = (SELECT id FROM author WHERE'),
+      ]);
+      expect(lines[2]).toMatch(
+        /^LET \$up_missing = \(IF \$up_exists \{ \[\(SELECT VALUE id FROM ONLY \$u_validate_0_0\), true\] \} ELSE \{ \[true, \(SELECT VALUE id FROM ONLY \$c_validate_0_0\)\] \}\)\.find_index\(NONE\);$/,
+      );
+      expect(lines[3]).toBe('RETURN $up_missing;');
+      expect(lines[4]).toBe('IF $up_missing IS NONE {');
+      expect(lines.slice(-3)).toEqual(['RETURN $up_result;', '};', 'COMMIT TRANSACTION;']);
+      expect(query.text).not.toContain('THROW');
+      expect(query.targetCheck).toEqual({
+        at: 3,
+        model: 'Author',
+        operation: 'upsert',
+        entries: [
+          { field: 'profile', verb: 'connect', targetModel: 'AuthorProfile', id: 'author_profile:b' },
+          { field: 'profile', verb: 'connect', targetModel: 'AuthorProfile', id: 'author_profile:a' },
+        ],
+      });
+    });
+
     test('with nothing to write to an existing row it reads the row back', () => {
       const query = nested({ email: 'author@test.com' }, {});
 

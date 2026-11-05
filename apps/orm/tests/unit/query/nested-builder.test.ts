@@ -343,8 +343,8 @@ describe('nested-builder', () => {
 
         expect(query.text).not.toContain('BEGIN TRANSACTION');
         expect(query.text).not.toContain('COMMIT TRANSACTION');
-        expect(query.text).toContain('LET $exists_0_0');
-        expect(query.text).toContain('LET $exists_0_1');
+        expect(query.text).not.toContain('exists_');
+        expect(query.text).not.toContain('THROW');
         expect(query.text).toContain('UPDATE $sync_0_0 SET userIds += $resultId');
         expect(query.text).toContain('UPDATE $sync_0_1 SET userIds += $resultId');
         expect(query.text).toContain('RETURN $result;');

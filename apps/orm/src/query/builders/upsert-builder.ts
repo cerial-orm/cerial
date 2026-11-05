@@ -23,7 +23,7 @@ import type { RecordId } from 'surrealdb';
 import type { FieldMetadata, ModelMetadata, ModelRegistry, SelectClause, UpsertReturn, WhereClause } from '../../types';
 import { isNone } from '../../utils/none';
 import { bindWithInlineExpressions, containsInlineExpression } from '../compile/inline-expression';
-import type { CompiledQuery } from '../compile/types';
+import type { CompiledQuery, TargetCheckMap } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { prefixQueryVars } from '../executor';
 import { transformDestructiveWhere, transformWhereClause } from '../filters/transformer';
@@ -32,7 +32,9 @@ import { getRecordIdFromWhere } from './delete-builder';
 import { buildCreateSetClauses } from './insert-builder';
 import {
   buildCreateWithNestedTransaction,
+  buildTargetReads,
   buildUpdateWithNestedTransaction,
+  collectTargetChecks,
   type NestedOperation,
 } from './nested-builder';
 import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
@@ -593,14 +595,46 @@ export function buildUpsertWithNestedTransaction(
       ? '$up_result != NONE'
       : '$up_result';
 
+  // One check over both halves: the branch that will not run contributes `true` placeholders, so the
+  // position the check returns is the first missing record of the half that does
+  const checkVars: Record<string, unknown> = {};
+  const updateReads = buildTargetReads(collectTargetChecks(model, updateNestedOps, registry), checkVars, 'u_');
+  const createReads = buildTargetReads(collectTargetChecks(model, createNestedOps, registry), checkVars, 'c_');
+  const entries = [...updateReads.entries, ...createReads.entries];
+  const baseVars = { ...whereClause?.vars, ...existsBinding?.vars, ...createQuery.vars, ...updateQuery.vars };
+
+  if (!entries.length) {
+    return {
+      text: [
+        'BEGIN TRANSACTION;',
+        `LET $up_exists = ${exists};`,
+        `LET $up_result = IF $up_exists { ${update} } ELSE { ${create} };`,
+        'COMMIT TRANSACTION;',
+        `RETURN ${result};`,
+      ].join('\n'),
+      vars: baseVars,
+    };
+  }
+
+  const placeholders = (count: number): string[] => Array.from({ length: count }, () => 'true');
+  const onUpdate = [...updateReads.reads, ...placeholders(createReads.reads.length)].join(', ');
+  const onCreate = [...placeholders(updateReads.reads.length), ...createReads.reads].join(', ');
+  // After BEGIN and the exists read; the block scopes its LETs, so the RETURN that reads them moves inside it
+  const targetCheck: TargetCheckMap = { at: 3, model: model.name, operation: 'upsert', entries };
+
   return {
     text: [
       'BEGIN TRANSACTION;',
       `LET $up_exists = ${exists};`,
+      `LET $up_missing = (IF $up_exists { [${onUpdate}] } ELSE { [${onCreate}] }).find_index(NONE);`,
+      'RETURN $up_missing;',
+      'IF $up_missing IS NONE {',
       `LET $up_result = IF $up_exists { ${update} } ELSE { ${create} };`,
-      'COMMIT TRANSACTION;',
       `RETURN ${result};`,
+      '};',
+      'COMMIT TRANSACTION;',
     ].join('\n'),
-    vars: { ...whereClause?.vars, ...existsBinding?.vars, ...createQuery.vars, ...updateQuery.vars },
+    vars: { ...baseVars, ...checkVars },
+    targetCheck,
   };
 }

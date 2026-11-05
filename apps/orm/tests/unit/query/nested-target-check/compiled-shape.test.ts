@@ -95,7 +95,7 @@ describe('guarded nested create', () => {
     expect(query.text.split('\n').slice(-2)).toEqual(['COMMIT TRANSACTION;', 'RETURN $result;']);
   });
 
-  test('transactionMode keeps the THROW check and no guard', () => {
+  test('transactionMode emits no check at all: the caller hoists it', () => {
     const query = buildCreateWithNestedTransaction(
       userModel,
       data,
@@ -107,7 +107,7 @@ describe('guarded nested create', () => {
     );
 
     expect(query.targetCheck).toBeUndefined();
-    expect(query.text).toContain('THROW');
+    expect(query.text).not.toContain('THROW');
     expect(query.text).not.toContain('target_missing');
   });
 });

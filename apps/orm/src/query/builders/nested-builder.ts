@@ -240,7 +240,7 @@ function findReverseRecordField(sourceModel: ModelMetadata, targetModel: ModelMe
 
 /** Options shared by the nested create and update builders */
 export interface NestedWriteOptions {
-  /** Inside an outer transaction: emit no BEGIN/COMMIT */
+  /** Inside an outer transaction: emit no BEGIN/COMMIT and no target check; the caller hoists the check */
   transactionMode?: boolean;
   /**
    * Create only: the record the row must be created as, in place of a server-generated id. Upsert's
@@ -275,36 +275,15 @@ function buildNestedReturn(
   return `RETURN (SELECT ${fields} FROM ${single ? 'ONLY ' : ''}${rows});`;
 }
 
-interface TargetCheck {
+export interface TargetCheck {
   targetModel: ModelMetadata;
   targetIds: RecordIdInput[];
   fieldName: string;
 }
 
 /** A `connect` or `set` in `nestedOps`, with the record ids it links to */
-interface NestedTargetCheck extends TargetCheck {
+export interface NestedTargetCheck extends TargetCheck {
   verb: 'connect' | 'set';
-}
-
-/**
- * Statements that abort the transaction when a linked record is missing. Only for the builds that run
- * inside an outer transaction (`transactionMode`), where the executor does not read a guard's result.
- */
-function buildTargetCheckStatements(checks: TargetCheck[], vars: Record<string, unknown>): string[] {
-  const statements: string[] = [];
-  checks.forEach((check, idx) => {
-    check.targetIds.forEach((targetId, idIdx) => {
-      const varName = `validate_${idx}_${idIdx}`;
-      vars[varName] = transformOrValidateRecordId(check.targetModel.tableName, targetId);
-      const checkVarName = `$exists_${idx}_${idIdx}`;
-      statements.push(`LET ${checkVarName} = (SELECT id FROM ONLY $${varName});`);
-      statements.push(
-        `IF ${checkVarName} IS NONE { THROW "Cannot connect to non-existent ${check.targetModel.name} record" };`,
-      );
-    });
-  });
-
-  return statements;
 }
 
 /**
@@ -312,7 +291,7 @@ function buildTargetCheckStatements(checks: TargetCheck[], vars: Record<string, 
  * `connect` before `set` within a field. `disconnect` is not checked: removing a link that does not exist
  * leaves the state the caller asked for.
  */
-function collectTargetChecks(
+export function collectTargetChecks(
   model: ModelMetadata,
   nestedOps: Map<string, NestedOperation>,
   registry: ModelRegistry,
@@ -340,6 +319,35 @@ interface TargetGuard {
 }
 
 /**
+ * One existence read per linked record, in report order, and the side table entry each read maps to. The
+ * binding names carry `varPrefix` so two halves of one query cannot collide.
+ */
+export function buildTargetReads(
+  checks: NestedTargetCheck[],
+  vars: Record<string, unknown>,
+  varPrefix = '',
+): { reads: string[]; entries: TargetCheckMap['entries'][number][] } {
+  const reads: string[] = [];
+  const entries: TargetCheckMap['entries'][number][] = [];
+  checks.forEach((check, idx) => {
+    check.targetIds.forEach((targetId, idIdx) => {
+      const varName = `${varPrefix}validate_${idx}_${idIdx}`;
+      const recordId = transformOrValidateRecordId(check.targetModel.tableName, targetId);
+      vars[varName] = recordId;
+      reads.push(`(SELECT VALUE id FROM ONLY $${varName})`);
+      entries.push({
+        field: check.fieldName,
+        verb: check.verb,
+        targetModel: check.targetModel.name,
+        id: recordId.toString(),
+      });
+    });
+  });
+
+  return { reads, entries };
+}
+
+/**
  * Reads every linked record and returns the position of the first missing one, or NONE. The write sits
  * in an IF block that runs only when none is missing, so a missing record raises no database error: the
  * executor reads the returned position and throws the typed error. `at` is the RETURN's index in the
@@ -353,22 +361,7 @@ function buildTargetGuard(
 ): TargetGuard | null {
   if (!checks.length) return null;
 
-  const reads: string[] = [];
-  const entries: TargetCheckMap['entries'][number][] = [];
-  checks.forEach((check, idx) => {
-    check.targetIds.forEach((targetId, idIdx) => {
-      const varName = `validate_${idx}_${idIdx}`;
-      const recordId = transformOrValidateRecordId(check.targetModel.tableName, targetId);
-      vars[varName] = recordId;
-      reads.push(`(SELECT VALUE id FROM ONLY $${varName})`);
-      entries.push({
-        field: check.fieldName,
-        verb: check.verb,
-        targetModel: check.targetModel.name,
-        id: recordId.toString(),
-      });
-    });
-  });
+  const { reads, entries } = buildTargetReads(checks, vars);
 
   return {
     header: [
@@ -395,9 +388,6 @@ export function buildCreateWithNestedTransaction(
   const includeCtx = createCompileContext('inc_');
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
-
-  // Track connected IDs that need existence validation
-  const connectValidations: TargetCheck[] = [];
 
   // Track the Record field updates we need to make
   const fieldUpdates: Record<string, string> = {};
@@ -470,13 +460,6 @@ export function buildCreateWithNestedTransaction(
       // Process connect operations
       if (hasConnect) {
         const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
-
-        // Track for existence validation
-        connectValidations.push({
-          targetModel,
-          targetIds: connectIds,
-          fieldName,
-        });
 
         if (field.relationInfo.isReverse) {
           const reverseFieldName = findReverseRecordField(model, targetModel);
@@ -564,12 +547,6 @@ export function buildCreateWithNestedTransaction(
     } else if (hasConnect) {
       const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
 
-      connectValidations.push({
-        targetModel,
-        targetIds: connectIds,
-        fieldName,
-      });
-
       if (field.relationInfo.isReverse) {
         const reverseFieldName = findReverseRecordField(model, targetModel);
         if (reverseFieldName) {
@@ -585,9 +562,6 @@ export function buildCreateWithNestedTransaction(
       }
     }
   }
-
-  // Verify connected records exist before creating; a standalone write does it in the guard built at the end
-  if (transactionMode) statements.push(...buildTargetCheckStatements(connectValidations, vars));
 
   // Build the main create with field updates
   const finalData = { ...data };
@@ -781,7 +755,6 @@ export function buildUpdateWithNestedTransaction(
     return `LET ${varName} = IF $nested_match[0] { CREATE ONLY ${tableName} CONTENT ${contentVarName} };`;
   };
   const matchInsertAt = statements.length;
-  const targetChecks: TargetCheck[] = [];
 
   const reverseConnects: Array<{
     targetModel: ModelMetadata;
@@ -842,7 +815,6 @@ export function buildUpdateWithNestedTransaction(
         });
       } else if (isNestedConnect(op)) {
         const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
-        targetChecks.push({ targetModel, targetIds: connectIds, fieldName });
         reverseConnects.push({
           targetModel,
           targetIds: connectIds,
@@ -913,7 +885,6 @@ export function buildUpdateWithNestedTransaction(
         const varName = `$${fieldName}_connect`;
         const transformedIds = connectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
         vars[`${fieldName}_connect`] = transformedIds;
-        targetChecks.push({ targetModel, targetIds: connectIds, fieldName });
 
         if (isArrayField) {
           // Array connect - add to array using var
@@ -981,7 +952,6 @@ export function buildUpdateWithNestedTransaction(
             // Transform set IDs to RecordId objects
             const transformedIds = setIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
             vars[`${fieldName}_set`] = transformedIds;
-            targetChecks.push({ targetModel, targetIds: setIds, fieldName });
             fieldUpdates.push(`${recordFieldName} = ${varName}`);
           }
 
@@ -1034,9 +1004,6 @@ export function buildUpdateWithNestedTransaction(
   } else {
     statements.push(`LET $result = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
   }
-
-  // A standalone write checks its targets in the guard built at the end
-  if (transactionMode) statements.push(...buildTargetCheckStatements(targetChecks, vars));
 
   // Statements that act on the matched row only run when the where matched something, so a
   // non-matching where writes nothing, as on the plain path

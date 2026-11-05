@@ -111,6 +111,34 @@ describe('Transaction Assembly', () => {
     });
   });
 
+  describe('prefixQueryVars with a target check', () => {
+    const targetCheck = {
+      at: 2,
+      model: 'User',
+      operation: 'create',
+      entries: [{ field: 'profile', verb: 'connect' as const, targetModel: 'Profile', id: 'profile:a' }],
+    };
+
+    test('carries the side table through and prefixes the guard variables', () => {
+      const query: CompiledQuery = {
+        text: 'BEGIN TRANSACTION;\nLET $target_missing = [(SELECT VALUE id FROM ONLY $validate_0_0)].find_index(NONE);\nRETURN $target_missing;\nIF $target_missing IS NONE {\nRETURN 1;\n};\nCOMMIT TRANSACTION;',
+        vars: { validate_0_0: 'profile:a' },
+        targetCheck,
+      };
+
+      const result = prefixQueryVars(query, 'tx0_');
+
+      expect(result.targetCheck).toEqual(targetCheck);
+      expect(result.text).toContain('LET $tx0_target_missing');
+      expect(result.text).toContain('IF $tx0_target_missing IS NONE');
+      expect(result.vars).toHaveProperty('tx0_validate_0_0');
+    });
+
+    test('a query without a check gets none', () => {
+      expect(prefixQueryVars({ text: 'SELECT 1;', vars: {} }, 'tx0_')).not.toHaveProperty('targetCheck');
+    });
+  });
+
   describe('stripTransactionWrapper', () => {
     test('removes BEGIN/COMMIT', () => {
       const text = 'BEGIN TRANSACTION; LET $result = (CREATE user SET name = "test"); COMMIT TRANSACTION;';
