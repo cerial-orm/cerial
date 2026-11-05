@@ -299,10 +299,15 @@ Neither is automated and both are easy to forget.
 | `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, GitHub Release linking to docs. Does NOT publish to the marketplace |
 | `docs-deploy.yml` | Push to dev (docs/ changes) | Build Next.js, deploy to GitHub Pages |
 
-**Required GitHub Secrets:**
-| Secret | Purpose | Where to create |
-|---|---|---|
-| `NPM_TOKEN` | npm publish authentication | npmjs.com → Settings → Access Tokens → Granular (read+write) |
+**Publishing to npm (no stored token):** `orm-release.yml` publishes through npm trusted publishing. npm
+accepts a publish of `cerial` only from that workflow in `cerial-orm/cerial`, running in the `npm-publish`
+environment, and exchanges the job's OIDC identity for a one-off credential. The npm side is set once on
+npmjs.com: package `cerial` → Settings → Trusted Publisher → GitHub Actions (organization `cerial-orm`,
+repository `cerial`, workflow `orm-release.yml`, environment `npm-publish`), and Publishing access set to
+"Require two-factor authentication and disallow tokens". The repository holds no npm secret.
+
+**`npm-publish` environment:** both release workflows run in it. Only `orm-v*` and `ext-v*` tags may deploy
+to it, and the maintainer is its required reviewer, so every release run waits for an explicit approval.
 
 **GitHub Repository Settings (manual UI configuration):**
 - Settings → Pages → Source: set to "GitHub Actions" (not "Deploy from branch")

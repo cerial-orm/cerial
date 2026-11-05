@@ -15,6 +15,9 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Only orm-v*/ext-v* tags may deploy to this environment, and the maintainer
+    # approves each run before it starts.
+    environment: npm-publish
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
 
