@@ -130,7 +130,7 @@ function broadTypeToSurreal(typeName: string): string {
     Date: 'datetime',
   };
 
-  return map[typeName] ?? 'string';
+  return Object.hasOwn(map, typeName) ? map[typeName]! : 'string';
 }
 
 /** Generate the SurrealQL type string for a single literal variant */

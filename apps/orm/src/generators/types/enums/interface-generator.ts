@@ -18,7 +18,10 @@ export function generateEnumConst(enumMeta: LiteralMetadata): string {
     .map((v) => {
       if (v.kind !== 'string') return '';
 
-      return `  ${v.value}: '${v.value}',`;
+      // `__proto__` as a plain key sets the prototype instead of an own member
+      const key = v.value === '__proto__' ? `['__proto__']` : v.value;
+
+      return `  ${key}: '${v.value}',`;
     })
     .filter(Boolean)
     .join('\n');

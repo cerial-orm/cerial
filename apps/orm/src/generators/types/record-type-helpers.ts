@@ -26,10 +26,10 @@ function singleRecordIdTypeToTs(
     uuid: 'string',
   };
 
-  if (primitiveMap[typeName]) return primitiveMap[typeName]!;
+  if (Object.hasOwn(primitiveMap, typeName)) return primitiveMap[typeName]!;
 
   // Tuple reference — generate inline array type like [number, number]
-  if (tupleRegistry?.[typeName]) {
+  if (tupleRegistry && Object.hasOwn(tupleRegistry, typeName)) {
     const tuple = tupleRegistry[typeName]!;
     const elements = tuple.elements.map((el) => {
       if (el.type === 'object' && el.objectInfo && objectRegistry) {
@@ -46,7 +46,7 @@ function singleRecordIdTypeToTs(
   }
 
   // Object reference — generate inline shape like { service: string; ts: number }
-  if (objectRegistry?.[typeName]) {
+  if (objectRegistry && Object.hasOwn(objectRegistry, typeName)) {
     return generateObjectShape(typeName, objectRegistry);
   }
 

@@ -19,7 +19,7 @@ function broadTypeToTs(typeName: string): string {
     Date: 'Date',
   };
 
-  return map[typeName] ?? 'unknown';
+  return Object.hasOwn(map, typeName) ? map[typeName]! : 'unknown';
 }
 
 /** Map a single variant to its TypeScript output type string */

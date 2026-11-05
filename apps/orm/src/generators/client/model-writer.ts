@@ -96,8 +96,8 @@ export async function writeModelTypes(
     if (field.recordIdTypes?.length) {
       for (const idType of field.recordIdTypes) {
         if (['int', 'number', 'string', 'uuid'].includes(idType.toLowerCase())) continue;
-        if (objectRegistry?.[idType]) referencedObjectsSet.add(idType);
-        if (tupleRegistry?.[idType]) referencedTuplesSet.add(idType);
+        if (objectRegistry && Object.hasOwn(objectRegistry, idType)) referencedObjectsSet.add(idType);
+        if (tupleRegistry && Object.hasOwn(tupleRegistry, idType)) referencedTuplesSet.add(idType);
       }
     }
   }

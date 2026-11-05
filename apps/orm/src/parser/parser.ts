@@ -734,7 +734,7 @@ function parseLiteralVariant(token: string, state: ParserState, literalName: str
   }
 
   // Broad type name: String, Int, Float, Bool, Date
-  if (BROAD_TYPE_NAMES[trimmed]) return { kind: 'broadType', typeName: trimmed };
+  if (Object.hasOwn(BROAD_TYPE_NAMES, trimmed)) return { kind: 'broadType', typeName: trimmed };
 
   // Reference to another literal (must come before tuple/object check for priority)
   if (state.literalNames.has(trimmed)) {

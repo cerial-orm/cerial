@@ -448,3 +448,20 @@ describe('record-type-helpers', () => {
     });
   });
 });
+
+describe('record-type-helpers own-key lookups', () => {
+  it.each(['toString', 'valueOf', 'hasOwnProperty', 'constructor'])('%s is not a primitive or registry hit', (name) => {
+    const text = getRecordInputType(makeField({ recordIdTypes: [name] }), {}, {});
+
+    expect(text).not.toContain('function');
+    expect(text).not.toContain('native code');
+  });
+
+  it('a tuple named toString still resolves from its own registry key', () => {
+    const tuples = {
+      toString: { name: 'toString', elements: [{ name: '0', type: 'float' }] },
+    } as unknown as TupleRegistry;
+
+    expect(getRecordOutputType(makeField({ recordIdTypes: ['toString'] }), tuples, {})).toContain('[number]');
+  });
+});
