@@ -1440,6 +1440,38 @@ export const manifest = deepFreeze({
       indexes: [],
     },
     {
+      name: 'nn_user',
+      fields: [
+        { path: ['email'], kind: 'string', assert: 'string::is_email($value)' },
+        { path: ['nickname'], kind: 'none | null | string' },
+        { path: ['plainNick'], kind: 'none | null | string' },
+        { path: ['profile'], kind: 'none | object' },
+        { path: ['profile', 'handle'], kind: 'none | null | string' },
+      ],
+      indexes: [
+        { name: 'nn_user_email_unique', columns: [['email']], index: 'UNIQUE' },
+        { name: 'nn_user_nickname_unique', columns: [['nickname']], index: 'UNIQUE NULLS NOT DISTINCT' },
+        { name: 'nn_user_plainNick_unique', columns: [['plainNick']], index: 'UNIQUE' },
+        { name: 'nn_user_profile_handle_unique', columns: [['profile', 'handle']], index: 'UNIQUE NULLS NOT DISTINCT' },
+      ],
+    },
+    {
+      name: 'nn_slot',
+      fields: [
+        { path: ['tenantId'], kind: 'none | null | string' },
+        { path: ['slug'], kind: 'none | null | string' },
+      ],
+      indexes: [{ name: 'tenantSlug', columns: [['tenantId'], ['slug']], index: 'UNIQUE NULLS NOT DISTINCT' }],
+    },
+    {
+      name: 'nn_plain_slot',
+      fields: [
+        { path: ['tenantId'], kind: 'none | null | string' },
+        { path: ['slug'], kind: 'none | null | string' },
+      ],
+      indexes: [{ name: 'plainSlot', columns: [['tenantId'], ['slug']], index: 'UNIQUE' }],
+    },
+    {
       name: 'ext_cross_user',
       fields: [
         { path: ['createdAt'], kind: 'datetime | none', default: 'time::now()' },

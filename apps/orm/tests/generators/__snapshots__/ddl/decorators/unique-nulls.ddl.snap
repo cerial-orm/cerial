@@ -1,0 +1,23 @@
+-- NnPlainSlot
+DEFINE TABLE OVERWRITE nn_plain_slot SCHEMAFULL;
+DEFINE FIELD OVERWRITE tenantId ON TABLE nn_plain_slot TYPE option<string | null>;
+DEFINE FIELD OVERWRITE slug ON TABLE nn_plain_slot TYPE option<string | null>;
+DEFINE INDEX OVERWRITE plainSlot ON TABLE nn_plain_slot COLUMNS tenantId, slug UNIQUE;
+
+-- NnSlot
+DEFINE TABLE OVERWRITE nn_slot SCHEMAFULL;
+DEFINE FIELD OVERWRITE tenantId ON TABLE nn_slot TYPE option<string | null>;
+DEFINE FIELD OVERWRITE slug ON TABLE nn_slot TYPE option<string | null>;
+DEFINE INDEX OVERWRITE tenantSlug ON TABLE nn_slot COLUMNS tenantId, slug UNIQUE NULLS NOT DISTINCT;
+
+-- NnUser
+DEFINE TABLE OVERWRITE nn_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON TABLE nn_user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE nickname ON TABLE nn_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE plainNick ON TABLE nn_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE profile ON TABLE nn_user TYPE option<object>;
+DEFINE FIELD OVERWRITE profile.handle ON TABLE nn_user TYPE option<string | null>;
+DEFINE INDEX OVERWRITE nn_user_email_unique ON TABLE nn_user COLUMNS email UNIQUE;
+DEFINE INDEX OVERWRITE nn_user_nickname_unique ON TABLE nn_user COLUMNS nickname UNIQUE NULLS NOT DISTINCT;
+DEFINE INDEX OVERWRITE nn_user_plainNick_unique ON TABLE nn_user COLUMNS plainNick UNIQUE;
+DEFINE INDEX OVERWRITE nn_user_profile_handle_unique ON TABLE nn_user COLUMNS profile.handle UNIQUE NULLS NOT DISTINCT;

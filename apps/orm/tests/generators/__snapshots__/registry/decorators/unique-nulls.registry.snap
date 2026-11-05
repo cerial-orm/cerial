@@ -1,0 +1,167 @@
+{
+  "models": {
+    "NnPlainSlot": {
+      "compositeDirectives": [
+        {
+          "fields": [
+            "tenantId",
+            "slug"
+          ],
+          "kind": "unique",
+          "name": "plainSlot"
+        }
+      ],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "tenantId",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "slug",
+          "type": "string"
+        }
+      ],
+      "name": "NnPlainSlot",
+      "tableName": "nn_plain_slot"
+    },
+    "NnSlot": {
+      "compositeDirectives": [
+        {
+          "fields": [
+            "tenantId",
+            "slug"
+          ],
+          "kind": "unique",
+          "name": "tenantSlug"
+        }
+      ],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "tenantId",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "slug",
+          "type": "string"
+        }
+      ],
+      "name": "NnSlot",
+      "tableName": "nn_slot"
+    },
+    "NnUser": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "nickname",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "plainNick",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "profile",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": true,
+                "name": "handle",
+                "type": "string"
+              }
+            ],
+            "objectName": "NnProfile"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NnUser",
+      "tableName": "nn_user"
+    }
+  },
+  "objects": {
+    "NnProfile": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "handle",
+          "type": "string"
+        }
+      ],
+      "name": "NnProfile"
+    }
+  }
+}

@@ -50,6 +50,7 @@ export type * from './readonlyaddress';
 export type * from './readonlymeta';
 export type * from './setbag';
 export type * from './timestampinfo';
+export type * from './nnprofile';
 export type * from './extenuminfo';
 export type * from './extliteralinfo';
 export type * from './extbaseaddress';

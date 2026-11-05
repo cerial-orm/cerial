@@ -201,6 +201,7 @@ export const tables = {
   defaultAlways: ['content_item'],
   set: ['set_basic', 'set_decimal', 'set_nested'],
   indexes: ['staff', 'warehouse', 'registration', 'attendee', 'workshop', 'depot', 'ticket', 'booking'],
+  uniqueNulls: ['nn_user', 'nn_slot', 'nn_plain_slot'],
   scalarArrays: ['scalar_arrays'],
   flexible: ['flex_user'],
 

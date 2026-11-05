@@ -150,6 +150,9 @@ export type ModelName =
   | 'SetDecimal'
   | 'SetNested'
   | 'TimestampTest'
+  | 'NnUser'
+  | 'NnSlot'
+  | 'NnPlainSlot'
   | 'ExtCrossUser'
   | 'ExtCrossAdmin'
   | 'ExtCrossModerator'
@@ -383,6 +386,9 @@ export const modelNames = [
   'SetDecimal',
   'SetNested',
   'TimestampTest',
+  'NnUser',
+  'NnSlot',
+  'NnPlainSlot',
   'ExtCrossUser',
   'ExtCrossAdmin',
   'ExtCrossModerator',
@@ -626,6 +632,9 @@ export const modelFingerprints: Record<ModelName, string> = {
   SetDecimal: '1d895397119d5b0b75580bc2d893b44844b258696ec281eabad5196a4908a256',
   SetNested: 'e718b32c1af5404814d5da08205207fdfce6fd217bf5a754006d66fefdc3c589',
   TimestampTest: '04018afb03a258d26e0e83d80c6632a0198e1edd2313fc960852afa72c113f2e',
+  NnUser: '59ea4074689754cd419c87b1209d28762c6187578ca62e617ae114f9e5310b45',
+  NnSlot: 'c8ebe39f27b6289e417504b38d3943a923831f99de20bb54b379bc2f104e7504',
+  NnPlainSlot: 'bf765224032b76e2b46032ddd7b9f6af474ddf706d845dd9f63b8d76ccae1e14',
   ExtCrossUser: 'fa5e8f642d8ab7f50dcd1b8a400e30104c41bfa328a3112d64b5053b366e4993',
   ExtCrossAdmin: 'f34c1c1cd57c70680f5b4a9faa0ec38f713030d176dde37270940c3ec8bec878',
   ExtCrossModerator: '509d76a00ffcafba882c78f9c74443281491bca4f74e595aedc683348c9c080c',
@@ -720,7 +729,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = 'b85f177194f05562010674bb3e1eeea35cf15486b51de257f5dd1e8443b55b8c';
+export const wholeSchemaFingerprint = 'a6a825f314323c48a274dd6698d85e41fb214a2b263e6da9062a6b825f28bc63';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

@@ -198,6 +198,9 @@ import type {
   SetDecimal,
   SetNested,
   TimestampTest,
+  NnUser,
+  NnSlot,
+  NnPlainSlot,
   ExtCrossUser,
   ExtCrossAdmin,
   ExtCrossModerator,
@@ -428,6 +431,9 @@ import type {
   SetDecimalModel,
   SetNestedModel,
   TimestampTestModel,
+  NnUserModel,
+  NnSlotModel,
+  NnPlainSlotModel,
   ExtCrossUserModel,
   ExtCrossAdminModel,
   ExtCrossModeratorModel,
@@ -666,6 +672,9 @@ export interface TypedDb {
   SetDecimal: SetDecimalModel;
   SetNested: SetNestedModel;
   TimestampTest: TimestampTestModel;
+  NnUser: NnUserModel;
+  NnSlot: NnSlotModel;
+  NnPlainSlot: NnPlainSlotModel;
   ExtCrossUser: ExtCrossUserModel;
   ExtCrossAdmin: ExtCrossAdminModel;
   ExtCrossModerator: ExtCrossModeratorModel;
@@ -1451,6 +1460,18 @@ export class CerialClient {
 
   get TimestampTest(): TimestampTestModel {
     return this._ensureDb().TimestampTest;
+  }
+
+  get NnUser(): NnUserModel {
+    return this._ensureDb().NnUser;
+  }
+
+  get NnSlot(): NnSlotModel {
+    return this._ensureDb().NnSlot;
+  }
+
+  get NnPlainSlot(): NnPlainSlotModel {
+    return this._ensureDb().NnPlainSlot;
   }
 
   get ExtCrossUser(): ExtCrossUserModel {

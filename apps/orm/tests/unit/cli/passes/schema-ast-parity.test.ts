@@ -13,7 +13,7 @@ const SCHEMAS = resolve(import.meta.dir, '../../../e2e/schemas');
 const BEFORE_PASSES: Record<string, string> = {
   core: '1593838e48a2e4386f7791e6bb1226ce19daeecef8dfbb8a0fe222f7f38c479f',
   relations: 'b365ace75a04daf42b3579832f6ad3d6e080bbf0f1c61f44391f85329e7bdc2d',
-  decorators: 'c6ac3ea36e306d38e170e3565599cc7ecd5c4f905618f90f71deeb696c5edf26',
+  decorators: '0e5c57b5c60269f52a7eb55cded0f14aa3391f73dc6f77c0b968ac2de30d168b',
   'data-types': '42a65dc830a2f86c046973d9b13b73bc4a3ea38899896ebab7c6564b1fdacbfd',
   features: 'acdb12bb0efb288a08f84bd268fa0c29b6c3fc166425618f3427e61888b4a076',
   'complex-types': '6ff1d4b21160c5c21af187d96964cc997004390580fd43246c3f16bffbd09e9d',

@@ -5,8 +5,6 @@
  * being edited out; the coverage test fails on a stale entry so the list cannot rot. When it is
  * empty, delete this file and the ledger test, and the strict test becomes the only gate.
  *
- * The UNIQUE NULLS NOT DISTINCT forms wait for theirs.
- *
  * Where the obvious schema will not just work:
  * - A construct on the e2e corpus that needs a new schema file also needs its tables registered in
  *   tests/e2e/test-helper.ts.
@@ -14,7 +12,4 @@
 
 import type { CorpusConstructId } from '../../src/parity';
 
-export const KNOWN_GAPS: readonly CorpusConstructId[] = [
-  'decorator.unique.nulls-not-distinct',
-  'directive.unique.nulls-not-distinct',
-];
+export const KNOWN_GAPS: readonly CorpusConstructId[] = [];

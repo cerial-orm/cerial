@@ -1,0 +1,1242 @@
+// ===== models/nnplainslot.ts =====
+/**
+ * Generated types for NnPlainSlot
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+export interface NnPlainSlot {
+  id: CerialId<string>;
+  tenantId?: string | null;
+  slug?: string | null;
+}
+
+export interface NnPlainSlotInput {
+  id?: string;
+  tenantId?: string | null;
+  slug?: string | null;
+}
+
+export interface NnPlainSlotWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @@unique("plainSlot") — Part of composite unique (with: slug) */
+  tenantId?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  /** @@unique("plainSlot") — Part of composite unique (with: tenantId) */
+  slug?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  $raw?: SqlFragment;
+  AND?: NnPlainSlotWhere[];
+  OR?: NnPlainSlotWhere[];
+  NOT?: NnPlainSlotWhere;
+}
+
+export type NnPlainSlotWhereInput = NnPlainSlotWhere;
+
+export type NnPlainSlotFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & Omit<NnPlainSlotWhere, 'id' | 'plainSlot'>) /**
+     * Composite unique index on fields: tenantId, slug
+     *
+     * @warning Optional field(s): tenantId, slug
+     * Unlike single-field @unique, composite unique indexes treat null/NONE as concrete values
+     * when at least one field has a non-null value.
+     *
+     * | Combination                       | Duplicate allowed? |
+     * | ---------------------------------- | ------------------ |
+     * | (null, null) + (null, null)        | YES                |
+     * | (null, 'value') + (null, 'value')  | NO                 |
+     * | ('value', null) + ('value', null)  | NO                 |
+     * | ('value', 'value') + same          | NO                 |
+     */
+  | ({ plainSlot: { tenantId: string | null; slug: string | null } } & Omit<NnPlainSlotWhere, 'id' | 'plainSlot'>);
+
+export type NnPlainSlotCreate = O.Optional<NnPlainSlotInput, 'id' | 'tenantId' | 'slug'>;
+
+export type NnPlainSlotNestedCreate = O.Optional<NnPlainSlotInput, 'id' | 'tenantId' | 'slug'>;
+
+export type NnPlainSlotCreateInput = NnPlainSlotCreate;
+
+export type NnPlainSlotUpdate = Partial<O.Omit<NnPlainSlotInput, 'id' | 'tenantId' | 'slug'>> & {
+  tenantId?: string | null | CerialNone;
+  slug?: string | null | CerialNone;
+};
+
+export type NnPlainSlotUpdateInput = NnPlainSlotUpdate;
+
+export type NnPlainSlotUnset = {
+  tenantId?: true;
+  slug?: true;
+};
+
+export interface NnPlainSlotSelectFields {
+  id?: boolean;
+  tenantId?: boolean;
+  slug?: boolean;
+}
+
+export type NnPlainSlotSelect = AtLeastOne<NnPlainSlotSelectFields>;
+
+export interface NnPlainSlotOrderBy {
+  id?: 'asc' | 'desc';
+  tenantId?: 'asc' | 'desc';
+  slug?: 'asc' | 'desc';
+}
+
+export interface NnPlainSlotGroupByKeys {
+  id?: true;
+  tenantId?: true;
+  slug?: true;
+}
+
+export interface NnPlainSlotCountAggregate {
+  _all?: true;
+  id?: true;
+  tenantId?: true;
+  slug?: true;
+}
+
+export interface NnPlainSlotMinMaxAggregate {
+  id?: true;
+  tenantId?: true;
+  slug?: true;
+}
+
+export interface NnPlainSlotGroupAggregate {
+  id?: true;
+  tenantId?: true;
+  slug?: true;
+}
+
+export interface NnPlainSlotGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  tenantId?: 'asc' | 'desc';
+  slug?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; tenantId?: 'asc' | 'desc'; slug?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; tenantId?: 'asc' | 'desc'; slug?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; tenantId?: 'asc' | 'desc'; slug?: 'asc' | 'desc' };
+}
+
+export interface NnPlainSlotGroupByArgs {
+  by: NnPlainSlotGroupByKeys;
+  where?: NnPlainSlotWhere;
+  _count?: true | NnPlainSlotCountAggregate;
+  _min?: NnPlainSlotMinMaxAggregate;
+  _max?: NnPlainSlotMinMaxAggregate;
+  _group?: NnPlainSlotGroupAggregate;
+  orderBy?: NnPlainSlotGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NnPlainSlotGroupByAggregates {
+  _count: { _all: number; id: number; tenantId: number; slug: number };
+  _min: {
+    id: NonNullable<NnPlainSlot['id']> | null;
+    tenantId: NonNullable<NnPlainSlot['tenantId']> | null;
+    slug: NonNullable<NnPlainSlot['slug']> | null;
+  };
+  _max: {
+    id: NonNullable<NnPlainSlot['id']> | null;
+    tenantId: NonNullable<NnPlainSlot['tenantId']> | null;
+    slug: NonNullable<NnPlainSlot['slug']> | null;
+  };
+  _group: {
+    id: GroupMember<NnPlainSlot['id']>[];
+    tenantId: (GroupMember<NnPlainSlot['tenantId']> | null)[];
+    slug: (GroupMember<NnPlainSlot['slug']> | null)[];
+  };
+}
+
+export type NnPlainSlotGroupByResult<A extends NnPlainSlotGroupByArgs> = GroupByRow<
+  NnPlainSlot,
+  A,
+  NnPlainSlotGroupByAggregates
+>;
+
+export type NnPlainSlot$Relations = {};
+
+export type GetNnPlainSlotPayload<S extends NnPlainSlotSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends NnPlainSlotSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NnPlainSlot
+          ? ResolveFieldSelect<NnPlainSlot[K], S[K]>
+          : never;
+      }
+    : NnPlainSlot,
+  'flat'
+>;
+
+export interface NnPlainSlotModel {
+  findOne<
+    S extends NnPlainSlotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: NnPlainSlotWhere;
+    select?: SelectArg<S, NnPlainSlotSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnPlainSlot | keyof NnPlainSlotWhere)]?: never };
+    orderBy?: NnPlainSlotOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetNnPlainSlotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends NnPlainSlotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: NnPlainSlotWhere;
+    select?: SelectArg<S, NnPlainSlotSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnPlainSlot | keyof NnPlainSlotWhere)]?: never };
+    orderBy?: NnPlainSlotOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetNnPlainSlotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends NnPlainSlotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: NnPlainSlotFindUniqueWhere;
+    select?: SelectArg<S, NnPlainSlotSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnPlainSlot | keyof NnPlainSlotWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetNnPlainSlotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends NnPlainSlotSelect | undefined = undefined>(options: {
+    data: NnPlainSlotCreateInput;
+    select?: SelectArg<S, NnPlainSlotSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNnPlainSlotPayload<S>>;
+
+  updateMany<
+    S extends NnPlainSlotSelect | undefined = undefined,
+    D extends NnPlainSlotUpdateInput = NnPlainSlotUpdateInput,
+  >(options: {
+    where: NnPlainSlotWhere;
+    data: DataArg<D, NnPlainSlotUpdateInput>;
+    unset?: SafeUnset<NnPlainSlotUnset, D>;
+    select?: SelectArg<S, NnPlainSlotSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNnPlainSlotPayload<S>[]>;
+
+  updateUnique<
+    S extends NnPlainSlotSelect | undefined = undefined,
+    D extends NnPlainSlotUpdateInput = NnPlainSlotUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NnPlainSlotFindUniqueWhere;
+    data: DataArg<D, NnPlainSlotUpdateInput>;
+    unset?: SafeUnset<NnPlainSlotUnset, D>;
+    select?: SelectArg<S, NnPlainSlotSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NnPlainSlot | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNnPlainSlotPayload<S>, R>>;
+
+  upsert<
+    S extends NnPlainSlotSelect | undefined = undefined,
+    D extends NnPlainSlotUpdateInput = NnPlainSlotUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NnPlainSlotFindUniqueWhere;
+    create: NnPlainSlotCreateInput;
+    update?: DataArg<D, NnPlainSlotUpdateInput>;
+    unset?: SafeUnset<NnPlainSlotUnset, D>;
+    select?: SelectArg<S, NnPlainSlotSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNnPlainSlotPayload<S>, R>>;
+
+  upsert<
+    S extends NnPlainSlotSelect | undefined = undefined,
+    D extends NnPlainSlotUpdateInput = NnPlainSlotUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NnPlainSlotWhere;
+    create: NnPlainSlotCreateInput;
+    update?: DataArg<D, NnPlainSlotUpdateInput>;
+    unset?: SafeUnset<NnPlainSlotUnset, D>;
+    select?: SelectArg<S, NnPlainSlotSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNnPlainSlotPayload<S>, R>>;
+
+  deleteMany(options: { where: NnPlainSlotWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NnPlainSlotFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NnPlainSlot | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NnPlainSlot, R>>;
+
+  count(where?: NnPlainSlotWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends NnPlainSlotGroupByArgs>(
+    args: GroupByArg<A, NnPlainSlotGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NnPlainSlotGroupByResult<A>[]>;
+
+  exists(where?: NnPlainSlotWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: NnPlainSlotWhere }): Promise<import('cerial').CerialLiveHandle<NnPlainSlot>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/nnslot.ts =====
+/**
+ * Generated types for NnSlot
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+export interface NnSlot {
+  id: CerialId<string>;
+  tenantId?: string | null;
+  slug?: string | null;
+}
+
+export interface NnSlotInput {
+  id?: string;
+  tenantId?: string | null;
+  slug?: string | null;
+}
+
+export interface NnSlotWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @@unique("tenantSlug") — Part of composite unique (with: slug) */
+  tenantId?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  /** @@unique("tenantSlug") — Part of composite unique (with: tenantId) */
+  slug?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  $raw?: SqlFragment;
+  AND?: NnSlotWhere[];
+  OR?: NnSlotWhere[];
+  NOT?: NnSlotWhere;
+}
+
+export type NnSlotWhereInput = NnSlotWhere;
+
+export type NnSlotFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & Omit<NnSlotWhere, 'id' | 'tenantSlug'>) /**
+     * Composite unique index on fields: tenantId, slug
+     *
+     * @warning Optional field(s): tenantId, slug
+     * Unlike single-field @unique, composite unique indexes treat null/NONE as concrete values
+     * when at least one field has a non-null value.
+     *
+     * | Combination                       | Duplicate allowed? |
+     * | ---------------------------------- | ------------------ |
+     * | (null, null) + (null, null)        | YES                |
+     * | (null, 'value') + (null, 'value')  | NO                 |
+     * | ('value', null) + ('value', null)  | NO                 |
+     * | ('value', 'value') + same          | NO                 |
+     */
+  | ({ tenantSlug: { tenantId: string | null; slug: string | null } } & Omit<NnSlotWhere, 'id' | 'tenantSlug'>);
+
+export type NnSlotCreate = O.Optional<NnSlotInput, 'id' | 'tenantId' | 'slug'>;
+
+export type NnSlotNestedCreate = O.Optional<NnSlotInput, 'id' | 'tenantId' | 'slug'>;
+
+export type NnSlotCreateInput = NnSlotCreate;
+
+export type NnSlotUpdate = Partial<O.Omit<NnSlotInput, 'id' | 'tenantId' | 'slug'>> & {
+  tenantId?: string | null | CerialNone;
+  slug?: string | null | CerialNone;
+};
+
+export type NnSlotUpdateInput = NnSlotUpdate;
+
+export type NnSlotUnset = {
+  tenantId?: true;
+  slug?: true;
+};
+
+export interface NnSlotSelectFields {
+  id?: boolean;
+  tenantId?: boolean;
+  slug?: boolean;
+}
+
+export type NnSlotSelect = AtLeastOne<NnSlotSelectFields>;
+
+export interface NnSlotOrderBy {
+  id?: 'asc' | 'desc';
+  tenantId?: 'asc' | 'desc';
+  slug?: 'asc' | 'desc';
+}
+
+export interface NnSlotGroupByKeys {
+  id?: true;
+  tenantId?: true;
+  slug?: true;
+}
+
+export interface NnSlotCountAggregate {
+  _all?: true;
+  id?: true;
+  tenantId?: true;
+  slug?: true;
+}
+
+export interface NnSlotMinMaxAggregate {
+  id?: true;
+  tenantId?: true;
+  slug?: true;
+}
+
+export interface NnSlotGroupAggregate {
+  id?: true;
+  tenantId?: true;
+  slug?: true;
+}
+
+export interface NnSlotGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  tenantId?: 'asc' | 'desc';
+  slug?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; tenantId?: 'asc' | 'desc'; slug?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; tenantId?: 'asc' | 'desc'; slug?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; tenantId?: 'asc' | 'desc'; slug?: 'asc' | 'desc' };
+}
+
+export interface NnSlotGroupByArgs {
+  by: NnSlotGroupByKeys;
+  where?: NnSlotWhere;
+  _count?: true | NnSlotCountAggregate;
+  _min?: NnSlotMinMaxAggregate;
+  _max?: NnSlotMinMaxAggregate;
+  _group?: NnSlotGroupAggregate;
+  orderBy?: NnSlotGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NnSlotGroupByAggregates {
+  _count: { _all: number; id: number; tenantId: number; slug: number };
+  _min: {
+    id: NonNullable<NnSlot['id']> | null;
+    tenantId: NonNullable<NnSlot['tenantId']> | null;
+    slug: NonNullable<NnSlot['slug']> | null;
+  };
+  _max: {
+    id: NonNullable<NnSlot['id']> | null;
+    tenantId: NonNullable<NnSlot['tenantId']> | null;
+    slug: NonNullable<NnSlot['slug']> | null;
+  };
+  _group: {
+    id: GroupMember<NnSlot['id']>[];
+    tenantId: (GroupMember<NnSlot['tenantId']> | null)[];
+    slug: (GroupMember<NnSlot['slug']> | null)[];
+  };
+}
+
+export type NnSlotGroupByResult<A extends NnSlotGroupByArgs> = GroupByRow<NnSlot, A, NnSlotGroupByAggregates>;
+
+export type NnSlot$Relations = {};
+
+export type GetNnSlotPayload<S extends NnSlotSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends NnSlotSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NnSlot
+          ? ResolveFieldSelect<NnSlot[K], S[K]>
+          : never;
+      }
+    : NnSlot,
+  'flat'
+>;
+
+export interface NnSlotModel {
+  findOne<
+    S extends NnSlotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: NnSlotWhere;
+    select?: SelectArg<S, NnSlotSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnSlot | keyof NnSlotWhere)]?: never };
+    orderBy?: NnSlotOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetNnSlotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends NnSlotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: NnSlotWhere;
+    select?: SelectArg<S, NnSlotSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnSlot | keyof NnSlotWhere)]?: never };
+    orderBy?: NnSlotOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<(GetNnSlotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;
+
+  findUnique<
+    S extends NnSlotSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: NnSlotFindUniqueWhere;
+    select?: SelectArg<S, NnSlotSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnSlot | keyof NnSlotWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetNnSlotPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends NnSlotSelect | undefined = undefined>(options: {
+    data: NnSlotCreateInput;
+    select?: SelectArg<S, NnSlotSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNnSlotPayload<S>>;
+
+  updateMany<S extends NnSlotSelect | undefined = undefined, D extends NnSlotUpdateInput = NnSlotUpdateInput>(options: {
+    where: NnSlotWhere;
+    data: DataArg<D, NnSlotUpdateInput>;
+    unset?: SafeUnset<NnSlotUnset, D>;
+    select?: SelectArg<S, NnSlotSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNnSlotPayload<S>[]>;
+
+  updateUnique<
+    S extends NnSlotSelect | undefined = undefined,
+    D extends NnSlotUpdateInput = NnSlotUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NnSlotFindUniqueWhere;
+    data: DataArg<D, NnSlotUpdateInput>;
+    unset?: SafeUnset<NnSlotUnset, D>;
+    select?: SelectArg<S, NnSlotSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NnSlot | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNnSlotPayload<S>, R>>;
+
+  upsert<
+    S extends NnSlotSelect | undefined = undefined,
+    D extends NnSlotUpdateInput = NnSlotUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NnSlotFindUniqueWhere;
+    create: NnSlotCreateInput;
+    update?: DataArg<D, NnSlotUpdateInput>;
+    unset?: SafeUnset<NnSlotUnset, D>;
+    select?: SelectArg<S, NnSlotSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNnSlotPayload<S>, R>>;
+
+  upsert<
+    S extends NnSlotSelect | undefined = undefined,
+    D extends NnSlotUpdateInput = NnSlotUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NnSlotWhere;
+    create: NnSlotCreateInput;
+    update?: DataArg<D, NnSlotUpdateInput>;
+    unset?: SafeUnset<NnSlotUnset, D>;
+    select?: SelectArg<S, NnSlotSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNnSlotPayload<S>, R>>;
+
+  deleteMany(options: { where: NnSlotWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NnSlotFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NnSlot | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NnSlot, R>>;
+
+  count(where?: NnSlotWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends NnSlotGroupByArgs>(
+    args: GroupByArg<A, NnSlotGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NnSlotGroupByResult<A>[]>;
+
+  exists(where?: NnSlotWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: NnSlotWhere }): Promise<import('cerial').CerialLiveHandle<NnSlot>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/nnuser.ts =====
+/**
+ * Generated types for NnUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  NnProfile,
+  NnProfileInput,
+  NnProfileWhere,
+  NnProfileSelect,
+  NnProfileOrderBy,
+} from '../objects/nnprofile';
+export interface NnUser {
+  id: CerialId<string>;
+  email: string;
+  nickname?: string | null;
+  plainNick?: string | null;
+  profile?: NnProfile;
+}
+
+export interface NnUserInput {
+  id?: string;
+  email: string;
+  nickname?: string | null;
+  plainNick?: string | null;
+  profile?: NnProfileInput;
+}
+
+export interface NnUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @unique — Unique indexed field (multiple null/NONE values are allowed) */
+  nickname?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  /** @unique — Unique indexed field (multiple null/NONE values are allowed) */
+  plainNick?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  profile?: NnProfileWhere;
+  $raw?: SqlFragment;
+  AND?: NnUserWhere[];
+  OR?: NnUserWhere[];
+  NOT?: NnUserWhere;
+}
+
+export type NnUserWhereInput = NnUserWhere;
+
+export type NnUserFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string; nickname?: string; plainNick?: string } & Omit<
+        NnUserWhere,
+        'id' | 'email' | 'nickname' | 'plainNick' | 'profile'
+      >)
+  | ({ email: string } & { id?: RecordIdInput<string>; nickname?: string; plainNick?: string } & Omit<
+        NnUserWhere,
+        'id' | 'email' | 'nickname' | 'plainNick' | 'profile'
+      >)
+  | ({ nickname: string } & { id?: RecordIdInput<string>; email?: string; plainNick?: string } & Omit<
+        NnUserWhere,
+        'id' | 'email' | 'nickname' | 'plainNick' | 'profile'
+      >)
+  | ({ plainNick: string } & { id?: RecordIdInput<string>; email?: string; nickname?: string } & Omit<
+        NnUserWhere,
+        'id' | 'email' | 'nickname' | 'plainNick' | 'profile'
+      >)
+  | ({ profile: { handle: string | null } } & Omit<NnUserWhere, 'id' | 'email' | 'nickname' | 'plainNick' | 'profile'>);
+
+export type NnUserCreate = O.Optional<NnUserInput, 'id' | 'nickname' | 'plainNick' | 'profile'>;
+
+export type NnUserNestedCreate = O.Optional<NnUserInput, 'id' | 'nickname' | 'plainNick' | 'profile'>;
+
+export type NnUserCreateInput = NnUserCreate;
+
+export type NnUserUpdate = Partial<O.Omit<NnUserInput, 'id' | 'profile' | 'nickname' | 'plainNick'>> & {
+  profile?: Partial<NnProfileInput> | { set: NnProfileInput } | CerialNone;
+  nickname?: string | null | CerialNone;
+  plainNick?: string | null | CerialNone;
+};
+
+export type NnUserUpdateInput = NnUserUpdate;
+
+export type NnUserUnset = {
+  nickname?: true;
+  plainNick?: true;
+  profile?:
+    | true
+    | {
+        handle?: true;
+      };
+};
+
+export interface NnUserSelectFields {
+  id?: boolean;
+  email?: boolean;
+  nickname?: boolean;
+  plainNick?: boolean;
+  profile?: boolean | NnProfileSelect;
+}
+
+export type NnUserSelect = AtLeastOne<NnUserSelectFields>;
+
+export interface NnUserOrderBy {
+  id?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  nickname?: 'asc' | 'desc';
+  plainNick?: 'asc' | 'desc';
+  profile?: NnProfileOrderBy;
+}
+
+export interface NnUserGroupByKeys {
+  id?: true;
+  email?: true;
+  nickname?: true;
+  plainNick?: true;
+  profile?: { handle?: true };
+}
+
+export interface NnUserCountAggregate {
+  _all?: true;
+  id?: true;
+  email?: true;
+  nickname?: true;
+  plainNick?: true;
+  profile?: true;
+}
+
+export interface NnUserMinMaxAggregate {
+  id?: true;
+  email?: true;
+  nickname?: true;
+  plainNick?: true;
+}
+
+export interface NnUserGroupAggregate {
+  id?: true;
+  email?: true;
+  nickname?: true;
+  plainNick?: true;
+}
+
+export interface NnUserGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  nickname?: 'asc' | 'desc';
+  plainNick?: 'asc' | 'desc';
+  profile?: { handle?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    nickname?: 'asc' | 'desc';
+    plainNick?: 'asc' | 'desc';
+    profile?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; email?: 'asc' | 'desc'; nickname?: 'asc' | 'desc'; plainNick?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; email?: 'asc' | 'desc'; nickname?: 'asc' | 'desc'; plainNick?: 'asc' | 'desc' };
+}
+
+export interface NnUserGroupByArgs {
+  by: NnUserGroupByKeys;
+  where?: NnUserWhere;
+  _count?: true | NnUserCountAggregate;
+  _min?: NnUserMinMaxAggregate;
+  _max?: NnUserMinMaxAggregate;
+  _group?: NnUserGroupAggregate;
+  orderBy?: NnUserGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NnUserGroupByAggregates {
+  _count: { _all: number; id: number; email: number; nickname: number; plainNick: number; profile: number };
+  _min: {
+    id: NonNullable<NnUser['id']> | null;
+    email: NonNullable<NnUser['email']> | null;
+    nickname: NonNullable<NnUser['nickname']> | null;
+    plainNick: NonNullable<NnUser['plainNick']> | null;
+  };
+  _max: {
+    id: NonNullable<NnUser['id']> | null;
+    email: NonNullable<NnUser['email']> | null;
+    nickname: NonNullable<NnUser['nickname']> | null;
+    plainNick: NonNullable<NnUser['plainNick']> | null;
+  };
+  _group: {
+    id: GroupMember<NnUser['id']>[];
+    email: GroupMember<NnUser['email']>[];
+    nickname: (GroupMember<NnUser['nickname']> | null)[];
+    plainNick: (GroupMember<NnUser['plainNick']> | null)[];
+  };
+}
+
+export type NnUserGroupByResult<A extends NnUserGroupByArgs> = GroupByRow<NnUser, A, NnUserGroupByAggregates>;
+
+export type NnUser$Relations = {};
+
+export type GetNnUserPayload<S extends NnUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends NnUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NnUser
+          ? ResolveFieldSelect<NnUser[K], S[K]>
+          : never;
+      }
+    : NnUser,
+  'flat'
+>;
+
+export interface NnUserModel {
+  findOne<
+    S extends NnUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: NnUserWhere;
+    select?: SelectArg<S, NnUserSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnUser | keyof NnUserWhere)]?: never };
+    orderBy?: NnUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetNnUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends NnUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: NnUserWhere;
+    select?: SelectArg<S, NnUserSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnUser | keyof NnUserWhere)]?: never };
+    orderBy?: NnUserOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<(GetNnUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;
+
+  findUnique<
+    S extends NnUserSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: NnUserFindUniqueWhere;
+    select?: SelectArg<S, NnUserSelectFields>;
+    compute?: C & { [K in keyof C & (keyof NnUser | keyof NnUserWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetNnUserPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends NnUserSelect | undefined = undefined>(options: {
+    data: NnUserCreateInput;
+    select?: SelectArg<S, NnUserSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNnUserPayload<S>>;
+
+  updateMany<S extends NnUserSelect | undefined = undefined, D extends NnUserUpdateInput = NnUserUpdateInput>(options: {
+    where: NnUserWhere;
+    data: DataArg<D, NnUserUpdateInput>;
+    unset?: SafeUnset<NnUserUnset, D>;
+    select?: SelectArg<S, NnUserSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNnUserPayload<S>[]>;
+
+  updateUnique<
+    S extends NnUserSelect | undefined = undefined,
+    D extends NnUserUpdateInput = NnUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NnUserFindUniqueWhere;
+    data: DataArg<D, NnUserUpdateInput>;
+    unset?: SafeUnset<NnUserUnset, D>;
+    select?: SelectArg<S, NnUserSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NnUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNnUserPayload<S>, R>>;
+
+  upsert<
+    S extends NnUserSelect | undefined = undefined,
+    D extends NnUserUpdateInput = NnUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NnUserFindUniqueWhere;
+    create: NnUserCreateInput;
+    update?: DataArg<D, NnUserUpdateInput>;
+    unset?: SafeUnset<NnUserUnset, D>;
+    select?: SelectArg<S, NnUserSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNnUserPayload<S>, R>>;
+
+  upsert<
+    S extends NnUserSelect | undefined = undefined,
+    D extends NnUserUpdateInput = NnUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NnUserWhere;
+    create: NnUserCreateInput;
+    update?: DataArg<D, NnUserUpdateInput>;
+    unset?: SafeUnset<NnUserUnset, D>;
+    select?: SelectArg<S, NnUserSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNnUserPayload<S>, R>>;
+
+  deleteMany(options: { where: NnUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NnUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NnUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NnUser, R>>;
+
+  count(where?: NnUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends NnUserGroupByArgs>(
+    args: GroupByArg<A, NnUserGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NnUserGroupByResult<A>[]>;
+
+  exists(where?: NnUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: NnUserWhere }): Promise<import('cerial').CerialLiveHandle<NnUser>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/nnprofile.ts =====
+/**
+ * Generated types for NnProfile
+ * Do not edit manually
+ */
+
+export interface NnProfile {
+  handle?: string | null;
+}
+
+export interface NnProfileInput {
+  handle?: string | null;
+}
+
+export interface NnProfileWhere {
+  handle?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  AND?: NnProfileWhere[];
+  OR?: NnProfileWhere[];
+  NOT?: NnProfileWhere;
+}
+
+export type NnProfileSelect = { handle: boolean };
+
+export interface NnProfileOrderBy {
+  handle?: 'asc' | 'desc';
+}

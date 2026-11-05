@@ -1,0 +1,311 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "email"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "unique",
+              "value": "nullsNotDistinct"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "nickname",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "unique"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "plainNick",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "profile",
+          "objectName": "NnProfile",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NnUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [
+        {
+          "fields": [
+            "tenantId",
+            "slug"
+          ],
+          "kind": "unique",
+          "name": "tenantSlug",
+          "nullsNotDistinct": true,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "tenantId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "slug",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "NnSlot",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [
+        {
+          "fields": [
+            "tenantId",
+            "slug"
+          ],
+          "kind": "unique",
+          "name": "plainSlot",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
+        }
+      ],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "tenantId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "slug",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "NnPlainSlot",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "unique",
+              "value": "nullsNotDistinct"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "handle",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "NnProfile",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ]
+}

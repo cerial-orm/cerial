@@ -1,0 +1,26 @@
+# UNIQUE NULLS NOT DISTINCT: field form, object sub-field form and composite form, with plain unique contrasts
+object NnProfile {
+  handle String? @nullable @unique(nullsNotDistinct)
+}
+
+model NnUser {
+  id Record @id
+  email Email @unique
+  nickname String? @nullable @unique(nullsNotDistinct)
+  plainNick String? @nullable @unique
+  profile NnProfile?
+}
+
+model NnSlot {
+  id Record @id
+  tenantId String? @nullable
+  slug String? @nullable
+  @@unique(tenantSlug, [tenantId, slug], nullsNotDistinct)
+}
+
+model NnPlainSlot {
+  id Record @id
+  tenantId String? @nullable
+  slug String? @nullable
+  @@unique(plainSlot, [tenantId, slug])
+}
