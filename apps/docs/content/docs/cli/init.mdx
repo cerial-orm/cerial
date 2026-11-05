@@ -43,6 +43,8 @@ $ bunx cerial init
 
 Schema names default to the folder name. You can type a different name at the prompt or press Enter to accept the default.
 
+A schema name must be an identifier: a letter or underscore, then letters, digits and underscores. When a folder name or a name you type is not one (for example `user-db`), `init` derives a valid name (`user_db`), tells you which name it used, and keeps the folder path as written. Names the config refuses (`default`, `index`) and duplicates are handled the same way. Folders whose names contain a backslash are not detected; `init` lists the schema files it skipped. Every name and path is written to the config as a quoted value, so no folder name can change what the config does.
+
 ## Non-Interactive Mode
 
 Pass `--yes` to skip all prompts and accept defaults. This is useful in CI scripts or automated setups:
@@ -96,8 +98,8 @@ import { defineConfig } from 'cerial';
 
 export default defineConfig({
   schemas: {
-    auth: { path: './schemas/auth' },
-    cms: { path: './schemas/cms' },
+    auth: { path: './schemas/auth', output: './schemas/auth/client' },
+    cms: { path: './schemas/cms', output: './schemas/cms/client' },
   },
 });
 ```
@@ -109,8 +111,8 @@ If you choose JSON, the same structure is written as `cerial.config.json`:
 ```json
 {
   "schemas": {
-    "auth": { "path": "./schemas/auth" },
-    "cms": { "path": "./schemas/cms" }
+    "auth": { "path": "./schemas/auth", "output": "./schemas/auth/client" },
+    "cms": { "path": "./schemas/cms", "output": "./schemas/cms/client" }
   }
 }
 ```

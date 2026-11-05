@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { findDuplicateClassNames, schemaNameProblem, validateConfig } from '../../../../src/cli/config';
 import type { DetectedSchema } from '../../../../src/cli/commands/init';
 import {
   deriveSchemaName,
@@ -10,6 +11,8 @@ import {
   generateJsonConfig,
   generateTsConfig,
   getConfigFilename,
+  findBackslashSchemaFiles,
+  normalizeSchemaNames,
   toRelativePath,
 } from '../../../../src/cli/commands/init';
 
@@ -162,10 +165,9 @@ describe('init command', () => {
       const result = generateTsConfig(schemas);
 
       expect(result).toContain('schemas: {');
-      expect(result).toContain("auth: { path: './schemas/auth' },");
-      expect(result).toContain("cms: { path: './schemas/cms' },");
+      expect(result).toContain("auth: { path: './schemas/auth', output: './schemas/auth/client' },");
+      expect(result).toContain("cms: { path: './schemas/cms', output: './schemas/cms/client' },");
       expect(result).not.toContain("schema: '");
-      expect(result).not.toContain('output:');
     });
 
     it('should generate multi-schema with three schemas', () => {
@@ -176,9 +178,9 @@ describe('init command', () => {
       ];
       const result = generateTsConfig(schemas);
 
-      expect(result).toContain("auth: { path: './schemas/auth' },");
-      expect(result).toContain("cms: { path: './schemas/cms' },");
-      expect(result).toContain("billing: { path: './schemas/billing' },");
+      expect(result).toContain("auth: { path: './schemas/auth', output: './schemas/auth/client' },");
+      expect(result).toContain("cms: { path: './schemas/cms', output: './schemas/cms/client' },");
+      expect(result).toContain("billing: { path: './schemas/billing', output: './schemas/billing/client' },");
     });
 
     it('should use single quotes throughout', () => {
@@ -476,8 +478,8 @@ describe('init command', () => {
         '',
         'export default defineConfig({',
         '  schemas: {',
-        "    auth: { path: './schemas/auth' },",
-        "    cms: { path: './schemas/cms' },",
+        "    auth: { path: './schemas/auth', output: './schemas/auth/client' },",
+        "    cms: { path: './schemas/cms', output: './schemas/cms/client' },",
         '  },',
         '});',
         '',
@@ -503,8 +505,8 @@ describe('init command', () => {
     it('should match expected JSON multi-schema output', () => {
       const expected = {
         schemas: {
-          auth: { path: './schemas/auth' },
-          cms: { path: './schemas/cms' },
+          auth: { path: './schemas/auth', output: './schemas/auth/client' },
+          cms: { path: './schemas/cms', output: './schemas/cms/client' },
         },
       };
 
@@ -555,6 +557,262 @@ describe('init command', () => {
       if (!existsSync(dir)) return;
 
       expect(findExistingConfig(dir)).toBe('cerial.config.json');
+    });
+  });
+
+  describe('config built from data', () => {
+    const PAYLOADS = [
+      "x',y:console.log('INJECTED_INIT_SINGLE'),z:'",
+      'a:0,b:console.log(0xC0FFEE),c',
+      'it\'s\\ a "dir"\n',
+    ];
+
+    // Runs the generated module under bun with defineConfig stubbed, so only the config text can execute anything
+    async function evaluate(content: string, dir: string): Promise<{ config: unknown; stdout: string }> {
+      const file = join(dir, 'cerial.config.ts');
+      writeFileSync(
+        file,
+        content.replace("import { defineConfig } from 'cerial';", 'const defineConfig = (c: unknown) => c;'),
+      );
+      const proc = Bun.spawn(
+        ['bun', '-e', `console.log('@@' + JSON.stringify((await import(${JSON.stringify(file)})).default))`],
+        {
+          stdout: 'pipe',
+        },
+      );
+      const stdout = await new Response(proc.stdout).text();
+      const [before, json] = stdout.split('@@');
+
+      return { config: JSON.parse(json!), stdout: before! };
+    }
+
+    for (const payload of PAYLOADS) {
+      it(`keeps ${JSON.stringify(payload)} as data and runs nothing`, async () => {
+        const dir = createTempDir();
+
+        try {
+          const schemas: DetectedSchema[] = [
+            { name: 'ok', path: './ok' },
+            { name: payload, path: `./${payload}` },
+          ];
+          normalizeSchemaNames(schemas);
+          const { config, stdout } = await evaluate(generateTsConfig(schemas), dir);
+
+          expect(stdout).toBe('');
+          const entries = (config as { schemas: Record<string, { path: string }> }).schemas;
+
+          expect(Object.values(entries).map((e) => e.path)).toEqual(['./ok', `./${payload}`]);
+          expect(Object.keys(entries).every((k) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(k))).toBe(true);
+        } finally {
+          cleanupDir(dir);
+        }
+      });
+
+      it(`keeps a single schema path ${JSON.stringify(payload)} as data`, async () => {
+        const dir = createTempDir();
+
+        try {
+          const { config, stdout } = await evaluate(generateTsConfig([{ name: 'x', path: `./${payload}` }]), dir);
+
+          expect(stdout).toBe('');
+          expect((config as { schema: string }).schema).toBe(`./${payload}`);
+        } finally {
+          cleanupDir(dir);
+        }
+      });
+    }
+
+    it('quotes a key that is not an identifier when called directly', async () => {
+      const dir = createTempDir();
+
+      try {
+        const { config } = await evaluate(
+          generateTsConfig([
+            { name: 'user-db', path: './user-db' },
+            { name: 'b', path: './b' },
+          ]),
+          dir,
+        );
+
+        expect(Object.keys((config as { schemas: object }).schemas)).toEqual(['user-db', 'b']);
+      } finally {
+        cleanupDir(dir);
+      }
+    });
+
+    it('keeps a hyphenated folder name, which generate accepts, and derives a valid name for `a b`', () => {
+      const schemas: DetectedSchema[] = [
+        { name: 'user-db', path: './user-db' },
+        { name: 'a b', path: './a b' },
+      ];
+      const notes = normalizeSchemaNames(schemas);
+
+      expect(schemas.map((s) => s.name)).toEqual(['user-db', 'a_b']);
+      expect(schemas[1]!.path).toBe('./a b');
+      expect(notes).toHaveLength(1);
+      expect(notes[0]).toContain("'a b'");
+      expect(notes[0]).toContain("'a_b'");
+    });
+
+    it('derives names generate accepts for digit-leading, underscore-leading and prototype names', () => {
+      const schemas: DetectedSchema[] = [
+        { name: '1st', path: './1st' },
+        { name: '_x', path: './x' },
+        { name: '__proto__', path: './p' },
+        { name: 'constructor', path: './c' },
+        { name: '$x', path: './d' },
+      ];
+      normalizeSchemaNames(schemas);
+
+      expect(schemas.map((s) => s.name)).toEqual(['st', 'x', 'proto__', 'constructor_', 'x_2']);
+      for (const { name } of schemas) expect(schemaNameProblem(name)).toBeUndefined();
+    });
+
+    it('keeps names unique by derived client class, ignoring case', () => {
+      const schemas: DetectedSchema[] = [
+        { name: 'my-auth', path: './a' },
+        { name: 'my_auth', path: './b' },
+        { name: 'Auth', path: './c' },
+        { name: 'auth', path: './d' },
+      ];
+      normalizeSchemaNames(schemas);
+
+      expect(schemas.map((s) => s.name)).toEqual(['my-auth', 'my_auth_2', 'Auth', 'auth_2']);
+      expect(findDuplicateClassNames(schemas.map((s) => s.name))).toBeUndefined();
+    });
+
+    it('leaves ordinary names untouched and silent', () => {
+      const schemas: DetectedSchema[] = [
+        { name: 'auth', path: './schemas/auth' },
+        { name: 'my_cms', path: './schemas/my_cms' },
+      ];
+
+      expect(normalizeSchemaNames(schemas)).toEqual([]);
+      expect(schemas.map((s) => s.name)).toEqual(['auth', 'my_cms']);
+      expect(generateTsConfig(schemas)).toBe(
+        [
+          "import { defineConfig } from 'cerial';",
+          '',
+          'export default defineConfig({',
+          '  schemas: {',
+          "    auth: { path: './schemas/auth', output: './schemas/auth/client' },",
+          "    my_cms: { path: './schemas/my_cms', output: './schemas/my_cms/client' },",
+          '  },',
+          '});',
+          '',
+        ].join('\n'),
+      );
+    });
+
+    it('JSON config holds a __proto__ name as an own key', () => {
+      const parsed = JSON.parse(
+        generateJsonConfig([
+          { name: '__proto__', path: './a' },
+          { name: 'b', path: './b' },
+        ]),
+      );
+
+      expect(Object.keys(parsed.schemas)).toEqual(['__proto__', 'b']);
+    });
+
+    it('derives around the names validateConfig refuses (default, index)', () => {
+      const schemas: DetectedSchema[] = [
+        { name: 'default', path: './default' },
+        { name: 'index', path: './index' },
+      ];
+      normalizeSchemaNames(schemas);
+
+      expect(schemas.map((s) => s.name)).toEqual(['default_', 'index_']);
+      expect(validateConfig(JSON.parse(generateJsonConfig(schemas))).valid).toBe(true);
+    });
+
+    it('writes __proto__ as a computed key so it stays an own key', async () => {
+      const dir = createTempDir();
+
+      try {
+        const { config } = await evaluate(
+          generateTsConfig([
+            { name: '__proto__', path: './a' },
+            { name: 'b', path: './b' },
+          ]),
+          dir,
+        );
+
+        expect(Object.keys((config as { schemas: object }).schemas)).toEqual(['__proto__', 'b']);
+      } finally {
+        cleanupDir(dir);
+      }
+    });
+
+    it('escapes control characters in the text it displays', () => {
+      const schemas: DetectedSchema[] = [{ name: 'a\u001b[31m', path: './a\u001b[2J' }];
+      const [note] = normalizeSchemaNames(schemas);
+
+      expect(note).not.toContain('\u001b');
+      expect(note).toContain('\\u001b');
+    });
+
+    it('words the note by reason', () => {
+      const schemas: DetectedSchema[] = [
+        { name: 'a_b', path: './x/a_b' },
+        { name: 'a_b', path: './y/a_b' },
+        { name: 'a b', path: './a b' },
+      ];
+      const notes = normalizeSchemaNames(schemas);
+
+      expect(notes[0]).toContain('already used by another schema');
+      expect(notes[0]).not.toContain('not a valid');
+      expect(notes[1]).toContain('not a valid schema name');
+    });
+
+    it('reports schema files under a folder with a backslash in its name', async () => {
+      const dir = createTempDir();
+      mkdirSync(join(dir, 'a\\b'), { recursive: true });
+      writeFileSync(join(dir, 'a\\b', 'x.cerial'), 'model A { id Record @id }');
+
+      try {
+        expect(await findBackslashSchemaFiles(dir)).toEqual(['a\\b/x.cerial']);
+      } finally {
+        cleanupDir(dir);
+      }
+    });
+
+    describe('init then generate', () => {
+      const SRC = resolve(__dirname, '../../../../src/cli/generate');
+
+      async function generateIn(dir: string): Promise<{ code: number; out: string }> {
+        const script = `const { generate } = await import(${JSON.stringify(SRC)}); const r = await generate({}); console.log(JSON.stringify(r)); process.exit(r.success ? 0 : 1)`;
+        const proc = Bun.spawn(['bun', '-e', script], { cwd: dir, stdout: 'pipe', stderr: 'pipe' });
+        const out = (await new Response(proc.stdout).text()) + (await new Response(proc.stderr).text());
+
+        return { code: await proc.exited, out };
+      }
+
+      function layout(dir: string, folders: string[]): DetectedSchema[] {
+        return folders.map((f, i) => {
+          mkdirSync(join(dir, 'schemas', f), { recursive: true });
+          writeFileSync(join(dir, 'schemas', f, 'm.cerial'), `model M${i} {\n  id Record @id\n  name String\n}`);
+
+          return { name: f, path: `./schemas/${f}` };
+        });
+      }
+
+      for (const folders of [['user-db'], ['user-db', 'auth'], ['a_b', 'a_b_2'], ['default', 'index']]) {
+        it(`generate accepts the config init writes for ${folders.join(' + ')}`, async () => {
+          const dir = createTempDir();
+
+          try {
+            const detected = layout(dir, folders);
+            normalizeSchemaNames(detected);
+            writeFileSync(join(dir, 'cerial.config.json'), generateJsonConfig(detected));
+            const { code, out } = await generateIn(dir);
+
+            expect({ code, out: code ? out : '' }).toEqual({ code: 0, out: '' });
+          } finally {
+            cleanupDir(dir);
+          }
+        });
+      }
     });
   });
 });

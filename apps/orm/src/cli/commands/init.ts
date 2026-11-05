@@ -4,6 +4,7 @@ import { basename, relative, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
 import { defineCommand } from 'citty';
 import fg from 'fast-glob';
+import { schemaNameProblem, toClientClassName } from '../config';
 import { findSchemaRoots, findSchemasInDir } from '../resolvers/schema-resolver';
 
 export type ConfigFormat = 'typescript' | 'json';
@@ -39,6 +40,64 @@ function ask(rl: ReturnType<typeof createInterface>, question: string): Promise<
 
 export function deriveSchemaName(folderPath: string): string {
   return basename(folderPath);
+}
+
+/** A string literal in single quotes; JSON.stringify escapes backslashes, control characters and the line terminators */
+function quote(value: string): string {
+  return `'${JSON.stringify(value).slice(1, -1).replace(/\\"/g, '"').replace(/'/g, "\\'")}'`;
+}
+
+/** The documented default output of a schema entry: `client` inside its folder */
+function clientDir(path: string): string {
+  return `${path.replace(/\/+$/, '')}/client`;
+}
+
+/** A property key: bare when it is a plain identifier (no churn for ordinary names), quoted otherwise. `__proto__` is computed: as a literal key, quoted or not, it sets the prototype instead of an own key */
+function key(name: string): string {
+  if (name === '__proto__') return `[${quote(name)}]`;
+
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name) ? name : quote(name);
+}
+
+/** The folder name when it is a valid schema name, else the nearest valid one (`a b` becomes `a_b`, `1abc` becomes `abc`) */
+export function toValidSchemaName(name: string): string {
+  if (!schemaNameProblem(name)) return name;
+  let derived = name.replace(/[^A-Za-z0-9_-]/g, '_').replace(/^[^A-Za-z]+/, '');
+  if (!derived) derived = 'schema';
+  // A reserved name (`default`) or a class that collides gets a suffix; `_` is allowed at the end of a name
+  for (let i = 0; schemaNameProblem(derived) && i < 3; i++) derived = `${derived}_`;
+
+  return schemaNameProblem(derived) ? 'schema' : derived;
+}
+
+/** Gives every schema a valid, unique name and returns what it changed so the caller can say so */
+export function normalizeSchemaNames(schemas: DetectedSchema[]): string[] {
+  const notes: string[] = [];
+  // Keyed by derived client class, ignoring case: names that derive one class share migration state
+  const taken = new Set<string>();
+  const classKey = (n: string): string => toClientClassName(n).toLowerCase();
+
+  for (const schema of schemas) {
+    const original = schema.name;
+    const valid = toValidSchemaName(original);
+    let name = valid;
+    for (let n = 2; taken.has(classKey(name)); n++) name = `${valid}_${n}`;
+    taken.add(classKey(name));
+    schema.name = name;
+    if (name === original) continue;
+
+    const why = valid !== original ? 'is not a valid schema name' : 'is already used by another schema';
+    notes.push(`Schema name ${quote(original)} for ${quote(schema.path)} ${why}; using ${quote(name)}`);
+  }
+
+  return notes;
+}
+
+/** Schema files under a folder whose name holds a backslash: discovery does not read those, so init says so */
+export async function findBackslashSchemaFiles(cwd: string): Promise<string[]> {
+  const files = await fg('**/*.cerial', { cwd, ignore: ['**/node_modules/**'] });
+
+  return files.filter((f) => f.includes('\\'));
 }
 
 export function findExistingConfig(cwd: string): string | null {
@@ -140,14 +199,16 @@ export function generateTsConfig(schemas: DetectedSchema[]): string {
       "import { defineConfig } from 'cerial';",
       '',
       'export default defineConfig({',
-      `  schema: '${schema.path}',`,
+      `  schema: ${quote(schema.path)},`,
       "  output: './client',",
       '});',
       '',
     ].join('\n');
   }
 
-  const schemaEntries = schemas.map((s) => `    ${s.name}: { path: '${s.path}' },`);
+  const schemaEntries = schemas.map(
+    (s) => `    ${key(s.name)}: { path: ${quote(s.path)}, output: ${quote(clientDir(s.path))} },`,
+  );
 
   return [
     "import { defineConfig } from 'cerial';",
@@ -181,12 +242,10 @@ export function generateJsonConfig(schemas: DetectedSchema[]): string {
     return `${JSON.stringify(config, null, 2)}\n`;
   }
 
-  const schemasMap: Record<string, { path: string }> = {};
-  for (const s of schemas) {
-    schemasMap[s.name] = { path: s.path };
-  }
-
-  const config = { schemas: schemasMap };
+  // fromEntries defines own keys, so a name like __proto__ stays data
+  const config = {
+    schemas: Object.fromEntries(schemas.map((s) => [s.name, { path: s.path, output: clientDir(s.path) }])),
+  };
 
   return `${JSON.stringify(config, null, 2)}\n`;
 }
@@ -225,6 +284,9 @@ export const initCommand = defineCommand({
     }
 
     const detected = await detectSchemaFolders(cwd);
+    for (const file of await findBackslashSchemaFiles(cwd)) {
+      console.log(`  Skipped ${quote(file)}: schema folders with a backslash in their name are not detected`);
+    }
 
     let schemas: DetectedSchema[] = [];
     let format: ConfigFormat = 'typescript';
@@ -237,13 +299,16 @@ export const initCommand = defineCommand({
 
       try {
         if (detected.length) {
-          const paths = detected.map((s) => s.path).join(', ');
+          const paths = detected.map((s) => quote(s.path)).join(', ');
           const confirmAnswer = await ask(rl, `\n  Found schema folders: ${paths}\n  Configure them? (Y/n) `);
           const declined = confirmAnswer.toLowerCase() === 'n';
 
           if (!declined) {
             for (const schema of detected) {
-              const nameAnswer = await ask(rl, `  Schema name for ${schema.path}? (default: ${schema.name}) `);
+              const nameAnswer = await ask(
+                rl,
+                `  Schema name for ${quote(schema.path)}? (default: ${quote(schema.name)}) `,
+              );
               if (nameAnswer) schema.name = nameAnswer;
             }
             schemas = detected;
@@ -259,6 +324,8 @@ export const initCommand = defineCommand({
         rl.close();
       }
     }
+
+    for (const note of normalizeSchemaNames(schemas)) console.log(`  ${note}`);
 
     const filename = getConfigFilename(format);
     const content = generateConfigContent(schemas, format);

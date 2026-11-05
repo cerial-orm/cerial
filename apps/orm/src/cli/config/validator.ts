@@ -2,7 +2,7 @@
  * Configuration validator
  */
 
-import { dirname, resolve } from 'node:path';
+import { dirname, posix, resolve } from 'node:path';
 import fg from 'fast-glob';
 import * as v from 'valibot';
 import { CerialGenerationError } from '../../errors';
@@ -137,11 +137,19 @@ function mapValibotIssues(issues: v.BaseIssue<unknown>[]): ConfigValidationError
 }
 
 function pathsOverlap(path1: string, path2: string): boolean {
-  const normalize = (p: string) => p.replace(/\\/g, '/').replace(/\/$/, '');
+  // posix.normalize folds `./`, `a/./b` and `//`; the loop strips every trailing slash
+  const normalize = (p: string) => {
+    const n = posix.normalize(p.replace(/\\/g, '/'));
+
+    return n === '/' ? n : n.replace(/\/+$/, '');
+  };
   const p1 = normalize(path1);
   const p2 = normalize(path2);
 
-  return p1.startsWith(p2) || p2.startsWith(p1);
+  // A prefix counts only at a separator: ./schemas/a_b is not inside ./schemas/a
+  const inside = (child: string, parent: string) => child.startsWith(parent === '/' ? '/' : `${parent}/`);
+
+  return p1 === p2 || inside(p1, p2) || inside(p2, p1);
 }
 
 // Mapped over every FormatConfig key, so adding a property or widening a union there fails to compile until this table follows.
@@ -348,6 +356,11 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
         errors.push({
           field: `schemas.${name}.output`,
           message: `Output path "${outputPath}" is not unique across schemas`,
+        });
+      } else if ([...outputPaths].some((other) => pathsOverlap(other, outputPath))) {
+        errors.push({
+          field: `schemas.${name}.output`,
+          message: `Output path "${outputPath}" overlaps another schema's output path`,
         });
       } else {
         outputPaths.add(outputPath);

@@ -114,6 +114,50 @@ describe('validateConfig', () => {
     expect(result.errors.length).toBeGreaterThan(0);
   });
 
+  it('should not treat sibling paths sharing a name prefix as overlapping', () => {
+    const config: CerialConfig = {
+      schemas: {
+        a: { path: './schemas/a_b', output: './client/a' },
+        b: { path: './schemas/a_b_2', output: './client/b' },
+      },
+    };
+
+    expect(validateConfig(config).errors).toEqual([]);
+  });
+
+  const overlapCases: Array<[string, string, string]> = [
+    ['repeated trailing slashes', 'a//', 'a/b'],
+    ['a leading ./', './a', 'a'],
+    ['an inner ./', 'a/./b', 'a/b'],
+    ['the filesystem root', '/', '/x'],
+    ['backslashes', 'a\\b', 'a/b/c'],
+  ];
+  for (const [label, p1, p2] of overlapCases) {
+    it(`should flag schema paths that overlap through ${label}`, () => {
+      const result = validateConfig({
+        schemas: { x: { path: p1, output: './o/x' }, y: { path: p2, output: './o/y' } },
+      });
+
+      expect(result.errors.some((e) => e.message.includes('overlap'))).toBe(true);
+    });
+  }
+
+  it('should refuse nested output paths', () => {
+    const result = validateConfig({
+      schemas: { x: { path: './s/x', output: './out/a' }, y: { path: './s/y', output: './out/a/b/' } },
+    });
+
+    expect(result.errors.some((e) => e.field === 'schemas.y.output')).toBe(true);
+  });
+
+  it('should accept sibling outputs sharing a name prefix', () => {
+    const result = validateConfig({
+      schemas: { x: { path: './s/x', output: './out/a' }, y: { path: './s/y', output: './out/a_b' } },
+    });
+
+    expect(result.errors).toEqual([]);
+  });
+
   it('should warn on reserved schema names', () => {
     const config: CerialConfig = {
       schemas: {
