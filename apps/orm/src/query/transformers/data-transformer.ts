@@ -2,7 +2,7 @@
  * Data transformer - transforms data for queries
  */
 
-import { Decimal, Duration, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Decimal, Duration, Geometry, RecordId, StringRecordId, U64, Uuid } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type {
   FieldMetadata,
@@ -48,6 +48,12 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
     case 'number':
       if (typeof value === 'number') return value;
       if (typeof value === 'string') return parseFloat(value);
+      return value;
+
+    // The SDK refuses a bigint above the signed 64-bit maximum, so every u64 goes as a U64. Floats go
+    // unchanged and the server rounds them; the other sized integers cross kinds by value.
+    case 'uint64':
+      if (typeof value === 'number' || typeof value === 'bigint') return new U64(value);
       return value;
 
     case 'bool':

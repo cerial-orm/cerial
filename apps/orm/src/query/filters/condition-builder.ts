@@ -2,7 +2,7 @@
  * Condition builder - builds WHERE clause conditions
  */
 
-import { Decimal, Duration, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Decimal, Duration, F16, F32, Geometry, RecordId, StringRecordId, U64, Uuid } from 'surrealdb';
 import type {
   FieldMetadata,
   ModelMetadata,
@@ -59,6 +59,21 @@ function transformDecimalValue(value: unknown): unknown {
   if (value instanceof CerialDecimal) return value.toNative();
   if (typeof value === 'number') return new Decimal(value);
   if (typeof value === 'string') return new Decimal(value);
+
+  return value;
+}
+
+/**
+ * A number compared against a sized field goes as the matching SDK class: a plain 0.1 misses a row written
+ * to a Float16 or Float32 because the server stored the rounded value. The class rounds the filter the same
+ * way. Other sized integers compare by value across kinds, and anything that is not a number passes through.
+ */
+function transformSizedValue(value: unknown, type: FieldMetadata['type']): unknown {
+  if (typeof value !== 'number' && typeof value !== 'bigint') return value;
+  if (type === 'uint64') return new U64(value);
+  if (typeof value === 'bigint') return value;
+  if (type === 'float16') return new F16(value);
+  if (type === 'float32') return new F32(value);
 
   return value;
 }
@@ -146,6 +161,12 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
     }
 
     return transformDecimalValue(value);
+  }
+
+  if (fieldMetadata.type === 'uint64' || fieldMetadata.type === 'float16' || fieldMetadata.type === 'float32') {
+    if (Array.isArray(value)) return value.map((v) => transformSizedValue(v, fieldMetadata.type));
+
+    return transformSizedValue(value, fieldMetadata.type);
   }
 
   if (fieldMetadata.type === 'bytes') {

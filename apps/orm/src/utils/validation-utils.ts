@@ -73,6 +73,17 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
       return isNumber(value);
     case 'number':
       return isNumber(value);
+    case 'int8':
+    case 'uint8':
+    case 'int16':
+    case 'uint16':
+    case 'int32':
+    case 'uint32':
+    case 'uint64':
+    case 'float16':
+    case 'float32':
+      // The range, whole-number and bigint rules are the sized number validator's
+      return isNumber(value) || typeof value === 'bigint';
     case 'bool':
       return isBoolean(value);
     case 'date':

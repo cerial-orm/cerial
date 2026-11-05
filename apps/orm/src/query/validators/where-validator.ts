@@ -25,6 +25,7 @@ import { splitArrayRelationFilter } from '../filters/nested-condition-builder';
 import { isRegisteredOperator } from '../filters/registry';
 import { isSqlFragment } from '../compile/sql-fragment';
 import { refuseFragmentInValue } from './fragment-value';
+import { isSizedNumberFieldType, sizedNumberError } from './sized-number-validator';
 
 function isDirectValue(value: unknown): boolean {
   return (
@@ -111,6 +112,42 @@ function validateCompositeValue(
   return problems.length ? fail(problems.join('; ')) : [];
 }
 
+/** Operators whose value is one number, and those whose value is a list of them. */
+const SINGLE_VALUE_OPERATORS = ['eq', 'neq', 'not', 'gt', 'gte', 'lt', 'lte', 'has'];
+const LIST_VALUE_OPERATORS = ['in', 'notIn', 'hasAll', 'hasAny', 'between'];
+
+/** Range-check the numbers a filter on a sized number field compares against, so the server never has to refuse them. */
+function sizedFilterIssues(
+  type: FieldMetadata['type'],
+  filter: unknown,
+  path: string,
+  label: string,
+): CerialValidationIssue[] {
+  if (!isSizedNumberFieldType(type)) return [];
+
+  const issues: CerialValidationIssue[] = [];
+  const check = (value: unknown, valuePath: string, valueLabel: string): void => {
+    const message = sizedNumberError(type, valueLabel, value);
+    if (message) issues.push({ path: valuePath, message });
+  };
+  const checkList = (values: unknown, listPath: string): void => {
+    if (Array.isArray(values)) values.forEach((v, i) => check(v, `${listPath}[${i}]`, `${label}[${i}]`));
+  };
+
+  if (Array.isArray(filter)) {
+    checkList(filter, path);
+  } else if (isOperatorObject(filter)) {
+    for (const [op, value] of Object.entries(filter)) {
+      if (SINGLE_VALUE_OPERATORS.includes(op)) check(value, `${path}.${op}`, label);
+      else if (LIST_VALUE_OPERATORS.includes(op)) checkList(value, `${path}.${op}`);
+    }
+  } else {
+    check(filter, path, label);
+  }
+
+  return issues;
+}
+
 const QUANTIFIERS = ['some', 'every', 'none'];
 const LOGICAL_KEYS = ['AND', 'OR', 'NOT'];
 
@@ -163,6 +200,7 @@ function validateObjectFilter(
       if (!isFlexible) errors.push(unknownSubField(subPath, subFieldPath, model));
       continue;
     }
+    errors.push(...sizedFilterIssues(subField.type, value, subPath, subFieldPath));
     if (!isObject(value) || isDirectValue(value) || isOperatorObject(value)) continue;
 
     if (subField.type === 'object' && subField.objectInfo)
@@ -214,6 +252,7 @@ function validateTupleFilter(
       errors.push(unknownSubField(subPath, subFieldPath, model));
       continue;
     }
+    errors.push(...sizedFilterIssues(element.type, value, subPath, subFieldPath));
     if (!isObject(value) || isDirectValue(value) || isOperatorObject(value)) continue;
 
     if (element.type === 'object' && element.objectInfo)
@@ -402,6 +441,8 @@ export function validateFieldFilter(
       }
     }
   }
+
+  errors.push(...sizedFilterIssues(field.type, filter, path, fieldName));
 
   return errors;
 }

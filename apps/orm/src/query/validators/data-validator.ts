@@ -16,6 +16,7 @@ import { isObject } from '../../utils/type-utils';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
 import { convertUnsetToNoneValues } from '../builders/update-builder';
 import { isSingleTupleInput } from '../transformers/data-transformer';
+import { sizedNumberError } from './sized-number-validator';
 
 /** Validation error */
 export interface DataValidationError {
@@ -145,6 +146,8 @@ export function validateFieldValue(
     // Validate each element in the array
     for (let i = 0; i < value.length; i++) {
       const element = value[i];
+      const sizedMessage = sizedNumberError(fieldType, `${fieldName}[${i}]`, element);
+      if (sizedMessage) return { field: fieldName, message: sizedMessage };
       if (!validateFieldType(element, fieldType)) {
         return { field: fieldName, message: `${fieldName}[${i}] must be of type ${fieldType}` };
       }
@@ -153,6 +156,9 @@ export function validateFieldValue(
     }
     return null;
   }
+
+  const sizedMessage = sizedNumberError(fieldType, fieldName, value);
+  if (sizedMessage) return { field: fieldName, message: sizedMessage };
 
   // Check type for non-array fields
   if (!validateFieldType(value, fieldType)) {

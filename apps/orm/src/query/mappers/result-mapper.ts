@@ -22,6 +22,24 @@ function isRecordId(value: unknown): value is RecordId {
   return value instanceof RecordId;
 }
 
+/**
+ * A sized number field reads back as the SDK's SizedNumber over cbor.2. The unwrapped value is a number,
+ * or a bigint for u64 whatever its size, so one type holds the whole range. Plain numbers (an older
+ * server, or a value already unwrapped) take the same shape.
+ */
+function mapSizedNumber(value: unknown, fieldType: SchemaFieldType): number | bigint | null {
+  const inner = value instanceof SizedNumber ? value.value : value;
+
+  if (fieldType === 'uint64') {
+    if (typeof inner === 'bigint') return inner;
+
+    return typeof inner === 'number' && Number.isInteger(inner) ? BigInt(inner) : null;
+  }
+  if (typeof inner === 'bigint') return Number(inner);
+
+  return typeof inner === 'number' ? inner : null;
+}
+
 /** Map a single field value from SurrealDB result */
 export function mapFieldValue(value: unknown, fieldType: 'record'): CerialId | null | undefined;
 export function mapFieldValue(value: unknown, fieldType: 'uuid'): CerialUuid | null | undefined;
@@ -70,6 +88,17 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
       // A sized value written raw keeps its kind in a `number` field; a u64 loses precision past 2^53
       if (value instanceof SizedNumber) return Number(value.value);
       return null;
+
+    case 'int8':
+    case 'uint8':
+    case 'int16':
+    case 'uint16':
+    case 'int32':
+    case 'uint32':
+    case 'uint64':
+    case 'float16':
+    case 'float32':
+      return mapSizedNumber(value, fieldType);
 
     case 'bool':
       return Boolean(value);
@@ -178,6 +207,8 @@ function processNestedValue(value: unknown): unknown {
   if (isRecordId(value)) {
     return transformRecordIdToCerialId(value);
   }
+
+  if (value instanceof SizedNumber) return value.value;
 
   // Handle arrays (array of included records)
   if (Array.isArray(value)) {
