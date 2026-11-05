@@ -187,6 +187,64 @@ development branch and is not available on npm.
   as an unknown operator like any other. If you forward a JSON filter body,
   upgrade; until then allow-list the operator names you accept.
 
+- Several names a `.cerial` schema can carry reached the generated client as
+  code without being checked. Tuple element names and Record id types on object fields
+  (the `Record(...)` parameters) were written into the generated model registry as
+  they stood, so a crafted schema could make the registry run its own code in
+  every process that imported the client. Digit-led names, names equal to a
+  property of `Object.prototype` (`constructor`, `__proto__`) and declarations
+  whose names differ only in case produced types that did not parse, printed a
+  native function body into the types, dropped an enum value, or wrote two
+  declarations to one file. It needs write access to a schema file, so it
+  matters most where schemas come from a contributor, a package or generated
+  input. Present in 0.2.0.
+
+  Every name that reaches generated code, declaration names included, is now checked against one rule, and
+  `Record(...)` types on object fields are validated like a model's. Generate
+  refuses the schema, names the kind, owner and name, and writes nothing. See
+  the Changed entries for the exact rules. Until you upgrade, review schema
+  files from outside sources before running `cerial generate`.
+
+- `cerial generate` removed every `.ts` file in its output directory that the
+  run had not written, and `--clean` removed the whole directory, wherever
+  `output` pointed. An output set to a parent folder, or to the project root,
+  deleted your own source files, including TypeScript schema sources. The
+  output can come from a flag, the root config, or a folder config found
+  automatically. Present in 0.2.0.
+
+  Generate now removes only files listed in the output's `.cerial-output.json`,
+  and refuses an output outside the project root or one that holds schema
+  sources. See the Changed entry on generate output.
+
+- `cerial init` wrote the schema folder names it found into
+  `cerial.config.ts` unescaped, and `generate` imports and runs that file. A
+  folder with a crafted name therefore ran code the next time you generated. A
+  folder name also became the generated client class name unchecked, so an
+  unusual name produced a client that did not parse or ran text on import.
+  Present in 0.2.0.
+
+  `init` now writes names and paths as quoted data, and all schema names are
+  validated before it becomes a class name. Review the config an older `init`
+  wrote if the project holds folders you did not create.
+
+- Inside `$transaction`, the executor rewrote transaction variable names by scanning the
+  statement text. A `@flexible` sub-key in a `where` could steer that rewrite
+  and make an upsert take its update path with the values meant for create,
+  overwriting fields such as a role or a balance on an existing row. Present in
+  0.2.0. Transaction items now run exactly as built, with no text rewriting. If
+  you forward user input into a flexible field inside a transaction, upgrade.
+
+- The exported builders, the low-level `build*` query functions exported from the package root
+  (`buildFindManyQuery`, `buildCreateQuery` and the rest) wrote select keys,
+  `orderBy` directions, `limit`, `offset`, compute keys and data keys into the
+  statement without the checks the client methods apply. Cerial's own client
+  was not affected; code that called these functions with request input was.
+  Present in 0.2.0. They now validate their input the way the client does.
+
+- Nested write field names could collide in the bound values of a statement and
+  make one nested value overwrite or drop another. Every bound value now gets a
+  unique name.
+
 ### Added
 
 - A raw query hatch for SurrealQL the typed API has no position for: graph
@@ -1073,6 +1131,84 @@ development branch and is not available on npm.
   now `AtLeastOne<...SelectFields>`, so an empty `select: {}` is a type error and
   the editor suggests the remaining keys after you type some. Pass at least one
   key, or omit `select`.
+- **Breaking.** Names in a schema are checked before anything is generated.
+  Tuple element names, field names, enum values and literal values are refused
+  when they equal a property of `Object.prototype` (`constructor`, `__proto__`,
+  `toString`, `valueOf`, `hasOwnProperty`) or `prototype`, and tuple element
+  names, literal, tuple and enum names and `@@index` or `@@unique` names must
+  be plain identifiers, so `7E` and `x-1` are refused. A declaration name that
+  is a JavaScript reserved word (`class`, `delete`) is refused too. Rename the
+  offender; the error names the kind, owner and name.
+- **Breaking.** Declaration names are checked against each other. Two names
+  that differ only in case (`Post` and `POST`), `index` in any casing, a name
+  equal to another declaration's generated type (a model `PostWhere` beside
+  `Post`) and a name equal to a client export (`CerialClient`, `CerialId`) are
+  refused at generate.
+- **Breaking.** In a TypeScript schema, literal values must match their kind,
+  and a mismatch is refused when the schema loads. An `int` must be a safe integer,
+  so `variant.int(1e21)` is refused; use a `float` or a string variant.
+- **Breaking.** Record id types on object fields, the `Record(...)` parameters,
+  are validated like a model's. A type that is not a known primitive, tuple or object is now an error
+  at generate.
+- **Breaking.** The generate output cleanup deletes only the files listed in the output's
+  `.cerial-output.json`, with `--clean` too, and only after the new files are
+  copied. It refuses to overwrite an existing file it did not write, and refuses
+  an output outside the project root or one that contains schema sources. Files
+  you added to the output folder are kept. The first run over an output from
+  0.2.0 has no manifest and removes nothing, so delete old leftovers by hand
+  once.
+
+  ```bash
+  # refused: the output holds the schema sources, or lies outside the project
+  bunx cerial generate -s ./schemas -o ./schemas
+  bunx cerial generate -s ./schemas -o ../shared/db-client
+
+  # fine: an output folder of its own
+  bunx cerial generate -s ./schemas -o ./src/db
+
+  # when the location is on purpose
+  bunx cerial generate -s ./schemas -o ../shared/db-client --allow-unsafe-output
+  ```
+
+  `--allow-unsafe-output` lifts the location refusals; it is new in this release.
+- `cerial convert` converts a schema source that lies outside the entry root
+  beside itself, under the same exists, `--force` and protected-source checks,
+  and writes nothing outside the planned outputs. An export name in a kept
+  module that cannot be imported safely is refused.
+- **Breaking.** Schema names are validated: a folder, marker or config-key name
+  must be a letter followed by letters, digits, hyphens and underscores (`a b`,
+  `$x` and `1db` are refused), and two names that give the same client class
+  are refused. Hyphenated config keys such as `user-db` are accepted, as the
+  docs always said. A folder config used as the root now honours its `name`, so
+  that schema's client class changes with it (`AlphaCerialClient` to
+  `AuthCerialClient`).
+- `cerial init` writes a per-schema `output` in a multi-schema config, and a
+  folder name that is not a valid schema name gets a derived one (`default`
+  becomes `default_`, `user-db` becomes `user_db`) which `init` reports. The
+  config holds names and paths as quoted data.
+- **Breaking.** Nested writes inside a nested create, and any relation value
+  or unsupported operation on a relation field, are refused with an error
+  naming the path, where they used to be dropped without a word.
+
+  ```ts
+  // refused: 'posts[0].author' holds a relation value, nothing is written
+  await client.db.User.create({
+    data: {
+      name: 'Ada',
+      posts: { create: [{ title: 'Hi', author: { connect: userId } }] },
+    },
+  });
+
+  // do this instead: one level per call
+  const user = await client.db.User.create({ data: { name: 'Ada' } });
+  await client.db.Post.create({ data: { title: 'Hi', author: { connect: user.id } } });
+  ```
+- The exported builders (`buildFindManyQuery`, `buildCreateQuery` and the
+  others) and filter handlers validate their input before building. Input the
+  client methods already refused is now refused here too.
+- Query placeholders, the internal bound-variable names, changed, and
+  transaction items run without their text being rewritten. Query results are unchanged. Code that matched on
+  generated variable names in compiled statements must stop doing so.
 
 ### Removed
 
