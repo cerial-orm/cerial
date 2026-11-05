@@ -56,7 +56,7 @@ export function percentile(values: readonly number[], p: number): number {
   return sorted[Math.ceil((p / 100) * sorted.length) - 1]!;
 }
 
-/** The existence check selects the named ids first; every other statement is the write itself */
+/** A separate existence check selects the named ids first; the folded write has none, so none should be seen */
 export function isPreRead(text: string): boolean {
   return text.trimStart().startsWith('SELECT id FROM $ids');
 }
@@ -66,13 +66,23 @@ export interface LiveRow {
   readonly iterations: number;
   readonly withMedianMs: number;
   readonly withP95Ms: number;
+  /** `query` calls one folded write makes */
+  readonly foldedCalls: number;
+  /** `query` calls the bare write makes */
+  readonly bareCalls: number;
   readonly aloneMedianMs: number;
   readonly aloneP95Ms: number;
   readonly addedMedianMs: number;
   readonly addedP95Ms: number;
 }
 
-export function summarise(ids: number, withSamples: readonly number[], aloneSamples: readonly number[]): LiveRow {
+export function summarise(
+  ids: number,
+  withSamples: readonly number[],
+  aloneSamples: readonly number[],
+  foldedCalls = 1,
+  bareCalls = 1,
+): LiveRow {
   const withMedianMs = median(withSamples);
   const withP95Ms = percentile(withSamples, 95);
   const aloneMedianMs = median(aloneSamples);
@@ -83,6 +93,8 @@ export function summarise(ids: number, withSamples: readonly number[], aloneSamp
     iterations: withSamples.length,
     withMedianMs,
     withP95Ms,
+    foldedCalls,
+    bareCalls,
     aloneMedianMs,
     aloneP95Ms,
     addedMedianMs: withMedianMs - aloneMedianMs,
@@ -91,7 +103,18 @@ export function summarise(ids: number, withSamples: readonly number[], aloneSamp
 }
 
 export function formatLive(rows: readonly LiveRow[]): string {
-  const header = ['ids', 'iters', 'with med', 'with p95', 'alone med', 'alone p95', '+med', '+p95'];
+  const header = [
+    'ids',
+    'iters',
+    'folded med',
+    'folded p95',
+    'bare med',
+    'bare p95',
+    '+med',
+    '+p95',
+    'calls folded',
+    'calls bare',
+  ];
   const ms = (value: number): string => value.toFixed(2);
   const lines = rows.map((r) => [
     String(r.ids),
@@ -102,12 +125,14 @@ export function formatLive(rows: readonly LiveRow[]): string {
     ms(r.aloneP95Ms),
     ms(r.addedMedianMs),
     ms(r.addedP95Ms),
+    String(r.foldedCalls),
+    String(r.bareCalls),
   ]);
   const widths = header.map((h, i) => Math.max(h.length, ...lines.map((l) => l[i]!.length)));
   const render = (cells: string[]): string => cells.map((c, i) => c.padStart(widths[i]!)).join('  ');
 
   return [
-    'nested connect write, ms (pre-read plus write, against the write alone)',
+    'nested connect write, ms (folded write as the client runs it, against the same statement sent through query())',
     render(header),
     ...lines.map(render),
   ].join('\n');
@@ -222,12 +247,18 @@ export async function runLive(iterations: number): Promise<LiveRow[]> {
       tagIds.push((await client.db.BenchTag.create({ data: { name: `tag-${i}` } })).id.toString());
     }
 
-    // The write alone is the statement the client sends after the pre-read, captured as it goes by
+    // The bare write is the statement the folded write sends, captured as it goes by
     const original = surreal.query.bind(surreal) as (...args: unknown[]) => unknown;
     let captured: BoundQuery | undefined;
+    let calls = 0;
+    let preReads = 0;
     (surreal as unknown as { query: (...args: unknown[]) => unknown }).query = (...args) => {
       const [first] = args;
-      if (first instanceof BoundQuery && !isPreRead(first.query)) captured = first;
+      calls++;
+      if (first instanceof BoundQuery) {
+        if (isPreRead(first.query)) preReads++;
+        else captured = first;
+      }
 
       return original(...args);
     };
@@ -235,29 +266,36 @@ export async function runLive(iterations: number): Promise<LiveRow[]> {
     const rows: LiveRow[] = [];
     for (const count of ID_COUNTS) {
       const connect = tagIds.slice(0, count);
-      const withPreRead = (): Promise<unknown> =>
+      const folded = (): Promise<unknown> =>
         client!.db.BenchPost.create({ data: { title: 'post', tags: { connect } } });
 
       captured = undefined;
-      await withPreRead();
+      calls = 0;
+      await folded();
       if (!captured) throw new Error('the nested write was not seen');
+      if (preReads) throw new Error('a separate target pre-read was sent; the check is not folded');
       const write = captured as BoundQuery;
-      const alone = (): Promise<unknown> => client!.query(write.query, write.bindings);
+      const foldedCalls = calls;
+      const bare = (): Promise<unknown> => client!.query(write.query, write.bindings);
+
+      calls = 0;
+      await bare();
+      const bareCalls = calls;
 
       for (let i = 0; i < WARMUP; i++) {
-        await withPreRead();
-        await alone();
+        await folded();
+        await bare();
       }
 
       // Alternating the two keeps drift in the database from favouring either
       const withSamples: number[] = [];
       const aloneSamples: number[] = [];
       for (let i = 0; i < iterations; i++) {
-        withSamples.push(await timed(withPreRead));
-        aloneSamples.push(await timed(alone));
+        withSamples.push(await timed(folded));
+        aloneSamples.push(await timed(bare));
       }
 
-      rows.push(summarise(count, withSamples, aloneSamples));
+      rows.push(summarise(count, withSamples, aloneSamples, foldedCalls, bareCalls));
     }
 
     return rows;
