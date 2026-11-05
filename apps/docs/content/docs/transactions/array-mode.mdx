@@ -64,7 +64,7 @@ Functions can return several types of values:
 - A `CerialQueryPromise` (any model method call), which gets executed inside the transaction
 - A plain value (string, number, object), passed through as-is into the results
 - `void` / `undefined`, for side-effect-only functions
-- An async value (async functions are fully supported)
+- An async value: an `async` function, or a promise
 
 ```typescript
 const results = await client.$transaction([
@@ -87,6 +87,33 @@ const results = await client.$transaction([
   },
 ]);
 ```
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+### Queries Inside Function Items
+
+Every query a function item runs on `client.db` runs in the transaction, whatever shape the function takes: returned directly, returned from an `async` function, awaited inside the body, or started together with `Promise.all`.
+
+```typescript
+const [user, summary] = await client.$transaction([
+  client.db.User.create({ data: { email: 'a@b.c', name: 'Alice', isActive: true } }),
+  async (prev) => {
+    const user = prev[0] as User;
+    const post = await client.db.Post.create({ data: { title: 'First', authorId: user.id } });
+    const [posts, tags] = await Promise.all([
+      client.db.Post.count({ authorId: user.id }),
+      client.db.Tag.findMany(),
+    ]);
+
+    return { post, posts, tags: tags.length };
+  },
+]);
+// Alice, the post and the reads share one transaction. A throw anywhere rolls all of it back.
+```
+
+Await every query inside the function. A query that starts after the transaction has committed or rolled back is refused, see [Callback Mode](/transactions/callback-mode#queries-after-the-transaction-ends). Queries on a different client, and queries that pass their own `txn`, are not moved into this transaction.
 
 ### Result Accumulation
 

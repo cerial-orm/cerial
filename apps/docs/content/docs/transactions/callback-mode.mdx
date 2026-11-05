@@ -24,6 +24,35 @@ const user = await client.$transaction(async (tx) => {
 
 `tx` mirrors `client.db` but scopes all queries to the transaction. Access models directly: `tx.User`, `tx.Post`, etc. Every operation within the callback runs on the same transaction connection, so they're all committed or rolled back together.
 
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+## Using client.db Inside the Callback
+
+Queries on `client.db` inside the callback run in the transaction too, so helpers that take no `tx` still take part in it. `tx` remains the recommended spelling because it shows which queries are transactional.
+
+```typescript
+async function addPost(title: string, authorId: CerialId) {
+  return client.db.Post.create({ data: { title, authorId } });
+}
+
+await client.$transaction(async (tx) => {
+  const user = await tx.User.create({
+    data: { name: 'Alice', email: 'alice@example.com', isActive: true },
+  });
+
+  await addPost('Hello', user.id); // runs in the transaction
+});
+```
+
+The same holds for `client.$raw` and `client.query()` on that client. Rules to know:
+
+- Only the client that opened the transaction is routed. A second client, even one with the same connection settings, never joins it.
+- There is no way to run a query outside the transaction from inside the callback. Write it after `$transaction` returns, or use a second client.
+- `client.$transaction(...)` on the same client inside the callback is refused as a nested transaction.
+- `Promise.all` works. The queries run together with no ordering guarantee, so do not rely on one finishing before another.
+
 ## Dependent Queries
 
 Callback mode shines when later queries depend on earlier results. You can `await` each operation and pass values forward with normal variables:
@@ -45,6 +74,20 @@ const result = await client.$transaction(async (tx) => {
 ```
 
 Unlike array mode where you need function items and `prevResults` for dependent queries, callback mode lets you use standard `await` and variable references. The control flow reads like regular async code.
+
+## Queries After the Transaction Ends
+
+Await every query inside the callback. The transaction commits when the callback returns, waiting for queries that are still running, but a query that has not started by then is refused:
+
+```typescript
+await client.$transaction(async (tx) => {
+  void client.db.User.create({ data: { name: 'Late', email: 'late@example.com', isActive: true } });
+  // not awaited: the callback returns first
+});
+// User.create ran after its transaction was committed: await every query inside the $transaction callback or function item
+```
+
+A rolled back transaction reports `was cancelled` instead of `was committed`. The error is a `CerialTransactionError`. Calling `tx.User.create(...)` after the end throws `Transaction already ended`.
 
 ## Return Values
 
