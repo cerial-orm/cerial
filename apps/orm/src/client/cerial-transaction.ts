@@ -30,6 +30,10 @@ const KNOWN_PROPERTIES = new Set([
   '_raw',
   '_registryRef',
   '_ensureActive',
+  '_assertOpen',
+  '_track',
+  '_close',
+  '_end',
   '$raw',
   '$live',
 ]);
@@ -37,6 +41,9 @@ const KNOWN_PROPERTIES = new Set([
 export class CerialTransaction {
   private _state: TransactionState = 'active';
   private readonly _modelCache = new Map<string, unknown>();
+  /** Queries bound to this transaction that have not settled; commit and cancel wait for them. */
+  private readonly _inflight = new Set<Promise<unknown>>();
+  private _ending = false;
 
   constructor(
     private readonly _txn: SurrealTransaction,
@@ -49,34 +56,27 @@ export class CerialTransaction {
   }
 
   async commit(): Promise<void> {
-    this._ensureActive();
+    this._ensureOpenForEnding();
     try {
-      await this._txn.commit();
+      await this._close('commit');
     } catch (error) {
-      // A commit that threw leaves nothing live on the server, so the handle must not look usable.
-      this._state = 'cancelled';
       throw wrapDatabaseError(error, undefined, 'commit');
     }
-    this._state = 'committed';
   }
 
   async cancel(): Promise<void> {
-    this._ensureActive();
+    this._ensureOpenForEnding();
     try {
-      await this._txn.cancel();
+      await this._close('cancel');
     } catch (error) {
-      // A cancel that threw leaves nothing live on the server, so the handle must not look usable.
-      this._state = 'cancelled';
       throw wrapDatabaseError(error, undefined, 'cancel');
     }
-    this._state = 'cancelled';
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
-    if (this._state === 'active') {
+    if (this._state === 'active' && !this._ending) {
       try {
-        await this._txn.cancel();
-        this._state = 'cancelled';
+        await this._close('cancel');
       } catch {
         // Ignore — transaction may already be ended
       }
@@ -102,12 +102,15 @@ export class CerialTransaction {
 
     return new CerialQueryPromise<T[]>(
       async () => {
-        this._ensureActive();
-        try {
-          return await executeRawStatement<T>(dbLike, compiled);
-        } catch (error) {
-          throw wrapDatabaseError(error, undefined, '$raw', this._includeStatementInErrors ? compiled : undefined);
-        }
+        this._assertOpen('$raw');
+
+        return this._track(async () => {
+          try {
+            return await executeRawStatement<T>(dbLike, compiled);
+          } catch (error) {
+            throw wrapDatabaseError(error, undefined, '$raw', this._includeStatementInErrors ? compiled : undefined);
+          }
+        });
       },
       compiled,
       undefined,
@@ -139,6 +142,63 @@ export class CerialTransaction {
     }
   }
 
+  /** Commit and cancel are one-shot: a second call, even while the first waits for queries, is refused. */
+  private _ensureOpenForEnding(): void {
+    this._ensureActive();
+    if (this._ending) throw new CerialTransactionError('Transaction already ended');
+    this._ending = true;
+  }
+
+  /**
+   * Refuse a query that starts after the transaction ended, before anything is sent. Without this the
+   * server would run it outside the transaction it was written inside, or fail it with a transport error.
+   * @internal
+   */
+  _assertOpen(operation: string, model?: string): void {
+    if (this._state === 'active') return;
+    const call = model ? `${model}.${operation}` : operation;
+
+    throw new CerialTransactionError(
+      `${call} ran after its transaction was ${this._state}: await every query inside the $transaction callback or function item`,
+      { operation, model },
+    );
+  }
+
+  /** Register a query bound to this transaction so commit and cancel wait for it. @internal */
+  _track<R>(call: () => PromiseLike<R>): Promise<R> {
+    const promise = Promise.resolve(call());
+    this._inflight.add(promise);
+    const settled = (): void => {
+      this._inflight.delete(promise);
+    };
+    promise.then(settled, settled);
+
+    return promise;
+  }
+
+  /** @internal */
+  _end(state: Exclude<TransactionState, 'active'>): void {
+    this._state = state;
+  }
+
+  /**
+   * Wait for every bound query, mark the transaction ended, then send commit or cancel. The state flips
+   * before the round trip so nothing can start on the transaction while it is ending: a commit that
+   * overlaps a multi-statement query keeps that query's earlier writes. Throws the driver's own error,
+   * which retry detection reads. @internal
+   */
+  async _close(kind: 'commit' | 'cancel'): Promise<void> {
+    while (this._inflight.size) await Promise.allSettled([...this._inflight]);
+    this._end(kind === 'commit' ? 'committed' : 'cancelled');
+    try {
+      await (kind === 'commit' ? this._txn.commit() : this._txn.cancel());
+    } catch (error) {
+      // A commit or cancel that threw leaves nothing live on the server, so the handle must not look usable.
+      this._end('cancelled');
+      throw error;
+    }
+  }
+
   /** @internal */
   _getModel(name: string): unknown {
     let wrapped = this._modelCache.get(name);
@@ -154,6 +214,7 @@ export class CerialTransaction {
     const dbLike = this._txn as unknown as Surreal;
     const model = new Model(dbLike, metadata, this._registry, {
       includeStatementInErrors: this._includeStatementInErrors,
+      transaction: this,
     });
 
     wrapped = createTransactionModelProxy(model, () => this._ensureActive());

@@ -22,6 +22,8 @@ export interface ProxyOptions {
   includeStatementInErrors?: boolean;
   /** Registers a live handle with its connection so a deliberate `disconnect()` ends it. Set by the connection manager. */
   trackLive?: ModelOptions['trackLive'];
+  /** Identifies the owning client for transaction routing. Set by the connection manager. */
+  routeOwner?: object;
 }
 
 /** Stands in for the options of a client built without any, so those clients still share instances */
@@ -98,11 +100,13 @@ function buildModelOptions(modelName: string, options?: ProxyOptions): ModelOpti
 
   const allCallbacks = [...globalCallbacks, ...perModelCallbacks];
 
-  if (allCallbacks.length === 0 && !options?.includeStatementInErrors && !options?.trackLive) return undefined;
+  if (allCallbacks.length === 0 && !options?.includeStatementInErrors && !options?.trackLive && !options?.routeOwner)
+    return undefined;
   return {
     onBeforeQuery: allCallbacks,
     includeStatementInErrors: options?.includeStatementInErrors,
     trackLive: options?.trackLive,
+    routeOwner: options?.routeOwner,
   };
 }
 

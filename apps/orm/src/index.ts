@@ -179,6 +179,9 @@ export {
   validateBeginOptions,
   Model,
   resetConnectionPool,
+  refuseNestedTransaction,
+  runInTransactionScope,
+  runRouted,
 } from './client';
 // Internal: what a generated client calls to bring models to their generated shape on first use. Not a public API.
 // Imported from the files, not the migrations barrel: that barrel reaches the generators, and with them the formatter.

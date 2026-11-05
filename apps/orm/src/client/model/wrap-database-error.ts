@@ -35,6 +35,13 @@ const UNIQUE_VIOLATION = /^Database index `([^`]+)` already contains ([\s\S]+), 
  */
 const READ_ONLY_WRITE = /(?:on|to) a read only transaction/;
 
+/**
+ * What the server says to a query sent on a transaction that already ended: "Transaction not found"
+ * (`Validation`) after commit or cancel, "Couldn't update a finished transaction" (`Query`) when the end
+ * overtook a running query. Neither carries a structured field.
+ */
+const ENDED_TRANSACTION = /Transaction not found|Couldn't update a finished transaction/;
+
 /** What the driver throws when the socket is gone, being re-opened, or never opened. */
 const CONNECTION_LOSS = [
   CallTerminatedError,
@@ -91,6 +98,10 @@ export function wrapDatabaseError(
 
   if (READ_ONLY_WRITE.test(error.message)) {
     return new CerialTransactionError(`${call} failed, the transaction is read-only: ${error.message}`, context);
+  }
+
+  if (ENDED_TRANSACTION.test(error.message)) {
+    return new CerialTransactionError(`${call} failed, its transaction had already ended: ${error.message}`, context);
   }
 
   const unique = error instanceof InternalError ? UNIQUE_VIOLATION.exec(error.message) : null;

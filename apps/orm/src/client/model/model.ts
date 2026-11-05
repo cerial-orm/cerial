@@ -50,6 +50,7 @@ import type {
 } from '../../types';
 import type { CerialTransaction } from '../cerial-transaction';
 import { type CerialLiveHandle, createModelLive, type EndableLive, type ModelLiveOptions } from '../live';
+import { resolveRouted } from '../transaction-context';
 import { wrapDatabaseError } from './wrap-database-error';
 
 /** Extended find unique options with include support */
@@ -71,6 +72,10 @@ export interface ModelOptions {
   includeStatementInErrors?: boolean;
   /** Registers a live handle with its connection so a deliberate `disconnect()` ends it */
   trackLive?: (handle: EndableLive) => () => void;
+  /** The transaction this model belongs to: its queries are tracked so commit and cancel wait for them */
+  transaction?: CerialTransaction;
+  /** Identifies the owning client for transaction routing; defaults to the connection itself */
+  routeOwner?: object;
 }
 
 /** Model class that wraps query builder methods */
@@ -78,6 +83,8 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   private onBeforeQueryCallbacks: BeforeQueryCallback[] = [];
   private readonly includeStatement: boolean;
   private readonly trackLive: ModelOptions['trackLive'];
+  private readonly transaction: CerialTransaction | undefined;
+  private readonly routeOwner: object;
 
   constructor(
     private db: Surreal,
@@ -87,6 +94,8 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   ) {
     this.includeStatement = options?.includeStatementInErrors ?? false;
     this.trackLive = options?.trackLive;
+    this.transaction = options?.transaction;
+    this.routeOwner = options?.routeOwner ?? db;
     // Normalize to array for consistent handling
     if (options?.onBeforeQuery) {
       this.onBeforeQueryCallbacks = Array.isArray(options.onBeforeQuery)
@@ -102,24 +111,41 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     }
   }
 
-  /** Run a builder call, wrapping a database error in the Cerial call that produced it */
-  private async run<R>(operation: string, compiled: CompiledQuery, call: () => Promise<R>): Promise<R> {
-    try {
-      return await call();
-    } catch (error) {
-      throw wrapDatabaseError(error, this.metadata.name, operation, this.includeStatement ? compiled : undefined);
-    }
+  /**
+   * Run a builder call, wrapping a database error in the Cerial call that produced it. A query bound to a
+   * transaction is tracked, so commit and cancel wait for it.
+   */
+  private run<R>(
+    operation: string,
+    compiled: CompiledQuery,
+    bound: CerialTransaction | undefined,
+    call: () => Promise<R>,
+  ): Promise<R> {
+    const execute = async (): Promise<R> => {
+      try {
+        return await call();
+      } catch (error) {
+        throw wrapDatabaseError(error, this.metadata.name, operation, this.includeStatement ? compiled : undefined);
+      }
+    };
+
+    return bound ? bound._track(execute) : execute();
   }
 
-  /** Resolve the db connection, routing through txn if provided */
-  private resolveDb(txn?: CerialTransaction): Surreal {
-    if (txn) {
-      txn._ensureActive();
+  /**
+   * Resolve the connection. An explicit txn wins; otherwise a query made inside a function item or callback
+   * of a transaction opened on this model's own connection runs on that transaction. `bound` is the
+   * transaction the query belongs to, if any.
+   */
+  private resolveDb(
+    operation: string,
+    explicit?: CerialTransaction,
+  ): { db: Surreal; bound: CerialTransaction | undefined } {
+    const bound = explicit ?? this.transaction ?? resolveRouted(this.routeOwner);
+    if (!bound) return { db: this.db, bound };
+    bound._assertOpen(operation, this.metadata.name);
 
-      return txn._raw as unknown as Surreal;
-    }
-
-    return this.db;
+    return { db: bound._raw as unknown as Surreal, bound };
   }
 
   /** Get model metadata */
@@ -149,8 +175,8 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<R[]>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(options.txn);
-        const rows = await this.run('$raw', compiled, () => executeRawStatement<R>(db, compiled));
+        const { db, bound } = this.resolveDb('$raw', options.txn);
+        const rows = await this.run('$raw', compiled, bound, () => executeRawStatement<R>(db, compiled));
 
         return mapRawResult<R>(rows, this.metadata);
       },
@@ -189,9 +215,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<T | null>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('findOne', txn);
 
-        return this.run('findOne', compiled.query, () =>
+        return this.run('findOne', compiled.query, bound, () =>
           QueryBuilderStatic.findOne<T>(db, this.metadata, queryOptions, this.registry),
         );
       },
@@ -213,9 +239,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<T | null>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('findUnique', txn);
 
-        return this.run('findUnique', compiled.query, () =>
+        return this.run('findUnique', compiled.query, bound, () =>
           QueryBuilderStatic.findUnique<T>(db, this.metadata, queryOptions, this.registry),
         );
       },
@@ -237,9 +263,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<T[]>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('findMany', txn);
 
-        return this.run('findMany', compiled.query, () =>
+        return this.run('findMany', compiled.query, bound, () =>
           QueryBuilderStatic.findMany<T>(db, this.metadata, queryOptions, this.registry),
         );
       },
@@ -268,9 +294,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<T | null>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('create', txn);
 
-        return this.run('create', compiled.query, () =>
+        return this.run('create', compiled.query, bound, () =>
           QueryBuilderStatic.create<T>(db, this.metadata, queryOptions, this.registry),
         );
       },
@@ -301,9 +327,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<T[]>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('updateMany', txn);
 
-        return this.run('updateMany', compiled.query, () =>
+        return this.run('updateMany', compiled.query, bound, () =>
           QueryBuilderStatic.updateMany<T>(db, this.metadata, queryOptions, this.registry),
         );
       },
@@ -356,9 +382,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<UpdateUniqueResult<T, R>>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('updateUnique', txn);
 
-        return this.run('updateUnique', compiled.query, () =>
+        return this.run('updateUnique', compiled.query, bound, () =>
           QueryBuilderStatic.updateUnique<T, R>(db, this.metadata, queryOptions, this.registry),
         );
       },
@@ -380,9 +406,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<number>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('deleteMany', txn);
 
-        return this.run('deleteMany', compiled.query, () =>
+        return this.run('deleteMany', compiled.query, bound, () =>
           QueryBuilderStatic.deleteMany(db, this.metadata, queryOptions, this.registry),
         );
       },
@@ -414,9 +440,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<DeleteUniqueResult<T, R>>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('deleteUnique', txn);
 
-        return this.run('deleteUnique', compiled.query, () =>
+        return this.run('deleteUnique', compiled.query, bound, () =>
           QueryBuilderStatic.deleteUnique<T, R>(db, this.metadata, queryOptions, this.registry),
         );
       },
@@ -436,9 +462,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<number>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('count', txn);
 
-        return this.run('count', compiled.query, () =>
+        return this.run('count', compiled.query, bound, () =>
           QueryBuilderStatic.count(db, this.metadata, where, this.registry),
         );
       },
@@ -462,9 +488,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<Record<string, unknown>[]>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('groupBy', txn);
 
-        return this.run('groupBy', compiled.query, () =>
+        return this.run('groupBy', compiled.query, bound, () =>
           QueryBuilderStatic.groupBy(db, this.metadata, args, this.registry),
         );
       },
@@ -484,9 +510,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<boolean>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('exists', txn);
 
-        return this.run('exists', compiled.query, () =>
+        return this.run('exists', compiled.query, bound, () =>
           QueryBuilderStatic.exists(db, this.metadata, where, this.registry),
         );
       },
@@ -540,10 +566,10 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<UpsertReturnType<T, R> | UpsertArrayReturnType<T, R>>(
       async () => {
         await this.beforeQuery(modelNames);
-        const db = this.resolveDb(txn);
+        const { db, bound } = this.resolveDb('upsert', txn);
 
         // The builder returns unknown because the shape depends on the where clause
-        const result = await this.run('upsert', compiled.query, () =>
+        const result = await this.run('upsert', compiled.query, bound, () =>
           QueryBuilderStatic.upsert<T, R>(db, this.metadata, queryOptions, this.registry),
         );
 

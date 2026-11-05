@@ -4,7 +4,9 @@
 
 import { BoundQuery, isRetryableConflict, type Surreal, SurrealTransaction } from 'surrealdb';
 import type { ModelMetadata, ModelRegistry, SelectClause, TransactionOptions } from '../types';
+import { CerialTransaction } from '../client/cerial-transaction';
 import { beginTransaction } from '../client/transaction-begin';
+import { runInTransactionScope } from '../client/transaction-context';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import { CerialValidationError } from '../errors';
 import type { CompiledQuery, TargetCheckMap } from './compile/types';
@@ -449,10 +451,9 @@ async function executeMultiStatementInTransaction(
  * create, cascade delete) are sent as a single query string to preserve
  * LET variable scope across statements.
  *
- * Supports function items that receive previous results and can return
- * a CerialQueryPromise (executed in the transaction) or a plain value. The query must be
- * returned synchronously: an `async` function that returns a query resolves it through its own
- * promise, which runs it on the default connection, outside the transaction.
+ * Supports function items that receive previous results and can return a CerialQueryPromise or a
+ * plain value. Each runs, and is awaited, inside a transaction scope, so a query made through the
+ * client in a sync, async or Promise.all item runs in the transaction.
  *
  * Retries on transaction conflict if options.retries > 0 (default: 0 — no retry).
  * Each retry begins a FRESH transaction.
@@ -461,6 +462,7 @@ export async function executeClientTransaction(
   db: Surreal,
   items: TransactionExecutionItem[],
   options: TransactionOptions = {},
+  owner: object = db,
 ): Promise<unknown[]> {
   if (!items.length) return [];
 
@@ -473,6 +475,8 @@ export async function executeClientTransaction(
       const txn = await beginTransaction(db, options);
       // SurrealTransaction extends SurrealQueryable — cast to Surreal for query() access
       const txnDb = txn as unknown as Surreal;
+      // Routing and the drain only use the handle's state and raw transaction, never its registry
+      const scoped = new CerialTransaction(txn, {});
 
       try {
         const results: unknown[] = [];
@@ -486,10 +490,13 @@ export async function executeClientTransaction(
             const result = await executeItemInTransaction(txnDb, item, prefixed);
             results.push(result);
           } else if (typeof item === 'function') {
-            // Not awaited first: a CerialQueryPromise is lazy, and awaiting it would run it on the default connection
-            const fnResult = item(results);
+            // The item runs and is awaited inside the scope: a query awaited outside it is not routed.
+            const result = await runInTransactionScope({ owner, txn: scoped }, async () => {
+              // Not awaited first: a CerialQueryPromise is lazy, and awaiting it would run it on the default connection
+              const fnResult = item(results);
 
-            if (CerialQueryPromise.isCerialQueryPromise(fnResult)) {
+              if (!CerialQueryPromise.isCerialQueryPromise(fnResult)) return fnResult;
+
               const txItem: TransactionItem = {
                 compiledQuery: fnResult.compiledQuery,
                 metadata: fnResult.metadata,
@@ -497,22 +504,21 @@ export async function executeClientTransaction(
                 registry: fnResult.registry,
                 select: fnResult.select,
               };
-              const prefix = `tx${i}_`;
-              const prefixed = prefixQueryVars(txItem.compiledQuery, prefix);
-              const result = await executeItemInTransaction(txnDb, txItem, prefixed);
-              results.push(result);
-            } else {
-              results.push(await fnResult);
-            }
+              const prefixed = prefixQueryVars(txItem.compiledQuery, `tx${i}_`);
+
+              return executeItemInTransaction(txnDb, txItem, prefixed);
+            });
+            results.push(result);
           }
         }
 
-        await txn.commit();
+        await scoped._close('commit');
 
         return results;
       } catch (innerError) {
         try {
-          await txn.cancel();
+          // Waits for queries a failed item left running, so cancel never overlaps them
+          await scoped._close('cancel');
         } catch {
           // Ignore cancel errors — transaction may already be aborted by SurrealDB
         }

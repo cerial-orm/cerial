@@ -12,7 +12,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, beginTransaction, validateBeginOptions, applyUnmatched, verifySchema, warnAutoChange, warnAutoInProduction, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionBeginOptions, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, beginTransaction, validateBeginOptions, applyUnmatched, verifySchema, warnAutoChange, warnAutoInProduction, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, refuseNestedTransaction, runInTransactionScope, runRouted, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionBeginOptions, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { manifest } from './internal/manifest';
@@ -517,7 +517,7 @@ ${generateResolveConnection(connectConfigName, databasePins)}
     await this.ensureMigrated();
     const surreal = this.connectionManager.getQuerySurreal();
     if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: 'query' });
-    const result = await surreal.query<T[]>(query, vars);
+    const result = await runRouted(this.connectionManager.getRouteOwner() ?? surreal, surreal, 'query', db => db.query<T[]>(query, vars));
     return result.flat() as T[];
   }
 
@@ -537,6 +537,7 @@ ${generateResolveConnection(connectConfigName, databasePins)}
         return surreal;
       },
       this._includeStatementInErrors,
+      () => this.connectionManager.getRouteOwner(),
     );
   }
 
@@ -625,6 +626,8 @@ ${_generateTransactionOverloads()}
      options?: TransactionOptions,
    ): Promise<unknown> {
     if (!this._db) throw new CerialNotConnectedError('Not connected. Call connect() first.', { operation: '$transaction' });
+    // A transaction opened from inside a function item or callback would be a second one on the same connection
+    refuseNestedTransaction(this.connectionManager.getRouteOwner());
 
     // Manual mode: no argument, or a plain object of begin options
     if (arg === undefined || (typeof arg === 'object' && arg !== null && !Array.isArray(arg))) {
@@ -652,30 +655,36 @@ ${_generateTransactionOverloads()}
         try {
           const sdkTxn = await beginTransaction(surreal, options);
           const tx = createCerialTransactionProxy(sdkTxn, modelRegistry, this._includeStatementInErrors);
+          // Unbound queries on this client made inside the callback run in this attempt's transaction
+          const scope = { owner: this.connectionManager.getRouteOwner() ?? surreal, txn: tx };
 
           let timeoutId: ReturnType<typeof setTimeout> | undefined;
+          let timedOut = false;
           try {
             let result: unknown;
             if (options?.timeout) {
               const timeoutMs = options.timeout;
               result = await Promise.race([
-                Promise.resolve(arg(tx)),
+                runInTransactionScope(scope, () => Promise.resolve(arg(tx))),
                 new Promise<never>((_, reject) => {
-                  timeoutId = setTimeout(
-                    () => reject(new CerialTransactionError('Transaction timeout', { operation: '$transaction' })),
-                    timeoutMs,
-                  );
+                  timeoutId = setTimeout(() => {
+                    // Stop waiting: later queries are refused and the cancel below does not wait for running ones
+                    timedOut = true;
+                    tx._end('cancelled');
+                    reject(new CerialTransactionError('Transaction timeout', { operation: '$transaction' }));
+                  }, timeoutMs);
                 }),
               ]);
             } else {
-              result = await Promise.resolve(arg(tx));
+              result = await runInTransactionScope(scope, () => Promise.resolve(arg(tx)));
             }
-            await sdkTxn.commit();
+            await tx._close('commit');
 
             return result;
           } catch (error) {
             try {
-              await sdkTxn.cancel();
+              // Waits for queries the callback left running, so cancel never overlaps them
+              await (timedOut ? sdkTxn.cancel() : tx._close('cancel'));
             } catch {
               // Ignore cancel errors — transaction may already be aborted
             }
@@ -739,7 +748,7 @@ ${_generateTransactionOverloads()}
 
     // Execute the transaction
     // Wrapped here, after the retry loop, so conflict detection still sees the raw driver error
-    const results = await executeClientTransaction(surreal, items, options).catch((error: unknown) => {
+    const results = await executeClientTransaction(surreal, items, options, this.connectionManager.getRouteOwner()).catch((error: unknown) => {
       throw wrapDatabaseError(error, undefined, '$transaction');
     });
 

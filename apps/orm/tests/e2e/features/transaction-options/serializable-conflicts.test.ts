@@ -6,6 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { Surreal } from 'surrealdb';
 import { type CerialId, isTransactionConflict, type TransactionOptions } from 'cerial';
 import {
   cleanupTables,
@@ -21,16 +22,33 @@ describe('E2E Transaction options: isolation under contention', () => {
   let client: CerialClient;
   let first: CerialId<string>;
   let second: CerialId<string>;
+  /**
+   * A separate connection standing for another process. A client query made inside a callback or function
+   * item runs in that transaction, so interference from outside it has to come from a different connection
+   * (a second Cerial client with the same config would share this client's pooled socket).
+   */
+  let outside: Surreal;
 
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.basics);
+    outside = new Surreal();
+    await outside.connect('ws://127.0.0.1:8000/rpc', {
+      namespace: testConfig.namespace,
+      database: testConfig.database,
+      authentication: testConfig.auth,
+    });
   });
 
   afterAll(async () => {
+    await outside.close();
     await client.disconnect();
   });
+
+  const rename = async (id: CerialId<string>, name: string): Promise<void> => {
+    await outside.query('UPDATE type::record($id) SET name = $name', { id: String(id), name }).collect();
+  };
 
   beforeEach(async () => {
     await truncateTables(client, tables.basics);
@@ -229,7 +247,7 @@ describe('E2E Transaction options: isolation under contention', () => {
     /** Changes the row the transaction read, once per attempt, so a SERIALIZABLE commit always conflicts. */
     const interfere = (counter: { attempts: number }) => async () => {
       counter.attempts += 1;
-      await client.db.BasicsUser.updateMany({ where: { id: first }, data: { name: `bumped-${counter.attempts}` } });
+      await rename(first, `bumped-${counter.attempts}`);
     };
 
     test('negative: serializable + retries 2 + interference every attempt runs 3 attempts and rejects with a conflict', async () => {
@@ -315,7 +333,7 @@ describe('E2E Transaction options: isolation under contention', () => {
         async (tx) => {
           counter.attempts += 1;
           await tx.BasicsUser.findOne({ where: { id: second } });
-          await client.db.BasicsUser.updateMany({ where: { id: first }, data: { name: 'elsewhere' } });
+          await rename(first, 'elsewhere');
           await tx.BasicsUser.updateMany({ where: { id: second }, data: { name: 'written' } });
         },
         { isolation: 'serializable', retries: 2, backoff: () => 1 },
@@ -335,7 +353,7 @@ describe('E2E Transaction options: isolation under contention', () => {
           async (tx) => {
             attempts += 1;
             await tx.BasicsUser.findMany();
-            await client.db.BasicsUser.updateMany({ where: { id: first }, data: { name: `moved-${isolation}` } });
+            await rename(first, `moved-${isolation}`);
 
             return tx.BasicsUser.count();
           },
@@ -354,7 +372,7 @@ describe('E2E Transaction options: isolation under contention', () => {
           [
             client.db.BasicsUser.findOne({ where: { id: first } }),
             async () => {
-              await client.db.BasicsUser.updateMany({ where: { id: first }, data: { name: 'moved' } });
+              await rename(first, 'moved');
 
               return 1;
             },

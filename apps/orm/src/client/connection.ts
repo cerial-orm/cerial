@@ -242,6 +242,8 @@ interface ConnectionInstance<R extends ModelRegistry = ModelRegistry> {
   isConnected: boolean;
   proxy: DatabaseProxy<R>;
   httpClosed: boolean;
+  /** Identifies this client's scope for transaction routing; the pooled socket is shared between clients */
+  routeOwner: object;
 }
 
 /** Connection manager options */
@@ -311,8 +313,10 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
       proxySurreal = wsSurreal;
     }
 
+    const routeOwner = {};
     const proxy = createModelProxy<R>(proxySurreal, this.registry, {
       ...this.proxyOptions,
+      routeOwner,
       trackLive: (handle) => this.trackLive(handle, name),
     });
 
@@ -324,6 +328,7 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
       isConnected: true,
       proxy,
       httpClosed: false,
+      routeOwner,
     });
 
     return proxy;
@@ -409,6 +414,11 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
   /** The socket raw queries run on. Same instance as the model proxy and `getDdlSurreal()`. */
   getQuerySurreal(name: string = DEFAULT_CONNECTION_NAME): Surreal | undefined {
     return this.getProxySurreal(name);
+  }
+
+  /** The token transaction routing compares: one per client, where the socket may be shared between clients. */
+  getRouteOwner(name: string = DEFAULT_CONNECTION_NAME): object | undefined {
+    return this.connections.get(name)?.routeOwner;
   }
 
   /** The WS socket for transactions: the derived WS socket in HTTP mode, the single socket in WS mode. */
