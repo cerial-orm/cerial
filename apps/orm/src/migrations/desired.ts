@@ -8,7 +8,7 @@ import {
   generateTypeClause,
   generateValueClause,
   mapToSurrealType,
-} from '../generators/migrations';
+} from '../generators/migrations/type-mapper';
 import type {
   FieldMetadata,
   LiteralRegistry,

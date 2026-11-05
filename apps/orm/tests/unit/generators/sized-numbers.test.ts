@@ -21,7 +21,8 @@ import { generateOrderByType } from '../../../src/generators/types/derived-gener
 import { generateInputInterface, generateInterface } from '../../../src/generators/types/interface-generator';
 import { generateObjectInterface } from '../../../src/generators/types/objects/interface-generator';
 import { generateTupleOutputType } from '../../../src/generators/types/tuples/interface-generator';
-import { generateObjectWhereInterface, generateWhereInterface } from '../../../src/generators/types/where-generator';
+import { generateObjectWhereInterface } from '../../../src/generators/types/objects/where-generator';
+import { generateWhereInterface } from '../../../src/generators/types/where-generator';
 import type { SchemaFieldType } from '../../../src/types';
 import { schemaTypeToSurrealType, schemaTypeToTsInputType, schemaTypeToTsType } from '../../../src/utils/type-utils';
 import { elem, field, model, obj, ti, tuple } from './helpers';

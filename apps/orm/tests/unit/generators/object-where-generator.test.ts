@@ -9,8 +9,8 @@ import {
   collectAbsentObjects,
   generateObjectWhereInterface,
   generateObjectWhereTypes,
-  generateWhereInterface,
-} from '../../../src/generators/types/where-generator';
+} from '../../../src/generators/types/objects/where-generator';
+import { generateWhereInterface } from '../../../src/generators/types/where-generator';
 import type { ObjectRegistry } from '../../../src/types';
 import { field, model, obj } from './helpers';
 

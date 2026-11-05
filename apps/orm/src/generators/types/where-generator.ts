@@ -451,10 +451,3 @@ export function generateWhereTypes(models: ModelMetadata[], registry?: ModelRegi
 
   return parts.join('\n\n');
 }
-
-// Object where type generation has been moved to ./objects/where-generator.ts
-export {
-  collectAbsentObjects,
-  generateObjectWhereInterface,
-  generateObjectWhereTypes,
-} from './objects/where-generator';

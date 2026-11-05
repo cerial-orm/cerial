@@ -96,9 +96,11 @@ export {
 } from './tuples';
 export {
   collectAbsentObjects,
-  generateFieldWhereType,
   generateObjectWhereInterface,
   generateObjectWhereTypes,
+} from './objects/where-generator';
+export {
+  generateFieldWhereType,
   generateWhereInputInterface,
   generateWhereInterface,
   generateWhereTypes,
