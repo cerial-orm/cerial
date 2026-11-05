@@ -532,9 +532,12 @@ development branch and is not available on npm.
   input with a raw database error. Both now throw a `CerialValidationError`
   (`C3000`) naming the model, the field and the missing id, before anything is
   written, and the call changes nothing, including its other fields. `disconnect`
-  of an id that is not linked is unchanged: it does nothing. Inside
-  `$transaction([...])` the update half still throws the database's own error
-  rather than a `CerialValidationError`, and the transaction rolls back either way.
+  of an id that is not linked is unchanged: it does nothing. The same check runs
+  inside `$transaction`. In array mode a missing target throws a
+  `CerialValidationError` instead of the database's own error, and so does a target
+  deleted between the check and the write. In callback and manual mode a missing
+  target throws a `CerialValidationError` you can catch, and the transaction carries
+  on with its other writes.
 
 - The 0.1.0 release notes listed the geometry collection decorator as
   `@collection`. The decorator is `@geoCollection`; `@collection` has never been

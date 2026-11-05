@@ -245,6 +245,8 @@ await client.db.User.create({
 await txn2.commit();
 ```
 
+A `connect` or `set` that names a missing record throws a `CerialValidationError` and leaves `txn` usable, so you can catch it and still `commit()` the other writes. A write that fails after it has written part of its change, such as a unique clash, makes `commit()` throw and keeps nothing.
+
 ## Select
 
 Use `select` to narrow returned fields. The return type adjusts automatically, just like outside transactions:

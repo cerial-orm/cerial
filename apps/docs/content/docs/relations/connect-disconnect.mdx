@@ -220,20 +220,28 @@ See [Nested Create](/relations/nested-create/) for more on combining `create` wi
 
 ## Validation
 
-Connect validates that the target record exists before linking. If the target doesn't exist, the operation throws an error and the entire transaction is rolled back:
+Connect checks that every target record exists before anything is written. If one is missing, the call throws a `CerialValidationError` and changes nothing, including the other fields in the same call:
 
 ```typescript
-// This will throw if the user doesn't exist
-const post = await client.db.Post.create({
-  data: {
-    title: 'My Post',
-    author: { connect: 'nonexistent-id' },
-  },
-});
-// Error: Cannot connect to non-existent User record
+import { CerialValidationError } from 'cerial';
+
+try {
+  await client.db.Post.create({
+    data: {
+      title: 'My Post',
+      author: { connect: 'nonexistent-id' },
+    },
+  });
+} catch (error) {
+  if (error instanceof CerialValidationError) {
+    console.log(error.message);
+    // Field "author" on model "Post": cannot connect User record "nonexistent-id" because it does not exist
+    console.log(error.model, error.field, error.operation); // 'Post' 'author' 'create'
+  }
+}
 ```
 
-This validation runs inside the transaction, so a failed connect never leaves your data in an inconsistent state.
+`set` is checked the same way and reports `cannot set`. With several ids, the message names the first missing one. The same error is thrown inside `$transaction`, in every mode. See [Transactions](/transactions) for what a caught error does to the rest of the transaction.
 
 ## Transactions
 

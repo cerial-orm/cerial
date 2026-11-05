@@ -207,6 +207,8 @@ const user = await client.$transaction(async (tx) => {
 // User and both posts created atomically
 ```
 
+A `connect` or `set` that names a missing record throws a `CerialValidationError`. Catch it inside the callback and the transaction carries on. A write that fails after it has written part of its change, such as a unique clash, cannot be caught and committed: the transaction fails when it commits and keeps nothing.
+
 ## Select
 
 Use `select` to narrow which fields come back. The return type adjusts automatically:

@@ -259,6 +259,8 @@ const [student] = await client.$transaction([
 // Student created with courses connected — bidirectional sync included
 ```
 
+If a `connect` or `set` names a record that does not exist, the transaction throws a `CerialValidationError` naming the model, field and id, and nothing is written.
+
 ### Disconnect
 
 ```typescript
