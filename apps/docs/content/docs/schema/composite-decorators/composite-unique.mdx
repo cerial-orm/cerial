@@ -171,6 +171,46 @@ If at least one field has a concrete value, the combination is enforced as uniqu
 
 This matches the single-field behavior — see [@unique — Null Behavior](/schema/decorators/indexes/unique#null-behavior-on-optional-fields).
 
+## Unique Nulls
+
+By default a composite never compares `null` columns, so `(null, 'val')` can repeat. Add `nullsNotDistinct` as a third argument to treat `null` as a value:
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+```cerial
+model Slot {
+  id Record @id
+  tenantId Record? @nullable
+  slug String? @nullable
+
+  @@unique(tenantSlug, [tenantId, slug], nullsNotDistinct)
+}
+```
+
+| Values | Allowed twice? |
+| --- | --- |
+| `(null, null)` | No |
+| `('t1', null)` | No |
+| `(null, 'val')` | No |
+| `('t1', 'val')` | No |
+| Any column absent (`NONE`) | Yes |
+
+A tuple with an absent column is still not compared, even when another column holds a value.
+
+In the TypeScript schema builder, set `nullsNotDistinct` on the model's `unique` option:
+
+```typescript
+{ unique: { name: 'tenantSlug', fields: ['tenantId', 'slug'], nullsNotDistinct: true } }
+```
+
+Restrictions:
+
+- At least one listed field must be able to hold `null` (`@nullable` or type `Any`). Otherwise `cerial generate` refuses it.
+- It applies to `@@unique` only. `@@index` refuses it.
+- Adding the option to an existing composite is a migration that fails if stored rows already repeat a tuple containing `null`. Clean the data first.
+
 ## Rules
 
 - Requires **at least 2 fields**.

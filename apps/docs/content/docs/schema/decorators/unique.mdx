@@ -91,6 +91,52 @@ await client.db.Profile.create({ data: { nickname: 'ace' } }); // Error: duplica
 
 For composite uniqueness constraints with optional fields, see `@@unique`.
 
+## Unique Nulls
+
+By default `null` is not compared, so any number of records can hold `null`. Pass `nullsNotDistinct` to treat `null` as a value: at most one record can hold it.
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  nickname String? @nullable @unique(nullsNotDistinct)
+}
+```
+
+```typescript
+await client.db.User.create({ data: { email: 'a@example.com', nickname: null } });
+
+// Rejected: a second record holding null
+await client.db.User.create({ data: { email: 'b@example.com', nickname: null } });
+```
+
+Absent (`NONE`) values are still not compared, so any number of records can omit the field. One `null` and any number of absent values can coexist.
+
+The option also works on object sub-fields:
+
+```cerial
+object Profile {
+  handle String? @nullable @unique(nullsNotDistinct)
+}
+```
+
+In the TypeScript schema builder, pass it to `unique`:
+
+```typescript
+nickname: t.string().optional().nullable().unique('nullsNotDistinct'),
+```
+
+Restrictions:
+
+- The field must be able to hold `null`: `@nullable` or type `Any`. Otherwise `cerial generate` refuses it, because the option would change nothing.
+- `@unique(nullsNotDistinct)` is the only accepted argument.
+- Adding the option to an existing unique field is a migration that fails if two records already hold `null`. Clean the data first.
+- `findUnique`, `updateUnique` and `deleteUnique` are unchanged.
+
 ## Object Fields
 
 `@unique` can be applied to fields within object definitions. Each embedding of the object in a model generates its own independent unique index using dot-notation paths:
