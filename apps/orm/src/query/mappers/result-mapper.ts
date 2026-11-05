@@ -2,7 +2,7 @@
  * Result mapper - maps query results to typed responses
  */
 
-import { Decimal, Duration, Geometry, RecordId, Uuid } from 'surrealdb';
+import { Decimal, Duration, Geometry, RecordId, SizedNumber, Uuid } from 'surrealdb';
 import type {
   ModelMetadata,
   ObjectFieldMetadata,
@@ -67,6 +67,8 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
 
     case 'number':
       if (typeof value === 'number') return value;
+      // A sized value written raw keeps its kind in a `number` field; a u64 loses precision past 2^53
+      if (value instanceof SizedNumber) return Number(value.value);
       return null;
 
     case 'bool':
@@ -107,7 +109,7 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
       return value;
 
     case 'any':
-      return value;
+      return unwrapSizedDeep(value);
 
     case 'record':
       if (isRecordId(value)) {
@@ -127,6 +129,16 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
     default:
       return value;
   }
+}
+
+/** Unwrap every SizedNumber in an `any` value, at any depth: `.value`, so a u64 is a bigint. */
+function unwrapSizedDeep(value: unknown): unknown {
+  if (value instanceof SizedNumber) return value.value;
+  if (Array.isArray(value)) return value.map(unwrapSizedDeep);
+  if (value && Object.getPrototypeOf(value) === Object.prototype)
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, unwrapSizedDeep(item)]));
+
+  return value;
 }
 
 /**
