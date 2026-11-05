@@ -4645,7 +4645,12 @@ export interface LiteralTaggedInput {
 }
 
 export interface LiteralTaggedWhere {
-  states?: { has?: Status; hasAll?: Status[]; hasAny?: Status[]; isEmpty?: boolean };
+  states?: {
+    has?: Status;
+    hasAll?: Status[];
+    hasAny?: Status[];
+    isEmpty?: boolean;
+  };
   label?:
     | string
     | ({

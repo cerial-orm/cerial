@@ -48,6 +48,7 @@ export type * from './flexmeta';
 export type * from './flexprofile';
 export type * from './readonlyaddress';
 export type * from './readonlymeta';
+export type * from './setbag';
 export type * from './timestampinfo';
 export type * from './extenuminfo';
 export type * from './extliteralinfo';

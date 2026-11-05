@@ -16,4 +16,4 @@ export {
   objectHasDefaultOrTimestamp,
   objectHasRecordFields,
 } from './interface-generator';
-export { generateObjectWhereInterface, generateObjectWhereTypes } from './where-generator';
+export { collectAbsentObjects, generateObjectWhereInterface, generateObjectWhereTypes } from './where-generator';

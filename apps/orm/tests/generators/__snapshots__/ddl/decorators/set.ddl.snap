@@ -9,3 +9,13 @@ DEFINE FIELD OVERWRITE uuids ON TABLE set_basic TYPE set<uuid>;
 DEFINE TABLE OVERWRITE set_decimal SCHEMAFULL;
 DEFINE FIELD OVERWRITE name ON TABLE set_decimal TYPE string;
 DEFINE FIELD OVERWRITE prices ON TABLE set_decimal TYPE set<decimal>;
+
+-- SetNested
+DEFINE TABLE OVERWRITE set_nested SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE set_nested TYPE string;
+DEFINE FIELD OVERWRITE bag ON TABLE set_nested TYPE option<object>;
+DEFINE FIELD OVERWRITE bag.tags ON TABLE set_nested TYPE array<string>;
+DEFINE FIELD OVERWRITE bag.nums ON TABLE set_nested TYPE array<int>;
+DEFINE FIELD OVERWRITE strictBag ON TABLE set_nested TYPE object;
+DEFINE FIELD OVERWRITE strictBag.tags ON TABLE set_nested TYPE array<string>;
+DEFINE FIELD OVERWRITE strictBag.nums ON TABLE set_nested TYPE array<int>;

@@ -95,6 +95,7 @@ export {
   tupleHasUnsetableElements,
 } from './tuples';
 export {
+  collectAbsentObjects,
   generateFieldWhereType,
   generateObjectWhereInterface,
   generateObjectWhereTypes,

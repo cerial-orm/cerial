@@ -6,6 +6,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
+  collectAbsentObjects,
   generateObjectWhereInterface,
   generateObjectWhereTypes,
   generateWhereInterface,
@@ -232,5 +233,67 @@ describe('Object Where Generator', () => {
       expect(result).toContain('address?: AddressWhere;');
       expect(result).toContain('shipping?: AddressWhere;');
     });
+  });
+});
+
+describe('isNone on array sub-fields of objects that can be absent', () => {
+  const tags = (): ReturnType<typeof field>[] => [
+    field({ name: 'tags', type: 'string', isArray: true }),
+    field({
+      name: 'kinds',
+      type: 'literal',
+      isArray: true,
+      literalInfo: { literalName: 'Kind', isEnum: true, variants: [{ kind: 'string', value: 'a' }] },
+    }),
+  ];
+  const settings = obj('Settings', tags());
+  const objectField = (name: string, objectName: string, isRequired: boolean): ReturnType<typeof field> =>
+    field({ name, type: 'object', isRequired, objectInfo: { objectName, fields: [] } });
+
+  test('an object used through an optional field is absent-capable, and so is one nested under it', () => {
+    const inner = obj('Inner', tags());
+    const outer = obj('Outer', [objectField('inner', 'Inner', true)]);
+    const m = model('M', 'm', [objectField('outer', 'Outer', false)]);
+    const absent = collectAbsentObjects([m], { Inner: inner, Outer: outer });
+
+    expect([...absent].sort()).toEqual(['Inner', 'Outer']);
+  });
+
+  test('absence propagates whatever the registry order', () => {
+    const inner = obj('Inner', tags());
+    const outer = obj('Outer', [objectField('inner', 'Inner', true)]);
+    const m = model('M', 'm', [objectField('outer', 'Outer', false)]);
+
+    expect([...collectAbsentObjects([m], { Inner: inner, Outer: outer })].sort()).toEqual(['Inner', 'Outer']);
+    expect([...collectAbsentObjects([m], { Outer: outer, Inner: inner })].sort()).toEqual(['Inner', 'Outer']);
+  });
+
+  test('required use, array use and unused objects are not absent-capable', () => {
+    const m = model('M', 'm', [
+      objectField('a', 'Settings', true),
+      { ...objectField('b', 'Other', false), isArray: true },
+    ]);
+
+    expect(collectAbsentObjects([m], { Settings: settings, Other: obj('Other', tags()) }).size).toBe(0);
+  });
+
+  test('array sub-fields get isNone only when the object can be absent', () => {
+    const withIsNone = generateObjectWhereInterface(settings, undefined, new Set(['Settings']));
+    expect(withIsNone.match(/isNone\?: boolean/g)?.length).toBe(2);
+    expect(withIsNone).toContain('isEmpty?: boolean');
+
+    for (const without of [
+      generateObjectWhereInterface(settings),
+      generateObjectWhereInterface(settings, undefined, new Set(['Other'])),
+    ]) {
+      expect(without).toContain('isEmpty?: boolean');
+      expect(without).not.toContain('isNone');
+    }
+  });
+
+  test('model-level arrays never get isNone', () => {
+    const m = model('M', 'm', [field({ name: 'tags', type: 'string', isArray: true })]);
+
+    expect(generateWhereInterface(m)).not.toContain('isNone');
   });
 });

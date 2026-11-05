@@ -744,3 +744,404 @@ export interface SetDecimalModel {
 
   getTableName(): string;
 }
+
+// ===== models/setnested.ts =====
+/**
+ * Generated types for SetNested
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type { SetBag, SetBagInput, SetBagWhere, SetBagSelect, SetBagOrderBy } from '../objects/setbag';
+export interface SetNested {
+  id: CerialId<string>;
+  name: string;
+  bag?: SetBag;
+  strictBag: SetBag;
+}
+
+export interface SetNestedInput {
+  id?: string;
+  name: string;
+  bag?: SetBagInput;
+  strictBag: SetBagInput;
+}
+
+export interface SetNestedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  bag?: SetBagWhere;
+  strictBag?: SetBagWhere;
+  $raw?: SqlFragment;
+  AND?: SetNestedWhere[];
+  OR?: SetNestedWhere[];
+  NOT?: SetNestedWhere;
+}
+
+export type SetNestedWhereInput = SetNestedWhere;
+
+export type SetNestedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<SetNestedWhere, 'id'>;
+
+export type SetNestedCreate = O.Optional<SetNestedInput, 'id' | 'bag'>;
+
+export type SetNestedNestedCreate = O.Optional<SetNestedInput, 'id' | 'bag'>;
+
+export type SetNestedCreateInput = SetNestedCreate;
+
+export type SetNestedUpdate = Partial<O.Omit<SetNestedInput, 'id' | 'bag' | 'strictBag'>> & {
+  bag?: Partial<SetBagInput> | { set: SetBagInput } | CerialNone;
+  strictBag?: Partial<SetBagInput> | { set: SetBagInput };
+};
+
+export type SetNestedUpdateInput = SetNestedUpdate;
+
+export type SetNestedUnset = {
+  bag?: true;
+};
+
+export interface SetNestedSelectFields {
+  id?: boolean;
+  name?: boolean;
+  bag?: boolean | SetBagSelect;
+  strictBag?: boolean | SetBagSelect;
+}
+
+export type SetNestedSelect = AtLeastOne<SetNestedSelectFields>;
+
+export interface SetNestedOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  bag?: SetBagOrderBy;
+  strictBag?: SetBagOrderBy;
+}
+
+export interface SetNestedGroupByKeys {
+  id?: true;
+  name?: true;
+  bag?: { tags?: true; nums?: true };
+  strictBag?: { tags?: true; nums?: true };
+}
+
+export interface SetNestedCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  bag?: true;
+  strictBag?: true;
+}
+
+export interface SetNestedMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface SetNestedGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface SetNestedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  bag?: { tags?: 'asc' | 'desc'; nums?: 'asc' | 'desc' };
+  strictBag?: { tags?: 'asc' | 'desc'; nums?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    bag?: 'asc' | 'desc';
+    strictBag?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface SetNestedGroupByArgs {
+  by: SetNestedGroupByKeys;
+  where?: SetNestedWhere;
+  _count?: true | SetNestedCountAggregate;
+  _min?: SetNestedMinMaxAggregate;
+  _max?: SetNestedMinMaxAggregate;
+  _group?: SetNestedGroupAggregate;
+  orderBy?: SetNestedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SetNestedGroupByAggregates {
+  _count: { _all: number; id: number; name: number; bag: number; strictBag: number };
+  _min: { id: NonNullable<SetNested['id']> | null; name: NonNullable<SetNested['name']> | null };
+  _max: { id: NonNullable<SetNested['id']> | null; name: NonNullable<SetNested['name']> | null };
+  _group: { id: GroupMember<SetNested['id']>[]; name: GroupMember<SetNested['name']>[] };
+}
+
+export type SetNestedGroupByResult<A extends SetNestedGroupByArgs> = GroupByRow<
+  SetNested,
+  A,
+  SetNestedGroupByAggregates
+>;
+
+export type SetNested$Relations = {};
+
+export type GetSetNestedPayload<S extends SetNestedSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends SetNestedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SetNested
+          ? ResolveFieldSelect<SetNested[K], S[K]>
+          : never;
+      }
+    : SetNested,
+  'flat'
+>;
+
+export interface SetNestedModel {
+  findOne<
+    S extends SetNestedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SetNestedWhere;
+    select?: SelectArg<S, SetNestedSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SetNested | keyof SetNestedWhere)]?: never };
+    orderBy?: SetNestedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSetNestedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SetNestedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SetNestedWhere;
+    select?: SelectArg<S, SetNestedSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SetNested | keyof SetNestedWhere)]?: never };
+    orderBy?: SetNestedOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSetNestedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SetNestedSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SetNestedFindUniqueWhere;
+    select?: SelectArg<S, SetNestedSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SetNested | keyof SetNestedWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSetNestedPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SetNestedSelect | undefined = undefined>(options: {
+    data: SetNestedCreateInput;
+    select?: SelectArg<S, SetNestedSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetNestedPayload<S>>;
+
+  updateMany<
+    S extends SetNestedSelect | undefined = undefined,
+    D extends SetNestedUpdateInput = SetNestedUpdateInput,
+  >(options: {
+    where: SetNestedWhere;
+    data: DataArg<D, SetNestedUpdateInput>;
+    unset?: SafeUnset<SetNestedUnset, D>;
+    select?: SelectArg<S, SetNestedSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetNestedPayload<S>[]>;
+
+  updateUnique<
+    S extends SetNestedSelect | undefined = undefined,
+    D extends SetNestedUpdateInput = SetNestedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SetNestedFindUniqueWhere;
+    data: DataArg<D, SetNestedUpdateInput>;
+    unset?: SafeUnset<SetNestedUnset, D>;
+    select?: SelectArg<S, SetNestedSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SetNested | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSetNestedPayload<S>, R>>;
+
+  upsert<
+    S extends SetNestedSelect | undefined = undefined,
+    D extends SetNestedUpdateInput = SetNestedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SetNestedFindUniqueWhere;
+    create: SetNestedCreateInput;
+    update?: DataArg<D, SetNestedUpdateInput>;
+    unset?: SafeUnset<SetNestedUnset, D>;
+    select?: SelectArg<S, SetNestedSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSetNestedPayload<S>, R>>;
+
+  upsert<
+    S extends SetNestedSelect | undefined = undefined,
+    D extends SetNestedUpdateInput = SetNestedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SetNestedWhere;
+    create: SetNestedCreateInput;
+    update?: DataArg<D, SetNestedUpdateInput>;
+    unset?: SafeUnset<SetNestedUnset, D>;
+    select?: SelectArg<S, SetNestedSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSetNestedPayload<S>, R>>;
+
+  deleteMany(options: { where: SetNestedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SetNestedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SetNested | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SetNested, R>>;
+
+  count(where?: SetNestedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends SetNestedGroupByArgs>(
+    args: GroupByArg<A, SetNestedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SetNestedGroupByResult<A>[]>;
+
+  exists(where?: SetNestedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SetNestedWhere }): Promise<import('cerial').CerialLiveHandle<SetNested>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/setbag.ts =====
+/**
+ * Generated types for SetBag
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SetBag {
+  tags: string[];
+  nums: number[];
+}
+
+export interface SetBagInput {
+  tags: string[];
+  nums: number[];
+}
+
+export interface SetBagWhere {
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+        isNone?: boolean;
+      };
+  nums?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+        isNone?: boolean;
+      };
+  AND?: SetBagWhere[];
+  OR?: SetBagWhere[];
+  NOT?: SetBagWhere;
+}
+
+export interface SetBagSelectFields {
+  tags?: boolean;
+  nums?: boolean;
+}
+
+export type SetBagSelect = AtLeastOne<SetBagSelectFields>;
+
+export interface SetBagOrderBy {
+  tags?: 'asc' | 'desc';
+  nums?: 'asc' | 'desc';
+}

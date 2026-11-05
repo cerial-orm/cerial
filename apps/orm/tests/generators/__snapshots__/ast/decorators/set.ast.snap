@@ -151,6 +151,107 @@
         "file": "<input>",
         "kind": "dsl"
       }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bag",
+          "objectName": "SetBag",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "strictBag",
+          "objectName": "SetBag",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "SetNested",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "nums",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int"
+        }
+      ],
+      "name": "SetBag",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

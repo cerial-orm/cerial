@@ -17,6 +17,7 @@ import type {
   TupleRegistry,
 } from '../../types';
 import { ensureDir, formatCode } from '../shared';
+import { collectAbsentObjects } from '../types';
 import {
   writeEnumsIndex,
   writeLiteralsIndex,
@@ -97,8 +98,19 @@ export async function writeClient(
   }
 
   // Write object types (before models so model imports can resolve)
+  const absentObjects = collectAbsentObjects(models, objectRegistry ?? {});
   for (const object of objects) {
-    files.push(await writeObjectTypes(outputDir, object, objectRegistry, tupleRegistry, literalRegistry, typeFiles));
+    files.push(
+      await writeObjectTypes(
+        outputDir,
+        object,
+        objectRegistry,
+        tupleRegistry,
+        literalRegistry,
+        typeFiles,
+        absentObjects,
+      ),
+    );
   }
 
   // Write model types

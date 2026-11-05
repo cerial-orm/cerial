@@ -119,17 +119,20 @@ function generateStringSpecialOps(isRequired: boolean, isId: boolean, isNullable
 }
 
 /** Generate array field operators for any array type */
-function generateArrayFieldOps(elementType: string): string {
+export function generateArrayFieldOps(elementType: string, canBeAbsent = false): string {
+  // isNone only where the array can be absent (a sub-field under an optional object); isEmpty never matches NONE
+  const isNone = canBeAbsent ? '\n    isNone?: boolean;' : '';
+
   return `{
     has?: ${elementType};
     hasAll?: ${elementType}[];
     hasAny?: ${elementType}[];
-    isEmpty?: boolean;
+    isEmpty?: boolean;${isNone}
   }`;
 }
 
 /** Generate field where type */
-export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRegistry): string {
+export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRegistry, canBeAbsent = false): string {
   const tsType = schemaTypeToTsInputType(field.type);
   const { isRequired, isId, isNullable } = field;
 
@@ -159,7 +162,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     else if (field.type === 'any') inputType = 'CerialAny';
     else inputType = tsType;
 
-    return `${inputType}[] | ${generateArrayFieldOps(inputType)}`;
+    return `${inputType}[] | ${generateArrayFieldOps(inputType, canBeAbsent)}`;
   }
 
   // Handle Record (single record ID) - accepts RecordIdInput
@@ -450,4 +453,8 @@ export function generateWhereTypes(models: ModelMetadata[], registry?: ModelRegi
 }
 
 // Object where type generation has been moved to ./objects/where-generator.ts
-export { generateObjectWhereInterface, generateObjectWhereTypes } from './objects/where-generator';
+export {
+  collectAbsentObjects,
+  generateObjectWhereInterface,
+  generateObjectWhereTypes,
+} from './objects/where-generator';

@@ -5,12 +5,46 @@
  * (equals, contains, startsWith, etc.) and logical operators (AND, OR, NOT).
  */
 
-import type { ObjectMetadata, ObjectRegistry } from '../../../types';
+import type { FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../../types';
 import { getLiteralTypeName, getLiteralWhereName } from '../enums';
-import { generateFieldWhereType } from '../where-generator';
+import { generateArrayFieldOps, generateFieldWhereType } from '../where-generator';
+
+/**
+ * Names of the objects whose instances can be absent: an object used through an optional single
+ * field, or nested under such an object through single fields. Their array sub-fields get `isNone`.
+ * An object's Where type is shared by every use, so one optional use is enough.
+ */
+export function collectAbsentObjects(
+  models: readonly ModelMetadata[],
+  objectRegistry: ObjectRegistry,
+): ReadonlySet<string> {
+  const absent = new Set<string>();
+  const mark = (fields: readonly FieldMetadata[], parentAbsent: boolean): void => {
+    for (const field of fields) {
+      if (field.type !== 'object' || field.isArray || !field.objectInfo) continue;
+      if (field.isRequired && !parentAbsent) continue;
+      absent.add(field.objectInfo.objectName);
+    }
+  };
+
+  for (const model of models) mark(model.fields, false);
+  // Absence propagates down through single object fields, so repeat until nothing new is added.
+  let size = -1;
+  while (size !== absent.size) {
+    size = absent.size;
+    for (const object of Object.values(objectRegistry)) mark(object.fields, absent.has(object.name));
+  }
+
+  return absent;
+}
 
 /** Generate Where interface for an object definition */
-export function generateObjectWhereInterface(object: ObjectMetadata, _objectRegistry?: ObjectRegistry): string {
+export function generateObjectWhereInterface(
+  object: ObjectMetadata,
+  _objectRegistry?: ObjectRegistry,
+  absentObjects?: ReadonlySet<string>,
+): string {
+  const canBeAbsent = absentObjects?.has(object.name) ?? false;
   const fields: string[] = [];
 
   for (const field of object.fields) {
@@ -45,14 +79,12 @@ export function generateObjectWhereInterface(object: ObjectMetadata, _objectRegi
       const nullPrefix = field.isNullable ? 'null | ' : '';
 
       if (field.isArray) {
-        fields.push(
-          `  ${field.name}?: { has?: ${typeName}; hasAll?: ${typeName}[]; hasAny?: ${typeName}[]; isEmpty?: boolean; };`,
-        );
+        fields.push(`  ${field.name}?: ${generateArrayFieldOps(typeName, canBeAbsent)};`);
       } else {
         fields.push(`  ${field.name}?: ${nullPrefix}${typeName} | ${whereName};`);
       }
     } else {
-      const whereType = generateFieldWhereType(field);
+      const whereType = generateFieldWhereType(field, undefined, canBeAbsent);
       if (whereType) {
         fields.push(`  ${field.name}?: ${whereType};`);
       }

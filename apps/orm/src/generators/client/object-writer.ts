@@ -41,6 +41,7 @@ export async function writeObjectTypes(
   tupleRegistry?: TupleRegistry,
   literalRegistry?: LiteralRegistry,
   typeFiles: TypeFilesMode = 'ts',
+  absentObjects?: ReadonlySet<string>,
 ): Promise<string> {
   const objectsDir = `${outputDir}/objects`;
   await ensureDir(objectsDir);
@@ -82,7 +83,7 @@ export async function writeObjectTypes(
 
   // Generate all type content for this object
   const interfaceCode = generateObjectInterfaces([object], objectRegistry, tupleRegistry);
-  const whereCode = generateObjectWhereInterface(object, objectRegistry);
+  const whereCode = generateObjectWhereInterface(object, objectRegistry, absentObjects);
   const derivedCode = generateObjectDerivedTypes(object);
 
   const content = `/**

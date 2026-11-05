@@ -1413,6 +1413,19 @@ export const manifest = deepFreeze({
       indexes: [],
     },
     {
+      name: 'set_nested',
+      fields: [
+        { path: ['name'], kind: 'string' },
+        { path: ['bag'], kind: 'none | object' },
+        { path: ['bag', 'tags'], kind: 'array<string>' },
+        { path: ['bag', 'nums'], kind: 'array<int>' },
+        { path: ['strictBag'], kind: 'object' },
+        { path: ['strictBag', 'tags'], kind: 'array<string>' },
+        { path: ['strictBag', 'nums'], kind: 'array<int>' },
+      ],
+      indexes: [],
+    },
+    {
       name: 'timestamp_test',
       fields: [
         { path: ['name'], kind: 'string' },

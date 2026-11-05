@@ -11,3 +11,15 @@ model SetDecimal {
   name String
   prices Decimal[] @set
 }
+
+object SetBag {
+  tags String[] @set
+  nums Int[]
+}
+
+model SetNested {
+  id Record @id
+  name String
+  bag SetBag?
+  strictBag SetBag
+}

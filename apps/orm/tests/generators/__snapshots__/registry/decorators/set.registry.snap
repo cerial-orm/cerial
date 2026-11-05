@@ -85,6 +85,119 @@
       ],
       "name": "SetDecimal",
       "tableName": "set_decimal"
+    },
+    "SetNested": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bag",
+          "objectInfo": {
+            "fields": [
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isSet": true,
+                "isUnique": false,
+                "name": "tags",
+                "type": "string"
+              },
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "nums",
+                "type": "int"
+              }
+            ],
+            "objectName": "SetBag"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "strictBag",
+          "objectInfo": {
+            "fields": [
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isSet": true,
+                "isUnique": false,
+                "name": "tags",
+                "type": "string"
+              },
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "nums",
+                "type": "int"
+              }
+            ],
+            "objectName": "SetBag"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "SetNested",
+      "tableName": "set_nested"
+    }
+  },
+  "objects": {
+    "SetBag": {
+      "fields": [
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "tags",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nums",
+          "type": "int"
+        }
+      ],
+      "name": "SetBag"
     }
   }
 }

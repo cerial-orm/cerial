@@ -140,6 +140,7 @@ export type * from './readonlytest';
 export type * from './readonlyrecord';
 export type * from './setbasic';
 export type * from './setdecimal';
+export type * from './setnested';
 export type * from './timestamptest';
 export type * from './extcrossuser';
 export type * from './extcrossadmin';
