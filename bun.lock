@@ -35,7 +35,7 @@
     },
     "apps/orm": {
       "name": "cerial",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "bin": {
         "cerial": "./dist/bin/cerial.mjs",
       },
