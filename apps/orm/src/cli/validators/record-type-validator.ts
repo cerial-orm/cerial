@@ -3,7 +3,7 @@
  */
 
 import { hasDecorator } from '../../parser/types/ast';
-import type { SchemaAST } from '../../types';
+import type { ASTField, SchemaAST } from '../../types';
 import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
@@ -29,6 +29,91 @@ const INVALID_ID_TYPES = new Set([
 
 /** Decorators that are ignored when tuple/object is used as @id */
 const ID_IGNORED_DECORATORS = new Set(['default', 'defaultAlways', 'createdAt', 'updatedAt']);
+
+/** Check every `Record(...)` type parameter of one field; `kind` and `owner` name where the field lives */
+function checkTypeParams(
+  ast: SchemaAST,
+  field: ASTField,
+  kind: 'model' | 'object',
+  owner: string,
+  tupleNames: Set<string>,
+  objectNames: Set<string>,
+  errors: SchemaValidationError[],
+): void {
+  for (const typeName of field.recordIdTypes ?? []) {
+    if (VALID_PRIMITIVE_ID_TYPES.has(typeName)) continue; // Valid primitive
+
+    if (INVALID_ID_TYPES.has(typeName)) {
+      errors.push({
+        message: `Cannot use '${typeName}' as record ID type on field "${field.name}" in ${kind} "${owner}". Valid types: int, number, string, uuid, or a tuple/object name.`,
+        model: owner,
+        field: field.name,
+        ...located(field.origin),
+      });
+      continue;
+    }
+
+    // Check if it's a tuple or object name
+    const isTupleName = tupleNames.has(typeName);
+    const isObjectName = objectNames.has(typeName);
+
+    if (!isTupleName && !isObjectName) {
+      // Check if it looks like a PascalCase name (potential typo)
+      if (/^[A-Z]/.test(typeName)) {
+        errors.push({
+          message: `Type '${typeName}' in Record(${typeName}) on field "${field.name}" in ${kind} "${owner}" is not a defined tuple or object. Did you mean to define a tuple or object named '${typeName}'?`,
+          model: owner,
+          field: field.name,
+          ...located(field.origin),
+        });
+      } else {
+        errors.push({
+          message: `Cannot use '${typeName}' as record ID type on field "${field.name}" in ${kind} "${owner}". Valid types: int, number, string, uuid, or a tuple/object name.`,
+          model: owner,
+          field: field.name,
+          ...located(field.origin),
+        });
+      }
+      continue;
+    }
+
+    // Rule 4: WARNING for @id with decorated tuple/object
+    if (hasDecorator(field, 'id')) {
+      if (isTupleName) {
+        const tuple = ast.tuples.find((t) => t.name === typeName);
+        if (tuple) {
+          const hasDecoratedElements = tuple.elements.some((el) =>
+            el.decorators?.some((d) => ID_IGNORED_DECORATORS.has(d.type)),
+          );
+          if (hasDecoratedElements) {
+            errors.push({
+              message: `Warning: Decorators on '${typeName}' elements are ignored when used as @id — SurrealDB doesn't support DEFAULT/sub-field constraints on id fields. Field "${field.name}" in ${kind} "${owner}".`,
+              model: owner,
+              field: field.name,
+              ...located(field.origin),
+            });
+          }
+        }
+      }
+      if (isObjectName) {
+        const object = ast.objects.find((o) => o.name === typeName);
+        if (object) {
+          const hasDecoratedFields = object.fields.some((f) =>
+            f.decorators.some((d) => ID_IGNORED_DECORATORS.has(d.type)),
+          );
+          if (hasDecoratedFields) {
+            errors.push({
+              message: `Warning: Decorators on '${typeName}' fields are ignored when used as @id — SurrealDB doesn't support DEFAULT/sub-field constraints on id fields. Field "${field.name}" in ${kind} "${owner}".`,
+              model: owner,
+              field: field.name,
+              ...located(field.origin),
+            });
+          }
+        }
+      }
+    }
+  }
+}
 
 /**
  * Validate Record(Type) type parameters on all Record fields in the schema.
@@ -67,79 +152,16 @@ export function validateRecordIdTypes(ast: SchemaAST): SchemaValidationError[] {
       // If no recordIdTypes, nothing more to validate
       if (!field.recordIdTypes?.length) continue;
 
-      // Validate each type parameter
-      for (const typeName of field.recordIdTypes) {
-        if (VALID_PRIMITIVE_ID_TYPES.has(typeName)) continue; // Valid primitive
+      checkTypeParams(ast, field, 'model', model.name, tupleNames, objectNames, errors);
+    }
+  }
 
-        if (INVALID_ID_TYPES.has(typeName)) {
-          errors.push({
-            message: `Cannot use '${typeName}' as record ID type on field "${field.name}" in model "${model.name}". Valid types: int, number, string, uuid, or a tuple/object name.`,
-            model: model.name,
-            field: field.name,
-            ...located(field.origin),
-          });
-          continue;
-        }
-
-        // Check if it's a tuple or object name
-        const isTupleName = tupleNames.has(typeName);
-        const isObjectName = objectNames.has(typeName);
-
-        if (!isTupleName && !isObjectName) {
-          // Check if it looks like a PascalCase name (potential typo)
-          if (/^[A-Z]/.test(typeName)) {
-            errors.push({
-              message: `Type '${typeName}' in Record(${typeName}) on field "${field.name}" in model "${model.name}" is not a defined tuple or object. Did you mean to define a tuple or object named '${typeName}'?`,
-              model: model.name,
-              field: field.name,
-              ...located(field.origin),
-            });
-          } else {
-            errors.push({
-              message: `Cannot use '${typeName}' as record ID type on field "${field.name}" in model "${model.name}". Valid types: int, number, string, uuid, or a tuple/object name.`,
-              model: model.name,
-              field: field.name,
-              ...located(field.origin),
-            });
-          }
-          continue;
-        }
-
-        // Rule 4: WARNING for @id with decorated tuple/object
-        if (hasDecorator(field, 'id')) {
-          if (isTupleName) {
-            const tuple = ast.tuples.find((t) => t.name === typeName);
-            if (tuple) {
-              const hasDecoratedElements = tuple.elements.some((el) =>
-                el.decorators?.some((d) => ID_IGNORED_DECORATORS.has(d.type)),
-              );
-              if (hasDecoratedElements) {
-                errors.push({
-                  message: `Warning: Decorators on '${typeName}' elements are ignored when used as @id — SurrealDB doesn't support DEFAULT/sub-field constraints on id fields. Field "${field.name}" in model "${model.name}".`,
-                  model: model.name,
-                  field: field.name,
-                  ...located(field.origin),
-                });
-              }
-            }
-          }
-          if (isObjectName) {
-            const object = ast.objects.find((o) => o.name === typeName);
-            if (object) {
-              const hasDecoratedFields = object.fields.some((f) =>
-                f.decorators.some((d) => ID_IGNORED_DECORATORS.has(d.type)),
-              );
-              if (hasDecoratedFields) {
-                errors.push({
-                  message: `Warning: Decorators on '${typeName}' fields are ignored when used as @id — SurrealDB doesn't support DEFAULT/sub-field constraints on id fields. Field "${field.name}" in model "${model.name}".`,
-                  model: model.name,
-                  field: field.name,
-                  ...located(field.origin),
-                });
-              }
-            }
-          }
-        }
+  // Object fields reach the generated registry through the same recordIdTypes, so they get the same check.
+  // Nested objects and objects inside tuple elements are top-level declarations, so this loop covers them.
+  for (const object of ast.objects) {
+    for (const field of object.fields) {
+      if (field.type === 'record' && field.recordIdTypes?.length) {
+        checkTypeParams(ast, field, 'object', object.name, tupleNames, objectNames, errors);
       }
     }
   }

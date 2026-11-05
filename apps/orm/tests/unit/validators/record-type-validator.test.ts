@@ -864,4 +864,42 @@ describe('validateRecordIdTypes', () => {
       expect(validateRecordIdTypes(ast)).toHaveLength(0);
     });
   });
+
+  describe('object fields', () => {
+    const objectWith = (...recordIdTypes: string[]): SchemaAST =>
+      createAST({
+        objects: [
+          createObject({
+            name: 'Ob',
+            fields: [createASTField({ name: 'r', type: 'record', recordIdTypes })],
+          }),
+        ],
+      });
+
+    test.each([['int'], ['string'], ['uuid'], ['number'], ['string', 'int']])('Record(%p) is valid', (...types) => {
+      expect(validateRecordIdTypes(objectWith(...(types as string[])))).toHaveLength(0);
+    });
+
+    test('refuses a payload that closes the registry string, naming the object', () => {
+      const errors = validateRecordIdTypes(objectWith("x'+[globalThis.PWNED=1]+'"));
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0]?.message).toContain('object "Ob"');
+      expect(errors[0]?.model).toBe('Ob');
+    });
+
+    test('refuses an undefined PascalCase name', () => {
+      expect(validateRecordIdTypes(objectWith('Missing'))[0]?.message).toContain('not a defined tuple or object');
+    });
+
+    test('refuses a known-invalid type', () => {
+      expect(validateRecordIdTypes(objectWith('float'))).toHaveLength(1);
+    });
+
+    test('accepts a defined object name', () => {
+      const ast = objectWith('Other');
+      ast.objects.push(createObject({ name: 'Other' }));
+      expect(validateRecordIdTypes(ast)).toHaveLength(0);
+    });
+  });
 });

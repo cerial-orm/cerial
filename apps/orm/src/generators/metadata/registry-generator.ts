@@ -77,7 +77,7 @@ function generateFieldMetadata(field: FieldMetadata): string {
 
   // Include recordIdTypes when present (for typed Record IDs)
   if (field.recordIdTypes?.length) {
-    parts.push(`recordIdTypes: [${field.recordIdTypes.map((t) => `'${t}'`).join(', ')}]`);
+    parts.push(`recordIdTypes: [${field.recordIdTypes.map((t) => `'${escapeTsString(t)}'`).join(', ')}]`);
   }
 
   // Include objectInfo when present (with inline fields for runtime query building)
