@@ -7,6 +7,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import { validateCreateData, validateUpdateData } from '../../../../src/query/validators/data-validator';
+import { field, model } from '../helpers';
 import { ALL_SIZED_TYPES, SIZED_CASES, sizedModel, U64_MAX } from './helpers';
 
 function createData(overrides: Record<string, unknown>): Record<string, unknown> {
@@ -92,10 +93,77 @@ describe('sized number data validation', () => {
       ['an object sub-field merge', (v: unknown) => validateUpdateData({ calib: { gain: v } }, sizedModel(type))],
       ['a tuple element merge', (v: unknown) => validateUpdateData({ pair: { first: v } }, sizedModel(type))],
       ['an array replacement', (v: unknown) => validateUpdateData({ list: [v] }, sizedModel(type))],
+      ['a pushed value', (v: unknown) => validateUpdateData({ list: { push: v } }, sizedModel(type))],
+      ['a pushed list', (v: unknown) => validateUpdateData({ list: { push: [v] } }, sizedModel(type))],
+      ['a set operation', (v: unknown) => validateUpdateData({ list: { set: [v] } }, sizedModel(type))],
+      ['an unset operation', (v: unknown) => validateUpdateData({ list: { unset: [v] } }, sizedModel(type))],
     ])('refuses the same value on %s and accepts one in range', (_label, validate) => {
       expect(validate(above).errors).toHaveLength(1);
       expect(validate(above).errors[0]!.message).toContain(`is ${name} and holds ${min} to ${max}, got ${above}`);
       expect(validate(max).errors).toEqual([]);
+    });
+  });
+
+  describe('array operations', () => {
+    const list = (op: unknown) => validateUpdateData({ list: op }, sizedModel('uint8')).errors;
+
+    test('push names the index within the pushed values, not within the stored array', () => {
+      expect(list({ push: 256 })).toEqual([
+        { field: 'list', message: 'Field "list[0]" is Uint8 and holds 0 to 255, got 256' },
+      ]);
+      expect(list({ push: [1, 2, 300, 400] }).map((e) => e.message)).toEqual([
+        'Field "list[2]" is Uint8 and holds 0 to 255, got 300',
+        'Field "list[3]" is Uint8 and holds 0 to 255, got 400',
+      ]);
+    });
+
+    test('values in range, an empty list and a bigint refusal are handled per element', () => {
+      expect(list({ push: [0, 255] })).toEqual([]);
+      expect(list({ push: [] })).toEqual([]);
+      expect(list({ set: [] })).toEqual([]);
+      expect(list({ push: [1n] }).map((e) => e.message)).toEqual([
+        'Field "list[0]" is Uint8 and expects a number, got a bigint',
+      ]);
+      expect(list({ push: 1.5 }).map((e) => e.message)).toEqual([
+        'Field "list[0]" is Uint8 and expects a whole number, got 1.5',
+      ]);
+    });
+
+    test('a combined operation checks every key', () => {
+      expect(list({ push: [256], unset: [-1] }).map((e) => e.message)).toEqual([
+        'Field "list[0]" is Uint8 and holds 0 to 255, got 256',
+        'Field "list[0]" is Uint8 and holds 0 to 255, got -1',
+      ]);
+    });
+
+    test('an array inside an object field is checked with the object path', () => {
+      const nested = model('Reading', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({
+          name: 'calib',
+          type: 'object',
+          isRequired: false,
+          objectInfo: {
+            objectName: 'Calib',
+            fields: [field({ name: 'gains', type: 'uint8', isRequired: true, isArray: true })],
+          },
+        }),
+      ]);
+
+      expect(validateUpdateData({ calib: { gains: { push: [1, 256] } } }, nested).errors.map((e) => e.message)).toEqual(
+        ['Field "calib.gains[1]" is Uint8 and holds 0 to 255, got 256'],
+      );
+      expect(validateUpdateData({ calib: { gains: { push: [1, 255] } } }, nested).errors).toEqual([]);
+    });
+
+    test('Uint64 push refuses past the maximum and an unsafe number, and accepts the maximum', () => {
+      const u64 = (op: unknown) => validateUpdateData({ list: op }, sizedModel('uint64')).errors.map((e) => e.message);
+
+      expect(u64({ push: 2n ** 64n })).toEqual([
+        `Field "list[0]" is Uint64 and holds 0 to ${U64_MAX}, got ${2n ** 64n}`,
+      ]);
+      expect(u64({ push: [U64_MAX, 2n ** 53n] })).toEqual([]);
+      expect(u64({ push: 2 ** 60 })).toHaveLength(1);
     });
   });
 

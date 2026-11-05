@@ -16,7 +16,7 @@ import { isObject } from '../../utils/type-utils';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
 import { convertUnsetToNoneValues } from '../builders/update-builder';
 import { isSingleTupleInput } from '../transformers/data-transformer';
-import { sizedNumberError } from './sized-number-validator';
+import { isSizedNumberFieldType, sizedNumberError } from './sized-number-validator';
 
 /** Validation error */
 export interface DataValidationError {
@@ -451,6 +451,32 @@ function unknownSubKey(path: string, model: ModelMetadata): DataValidationError 
   };
 }
 
+/**
+ * Range-check the values an array operation ({ push }, { set }, { unset }) carries on a sized number
+ * array, so the server (or the SDK's U64 constructor) never has to refuse them. The index in the path
+ * is the position within the operation's own values, not within the stored array.
+ */
+function arrayOperationSizedErrors(
+  operation: Record<string, unknown>,
+  type: WalkField['type'],
+  path: string,
+): DataValidationError[] {
+  if (!isSizedNumberFieldType(type)) return [];
+  const errors: DataValidationError[] = [];
+
+  for (const key of ['push', 'set', 'unset']) {
+    const input = operation[key];
+    if (input === undefined) continue;
+    const items = Array.isArray(input) ? input : [input];
+    items.forEach((item, i) => {
+      const message = sizedNumberError(type, `${path}[${i}]`, item);
+      if (message) errors.push({ field: path, message });
+    });
+  }
+
+  return errors;
+}
+
 /** Mirrors the builder's `{ set: ... }` full-replace wrapper, whose contents are bound whole. */
 function isSetWrapper(value: Record<string, unknown>): boolean {
   return 'set' in value && Object.keys(value).length === 1;
@@ -489,8 +515,9 @@ function validateSubValue(
   }
 
   if (field.type !== 'object' && field.type !== 'tuple') {
-    // A relation is virtual and an array field's operation object ({ push }, { set }) is not a value
-    if (field.type === 'relation' || (field.isArray && isObject(value))) return [];
+    if (field.isArray && isObject(value)) return arrayOperationSizedErrors(value, field.type, path);
+    // A relation is virtual
+    if (field.type === 'relation') return [];
     // The database refuses a member of the wrong type; a whole float in an int member is an int in JS
     const error = validateFieldValue(path, value, { ...field, isRequired: false });
 

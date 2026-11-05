@@ -105,16 +105,53 @@ describe('E2E sized numbers: updateUnique, updateMany and upsert', () => {
         expect(updated!.arrVal).toEqual([val(1), val(2), val(3), val(4)]);
       });
 
-      // push values are not range-checked by Cerial: the server refuses them
-      test('push of a value out of range is refused by the database and the array stays', async () => {
+      test.each([
+        ['push of one value', (v: number | bigint) => ({ push: v }), 'arrVal[0]'],
+        ['push of several values names the index within them', (v: number | bigint) => ({ push: [1, v] }), 'arrVal[1]'],
+        ['set', (v: number | bigint) => ({ set: [1, v] }), 'arrVal[1]'],
+      ])('array %s out of range is refused naming the field and the array stays', async (_label, op, path) => {
         const row = await model().create({ data: data(1, { arrVal: [1] }) });
         const error = await rejection(() =>
-          model().updateUnique({ where: { id: row.id }, data: { arrVal: { push: outOfRange(spec) } } }),
+          model().updateUnique({ where: { id: row.id }, data: { arrVal: op(outOfRange(spec)) } }),
         );
 
-        // Uint64 never reaches the server: the SDK's U64 constructor refuses first, with its own error
-        expect(error.message).toContain(spec.kind === 'u64' ? 'outside the range of u64' : 'arrVal');
+        expect(error).toBeInstanceOf(CerialValidationError);
+        expect(error.message).toBe(
+          `Invalid data: Field "${path}" is ${spec.name} and ${holds(spec)}, got ${outOfRange(spec)}`,
+        );
         expect((await model().findOne({ where: { id: row.id } }))!.arrVal).toEqual([val(1)]);
+      });
+
+      test('push out of range into a set field and through updateMany and upsert is refused too', async () => {
+        const row = await model().create({ data: data(1, { setVal: [1] }) });
+        const message = `Invalid data: Field "setVal[0]" is ${spec.name} and ${holds(spec)}, got ${outOfRange(spec)}`;
+
+        expect(
+          (await rejection(() => model().updateMany({ data: { setVal: { push: outOfRange(spec) } } }))).message,
+        ).toBe(message);
+        expect(
+          (
+            await rejection(() =>
+              model().upsert({
+                where: { id: row.id },
+                create: data(1),
+                update: { setVal: { push: outOfRange(spec) } },
+              }),
+            )
+          ).message,
+        ).toBe(message);
+        expect((await model().findOne({ where: { id: row.id } }))!.setVal).toEqual([val(1)]);
+      });
+
+      test('push of the range ends is accepted', async () => {
+        if (spec.kind === 'float') return;
+        const row = await model().create({ data: data(1, { arrVal: [] }) });
+        const updated = await model().updateUnique({
+          where: { id: row.id },
+          data: { arrVal: { push: [spec.min!, spec.max!].map((n) => (spec.kind === 'u64' ? n : Number(n))) } },
+        });
+
+        expect(updated!.arrVal).toEqual([spec.min, spec.max].map((n) => (spec.kind === 'u64' ? n : Number(n))));
       });
 
       test.each(UPDATE_FORMS)(
