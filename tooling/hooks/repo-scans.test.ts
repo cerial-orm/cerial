@@ -331,13 +331,63 @@ describe('release notes at or below the released version', () => {
     expect(judged(scratch)).toEqual([]);
   });
 
-  test('the released version is the one in the last commit, so the bump commit may touch its own notes', () => {
+  test('the bump commit alone does not release: the notes stay editable while the tag is older', () => {
     const scratch = seeded();
+    scratch.git('tag', 'orm-v0.2.0');
     write(scratch, PACKAGE, '{"version":"0.3.0"}\n');
     write(scratch, NOTES, notes('## 0.3.0\n\nReworded in the release commit.', RELEASED));
     stage(scratch, PACKAGE, NOTES);
 
     expect(judged(scratch)).toEqual([]);
+  });
+
+  test('after the bump is committed, the section above the tag is still editable', () => {
+    const scratch = seeded();
+    scratch.git('tag', 'orm-v0.2.0');
+    seed(scratch, { [PACKAGE]: '{"version":"0.3.0"}\n' });
+    write(scratch, NOTES, notes('## 0.3.0\n\nReviewed after the bump.', RELEASED));
+    stage(scratch, NOTES);
+
+    expect(judged(scratch)).toEqual([]);
+  });
+
+  test('the tagged section is still refused after the bump', () => {
+    const scratch = seeded();
+    scratch.git('tag', 'orm-v0.2.0');
+    seed(scratch, { [PACKAGE]: '{"version":"0.3.0"}\n' });
+    write(scratch, NOTES, notes(NEXT, '## 0.2.0\n\nReworded.'));
+    stage(scratch, NOTES);
+
+    expect(judged(scratch)).toEqual(['release-notes.released-entry-edited']);
+  });
+
+  test('removing the tagged section is refused after the bump', () => {
+    const scratch = seeded();
+    scratch.git('tag', 'orm-v0.2.0');
+    seed(scratch, { [PACKAGE]: '{"version":"0.3.0"}\n' });
+    write(scratch, NOTES, notes(NEXT));
+    stage(scratch, NOTES);
+
+    expect(judged(scratch)).toEqual(['release-notes.released-entry-edited']);
+  });
+
+  test('the highest tag wins by number, not by text', () => {
+    const scratch = seeded();
+    scratch.git('tag', 'orm-v0.9.0');
+    scratch.git('tag', 'orm-v0.10.0');
+    seed(scratch, { [PACKAGE]: '{"version":"0.3.0"}\n' });
+    write(scratch, NOTES, notes(NEXT, '## 0.2.0\n\nReworded.'));
+    stage(scratch, NOTES);
+
+    expect(judged(scratch)).toEqual(['release-notes.released-entry-edited']);
+  });
+
+  test("with no tag the last commit's package version stands in", () => {
+    const scratch = seeded();
+    write(scratch, NOTES, notes(NEXT, '## 0.2.0\n\nReworded.'));
+    stage(scratch, NOTES);
+
+    expect(judged(scratch)).toEqual(['release-notes.released-entry-edited']);
   });
 
   describe('as pure functions', () => {

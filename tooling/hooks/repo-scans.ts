@@ -194,8 +194,8 @@ export function compareVersions(a: string, b: string): number {
 
 /**
  * A section whose version is at or below the released one, edited or removed. The
- * released version is the one in the previous commit, so the commit that bumps a
- * version may still touch that version's own notes.
+ * released version comes from the release tags, not from package.json, so the
+ * review may edit the notes of an unreleased version after its bump.
  */
 export function scanReleasedSections(path: string, before: string, after: string, released: string): Refusal[] {
   const next = releaseSections(after);
@@ -230,14 +230,32 @@ export function packageVersion(file: string, ref: ':0' | 'HEAD'): string | null 
   }
 }
 
+const TAG_PREFIX: Readonly<Record<string, string>> = { orm: 'orm-v', extension: 'ext-v' };
+
+/**
+ * The highest release tag's version for a scope, by number. With no tag (a shallow
+ * clone) the package's version in the last commit stands in, so the rule never
+ * weakens to nothing.
+ */
+export function releasedVersion(scope: string, pkg: string): string | null {
+  const prefix = TAG_PREFIX[scope] as string;
+  const versions = (gitText(['tag', '-l', `${prefix}*`]) ?? '')
+    .split('\n')
+    .filter((tag) => /^\d+\.\d+\.\d+$/.test(tag.slice(prefix.length)) && tag.startsWith(prefix))
+    .map((tag) => tag.slice(prefix.length))
+    .sort(compareVersions);
+
+  return versions.at(-1) ?? packageVersion(pkg, 'HEAD');
+}
+
 function scanStagedReleaseNotes(): Refusal[] {
   const out = gitText(['diff', '--cached', '--name-only', '-z', '--diff-filter=M']);
   const refusals: Refusal[] = [];
   for (const path of (out ?? '').split('\0')) {
     const match = RELEASE_NOTES.exec(path);
     if (match === null) continue;
-    const pkg = PACKAGE_FOR_SCOPE[match[1] as string] as string;
-    const released = packageVersion(pkg, 'HEAD');
+    const scope = match[1] as string;
+    const released = releasedVersion(scope, PACKAGE_FOR_SCOPE[scope] as string);
     const before = gitText(['show', `HEAD:${path}`]);
     const after = stagedContent(path);
     if (released === null || before === null || after === null) continue;

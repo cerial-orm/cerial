@@ -43,7 +43,7 @@ does not run until the scans pass.
 | cast to any | `ratchet.as-any` | A new line containing a cast to `any`. See the ratchet section | Code files under the paths listed in `baseline.json` |
 | ignored path | `paths.ignored` | A newly added file that matches an ignore pattern, which a forced add slips past. Rename it or change the pattern | Added files |
 | unregistered table | `registry.unregistered-table` | A model in a newly added e2e schema whose table is missing from the `tables` registry in `apps/orm/tests/e2e/test-helper.ts` | New `.cerial` files under `apps/orm/tests/e2e/schemas/` |
-| released release notes | `release-notes.released-entry-edited` | An edit to, or removal of, a section for a version at or below the one `package.json` declares in the previous commit. Correct it in the next patch's Fixed section | Modified release notes under `apps/docs/content/docs/releases/` |
+| released release notes | `release-notes.released-entry-edited` | An edit to, or removal of, a section for a version at or below the highest `orm-v*` or `ext-v*` release tag for the scope (compared by version; with no tag, the version `package.json` declares in the previous commit). Correct it in the next patch's Fixed section | Modified release notes under `apps/docs/content/docs/releases/` |
 | unreadable source | `scan.unreadable-source` | A source file holding a NUL byte, which the scans cannot read. Write the byte as an escape | Staged files with a source extension |
 
 The stub marker rules are named for what the author was admitting, not for the words they
