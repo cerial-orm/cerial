@@ -447,7 +447,9 @@ async function executeMultiStatementInTransaction(
  * LET variable scope across statements.
  *
  * Supports function items that receive previous results and can return
- * a CerialQueryPromise (executed in the transaction) or a plain value.
+ * a CerialQueryPromise (executed in the transaction) or a plain value. The query must be
+ * returned synchronously: an `async` function that returns a query resolves it through its own
+ * promise, which runs it on the default connection, outside the transaction.
  *
  * Retries on transaction conflict if options.retries > 0 (default: 0 — no retry).
  * Each retry begins a FRESH transaction.
@@ -481,7 +483,8 @@ export async function executeClientTransaction(
             const result = await executeItemInTransaction(txnDb, item, prefixed);
             results.push(result);
           } else if (typeof item === 'function') {
-            const fnResult = await item(results);
+            // Not awaited first: a CerialQueryPromise is lazy, and awaiting it would run it on the default connection
+            const fnResult = item(results);
 
             if (CerialQueryPromise.isCerialQueryPromise(fnResult)) {
               const txItem: TransactionItem = {
@@ -496,7 +499,7 @@ export async function executeClientTransaction(
               const result = await executeItemInTransaction(txnDb, txItem, prefixed);
               results.push(result);
             } else {
-              results.push(fnResult);
+              results.push(await fnResult);
             }
           }
         }

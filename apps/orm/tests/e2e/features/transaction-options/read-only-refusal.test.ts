@@ -187,6 +187,30 @@ describe('E2E Transaction options: read-only refusal', () => {
     });
   });
 
+  describe('array mode function items', () => {
+    test('negative: a function item create is refused and nothing is written', async () => {
+      const before = await snapshot();
+
+      const error = await caught(() =>
+        client.$transaction([() => client.db.BasicsUser.create({ data: newUser('refused') })], { readOnly: true }),
+      );
+
+      expect(error).toBeInstanceOf(CerialTransactionError);
+      expect((error as CerialTransactionError).message).toContain('read only transaction');
+      expect(await snapshot()).toEqual(before);
+    });
+
+    test('positive: a function item create succeeds when readOnly is false, and a function item read runs read-only', async () => {
+      const [created] = await client.$transaction([() => client.db.BasicsUser.create({ data: newUser('allowed') })], {
+        readOnly: false,
+      });
+      const [rows] = await client.$transaction([() => client.db.BasicsUser.findMany()], { readOnly: true });
+
+      expect(created.name).toBe('allowed');
+      expect(rows).toHaveLength(2);
+    });
+  });
+
   describe('callback and array cancel; manual mode stays open', () => {
     test('callback mode: the callback does not continue past the refused write and the transaction is cancelled', async () => {
       let reachedAfter = false;

@@ -83,6 +83,8 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     expect(sideEffectRan).toBe(true);
   });
 
+  // An async function resolves the query it returns through its own promise, which runs it outside the
+  // transaction. Only the result shape is asserted here; transactional behaviour needs a sync return.
   test('async function item', async () => {
     const email = uniqueEmail();
 
@@ -153,6 +155,51 @@ describe('E2E Transactions: Array Mode Function Items', () => {
 
     const users = await client.db.BasicsUser.findMany({ where: { email } });
     expect(users.length).toBe(0);
+  });
+
+  test('negative: a function item create is rolled back when a later item throws', async () => {
+    const email = uniqueEmail();
+
+    await expect(
+      (async () => {
+        await client.$transaction([
+          () => client.db.BasicsUser.create({ data: { email, name: 'FnRollback', isActive: true } }),
+          () => {
+            throw new Error('abort');
+          },
+        ]);
+      })(),
+    ).rejects.toThrow('abort');
+
+    expect(await client.db.BasicsUser.count({ email })).toBe(0);
+  });
+
+  test('negative: a function item create is rolled back when a later query item fails', async () => {
+    const email = uniqueEmail();
+
+    await expect(
+      (async () => {
+        await client.$transaction([
+          () => client.db.BasicsUser.create({ data: { email, name: 'FnRollback', isActive: true } }),
+          client.db.BasicsUser.create({ data: { email, name: 'Duplicate', isActive: true } }),
+        ]);
+      })(),
+    ).rejects.toThrow();
+
+    expect(await client.db.BasicsUser.count({ email })).toBe(0);
+  });
+
+  test('positive: a function item create commits with the transaction and prevResults flow to the next', async () => {
+    const email = uniqueEmail();
+
+    const [created, seen] = await client.$transaction([
+      () => client.db.BasicsUser.create({ data: { email, name: 'FnCommit', isActive: true } }),
+      (prev) => `saw-${prev[0].name}`,
+    ]);
+
+    expect(created.email).toBe(email);
+    expect(seen).toBe('saw-FnCommit');
+    expect(await client.db.BasicsUser.count({ email })).toBe(1);
   });
 
   test('mix of CerialQueryPromise and function items', async () => {
