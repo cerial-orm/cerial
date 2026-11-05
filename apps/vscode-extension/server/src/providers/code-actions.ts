@@ -72,6 +72,11 @@ function findInLine(lineText: string, needle: string): [number, number] | null {
   return [idx, idx + needle.length];
 }
 
+/** LSP 3.18 types `message` as `string | MarkupContent`; the diagnostics provider only emits strings. */
+function messageText(diag: Diagnostic): string {
+  return typeof diag.message === 'string' ? diag.message : diag.message.value;
+}
+
 /**
  * Extract a quoted name from a diagnostic message using a regex.
  * Returns the first capture group, or null.
@@ -93,7 +98,7 @@ function extractName(message: string, pattern: RegExp): string | null {
  * Fix: Insert `  id Record @id` on the line after the model header.
  */
 const fixAddIdField: FixGenerator = (diag, _doc, uri) => {
-  if (!diag.message.includes('does not have an @id field')) return null;
+  if (!messageText(diag).includes('does not have an @id field')) return null;
 
   // The diagnostic range covers the model header line.
   // Insert a new field line right after it.
@@ -111,7 +116,7 @@ const fixAddIdField: FixGenerator = (diag, _doc, uri) => {
  * Fix: Remove the `@nullable` text (and leading space) from the field line.
  */
 const fixRemoveNullableFromObjectField: FixGenerator = (diag, doc, uri) => {
-  if (!diag.message.includes('@nullable is not allowed on object field')) return null;
+  if (!messageText(diag).includes('@nullable is not allowed on object field')) return null;
 
   return removeDecoratorFromLine(diag, doc, uri, '@nullable');
 };
@@ -123,7 +128,7 @@ const fixRemoveNullableFromObjectField: FixGenerator = (diag, doc, uri) => {
  * Fix: Remove the `@nullable` text (and leading space) from the field line.
  */
 const fixRemoveNullableFromTupleField: FixGenerator = (diag, doc, uri) => {
-  if (!diag.message.includes('@nullable is not allowed on tuple field')) return null;
+  if (!messageText(diag).includes('@nullable is not allowed on tuple field')) return null;
 
   return removeDecoratorFromLine(diag, doc, uri, '@nullable');
 };
@@ -135,7 +140,7 @@ const fixRemoveNullableFromTupleField: FixGenerator = (diag, doc, uri) => {
  * Fix: Remove `?` after the `Any` type name.
  */
 const fixRemoveOptionalFromAnyField: FixGenerator = (diag, doc, uri) => {
-  if (!diag.message.includes('Optional (?) is not allowed on Any field')) return null;
+  if (!messageText(diag).includes('Optional (?) is not allowed on Any field')) return null;
 
   const line = diag.range.start.line;
   const lineText = getLineText(doc, line);
@@ -174,10 +179,10 @@ const fixRemoveOptionalFromAnyField: FixGenerator = (diag, doc, uri) => {
  * Fix: Find `Type?` and replace `?` with ` @nullable` (or ` @nullable` appended).
  */
 const fixReplaceTupleOptionalWithNullable: FixGenerator = (diag, doc, uri) => {
-  if (!diag.message.includes('Optional elements (?) are not allowed in tuples')) return null;
+  if (!messageText(diag).includes('Optional elements (?) are not allowed in tuples')) return null;
 
   // Extract element name from message: Element 'X' in tuple Y
-  const elemName = extractName(diag.message, /Element '([^']+)'/);
+  const elemName = extractName(messageText(diag), /Element '([^']+)'/);
   if (!elemName) return null;
 
   // Tuple-level diagnostics point to the tuple header line.
@@ -229,7 +234,7 @@ const fixReplaceTupleOptionalWithNullable: FixGenerator = (diag, doc, uri) => {
  * Fix: Insert `@nullable ` before `@default(null)`.
  */
 const fixAddNullableForDefaultNull: FixGenerator = (diag, doc, uri) => {
-  if (!diag.message.includes('@default(null) requires @nullable')) return null;
+  if (!messageText(diag).includes('@default(null) requires @nullable')) return null;
 
   const line = diag.range.start.line;
   const lineText = getLineText(doc, line);
@@ -257,7 +262,7 @@ const fixAddNullableForDefaultNull: FixGenerator = (diag, doc, uri) => {
  * Fix: Offer to remove each of the conflicting decorators.
  */
 const fixRemoveConflictingDecorator: FixGenerator = (diag, doc, uri) => {
-  const msg = diag.message;
+  const msg = messageText(diag);
 
   // Pattern 1: `@X and @Y cannot be used together`
   const twoDecMatch = msg.match(/@(\w+) and @(\w+) cannot be used together/);
@@ -335,11 +340,11 @@ const fixRemoveConflictingDecorator: FixGenerator = (diag, doc, uri) => {
  * Fix: Add `abstract ` before the parent model's `model` keyword.
  */
 const fixAddAbstractToParent: FixGenerator = (diag, doc, uri, indexer) => {
-  if (!diag.message.includes('extends concrete model')) return null;
-  if (!diag.message.includes('Models can only extend abstract models')) return null;
+  if (!messageText(diag).includes('extends concrete model')) return null;
+  if (!messageText(diag).includes('Models can only extend abstract models')) return null;
 
   // Extract parent model name from: extends concrete model "Y"
-  const parentName = extractName(diag.message, /extends concrete model "([^"]+)"/);
+  const parentName = extractName(messageText(diag), /extends concrete model "([^"]+)"/);
   if (!parentName) return null;
 
   // Find the parent model's position in the AST
@@ -391,10 +396,10 @@ const fixAddAbstractToParent: FixGenerator = (diag, doc, uri, indexer) => {
  * Fix: Offer quick fixes to replace with each existing model name.
  */
 const fixSuggestModelName: FixGenerator = (diag, doc, uri, indexer) => {
-  if (!diag.message.includes('references non-existent model')) return null;
+  if (!messageText(diag).includes('references non-existent model')) return null;
 
   // Extract the invalid model name
-  const invalidName = extractName(diag.message, /non-existent model "([^"]+)"/);
+  const invalidName = extractName(messageText(diag), /non-existent model "([^"]+)"/);
   if (!invalidName) return null;
 
   // Collect all model names from the schema group
@@ -456,7 +461,7 @@ const fixSuggestModelName: FixGenerator = (diag, doc, uri, indexer) => {
  * Fix: Remove `@nullable` from the field line.
  */
 const fixRemoveNullableFromIdField: FixGenerator = (diag, doc, uri) => {
-  if (!diag.message.includes('@nullable is not allowed on @id field')) return null;
+  if (!messageText(diag).includes('@nullable is not allowed on @id field')) return null;
 
   return removeDecoratorFromLine(diag, doc, uri, '@nullable');
 };
@@ -468,7 +473,7 @@ const fixRemoveNullableFromIdField: FixGenerator = (diag, doc, uri) => {
  * Fix: Remove `@nullable` from the field line.
  */
 const fixRemoveNullableFromNowField: FixGenerator = (diag, doc, uri) => {
-  if (!diag.message.includes('@nullable is not allowed on @now field')) return null;
+  if (!messageText(diag).includes('@nullable is not allowed on @now field')) return null;
 
   return removeDecoratorFromLine(diag, doc, uri, '@nullable');
 };
@@ -480,14 +485,14 @@ const fixRemoveNullableFromNowField: FixGenerator = (diag, doc, uri) => {
  * Fix: Remove the disallowed decorator from the element line.
  */
 const fixRemoveDisallowedTupleDecorator: FixGenerator = (diag, doc, uri) => {
-  if (!diag.message.includes('is not allowed on tuple element')) return null;
+  if (!messageText(diag).includes('is not allowed on tuple element')) return null;
 
-  const decName = extractName(diag.message, /Decorator @(\w+) is not allowed/);
+  const decName = extractName(messageText(diag), /Decorator @(\w+) is not allowed/);
   if (!decName) return null;
 
   // Tuple element diagnostics point to the tuple header line.
   // We need to scan the body to find the element with that decorator.
-  const elemName = extractName(diag.message, /element '([^']+)'/);
+  const elemName = extractName(messageText(diag), /element '([^']+)'/);
   if (!elemName) return null;
 
   const startLine = diag.range.start.line;
