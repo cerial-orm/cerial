@@ -4,6 +4,7 @@
     "overview",
     "array-mode",
     "callback-mode",
-    "manual-mode"
+    "manual-mode",
+    "options"
   ]
 }

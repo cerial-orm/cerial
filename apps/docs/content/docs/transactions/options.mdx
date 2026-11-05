@@ -1,0 +1,109 @@
+---
+title: Isolation and Read-Only
+description: Choose a snapshot or serializable isolation level and refuse writes with a read-only transaction, in every mode.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+`isolation` and `readOnly` are accepted by all three modes.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `isolation` | `'snapshot' \| 'serializable'` | `'snapshot'` | How the transaction is checked at commit |
+| `readOnly` | `boolean` | `false` | Refuse every write in the transaction |
+
+```typescript
+// Array mode
+const [from, to] = await client.(
+  [client.db.Account.findUnique({ where: { id: a } }), client.db.Account.findUnique({ where: { id: b } })],
+  { isolation: 'serializable', readOnly: true },
+);
+
+// Callback mode
+await client.(
+  async (tx) => {
+    const onCall = await tx.Doctor.count({ where: { onCall: true } });
+    if (onCall < 2) throw new Error('last doctor on call');
+    await tx.Doctor.updateUnique({ where: { id }, data: { onCall: false } });
+  },
+  { isolation: 'serializable', retries: 3 },
+);
+
+// Manual mode
+await using txn = await client.({ isolation: 'serializable', readOnly: true });
+const users = await txn.User.findMany();
+await txn.commit();
+```
+
+Manual mode takes only `isolation` and `readOnly`. `retries`, `backoff` and `timeout` do not apply, because you drive the commit.
+
+## Isolation levels
+
+**`'snapshot'`** is the default. The transaction reads from a consistent snapshot and commits unless another transaction wrote the same record first. Two transactions that each read a record the other writes can both commit (write skew).
+
+**`'serializable'`** also refuses a commit when something the transaction read has since been changed by another writer, including a record read directly and a range of records matched by a filter. Use it when a decision depends on what you read, such as "only take the doctor off call if two others are on call".
+
+A serializable commit that is refused throws a retryable transaction conflict. Pair it with [`retries`](/transactions/overview#conflict-retry) so the transaction runs again from a fresh snapshot:
+
+```typescript
+await client.(
+  async (tx) => {
+    const onCall = await tx.Doctor.count({ where: { onCall: true } });
+    if (onCall < 2) throw new Error('last doctor on call');
+    await tx.Doctor.updateUnique({ where: { id }, data: { onCall: false } });
+  },
+  { isolation: 'serializable', retries: 3 },
+);
+```
+
+Things to know:
+
+- Only a transaction that writes can be refused. A serializable transaction that only reads always commits.
+- An unrelated concurrent write does not cause a refusal.
+- Two writes to the same record conflict at both levels.
+- Every retry begins a fresh transaction with the same `isolation` and `readOnly`.
+- In array mode the conflict is wrapped after the retries run out; the original error is `error.cause`. Callback mode throws the conflict itself.
+
+## Read-only transactions
+
+With `readOnly: true`, reads run and every write is refused with a `CerialTransactionError`: `create`, `updateMany`, `updateUnique`, `deleteMany`, `deleteUnique`, `upsert`, nested writes and writes through `$raw`. Nothing is written.
+
+```typescript
+import { CerialTransactionError } from 'cerial';
+
+try {
+  await client.(
+    async (tx) => {
+      const users = await tx.User.findMany();
+      await tx.User.create({ data: { email: 'a@b.c', name: 'A', isActive: true } }); // refused
+      return users;
+    },
+    { readOnly: true },
+  );
+} catch (error) {
+  if (error instanceof CerialTransactionError) {
+    // The write was refused and the transaction was cancelled
+  }
+}
+```
+
+- Array and callback mode cancel the transaction when a write is refused.
+- Manual mode stays open after a refused write. Reads still run, and `commit()` succeeds with nothing written.
+- A read-only transaction never conflicts, whatever its `isolation`, so `retries` beside `readOnly` has nothing to retry.
+- `readOnly` is a runtime check. The types do not stop you from writing in a read-only transaction.
+
+## Invalid options
+
+A bad value throws a `CerialValidationError` before anything is sent to the database:
+
+```typescript
+// CerialValidationError: expected 'snapshot' or 'serializable'
+await client.([...], { isolation: 'read committed' });
+
+// CerialValidationError: expected a boolean
+await client.({ readOnly: 'yes' });
+```
+
+Manual mode also refuses a key that is not `isolation` or `readOnly`.

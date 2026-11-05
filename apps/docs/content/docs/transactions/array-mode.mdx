@@ -295,6 +295,23 @@ const [deleteResult, newUser] = await client.$transaction([
 // Old user + their cascaded profile gone, new user created — all atomic
 ```
 
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+## Isolation and Read-Only
+
+Pass `isolation` and `readOnly` in the options. A read-only transaction refuses any write item with a `CerialTransactionError` and cancels. When a serializable commit conflicts and `retries` runs out, the error is a `CerialTransactionError` and the original conflict is `error.cause`.
+
+```typescript
+const [from, to] = await client.$transaction(
+  [client.db.Account.findUnique({ where: { id: a } }), client.db.Account.findUnique({ where: { id: b } })],
+  { isolation: 'serializable', readOnly: true },
+);
+```
+
+See [Isolation and Read-Only](/transactions/options).
+
 ## Atomicity
 
 Every array-mode transaction is all-or-nothing. If any query fails, every change rolls back.

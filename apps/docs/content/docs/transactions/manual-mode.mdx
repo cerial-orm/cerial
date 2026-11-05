@@ -329,6 +329,24 @@ const afterCommit = await client.db.User.findMany({
 console.log(afterCommit.length); // 1
 ```
 
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+## Isolation Level and Read-Only
+
+Pass `isolation` and `readOnly` to `$transaction()`. Only these two keys are accepted; anything else throws a `CerialValidationError`.
+
+```typescript
+await using txn = await client.$transaction({ isolation: 'serializable', readOnly: true });
+const users = await txn.User.findMany();
+await txn.commit();
+```
+
+A write in a read-only transaction throws a `CerialTransactionError`, but the transaction stays open: reads still run, and `commit()` succeeds with nothing written. With `serializable`, a conflicting `commit()` throws a retryable conflict; manual mode does not retry for you.
+
+See [Isolation and Read-Only](/transactions/options).
+
 ## Error Handling
 
 Using a committed transaction throws immediately when you try to access a model:

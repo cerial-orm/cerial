@@ -71,6 +71,22 @@ SurrealDB 4.0 retries a standalone write conflict on the server (a single statem
 Manual mode (`const txn = await client.$transaction()`) does not support retry options — you control the lifecycle yourself.
 :::
 
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+## Isolation and Read-Only
+
+Every mode accepts `isolation` (`'snapshot'` by default, or `'serializable'`) and `readOnly`. Serializable refuses a commit whose reads were changed by another writer, so pair it with `retries`. A read-only transaction refuses every write with a `CerialTransactionError`.
+
+```typescript
+await client.$transaction(async (tx) => { ... }, { isolation: 'serializable', retries: 3 });
+await client.$transaction([client.db.User.findMany()], { readOnly: true });
+const txn = await client.$transaction({ isolation: 'serializable', readOnly: true });
+```
+
+See [Isolation and Read-Only](/transactions/options) for the details.
+
 ## Error Handling & Rollback
 
 Every mode guarantees atomicity: either all changes persist, or none do.

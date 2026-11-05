@@ -245,6 +245,27 @@ await client.$transaction(
 
 On timeout, the transaction is cancelled and all changes are rolled back.
 
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+## Isolation and Read-Only
+
+Pass `isolation` and `readOnly` beside `timeout` and `retries`. Each retry begins a fresh transaction with the same options. A refused write throws a `CerialTransactionError` from the call that wrote, and the transaction is cancelled. A serializable conflict that outlasts `retries` is thrown as is.
+
+```typescript
+await client.$transaction(
+  async (tx) => {
+    const onCall = await tx.Doctor.count({ where: { onCall: true } });
+    if (onCall < 2) throw new Error('last doctor on call');
+    await tx.Doctor.updateUnique({ where: { id }, data: { onCall: false } });
+  },
+  { isolation: 'serializable', retries: 3 },
+);
+```
+
+See [Isolation and Read-Only](/transactions/options).
+
 ## Nesting Prevention
 
 :::caution
