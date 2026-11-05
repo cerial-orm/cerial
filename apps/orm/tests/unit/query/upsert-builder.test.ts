@@ -754,24 +754,26 @@ describe('upsert-builder', () => {
     test('an id in the where reads that record and creates it by name', () => {
       const query = nested({ id: 'a1' }, { name: 'Updated Author' }, { recordId: new RecordId('author', 'a1') });
 
-      expect(query.text).toContain('LET $up_exists = (SELECT id FROM ONLY $rid_record_id_0);');
-      expect(query.text).toContain('CREATE ONLY $c_record_id_0 CONTENT');
+      expect(query.text).toContain('LET $up_exists = (SELECT id FROM ONLY $record_id_rid_0);');
+      expect(query.text).toContain('CREATE ONLY $record_id_0 CONTENT');
     });
 
     test('keeps the variables of the two halves apart', () => {
       const query = nested({ email: 'author@test.com' }, { name: 'Updated Author' });
       const names = Object.keys(query.vars);
 
-      expect(names.some((n) => n.startsWith('c_'))).toBe(true);
-      expect(names.some((n) => n.startsWith('u_'))).toBe(true);
-      expect(new Set(names).size).toBe(names.length);
+      // Both halves are bound, under distinct names, and none was renamed after the fact
+      expect(Object.values(query.vars)).toContain('Updated Author');
+      expect(names.some((n) => n.startsWith('content_main'))).toBe(true);
+      expect(names.some((n) => n.startsWith('name_set'))).toBe(true);
+      expect(names.some((n) => n.startsWith('c_') || n.startsWith('u_'))).toBe(false);
     });
 
     test('return before answers nothing for a created row', () => {
       const query = nested({ email: 'author@test.com' }, { name: 'Updated Author' }, { returnOption: 'before' });
 
       expect(query.text.trim()).toEndWith('RETURN IF $up_exists { $up_result };');
-      expect(query.text).toContain('LET $u_prior');
+      expect(query.text).toContain('LET $prior');
     });
 
     test('without a connect or set it issues no check', () => {

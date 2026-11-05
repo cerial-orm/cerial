@@ -22,6 +22,27 @@ export interface ExecuteOptions {
 }
 
 /** A single item in a client transaction batch */
+/**
+ * A nested write's statements by position, so nothing searches its text for structure it already knows:
+ * `body` is everything between its BEGIN and COMMIT (or the whole text inside an outer transaction), `ret`
+ * the final RETURN statement. Without a guard `ret` sits after the COMMIT, and with `select` or `include`
+ * it holds caller-chosen keys, which may spell `COMMIT TRANSACTION` or `RETURN`.
+ */
+export interface StatementParts {
+  body: string;
+  ret?: string;
+}
+
+/** A compiled query that carries its statements by position */
+export type PartsCompiledQuery = CompiledQuery & { parts?: StatementParts };
+
+/** The text with its own BEGIN/COMMIT wrapper removed: by position when the builder gave parts, else by text */
+export function unwrapQuery(query: PartsCompiledQuery): string {
+  if (!query.parts) return stripTransactionWrapper(query.text);
+
+  return [query.parts.body, query.parts.ret].filter(Boolean).join('\n');
+}
+
 export interface TransactionItem {
   compiledQuery: CompiledQuery;
   metadata?: ModelMetadata;
@@ -95,7 +116,7 @@ export async function executeQuery<T = unknown>(
   // Regular queries need their BEGIN/COMMIT for atomicity (cascade delete, restrict checks)
   let queryText = query.text;
   if (db instanceof SurrealTransaction && isMultiStatementQuery(queryText)) {
-    queryText = stripTransactionWrapper(queryText);
+    queryText = unwrapQuery(query);
   }
   const effectiveQuery = queryText !== query.text ? { text: queryText, vars: query.vars } : query;
   const boundQuery = createBoundQuery(effectiveQuery);
@@ -135,7 +156,7 @@ export async function executeQuerySingle<T = unknown>(
     try {
       let queryText = query.text;
       if (db instanceof SurrealTransaction && isMultiStatementQuery(queryText)) {
-        queryText = stripTransactionWrapper(queryText);
+        queryText = unwrapQuery(query);
       }
       const effectiveQuery = queryText !== query.text ? { text: queryText, vars: query.vars } : query;
       const boundQuery = createBoundQuery(effectiveQuery);
@@ -215,64 +236,25 @@ export async function executeRaw<T = unknown>(
 // =============================================================================
 
 /**
- * Prefix all variable names in a compiled query to avoid collisions
- * when combining multiple queries in a transaction.
- *
- * Handles both:
- * - SDK-bound variables ($varName in text + vars object keys)
- * - LET-assigned variables (LET $varName in query text only)
- */
-export function prefixQueryVars(query: CompiledQuery, prefix: string): CompiledQuery {
-  let text = query.text;
-  const vars: Record<string, unknown> = {};
-
-  // Prefix all SDK-bound variable keys
-  for (const [key, value] of Object.entries(query.vars)) {
-    vars[`${prefix}${key}`] = value;
-  }
-
-  // Build a regex that matches all $varName references in the text
-  // We need to replace both bound vars and LET-assigned vars
-  const allVarNames = new Set<string>();
-
-  // Collect bound var names (from vars object)
-  for (const key of Object.keys(query.vars)) {
-    allVarNames.add(key);
-  }
-
-  // Collect LET-assigned var names from the query text
-  const letRegex = /LET\s+\$(\w+)/g;
-  let match;
-  while (true) {
-    match = letRegex.exec(text);
-    if (match === null) break;
-    allVarNames.add(match[1]!);
-  }
-
-  // Sort by length (longest first) to prevent partial replacements
-  const sortedNames = [...allVarNames].sort((a, b) => b.length - a.length);
-
-  // Replace all occurrences of $varName with $prefix_varName
-  for (const name of sortedNames) {
-    // Use word boundary to avoid replacing $resultId when processing $result
-    const varRegex = new RegExp(`\\$${name}(?=\\b|[^\\w])`, 'g');
-    text = text.replace(varRegex, `$${prefix}${name}`);
-  }
-
-  return { text, vars, ...(query.targetCheck && { targetCheck: query.targetCheck }) };
-}
-
-/**
  * Strip BEGIN TRANSACTION and COMMIT TRANSACTION wrappers from a query text.
  * Used to flatten inner transactions when building a client-level transaction.
+ *
+ * The text is never parsed for quotes or comments: the BEGIN is read only at the very start, and the COMMIT
+ * is removed only after one was found, as the last in the text. This is for developer text and builders that
+ * give no `parts`. With `select` or `include`, a nested write puts its projection after the COMMIT, so those
+ * builders return `parts` and are unwrapped by position instead.
  */
 export function stripTransactionWrapper(text: string): string {
   // Remove BEGIN TRANSACTION from start
   let result = text.replace(/^\s*BEGIN\s+TRANSACTION\s*;?\s*/i, '');
+  // No wrapper was opened, so there is no COMMIT of ours to remove; one in the text is a caller's key
+  if (result === text) return text.trim();
 
-  // Remove COMMIT TRANSACTION, but ensure a semicolon + newline boundary remains
+  // Remove the last COMMIT TRANSACTION, but ensure a semicolon + newline boundary remains
   // so that surrounding statements don't merge together
-  result = result.replace(/\s*;?\s*COMMIT\s+TRANSACTION\s*;?\s*/i, ';\n');
+  const commits = [...result.matchAll(/\s*;?\s*COMMIT\s+TRANSACTION\s*;?\s*/gi)];
+  const commit = commits.at(-1);
+  if (commit) result = `${result.slice(0, commit.index)};\n${result.slice(commit.index + commit[0].length)}`;
 
   return result.trim();
 }
@@ -280,37 +262,11 @@ export function stripTransactionWrapper(text: string): string {
 /**
  * Check if a query text contains multiple statements (LET, BEGIN, etc.)
  * indicating it's a multi-statement query (e.g., from nested create or cascade delete).
+ * A LET or BEGIN counts only where a statement starts (text start or after a `;`), so a quoted key
+ * that spells one does not turn a single statement into a multi-statement one.
  */
 export function isMultiStatementQuery(text: string): boolean {
-  return /\bLET\s+\$/i.test(text) || /\bBEGIN\s+TRANSACTION\b/i.test(text);
-}
-
-/**
- * Extract the result variable from a multi-statement query's RETURN clause.
- * E.g., "RETURN $result;" → "$result"
- * E.g., "RETURN SELECT * FROM ONLY $resultId;" → needs special handling
- */
-function extractReturnExpression(text: string): string | null {
-  // Match the LAST top-level RETURN statement (after a newline or semicolon, at end of text)
-  // This avoids matching RETURN inside subqueries (e.g., "UPDATE ... RETURN *")
-  const returnMatch = text.match(/(?:^|[;\n])\s*RETURN\s+(.+?)\s*;?\s*$/i);
-  if (!returnMatch) return null;
-
-  return returnMatch[1]!.trim();
-}
-
-/**
- * For multi-statement queries, extract the RETURN expression and strip it.
- * Returns the modified text (without RETURN) and the expression that produces the result.
- */
-function extractAndStripReturn(text: string): { text: string; returnExpr: string | null } {
-  const returnExpr = extractReturnExpression(text);
-  if (!returnExpr) return { text, returnExpr: null };
-
-  // Strip the last top-level RETURN statement from the end
-  const stripped = text.replace(/(?:^|[;\n])\s*RETURN\s+.+?\s*;?\s*$/i, '');
-
-  return { text: stripped.trim(), returnExpr };
+  return /(?:^|;)\s*(?:LET\s+\$|BEGIN\s+TRANSACTION\b)/i.test(text);
 }
 
 function mapTransactionResult(
@@ -403,26 +359,20 @@ function extractRawResult(results: unknown): unknown {
   return null;
 }
 
-async function executeItemInTransaction(
-  db: Surreal,
-  item: TransactionItem,
-  prefixedQuery: CompiledQuery,
-): Promise<unknown> {
+async function executeItemInTransaction(db: Surreal, item: TransactionItem, query: CompiledQuery): Promise<unknown> {
   // A raw statement returns the last statement's result, which extractRawResult cannot: it skips trailing NONE
   if (item.resultType === 'raw') {
-    const text = isMultiStatementQuery(prefixedQuery.text)
-      ? stripTransactionWrapper(prefixedQuery.text)
-      : prefixedQuery.text;
-    const rows = await executeRawStatement(db, { text, vars: prefixedQuery.vars });
+    const text = isMultiStatementQuery(query.text) ? stripTransactionWrapper(query.text) : query.text;
+    const rows = await executeRawStatement(db, { text, vars: query.vars });
 
     return mapTransactionResult(rows, item.resultType, item.metadata, item.select);
   }
 
-  if (isMultiStatementQuery(prefixedQuery.text)) {
-    return executeMultiStatementInTransaction(db, prefixedQuery, item);
+  if (isMultiStatementQuery(query.text)) {
+    return executeMultiStatementInTransaction(db, query, item);
   }
 
-  const boundQuery = new BoundQuery(prefixedQuery.text, prefixedQuery.vars);
+  const boundQuery = new BoundQuery(query.text, query.vars);
   const results = await db.query(boundQuery).collect();
   const rawResult = extractRawResult(results);
 
@@ -434,7 +384,7 @@ async function executeMultiStatementInTransaction(
   query: CompiledQuery,
   item: TransactionItem,
 ): Promise<unknown> {
-  const innerText = stripTransactionWrapper(query.text);
+  const innerText = unwrapQuery(query);
   const boundQuery = new BoundQuery(innerText, query.vars);
   const results = await db.query(boundQuery).collect();
   assertTargetsPresent(results, query.targetCheck, true);
@@ -485,9 +435,7 @@ export async function executeClientTransaction(
           const item = items[i]!;
 
           if (isTransactionItem(item)) {
-            const prefix = `tx${i}_`;
-            const prefixed = prefixQueryVars(item.compiledQuery, prefix);
-            const result = await executeItemInTransaction(txnDb, item, prefixed);
+            const result = await executeItemInTransaction(txnDb, item, item.compiledQuery);
             results.push(result);
           } else if (typeof item === 'function') {
             // The item runs and is awaited inside the scope: a query awaited outside it is not routed.
@@ -504,9 +452,8 @@ export async function executeClientTransaction(
                 registry: fnResult.registry,
                 select: fnResult.select,
               };
-              const prefixed = prefixQueryVars(txItem.compiledQuery, `tx${i}_`);
 
-              return executeItemInTransaction(txnDb, txItem, prefixed);
+              return executeItemInTransaction(txnDb, txItem, txItem.compiledQuery);
             });
             results.push(result);
           }
@@ -538,182 +485,4 @@ export async function executeClientTransaction(
   }
 
   throw lastError;
-}
-
-// =============================================================================
-// Legacy Text-Based Transaction Assembly (Deprecated)
-// =============================================================================
-
-/**
- * @deprecated Use `executeClientTransaction()` which uses SDK native transactions.
- * This text-based assembly approach is preserved for backward compatibility only.
- *
- * Assembles all queries into a single text-based transaction:
- *   BEGIN TRANSACTION; LET $tx_result_0 = (...); COMMIT TRANSACTION; RETURN [...];
- */
-export async function executeClientTransactionLegacy(db: Surreal, items: TransactionItem[]): Promise<unknown[]> {
-  if (!items.length) return [];
-
-  const statements: string[] = [];
-  const allVars: Record<string, unknown> = {};
-  const resultVarNames: string[] = [];
-  const maxRetries = 3;
-  let lastError: unknown;
-
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i]!;
-    const prefix = `tx${i}_`;
-    const resultVar = `$tx_result_${i}`;
-
-    const prefixed = prefixQueryVars(item.compiledQuery, prefix);
-    Object.assign(allVars, prefixed.vars);
-
-    if (isMultiStatementQuery(prefixed.text)) {
-      let innerText = stripTransactionWrapper(prefixed.text);
-      const { text: bodyText, returnExpr } = extractAndStripReturn(innerText);
-      innerText = bodyText;
-      const innerStatements = splitStatements(innerText);
-
-      if (returnExpr) {
-        for (const stmt of innerStatements) {
-          const trimmed = stmt.trim();
-          if (trimmed) statements.push(`${trimmed};`);
-        }
-
-        if (returnExpr.startsWith('$') && /^\$\w+$/.test(returnExpr)) {
-          resultVarNames.push(returnExpr);
-        } else if (/^SELECT\s+\*\s+FROM\s+ONLY\s+(\$\w+)/i.test(returnExpr)) {
-          const idVarMatch = returnExpr.match(/\$(\w+)$/);
-          if (idVarMatch) {
-            const idVarName = idVarMatch[1]!;
-            const resultVarCandidate = idVarName.replace(/Id$/, '');
-            const hasResultVar = innerStatements.some((s) =>
-              new RegExp(`LET\\s+\\$${resultVarCandidate}\\b`, 'i').test(s),
-            );
-            if (hasResultVar) {
-              resultVarNames.push(`$${resultVarCandidate}`);
-            } else {
-              statements.push(`LET ${resultVar} = (${returnExpr});`);
-              resultVarNames.push(resultVar);
-            }
-          } else {
-            statements.push(`LET ${resultVar} = (${returnExpr});`);
-            resultVarNames.push(resultVar);
-          }
-        } else {
-          statements.push(`LET ${resultVar} = (${returnExpr});`);
-          resultVarNames.push(resultVar);
-        }
-      } else {
-        const lastIdx = innerStatements.length - 1;
-        for (let j = 0; j <= lastIdx; j++) {
-          const trimmed = innerStatements[j]!.trim();
-          if (!trimmed) continue;
-
-          if (j === lastIdx && !trimmed.toUpperCase().startsWith('LET ') && !trimmed.toUpperCase().startsWith('IF ')) {
-            statements.push(`LET ${resultVar} = (${trimmed});`);
-            resultVarNames.push(resultVar);
-          } else {
-            statements.push(`${trimmed};`);
-          }
-        }
-
-        if (!resultVarNames.includes(resultVar)) {
-          const allLets = innerText.match(/LET\s+(\$\w+)/gi);
-          if (allLets?.length) {
-            const lastLet = allLets[allLets.length - 1]!.match(/\$\w+/);
-            if (lastLet) {
-              resultVarNames.push(lastLet[0]!);
-            } else {
-              resultVarNames.push('NONE');
-            }
-          } else {
-            resultVarNames.push('NONE');
-          }
-        }
-      }
-    } else {
-      const cleanText = prefixed.text.replace(/\s*;\s*$/, '').trim();
-      statements.push(`LET ${resultVar} = (${cleanText});`);
-      resultVarNames.push(resultVar);
-    }
-  }
-
-  const returnArray = resultVarNames.map((v) => (v === 'NONE' ? 'NONE' : v)).join(', ');
-  const transactionText = ['BEGIN TRANSACTION;', ...statements, 'COMMIT TRANSACTION;', `RETURN [${returnArray}];`].join(
-    '\n',
-  );
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      const boundQuery = new BoundQuery(transactionText, allVars);
-      const results = await db.query<unknown[]>(boundQuery).collect();
-
-      let resultArray: unknown[] | null = null;
-      if (results && results.length > 0) {
-        for (let i = results.length - 1; i >= 0; i--) {
-          const r = results[i];
-          if (r !== null && r !== undefined && Array.isArray(r)) {
-            resultArray = r;
-            break;
-          }
-        }
-      }
-
-      if (!resultArray) {
-        return items.map(() => null);
-      }
-
-      const mapped: unknown[] = [];
-      for (let i = 0; i < items.length; i++) {
-        const rawResult = i < resultArray.length ? resultArray[i] : null;
-        const txItem = items[i]!;
-        mapped.push(mapTransactionResult(rawResult, txItem.resultType, txItem.metadata, txItem.select));
-      }
-
-      return mapped;
-    } catch (error) {
-      lastError = error;
-
-      if (isTransactionConflict(error) && attempt < maxRetries) {
-        const delay = 2 ** attempt * 10 + Math.random() * 10;
-        await sleep(delay);
-        continue;
-      }
-
-      throw error;
-    }
-  }
-
-  throw lastError;
-}
-
-/**
- * Split a multi-statement query text into individual statements.
- * Handles semicolons inside parentheses (doesn't split on them).
- */
-function splitStatements(text: string): string[] {
-  const statements: string[] = [];
-  let current = '';
-  let depth = 0;
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-
-    if (char === '(') depth++;
-    else if (char === ')') depth--;
-    else if (char === ';' && depth === 0) {
-      const trimmed = current.trim();
-      if (trimmed) statements.push(trimmed);
-      current = '';
-      continue;
-    }
-
-    current += char;
-  }
-
-  const trimmed = current.trim();
-  if (trimmed) statements.push(trimmed);
-
-  return statements;
 }

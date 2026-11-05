@@ -1,0 +1,970 @@
+// ===== models/txpacct.ts =====
+/**
+ * Generated types for TxpAcct
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  TxpPost,
+  TxpPostWhere,
+  TxpPostSelect,
+  TxpPostOrderBy,
+  TxpPostNestedCreate,
+  TxpPostInclude,
+  GetTxpPostIncludePayload,
+} from './txppost.js';
+import type { TxpMeta, TxpMetaInput, TxpMetaWhere, TxpMetaSelect, TxpMetaOrderBy } from '../objects/txpmeta.js';
+export interface TxpAcct {
+  id: CerialId<string>;
+  email: string;
+  role: string;
+  credits: number;
+  meta: TxpMeta & Record<string, any>;
+}
+
+export interface TxpAcctInput {
+  id?: string;
+  email: string;
+  role: string;
+  credits: number;
+  meta: TxpMetaInput & Record<string, any>;
+}
+
+export interface TxpAcctWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  role?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  credits?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  meta?: TxpMetaWhere & { [key: string]: any };
+  posts?:
+    | {
+        some?: Omit<TxpPostWhere, '$raw'>;
+        every?: Omit<TxpPostWhere, '$raw'>;
+        none?: Omit<TxpPostWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<TxpPostWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
+  AND?: TxpAcctWhere[];
+  OR?: TxpAcctWhere[];
+  NOT?: TxpAcctWhere;
+}
+
+export type TxpAcctWhereInput = TxpAcctWhere;
+
+export type TxpAcctFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<TxpAcctWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<TxpAcctWhere, 'id' | 'email'>);
+
+export type TxpAcctCreate = O.Optional<O.Omit<TxpAcctInput, 'posts' | 'meta'>, 'id'> & {
+  meta: TxpMetaInput & Record<string, any>;
+};
+
+export type TxpAcctNestedCreate = O.Optional<O.Omit<TxpAcctInput, 'posts'>, 'id'>;
+
+export type TxpAcctCreateInput = TxpAcctCreate & {
+  posts?: {
+    create?: TxpPostNestedCreate | TxpPostNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type TxpAcctUpdate = Partial<O.Omit<TxpAcctInput, 'id' | 'posts' | 'meta'>> & {
+  meta?: Partial<TxpMetaInput & Record<string, any>> | { set: TxpMetaInput & Record<string, any> };
+};
+
+export type TxpAcctUpdateInput = TxpAcctUpdate & {
+  posts?: {
+    create?: TxpPostNestedCreate | TxpPostNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type TxpAcctUnset = {
+  meta?: {
+    tag?: true;
+  };
+};
+
+export interface TxpAcctSelectFields {
+  id?: boolean;
+  email?: boolean;
+  role?: boolean;
+  credits?: boolean;
+  meta?: boolean | (TxpMetaSelect & Record<string, unknown>);
+}
+
+export type TxpAcctSelect = AtLeastOne<TxpAcctSelectFields>;
+
+export interface TxpAcctOrderBy {
+  id?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  credits?: 'asc' | 'desc';
+  meta?: TxpMetaOrderBy;
+}
+
+export interface TxpAcctGroupByKeys {
+  id?: true;
+  email?: true;
+  role?: true;
+  credits?: true;
+  meta?: { tag?: true };
+}
+
+export interface TxpAcctCountAggregate {
+  _all?: true;
+  id?: true;
+  email?: true;
+  role?: true;
+  credits?: true;
+  meta?: true;
+}
+
+export interface TxpAcctNumericAggregate {
+  credits?: true;
+}
+
+export interface TxpAcctMinMaxAggregate {
+  id?: true;
+  email?: true;
+  role?: true;
+  credits?: true;
+}
+
+export interface TxpAcctGroupAggregate {
+  id?: true;
+  email?: true;
+  role?: true;
+  credits?: true;
+}
+
+export interface TxpAcctGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  credits?: 'asc' | 'desc';
+  meta?: { tag?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    credits?: 'asc' | 'desc';
+    meta?: 'asc' | 'desc';
+  };
+  _sum?: { credits?: 'asc' | 'desc' };
+  _avg?: { credits?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; email?: 'asc' | 'desc'; role?: 'asc' | 'desc'; credits?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; email?: 'asc' | 'desc'; role?: 'asc' | 'desc'; credits?: 'asc' | 'desc' };
+}
+
+export interface TxpAcctGroupByArgs {
+  by: TxpAcctGroupByKeys;
+  where?: TxpAcctWhere;
+  _count?: true | TxpAcctCountAggregate;
+  _sum?: TxpAcctNumericAggregate;
+  _avg?: TxpAcctNumericAggregate;
+  _min?: TxpAcctMinMaxAggregate;
+  _max?: TxpAcctMinMaxAggregate;
+  _group?: TxpAcctGroupAggregate;
+  orderBy?: TxpAcctGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TxpAcctGroupByAggregates {
+  _count: { _all: number; id: number; email: number; role: number; credits: number; meta: number };
+  _sum: { credits: number };
+  _avg: { credits: number | null };
+  _min: {
+    id: NonNullable<TxpAcct['id']> | null;
+    email: NonNullable<TxpAcct['email']> | null;
+    role: NonNullable<TxpAcct['role']> | null;
+    credits: NonNullable<TxpAcct['credits']> | null;
+  };
+  _max: {
+    id: NonNullable<TxpAcct['id']> | null;
+    email: NonNullable<TxpAcct['email']> | null;
+    role: NonNullable<TxpAcct['role']> | null;
+    credits: NonNullable<TxpAcct['credits']> | null;
+  };
+  _group: {
+    id: GroupMember<TxpAcct['id']>[];
+    email: GroupMember<TxpAcct['email']>[];
+    role: GroupMember<TxpAcct['role']>[];
+    credits: GroupMember<TxpAcct['credits']>[];
+  };
+}
+
+export type TxpAcctGroupByResult<A extends TxpAcctGroupByArgs> = GroupByRow<TxpAcct, A, TxpAcctGroupByAggregates>;
+
+export interface TxpAcctInclude {
+  posts?:
+    | boolean
+    | {
+        select?: TxpPostSelect;
+        where?: TxpPostWhere;
+        orderBy?: TxpPostOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: TxpPostInclude;
+      };
+}
+
+export type TxpAcct$Relations = {
+  posts: { type: TxpPost[]; include: TxpPostInclude };
+};
+
+export type GetTxpAcctIncludePayload<I extends TxpAcctInclude | undefined> = I extends TxpAcctInclude
+  ? Pick<
+      {
+        posts: I['posts'] extends true
+          ? TxpPost[]
+          : I['posts'] extends { select: infer S extends TxpPostSelect; include: infer NI extends TxpPostInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof TxpPost
+                  ? ResolveFieldSelect<TxpPost[P], S[P]>
+                  : never;
+              } & GetTxpPostIncludePayload<NI>)[]
+            : I['posts'] extends { select: infer S extends TxpPostSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof TxpPost
+                    ? ResolveFieldSelect<TxpPost[P], S[P]>
+                    : never;
+                }[]
+              : I['posts'] extends { include: infer NI extends TxpPostInclude }
+                ? (TxpPost & GetTxpPostIncludePayload<NI>)[]
+                : TxpPost[];
+      },
+      Extract<keyof I, keyof TxpAcct$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetTxpAcctPayload<
+  S extends TxpAcctSelect | undefined = undefined,
+  I extends TxpAcctInclude | undefined = undefined,
+> = A.Compute<
+  S extends TxpAcctSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TxpAcct
+          ? ResolveFieldSelect<TxpAcct[K], S[K]>
+          : never;
+      } & GetTxpAcctIncludePayload<I>
+    : I extends TxpAcctInclude
+      ? TxpAcct & GetTxpAcctIncludePayload<I>
+      : TxpAcct,
+  'flat'
+>;
+
+export interface TxpAcctModel {
+  findOne<
+    S extends TxpAcctSelect | undefined = undefined,
+    I extends TxpAcctInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: TxpAcctWhere;
+    select?: SelectArg<S, TxpAcctSelectFields>;
+    include?: IncludeArg<I, TxpAcctInclude>;
+    compute?: C & { [K in keyof C & (keyof TxpAcct | keyof TxpAcctWhere)]?: never };
+    orderBy?: TxpAcctOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetTxpAcctPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends TxpAcctSelect | undefined = undefined,
+    I extends TxpAcctInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: TxpAcctWhere;
+    select?: SelectArg<S, TxpAcctSelectFields>;
+    compute?: C & { [K in keyof C & (keyof TxpAcct | keyof TxpAcctWhere)]?: never };
+    orderBy?: TxpAcctOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, TxpAcctInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetTxpAcctPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends TxpAcctSelect | undefined = undefined,
+    I extends TxpAcctInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: TxpAcctFindUniqueWhere;
+    select?: SelectArg<S, TxpAcctSelectFields>;
+    include?: IncludeArg<I, TxpAcctInclude>;
+    compute?: C & { [K in keyof C & (keyof TxpAcct | keyof TxpAcctWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetTxpAcctPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends TxpAcctSelect | undefined = undefined, I extends TxpAcctInclude | undefined = undefined>(options: {
+    data: TxpAcctCreateInput;
+    select?: SelectArg<S, TxpAcctSelectFields>;
+    include?: IncludeArg<I, TxpAcctInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTxpAcctPayload<S, I>>;
+
+  updateMany<
+    S extends TxpAcctSelect | undefined = undefined,
+    I extends TxpAcctInclude | undefined = undefined,
+    D extends TxpAcctUpdateInput = TxpAcctUpdateInput,
+  >(options: {
+    where: TxpAcctWhere;
+    data: DataArg<D, TxpAcctUpdateInput>;
+    unset?: SafeUnset<TxpAcctUnset, D>;
+    select?: SelectArg<S, TxpAcctSelectFields>;
+    include?: IncludeArg<I, TxpAcctInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTxpAcctPayload<S, I>[]>;
+
+  updateUnique<
+    S extends TxpAcctSelect | undefined = undefined,
+    I extends TxpAcctInclude | undefined = undefined,
+    D extends TxpAcctUpdateInput = TxpAcctUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TxpAcctFindUniqueWhere;
+    data: DataArg<D, TxpAcctUpdateInput>;
+    unset?: SafeUnset<TxpAcctUnset, D>;
+    select?: SelectArg<S, TxpAcctSelectFields>;
+    include?: IncludeArg<I, TxpAcctInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TxpAcct | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTxpAcctPayload<S, I>, R>>;
+
+  upsert<
+    S extends TxpAcctSelect | undefined = undefined,
+    I extends TxpAcctInclude | undefined = undefined,
+    D extends TxpAcctUpdateInput = TxpAcctUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TxpAcctFindUniqueWhere;
+    create: TxpAcctCreateInput;
+    update?: DataArg<D, TxpAcctUpdateInput>;
+    unset?: SafeUnset<TxpAcctUnset, D>;
+    select?: SelectArg<S, TxpAcctSelectFields>;
+    include?: IncludeArg<I, TxpAcctInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTxpAcctPayload<S, I>, R>>;
+
+  upsert<
+    S extends TxpAcctSelect | undefined = undefined,
+    I extends TxpAcctInclude | undefined = undefined,
+    D extends TxpAcctUpdateInput = TxpAcctUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TxpAcctWhere;
+    create: TxpAcctCreateInput;
+    update?: DataArg<D, TxpAcctUpdateInput>;
+    unset?: SafeUnset<TxpAcctUnset, D>;
+    select?: SelectArg<S, TxpAcctSelectFields>;
+    include?: IncludeArg<I, TxpAcctInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTxpAcctPayload<S, I>, R>>;
+
+  deleteMany(options: { where: TxpAcctWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TxpAcctFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TxpAcct | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TxpAcct, R>>;
+
+  count(where?: TxpAcctWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends TxpAcctGroupByArgs>(
+    args: GroupByArg<A, TxpAcctGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TxpAcctGroupByResult<A>[]>;
+
+  exists(where?: TxpAcctWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TxpAcctWhere }): Promise<import('cerial').CerialLiveHandle<TxpAcct>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/txppost.ts =====
+/**
+ * Generated types for TxpPost
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  TxpAcct,
+  TxpAcctWhere,
+  TxpAcctSelect,
+  TxpAcctOrderBy,
+  TxpAcctNestedCreate,
+  TxpAcctInclude,
+  GetTxpAcctIncludePayload,
+} from './txpacct.js';
+export interface TxpPost {
+  id: CerialId<string>;
+  title: string;
+  acctId: CerialId<string>;
+}
+
+export interface TxpPostInput {
+  id?: string;
+  title: string;
+  acctId: RecordIdInput<string>;
+}
+
+export interface TxpPostWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  acctId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  acct?: Omit<TxpAcctWhere, '$raw'>;
+  $raw?: SqlFragment;
+  AND?: TxpPostWhere[];
+  OR?: TxpPostWhere[];
+  NOT?: TxpPostWhere;
+}
+
+export type TxpPostWhereInput = TxpPostWhere;
+
+export type TxpPostFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TxpPostWhere, 'id'>;
+
+export type TxpPostCreate = O.Optional<O.Omit<TxpPostInput, 'acct'>, 'id'>;
+
+export type TxpPostNestedCreate = O.Optional<O.Omit<TxpPostInput, 'acct' | 'acctId'>, 'id'>;
+
+export type TxpPostCreateInput =
+  | TxpPostCreate
+  | (O.Omit<TxpPostCreate, 'acctId'> & {
+      acct: { create: TxpAcctNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type TxpPostUpdate = Partial<O.Omit<TxpPostInput, 'id' | 'acct'>>;
+
+export type TxpPostUpdateInput =
+  | TxpPostUpdate
+  | (O.Omit<TxpPostUpdate, 'acctId'> & {
+      acct?: { create: TxpAcctNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type TxpPostUnset = {};
+
+export interface TxpPostSelectFields {
+  id?: boolean;
+  title?: boolean;
+  acctId?: boolean;
+}
+
+export type TxpPostSelect = AtLeastOne<TxpPostSelectFields>;
+
+export interface TxpPostOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  acctId?: 'asc' | 'desc';
+  acct?: TxpAcctOrderBy;
+}
+
+export interface TxpPostGroupByKeys {
+  id?: true;
+  title?: true;
+  acctId?: true;
+}
+
+export interface TxpPostCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  acctId?: true;
+}
+
+export interface TxpPostMinMaxAggregate {
+  id?: true;
+  title?: true;
+  acctId?: true;
+}
+
+export interface TxpPostGroupAggregate {
+  id?: true;
+  title?: true;
+  acctId?: true;
+}
+
+export interface TxpPostGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  acctId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; acctId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; acctId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; acctId?: 'asc' | 'desc' };
+}
+
+export interface TxpPostGroupByArgs {
+  by: TxpPostGroupByKeys;
+  where?: TxpPostWhere;
+  _count?: true | TxpPostCountAggregate;
+  _min?: TxpPostMinMaxAggregate;
+  _max?: TxpPostMinMaxAggregate;
+  _group?: TxpPostGroupAggregate;
+  orderBy?: TxpPostGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TxpPostGroupByAggregates {
+  _count: { _all: number; id: number; title: number; acctId: number };
+  _min: {
+    id: NonNullable<TxpPost['id']> | null;
+    title: NonNullable<TxpPost['title']> | null;
+    acctId: NonNullable<TxpPost['acctId']> | null;
+  };
+  _max: {
+    id: NonNullable<TxpPost['id']> | null;
+    title: NonNullable<TxpPost['title']> | null;
+    acctId: NonNullable<TxpPost['acctId']> | null;
+  };
+  _group: {
+    id: GroupMember<TxpPost['id']>[];
+    title: GroupMember<TxpPost['title']>[];
+    acctId: GroupMember<TxpPost['acctId']>[];
+  };
+}
+
+export type TxpPostGroupByResult<A extends TxpPostGroupByArgs> = GroupByRow<TxpPost, A, TxpPostGroupByAggregates>;
+
+export interface TxpPostInclude {
+  acct?:
+    | boolean
+    | {
+        select?: TxpAcctSelect;
+        where?: TxpAcctWhere;
+        include?: TxpAcctInclude;
+      };
+}
+
+export type TxpPost$Relations = {
+  acct: { type: TxpAcct; include: TxpAcctInclude };
+};
+
+export type GetTxpPostIncludePayload<I extends TxpPostInclude | undefined> = I extends TxpPostInclude
+  ? Pick<
+      {
+        acct: I['acct'] extends true
+          ? TxpAcct
+          : I['acct'] extends { select: infer S extends TxpAcctSelect; include: infer NI extends TxpAcctInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof TxpAcct
+                  ? ResolveFieldSelect<TxpAcct[P], S[P]>
+                  : never;
+              } & GetTxpAcctIncludePayload<NI>
+            : I['acct'] extends { select: infer S extends TxpAcctSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof TxpAcct
+                    ? ResolveFieldSelect<TxpAcct[P], S[P]>
+                    : never;
+                }
+              : I['acct'] extends { include: infer NI extends TxpAcctInclude }
+                ? TxpAcct & GetTxpAcctIncludePayload<NI>
+                : TxpAcct;
+      },
+      Extract<keyof I, keyof TxpPost$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetTxpPostPayload<
+  S extends TxpPostSelect | undefined = undefined,
+  I extends TxpPostInclude | undefined = undefined,
+> = A.Compute<
+  S extends TxpPostSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TxpPost
+          ? ResolveFieldSelect<TxpPost[K], S[K]>
+          : never;
+      } & GetTxpPostIncludePayload<I>
+    : I extends TxpPostInclude
+      ? TxpPost & GetTxpPostIncludePayload<I>
+      : TxpPost,
+  'flat'
+>;
+
+export interface TxpPostModel {
+  findOne<
+    S extends TxpPostSelect | undefined = undefined,
+    I extends TxpPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: TxpPostWhere;
+    select?: SelectArg<S, TxpPostSelectFields>;
+    include?: IncludeArg<I, TxpPostInclude>;
+    compute?: C & { [K in keyof C & (keyof TxpPost | keyof TxpPostWhere)]?: never };
+    orderBy?: TxpPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetTxpPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends TxpPostSelect | undefined = undefined,
+    I extends TxpPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: TxpPostWhere;
+    select?: SelectArg<S, TxpPostSelectFields>;
+    compute?: C & { [K in keyof C & (keyof TxpPost | keyof TxpPostWhere)]?: never };
+    orderBy?: TxpPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, TxpPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetTxpPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends TxpPostSelect | undefined = undefined,
+    I extends TxpPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: TxpPostFindUniqueWhere;
+    select?: SelectArg<S, TxpPostSelectFields>;
+    include?: IncludeArg<I, TxpPostInclude>;
+    compute?: C & { [K in keyof C & (keyof TxpPost | keyof TxpPostWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetTxpPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends TxpPostSelect | undefined = undefined, I extends TxpPostInclude | undefined = undefined>(options: {
+    data: TxpPostCreateInput;
+    select?: SelectArg<S, TxpPostSelectFields>;
+    include?: IncludeArg<I, TxpPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTxpPostPayload<S, I>>;
+
+  updateMany<
+    S extends TxpPostSelect | undefined = undefined,
+    I extends TxpPostInclude | undefined = undefined,
+    D extends TxpPostUpdateInput = TxpPostUpdateInput,
+  >(options: {
+    where: TxpPostWhere;
+    data: DataArg<D, TxpPostUpdateInput>;
+    unset?: SafeUnset<TxpPostUnset, D>;
+    select?: SelectArg<S, TxpPostSelectFields>;
+    include?: IncludeArg<I, TxpPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTxpPostPayload<S, I>[]>;
+
+  updateUnique<
+    S extends TxpPostSelect | undefined = undefined,
+    I extends TxpPostInclude | undefined = undefined,
+    D extends TxpPostUpdateInput = TxpPostUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TxpPostFindUniqueWhere;
+    data: DataArg<D, TxpPostUpdateInput>;
+    unset?: SafeUnset<TxpPostUnset, D>;
+    select?: SelectArg<S, TxpPostSelectFields>;
+    include?: IncludeArg<I, TxpPostInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TxpPost | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTxpPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends TxpPostSelect | undefined = undefined,
+    I extends TxpPostInclude | undefined = undefined,
+    D extends TxpPostUpdateInput = TxpPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TxpPostFindUniqueWhere;
+    create: TxpPostCreateInput;
+    update?: DataArg<D, TxpPostUpdateInput>;
+    unset?: SafeUnset<TxpPostUnset, D>;
+    select?: SelectArg<S, TxpPostSelectFields>;
+    include?: IncludeArg<I, TxpPostInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTxpPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends TxpPostSelect | undefined = undefined,
+    I extends TxpPostInclude | undefined = undefined,
+    D extends TxpPostUpdateInput = TxpPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TxpPostWhere;
+    create: TxpPostCreateInput;
+    update?: DataArg<D, TxpPostUpdateInput>;
+    unset?: SafeUnset<TxpPostUnset, D>;
+    select?: SelectArg<S, TxpPostSelectFields>;
+    include?: IncludeArg<I, TxpPostInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTxpPostPayload<S, I>, R>>;
+
+  deleteMany(options: { where: TxpPostWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TxpPostFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TxpPost | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TxpPost, R>>;
+
+  count(where?: TxpPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends TxpPostGroupByArgs>(
+    args: GroupByArg<A, TxpPostGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TxpPostGroupByResult<A>[]>;
+
+  exists(where?: TxpPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: TxpPostWhere }): Promise<import('cerial').CerialLiveHandle<TxpPost>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/txpmeta.ts =====
+/**
+ * Generated types for TxpMeta
+ * Do not edit manually
+ */
+
+export interface TxpMeta {
+  tag?: string;
+}
+
+export interface TxpMetaInput {
+  tag?: string;
+}
+
+export interface TxpMetaWhere {
+  tag?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: TxpMetaWhere[];
+  OR?: TxpMetaWhere[];
+  NOT?: TxpMetaWhere;
+}
+
+export type TxpMetaSelect = { tag: boolean };
+
+export interface TxpMetaOrderBy {
+  tag?: 'asc' | 'desc';
+}

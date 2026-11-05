@@ -202,6 +202,8 @@ export type ModelName =
   | 'PnItem'
   | 'PnTag'
   | 'PnPost'
+  | 'TxpAcct'
+  | 'TxpPost'
   | 'IntIdModel'
   | 'NumberIdModel'
   | 'StringIdModel'
@@ -447,6 +449,8 @@ export const modelNames = [
   'PnItem',
   'PnTag',
   'PnPost',
+  'TxpAcct',
+  'TxpPost',
   'IntIdModel',
   'NumberIdModel',
   'StringIdModel',
@@ -702,6 +706,8 @@ export const modelFingerprints: Record<ModelName, string> = {
   PnItem: 'fef15d804c8394d70e5bc8f5886623486acab7311ae6635046d795c80ebaf87e',
   PnTag: '20b17ef8f0fa1878961e9dfd3f14b29139dc628d78b61dc62e151f0410e3a888',
   PnPost: '0651e5c92d150e632766af70b381a09e0b69f9e21d62d1db51a65519aed56f0c',
+  TxpAcct: '03a84f80756626e19bf714fb62839d11c5d595bbbf706d7d73a0eb14ab1af5bb',
+  TxpPost: '9b84bbe3d88ff312154a166a8f880c979e160508ae7303ae307eea0eb5ed7555',
   IntIdModel: '3a91b01b58181be3b258639a2afd8d25993dffcfcba2070c550b3c6124657980',
   NumberIdModel: 'ec2880bacb07b0b9a5bfb97e28831c2eeadbd38bbe00b1ec4f695415e5fa53a1',
   StringIdModel: 'd47e421297e0065143ec96d7291ba208d98984fc7c8e84e6897c84de4b173a05',
@@ -756,7 +762,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = 'b072e0120b9e69fa3f53b78c0524590c3f0beedb7f3591969f8d61961a282e0f';
+export const wholeSchemaFingerprint = '959171f85a6d449c2806dc6ad719cc7a3b1f47fc3e9db0d3feaf408fda07a387';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

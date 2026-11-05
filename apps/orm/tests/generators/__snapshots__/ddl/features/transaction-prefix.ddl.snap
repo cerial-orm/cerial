@@ -1,0 +1,13 @@
+-- TxpAcct
+DEFINE TABLE OVERWRITE txp_acct SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON TABLE txp_acct TYPE string;
+DEFINE FIELD OVERWRITE role ON TABLE txp_acct TYPE string;
+DEFINE FIELD OVERWRITE credits ON TABLE txp_acct TYPE int;
+DEFINE FIELD OVERWRITE meta ON TABLE txp_acct TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE meta.tag ON TABLE txp_acct TYPE option<string>;
+DEFINE INDEX OVERWRITE txp_acct_email_unique ON TABLE txp_acct COLUMNS email UNIQUE;
+
+-- TxpPost
+DEFINE TABLE OVERWRITE txp_post SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE txp_post TYPE string;
+DEFINE FIELD OVERWRITE acctId ON TABLE txp_post TYPE record<txp_acct>;

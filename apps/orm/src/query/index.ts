@@ -55,7 +55,6 @@ export type { ExecuteOptions, TransactionExecutionItem, TransactionItem } from '
 // Executor
 export {
   executeClientTransaction,
-  executeClientTransactionLegacy,
   executeQuery,
   executeQuerySingle,
   executeRaw,

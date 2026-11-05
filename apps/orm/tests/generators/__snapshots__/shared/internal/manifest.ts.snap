@@ -2070,6 +2070,25 @@ export const manifest = deepFreeze({
       indexes: [],
     },
     {
+      name: 'txp_acct',
+      fields: [
+        { path: ['email'], kind: 'string' },
+        { path: ['role'], kind: 'string' },
+        { path: ['credits'], kind: 'int' },
+        { path: ['meta'], kind: 'object', flexible: true },
+        { path: ['meta', 'tag'], kind: 'none | string' },
+      ],
+      indexes: [{ name: 'txp_acct_email_unique', columns: [['email']], index: 'UNIQUE' }],
+    },
+    {
+      name: 'txp_post',
+      fields: [
+        { path: ['title'], kind: 'string' },
+        { path: ['acctId'], kind: 'record<txp_acct>' },
+      ],
+      indexes: [],
+    },
+    {
       name: 'int_id_model',
       fields: [
         { path: ['id'], kind: 'int' },

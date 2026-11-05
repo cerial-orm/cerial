@@ -324,6 +324,7 @@ export const tables = {
   ],
   unset: ['unset_test'],
   placeholderNames: ['pn_owner', 'pn_item', 'pn_tag', 'pn_post'],
+  transactionPrefix: ['txp_acct', 'txp_post'],
   groupBy: ['gb_author', 'gb_tag', 'gb_order', 'gb_label', 'gb_bare'],
 
   // ── Multi-schema runtime (fixtures under tests/fixtures/multi-schema) ──

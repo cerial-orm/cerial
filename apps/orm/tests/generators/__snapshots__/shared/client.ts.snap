@@ -250,6 +250,8 @@ import type {
   PnItem,
   PnTag,
   PnPost,
+  TxpAcct,
+  TxpPost,
   IntIdModel,
   NumberIdModel,
   StringIdModel,
@@ -492,6 +494,8 @@ import type {
   PnItemModel,
   PnTagModel,
   PnPostModel,
+  TxpAcctModel,
+  TxpPostModel,
   IntIdModelModel,
   NumberIdModelModel,
   StringIdModelModel,
@@ -742,6 +746,8 @@ export interface TypedDb {
   PnItem: PnItemModel;
   PnTag: PnTagModel;
   PnPost: PnPostModel;
+  TxpAcct: TxpAcctModel;
+  TxpPost: TxpPostModel;
   IntIdModel: IntIdModelModel;
   NumberIdModel: NumberIdModelModel;
   StringIdModel: StringIdModelModel;
@@ -1695,6 +1701,14 @@ export class CerialClient {
 
   get PnPost(): PnPostModel {
     return this._ensureDb().PnPost;
+  }
+
+  get TxpAcct(): TxpAcctModel {
+    return this._ensureDb().TxpAcct;
+  }
+
+  get TxpPost(): TxpPostModel {
+    return this._ensureDb().TxpPost;
   }
 
   get IntIdModel(): IntIdModelModel {

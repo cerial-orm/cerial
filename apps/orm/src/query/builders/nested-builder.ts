@@ -13,7 +13,8 @@ import type { RecordId } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
 import type { RecordIdInput } from '../../utils/cerial-id';
-import type { CompiledQuery, TargetCheckMap } from '../compile/types';
+import type { TargetCheckMap } from '../compile/types';
+import type { PartsCompiledQuery, StatementParts } from '../executor';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
@@ -295,6 +296,25 @@ function buildNestedReturn(
   return `RETURN (SELECT ${fields} FROM ${single ? 'ONLY ' : ''}${rows});`;
 }
 
+/**
+ * The statements by position, so the executor and the upsert builder never search the text for the wrapper or
+ * the RETURN, which a caller-chosen key in the projection could spell.
+ */
+function nestedParts(
+  statements: string[],
+  returnStatement: string,
+  transactionMode: boolean | undefined,
+  guarded: boolean,
+): StatementParts {
+  // [BEGIN, header, body, RETURN, '};', COMMIT]: the RETURN sits inside the block
+  if (guarded) return { body: statements.slice(1, -1).join('\n') };
+  // [body, RETURN]
+  if (transactionMode) return { body: statements.slice(0, -1).join('\n'), ret: returnStatement };
+
+  // [BEGIN, body, COMMIT, RETURN]
+  return { body: statements.slice(1, -2).join('\n'), ret: returnStatement };
+}
+
 export interface TargetCheck {
   targetModel: ModelMetadata;
   targetIds: RecordIdInput[];
@@ -402,7 +422,7 @@ export function buildCreateWithNestedTransaction(
   nestedOps: Map<string, NestedOperation>,
   registry: ModelRegistry,
   options: NestedWriteOptions = {},
-): CompiledQuery {
+): PartsCompiledQuery {
   const { transactionMode, recordId } = options;
   const ctx = createCompileContext('', options.issued);
   const includeCtx = createCompileContext('inc_', ctx.issued);
@@ -722,6 +742,7 @@ export function buildCreateWithNestedTransaction(
     text: statements.join('\n'),
     vars: { ...vars, ...includeCtx.getCollected() },
     ...(guard && { targetCheck: guard.map }),
+    parts: nestedParts(statements, returnStatement, transactionMode, !!guard),
   };
 }
 
@@ -735,7 +756,7 @@ export function buildUpdateWithNestedTransaction(
   nestedOps: Map<string, NestedOperation>,
   registry: ModelRegistry,
   options: NestedWriteOptions = {},
-): CompiledQuery {
+): PartsCompiledQuery {
   const { transactionMode, returnBefore } = options;
   const ctx = createCompileContext('', options.issued);
   const includeCtx = createCompileContext('inc_', ctx.issued);
@@ -1135,5 +1156,6 @@ export function buildUpdateWithNestedTransaction(
     text: statements.join('\n'),
     vars: { ...vars, ...includeCtx.getCollected() },
     ...(guard && { targetCheck: guard.map }),
+    parts: nestedParts(statements, returnStatement, transactionMode, !!guard),
   };
 }

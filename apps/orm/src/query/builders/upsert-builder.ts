@@ -23,9 +23,9 @@ import type { RecordId } from 'surrealdb';
 import type { FieldMetadata, ModelMetadata, ModelRegistry, SelectClause, UpsertReturn, WhereClause } from '../../types';
 import { isNone } from '../../utils/none';
 import { bindWithInlineExpressions, containsInlineExpression } from '../compile/inline-expression';
+import type { PartsCompiledQuery } from '../executor';
 import type { CompiledQuery, TargetCheckMap } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
-import { prefixQueryVars } from '../executor';
 import { transformDestructiveWhere, transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
@@ -518,13 +518,13 @@ export interface UpsertNestedOptions {
  * A `RETURN` inside an `IF` block leaves the whole statement it sits in, so the `LET` around the `IF`
  * would never be assigned and the row would surface as that statement's own result instead.
  */
-function asBlockValue(text: string): string {
-  const at = text.lastIndexOf('\nRETURN ');
+function asBlockValue(query: PartsCompiledQuery): string {
   // Not a Cerial error class on purpose: no input reaches this, it fires only if this builder emits a
   // branch without a RETURN, which is a bug here rather than anything a caller can cause or recover from
-  if (at === -1) throw new Error('nested upsert: the branch statements end without a RETURN');
+  if (!query.parts?.ret) throw new Error('nested upsert: the branch statements end without a RETURN');
 
-  return `${text.slice(0, at + 1)}${text.slice(at + '\nRETURN '.length)}`;
+  // The RETURN is the builder's own statement, taken by position: a selected key may spell `\nRETURN `
+  return `${query.parts.body}\n${query.parts.ret.slice('RETURN '.length)}`;
 }
 
 /**
@@ -557,35 +557,33 @@ export function buildUpsertWithNestedTransaction(
     ? `(SELECT id FROM ONLY ${existsBinding.placeholder})`
     : `(SELECT id FROM ${model.tableName} ${whereClause?.text} LIMIT 1)[0]`;
 
-  const createQuery = prefixQueryVars(
-    buildCreateWithNestedTransaction(model, createData, createNestedOps, registry, {
-      transactionMode: true,
-      recordId,
-      select,
-      include,
-    }),
-    'c_',
-  );
-  const create = asBlockValue(createQuery.text);
+  // The halves draw names from one set, so the create and update variables stay apart without a rename
+  const issued = new Set<string>();
+  const createQuery = buildCreateWithNestedTransaction(model, createData, createNestedOps, registry, {
+    transactionMode: true,
+    recordId,
+    select,
+    include,
+    issued,
+  });
+  const create = asBlockValue(createQuery);
 
   // Nothing to write to an existing row: hand it back, projected the way the writes project theirs
   const hasUpdate = Object.keys(updateData).length > 0 || updateNestedOps.size > 0;
   const includeCtx = createCompileContext('inc_');
   const updateQuery = hasUpdate
-    ? prefixQueryVars(
-        buildUpdateWithNestedTransaction(model, where, updateData, updateNestedOps, registry, {
-          transactionMode: true,
-          returnBefore: isBefore,
-          select,
-          include,
-        }),
-        'u_',
-      )
+    ? buildUpdateWithNestedTransaction(model, where, updateData, updateNestedOps, registry, {
+        transactionMode: true,
+        returnBefore: isBefore,
+        select,
+        include,
+        issued,
+      })
     : {
         text: `(SELECT ${buildSelectFields(select, model, include, registry, includeCtx)} FROM ONLY $up_exists.id);`,
         vars: includeCtx.getCollected(),
       };
-  const update = hasUpdate ? asBlockValue(updateQuery.text) : updateQuery.text;
+  const update = hasUpdate ? asBlockValue(updateQuery) : updateQuery.text;
 
   // A created row has no before state; `return: true` is a flag, which the boolean mapper reads only as a
   // boolean or an array, never as the single row a created half yields

@@ -1,0 +1,139 @@
+{
+  "models": {
+    "TxpAcct": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "email",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "credits",
+          "type": "int"
+        },
+        {
+          "isFlexible": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "meta",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "tag",
+                "type": "string"
+              }
+            ],
+            "objectName": "TxpMeta"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "posts",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "TxpPost",
+            "targetTable": "txp_post"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "TxpAcct",
+      "tableName": "txp_acct"
+    },
+    "TxpPost": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "acctId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "acct",
+          "relationInfo": {
+            "fieldRef": "acctId",
+            "isReverse": false,
+            "targetModel": "TxpAcct",
+            "targetTable": "txp_acct"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "TxpPost",
+      "tableName": "txp_post"
+    }
+  },
+  "objects": {
+    "TxpMeta": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "tag",
+          "type": "string"
+        }
+      ],
+      "name": "TxpMeta"
+    }
+  }
+}

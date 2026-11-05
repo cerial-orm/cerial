@@ -1,0 +1,21 @@
+# Transaction variable prefix schema: a @flexible sub-key chosen by the caller may spell a
+# variable name (`LET $this`), and $transaction must not rename the builder's own variables.
+object TxpMeta {
+  tag String?
+}
+
+model TxpAcct {
+  id Record @id
+  email String @unique
+  role String
+  credits Int
+  meta TxpMeta @flexible
+  posts Relation[] @model(TxpPost)
+}
+
+model TxpPost {
+  id Record @id
+  title String
+  acctId Record
+  acct Relation @field(acctId) @model(TxpAcct)
+}

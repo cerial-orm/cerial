@@ -194,6 +194,8 @@ export type * from './pnowner.js';
 export type * from './pnitem.js';
 export type * from './pntag.js';
 export type * from './pnpost.js';
+export type * from './txpacct.js';
+export type * from './txppost.js';
 export type * from './intidmodel.js';
 export type * from './numberidmodel.js';
 export type * from './stringidmodel.js';

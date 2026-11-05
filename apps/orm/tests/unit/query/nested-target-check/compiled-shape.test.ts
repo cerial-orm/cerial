@@ -8,7 +8,6 @@ import {
   buildCreateWithNestedTransaction,
   buildUpdateWithNestedTransaction,
 } from '../../../../src/query/builders/nested-builder';
-import { prefixQueryVars } from '../../../../src/query/executor';
 import { registry, userModel } from './helpers';
 
 const data = { email: 'a@b.co', name: 'A' };
@@ -159,20 +158,6 @@ describe('guarded nested update', () => {
       expect(query.targetCheck).toBeUndefined();
       expect(query.text).not.toContain('target_missing');
     }
-  });
-
-  test('prefixQueryVars carries the side table and renames the guard variable', () => {
-    const query = buildUpdateWithNestedTransaction(
-      userModel,
-      where,
-      {},
-      new Map([['profile', { connect: 'profile:a' }]]),
-      registry,
-    );
-    const prefixed = prefixQueryVars(query, 'tx0_');
-
-    expect(prefixed.targetCheck).toBe(query.targetCheck);
-    expect(prefixed.text).toContain('$tx0_target_missing');
   });
 });
 

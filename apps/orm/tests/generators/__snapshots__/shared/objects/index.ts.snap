@@ -68,6 +68,7 @@ export type * from './extchainomitted.js';
 export type * from './extchainomittedthenpicked.js';
 export type * from './extcoord.js';
 export type * from './gbaddress.js';
+export type * from './txpmeta.js';
 export type * from './idmetrickey.js';
 export type * from './unsetaddress.js';
 export type * from './unsetinner.js';
