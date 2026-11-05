@@ -1,0 +1,222 @@
+# Sized number types (SurrealDB 4.0): Int8 Uint8 Int16 Uint16 Int32 Uint32 Uint64 Float16 Float32
+# One model per type with every field form: required, optional, @nullable, array, @set, @default, object field, tuple.
+# Plus owner/reading models for include, and a Number and Any holder for the raw-write read.
+
+object SzInt8Obj {
+  val Int8
+  opt Int8?
+}
+
+tuple SzInt8Tup {
+  Int8,
+  Int8 @nullable
+}
+
+model SzInt8 {
+  id Record @id
+  reqVal Int8
+  optVal Int8?
+  nullVal Int8 @nullable
+  arrVal Int8[]
+  setVal Int8[] @set
+  dfltVal Int8 @default(-5)
+  objVal SzInt8Obj
+  tupVal SzInt8Tup
+}
+
+object SzUint8Obj {
+  val Uint8
+  opt Uint8?
+}
+
+tuple SzUint8Tup {
+  Uint8,
+  Uint8 @nullable
+}
+
+model SzUint8 {
+  id Record @id
+  reqVal Uint8
+  optVal Uint8?
+  nullVal Uint8 @nullable
+  arrVal Uint8[]
+  setVal Uint8[] @set
+  dfltVal Uint8 @default(7)
+  objVal SzUint8Obj
+  tupVal SzUint8Tup
+}
+
+object SzInt16Obj {
+  val Int16
+  opt Int16?
+}
+
+tuple SzInt16Tup {
+  Int16,
+  Int16 @nullable
+}
+
+model SzInt16 {
+  id Record @id
+  reqVal Int16
+  optVal Int16?
+  nullVal Int16 @nullable
+  arrVal Int16[]
+  setVal Int16[] @set
+  dfltVal Int16 @default(-40)
+  objVal SzInt16Obj
+  tupVal SzInt16Tup
+}
+
+object SzUint16Obj {
+  val Uint16
+  opt Uint16?
+}
+
+tuple SzUint16Tup {
+  Uint16,
+  Uint16 @nullable
+}
+
+model SzUint16 {
+  id Record @id
+  reqVal Uint16
+  optVal Uint16?
+  nullVal Uint16 @nullable
+  arrVal Uint16[]
+  setVal Uint16[] @set
+  dfltVal Uint16 @default(300)
+  objVal SzUint16Obj
+  tupVal SzUint16Tup
+}
+
+object SzInt32Obj {
+  val Int32
+  opt Int32?
+}
+
+tuple SzInt32Tup {
+  Int32,
+  Int32 @nullable
+}
+
+model SzInt32 {
+  id Record @id
+  reqVal Int32
+  optVal Int32?
+  nullVal Int32 @nullable
+  arrVal Int32[]
+  setVal Int32[] @set
+  dfltVal Int32 @default(-70000)
+  objVal SzInt32Obj
+  tupVal SzInt32Tup
+}
+
+object SzUint32Obj {
+  val Uint32
+  opt Uint32?
+}
+
+tuple SzUint32Tup {
+  Uint32,
+  Uint32 @nullable
+}
+
+model SzUint32 {
+  id Record @id
+  reqVal Uint32
+  optVal Uint32?
+  nullVal Uint32 @nullable
+  arrVal Uint32[]
+  setVal Uint32[] @set
+  dfltVal Uint32 @default(70000)
+  objVal SzUint32Obj
+  tupVal SzUint32Tup
+}
+
+object SzUint64Obj {
+  val Uint64
+  opt Uint64?
+}
+
+tuple SzUint64Tup {
+  Uint64,
+  Uint64 @nullable
+}
+
+model SzUint64 {
+  id Record @id
+  reqVal Uint64
+  optVal Uint64?
+  nullVal Uint64 @nullable
+  arrVal Uint64[]
+  setVal Uint64[] @set
+  dfltVal Uint64 @default(5)
+  objVal SzUint64Obj
+  tupVal SzUint64Tup
+}
+
+object SzFloat16Obj {
+  val Float16
+  opt Float16?
+}
+
+tuple SzFloat16Tup {
+  Float16,
+  Float16 @nullable
+}
+
+model SzFloat16 {
+  id Record @id
+  reqVal Float16
+  optVal Float16?
+  nullVal Float16 @nullable
+  arrVal Float16[]
+  setVal Float16[] @set
+  dfltVal Float16 @default(1.5)
+  objVal SzFloat16Obj
+  tupVal SzFloat16Tup
+}
+
+object SzFloat32Obj {
+  val Float32
+  opt Float32?
+}
+
+tuple SzFloat32Tup {
+  Float32,
+  Float32 @nullable
+}
+
+model SzFloat32 {
+  id Record @id
+  reqVal Float32
+  optVal Float32?
+  nullVal Float32 @nullable
+  arrVal Float32[]
+  setVal Float32[] @set
+  dfltVal Float32 @default(2.5)
+  objVal SzFloat32Obj
+  tupVal SzFloat32Tup
+}
+
+model SzOwner {
+  id Record @id
+  name String
+  readings Relation[] @model(SzReading)
+}
+
+model SzReading {
+  id Record @id
+  ownerId Record
+  owner Relation @field(ownerId) @model(SzOwner)
+  channel Uint8
+  level Float32
+  counter Uint64
+}
+
+model SzRawHolder {
+  id Record @id
+  numVal Number
+  anyVal Any
+}

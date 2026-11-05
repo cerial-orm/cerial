@@ -1,0 +1,5712 @@
+// ===== models/szfloat16.ts =====
+/**
+ * Generated types for SzFloat16
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzFloat16Obj,
+  SzFloat16ObjInput,
+  SzFloat16ObjWhere,
+  SzFloat16ObjSelect,
+  SzFloat16ObjOrderBy,
+} from '../objects/szfloat16obj';
+import type {
+  SzFloat16Tup,
+  SzFloat16TupInput,
+  SzFloat16TupWhere,
+  SzFloat16TupUpdate,
+  SzFloat16TupUnset,
+} from '../tuples/szfloat16tup';
+export interface SzFloat16 {
+  id: CerialId<string>;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: CerialSet<number>;
+  dfltVal: number;
+  objVal: SzFloat16Obj;
+  tupVal: SzFloat16Tup;
+}
+
+export interface SzFloat16Input {
+  id?: string;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: number[];
+  dfltVal: number;
+  objVal: SzFloat16ObjInput;
+  tupVal: SzFloat16TupInput;
+}
+
+export interface SzFloat16Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  optVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  nullVal?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  arrVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  objVal?: SzFloat16ObjWhere;
+  tupVal?: SzFloat16TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzFloat16Where[];
+  OR?: SzFloat16Where[];
+  NOT?: SzFloat16Where;
+}
+
+export type SzFloat16WhereInput = SzFloat16Where;
+
+export type SzFloat16FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzFloat16Where, 'id'>;
+
+export type SzFloat16Create = O.Optional<SzFloat16Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzFloat16NestedCreate = O.Optional<SzFloat16Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzFloat16CreateInput = SzFloat16Create;
+
+export type SzFloat16Update = Partial<
+  O.Omit<SzFloat16Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  setVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  objVal?: Partial<SzFloat16ObjInput> | { set: SzFloat16ObjInput };
+  tupVal?: [number, number | null] | SzFloat16TupUpdate;
+  optVal?: number | CerialNone;
+  nullVal?: number | null;
+};
+
+export type SzFloat16UpdateInput = SzFloat16Update;
+
+export type SzFloat16Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzFloat16TupUnset;
+};
+
+export interface SzFloat16SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzFloat16ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzFloat16Select = AtLeastOne<SzFloat16SelectFields>;
+
+export interface SzFloat16OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzFloat16ObjOrderBy;
+}
+
+export type SzFloat16$Relations = {};
+
+export type GetSzFloat16Payload<S extends SzFloat16Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzFloat16Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzFloat16
+          ? ResolveFieldSelect<SzFloat16[K], S[K]>
+          : never;
+      }
+    : SzFloat16,
+  'flat'
+>;
+
+export interface SzFloat16Model {
+  findOne<
+    S extends SzFloat16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzFloat16Where;
+    select?: SelectArg<S, SzFloat16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzFloat16 | keyof SzFloat16Where)]?: never };
+    orderBy?: SzFloat16OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzFloat16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzFloat16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzFloat16Where;
+    select?: SelectArg<S, SzFloat16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzFloat16 | keyof SzFloat16Where)]?: never };
+    orderBy?: SzFloat16OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzFloat16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzFloat16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzFloat16FindUniqueWhere;
+    select?: SelectArg<S, SzFloat16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzFloat16 | keyof SzFloat16Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzFloat16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzFloat16Select | undefined = undefined>(options: {
+    data: SzFloat16CreateInput;
+    select?: SelectArg<S, SzFloat16SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzFloat16Payload<S>>;
+
+  updateMany<
+    S extends SzFloat16Select | undefined = undefined,
+    D extends SzFloat16UpdateInput = SzFloat16UpdateInput,
+  >(options: {
+    where: SzFloat16Where;
+    data: DataArg<D, SzFloat16UpdateInput>;
+    unset?: SafeUnset<SzFloat16Unset, D>;
+    select?: SelectArg<S, SzFloat16SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzFloat16Payload<S>[]>;
+
+  updateUnique<
+    S extends SzFloat16Select | undefined = undefined,
+    D extends SzFloat16UpdateInput = SzFloat16UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzFloat16FindUniqueWhere;
+    data: DataArg<D, SzFloat16UpdateInput>;
+    unset?: SafeUnset<SzFloat16Unset, D>;
+    select?: SelectArg<S, SzFloat16SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzFloat16 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzFloat16Payload<S>, R>>;
+
+  upsert<
+    S extends SzFloat16Select | undefined = undefined,
+    D extends SzFloat16UpdateInput = SzFloat16UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzFloat16FindUniqueWhere;
+    create: SzFloat16CreateInput;
+    update?: DataArg<D, SzFloat16UpdateInput>;
+    unset?: SafeUnset<SzFloat16Unset, D>;
+    select?: SelectArg<S, SzFloat16SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzFloat16Payload<S>, R>>;
+
+  upsert<
+    S extends SzFloat16Select | undefined = undefined,
+    D extends SzFloat16UpdateInput = SzFloat16UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzFloat16Where;
+    create: SzFloat16CreateInput;
+    update?: DataArg<D, SzFloat16UpdateInput>;
+    unset?: SafeUnset<SzFloat16Unset, D>;
+    select?: SelectArg<S, SzFloat16SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzFloat16Payload<S>, R>>;
+
+  deleteMany(options: { where: SzFloat16Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzFloat16FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzFloat16 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzFloat16, R>>;
+
+  count(where?: SzFloat16Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzFloat16Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzFloat16Where }): Promise<import('cerial').CerialLiveHandle<SzFloat16>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szfloat32.ts =====
+/**
+ * Generated types for SzFloat32
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzFloat32Obj,
+  SzFloat32ObjInput,
+  SzFloat32ObjWhere,
+  SzFloat32ObjSelect,
+  SzFloat32ObjOrderBy,
+} from '../objects/szfloat32obj';
+import type {
+  SzFloat32Tup,
+  SzFloat32TupInput,
+  SzFloat32TupWhere,
+  SzFloat32TupUpdate,
+  SzFloat32TupUnset,
+} from '../tuples/szfloat32tup';
+export interface SzFloat32 {
+  id: CerialId<string>;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: CerialSet<number>;
+  dfltVal: number;
+  objVal: SzFloat32Obj;
+  tupVal: SzFloat32Tup;
+}
+
+export interface SzFloat32Input {
+  id?: string;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: number[];
+  dfltVal: number;
+  objVal: SzFloat32ObjInput;
+  tupVal: SzFloat32TupInput;
+}
+
+export interface SzFloat32Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  optVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  nullVal?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  arrVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  objVal?: SzFloat32ObjWhere;
+  tupVal?: SzFloat32TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzFloat32Where[];
+  OR?: SzFloat32Where[];
+  NOT?: SzFloat32Where;
+}
+
+export type SzFloat32WhereInput = SzFloat32Where;
+
+export type SzFloat32FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzFloat32Where, 'id'>;
+
+export type SzFloat32Create = O.Optional<SzFloat32Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzFloat32NestedCreate = O.Optional<SzFloat32Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzFloat32CreateInput = SzFloat32Create;
+
+export type SzFloat32Update = Partial<
+  O.Omit<SzFloat32Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  setVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  objVal?: Partial<SzFloat32ObjInput> | { set: SzFloat32ObjInput };
+  tupVal?: [number, number | null] | SzFloat32TupUpdate;
+  optVal?: number | CerialNone;
+  nullVal?: number | null;
+};
+
+export type SzFloat32UpdateInput = SzFloat32Update;
+
+export type SzFloat32Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzFloat32TupUnset;
+};
+
+export interface SzFloat32SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzFloat32ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzFloat32Select = AtLeastOne<SzFloat32SelectFields>;
+
+export interface SzFloat32OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzFloat32ObjOrderBy;
+}
+
+export type SzFloat32$Relations = {};
+
+export type GetSzFloat32Payload<S extends SzFloat32Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzFloat32Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzFloat32
+          ? ResolveFieldSelect<SzFloat32[K], S[K]>
+          : never;
+      }
+    : SzFloat32,
+  'flat'
+>;
+
+export interface SzFloat32Model {
+  findOne<
+    S extends SzFloat32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzFloat32Where;
+    select?: SelectArg<S, SzFloat32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzFloat32 | keyof SzFloat32Where)]?: never };
+    orderBy?: SzFloat32OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzFloat32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzFloat32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzFloat32Where;
+    select?: SelectArg<S, SzFloat32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzFloat32 | keyof SzFloat32Where)]?: never };
+    orderBy?: SzFloat32OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzFloat32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzFloat32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzFloat32FindUniqueWhere;
+    select?: SelectArg<S, SzFloat32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzFloat32 | keyof SzFloat32Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzFloat32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzFloat32Select | undefined = undefined>(options: {
+    data: SzFloat32CreateInput;
+    select?: SelectArg<S, SzFloat32SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzFloat32Payload<S>>;
+
+  updateMany<
+    S extends SzFloat32Select | undefined = undefined,
+    D extends SzFloat32UpdateInput = SzFloat32UpdateInput,
+  >(options: {
+    where: SzFloat32Where;
+    data: DataArg<D, SzFloat32UpdateInput>;
+    unset?: SafeUnset<SzFloat32Unset, D>;
+    select?: SelectArg<S, SzFloat32SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzFloat32Payload<S>[]>;
+
+  updateUnique<
+    S extends SzFloat32Select | undefined = undefined,
+    D extends SzFloat32UpdateInput = SzFloat32UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzFloat32FindUniqueWhere;
+    data: DataArg<D, SzFloat32UpdateInput>;
+    unset?: SafeUnset<SzFloat32Unset, D>;
+    select?: SelectArg<S, SzFloat32SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzFloat32 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzFloat32Payload<S>, R>>;
+
+  upsert<
+    S extends SzFloat32Select | undefined = undefined,
+    D extends SzFloat32UpdateInput = SzFloat32UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzFloat32FindUniqueWhere;
+    create: SzFloat32CreateInput;
+    update?: DataArg<D, SzFloat32UpdateInput>;
+    unset?: SafeUnset<SzFloat32Unset, D>;
+    select?: SelectArg<S, SzFloat32SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzFloat32Payload<S>, R>>;
+
+  upsert<
+    S extends SzFloat32Select | undefined = undefined,
+    D extends SzFloat32UpdateInput = SzFloat32UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzFloat32Where;
+    create: SzFloat32CreateInput;
+    update?: DataArg<D, SzFloat32UpdateInput>;
+    unset?: SafeUnset<SzFloat32Unset, D>;
+    select?: SelectArg<S, SzFloat32SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzFloat32Payload<S>, R>>;
+
+  deleteMany(options: { where: SzFloat32Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzFloat32FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzFloat32 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzFloat32, R>>;
+
+  count(where?: SzFloat32Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzFloat32Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzFloat32Where }): Promise<import('cerial').CerialLiveHandle<SzFloat32>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szint16.ts =====
+/**
+ * Generated types for SzInt16
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzInt16Obj,
+  SzInt16ObjInput,
+  SzInt16ObjWhere,
+  SzInt16ObjSelect,
+  SzInt16ObjOrderBy,
+} from '../objects/szint16obj';
+import type {
+  SzInt16Tup,
+  SzInt16TupInput,
+  SzInt16TupWhere,
+  SzInt16TupUpdate,
+  SzInt16TupUnset,
+} from '../tuples/szint16tup';
+export interface SzInt16 {
+  id: CerialId<string>;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: CerialSet<number>;
+  dfltVal: number;
+  objVal: SzInt16Obj;
+  tupVal: SzInt16Tup;
+}
+
+export interface SzInt16Input {
+  id?: string;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: number[];
+  dfltVal: number;
+  objVal: SzInt16ObjInput;
+  tupVal: SzInt16TupInput;
+}
+
+export interface SzInt16Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  optVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  nullVal?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  arrVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  objVal?: SzInt16ObjWhere;
+  tupVal?: SzInt16TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzInt16Where[];
+  OR?: SzInt16Where[];
+  NOT?: SzInt16Where;
+}
+
+export type SzInt16WhereInput = SzInt16Where;
+
+export type SzInt16FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzInt16Where, 'id'>;
+
+export type SzInt16Create = O.Optional<SzInt16Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzInt16NestedCreate = O.Optional<SzInt16Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzInt16CreateInput = SzInt16Create;
+
+export type SzInt16Update = Partial<
+  O.Omit<SzInt16Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  setVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  objVal?: Partial<SzInt16ObjInput> | { set: SzInt16ObjInput };
+  tupVal?: [number, number | null] | SzInt16TupUpdate;
+  optVal?: number | CerialNone;
+  nullVal?: number | null;
+};
+
+export type SzInt16UpdateInput = SzInt16Update;
+
+export type SzInt16Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzInt16TupUnset;
+};
+
+export interface SzInt16SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzInt16ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzInt16Select = AtLeastOne<SzInt16SelectFields>;
+
+export interface SzInt16OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzInt16ObjOrderBy;
+}
+
+export type SzInt16$Relations = {};
+
+export type GetSzInt16Payload<S extends SzInt16Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzInt16Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzInt16
+          ? ResolveFieldSelect<SzInt16[K], S[K]>
+          : never;
+      }
+    : SzInt16,
+  'flat'
+>;
+
+export interface SzInt16Model {
+  findOne<
+    S extends SzInt16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzInt16Where;
+    select?: SelectArg<S, SzInt16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt16 | keyof SzInt16Where)]?: never };
+    orderBy?: SzInt16OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzInt16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzInt16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzInt16Where;
+    select?: SelectArg<S, SzInt16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt16 | keyof SzInt16Where)]?: never };
+    orderBy?: SzInt16OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzInt16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzInt16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzInt16FindUniqueWhere;
+    select?: SelectArg<S, SzInt16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt16 | keyof SzInt16Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzInt16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzInt16Select | undefined = undefined>(options: {
+    data: SzInt16CreateInput;
+    select?: SelectArg<S, SzInt16SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzInt16Payload<S>>;
+
+  updateMany<
+    S extends SzInt16Select | undefined = undefined,
+    D extends SzInt16UpdateInput = SzInt16UpdateInput,
+  >(options: {
+    where: SzInt16Where;
+    data: DataArg<D, SzInt16UpdateInput>;
+    unset?: SafeUnset<SzInt16Unset, D>;
+    select?: SelectArg<S, SzInt16SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzInt16Payload<S>[]>;
+
+  updateUnique<
+    S extends SzInt16Select | undefined = undefined,
+    D extends SzInt16UpdateInput = SzInt16UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzInt16FindUniqueWhere;
+    data: DataArg<D, SzInt16UpdateInput>;
+    unset?: SafeUnset<SzInt16Unset, D>;
+    select?: SelectArg<S, SzInt16SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzInt16 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzInt16Payload<S>, R>>;
+
+  upsert<
+    S extends SzInt16Select | undefined = undefined,
+    D extends SzInt16UpdateInput = SzInt16UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzInt16FindUniqueWhere;
+    create: SzInt16CreateInput;
+    update?: DataArg<D, SzInt16UpdateInput>;
+    unset?: SafeUnset<SzInt16Unset, D>;
+    select?: SelectArg<S, SzInt16SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzInt16Payload<S>, R>>;
+
+  upsert<
+    S extends SzInt16Select | undefined = undefined,
+    D extends SzInt16UpdateInput = SzInt16UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzInt16Where;
+    create: SzInt16CreateInput;
+    update?: DataArg<D, SzInt16UpdateInput>;
+    unset?: SafeUnset<SzInt16Unset, D>;
+    select?: SelectArg<S, SzInt16SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzInt16Payload<S>, R>>;
+
+  deleteMany(options: { where: SzInt16Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzInt16FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzInt16 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzInt16, R>>;
+
+  count(where?: SzInt16Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzInt16Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzInt16Where }): Promise<import('cerial').CerialLiveHandle<SzInt16>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szint32.ts =====
+/**
+ * Generated types for SzInt32
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzInt32Obj,
+  SzInt32ObjInput,
+  SzInt32ObjWhere,
+  SzInt32ObjSelect,
+  SzInt32ObjOrderBy,
+} from '../objects/szint32obj';
+import type {
+  SzInt32Tup,
+  SzInt32TupInput,
+  SzInt32TupWhere,
+  SzInt32TupUpdate,
+  SzInt32TupUnset,
+} from '../tuples/szint32tup';
+export interface SzInt32 {
+  id: CerialId<string>;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: CerialSet<number>;
+  dfltVal: number;
+  objVal: SzInt32Obj;
+  tupVal: SzInt32Tup;
+}
+
+export interface SzInt32Input {
+  id?: string;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: number[];
+  dfltVal: number;
+  objVal: SzInt32ObjInput;
+  tupVal: SzInt32TupInput;
+}
+
+export interface SzInt32Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  optVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  nullVal?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  arrVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  objVal?: SzInt32ObjWhere;
+  tupVal?: SzInt32TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzInt32Where[];
+  OR?: SzInt32Where[];
+  NOT?: SzInt32Where;
+}
+
+export type SzInt32WhereInput = SzInt32Where;
+
+export type SzInt32FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzInt32Where, 'id'>;
+
+export type SzInt32Create = O.Optional<SzInt32Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzInt32NestedCreate = O.Optional<SzInt32Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzInt32CreateInput = SzInt32Create;
+
+export type SzInt32Update = Partial<
+  O.Omit<SzInt32Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  setVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  objVal?: Partial<SzInt32ObjInput> | { set: SzInt32ObjInput };
+  tupVal?: [number, number | null] | SzInt32TupUpdate;
+  optVal?: number | CerialNone;
+  nullVal?: number | null;
+};
+
+export type SzInt32UpdateInput = SzInt32Update;
+
+export type SzInt32Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzInt32TupUnset;
+};
+
+export interface SzInt32SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzInt32ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzInt32Select = AtLeastOne<SzInt32SelectFields>;
+
+export interface SzInt32OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzInt32ObjOrderBy;
+}
+
+export type SzInt32$Relations = {};
+
+export type GetSzInt32Payload<S extends SzInt32Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzInt32Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzInt32
+          ? ResolveFieldSelect<SzInt32[K], S[K]>
+          : never;
+      }
+    : SzInt32,
+  'flat'
+>;
+
+export interface SzInt32Model {
+  findOne<
+    S extends SzInt32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzInt32Where;
+    select?: SelectArg<S, SzInt32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt32 | keyof SzInt32Where)]?: never };
+    orderBy?: SzInt32OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzInt32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzInt32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzInt32Where;
+    select?: SelectArg<S, SzInt32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt32 | keyof SzInt32Where)]?: never };
+    orderBy?: SzInt32OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzInt32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzInt32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzInt32FindUniqueWhere;
+    select?: SelectArg<S, SzInt32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt32 | keyof SzInt32Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzInt32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzInt32Select | undefined = undefined>(options: {
+    data: SzInt32CreateInput;
+    select?: SelectArg<S, SzInt32SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzInt32Payload<S>>;
+
+  updateMany<
+    S extends SzInt32Select | undefined = undefined,
+    D extends SzInt32UpdateInput = SzInt32UpdateInput,
+  >(options: {
+    where: SzInt32Where;
+    data: DataArg<D, SzInt32UpdateInput>;
+    unset?: SafeUnset<SzInt32Unset, D>;
+    select?: SelectArg<S, SzInt32SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzInt32Payload<S>[]>;
+
+  updateUnique<
+    S extends SzInt32Select | undefined = undefined,
+    D extends SzInt32UpdateInput = SzInt32UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzInt32FindUniqueWhere;
+    data: DataArg<D, SzInt32UpdateInput>;
+    unset?: SafeUnset<SzInt32Unset, D>;
+    select?: SelectArg<S, SzInt32SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzInt32 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzInt32Payload<S>, R>>;
+
+  upsert<
+    S extends SzInt32Select | undefined = undefined,
+    D extends SzInt32UpdateInput = SzInt32UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzInt32FindUniqueWhere;
+    create: SzInt32CreateInput;
+    update?: DataArg<D, SzInt32UpdateInput>;
+    unset?: SafeUnset<SzInt32Unset, D>;
+    select?: SelectArg<S, SzInt32SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzInt32Payload<S>, R>>;
+
+  upsert<
+    S extends SzInt32Select | undefined = undefined,
+    D extends SzInt32UpdateInput = SzInt32UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzInt32Where;
+    create: SzInt32CreateInput;
+    update?: DataArg<D, SzInt32UpdateInput>;
+    unset?: SafeUnset<SzInt32Unset, D>;
+    select?: SelectArg<S, SzInt32SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzInt32Payload<S>, R>>;
+
+  deleteMany(options: { where: SzInt32Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzInt32FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzInt32 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzInt32, R>>;
+
+  count(where?: SzInt32Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzInt32Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzInt32Where }): Promise<import('cerial').CerialLiveHandle<SzInt32>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szint8.ts =====
+/**
+ * Generated types for SzInt8
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzInt8Obj,
+  SzInt8ObjInput,
+  SzInt8ObjWhere,
+  SzInt8ObjSelect,
+  SzInt8ObjOrderBy,
+} from '../objects/szint8obj';
+import type { SzInt8Tup, SzInt8TupInput, SzInt8TupWhere, SzInt8TupUpdate, SzInt8TupUnset } from '../tuples/szint8tup';
+export interface SzInt8 {
+  id: CerialId<string>;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: CerialSet<number>;
+  dfltVal: number;
+  objVal: SzInt8Obj;
+  tupVal: SzInt8Tup;
+}
+
+export interface SzInt8Input {
+  id?: string;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: number[];
+  dfltVal: number;
+  objVal: SzInt8ObjInput;
+  tupVal: SzInt8TupInput;
+}
+
+export interface SzInt8Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  optVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  nullVal?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  arrVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  objVal?: SzInt8ObjWhere;
+  tupVal?: SzInt8TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzInt8Where[];
+  OR?: SzInt8Where[];
+  NOT?: SzInt8Where;
+}
+
+export type SzInt8WhereInput = SzInt8Where;
+
+export type SzInt8FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzInt8Where, 'id'>;
+
+export type SzInt8Create = O.Optional<SzInt8Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzInt8NestedCreate = O.Optional<SzInt8Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzInt8CreateInput = SzInt8Create;
+
+export type SzInt8Update = Partial<
+  O.Omit<SzInt8Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  setVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  objVal?: Partial<SzInt8ObjInput> | { set: SzInt8ObjInput };
+  tupVal?: [number, number | null] | SzInt8TupUpdate;
+  optVal?: number | CerialNone;
+  nullVal?: number | null;
+};
+
+export type SzInt8UpdateInput = SzInt8Update;
+
+export type SzInt8Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzInt8TupUnset;
+};
+
+export interface SzInt8SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzInt8ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzInt8Select = AtLeastOne<SzInt8SelectFields>;
+
+export interface SzInt8OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzInt8ObjOrderBy;
+}
+
+export type SzInt8$Relations = {};
+
+export type GetSzInt8Payload<S extends SzInt8Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzInt8Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzInt8
+          ? ResolveFieldSelect<SzInt8[K], S[K]>
+          : never;
+      }
+    : SzInt8,
+  'flat'
+>;
+
+export interface SzInt8Model {
+  findOne<
+    S extends SzInt8Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzInt8Where;
+    select?: SelectArg<S, SzInt8SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt8 | keyof SzInt8Where)]?: never };
+    orderBy?: SzInt8OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzInt8Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzInt8Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzInt8Where;
+    select?: SelectArg<S, SzInt8SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt8 | keyof SzInt8Where)]?: never };
+    orderBy?: SzInt8OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<(GetSzInt8Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;
+
+  findUnique<
+    S extends SzInt8Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzInt8FindUniqueWhere;
+    select?: SelectArg<S, SzInt8SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzInt8 | keyof SzInt8Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzInt8Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzInt8Select | undefined = undefined>(options: {
+    data: SzInt8CreateInput;
+    select?: SelectArg<S, SzInt8SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzInt8Payload<S>>;
+
+  updateMany<S extends SzInt8Select | undefined = undefined, D extends SzInt8UpdateInput = SzInt8UpdateInput>(options: {
+    where: SzInt8Where;
+    data: DataArg<D, SzInt8UpdateInput>;
+    unset?: SafeUnset<SzInt8Unset, D>;
+    select?: SelectArg<S, SzInt8SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzInt8Payload<S>[]>;
+
+  updateUnique<
+    S extends SzInt8Select | undefined = undefined,
+    D extends SzInt8UpdateInput = SzInt8UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzInt8FindUniqueWhere;
+    data: DataArg<D, SzInt8UpdateInput>;
+    unset?: SafeUnset<SzInt8Unset, D>;
+    select?: SelectArg<S, SzInt8SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzInt8 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzInt8Payload<S>, R>>;
+
+  upsert<
+    S extends SzInt8Select | undefined = undefined,
+    D extends SzInt8UpdateInput = SzInt8UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzInt8FindUniqueWhere;
+    create: SzInt8CreateInput;
+    update?: DataArg<D, SzInt8UpdateInput>;
+    unset?: SafeUnset<SzInt8Unset, D>;
+    select?: SelectArg<S, SzInt8SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzInt8Payload<S>, R>>;
+
+  upsert<
+    S extends SzInt8Select | undefined = undefined,
+    D extends SzInt8UpdateInput = SzInt8UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzInt8Where;
+    create: SzInt8CreateInput;
+    update?: DataArg<D, SzInt8UpdateInput>;
+    unset?: SafeUnset<SzInt8Unset, D>;
+    select?: SelectArg<S, SzInt8SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzInt8Payload<S>, R>>;
+
+  deleteMany(options: { where: SzInt8Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzInt8FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzInt8 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzInt8, R>>;
+
+  count(where?: SzInt8Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzInt8Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzInt8Where }): Promise<import('cerial').CerialLiveHandle<SzInt8>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szowner.ts =====
+/**
+ * Generated types for SzOwner
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzReading,
+  SzReadingWhere,
+  SzReadingSelect,
+  SzReadingOrderBy,
+  SzReadingNestedCreate,
+  SzReadingInclude,
+  GetSzReadingIncludePayload,
+} from './szreading';
+export interface SzOwner {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface SzOwnerInput {
+  id?: string;
+  name: string;
+}
+
+export interface SzOwnerWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  readings?:
+    | {
+        some?: Omit<SzReadingWhere, '$raw'>;
+        every?: Omit<SzReadingWhere, '$raw'>;
+        none?: Omit<SzReadingWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<SzReadingWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
+  AND?: SzOwnerWhere[];
+  OR?: SzOwnerWhere[];
+  NOT?: SzOwnerWhere;
+}
+
+export type SzOwnerWhereInput = SzOwnerWhere;
+
+export type SzOwnerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzOwnerWhere, 'id'>;
+
+export type SzOwnerCreate = O.Optional<O.Omit<SzOwnerInput, 'readings'>, 'id'>;
+
+export type SzOwnerNestedCreate = O.Optional<O.Omit<SzOwnerInput, 'readings'>, 'id'>;
+
+export type SzOwnerCreateInput = SzOwnerCreate & {
+  readings?: {
+    create?: SzReadingNestedCreate | SzReadingNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type SzOwnerUpdate = Partial<O.Omit<SzOwnerInput, 'id' | 'readings'>>;
+
+export type SzOwnerUpdateInput = SzOwnerUpdate & {
+  readings?: {
+    create?: SzReadingNestedCreate | SzReadingNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type SzOwnerUnset = {};
+
+export interface SzOwnerSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type SzOwnerSelect = AtLeastOne<SzOwnerSelectFields>;
+
+export interface SzOwnerOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface SzOwnerInclude {
+  readings?:
+    | boolean
+    | {
+        select?: SzReadingSelect;
+        where?: SzReadingWhere;
+        orderBy?: SzReadingOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: SzReadingInclude;
+      };
+}
+
+export type SzOwner$Relations = {
+  readings: { type: SzReading[]; include: SzReadingInclude };
+};
+
+export type GetSzOwnerIncludePayload<I extends SzOwnerInclude | undefined> = I extends SzOwnerInclude
+  ? Pick<
+      {
+        readings: I['readings'] extends true
+          ? SzReading[]
+          : I['readings'] extends {
+                select: infer S extends SzReadingSelect;
+                include: infer NI extends SzReadingInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof SzReading
+                  ? ResolveFieldSelect<SzReading[P], S[P]>
+                  : never;
+              } & GetSzReadingIncludePayload<NI>)[]
+            : I['readings'] extends { select: infer S extends SzReadingSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof SzReading
+                    ? ResolveFieldSelect<SzReading[P], S[P]>
+                    : never;
+                }[]
+              : I['readings'] extends { include: infer NI extends SzReadingInclude }
+                ? (SzReading & GetSzReadingIncludePayload<NI>)[]
+                : SzReading[];
+      },
+      Extract<keyof I, keyof SzOwner$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetSzOwnerPayload<
+  S extends SzOwnerSelect | undefined = undefined,
+  I extends SzOwnerInclude | undefined = undefined,
+> = A.Compute<
+  S extends SzOwnerSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzOwner
+          ? ResolveFieldSelect<SzOwner[K], S[K]>
+          : never;
+      } & GetSzOwnerIncludePayload<I>
+    : I extends SzOwnerInclude
+      ? SzOwner & GetSzOwnerIncludePayload<I>
+      : SzOwner,
+  'flat'
+>;
+
+export interface SzOwnerModel {
+  findOne<
+    S extends SzOwnerSelect | undefined = undefined,
+    I extends SzOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzOwnerWhere;
+    select?: SelectArg<S, SzOwnerSelectFields>;
+    include?: IncludeArg<I, SzOwnerInclude>;
+    compute?: C & { [K in keyof C & (keyof SzOwner | keyof SzOwnerWhere)]?: never };
+    orderBy?: SzOwnerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzOwnerSelect | undefined = undefined,
+    I extends SzOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzOwnerWhere;
+    select?: SelectArg<S, SzOwnerSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzOwner | keyof SzOwnerWhere)]?: never };
+    orderBy?: SzOwnerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, SzOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzOwnerSelect | undefined = undefined,
+    I extends SzOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzOwnerFindUniqueWhere;
+    select?: SelectArg<S, SzOwnerSelectFields>;
+    include?: IncludeArg<I, SzOwnerInclude>;
+    compute?: C & { [K in keyof C & (keyof SzOwner | keyof SzOwnerWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzOwnerSelect | undefined = undefined, I extends SzOwnerInclude | undefined = undefined>(options: {
+    data: SzOwnerCreateInput;
+    select?: SelectArg<S, SzOwnerSelectFields>;
+    include?: IncludeArg<I, SzOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzOwnerPayload<S, I>>;
+
+  updateMany<
+    S extends SzOwnerSelect | undefined = undefined,
+    I extends SzOwnerInclude | undefined = undefined,
+    D extends SzOwnerUpdateInput = SzOwnerUpdateInput,
+  >(options: {
+    where: SzOwnerWhere;
+    data: DataArg<D, SzOwnerUpdateInput>;
+    unset?: SafeUnset<SzOwnerUnset, D>;
+    select?: SelectArg<S, SzOwnerSelectFields>;
+    include?: IncludeArg<I, SzOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzOwnerPayload<S, I>[]>;
+
+  updateUnique<
+    S extends SzOwnerSelect | undefined = undefined,
+    I extends SzOwnerInclude | undefined = undefined,
+    D extends SzOwnerUpdateInput = SzOwnerUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzOwnerFindUniqueWhere;
+    data: DataArg<D, SzOwnerUpdateInput>;
+    unset?: SafeUnset<SzOwnerUnset, D>;
+    select?: SelectArg<S, SzOwnerSelectFields>;
+    include?: IncludeArg<I, SzOwnerInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzOwner | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzOwnerPayload<S, I>, R>>;
+
+  upsert<
+    S extends SzOwnerSelect | undefined = undefined,
+    I extends SzOwnerInclude | undefined = undefined,
+    D extends SzOwnerUpdateInput = SzOwnerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzOwnerFindUniqueWhere;
+    create: SzOwnerCreateInput;
+    update?: DataArg<D, SzOwnerUpdateInput>;
+    unset?: SafeUnset<SzOwnerUnset, D>;
+    select?: SelectArg<S, SzOwnerSelectFields>;
+    include?: IncludeArg<I, SzOwnerInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzOwnerPayload<S, I>, R>>;
+
+  upsert<
+    S extends SzOwnerSelect | undefined = undefined,
+    I extends SzOwnerInclude | undefined = undefined,
+    D extends SzOwnerUpdateInput = SzOwnerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzOwnerWhere;
+    create: SzOwnerCreateInput;
+    update?: DataArg<D, SzOwnerUpdateInput>;
+    unset?: SafeUnset<SzOwnerUnset, D>;
+    select?: SelectArg<S, SzOwnerSelectFields>;
+    include?: IncludeArg<I, SzOwnerInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzOwnerPayload<S, I>, R>>;
+
+  deleteMany(options: { where: SzOwnerWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzOwnerFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzOwner | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzOwner, R>>;
+
+  count(where?: SzOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzOwnerWhere }): Promise<import('cerial').CerialLiveHandle<SzOwner>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szrawholder.ts =====
+/**
+ * Generated types for SzRawHolder
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialAny } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+export interface SzRawHolder {
+  id: CerialId<string>;
+  numVal: number;
+  anyVal: CerialAny;
+}
+
+export interface SzRawHolderInput {
+  id?: string;
+  numVal: number;
+  anyVal: CerialAny;
+}
+
+export interface SzRawHolderWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  numVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  anyVal?:
+    | CerialAny
+    | ({
+        eq?: CerialAny;
+        neq?: CerialAny;
+        gt?: CerialAny;
+        gte?: CerialAny;
+        lt?: CerialAny;
+        lte?: CerialAny;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: CerialAny[];
+        notIn?: CerialAny[];
+      } & {
+        between?: [CerialAny, CerialAny];
+      });
+  $raw?: SqlFragment;
+  AND?: SzRawHolderWhere[];
+  OR?: SzRawHolderWhere[];
+  NOT?: SzRawHolderWhere;
+}
+
+export type SzRawHolderWhereInput = SzRawHolderWhere;
+
+export type SzRawHolderFindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzRawHolderWhere, 'id'>;
+
+export type SzRawHolderCreate = O.Optional<SzRawHolderInput, 'id'>;
+
+export type SzRawHolderNestedCreate = O.Optional<SzRawHolderInput, 'id'>;
+
+export type SzRawHolderCreateInput = SzRawHolderCreate;
+
+export type SzRawHolderUpdate = Partial<O.Omit<SzRawHolderInput, 'id'>>;
+
+export type SzRawHolderUpdateInput = SzRawHolderUpdate;
+
+export type SzRawHolderUnset = {};
+
+export interface SzRawHolderSelectFields {
+  id?: boolean;
+  numVal?: boolean;
+  anyVal?: boolean;
+}
+
+export type SzRawHolderSelect = AtLeastOne<SzRawHolderSelectFields>;
+
+export interface SzRawHolderOrderBy {
+  id?: 'asc' | 'desc';
+  numVal?: 'asc' | 'desc';
+}
+
+export type SzRawHolder$Relations = {};
+
+export type GetSzRawHolderPayload<S extends SzRawHolderSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzRawHolderSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzRawHolder
+          ? ResolveFieldSelect<SzRawHolder[K], S[K]>
+          : never;
+      }
+    : SzRawHolder,
+  'flat'
+>;
+
+export interface SzRawHolderModel {
+  findOne<
+    S extends SzRawHolderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzRawHolderWhere;
+    select?: SelectArg<S, SzRawHolderSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzRawHolder | keyof SzRawHolderWhere)]?: never };
+    orderBy?: SzRawHolderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzRawHolderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzRawHolderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzRawHolderWhere;
+    select?: SelectArg<S, SzRawHolderSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzRawHolder | keyof SzRawHolderWhere)]?: never };
+    orderBy?: SzRawHolderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzRawHolderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzRawHolderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzRawHolderFindUniqueWhere;
+    select?: SelectArg<S, SzRawHolderSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzRawHolder | keyof SzRawHolderWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzRawHolderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzRawHolderSelect | undefined = undefined>(options: {
+    data: SzRawHolderCreateInput;
+    select?: SelectArg<S, SzRawHolderSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzRawHolderPayload<S>>;
+
+  updateMany<
+    S extends SzRawHolderSelect | undefined = undefined,
+    D extends SzRawHolderUpdateInput = SzRawHolderUpdateInput,
+  >(options: {
+    where: SzRawHolderWhere;
+    data: DataArg<D, SzRawHolderUpdateInput>;
+    unset?: SafeUnset<SzRawHolderUnset, D>;
+    select?: SelectArg<S, SzRawHolderSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzRawHolderPayload<S>[]>;
+
+  updateUnique<
+    S extends SzRawHolderSelect | undefined = undefined,
+    D extends SzRawHolderUpdateInput = SzRawHolderUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzRawHolderFindUniqueWhere;
+    data: DataArg<D, SzRawHolderUpdateInput>;
+    unset?: SafeUnset<SzRawHolderUnset, D>;
+    select?: SelectArg<S, SzRawHolderSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzRawHolder | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzRawHolderPayload<S>, R>>;
+
+  upsert<
+    S extends SzRawHolderSelect | undefined = undefined,
+    D extends SzRawHolderUpdateInput = SzRawHolderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzRawHolderFindUniqueWhere;
+    create: SzRawHolderCreateInput;
+    update?: DataArg<D, SzRawHolderUpdateInput>;
+    unset?: SafeUnset<SzRawHolderUnset, D>;
+    select?: SelectArg<S, SzRawHolderSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzRawHolderPayload<S>, R>>;
+
+  upsert<
+    S extends SzRawHolderSelect | undefined = undefined,
+    D extends SzRawHolderUpdateInput = SzRawHolderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzRawHolderWhere;
+    create: SzRawHolderCreateInput;
+    update?: DataArg<D, SzRawHolderUpdateInput>;
+    unset?: SafeUnset<SzRawHolderUnset, D>;
+    select?: SelectArg<S, SzRawHolderSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzRawHolderPayload<S>, R>>;
+
+  deleteMany(options: { where: SzRawHolderWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzRawHolderFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzRawHolder | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzRawHolder, R>>;
+
+  count(where?: SzRawHolderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzRawHolderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzRawHolderWhere }): Promise<import('cerial').CerialLiveHandle<SzRawHolder>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szreading.ts =====
+/**
+ * Generated types for SzReading
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzOwner,
+  SzOwnerWhere,
+  SzOwnerSelect,
+  SzOwnerOrderBy,
+  SzOwnerNestedCreate,
+  SzOwnerInclude,
+  GetSzOwnerIncludePayload,
+} from './szowner';
+export interface SzReading {
+  id: CerialId<string>;
+  ownerId: CerialId<string>;
+  channel: number;
+  level: number;
+  counter: bigint;
+}
+
+export interface SzReadingInput {
+  id?: string;
+  ownerId: RecordIdInput<string>;
+  channel: number;
+  level: number;
+  counter: bigint | number;
+}
+
+export interface SzReadingWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  ownerId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  owner?: Omit<SzOwnerWhere, '$raw'>;
+  channel?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  level?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  counter?:
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        between?: [bigint | number, bigint | number];
+      });
+  $raw?: SqlFragment;
+  AND?: SzReadingWhere[];
+  OR?: SzReadingWhere[];
+  NOT?: SzReadingWhere;
+}
+
+export type SzReadingWhereInput = SzReadingWhere;
+
+export type SzReadingFindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzReadingWhere, 'id'>;
+
+export type SzReadingCreate = O.Optional<O.Omit<SzReadingInput, 'owner'>, 'id'>;
+
+export type SzReadingNestedCreate = O.Optional<O.Omit<SzReadingInput, 'owner' | 'ownerId'>, 'id'>;
+
+export type SzReadingCreateInput =
+  | SzReadingCreate
+  | (O.Omit<SzReadingCreate, 'ownerId'> & {
+      owner: { create: SzOwnerNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type SzReadingUpdate = Partial<O.Omit<SzReadingInput, 'id' | 'owner'>>;
+
+export type SzReadingUpdateInput =
+  | SzReadingUpdate
+  | (O.Omit<SzReadingUpdate, 'ownerId'> & {
+      owner?: { create: SzOwnerNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type SzReadingUnset = {};
+
+export interface SzReadingSelectFields {
+  id?: boolean;
+  ownerId?: boolean;
+  channel?: boolean;
+  level?: boolean;
+  counter?: boolean;
+}
+
+export type SzReadingSelect = AtLeastOne<SzReadingSelectFields>;
+
+export interface SzReadingOrderBy {
+  id?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  owner?: SzOwnerOrderBy;
+  channel?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  counter?: 'asc' | 'desc';
+}
+
+export interface SzReadingInclude {
+  owner?:
+    | boolean
+    | {
+        select?: SzOwnerSelect;
+        where?: SzOwnerWhere;
+        include?: SzOwnerInclude;
+      };
+}
+
+export type SzReading$Relations = {
+  owner: { type: SzOwner; include: SzOwnerInclude };
+};
+
+export type GetSzReadingIncludePayload<I extends SzReadingInclude | undefined> = I extends SzReadingInclude
+  ? Pick<
+      {
+        owner: I['owner'] extends true
+          ? SzOwner
+          : I['owner'] extends { select: infer S extends SzOwnerSelect; include: infer NI extends SzOwnerInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof SzOwner
+                  ? ResolveFieldSelect<SzOwner[P], S[P]>
+                  : never;
+              } & GetSzOwnerIncludePayload<NI>
+            : I['owner'] extends { select: infer S extends SzOwnerSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof SzOwner
+                    ? ResolveFieldSelect<SzOwner[P], S[P]>
+                    : never;
+                }
+              : I['owner'] extends { include: infer NI extends SzOwnerInclude }
+                ? SzOwner & GetSzOwnerIncludePayload<NI>
+                : SzOwner;
+      },
+      Extract<keyof I, keyof SzReading$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetSzReadingPayload<
+  S extends SzReadingSelect | undefined = undefined,
+  I extends SzReadingInclude | undefined = undefined,
+> = A.Compute<
+  S extends SzReadingSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzReading
+          ? ResolveFieldSelect<SzReading[K], S[K]>
+          : never;
+      } & GetSzReadingIncludePayload<I>
+    : I extends SzReadingInclude
+      ? SzReading & GetSzReadingIncludePayload<I>
+      : SzReading,
+  'flat'
+>;
+
+export interface SzReadingModel {
+  findOne<
+    S extends SzReadingSelect | undefined = undefined,
+    I extends SzReadingInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzReadingWhere;
+    select?: SelectArg<S, SzReadingSelectFields>;
+    include?: IncludeArg<I, SzReadingInclude>;
+    compute?: C & { [K in keyof C & (keyof SzReading | keyof SzReadingWhere)]?: never };
+    orderBy?: SzReadingOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzReadingPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzReadingSelect | undefined = undefined,
+    I extends SzReadingInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzReadingWhere;
+    select?: SelectArg<S, SzReadingSelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzReading | keyof SzReadingWhere)]?: never };
+    orderBy?: SzReadingOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, SzReadingInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzReadingPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzReadingSelect | undefined = undefined,
+    I extends SzReadingInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzReadingFindUniqueWhere;
+    select?: SelectArg<S, SzReadingSelectFields>;
+    include?: IncludeArg<I, SzReadingInclude>;
+    compute?: C & { [K in keyof C & (keyof SzReading | keyof SzReadingWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzReadingPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<
+    S extends SzReadingSelect | undefined = undefined,
+    I extends SzReadingInclude | undefined = undefined,
+  >(options: {
+    data: SzReadingCreateInput;
+    select?: SelectArg<S, SzReadingSelectFields>;
+    include?: IncludeArg<I, SzReadingInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzReadingPayload<S, I>>;
+
+  updateMany<
+    S extends SzReadingSelect | undefined = undefined,
+    I extends SzReadingInclude | undefined = undefined,
+    D extends SzReadingUpdateInput = SzReadingUpdateInput,
+  >(options: {
+    where: SzReadingWhere;
+    data: DataArg<D, SzReadingUpdateInput>;
+    unset?: SafeUnset<SzReadingUnset, D>;
+    select?: SelectArg<S, SzReadingSelectFields>;
+    include?: IncludeArg<I, SzReadingInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzReadingPayload<S, I>[]>;
+
+  updateUnique<
+    S extends SzReadingSelect | undefined = undefined,
+    I extends SzReadingInclude | undefined = undefined,
+    D extends SzReadingUpdateInput = SzReadingUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzReadingFindUniqueWhere;
+    data: DataArg<D, SzReadingUpdateInput>;
+    unset?: SafeUnset<SzReadingUnset, D>;
+    select?: SelectArg<S, SzReadingSelectFields>;
+    include?: IncludeArg<I, SzReadingInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzReading | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzReadingPayload<S, I>, R>>;
+
+  upsert<
+    S extends SzReadingSelect | undefined = undefined,
+    I extends SzReadingInclude | undefined = undefined,
+    D extends SzReadingUpdateInput = SzReadingUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzReadingFindUniqueWhere;
+    create: SzReadingCreateInput;
+    update?: DataArg<D, SzReadingUpdateInput>;
+    unset?: SafeUnset<SzReadingUnset, D>;
+    select?: SelectArg<S, SzReadingSelectFields>;
+    include?: IncludeArg<I, SzReadingInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzReadingPayload<S, I>, R>>;
+
+  upsert<
+    S extends SzReadingSelect | undefined = undefined,
+    I extends SzReadingInclude | undefined = undefined,
+    D extends SzReadingUpdateInput = SzReadingUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzReadingWhere;
+    create: SzReadingCreateInput;
+    update?: DataArg<D, SzReadingUpdateInput>;
+    unset?: SafeUnset<SzReadingUnset, D>;
+    select?: SelectArg<S, SzReadingSelectFields>;
+    include?: IncludeArg<I, SzReadingInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzReadingPayload<S, I>, R>>;
+
+  deleteMany(options: { where: SzReadingWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzReadingFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzReading | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzReading, R>>;
+
+  count(where?: SzReadingWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzReadingWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzReadingWhere }): Promise<import('cerial').CerialLiveHandle<SzReading>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szuint16.ts =====
+/**
+ * Generated types for SzUint16
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzUint16Obj,
+  SzUint16ObjInput,
+  SzUint16ObjWhere,
+  SzUint16ObjSelect,
+  SzUint16ObjOrderBy,
+} from '../objects/szuint16obj';
+import type {
+  SzUint16Tup,
+  SzUint16TupInput,
+  SzUint16TupWhere,
+  SzUint16TupUpdate,
+  SzUint16TupUnset,
+} from '../tuples/szuint16tup';
+export interface SzUint16 {
+  id: CerialId<string>;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: CerialSet<number>;
+  dfltVal: number;
+  objVal: SzUint16Obj;
+  tupVal: SzUint16Tup;
+}
+
+export interface SzUint16Input {
+  id?: string;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: number[];
+  dfltVal: number;
+  objVal: SzUint16ObjInput;
+  tupVal: SzUint16TupInput;
+}
+
+export interface SzUint16Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  optVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  nullVal?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  arrVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  objVal?: SzUint16ObjWhere;
+  tupVal?: SzUint16TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzUint16Where[];
+  OR?: SzUint16Where[];
+  NOT?: SzUint16Where;
+}
+
+export type SzUint16WhereInput = SzUint16Where;
+
+export type SzUint16FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzUint16Where, 'id'>;
+
+export type SzUint16Create = O.Optional<SzUint16Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzUint16NestedCreate = O.Optional<SzUint16Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzUint16CreateInput = SzUint16Create;
+
+export type SzUint16Update = Partial<
+  O.Omit<SzUint16Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  setVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  objVal?: Partial<SzUint16ObjInput> | { set: SzUint16ObjInput };
+  tupVal?: [number, number | null] | SzUint16TupUpdate;
+  optVal?: number | CerialNone;
+  nullVal?: number | null;
+};
+
+export type SzUint16UpdateInput = SzUint16Update;
+
+export type SzUint16Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzUint16TupUnset;
+};
+
+export interface SzUint16SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzUint16ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzUint16Select = AtLeastOne<SzUint16SelectFields>;
+
+export interface SzUint16OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzUint16ObjOrderBy;
+}
+
+export type SzUint16$Relations = {};
+
+export type GetSzUint16Payload<S extends SzUint16Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzUint16Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzUint16
+          ? ResolveFieldSelect<SzUint16[K], S[K]>
+          : never;
+      }
+    : SzUint16,
+  'flat'
+>;
+
+export interface SzUint16Model {
+  findOne<
+    S extends SzUint16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzUint16Where;
+    select?: SelectArg<S, SzUint16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint16 | keyof SzUint16Where)]?: never };
+    orderBy?: SzUint16OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzUint16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzUint16Where;
+    select?: SelectArg<S, SzUint16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint16 | keyof SzUint16Where)]?: never };
+    orderBy?: SzUint16OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzUint16Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzUint16FindUniqueWhere;
+    select?: SelectArg<S, SzUint16SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint16 | keyof SzUint16Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint16Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzUint16Select | undefined = undefined>(options: {
+    data: SzUint16CreateInput;
+    select?: SelectArg<S, SzUint16SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzUint16Payload<S>>;
+
+  updateMany<
+    S extends SzUint16Select | undefined = undefined,
+    D extends SzUint16UpdateInput = SzUint16UpdateInput,
+  >(options: {
+    where: SzUint16Where;
+    data: DataArg<D, SzUint16UpdateInput>;
+    unset?: SafeUnset<SzUint16Unset, D>;
+    select?: SelectArg<S, SzUint16SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzUint16Payload<S>[]>;
+
+  updateUnique<
+    S extends SzUint16Select | undefined = undefined,
+    D extends SzUint16UpdateInput = SzUint16UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzUint16FindUniqueWhere;
+    data: DataArg<D, SzUint16UpdateInput>;
+    unset?: SafeUnset<SzUint16Unset, D>;
+    select?: SelectArg<S, SzUint16SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzUint16 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzUint16Payload<S>, R>>;
+
+  upsert<
+    S extends SzUint16Select | undefined = undefined,
+    D extends SzUint16UpdateInput = SzUint16UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzUint16FindUniqueWhere;
+    create: SzUint16CreateInput;
+    update?: DataArg<D, SzUint16UpdateInput>;
+    unset?: SafeUnset<SzUint16Unset, D>;
+    select?: SelectArg<S, SzUint16SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzUint16Payload<S>, R>>;
+
+  upsert<
+    S extends SzUint16Select | undefined = undefined,
+    D extends SzUint16UpdateInput = SzUint16UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzUint16Where;
+    create: SzUint16CreateInput;
+    update?: DataArg<D, SzUint16UpdateInput>;
+    unset?: SafeUnset<SzUint16Unset, D>;
+    select?: SelectArg<S, SzUint16SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzUint16Payload<S>, R>>;
+
+  deleteMany(options: { where: SzUint16Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzUint16FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzUint16 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzUint16, R>>;
+
+  count(where?: SzUint16Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzUint16Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzUint16Where }): Promise<import('cerial').CerialLiveHandle<SzUint16>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szuint32.ts =====
+/**
+ * Generated types for SzUint32
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzUint32Obj,
+  SzUint32ObjInput,
+  SzUint32ObjWhere,
+  SzUint32ObjSelect,
+  SzUint32ObjOrderBy,
+} from '../objects/szuint32obj';
+import type {
+  SzUint32Tup,
+  SzUint32TupInput,
+  SzUint32TupWhere,
+  SzUint32TupUpdate,
+  SzUint32TupUnset,
+} from '../tuples/szuint32tup';
+export interface SzUint32 {
+  id: CerialId<string>;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: CerialSet<number>;
+  dfltVal: number;
+  objVal: SzUint32Obj;
+  tupVal: SzUint32Tup;
+}
+
+export interface SzUint32Input {
+  id?: string;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: number[];
+  dfltVal: number;
+  objVal: SzUint32ObjInput;
+  tupVal: SzUint32TupInput;
+}
+
+export interface SzUint32Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  optVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  nullVal?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  arrVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  objVal?: SzUint32ObjWhere;
+  tupVal?: SzUint32TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzUint32Where[];
+  OR?: SzUint32Where[];
+  NOT?: SzUint32Where;
+}
+
+export type SzUint32WhereInput = SzUint32Where;
+
+export type SzUint32FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzUint32Where, 'id'>;
+
+export type SzUint32Create = O.Optional<SzUint32Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzUint32NestedCreate = O.Optional<SzUint32Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzUint32CreateInput = SzUint32Create;
+
+export type SzUint32Update = Partial<
+  O.Omit<SzUint32Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  setVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  objVal?: Partial<SzUint32ObjInput> | { set: SzUint32ObjInput };
+  tupVal?: [number, number | null] | SzUint32TupUpdate;
+  optVal?: number | CerialNone;
+  nullVal?: number | null;
+};
+
+export type SzUint32UpdateInput = SzUint32Update;
+
+export type SzUint32Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzUint32TupUnset;
+};
+
+export interface SzUint32SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzUint32ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzUint32Select = AtLeastOne<SzUint32SelectFields>;
+
+export interface SzUint32OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzUint32ObjOrderBy;
+}
+
+export type SzUint32$Relations = {};
+
+export type GetSzUint32Payload<S extends SzUint32Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzUint32Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzUint32
+          ? ResolveFieldSelect<SzUint32[K], S[K]>
+          : never;
+      }
+    : SzUint32,
+  'flat'
+>;
+
+export interface SzUint32Model {
+  findOne<
+    S extends SzUint32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzUint32Where;
+    select?: SelectArg<S, SzUint32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint32 | keyof SzUint32Where)]?: never };
+    orderBy?: SzUint32OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzUint32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzUint32Where;
+    select?: SelectArg<S, SzUint32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint32 | keyof SzUint32Where)]?: never };
+    orderBy?: SzUint32OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzUint32Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzUint32FindUniqueWhere;
+    select?: SelectArg<S, SzUint32SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint32 | keyof SzUint32Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint32Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzUint32Select | undefined = undefined>(options: {
+    data: SzUint32CreateInput;
+    select?: SelectArg<S, SzUint32SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzUint32Payload<S>>;
+
+  updateMany<
+    S extends SzUint32Select | undefined = undefined,
+    D extends SzUint32UpdateInput = SzUint32UpdateInput,
+  >(options: {
+    where: SzUint32Where;
+    data: DataArg<D, SzUint32UpdateInput>;
+    unset?: SafeUnset<SzUint32Unset, D>;
+    select?: SelectArg<S, SzUint32SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzUint32Payload<S>[]>;
+
+  updateUnique<
+    S extends SzUint32Select | undefined = undefined,
+    D extends SzUint32UpdateInput = SzUint32UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzUint32FindUniqueWhere;
+    data: DataArg<D, SzUint32UpdateInput>;
+    unset?: SafeUnset<SzUint32Unset, D>;
+    select?: SelectArg<S, SzUint32SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzUint32 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzUint32Payload<S>, R>>;
+
+  upsert<
+    S extends SzUint32Select | undefined = undefined,
+    D extends SzUint32UpdateInput = SzUint32UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzUint32FindUniqueWhere;
+    create: SzUint32CreateInput;
+    update?: DataArg<D, SzUint32UpdateInput>;
+    unset?: SafeUnset<SzUint32Unset, D>;
+    select?: SelectArg<S, SzUint32SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzUint32Payload<S>, R>>;
+
+  upsert<
+    S extends SzUint32Select | undefined = undefined,
+    D extends SzUint32UpdateInput = SzUint32UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzUint32Where;
+    create: SzUint32CreateInput;
+    update?: DataArg<D, SzUint32UpdateInput>;
+    unset?: SafeUnset<SzUint32Unset, D>;
+    select?: SelectArg<S, SzUint32SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzUint32Payload<S>, R>>;
+
+  deleteMany(options: { where: SzUint32Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzUint32FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzUint32 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzUint32, R>>;
+
+  count(where?: SzUint32Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzUint32Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzUint32Where }): Promise<import('cerial').CerialLiveHandle<SzUint32>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szuint64.ts =====
+/**
+ * Generated types for SzUint64
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzUint64Obj,
+  SzUint64ObjInput,
+  SzUint64ObjWhere,
+  SzUint64ObjSelect,
+  SzUint64ObjOrderBy,
+} from '../objects/szuint64obj';
+import type {
+  SzUint64Tup,
+  SzUint64TupInput,
+  SzUint64TupWhere,
+  SzUint64TupUpdate,
+  SzUint64TupUnset,
+} from '../tuples/szuint64tup';
+export interface SzUint64 {
+  id: CerialId<string>;
+  reqVal: bigint;
+  optVal?: bigint;
+  nullVal: bigint | null;
+  arrVal: bigint[];
+  setVal: CerialSet<bigint>;
+  dfltVal: bigint;
+  objVal: SzUint64Obj;
+  tupVal: SzUint64Tup;
+}
+
+export interface SzUint64Input {
+  id?: string;
+  reqVal: bigint | number;
+  optVal?: bigint | number;
+  nullVal: (bigint | number) | null;
+  arrVal: (bigint | number)[];
+  setVal: (bigint | number)[];
+  dfltVal: bigint | number;
+  objVal: SzUint64ObjInput;
+  tupVal: SzUint64TupInput;
+}
+
+export interface SzUint64Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        between?: [bigint | number, bigint | number];
+      });
+  optVal?:
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        not?: bigint | number;
+        isNone?: boolean;
+        between?: [bigint | number, bigint | number];
+      });
+  nullVal?:
+    | null
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        not?: (bigint | number) | null;
+        isNull?: boolean;
+        between?: [bigint | number, bigint | number];
+      });
+  arrVal?:
+    | (bigint | number)[]
+    | {
+        has?: bigint | number;
+        hasAll?: (bigint | number)[];
+        hasAny?: (bigint | number)[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | (bigint | number)[]
+    | {
+        has?: bigint | number;
+        hasAll?: (bigint | number)[];
+        hasAny?: (bigint | number)[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        between?: [bigint | number, bigint | number];
+      });
+  objVal?: SzUint64ObjWhere;
+  tupVal?: SzUint64TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzUint64Where[];
+  OR?: SzUint64Where[];
+  NOT?: SzUint64Where;
+}
+
+export type SzUint64WhereInput = SzUint64Where;
+
+export type SzUint64FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzUint64Where, 'id'>;
+
+export type SzUint64Create = O.Optional<SzUint64Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzUint64NestedCreate = O.Optional<SzUint64Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzUint64CreateInput = SzUint64Create;
+
+export type SzUint64Update = Partial<
+  O.Omit<SzUint64Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | (bigint | number)[]
+    | {
+        push?: (bigint | number) | (bigint | number)[];
+        unset?: (bigint | number) | (bigint | number)[];
+      };
+  setVal?:
+    | (bigint | number)[]
+    | {
+        push?: (bigint | number) | (bigint | number)[];
+        unset?: (bigint | number) | (bigint | number)[];
+      };
+  objVal?: Partial<SzUint64ObjInput> | { set: SzUint64ObjInput };
+  tupVal?: [bigint | number, (bigint | number) | null] | SzUint64TupUpdate;
+  optVal?: (bigint | number) | CerialNone;
+  nullVal?: (bigint | number) | null;
+};
+
+export type SzUint64UpdateInput = SzUint64Update;
+
+export type SzUint64Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzUint64TupUnset;
+};
+
+export interface SzUint64SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzUint64ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzUint64Select = AtLeastOne<SzUint64SelectFields>;
+
+export interface SzUint64OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzUint64ObjOrderBy;
+}
+
+export type SzUint64$Relations = {};
+
+export type GetSzUint64Payload<S extends SzUint64Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzUint64Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzUint64
+          ? ResolveFieldSelect<SzUint64[K], S[K]>
+          : never;
+      }
+    : SzUint64,
+  'flat'
+>;
+
+export interface SzUint64Model {
+  findOne<
+    S extends SzUint64Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzUint64Where;
+    select?: SelectArg<S, SzUint64SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint64 | keyof SzUint64Where)]?: never };
+    orderBy?: SzUint64OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint64Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzUint64Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzUint64Where;
+    select?: SelectArg<S, SzUint64SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint64 | keyof SzUint64Where)]?: never };
+    orderBy?: SzUint64OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint64Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzUint64Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzUint64FindUniqueWhere;
+    select?: SelectArg<S, SzUint64SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint64 | keyof SzUint64Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint64Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzUint64Select | undefined = undefined>(options: {
+    data: SzUint64CreateInput;
+    select?: SelectArg<S, SzUint64SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzUint64Payload<S>>;
+
+  updateMany<
+    S extends SzUint64Select | undefined = undefined,
+    D extends SzUint64UpdateInput = SzUint64UpdateInput,
+  >(options: {
+    where: SzUint64Where;
+    data: DataArg<D, SzUint64UpdateInput>;
+    unset?: SafeUnset<SzUint64Unset, D>;
+    select?: SelectArg<S, SzUint64SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzUint64Payload<S>[]>;
+
+  updateUnique<
+    S extends SzUint64Select | undefined = undefined,
+    D extends SzUint64UpdateInput = SzUint64UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzUint64FindUniqueWhere;
+    data: DataArg<D, SzUint64UpdateInput>;
+    unset?: SafeUnset<SzUint64Unset, D>;
+    select?: SelectArg<S, SzUint64SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzUint64 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzUint64Payload<S>, R>>;
+
+  upsert<
+    S extends SzUint64Select | undefined = undefined,
+    D extends SzUint64UpdateInput = SzUint64UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzUint64FindUniqueWhere;
+    create: SzUint64CreateInput;
+    update?: DataArg<D, SzUint64UpdateInput>;
+    unset?: SafeUnset<SzUint64Unset, D>;
+    select?: SelectArg<S, SzUint64SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzUint64Payload<S>, R>>;
+
+  upsert<
+    S extends SzUint64Select | undefined = undefined,
+    D extends SzUint64UpdateInput = SzUint64UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzUint64Where;
+    create: SzUint64CreateInput;
+    update?: DataArg<D, SzUint64UpdateInput>;
+    unset?: SafeUnset<SzUint64Unset, D>;
+    select?: SelectArg<S, SzUint64SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzUint64Payload<S>, R>>;
+
+  deleteMany(options: { where: SzUint64Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzUint64FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzUint64 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzUint64, R>>;
+
+  count(where?: SzUint64Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzUint64Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzUint64Where }): Promise<import('cerial').CerialLiveHandle<SzUint64>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/szuint8.ts =====
+/**
+ * Generated types for SzUint8
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  SzUint8Obj,
+  SzUint8ObjInput,
+  SzUint8ObjWhere,
+  SzUint8ObjSelect,
+  SzUint8ObjOrderBy,
+} from '../objects/szuint8obj';
+import type {
+  SzUint8Tup,
+  SzUint8TupInput,
+  SzUint8TupWhere,
+  SzUint8TupUpdate,
+  SzUint8TupUnset,
+} from '../tuples/szuint8tup';
+export interface SzUint8 {
+  id: CerialId<string>;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: CerialSet<number>;
+  dfltVal: number;
+  objVal: SzUint8Obj;
+  tupVal: SzUint8Tup;
+}
+
+export interface SzUint8Input {
+  id?: string;
+  reqVal: number;
+  optVal?: number;
+  nullVal: number | null;
+  arrVal: number[];
+  setVal: number[];
+  dfltVal: number;
+  objVal: SzUint8ObjInput;
+  tupVal: SzUint8TupInput;
+}
+
+export interface SzUint8Where {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  reqVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  optVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  nullVal?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  arrVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  setVal?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  dfltVal?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  objVal?: SzUint8ObjWhere;
+  tupVal?: SzUint8TupWhere;
+  $raw?: SqlFragment;
+  AND?: SzUint8Where[];
+  OR?: SzUint8Where[];
+  NOT?: SzUint8Where;
+}
+
+export type SzUint8WhereInput = SzUint8Where;
+
+export type SzUint8FindUniqueWhere = { id: RecordIdInput<string> } & Omit<SzUint8Where, 'id'>;
+
+export type SzUint8Create = O.Optional<SzUint8Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzUint8NestedCreate = O.Optional<SzUint8Input, 'id' | 'optVal' | 'arrVal' | 'setVal' | 'dfltVal'>;
+
+export type SzUint8CreateInput = SzUint8Create;
+
+export type SzUint8Update = Partial<
+  O.Omit<SzUint8Input, 'id' | 'arrVal' | 'setVal' | 'objVal' | 'tupVal' | 'optVal' | 'nullVal'>
+> & {
+  arrVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  setVal?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  objVal?: Partial<SzUint8ObjInput> | { set: SzUint8ObjInput };
+  tupVal?: [number, number | null] | SzUint8TupUpdate;
+  optVal?: number | CerialNone;
+  nullVal?: number | null;
+};
+
+export type SzUint8UpdateInput = SzUint8Update;
+
+export type SzUint8Unset = {
+  optVal?: true;
+  objVal?: {
+    opt?: true;
+  };
+  tupVal?: SzUint8TupUnset;
+};
+
+export interface SzUint8SelectFields {
+  id?: boolean;
+  reqVal?: boolean;
+  optVal?: boolean;
+  nullVal?: boolean;
+  arrVal?: boolean;
+  setVal?: boolean;
+  dfltVal?: boolean;
+  objVal?: boolean | SzUint8ObjSelect;
+  tupVal?: boolean;
+}
+
+export type SzUint8Select = AtLeastOne<SzUint8SelectFields>;
+
+export interface SzUint8OrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: SzUint8ObjOrderBy;
+}
+
+export type SzUint8$Relations = {};
+
+export type GetSzUint8Payload<S extends SzUint8Select | undefined = undefined, I = undefined> = A.Compute<
+  S extends SzUint8Select
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SzUint8
+          ? ResolveFieldSelect<SzUint8[K], S[K]>
+          : never;
+      }
+    : SzUint8,
+  'flat'
+>;
+
+export interface SzUint8Model {
+  findOne<
+    S extends SzUint8Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzUint8Where;
+    select?: SelectArg<S, SzUint8SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint8 | keyof SzUint8Where)]?: never };
+    orderBy?: SzUint8OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint8Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends SzUint8Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: SzUint8Where;
+    select?: SelectArg<S, SzUint8SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint8 | keyof SzUint8Where)]?: never };
+    orderBy?: SzUint8OrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint8Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends SzUint8Select | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: SzUint8FindUniqueWhere;
+    select?: SelectArg<S, SzUint8SelectFields>;
+    compute?: C & { [K in keyof C & (keyof SzUint8 | keyof SzUint8Where)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetSzUint8Payload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends SzUint8Select | undefined = undefined>(options: {
+    data: SzUint8CreateInput;
+    select?: SelectArg<S, SzUint8SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzUint8Payload<S>>;
+
+  updateMany<
+    S extends SzUint8Select | undefined = undefined,
+    D extends SzUint8UpdateInput = SzUint8UpdateInput,
+  >(options: {
+    where: SzUint8Where;
+    data: DataArg<D, SzUint8UpdateInput>;
+    unset?: SafeUnset<SzUint8Unset, D>;
+    select?: SelectArg<S, SzUint8SelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSzUint8Payload<S>[]>;
+
+  updateUnique<
+    S extends SzUint8Select | undefined = undefined,
+    D extends SzUint8UpdateInput = SzUint8UpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SzUint8FindUniqueWhere;
+    data: DataArg<D, SzUint8UpdateInput>;
+    unset?: SafeUnset<SzUint8Unset, D>;
+    select?: SelectArg<S, SzUint8SelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SzUint8 | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSzUint8Payload<S>, R>>;
+
+  upsert<
+    S extends SzUint8Select | undefined = undefined,
+    D extends SzUint8UpdateInput = SzUint8UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzUint8FindUniqueWhere;
+    create: SzUint8CreateInput;
+    update?: DataArg<D, SzUint8UpdateInput>;
+    unset?: SafeUnset<SzUint8Unset, D>;
+    select?: SelectArg<S, SzUint8SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSzUint8Payload<S>, R>>;
+
+  upsert<
+    S extends SzUint8Select | undefined = undefined,
+    D extends SzUint8UpdateInput = SzUint8UpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SzUint8Where;
+    create: SzUint8CreateInput;
+    update?: DataArg<D, SzUint8UpdateInput>;
+    unset?: SafeUnset<SzUint8Unset, D>;
+    select?: SelectArg<S, SzUint8SelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSzUint8Payload<S>, R>>;
+
+  deleteMany(options: { where: SzUint8Where; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SzUint8FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SzUint8 | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SzUint8, R>>;
+
+  count(where?: SzUint8Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SzUint8Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: SzUint8Where }): Promise<import('cerial').CerialLiveHandle<SzUint8>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/szfloat16obj.ts =====
+/**
+ * Generated types for SzFloat16Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzFloat16Obj {
+  val: number;
+  opt?: number;
+}
+
+export interface SzFloat16ObjInput {
+  val: number;
+  opt?: number;
+}
+
+export interface SzFloat16ObjWhere {
+  val?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  opt?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: SzFloat16ObjWhere[];
+  OR?: SzFloat16ObjWhere[];
+  NOT?: SzFloat16ObjWhere;
+}
+
+export interface SzFloat16ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzFloat16ObjSelect = AtLeastOne<SzFloat16ObjSelectFields>;
+
+export interface SzFloat16ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== objects/szfloat32obj.ts =====
+/**
+ * Generated types for SzFloat32Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzFloat32Obj {
+  val: number;
+  opt?: number;
+}
+
+export interface SzFloat32ObjInput {
+  val: number;
+  opt?: number;
+}
+
+export interface SzFloat32ObjWhere {
+  val?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  opt?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: SzFloat32ObjWhere[];
+  OR?: SzFloat32ObjWhere[];
+  NOT?: SzFloat32ObjWhere;
+}
+
+export interface SzFloat32ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzFloat32ObjSelect = AtLeastOne<SzFloat32ObjSelectFields>;
+
+export interface SzFloat32ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== objects/szint16obj.ts =====
+/**
+ * Generated types for SzInt16Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzInt16Obj {
+  val: number;
+  opt?: number;
+}
+
+export interface SzInt16ObjInput {
+  val: number;
+  opt?: number;
+}
+
+export interface SzInt16ObjWhere {
+  val?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  opt?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: SzInt16ObjWhere[];
+  OR?: SzInt16ObjWhere[];
+  NOT?: SzInt16ObjWhere;
+}
+
+export interface SzInt16ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzInt16ObjSelect = AtLeastOne<SzInt16ObjSelectFields>;
+
+export interface SzInt16ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== objects/szint32obj.ts =====
+/**
+ * Generated types for SzInt32Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzInt32Obj {
+  val: number;
+  opt?: number;
+}
+
+export interface SzInt32ObjInput {
+  val: number;
+  opt?: number;
+}
+
+export interface SzInt32ObjWhere {
+  val?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  opt?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: SzInt32ObjWhere[];
+  OR?: SzInt32ObjWhere[];
+  NOT?: SzInt32ObjWhere;
+}
+
+export interface SzInt32ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzInt32ObjSelect = AtLeastOne<SzInt32ObjSelectFields>;
+
+export interface SzInt32ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== objects/szint8obj.ts =====
+/**
+ * Generated types for SzInt8Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzInt8Obj {
+  val: number;
+  opt?: number;
+}
+
+export interface SzInt8ObjInput {
+  val: number;
+  opt?: number;
+}
+
+export interface SzInt8ObjWhere {
+  val?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  opt?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: SzInt8ObjWhere[];
+  OR?: SzInt8ObjWhere[];
+  NOT?: SzInt8ObjWhere;
+}
+
+export interface SzInt8ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzInt8ObjSelect = AtLeastOne<SzInt8ObjSelectFields>;
+
+export interface SzInt8ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== objects/szuint16obj.ts =====
+/**
+ * Generated types for SzUint16Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzUint16Obj {
+  val: number;
+  opt?: number;
+}
+
+export interface SzUint16ObjInput {
+  val: number;
+  opt?: number;
+}
+
+export interface SzUint16ObjWhere {
+  val?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  opt?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: SzUint16ObjWhere[];
+  OR?: SzUint16ObjWhere[];
+  NOT?: SzUint16ObjWhere;
+}
+
+export interface SzUint16ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzUint16ObjSelect = AtLeastOne<SzUint16ObjSelectFields>;
+
+export interface SzUint16ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== objects/szuint32obj.ts =====
+/**
+ * Generated types for SzUint32Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzUint32Obj {
+  val: number;
+  opt?: number;
+}
+
+export interface SzUint32ObjInput {
+  val: number;
+  opt?: number;
+}
+
+export interface SzUint32ObjWhere {
+  val?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  opt?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: SzUint32ObjWhere[];
+  OR?: SzUint32ObjWhere[];
+  NOT?: SzUint32ObjWhere;
+}
+
+export interface SzUint32ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzUint32ObjSelect = AtLeastOne<SzUint32ObjSelectFields>;
+
+export interface SzUint32ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== objects/szuint64obj.ts =====
+/**
+ * Generated types for SzUint64Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzUint64Obj {
+  val: bigint;
+  opt?: bigint;
+}
+
+export interface SzUint64ObjInput {
+  val: bigint | number;
+  opt?: bigint | number;
+}
+
+export interface SzUint64ObjWhere {
+  val?:
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        between?: [bigint | number, bigint | number];
+      });
+  opt?:
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        not?: bigint | number;
+        isNone?: boolean;
+        between?: [bigint | number, bigint | number];
+      });
+  AND?: SzUint64ObjWhere[];
+  OR?: SzUint64ObjWhere[];
+  NOT?: SzUint64ObjWhere;
+}
+
+export interface SzUint64ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzUint64ObjSelect = AtLeastOne<SzUint64ObjSelectFields>;
+
+export interface SzUint64ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== objects/szuint8obj.ts =====
+/**
+ * Generated types for SzUint8Obj
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface SzUint8Obj {
+  val: number;
+  opt?: number;
+}
+
+export interface SzUint8ObjInput {
+  val: number;
+  opt?: number;
+}
+
+export interface SzUint8ObjWhere {
+  val?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  opt?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: SzUint8ObjWhere[];
+  OR?: SzUint8ObjWhere[];
+  NOT?: SzUint8ObjWhere;
+}
+
+export interface SzUint8ObjSelectFields {
+  val?: boolean;
+  opt?: boolean;
+}
+
+export type SzUint8ObjSelect = AtLeastOne<SzUint8ObjSelectFields>;
+
+export interface SzUint8ObjOrderBy {
+  val?: 'asc' | 'desc';
+  opt?: 'asc' | 'desc';
+}
+
+// ===== tuples/szfloat16tup.ts =====
+/**
+ * Generated types for SzFloat16Tup
+ * Do not edit manually
+ */
+
+export type SzFloat16Tup = [number, number | null];
+
+export type SzFloat16TupInput =
+  | [number, number | null]
+  | {
+      0?: number;
+      1?: number | null;
+    };
+
+export interface SzFloat16TupWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type SzFloat16TupUpdate = {
+  0?: number;
+  1?: number | null;
+};
+
+export type SzFloat16TupUnset = {
+  1?: true;
+};
+
+// ===== tuples/szfloat32tup.ts =====
+/**
+ * Generated types for SzFloat32Tup
+ * Do not edit manually
+ */
+
+export type SzFloat32Tup = [number, number | null];
+
+export type SzFloat32TupInput =
+  | [number, number | null]
+  | {
+      0?: number;
+      1?: number | null;
+    };
+
+export interface SzFloat32TupWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type SzFloat32TupUpdate = {
+  0?: number;
+  1?: number | null;
+};
+
+export type SzFloat32TupUnset = {
+  1?: true;
+};
+
+// ===== tuples/szint16tup.ts =====
+/**
+ * Generated types for SzInt16Tup
+ * Do not edit manually
+ */
+
+export type SzInt16Tup = [number, number | null];
+
+export type SzInt16TupInput =
+  | [number, number | null]
+  | {
+      0?: number;
+      1?: number | null;
+    };
+
+export interface SzInt16TupWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type SzInt16TupUpdate = {
+  0?: number;
+  1?: number | null;
+};
+
+export type SzInt16TupUnset = {
+  1?: true;
+};
+
+// ===== tuples/szint32tup.ts =====
+/**
+ * Generated types for SzInt32Tup
+ * Do not edit manually
+ */
+
+export type SzInt32Tup = [number, number | null];
+
+export type SzInt32TupInput =
+  | [number, number | null]
+  | {
+      0?: number;
+      1?: number | null;
+    };
+
+export interface SzInt32TupWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type SzInt32TupUpdate = {
+  0?: number;
+  1?: number | null;
+};
+
+export type SzInt32TupUnset = {
+  1?: true;
+};
+
+// ===== tuples/szint8tup.ts =====
+/**
+ * Generated types for SzInt8Tup
+ * Do not edit manually
+ */
+
+export type SzInt8Tup = [number, number | null];
+
+export type SzInt8TupInput =
+  | [number, number | null]
+  | {
+      0?: number;
+      1?: number | null;
+    };
+
+export interface SzInt8TupWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type SzInt8TupUpdate = {
+  0?: number;
+  1?: number | null;
+};
+
+export type SzInt8TupUnset = {
+  1?: true;
+};
+
+// ===== tuples/szuint16tup.ts =====
+/**
+ * Generated types for SzUint16Tup
+ * Do not edit manually
+ */
+
+export type SzUint16Tup = [number, number | null];
+
+export type SzUint16TupInput =
+  | [number, number | null]
+  | {
+      0?: number;
+      1?: number | null;
+    };
+
+export interface SzUint16TupWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type SzUint16TupUpdate = {
+  0?: number;
+  1?: number | null;
+};
+
+export type SzUint16TupUnset = {
+  1?: true;
+};
+
+// ===== tuples/szuint32tup.ts =====
+/**
+ * Generated types for SzUint32Tup
+ * Do not edit manually
+ */
+
+export type SzUint32Tup = [number, number | null];
+
+export type SzUint32TupInput =
+  | [number, number | null]
+  | {
+      0?: number;
+      1?: number | null;
+    };
+
+export interface SzUint32TupWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type SzUint32TupUpdate = {
+  0?: number;
+  1?: number | null;
+};
+
+export type SzUint32TupUnset = {
+  1?: true;
+};
+
+// ===== tuples/szuint64tup.ts =====
+/**
+ * Generated types for SzUint64Tup
+ * Do not edit manually
+ */
+
+export type SzUint64Tup = [bigint, bigint | null];
+
+export type SzUint64TupInput =
+  | [bigint | number, (bigint | number) | null]
+  | {
+      0?: bigint | number;
+      1?: (bigint | number) | null;
+    };
+
+export interface SzUint64TupWhere {
+  0?:
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        between?: [bigint | number, bigint | number];
+      });
+  1?:
+    | null
+    | (bigint | number)
+    | ({
+        eq?: bigint | number;
+        neq?: bigint | number;
+        gt?: bigint | number;
+        gte?: bigint | number;
+        lt?: bigint | number;
+        lte?: bigint | number;
+      } & {
+        in?: (bigint | number)[];
+        notIn?: (bigint | number)[];
+      } & {
+        not?: (bigint | number) | null;
+        isNull?: boolean;
+        between?: [bigint | number, bigint | number];
+      });
+}
+
+export type SzUint64TupUpdate = {
+  0?: bigint | number;
+  1?: (bigint | number) | null;
+};
+
+export type SzUint64TupUnset = {
+  1?: true;
+};
+
+// ===== tuples/szuint8tup.ts =====
+/**
+ * Generated types for SzUint8Tup
+ * Do not edit manually
+ */
+
+export type SzUint8Tup = [number, number | null];
+
+export type SzUint8TupInput =
+  | [number, number | null]
+  | {
+      0?: number;
+      1?: number | null;
+    };
+
+export interface SzUint8TupWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type SzUint8TupUpdate = {
+  0?: number;
+  1?: number | null;
+};
+
+export type SzUint8TupUnset = {
+  1?: true;
+};

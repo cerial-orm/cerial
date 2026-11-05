@@ -1,0 +1,1559 @@
+{
+  "models": {
+    "SzFloat16": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "float16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "float16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "float16"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "float16"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "float16"
+        },
+        {
+          "defaultValue": 1.5,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "float16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "float16"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "float16"
+              }
+            ],
+            "objectName": "SzFloat16Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "float16"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "float16"
+              }
+            ],
+            "tupleName": "SzFloat16Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzFloat16",
+      "tableName": "sz_float16"
+    },
+    "SzFloat32": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "float32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "float32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "float32"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "float32"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "float32"
+        },
+        {
+          "defaultValue": 2.5,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "float32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "float32"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "float32"
+              }
+            ],
+            "objectName": "SzFloat32Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "float32"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "float32"
+              }
+            ],
+            "tupleName": "SzFloat32Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzFloat32",
+      "tableName": "sz_float32"
+    },
+    "SzInt16": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "int16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "int16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "int16"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "int16"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "int16"
+        },
+        {
+          "defaultValue": -40,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "int16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "int16"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "int16"
+              }
+            ],
+            "objectName": "SzInt16Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "int16"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "int16"
+              }
+            ],
+            "tupleName": "SzInt16Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzInt16",
+      "tableName": "sz_int16"
+    },
+    "SzInt32": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "int32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "int32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "int32"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "int32"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "int32"
+        },
+        {
+          "defaultValue": -70000,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "int32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "int32"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "int32"
+              }
+            ],
+            "objectName": "SzInt32Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "int32"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "int32"
+              }
+            ],
+            "tupleName": "SzInt32Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzInt32",
+      "tableName": "sz_int32"
+    },
+    "SzInt8": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "int8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "int8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "int8"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "int8"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "int8"
+        },
+        {
+          "defaultValue": -5,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "int8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "int8"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "int8"
+              }
+            ],
+            "objectName": "SzInt8Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "int8"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "int8"
+              }
+            ],
+            "tupleName": "SzInt8Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzInt8",
+      "tableName": "sz_int8"
+    },
+    "SzOwner": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "readings",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "SzReading",
+            "targetTable": "sz_reading"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "SzOwner",
+      "tableName": "sz_owner"
+    },
+    "SzRawHolder": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "numVal",
+          "type": "number"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "anyVal",
+          "type": "any"
+        }
+      ],
+      "name": "SzRawHolder",
+      "tableName": "sz_raw_holder"
+    },
+    "SzReading": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "ownerId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "owner",
+          "relationInfo": {
+            "fieldRef": "ownerId",
+            "isReverse": false,
+            "targetModel": "SzOwner",
+            "targetTable": "sz_owner"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "channel",
+          "type": "uint8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "level",
+          "type": "float32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "counter",
+          "type": "uint64"
+        }
+      ],
+      "name": "SzReading",
+      "tableName": "sz_reading"
+    },
+    "SzUint16": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "uint16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "uint16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "uint16"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "uint16"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "uint16"
+        },
+        {
+          "defaultValue": 300,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "uint16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "uint16"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "uint16"
+              }
+            ],
+            "objectName": "SzUint16Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "uint16"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "uint16"
+              }
+            ],
+            "tupleName": "SzUint16Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzUint16",
+      "tableName": "sz_uint16"
+    },
+    "SzUint32": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "uint32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "uint32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "uint32"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "uint32"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "uint32"
+        },
+        {
+          "defaultValue": 70000,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "uint32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "uint32"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "uint32"
+              }
+            ],
+            "objectName": "SzUint32Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "uint32"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "uint32"
+              }
+            ],
+            "tupleName": "SzUint32Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzUint32",
+      "tableName": "sz_uint32"
+    },
+    "SzUint64": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "uint64"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "uint64"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "uint64"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "uint64"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "uint64"
+        },
+        {
+          "defaultValue": 5,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "uint64"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "uint64"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "uint64"
+              }
+            ],
+            "objectName": "SzUint64Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "uint64"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "uint64"
+              }
+            ],
+            "tupleName": "SzUint64Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzUint64",
+      "tableName": "sz_uint64"
+    },
+    "SzUint8": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reqVal",
+          "type": "uint8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optVal",
+          "type": "uint8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nullVal",
+          "type": "uint8"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "arrVal",
+          "type": "uint8"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isSet": true,
+          "isUnique": false,
+          "name": "setVal",
+          "type": "uint8"
+        },
+        {
+          "defaultValue": 7,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dfltVal",
+          "type": "uint8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "objVal",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "val",
+                "type": "uint8"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "opt",
+                "type": "uint8"
+              }
+            ],
+            "objectName": "SzUint8Obj"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tupVal",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "uint8"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "uint8"
+              }
+            ],
+            "tupleName": "SzUint8Tup"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "SzUint8",
+      "tableName": "sz_uint8"
+    }
+  },
+  "objects": {
+    "SzFloat16Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "float16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "float16"
+        }
+      ],
+      "name": "SzFloat16Obj"
+    },
+    "SzFloat32Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "float32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "float32"
+        }
+      ],
+      "name": "SzFloat32Obj"
+    },
+    "SzInt16Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "int16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "int16"
+        }
+      ],
+      "name": "SzInt16Obj"
+    },
+    "SzInt32Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "int32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "int32"
+        }
+      ],
+      "name": "SzInt32Obj"
+    },
+    "SzInt8Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "int8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "int8"
+        }
+      ],
+      "name": "SzInt8Obj"
+    },
+    "SzUint16Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "uint16"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "uint16"
+        }
+      ],
+      "name": "SzUint16Obj"
+    },
+    "SzUint32Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "uint32"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "uint32"
+        }
+      ],
+      "name": "SzUint32Obj"
+    },
+    "SzUint64Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "uint64"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "uint64"
+        }
+      ],
+      "name": "SzUint64Obj"
+    },
+    "SzUint8Obj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "val",
+          "type": "uint8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "type": "uint8"
+        }
+      ],
+      "name": "SzUint8Obj"
+    }
+  },
+  "tuples": {
+    "SzFloat16Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "float16"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "float16"
+        }
+      ],
+      "name": "SzFloat16Tup"
+    },
+    "SzFloat32Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "float32"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "float32"
+        }
+      ],
+      "name": "SzFloat32Tup"
+    },
+    "SzInt16Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "int16"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "int16"
+        }
+      ],
+      "name": "SzInt16Tup"
+    },
+    "SzInt32Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "int32"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "int32"
+        }
+      ],
+      "name": "SzInt32Tup"
+    },
+    "SzInt8Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "int8"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "int8"
+        }
+      ],
+      "name": "SzInt8Tup"
+    },
+    "SzUint16Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "uint16"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "uint16"
+        }
+      ],
+      "name": "SzUint16Tup"
+    },
+    "SzUint32Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "uint32"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "uint32"
+        }
+      ],
+      "name": "SzUint32Tup"
+    },
+    "SzUint64Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "uint64"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "uint64"
+        }
+      ],
+      "name": "SzUint64Tup"
+    },
+    "SzUint8Tup": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "uint8"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "uint8"
+        }
+      ],
+      "name": "SzUint8Tup"
+    }
+  }
+}

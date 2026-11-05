@@ -1,0 +1,2027 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": -5
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzInt8Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzInt8Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzInt8",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": 7
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzUint8Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzUint8Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzUint8",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": -40
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzInt16Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzInt16Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzInt16",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": 300
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzUint16Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzUint16Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzUint16",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": -70000
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzInt32Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzInt32Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzInt32",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": 70000
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzUint32Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzUint32Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzUint32",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": 5
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzUint64Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzUint64Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzUint64",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": 1.5
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzFloat16Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzFloat16Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzFloat16",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "reqVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "arrVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "set"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "setVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "default",
+              "value": 2.5
+            }
+          ],
+          "isOptional": false,
+          "name": "dfltVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "objVal",
+          "objectName": "SzFloat32Obj",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tupVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "SzFloat32Tup",
+          "type": "tuple"
+        }
+      ],
+      "name": "SzFloat32",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "SzReading"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "readings",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "SzOwner",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "ownerId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "ownerId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "SzOwner"
+            }
+          ],
+          "isOptional": false,
+          "name": "owner",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "channel",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "counter",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        }
+      ],
+      "name": "SzReading",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "numVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "number"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "anyVal",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "any"
+        }
+      ],
+      "name": "SzRawHolder",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        }
+      ],
+      "name": "SzInt8Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        }
+      ],
+      "name": "SzUint8Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        }
+      ],
+      "name": "SzInt16Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        }
+      ],
+      "name": "SzUint16Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        }
+      ],
+      "name": "SzInt32Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        }
+      ],
+      "name": "SzUint32Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        }
+      ],
+      "name": "SzUint64Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        }
+      ],
+      "name": "SzFloat16Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "val",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        }
+      ],
+      "name": "SzFloat32Obj",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        }
+      ],
+      "name": "SzInt8Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint8"
+        }
+      ],
+      "name": "SzUint8Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int16"
+        }
+      ],
+      "name": "SzInt16Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint16"
+        }
+      ],
+      "name": "SzUint16Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int32"
+        }
+      ],
+      "name": "SzInt32Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint32"
+        }
+      ],
+      "name": "SzUint32Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uint64"
+        }
+      ],
+      "name": "SzUint64Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float16"
+        }
+      ],
+      "name": "SzFloat16Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float32"
+        }
+      ],
+      "name": "SzFloat32Tup",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ]
+}

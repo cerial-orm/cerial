@@ -123,6 +123,18 @@ import type {
   NumberDecorated,
   NumberWithObject,
   NumberWithTuple,
+  SzInt8,
+  SzUint8,
+  SzInt16,
+  SzUint16,
+  SzInt32,
+  SzUint32,
+  SzUint64,
+  SzFloat16,
+  SzFloat32,
+  SzOwner,
+  SzReading,
+  SzRawHolder,
   UuidBasic,
   UuidDecorated,
   UuidWithObject,
@@ -340,6 +352,18 @@ import type {
   NumberDecoratedModel,
   NumberWithObjectModel,
   NumberWithTupleModel,
+  SzInt8Model,
+  SzUint8Model,
+  SzInt16Model,
+  SzUint16Model,
+  SzInt32Model,
+  SzUint32Model,
+  SzUint64Model,
+  SzFloat16Model,
+  SzFloat32Model,
+  SzOwnerModel,
+  SzReadingModel,
+  SzRawHolderModel,
   UuidBasicModel,
   UuidDecoratedModel,
   UuidWithObjectModel,
@@ -565,6 +589,18 @@ export interface TypedDb {
   NumberDecorated: NumberDecoratedModel;
   NumberWithObject: NumberWithObjectModel;
   NumberWithTuple: NumberWithTupleModel;
+  SzInt8: SzInt8Model;
+  SzUint8: SzUint8Model;
+  SzInt16: SzInt16Model;
+  SzUint16: SzUint16Model;
+  SzInt32: SzInt32Model;
+  SzUint32: SzUint32Model;
+  SzUint64: SzUint64Model;
+  SzFloat16: SzFloat16Model;
+  SzFloat32: SzFloat32Model;
+  SzOwner: SzOwnerModel;
+  SzReading: SzReadingModel;
+  SzRawHolder: SzRawHolderModel;
   UuidBasic: UuidBasicModel;
   UuidDecorated: UuidDecoratedModel;
   UuidWithObject: UuidWithObjectModel;
@@ -1121,6 +1157,54 @@ export class CerialClient {
 
   get NumberWithTuple(): NumberWithTupleModel {
     return this._ensureDb().NumberWithTuple;
+  }
+
+  get SzInt8(): SzInt8Model {
+    return this._ensureDb().SzInt8;
+  }
+
+  get SzUint8(): SzUint8Model {
+    return this._ensureDb().SzUint8;
+  }
+
+  get SzInt16(): SzInt16Model {
+    return this._ensureDb().SzInt16;
+  }
+
+  get SzUint16(): SzUint16Model {
+    return this._ensureDb().SzUint16;
+  }
+
+  get SzInt32(): SzInt32Model {
+    return this._ensureDb().SzInt32;
+  }
+
+  get SzUint32(): SzUint32Model {
+    return this._ensureDb().SzUint32;
+  }
+
+  get SzUint64(): SzUint64Model {
+    return this._ensureDb().SzUint64;
+  }
+
+  get SzFloat16(): SzFloat16Model {
+    return this._ensureDb().SzFloat16;
+  }
+
+  get SzFloat32(): SzFloat32Model {
+    return this._ensureDb().SzFloat32;
+  }
+
+  get SzOwner(): SzOwnerModel {
+    return this._ensureDb().SzOwner;
+  }
+
+  get SzReading(): SzReadingModel {
+    return this._ensureDb().SzReading;
+  }
+
+  get SzRawHolder(): SzRawHolderModel {
+    return this._ensureDb().SzRawHolder;
   }
 
   get UuidBasic(): UuidBasicModel {

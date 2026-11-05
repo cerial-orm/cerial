@@ -5,7 +5,6 @@
  * being edited out; the coverage test fails on a stale entry so the list cannot rot. When it is
  * empty, delete this file and the ledger test, and the strict test becomes the only gate.
  *
- * The sized number types wait for an e2e schema that exercises them.
  * The UNIQUE NULLS NOT DISTINCT forms wait for theirs.
  *
  * Where the obvious schema will not just work:
@@ -16,15 +15,6 @@
 import type { CorpusConstructId } from '../../src/parity';
 
 export const KNOWN_GAPS: readonly CorpusConstructId[] = [
-  'type.int8',
-  'type.uint8',
-  'type.int16',
-  'type.uint16',
-  'type.int32',
-  'type.uint32',
-  'type.uint64',
-  'type.float16',
-  'type.float32',
   'decorator.unique.nulls-not-distinct',
   'directive.unique.nulls-not-distinct',
 ];

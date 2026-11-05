@@ -78,6 +78,18 @@ export type ModelName =
   | 'NumberDecorated'
   | 'NumberWithObject'
   | 'NumberWithTuple'
+  | 'SzInt8'
+  | 'SzUint8'
+  | 'SzInt16'
+  | 'SzUint16'
+  | 'SzInt32'
+  | 'SzUint32'
+  | 'SzUint64'
+  | 'SzFloat16'
+  | 'SzFloat32'
+  | 'SzOwner'
+  | 'SzReading'
+  | 'SzRawHolder'
   | 'UuidBasic'
   | 'UuidDecorated'
   | 'UuidWithObject'
@@ -298,6 +310,18 @@ export const modelNames = [
   'NumberDecorated',
   'NumberWithObject',
   'NumberWithTuple',
+  'SzInt8',
+  'SzUint8',
+  'SzInt16',
+  'SzUint16',
+  'SzInt32',
+  'SzUint32',
+  'SzUint64',
+  'SzFloat16',
+  'SzFloat32',
+  'SzOwner',
+  'SzReading',
+  'SzRawHolder',
   'UuidBasic',
   'UuidDecorated',
   'UuidWithObject',
@@ -528,6 +552,18 @@ export const modelFingerprints: Record<ModelName, string> = {
   NumberDecorated: 'be28187a77fbe1224e2b08f91b729ff5aa7330721ea0088fd64b2b640c61dac5',
   NumberWithObject: '1ea5d29c38d82c0e6b215dc7c10ad0d81b03220099328a54815cf00696e71e57',
   NumberWithTuple: '76964caecadfac40e42dcd000e089d841df604d9180fd0fcf05c1edf0fb291d7',
+  SzInt8: '5e524d571b5ba95549c6f4608d3427b3caf3791abbdfa372054be64598fdf09b',
+  SzUint8: '9a7924cb50308e9b34704a251e9e81549da29af6257157354179cfc1363f1431',
+  SzInt16: '2be89fdceb541128df37ec9cf1749f1c9ccdfbd951ec447615181627c2516bfa',
+  SzUint16: '0305c2089a49ec86f83a6e4db9c3b9cef524637bdf6d653980478d190a09af4f',
+  SzInt32: 'd497ea850f7be5d66b823bb517f2f25cdde0fbe929e79e2b21159a4de3fdce13',
+  SzUint32: '056642584487460504afee8a2be6bc0e981ae2be71f7ef15eadc3a470164b5f8',
+  SzUint64: 'f87430d8d196937fdca3f97a8f6415009bd886a9832c4ddc769783edc2fcfc64',
+  SzFloat16: '3e9300a66ec9e9e1940d2044d783cb7806c1a3cd19ee6e9c16d5623c8199b4e5',
+  SzFloat32: '21882a434bce558a83837d2fb3805b9e837448de8b0c78f4a34ec2c77fa2d39b',
+  SzOwner: 'af859c60199e298f0edd48e4fe92ab5159acdb97f4ba6e48a28b16225152e5d6',
+  SzReading: 'ddeec16afe8c6ec18f5af9e199c2f2b97d335fc3d917adf40625794e2c5d6a6c',
+  SzRawHolder: 'becfeec552bd5f2e955fe03129bf2ec3df02d4c988fcadd275237e2399326e3c',
   UuidBasic: '698d5be76753618adc5b1f12590f97902723023ff08648d6307095af7a5d5867',
   UuidDecorated: '0e93936c62cfaad85a94512187f51f445665fa30b01908bb16a1b0776aceca54',
   UuidWithObject: 'd1f594e108bd70cb9853ffee8755b8c61897ae652e327490ce7277ed61ab84a4',
@@ -681,7 +717,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = '04663eb8cd78eeaa88954668f33baefa2f60b1e1a91ad56c40a097174416f8ff';
+export const wholeSchemaFingerprint = 'e88337d3c302ac2dc13cf3531f81cd7b5b04d6cd10609645ced910d06ef03961';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {
