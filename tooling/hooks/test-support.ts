@@ -197,6 +197,26 @@ export const TRACKER_FIXTURES: Readonly<Record<string, Fixture>> = {
     refused: `covers ${join2('12', '-345')} in the ledger`,
     passes: `covers x${join2('12', '-345')} in the ledger`,
   },
+  'tracker.task-number': {
+    refused: `waits on ${join2('Ta', 'sk 2')} first`,
+    passes: 'add one task to the list; task 2.5x is a rate; const task2 = 1',
+  },
+  'tracker.dotted-id': {
+    refused: `see ${join2('06.0', '1.02')} and ${join2('0', '3.01')} for why`,
+    passes: "0.3.0 4.0.0 v2.2.1 20.11.30 '12.50' 10.87 s 12.75 2026-11-05 10.0.0.1",
+  },
+  'tracker.decision-id': {
+    refused: `chosen in ${join2('(D', '33)')} and ${join2('(D4, ', 'D5)')}, ${join2('D3', '5:')} yes`,
+    passes: 'record d1:1 and pong:q1 and ID: 4 and (Date)',
+  },
+  'tracker.feature-id': {
+    refused: `covered by ${join2('(C', '1)')} here`,
+    passes: 'written in C and (C++) and C5000',
+  },
+  'tracker.agent-lane': {
+    refused: `owned by ${join2('lane', '-c1')} and ${join2('lane', '_x')} and ${join2('wa', 've 3')}`,
+    passes: 'a wave of requests; Wave 3 of tide; lane-x lane 3 of the road',
+  },
   'tracker.section-reference': {
     refused: `as set out in ${String.fromCharCode(0xa7)} 4 of the plan`,
     passes: 'as set out in section four',

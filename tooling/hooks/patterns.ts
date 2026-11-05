@@ -79,6 +79,41 @@ export const TRACKER_PATTERNS: readonly Pattern[] = [
     hint: 'A capability ledger id. Name the capability instead.',
   },
   {
+    rule: 'tracker.task-number',
+    gate: 'planning identifier',
+    regex: /\btasks?(?:\s+|\s*[#:-]\s*)\d\b(?![.,]\d)/i,
+    hint: 'Name the behaviour rather than the plan row that asked for it.',
+  },
+  {
+    // Zero-padded dotted ids. The second part of a three-part id (or the third)
+    // must lead with a zero, which separates an id from a release such as a
+    // runtime version; a two-part id must be zero-padded in both parts, which
+    // separates it from a decimal. Neighbours that make it part of something
+    // larger (a longer dotted run, a word, a hyphen, a slash) are not an id.
+    rule: 'tracker.dotted-id',
+    gate: 'planning identifier',
+    regex: /(?<![\w.:/$#-])(?:\d{2}\.(?:0\d\.\d{2}|\d{2}\.0\d)|0\d\.0\d)(?![\w-]|\.\d)/,
+    hint: 'A planning task id. Name the behaviour instead.',
+  },
+  {
+    rule: 'tracker.decision-id',
+    gate: 'planning identifier',
+    regex: /\(D\d{1,3}(?:,\s*D\d{1,3})*\)|(?<![\w-])D\d{1,3}:(?=\s|$)/,
+    hint: 'A planning decision id. State the decision instead.',
+  },
+  {
+    rule: 'tracker.feature-id',
+    gate: 'planning identifier',
+    regex: /\(C\d{1,2}\)/,
+    hint: 'A planning feature id. Name the feature instead.',
+  },
+  {
+    rule: 'tracker.agent-lane',
+    gate: 'planning identifier',
+    regex: /(?<![\w-])(?:[Ll]ane[-_][a-z0-9]{2,}|waves?\s*[#:-]?\s*\d)/,
+    hint: 'An agent lane or wave name. Say what the change does.',
+  },
+  {
     rule: 'tracker.section-reference',
     gate: 'planning cross-reference',
     regex: /\u00A7/,

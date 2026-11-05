@@ -3,7 +3,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import { E2E_SETUP_PATTERNS, STUB_PATTERNS, TRACKER_PATTERNS } from './patterns.ts';
-import { scanE2eSetup, scanStubs, scanSuppressions, scanTracker } from './scan.ts';
+import { isSourcePath, scanE2eSetup, scanStubs, scanSuppressions, scanTracker } from './scan.ts';
 import { guardRepositoryConfiguration, STUB_FIXTURES, TOMB, TRACKER_FIXTURES } from './test-support.ts';
 
 const SHIPPING = 'apps/orm/src/query/thing.ts';
@@ -35,6 +35,15 @@ describe('planning identifiers', () => {
       '.github/ci.yml',
     ]) {
       expect(rules(scanTracker(path, line))).toEqual(['tracker.plan-item']);
+    }
+  });
+
+  test('documentation and other text files are read by the tree scan', () => {
+    const line = TRACKER_FIXTURES['tracker.plan-item']?.refused as string;
+
+    for (const path of ['a.mdx', 'a.html', 'a.sh', 'a.surql', 'a.cerial', 'a.txt']) {
+      expect(isSourcePath(path)).toBe(true);
+      expect(rules(scanTracker(`apps/docs/${path}`, line))).toEqual(['tracker.plan-item']);
     }
   });
 
