@@ -1,6 +1,7 @@
 name: ORM CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [dev, main]
     paths:
@@ -148,4 +149,9 @@ jobs:
       - run: bun run test:integration
         working-directory: apps/orm
       - run: bun run test:e2e
+        working-directory: apps/orm
+      # The 'ts' schema corpus, after the default run: one run at a time touches the instance
+      - run: bun run typecheck:ts
+        working-directory: apps/orm
+      - run: bun run test:e2e:ts
         working-directory: apps/orm
