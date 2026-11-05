@@ -36,31 +36,31 @@ describe('buildResolvedSchemaAst with listed files', () => {
   });
 
   it('adds listed files to the *.schema.ts files of a path', async () => {
-    const dir = await tempProject({ 'schemas/a.schema.ts': modelModule('A'), 'lib/b.ts': modelModule('B') });
+    const dir = await tempProject({ 'schemas/a.schema.ts': modelModule('Alpha'), 'lib/b.ts': modelModule('B') });
 
     const built = await buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas'), files: [join(dir, 'lib/b.ts')] });
 
     // Declarations are ordered by file path, whichever mode found them
-    expect(names(built)).toEqual(['B', 'A']);
+    expect(names(built)).toEqual(['B', 'Alpha']);
   });
 
   it('counts a file once when the path also finds it', async () => {
-    const dir = await tempProject({ 'schemas/a.schema.ts': modelModule('A') });
+    const dir = await tempProject({ 'schemas/a.schema.ts': modelModule('Alpha') });
     const file = join(dir, 'schemas/a.schema.ts');
 
     const built = await buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas'), files: [file, file] });
 
     expect(built.typescriptFiles).toEqual([file]);
-    expect(names(built)).toEqual(['A']);
+    expect(names(built)).toEqual(['Alpha']);
   });
 
   it('parses a list of .cerial files as it would a folder of them', async () => {
-    const dir = await tempProject({ 'a.cerial': cerialModel('A'), 'sub/b.cerial': cerialModel('B') });
+    const dir = await tempProject({ 'a.cerial': cerialModel('Alpha'), 'sub/b.cerial': cerialModel('B') });
 
     const built = await buildResolvedSchemaAst({ files: [join(dir, 'a.cerial'), join(dir, 'sub/b.cerial')] });
 
     expect(built.schemaFiles).toHaveLength(2);
-    expect(names(built)).toEqual(['A', 'B']);
+    expect(names(built)).toEqual(['Alpha', 'B']);
   });
 
   it('walks a listed module that exports defineSchema, and only that one', async () => {
@@ -99,7 +99,7 @@ describe('buildResolvedSchemaAst with listed files', () => {
 
 describe('buildResolvedSchemaAst refusing listed files', () => {
   it('refuses a listed file that does not exist, naming the field and path', async () => {
-    const dir = await tempProject({ 'a.ts': modelModule('A') });
+    const dir = await tempProject({ 'a.ts': modelModule('Alpha') });
     const missing = join(dir, 'missing.ts');
 
     const error = await refusal(buildResolvedSchemaAst({ files: [join(dir, 'a.ts'), missing] }));
@@ -118,25 +118,25 @@ describe('buildResolvedSchemaAst refusing listed files', () => {
   });
 
   it('merges a listed .ts module with the .cerial files of a path', async () => {
-    const dir = await tempProject({ 'schemas/a.cerial': cerialModel('A'), 'lib/b.ts': modelModule('B') });
+    const dir = await tempProject({ 'schemas/a.cerial': cerialModel('Alpha'), 'lib/b.ts': modelModule('B') });
     const listed = join(dir, 'lib/b.ts');
 
     const built = await buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas'), files: [listed] });
 
     expect(built.typescriptFiles).toEqual([listed]);
-    expect(names(built)).toEqual(['B', 'A']);
+    expect(names(built)).toEqual(['B', 'Alpha']);
   });
 
   it('merges a .ts module listed beside a listed .cerial file', async () => {
-    const dir = await tempProject({ 'a.cerial': cerialModel('A'), 'b.ts': modelModule('B') });
+    const dir = await tempProject({ 'a.cerial': cerialModel('Alpha'), 'b.ts': modelModule('B') });
 
     const built = await buildResolvedSchemaAst({ files: [join(dir, 'a.cerial'), join(dir, 'b.ts')] });
 
-    expect(names(built)).toEqual(['A', 'B']);
+    expect(names(built)).toEqual(['Alpha', 'B']);
   });
 
   it('refuses a listed .ts module that throws, naming it, when .cerial files sit beside it', async () => {
-    const dir = await tempProject({ 'a.cerial': cerialModel('A'), 'b.ts': "throw new Error('boom');\n" });
+    const dir = await tempProject({ 'a.cerial': cerialModel('Alpha'), 'b.ts': "throw new Error('boom');\n" });
     const listed = join(dir, 'b.ts');
 
     const error = await refusal(buildResolvedSchemaAst({ files: [join(dir, 'a.cerial'), listed] }));
@@ -146,13 +146,13 @@ describe('buildResolvedSchemaAst refusing listed files', () => {
   });
 
   it('does not refuse a list of .cerial files beside the .cerial files of a path', async () => {
-    const dir = await tempProject({ 'schemas/a.cerial': cerialModel('A'), 'lib/b.cerial': cerialModel('B') });
+    const dir = await tempProject({ 'schemas/a.cerial': cerialModel('Alpha'), 'lib/b.cerial': cerialModel('B') });
 
     const built = await buildResolvedSchemaAst({
       schemaPath: join(dir, 'schemas'),
       files: [join(dir, 'lib/b.cerial')],
     });
 
-    expect(names(built)).toEqual(['A', 'B']);
+    expect(names(built)).toEqual(['Alpha', 'B']);
   });
 });

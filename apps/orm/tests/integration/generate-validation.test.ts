@@ -188,7 +188,7 @@ const REFUSED: Array<{ name: string; files: Record<string, string>; message: str
   },
   {
     name: 'a circular literal reference',
-    files: { 'a.cerial': `literal A { B, 'x' }\nliteral B { A, 'y' }\n${HOST}` },
+    files: { 'a.cerial': `literal Alpha { B, 'x' }\nliteral B { Alpha, 'y' }\n${HOST}` },
     message: 'Circular literal reference detected',
   },
   {
@@ -255,7 +255,7 @@ const ACCEPTED: Array<{ name: string; files: Record<string, string> }> = [
   },
   {
     name: 'a literal chain that is not circular',
-    files: { 'a.cerial': `literal A { 'x' }\nliteral B { A, 'y' }\nliteral C { A, B }\n${HOST}` },
+    files: { 'a.cerial': `literal Alpha { 'x' }\nliteral B { Alpha, 'y' }\nliteral C { Alpha, B }\n${HOST}` },
   },
   {
     name: 'literal and enum fields referencing declared types',

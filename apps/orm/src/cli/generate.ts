@@ -265,6 +265,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       filterBase: options.filterBase,
       filterRoot: options.filterRoot,
       verbose: options.verbose,
+      clientClassName,
     });
 
     if (!schemaFiles.length && !typescriptFiles.length) {
@@ -493,6 +494,7 @@ export async function entryDatabasePins(
   for (const entry of entries) {
     const { resolvedAST } = await buildResolvedSchemaAst({
       ...schemaSource(entry, filterRoot),
+      clientClassName: entry.clientClassName,
       filter: filters?.get(entry.name),
     });
     if (resolvedAST)

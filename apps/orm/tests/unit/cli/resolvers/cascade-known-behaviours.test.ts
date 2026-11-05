@@ -12,21 +12,21 @@ describe.each(MODES)('documented cascade behaviours in %s mode', (mode) => {
     // `drafts/` excludes the directory itself, and git never looks inside an excluded directory
     const filter = cascade(dir, { cerialignore: 'drafts/\n!drafts/keep.schema.ts\n' });
 
-    expect(await modelsFor(mode, dir, filter)).toEqual(['A']);
+    expect(await modelsFor(mode, dir, filter)).toEqual(['Alpha']);
   });
 
   it('re-includes it through include, the documented way round', async () => {
     const dir = await cascadeProject({ 'schemas/drafts/keep.schema.ts': modelModule('Keep') });
     const filter = cascade(dir, { cerialignore: 'drafts/\n', include: ['drafts/b.schema.ts'] });
 
-    expect(await modelsFor(mode, dir, filter)).toEqual(['A', 'B']);
+    expect(await modelsFor(mode, dir, filter)).toEqual(['Alpha', 'B']);
   });
 
   it('cannot reach out of its scope with ../', async () => {
     const dir = await cascadeProject();
 
-    expect(await modelsFor(mode, dir, cascade(dir, { exclude: ['../schemas/drafts/**'] }))).toEqual(['A', 'B']);
-    expect(await modelsFor(mode, dir, cascade(dir, { exclude: ['../**'] }))).toEqual(['A', 'B']);
+    expect(await modelsFor(mode, dir, cascade(dir, { exclude: ['../schemas/drafts/**'] }))).toEqual(['Alpha', 'B']);
+    expect(await modelsFor(mode, dir, cascade(dir, { exclude: ['../**'] }))).toEqual(['Alpha', 'B']);
   });
 });
 

@@ -34,8 +34,8 @@ describe('a module the cascade excludes but an entry imports', () => {
       filter: cascade(dir, { exclude: ['drafts/**'] }),
     });
 
-    expect(registered.resolvedAST?.models.map((m) => m.name).sort()).toEqual(['A', 'B']);
-    expect(excluded.resolvedAST?.models.map((m) => m.name)).toEqual(['A']);
+    expect(registered.resolvedAST?.models.map((m) => m.name).sort()).toEqual(['Alpha', 'B']);
+    expect(excluded.resolvedAST?.models.map((m) => m.name)).toEqual(['Alpha']);
   });
 
   it('still runs, because its importer imports it', async () => {
@@ -59,7 +59,7 @@ describe('a module the cascade excludes but an entry imports', () => {
     });
     const schemas = join(dir, 'schemas');
     // An entry that registers only A, so Deep can appear only through the walk
-    const entry = ENTRY_SOURCE.replace('[A, B]', '[A]');
+    const entry = ENTRY_SOURCE.replace('[Alpha, B]', '[Alpha]');
     await Bun.write(join(schemas, 'entry.ts'), entry);
 
     const walked = await buildResolvedSchemaAst({ entry: join(schemas, 'entry.ts'), filterBase: schemas });
@@ -69,8 +69,8 @@ describe('a module the cascade excludes but an entry imports', () => {
       filter: cascade(dir, { exclude: ['drafts/**'] }),
     });
 
-    expect(walked.resolvedAST?.models.map((m) => m.name).sort()).toEqual(['A', 'B', 'Deep']);
-    expect(stopped.resolvedAST?.models.map((m) => m.name)).toEqual(['A']);
+    expect(walked.resolvedAST?.models.map((m) => m.name).sort()).toEqual(['Alpha', 'B', 'Deep']);
+    expect(stopped.resolvedAST?.models.map((m) => m.name)).toEqual(['Alpha']);
   });
 
   it('does not refuse a listed handle as unbound, but a reference to a declaration of it still fails', async () => {
@@ -80,14 +80,14 @@ describe('a module the cascade excludes but an entry imports', () => {
 
     // B is listed in defineSchema and excluded: exclusion is the reason it is missing, so no refusal
     const built = await buildResolvedSchemaAst({ entry: join(schemas, 'entry.ts'), filterBase: schemas, filter });
-    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['A']);
+    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['Alpha']);
 
     const dir = await tempProject({
-      'schemas/a.ts': `import { f, model } from '${SCHEMA_SRC}';\nimport { Address } from './address';\n\nexport const A = model('A', { id: f.record().id(), home: f.object(Address) });\n`,
+      'schemas/a.ts': `import { f, model } from '${SCHEMA_SRC}';\nimport { Address } from './address';\n\nexport const Alpha = model('Alpha', { id: f.record().id(), home: f.object(Address) });\n`,
       'schemas/address.ts': `import { f, object } from '${SCHEMA_SRC}';\n\nexport const Address = object('Address', { city: f.string() });\n`,
       'schemas/entry.ts': ENTRY_SOURCE.replace("import { B } from './drafts/b.schema';\n", '')
         .replace('./a.schema', './a')
-        .replace('[A, B]', '[A]'),
+        .replace('[Alpha, B]', '[Alpha]'),
     });
 
     // The ordinary missing-declaration refusal for a reference, not the unbound-handle one
@@ -158,7 +158,7 @@ describe('an excluded source', () => {
 
   it('applies to listed .cerial files as well', async () => {
     const dir = await tempProject({
-      'a.cerial': 'model A {\n  id Record @id\n}\n',
+      'a.cerial': 'model Alpha {\n  id Record @id\n}\n',
       'drafts/b.cerial': 'model B {\n  id Record @id\n}\n',
     });
 

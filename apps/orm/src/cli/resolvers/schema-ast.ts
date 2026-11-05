@@ -27,6 +27,8 @@ import { isTypescriptSchemaFile, resolveSchemas, resolveSinglePath } from './sch
 const HANDLES_MODULE = /(^|\/)cerial\/handles\.ts$/;
 
 export interface SchemaAstOptions {
+  /** The client class this schema generates; a declaration named like it is refused */
+  clientClassName?: string;
   schemaPath?: string;
   /** Absolute path of a module exporting `defineSchema()`; with no `schemaPath`, nothing else is searched */
   entry?: string;
@@ -201,7 +203,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
       return result;
     }
 
-    return validateAndResolve(result, combinedAST);
+    return validateAndResolve(result, combinedAST, options.clientClassName);
   }
 
   logger.info(`Found ${schemaFiles.length} schema file(s)`);
@@ -269,7 +271,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   if (result.parseErrors.length) return result;
 
   result.combinedAST = mixing ? mergeDeclarations(parsed.ast, typescriptAST) : parsed.ast;
-  validateAndResolve(result, result.combinedAST);
+  validateAndResolve(result, result.combinedAST, options.clientClassName);
   if (mixing && result.extendsErrors.length) await restoreHandles();
 
   return result;
@@ -281,13 +283,17 @@ function hasDeclarations(ast: SchemaAST): boolean {
   );
 }
 
-function validateAndResolve(result: SchemaAstResult, combinedAST: SchemaAST): SchemaAstResult {
+function validateAndResolve(
+  result: SchemaAstResult,
+  combinedAST: SchemaAST,
+  clientClassName?: string,
+): SchemaAstResult {
   // Validate extends and name uniqueness on the RAW AST: resolution keys types by name, so a duplicate
   // declaration (including one in another file) would be silently dropped before any later check saw it
   // Names are checked here, on every declaration including abstract models, so the CLI and the editor agree
   result.extendsErrors = [
     ...validateGeneratedNames(combinedAST),
-    ...validateDuplicateNames(combinedAST),
+    ...validateDuplicateNames(combinedAST, clientClassName),
     ...validateExtends(combinedAST),
   ];
   if (result.extendsErrors.length) return result;

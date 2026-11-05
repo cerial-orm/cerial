@@ -99,7 +99,7 @@ describe('generate error file attribution', () => {
 
   it('prefixes an extends error with the file and line of the extending declaration', async () => {
     const { errors, dir } = await run({
-      'a.cerial': 'model A extends Nope {\n  id Record @id\n}\n',
+      'a.cerial': 'model Alpha extends Nope {\n  id Record @id\n}\n',
     });
 
     expect(errors.length).toBe(1);

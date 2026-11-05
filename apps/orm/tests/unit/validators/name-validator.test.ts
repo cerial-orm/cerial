@@ -165,7 +165,7 @@ describe('Duplicate Name Validator', () => {
 
     test('distinct names across all five kinds raise nothing', () => {
       const ast = merge(
-        'model A {\n  id Record @id\n}',
+        'model Alpha {\n  id Record @id\n}',
         'object B {\n  x Int\n}',
         'tuple C {\n  Int,\n  Int\n}',
         "literal D { 'a' }",
@@ -181,5 +181,93 @@ describe('Duplicate Name Validator', () => {
       expect(validateAll(ast)).toEqual([]);
       expect(resolveInheritance(ast).objects).toHaveLength(1);
     });
+  });
+});
+
+describe('Case-only name collisions', () => {
+  const m = (n: string) => `model ${n} {\n  id Record @id\n}`;
+  const o = (n: string) => `object ${n} {\n  a String\n}`;
+  const caseMsgs = (...src: string[]) =>
+    messages(merge(...src)).filter((x) => x.startsWith('Names differ only in case'));
+
+  test('refuses Post and POST, naming both and their origins', () => {
+    const [msg = '', ...rest] = caseMsgs(m('Post'), m('POST'));
+
+    expect(rest).toEqual([]);
+    expect(msg).toContain('Post');
+    expect(msg).toContain('POST');
+    expect(msg.match(/declared in/g)).toHaveLength(2);
+  });
+
+  test('refuses across kinds: model Box and object BOX', () => {
+    expect(caseMsgs(m('Box'), o('BOX'))).toHaveLength(1);
+  });
+
+  test('refuses literal Lvl and enum LVL', () => {
+    expect(caseMsgs("literal Lvl {\n  'a'\n}", 'enum LVL {\n  A\n}')).toHaveLength(1);
+  });
+
+  test('allows distinct names', () => {
+    expect(caseMsgs(m('Post'), m('Comment'), o('PostTag'))).toEqual([]);
+  });
+
+  test('an exact repeat is reported as a duplicate, not a case collision', () => {
+    expect(caseMsgs(m('Post'), m('Post'))).toEqual([]);
+  });
+});
+
+describe('Reserved and derived names', () => {
+  const m = (n: string) => `model ${n} {\n  id Record @id\n}`;
+  const o = (n: string) => `object ${n} {\n  a String\n}`;
+  const lit = (n: string) => `literal ${n} {\n  'a'\n}`;
+  const msgs = (...src: string[]) => messages(merge(...src));
+  const collisions = (...src: string[]) => msgs(...src).filter((x) => x.startsWith('Name collision'));
+
+  test('refuses index in any casing for a literal', () => {
+    expect(msgs(lit('Index')).filter((x) => x.startsWith('Reserved literal name'))).toHaveLength(1);
+    expect(msgs(lit('INDEX')).filter((x) => x.startsWith('Reserved literal name'))).toHaveLength(1);
+  });
+
+  test('refuses a model named like another model derived type, naming both', () => {
+    const [msg = ''] = collisions(m('Post'), m('PostWhere'));
+
+    expect(msg).toContain('model Post');
+    expect(msg).toContain('model PostWhere');
+  });
+
+  test('refuses an object named PostCreate next to model Post', () => {
+    expect(collisions(m('Post'), o('PostCreate'))).not.toEqual([]);
+  });
+
+  test('refuses case-variant derived names', () => {
+    expect(collisions(m('Post'), o('POSTWHERE'))).not.toEqual([]);
+  });
+
+  test('refuses names whose own derived types meet: PostNested, PostGroupBy, PostFindUnique', () => {
+    for (const other of [m('PostNested'), m('PostGroupBy'), o('PostFindUnique')]) {
+      expect(collisions(m('Post'), other)).not.toEqual([]);
+    }
+  });
+
+  test('refuses a declaration named like a fixed client export', () => {
+    for (const name of [
+      'CerialClient',
+      'ClientOptions',
+      'IncludeArg',
+      'TypedDb',
+      'CerialTransaction',
+      'CerialId',
+      'SqlFragment',
+    ]) {
+      const [msg = ''] = collisions(m(name));
+
+      expect(msg).toContain('the generated client');
+      expect(msg).toContain(name);
+    }
+  });
+
+  test('allows Post with PostTag and with Comment', () => {
+    expect(msgs(m('Post'), m('PostTag'))).toEqual([]);
+    expect(msgs(m('Post'), m('Comment'))).toEqual([]);
   });
 });

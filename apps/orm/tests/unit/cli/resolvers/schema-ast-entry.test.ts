@@ -86,7 +86,7 @@ describe('buildResolvedSchemaAst with an entry', () => {
 
   it('merges an entry set beside .cerial files', async () => {
     const dir = await tempProject({
-      'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
+      'schemas/a.cerial': 'model Alpha {\n  id Record @id\n}\n',
       'src/schema.ts': entryModule(['User']),
       'src/user.ts': modelModule('User'),
     });
@@ -96,30 +96,30 @@ describe('buildResolvedSchemaAst with an entry', () => {
 
     expect(built.parseErrors).toEqual([]);
     expect(built.typescriptFiles).toEqual([entry]);
-    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['A', 'User']);
+    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['Alpha', 'User']);
   });
 
   it('imports a convention *.schema.ts beside .cerial files, and follows it when it is an entry', async () => {
     const dir = await tempProject({
-      'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
+      'schemas/a.cerial': 'model Alpha {\n  id Record @id\n}\n',
       'schemas/cerial.schema.ts': entryModule(['User']),
       'schemas/user.ts': modelModule('User'),
     });
 
     const built = await buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas') });
 
-    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['A', 'User']);
+    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['Alpha', 'User']);
   });
 
   it('lets a convention module with no declaration sit beside .cerial files', async () => {
     const dir = await tempProject({
-      'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
+      'schemas/a.cerial': 'model Alpha {\n  id Record @id\n}\n',
       'schemas/validation.schema.ts': "export const rule = 'not a schema';\n",
     });
 
     const built = await buildResolvedSchemaAst({ schemaPath: join(dir, 'schemas') });
 
-    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['A']);
+    expect(built.resolvedAST?.models.map((m) => m.name)).toEqual(['Alpha']);
   });
 
   it('refuses a listed model that is not an exported binding', async () => {

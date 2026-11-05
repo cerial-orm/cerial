@@ -394,13 +394,13 @@ describe('rows that expand, --to cerial', () => {
 
   row('define-schema-registration', async () => {
     const out = await expandToCerial({
-      'a.schema.ts': mod("export const A = model('A', { id: f.record().id() });"),
-      'b.schema.ts': mod("export const B = model('B', { id: f.record().id() });"),
-      'schema.ts': mod("import { A } from './a.schema';\nexport default defineSchema({ models: [A] });"),
+      'a.schema.ts': mod("export const Alpha = model('Alpha', { id: f.record().id() });"),
+      'b.schema.ts': mod("export const Beta = model('Beta', { id: f.record().id() });"),
+      'schema.ts': mod("import { Alpha } from './a.schema';\nexport default defineSchema({ models: [Alpha] });"),
     });
 
     expect(Object.keys(out.texts).sort()).toEqual(['a.cerial', 'b.cerial']);
-    expect(modelNames(out.ast)).toEqual(['A', 'B']);
+    expect(modelNames(out.ast)).toEqual(['Alpha', 'Beta']);
     expect(out.result.lines.join('\n')).toContain('list the .cerial entry in the config instead of defineSchema');
   });
 

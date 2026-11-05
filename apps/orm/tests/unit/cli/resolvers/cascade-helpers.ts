@@ -13,15 +13,15 @@ export type Mode = 'path' | 'files' | 'entry';
 export const MODES: readonly Mode[] = ['path', 'files', 'entry'];
 
 export const ENTRY_SOURCE = `import { defineSchema } from '${SCHEMA_SRC}';
-import { A } from './a.schema';
+import { Alpha } from './a.schema';
 import { B } from './drafts/b.schema';
 
-export default defineSchema({ models: [A, B] });
+export default defineSchema({ models: [Alpha, B] });
 `;
 
 export function cascadeProject(extra: Record<string, string> = {}): Promise<string> {
   return tempProject({
-    'schemas/a.schema.ts': modelModule('A'),
+    'schemas/a.schema.ts': modelModule('Alpha'),
     'schemas/drafts/b.schema.ts': modelModule('B'),
     'schemas/entry.ts': ENTRY_SOURCE,
     ...extra,

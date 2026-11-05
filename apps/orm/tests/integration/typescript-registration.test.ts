@@ -63,7 +63,7 @@ describe('a feature-folder project', () => {
     const dir = await tempProject({
       'cerial.config.ts':
         "export default { schemas: { app: { path: './schemas', entry: './src/schema.ts', output: './out' } } };\n",
-      'schemas/a.cerial': 'model A {\n  id Record @id\n}\n',
+      'schemas/a.cerial': 'model Alpha {\n  id Record @id\n}\n',
       'src/schema.ts': entryModule(['User']),
       'src/user.ts': modelModule('User'),
     });

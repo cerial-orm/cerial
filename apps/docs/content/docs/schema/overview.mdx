@@ -166,6 +166,7 @@ Every name in a schema ends up in generated code, so one rule holds for all of t
 - A name starts with a letter or an underscore and holds only letters, digits and underscores. `lat2` and `_y` are valid; `7E` and `x-1` are not.
 - Every property name of `Object.prototype` (`constructor`, `__proto__`, `toString`, `valueOf`, `hasOwnProperty` and the rest) and `prototype` are refused for every kind of name, including field names and enum and literal values. A field called `toString` would clash with the inherited member in the generated types.
 - Model, object, tuple, literal and enum names also cannot be JavaScript reserved words such as `class`, `typeof` or `delete`. A field, tuple element or enum value may be one.
+- A model, object, tuple, literal or enum name is refused when it differs from another declaration's name only in case (`Post` and `POST`), when it is `index` in any casing, or when it equals a type generated for another declaration (`PostWhere` or `PostCreate` next to `Post`).
 
 `cerial generate` refuses a schema that breaks the rule and writes nothing, naming the kind, the owner and the name.
 
