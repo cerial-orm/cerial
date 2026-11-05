@@ -3,6 +3,7 @@
  */
 
 import { Surreal } from 'surrealdb';
+import { CERIAL_CODECS } from './client/u64-codec';
 import { DEFAULT_CONNECTION_NAME } from './connection/connection.const';
 import type { IConnectionAuthUserPassOption, IRPCConnectionOption } from './connection/connection.type';
 import { CerialConnectionError } from './errors';
@@ -13,7 +14,7 @@ import { CerialConnectionError } from './errors';
 export class Cerial {
   private static instances: Record<string, Cerial> = {};
 
-  private readonly _db = new Surreal();
+  private readonly _db = new Surreal({ codecs: CERIAL_CODECS });
 
   private readonly _originalOptions: IRPCConnectionOption;
 

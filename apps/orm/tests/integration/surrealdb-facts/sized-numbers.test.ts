@@ -11,6 +11,7 @@
 
 import { afterAll, describe, expect, test } from 'bun:test';
 import { CborCodec, Decimal, F16, F32, I8, type SizedNumber, Surreal, U64, U8 } from 'surrealdb';
+import { CERIAL_CODECS } from '../../../src/client/u64-codec';
 import { run, withScratchDatabase, type ScratchDatabase } from './helpers';
 
 const databases: ScratchDatabase[] = [];
@@ -51,9 +52,17 @@ async function typeOf(db: ScratchDatabase, expr: string, record: string): Promis
   return rows[0]!.t;
 }
 
-/** Connects the way Cerial does; `dialect1` swaps in a plain `cbor` codec to force the old dialect. */
-async function connect(db: ScratchDatabase, options: { dialect1?: boolean; http?: boolean } = {}): Promise<Surreal> {
-  const surreal = options.dialect1 ? new Surreal({ codecs: { cbor: () => new CborCodec({}) } }) : new Surreal();
+/**
+ * Connects with the SDK's default codecs; `dialect1` swaps in a plain `cbor` codec to force the old dialect,
+ * and `cerial` uses the codecs Cerial connects with.
+ */
+async function connect(
+  db: ScratchDatabase,
+  options: { dialect1?: boolean; http?: boolean; cerial?: boolean } = {},
+): Promise<Surreal> {
+  const surreal = options.dialect1
+    ? new Surreal({ codecs: { cbor: () => new CborCodec({}) } })
+    : new Surreal(options.cerial ? { codecs: CERIAL_CODECS } : {});
   await surreal.connect(options.http ? 'http://127.0.0.1:8000/rpc' : 'ws://127.0.0.1:8000/rpc');
   await surreal.signin({ username: 'root', password: 'root' });
   await surreal.use({ namespace: 'main', database: db.name });
@@ -544,7 +553,52 @@ describe('SDK 2.2.1 over cbor.2, which a default connection negotiates with 4.0'
       ((await sdk(surreal, `SELECT * FROM t:${id}`)) as unknown[]).length;
 
     expect([await rows(40), await rows(41), await rows(42), await rows(43)]).toEqual([1, 0, 1, 0]);
+    // A statement which must return one value names the lost one
+    expect(await sdkError(() => sdk(surreal, 'RETURN 9007199254740992u64;'))).toContain('no value was sent');
   });
+
+  test('the cause: the cbor.2 decoder reads the integer 2^53 as a number, and its u64 tag refuses that number', () => {
+    // tag 186 (u64) holding the 8-byte integer 2^53; 2^53 + 1 is read as a bigint and decodes
+    const tagged = (low: number) => new Uint8Array([0xd8, 186, 0x1b, 0, 0x20, 0, 0, 0, 0, 0, low]);
+
+    expect(() => new CborCodec({ version: 2 }).decode(tagged(0))).toThrow(
+      '9007199254740992 is not an integer which u64 can hold exactly',
+    );
+    expect((new CborCodec({ version: 2 }).decode(tagged(1)) as U64).value).toBe(2n ** 53n + 1n);
+    expect((new CborCodec({ version: 2 }).decode(tagged(0xff)) as U64).value).toBe(2n ** 53n + 255n);
+  });
+
+  test('over HTTP the same read throws instead of dropping', async () => {
+    const { db } = await seeded('sdk2_u64_2_53_http');
+    const surreal = await connect(db, { http: true });
+
+    expect(await sdkError(() => sdk(surreal, 'RETURN 9007199254740992u64;'))).toContain(
+      '9007199254740992 is not an integer which u64 can hold exactly',
+    );
+  });
+
+  test.each([false, true])(
+    'the codecs Cerial connects with read a u64 of 2^53 as U64(2n ** 53n) (http: %p)',
+    async (http) => {
+      const { db } = await seeded(`cerial_u64_2_53_${http ? 'http' : 'ws'}`);
+      const surreal = await connect(db, { cerial: true, http });
+      await sdk(surreal, 'CREATE t:40 SET u = 9007199254740991u64; CREATE t:41 SET u = 9007199254740992u64;');
+      await sdk(surreal, 'CREATE t:42 SET u = 9007199254740993u64; CREATE t:43 SET arr = [1], u = $u;', {
+        u: 2n ** 53n,
+      });
+      const values = (await sdk(surreal, 'SELECT VALUE u FROM t WHERE id >= t:40 ORDER BY id;')) as U64[];
+
+      expect(values.map((u) => [u instanceof U64, u.value])).toEqual([
+        [true, 2n ** 53n - 1n],
+        [true, 2n ** 53n],
+        [true, 2n ** 53n + 1n],
+        [true, 2n ** 53n],
+      ]);
+      expect(await sdk(surreal, 'RETURN [9007199254740992u64, { a: 9007199254740992u64 }, 9007199254740992];')).toEqual(
+        [new U64(2n ** 53n), { a: new U64(2n ** 53n) }, 2 ** 53],
+      );
+    },
+  );
 
   test('bigint params filter a u64 field by equality, range and IN, below and above 2^53', async () => {
     const { surreal } = await seeded('sdk2_bigint_where');

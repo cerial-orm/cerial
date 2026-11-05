@@ -8,6 +8,7 @@
 import { createRemoteEngines, type Engines, RpcEngine, Surreal, type SurrealTransaction } from 'surrealdb';
 import { CerialTransactionError, CerialValidationError } from '../errors';
 import type { TransactionBeginOptions } from '../types';
+import { CERIAL_CODECS } from './u64-codec';
 
 /** The `begin` RPC params. */
 interface BeginParams {
@@ -58,7 +59,7 @@ function enginesWith(slot: BeginSlot): Engines {
 /** A Surreal instance whose transactions can begin with isolation and read-only options. */
 export function createSurreal(): Surreal {
   const slot: BeginSlot = { pending: undefined, queue: Promise.resolve() };
-  const surreal = new Surreal({ engines: enginesWith(slot) });
+  const surreal = new Surreal({ engines: enginesWith(slot), codecs: CERIAL_CODECS });
   slots.set(surreal, slot);
 
   return surreal;
