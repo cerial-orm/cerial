@@ -216,7 +216,7 @@ git diff orm-v0.2.0..HEAD -- apps/orm/src
 ### Proving it rather than reasoning about it
 
 A theoretical exposure and a working exploit are different findings, and the difference
-decides whether a release waits. The injection fixed in `784dd7d` sat in two audits as a
+decides whether a release waits. The injection fixed in `a80334b8` sat in two audits as a
 theoretical note because nobody tried it. When something looks reachable, write the
 payload and run it against a local instance with a throwaway table, and see whether it
 executes.
@@ -226,6 +226,17 @@ them, and when you touch a new path that builds query text from a key, add a cas
 
 A finding blocks the release until it is fixed, or consciously accepted and written down
 in the release notes. Accepted means recorded, not remembered.
+
+`tooling/release/check-review.ts` decides whether the review is done. It takes the review
+document as an argument, because that document is kept out of the repository, and exits
+non-zero with one line per violation while any finding is open or any claim does not match
+the tree:
+
+```bash
+bun run tooling/release/check-review.ts <review> --through <pass>   # check in order, one pass at a time
+bun run tooling/release/check-review.ts <review> --final            # everything, and the maintainer's summary
+bun run tooling/release/check-review.ts <review> --sample           # the interpolation sites to re-fire
+```
 
 ## Releasing a security fix
 
@@ -268,10 +279,12 @@ Neither is automated and both are easy to forget.
 
 **Release Process:**
 1. Ensure all changes are on `dev` and tests pass
-2. **Security review of the full range since the last tag** — see "Security review
-   before every release" above. Do not skip it and do not leave it until after tagging
-3. Add the version section to the release notes docs page (`apps/docs/content/docs/releases/{orm,extension}/{major}/{minor}.mdx`)
-4. Bump version in `package.json`
+2. Add the version section to the release notes docs page (`apps/docs/content/docs/releases/{orm,extension}/{major}/{minor}.mdx`)
+3. Bump version in `package.json`
+4. **Security review of the full range since the last tag** — see "Security review
+   before every release" above. It runs after the notes and the bump and before the
+   tag, so a finding can still change what ships. Do not skip it and do not leave it
+   until after tagging
 5. Commit: `chore(orm): release v0.1.0` or `chore(extension): release v0.1.0`
 6. Merge `dev` to `main` and push
 7. Create and push tag: `git tag orm-v0.1.0 && git push origin orm-v0.1.0`
