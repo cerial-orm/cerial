@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -136,6 +139,64 @@ export interface AnyBasicOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface AnyBasicGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface AnyBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  data?: true;
+  items?: true;
+}
+
+export interface AnyBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface AnyBasicGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface AnyBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    data?: 'asc' | 'desc';
+    items?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface AnyBasicGroupByArgs {
+  by: AnyBasicGroupByKeys;
+  where?: AnyBasicWhere;
+  _count?: true | AnyBasicCountAggregate;
+  _min?: AnyBasicMinMaxAggregate;
+  _max?: AnyBasicMinMaxAggregate;
+  _group?: AnyBasicGroupAggregate;
+  orderBy?: AnyBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AnyBasicGroupByAggregates {
+  _count: { _all: number; id: number; name: number; data: number; items: number };
+  _min: { id: NonNullable<AnyBasic['id']> | null; name: NonNullable<AnyBasic['name']> | null };
+  _max: { id: NonNullable<AnyBasic['id']> | null; name: NonNullable<AnyBasic['name']> | null };
+  _group: { id: GroupMember<AnyBasic['id']>[]; name: GroupMember<AnyBasic['name']>[] };
+}
+
+export type AnyBasicGroupByResult<A extends AnyBasicGroupByArgs> = GroupByRow<AnyBasic, A, AnyBasicGroupByAggregates>;
 
 export type AnyBasic$Relations = {};
 
@@ -283,6 +344,11 @@ export interface AnyBasicModel {
 
   count(where?: AnyBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends AnyBasicGroupByArgs>(
+    args: GroupByArg<A, AnyBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<AnyBasicGroupByResult<A>[]>;
+
   exists(where?: AnyBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -321,6 +387,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -516,6 +585,79 @@ export interface AnyDecoratedOrderBy {
   id?: 'asc' | 'desc';
 }
 
+export interface AnyDecoratedGroupByKeys {
+  id?: true;
+}
+
+export interface AnyDecoratedCountAggregate {
+  _all?: true;
+  id?: true;
+  defData?: true;
+  alwaysData?: true;
+  readonlyData?: true;
+  indexedData?: true;
+  sortedItems?: true;
+  distinctItems?: true;
+}
+
+export interface AnyDecoratedMinMaxAggregate {
+  id?: true;
+}
+
+export interface AnyDecoratedGroupAggregate {
+  id?: true;
+}
+
+export interface AnyDecoratedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    defData?: 'asc' | 'desc';
+    alwaysData?: 'asc' | 'desc';
+    readonlyData?: 'asc' | 'desc';
+    indexedData?: 'asc' | 'desc';
+    sortedItems?: 'asc' | 'desc';
+    distinctItems?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface AnyDecoratedGroupByArgs {
+  by: AnyDecoratedGroupByKeys;
+  where?: AnyDecoratedWhere;
+  _count?: true | AnyDecoratedCountAggregate;
+  _min?: AnyDecoratedMinMaxAggregate;
+  _max?: AnyDecoratedMinMaxAggregate;
+  _group?: AnyDecoratedGroupAggregate;
+  orderBy?: AnyDecoratedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AnyDecoratedGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    defData: number;
+    alwaysData: number;
+    readonlyData: number;
+    indexedData: number;
+    sortedItems: number;
+    distinctItems: number;
+  };
+  _min: { id: NonNullable<AnyDecorated['id']> | null };
+  _max: { id: NonNullable<AnyDecorated['id']> | null };
+  _group: { id: GroupMember<AnyDecorated['id']>[] };
+}
+
+export type AnyDecoratedGroupByResult<A extends AnyDecoratedGroupByArgs> = GroupByRow<
+  AnyDecorated,
+  A,
+  AnyDecoratedGroupByAggregates
+>;
+
 export type AnyDecorated$Relations = {};
 
 export type GetAnyDecoratedPayload<S extends AnyDecoratedSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -662,6 +804,11 @@ export interface AnyDecoratedModel {
 
   count(where?: AnyDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends AnyDecoratedGroupByArgs>(
+    args: GroupByArg<A, AnyDecoratedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<AnyDecoratedGroupByResult<A>[]>;
+
   exists(where?: AnyDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -699,6 +846,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -781,6 +931,56 @@ export type AnyUniqueSelect = AtLeastOne<AnyUniqueSelectFields>;
 export interface AnyUniqueOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface AnyUniqueGroupByKeys {
+  id?: true;
+}
+
+export interface AnyUniqueCountAggregate {
+  _all?: true;
+  id?: true;
+  uniqueData?: true;
+}
+
+export interface AnyUniqueMinMaxAggregate {
+  id?: true;
+}
+
+export interface AnyUniqueGroupAggregate {
+  id?: true;
+}
+
+export interface AnyUniqueGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; uniqueData?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface AnyUniqueGroupByArgs {
+  by: AnyUniqueGroupByKeys;
+  where?: AnyUniqueWhere;
+  _count?: true | AnyUniqueCountAggregate;
+  _min?: AnyUniqueMinMaxAggregate;
+  _max?: AnyUniqueMinMaxAggregate;
+  _group?: AnyUniqueGroupAggregate;
+  orderBy?: AnyUniqueGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AnyUniqueGroupByAggregates {
+  _count: { _all: number; id: number; uniqueData: number };
+  _min: { id: NonNullable<AnyUnique['id']> | null };
+  _max: { id: NonNullable<AnyUnique['id']> | null };
+  _group: { id: GroupMember<AnyUnique['id']>[] };
+}
+
+export type AnyUniqueGroupByResult<A extends AnyUniqueGroupByArgs> = GroupByRow<
+  AnyUnique,
+  A,
+  AnyUniqueGroupByAggregates
+>;
 
 export type AnyUnique$Relations = {};
 
@@ -928,6 +1128,11 @@ export interface AnyUniqueModel {
 
   count(where?: AnyUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends AnyUniqueGroupByArgs>(
+    args: GroupByArg<A, AnyUniqueGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<AnyUniqueGroupByResult<A>[]>;
+
   exists(where?: AnyUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -964,6 +1169,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1046,6 +1254,63 @@ export interface AnyWithObjectOrderBy {
   name?: 'asc' | 'desc';
   meta?: AnyMetaOrderBy;
 }
+
+export interface AnyWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+  meta?: { label?: true };
+}
+
+export interface AnyWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  meta?: true;
+}
+
+export interface AnyWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface AnyWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface AnyWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  meta?: { label?: 'asc' | 'desc' };
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; meta?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface AnyWithObjectGroupByArgs {
+  by: AnyWithObjectGroupByKeys;
+  where?: AnyWithObjectWhere;
+  _count?: true | AnyWithObjectCountAggregate;
+  _min?: AnyWithObjectMinMaxAggregate;
+  _max?: AnyWithObjectMinMaxAggregate;
+  _group?: AnyWithObjectGroupAggregate;
+  orderBy?: AnyWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AnyWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; meta: number };
+  _min: { id: NonNullable<AnyWithObject['id']> | null; name: NonNullable<AnyWithObject['name']> | null };
+  _max: { id: NonNullable<AnyWithObject['id']> | null; name: NonNullable<AnyWithObject['name']> | null };
+  _group: { id: GroupMember<AnyWithObject['id']>[]; name: GroupMember<AnyWithObject['name']>[] };
+}
+
+export type AnyWithObjectGroupByResult<A extends AnyWithObjectGroupByArgs> = GroupByRow<
+  AnyWithObject,
+  A,
+  AnyWithObjectGroupByAggregates
+>;
 
 export type AnyWithObject$Relations = {};
 
@@ -1192,6 +1457,11 @@ export interface AnyWithObjectModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<AnyWithObject, R>>;
 
   count(where?: AnyWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends AnyWithObjectGroupByArgs>(
+    args: GroupByArg<A, AnyWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<AnyWithObjectGroupByResult<A>[]>;
 
   exists(where?: AnyWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -205,6 +208,144 @@ export interface ExtAdminOrderBy {
   permissions?: 'asc' | 'desc';
 }
 
+export interface ExtAdminGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  level?: true;
+  permissions?: true;
+}
+
+export interface ExtAdminCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  level?: true;
+  permissions?: true;
+}
+
+export interface ExtAdminNumericAggregate {
+  level?: true;
+}
+
+export interface ExtAdminMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  level?: true;
+}
+
+export interface ExtAdminGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  level?: true;
+  permissions?: true;
+}
+
+export interface ExtAdminGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  permissions?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    permissions?: 'asc' | 'desc';
+  };
+  _sum?: { level?: 'asc' | 'desc' };
+  _avg?: { level?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtAdminGroupByArgs {
+  by: ExtAdminGroupByKeys;
+  where?: ExtAdminWhere;
+  _count?: true | ExtAdminCountAggregate;
+  _sum?: ExtAdminNumericAggregate;
+  _avg?: ExtAdminNumericAggregate;
+  _min?: ExtAdminMinMaxAggregate;
+  _max?: ExtAdminMinMaxAggregate;
+  _group?: ExtAdminGroupAggregate;
+  orderBy?: ExtAdminGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtAdminGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    email: number;
+    name: number;
+    level: number;
+    permissions: number;
+  };
+  _sum: { level: number };
+  _avg: { level: number | null };
+  _min: {
+    id: NonNullable<ExtAdmin['id']> | null;
+    createdAt: NonNullable<ExtAdmin['createdAt']> | null;
+    updatedAt: NonNullable<ExtAdmin['updatedAt']> | null;
+    email: NonNullable<ExtAdmin['email']> | null;
+    name: NonNullable<ExtAdmin['name']> | null;
+    level: NonNullable<ExtAdmin['level']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtAdmin['id']> | null;
+    createdAt: NonNullable<ExtAdmin['createdAt']> | null;
+    updatedAt: NonNullable<ExtAdmin['updatedAt']> | null;
+    email: NonNullable<ExtAdmin['email']> | null;
+    name: NonNullable<ExtAdmin['name']> | null;
+    level: NonNullable<ExtAdmin['level']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtAdmin['id']>[];
+    createdAt: GroupMember<ExtAdmin['createdAt']>[];
+    updatedAt: GroupMember<ExtAdmin['updatedAt']>[];
+    email: GroupMember<ExtAdmin['email']>[];
+    name: GroupMember<ExtAdmin['name']>[];
+    level: GroupMember<ExtAdmin['level']>[];
+    permissions: GroupMember<ExtAdmin['permissions']>[];
+  };
+}
+
+export type ExtAdminGroupByResult<A extends ExtAdminGroupByArgs> = GroupByRow<ExtAdmin, A, ExtAdminGroupByAggregates>;
+
 export type ExtAdmin$Relations = {};
 
 export type GetExtAdminPayload<S extends ExtAdminSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -351,6 +492,11 @@ export interface ExtAdminModel {
 
   count(where?: ExtAdminWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtAdminGroupByArgs>(
+    args: GroupByArg<A, ExtAdminGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtAdminGroupByResult<A>[]>;
+
   exists(where?: ExtAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -388,6 +534,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -493,6 +642,77 @@ export interface ExtEmptyChildOrderBy {
   createdAt?: 'asc' | 'desc';
   updatedAt?: 'asc' | 'desc';
 }
+
+export interface ExtEmptyChildGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+}
+
+export interface ExtEmptyChildCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+}
+
+export interface ExtEmptyChildMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+}
+
+export interface ExtEmptyChildGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+}
+
+export interface ExtEmptyChildGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; createdAt?: 'asc' | 'desc'; updatedAt?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; createdAt?: 'asc' | 'desc'; updatedAt?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; createdAt?: 'asc' | 'desc'; updatedAt?: 'asc' | 'desc' };
+}
+
+export interface ExtEmptyChildGroupByArgs {
+  by: ExtEmptyChildGroupByKeys;
+  where?: ExtEmptyChildWhere;
+  _count?: true | ExtEmptyChildCountAggregate;
+  _min?: ExtEmptyChildMinMaxAggregate;
+  _max?: ExtEmptyChildMinMaxAggregate;
+  _group?: ExtEmptyChildGroupAggregate;
+  orderBy?: ExtEmptyChildGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtEmptyChildGroupByAggregates {
+  _count: { _all: number; id: number; createdAt: number; updatedAt: number };
+  _min: {
+    id: NonNullable<ExtEmptyChild['id']> | null;
+    createdAt: NonNullable<ExtEmptyChild['createdAt']> | null;
+    updatedAt: NonNullable<ExtEmptyChild['updatedAt']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtEmptyChild['id']> | null;
+    createdAt: NonNullable<ExtEmptyChild['createdAt']> | null;
+    updatedAt: NonNullable<ExtEmptyChild['updatedAt']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtEmptyChild['id']>[];
+    createdAt: GroupMember<ExtEmptyChild['createdAt']>[];
+    updatedAt: GroupMember<ExtEmptyChild['updatedAt']>[];
+  };
+}
+
+export type ExtEmptyChildGroupByResult<A extends ExtEmptyChildGroupByArgs> = GroupByRow<
+  ExtEmptyChild,
+  A,
+  ExtEmptyChildGroupByAggregates
+>;
 
 export type ExtEmptyChild$Relations = {};
 
@@ -640,6 +860,11 @@ export interface ExtEmptyChildModel {
 
   count(where?: ExtEmptyChildWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtEmptyChildGroupByArgs>(
+    args: GroupByArg<A, ExtEmptyChildGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtEmptyChildGroupByResult<A>[]>;
+
   exists(where?: ExtEmptyChildWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -677,6 +902,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -842,6 +1070,131 @@ export interface ExtModeratorOrderBy {
   notes?: 'asc' | 'desc';
 }
 
+export interface ExtModeratorGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  email?: true;
+  name?: true;
+  bannedUntil?: true;
+  notes?: true;
+}
+
+export interface ExtModeratorCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  email?: true;
+  name?: true;
+  bannedUntil?: true;
+  notes?: true;
+}
+
+export interface ExtModeratorMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  email?: true;
+  name?: true;
+  bannedUntil?: true;
+  notes?: true;
+}
+
+export interface ExtModeratorGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  email?: true;
+  name?: true;
+  bannedUntil?: true;
+  notes?: true;
+}
+
+export interface ExtModeratorGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  bannedUntil?: 'asc' | 'desc';
+  notes?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    bannedUntil?: 'asc' | 'desc';
+    notes?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    bannedUntil?: 'asc' | 'desc';
+    notes?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    bannedUntil?: 'asc' | 'desc';
+    notes?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtModeratorGroupByArgs {
+  by: ExtModeratorGroupByKeys;
+  where?: ExtModeratorWhere;
+  _count?: true | ExtModeratorCountAggregate;
+  _min?: ExtModeratorMinMaxAggregate;
+  _max?: ExtModeratorMinMaxAggregate;
+  _group?: ExtModeratorGroupAggregate;
+  orderBy?: ExtModeratorGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtModeratorGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    email: number;
+    name: number;
+    bannedUntil: number;
+    notes: number;
+  };
+  _min: {
+    id: NonNullable<ExtModerator['id']> | null;
+    createdAt: NonNullable<ExtModerator['createdAt']> | null;
+    email: NonNullable<ExtModerator['email']> | null;
+    name: NonNullable<ExtModerator['name']> | null;
+    bannedUntil: NonNullable<ExtModerator['bannedUntil']> | null;
+    notes: NonNullable<ExtModerator['notes']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtModerator['id']> | null;
+    createdAt: NonNullable<ExtModerator['createdAt']> | null;
+    email: NonNullable<ExtModerator['email']> | null;
+    name: NonNullable<ExtModerator['name']> | null;
+    bannedUntil: NonNullable<ExtModerator['bannedUntil']> | null;
+    notes: NonNullable<ExtModerator['notes']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtModerator['id']>[];
+    createdAt: GroupMember<ExtModerator['createdAt']>[];
+    email: GroupMember<ExtModerator['email']>[];
+    name: GroupMember<ExtModerator['name']>[];
+    bannedUntil: GroupMember<ExtModerator['bannedUntil']>[];
+    notes: GroupMember<ExtModerator['notes']>[];
+  };
+}
+
+export type ExtModeratorGroupByResult<A extends ExtModeratorGroupByArgs> = GroupByRow<
+  ExtModerator,
+  A,
+  ExtModeratorGroupByAggregates
+>;
+
 export type ExtModerator$Relations = {};
 
 export type GetExtModeratorPayload<S extends ExtModeratorSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -988,6 +1341,11 @@ export interface ExtModeratorModel {
 
   count(where?: ExtModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtModeratorGroupByArgs>(
+    args: GroupByArg<A, ExtModeratorGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtModeratorGroupByResult<A>[]>;
+
   exists(where?: ExtModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1025,6 +1383,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1266,6 +1627,189 @@ export interface ExtPremiumUserOrderBy {
   subscriptionEnd?: 'asc' | 'desc';
 }
 
+export interface ExtPremiumUserGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  age?: true;
+  role?: true;
+  subscriptionTier?: true;
+  subscriptionEnd?: true;
+}
+
+export interface ExtPremiumUserCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  age?: true;
+  role?: true;
+  subscriptionTier?: true;
+  subscriptionEnd?: true;
+}
+
+export interface ExtPremiumUserNumericAggregate {
+  age?: true;
+}
+
+export interface ExtPremiumUserMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  age?: true;
+  role?: true;
+  subscriptionTier?: true;
+  subscriptionEnd?: true;
+}
+
+export interface ExtPremiumUserGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  age?: true;
+  role?: true;
+  subscriptionTier?: true;
+  subscriptionEnd?: true;
+}
+
+export interface ExtPremiumUserGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  isActive?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  subscriptionTier?: 'asc' | 'desc';
+  subscriptionEnd?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    subscriptionTier?: 'asc' | 'desc';
+    subscriptionEnd?: 'asc' | 'desc';
+  };
+  _sum?: { age?: 'asc' | 'desc' };
+  _avg?: { age?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    subscriptionTier?: 'asc' | 'desc';
+    subscriptionEnd?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    subscriptionTier?: 'asc' | 'desc';
+    subscriptionEnd?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtPremiumUserGroupByArgs {
+  by: ExtPremiumUserGroupByKeys;
+  where?: ExtPremiumUserWhere;
+  _count?: true | ExtPremiumUserCountAggregate;
+  _sum?: ExtPremiumUserNumericAggregate;
+  _avg?: ExtPremiumUserNumericAggregate;
+  _min?: ExtPremiumUserMinMaxAggregate;
+  _max?: ExtPremiumUserMinMaxAggregate;
+  _group?: ExtPremiumUserGroupAggregate;
+  orderBy?: ExtPremiumUserGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtPremiumUserGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    email: number;
+    name: number;
+    isActive: number;
+    age: number;
+    role: number;
+    subscriptionTier: number;
+    subscriptionEnd: number;
+  };
+  _sum: { age: number };
+  _avg: { age: number | null };
+  _min: {
+    id: NonNullable<ExtPremiumUser['id']> | null;
+    createdAt: NonNullable<ExtPremiumUser['createdAt']> | null;
+    updatedAt: NonNullable<ExtPremiumUser['updatedAt']> | null;
+    email: NonNullable<ExtPremiumUser['email']> | null;
+    name: NonNullable<ExtPremiumUser['name']> | null;
+    isActive: NonNullable<ExtPremiumUser['isActive']> | null;
+    age: NonNullable<ExtPremiumUser['age']> | null;
+    role: NonNullable<ExtPremiumUser['role']> | null;
+    subscriptionTier: NonNullable<ExtPremiumUser['subscriptionTier']> | null;
+    subscriptionEnd: NonNullable<ExtPremiumUser['subscriptionEnd']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtPremiumUser['id']> | null;
+    createdAt: NonNullable<ExtPremiumUser['createdAt']> | null;
+    updatedAt: NonNullable<ExtPremiumUser['updatedAt']> | null;
+    email: NonNullable<ExtPremiumUser['email']> | null;
+    name: NonNullable<ExtPremiumUser['name']> | null;
+    isActive: NonNullable<ExtPremiumUser['isActive']> | null;
+    age: NonNullable<ExtPremiumUser['age']> | null;
+    role: NonNullable<ExtPremiumUser['role']> | null;
+    subscriptionTier: NonNullable<ExtPremiumUser['subscriptionTier']> | null;
+    subscriptionEnd: NonNullable<ExtPremiumUser['subscriptionEnd']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtPremiumUser['id']>[];
+    createdAt: GroupMember<ExtPremiumUser['createdAt']>[];
+    updatedAt: GroupMember<ExtPremiumUser['updatedAt']>[];
+    email: GroupMember<ExtPremiumUser['email']>[];
+    name: GroupMember<ExtPremiumUser['name']>[];
+    isActive: GroupMember<ExtPremiumUser['isActive']>[];
+    age: GroupMember<ExtPremiumUser['age']>[];
+    role: GroupMember<ExtPremiumUser['role']>[];
+    subscriptionTier: GroupMember<ExtPremiumUser['subscriptionTier']>[];
+    subscriptionEnd: GroupMember<ExtPremiumUser['subscriptionEnd']>[];
+  };
+}
+
+export type ExtPremiumUserGroupByResult<A extends ExtPremiumUserGroupByArgs> = GroupByRow<
+  ExtPremiumUser,
+  A,
+  ExtPremiumUserGroupByAggregates
+>;
+
 export type ExtPremiumUser$Relations = {};
 
 export type GetExtPremiumUserPayload<S extends ExtPremiumUserSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -1412,6 +1956,11 @@ export interface ExtPremiumUserModel {
 
   count(where?: ExtPremiumUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtPremiumUserGroupByArgs>(
+    args: GroupByArg<A, ExtPremiumUserGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtPremiumUserGroupByResult<A>[]>;
+
   exists(where?: ExtPremiumUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1449,6 +1998,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1619,6 +2171,131 @@ export interface ExtPrivateUserOrderBy {
   publicBio?: 'asc' | 'desc';
 }
 
+export interface ExtPrivateUserGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  publicBio?: true;
+}
+
+export interface ExtPrivateUserCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  publicBio?: true;
+}
+
+export interface ExtPrivateUserMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  publicBio?: true;
+}
+
+export interface ExtPrivateUserGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  publicBio?: true;
+}
+
+export interface ExtPrivateUserGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  publicBio?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    publicBio?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    publicBio?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    publicBio?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtPrivateUserGroupByArgs {
+  by: ExtPrivateUserGroupByKeys;
+  where?: ExtPrivateUserWhere;
+  _count?: true | ExtPrivateUserCountAggregate;
+  _min?: ExtPrivateUserMinMaxAggregate;
+  _max?: ExtPrivateUserMinMaxAggregate;
+  _group?: ExtPrivateUserGroupAggregate;
+  orderBy?: ExtPrivateUserGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtPrivateUserGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    email: number;
+    name: number;
+    publicBio: number;
+  };
+  _min: {
+    id: NonNullable<ExtPrivateUser['id']> | null;
+    createdAt: NonNullable<ExtPrivateUser['createdAt']> | null;
+    updatedAt: NonNullable<ExtPrivateUser['updatedAt']> | null;
+    email: NonNullable<ExtPrivateUser['email']> | null;
+    name: NonNullable<ExtPrivateUser['name']> | null;
+    publicBio: NonNullable<ExtPrivateUser['publicBio']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtPrivateUser['id']> | null;
+    createdAt: NonNullable<ExtPrivateUser['createdAt']> | null;
+    updatedAt: NonNullable<ExtPrivateUser['updatedAt']> | null;
+    email: NonNullable<ExtPrivateUser['email']> | null;
+    name: NonNullable<ExtPrivateUser['name']> | null;
+    publicBio: NonNullable<ExtPrivateUser['publicBio']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtPrivateUser['id']>[];
+    createdAt: GroupMember<ExtPrivateUser['createdAt']>[];
+    updatedAt: GroupMember<ExtPrivateUser['updatedAt']>[];
+    email: GroupMember<ExtPrivateUser['email']>[];
+    name: GroupMember<ExtPrivateUser['name']>[];
+    publicBio: GroupMember<ExtPrivateUser['publicBio']>[];
+  };
+}
+
+export type ExtPrivateUserGroupByResult<A extends ExtPrivateUserGroupByArgs> = GroupByRow<
+  ExtPrivateUser,
+  A,
+  ExtPrivateUserGroupByAggregates
+>;
+
 export type ExtPrivateUser$Relations = {};
 
 export type GetExtPrivateUserPayload<S extends ExtPrivateUserSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -1765,6 +2442,11 @@ export interface ExtPrivateUserModel {
 
   count(where?: ExtPrivateUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtPrivateUserGroupByArgs>(
+    args: GroupByArg<A, ExtPrivateUserGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtPrivateUserGroupByResult<A>[]>;
+
   exists(where?: ExtPrivateUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1802,6 +2484,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2018,6 +2703,160 @@ export interface ExtProfileOrderBy {
   metadata?: 'asc' | 'desc';
 }
 
+export interface ExtProfileGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  userId?: true;
+  bio?: true;
+  avatar?: true;
+  tags?: true;
+  metadata?: true;
+}
+
+export interface ExtProfileCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  userId?: true;
+  bio?: true;
+  avatar?: true;
+  tags?: true;
+  metadata?: true;
+}
+
+export interface ExtProfileNumericAggregate {
+  metadata?: true;
+}
+
+export interface ExtProfileMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  userId?: true;
+  bio?: true;
+  avatar?: true;
+  metadata?: true;
+}
+
+export interface ExtProfileGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  userId?: true;
+  bio?: true;
+  avatar?: true;
+  tags?: true;
+  metadata?: true;
+}
+
+export interface ExtProfileGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  userId?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  avatar?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    userId?: 'asc' | 'desc';
+    bio?: 'asc' | 'desc';
+    avatar?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+  };
+  _sum?: { metadata?: 'asc' | 'desc' };
+  _avg?: { metadata?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    userId?: 'asc' | 'desc';
+    bio?: 'asc' | 'desc';
+    avatar?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    userId?: 'asc' | 'desc';
+    bio?: 'asc' | 'desc';
+    avatar?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtProfileGroupByArgs {
+  by: ExtProfileGroupByKeys;
+  where?: ExtProfileWhere;
+  _count?: true | ExtProfileCountAggregate;
+  _sum?: ExtProfileNumericAggregate;
+  _avg?: ExtProfileNumericAggregate;
+  _min?: ExtProfileMinMaxAggregate;
+  _max?: ExtProfileMinMaxAggregate;
+  _group?: ExtProfileGroupAggregate;
+  orderBy?: ExtProfileGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtProfileGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    userId: number;
+    bio: number;
+    avatar: number;
+    tags: number;
+    metadata: number;
+  };
+  _sum: { metadata: number };
+  _avg: { metadata: number | null };
+  _min: {
+    id: NonNullable<ExtProfile['id']> | null;
+    createdAt: NonNullable<ExtProfile['createdAt']> | null;
+    updatedAt: NonNullable<ExtProfile['updatedAt']> | null;
+    userId: NonNullable<ExtProfile['userId']> | null;
+    bio: NonNullable<ExtProfile['bio']> | null;
+    avatar: NonNullable<ExtProfile['avatar']> | null;
+    metadata: NonNullable<ExtProfile['metadata']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtProfile['id']> | null;
+    createdAt: NonNullable<ExtProfile['createdAt']> | null;
+    updatedAt: NonNullable<ExtProfile['updatedAt']> | null;
+    userId: NonNullable<ExtProfile['userId']> | null;
+    bio: NonNullable<ExtProfile['bio']> | null;
+    avatar: NonNullable<ExtProfile['avatar']> | null;
+    metadata: NonNullable<ExtProfile['metadata']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtProfile['id']>[];
+    createdAt: GroupMember<ExtProfile['createdAt']>[];
+    updatedAt: GroupMember<ExtProfile['updatedAt']>[];
+    userId: GroupMember<ExtProfile['userId']>[];
+    bio: GroupMember<ExtProfile['bio']>[];
+    avatar: GroupMember<ExtProfile['avatar']>[];
+    tags: GroupMember<ExtProfile['tags']>[];
+    metadata: GroupMember<ExtProfile['metadata']>[];
+  };
+}
+
+export type ExtProfileGroupByResult<A extends ExtProfileGroupByArgs> = GroupByRow<
+  ExtProfile,
+  A,
+  ExtProfileGroupByAggregates
+>;
+
 export type ExtProfile$Relations = {};
 
 export type GetExtProfilePayload<S extends ExtProfileSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -2164,6 +3003,11 @@ export interface ExtProfileModel {
 
   count(where?: ExtProfileWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtProfileGroupByArgs>(
+    args: GroupByArg<A, ExtProfileGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtProfileGroupByResult<A>[]>;
+
   exists(where?: ExtProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2201,6 +3045,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2406,6 +3253,177 @@ export interface ExtSuperAdminOrderBy {
   canDeleteUsers?: 'asc' | 'desc';
 }
 
+export interface ExtSuperAdminGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  role?: true;
+  level?: true;
+  canDeleteUsers?: true;
+}
+
+export interface ExtSuperAdminCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  role?: true;
+  level?: true;
+  canDeleteUsers?: true;
+}
+
+export interface ExtSuperAdminNumericAggregate {
+  level?: true;
+}
+
+export interface ExtSuperAdminMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  role?: true;
+  level?: true;
+  canDeleteUsers?: true;
+}
+
+export interface ExtSuperAdminGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  role?: true;
+  level?: true;
+  canDeleteUsers?: true;
+}
+
+export interface ExtSuperAdminGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  isActive?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  canDeleteUsers?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    canDeleteUsers?: 'asc' | 'desc';
+  };
+  _sum?: { level?: 'asc' | 'desc' };
+  _avg?: { level?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    canDeleteUsers?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    canDeleteUsers?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtSuperAdminGroupByArgs {
+  by: ExtSuperAdminGroupByKeys;
+  where?: ExtSuperAdminWhere;
+  _count?: true | ExtSuperAdminCountAggregate;
+  _sum?: ExtSuperAdminNumericAggregate;
+  _avg?: ExtSuperAdminNumericAggregate;
+  _min?: ExtSuperAdminMinMaxAggregate;
+  _max?: ExtSuperAdminMinMaxAggregate;
+  _group?: ExtSuperAdminGroupAggregate;
+  orderBy?: ExtSuperAdminGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtSuperAdminGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    email: number;
+    name: number;
+    isActive: number;
+    role: number;
+    level: number;
+    canDeleteUsers: number;
+  };
+  _sum: { level: number };
+  _avg: { level: number | null };
+  _min: {
+    id: NonNullable<ExtSuperAdmin['id']> | null;
+    createdAt: NonNullable<ExtSuperAdmin['createdAt']> | null;
+    updatedAt: NonNullable<ExtSuperAdmin['updatedAt']> | null;
+    email: NonNullable<ExtSuperAdmin['email']> | null;
+    name: NonNullable<ExtSuperAdmin['name']> | null;
+    isActive: NonNullable<ExtSuperAdmin['isActive']> | null;
+    role: NonNullable<ExtSuperAdmin['role']> | null;
+    level: NonNullable<ExtSuperAdmin['level']> | null;
+    canDeleteUsers: NonNullable<ExtSuperAdmin['canDeleteUsers']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtSuperAdmin['id']> | null;
+    createdAt: NonNullable<ExtSuperAdmin['createdAt']> | null;
+    updatedAt: NonNullable<ExtSuperAdmin['updatedAt']> | null;
+    email: NonNullable<ExtSuperAdmin['email']> | null;
+    name: NonNullable<ExtSuperAdmin['name']> | null;
+    isActive: NonNullable<ExtSuperAdmin['isActive']> | null;
+    role: NonNullable<ExtSuperAdmin['role']> | null;
+    level: NonNullable<ExtSuperAdmin['level']> | null;
+    canDeleteUsers: NonNullable<ExtSuperAdmin['canDeleteUsers']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtSuperAdmin['id']>[];
+    createdAt: GroupMember<ExtSuperAdmin['createdAt']>[];
+    updatedAt: GroupMember<ExtSuperAdmin['updatedAt']>[];
+    email: GroupMember<ExtSuperAdmin['email']>[];
+    name: GroupMember<ExtSuperAdmin['name']>[];
+    isActive: GroupMember<ExtSuperAdmin['isActive']>[];
+    role: GroupMember<ExtSuperAdmin['role']>[];
+    level: GroupMember<ExtSuperAdmin['level']>[];
+    canDeleteUsers: GroupMember<ExtSuperAdmin['canDeleteUsers']>[];
+  };
+}
+
+export type ExtSuperAdminGroupByResult<A extends ExtSuperAdminGroupByArgs> = GroupByRow<
+  ExtSuperAdmin,
+  A,
+  ExtSuperAdminGroupByAggregates
+>;
+
 export type ExtSuperAdmin$Relations = {};
 
 export type GetExtSuperAdminPayload<S extends ExtSuperAdminSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -2552,6 +3570,11 @@ export interface ExtSuperAdminModel {
 
   count(where?: ExtSuperAdminWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtSuperAdminGroupByArgs>(
+    args: GroupByArg<A, ExtSuperAdminGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtSuperAdminGroupByResult<A>[]>;
+
   exists(where?: ExtSuperAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2589,6 +3612,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2805,6 +3831,167 @@ export interface ExtSystemAdminOrderBy {
   auditLog?: 'asc' | 'desc';
 }
 
+export interface ExtSystemAdminGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  level?: true;
+  permissions?: true;
+  systemAccess?: true;
+  auditLog?: true;
+}
+
+export interface ExtSystemAdminCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  level?: true;
+  permissions?: true;
+  systemAccess?: true;
+  auditLog?: true;
+}
+
+export interface ExtSystemAdminNumericAggregate {
+  level?: true;
+}
+
+export interface ExtSystemAdminMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  level?: true;
+  systemAccess?: true;
+}
+
+export interface ExtSystemAdminGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  level?: true;
+  permissions?: true;
+  systemAccess?: true;
+  auditLog?: true;
+}
+
+export interface ExtSystemAdminGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  permissions?: 'asc' | 'desc';
+  systemAccess?: 'asc' | 'desc';
+  auditLog?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    permissions?: 'asc' | 'desc';
+    systemAccess?: 'asc' | 'desc';
+    auditLog?: 'asc' | 'desc';
+  };
+  _sum?: { level?: 'asc' | 'desc' };
+  _avg?: { level?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    systemAccess?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    systemAccess?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtSystemAdminGroupByArgs {
+  by: ExtSystemAdminGroupByKeys;
+  where?: ExtSystemAdminWhere;
+  _count?: true | ExtSystemAdminCountAggregate;
+  _sum?: ExtSystemAdminNumericAggregate;
+  _avg?: ExtSystemAdminNumericAggregate;
+  _min?: ExtSystemAdminMinMaxAggregate;
+  _max?: ExtSystemAdminMinMaxAggregate;
+  _group?: ExtSystemAdminGroupAggregate;
+  orderBy?: ExtSystemAdminGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtSystemAdminGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    email: number;
+    name: number;
+    level: number;
+    permissions: number;
+    systemAccess: number;
+    auditLog: number;
+  };
+  _sum: { level: number };
+  _avg: { level: number | null };
+  _min: {
+    id: NonNullable<ExtSystemAdmin['id']> | null;
+    createdAt: NonNullable<ExtSystemAdmin['createdAt']> | null;
+    updatedAt: NonNullable<ExtSystemAdmin['updatedAt']> | null;
+    email: NonNullable<ExtSystemAdmin['email']> | null;
+    name: NonNullable<ExtSystemAdmin['name']> | null;
+    level: NonNullable<ExtSystemAdmin['level']> | null;
+    systemAccess: NonNullable<ExtSystemAdmin['systemAccess']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtSystemAdmin['id']> | null;
+    createdAt: NonNullable<ExtSystemAdmin['createdAt']> | null;
+    updatedAt: NonNullable<ExtSystemAdmin['updatedAt']> | null;
+    email: NonNullable<ExtSystemAdmin['email']> | null;
+    name: NonNullable<ExtSystemAdmin['name']> | null;
+    level: NonNullable<ExtSystemAdmin['level']> | null;
+    systemAccess: NonNullable<ExtSystemAdmin['systemAccess']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtSystemAdmin['id']>[];
+    createdAt: GroupMember<ExtSystemAdmin['createdAt']>[];
+    updatedAt: GroupMember<ExtSystemAdmin['updatedAt']>[];
+    email: GroupMember<ExtSystemAdmin['email']>[];
+    name: GroupMember<ExtSystemAdmin['name']>[];
+    level: GroupMember<ExtSystemAdmin['level']>[];
+    permissions: GroupMember<ExtSystemAdmin['permissions']>[];
+    systemAccess: GroupMember<ExtSystemAdmin['systemAccess']>[];
+    auditLog: GroupMember<ExtSystemAdmin['auditLog']>[];
+  };
+}
+
+export type ExtSystemAdminGroupByResult<A extends ExtSystemAdminGroupByArgs> = GroupByRow<
+  ExtSystemAdmin,
+  A,
+  ExtSystemAdminGroupByAggregates
+>;
+
 export type ExtSystemAdmin$Relations = {};
 
 export type GetExtSystemAdminPayload<S extends ExtSystemAdminSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -2951,6 +4138,11 @@ export interface ExtSystemAdminModel {
 
   count(where?: ExtSystemAdminWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtSystemAdminGroupByArgs>(
+    args: GroupByArg<A, ExtSystemAdminGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtSystemAdminGroupByResult<A>[]>;
+
   exists(where?: ExtSystemAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2988,6 +4180,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3184,6 +4379,161 @@ export interface ExtUserOrderBy {
   role?: 'asc' | 'desc';
 }
 
+export interface ExtUserGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  age?: true;
+  role?: true;
+}
+
+export interface ExtUserCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  age?: true;
+  role?: true;
+}
+
+export interface ExtUserNumericAggregate {
+  age?: true;
+}
+
+export interface ExtUserMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  age?: true;
+  role?: true;
+}
+
+export interface ExtUserGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  email?: true;
+  name?: true;
+  isActive?: true;
+  age?: true;
+  role?: true;
+}
+
+export interface ExtUserGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  isActive?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+  };
+  _sum?: { age?: 'asc' | 'desc' };
+  _avg?: { age?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    isActive?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtUserGroupByArgs {
+  by: ExtUserGroupByKeys;
+  where?: ExtUserWhere;
+  _count?: true | ExtUserCountAggregate;
+  _sum?: ExtUserNumericAggregate;
+  _avg?: ExtUserNumericAggregate;
+  _min?: ExtUserMinMaxAggregate;
+  _max?: ExtUserMinMaxAggregate;
+  _group?: ExtUserGroupAggregate;
+  orderBy?: ExtUserGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtUserGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    email: number;
+    name: number;
+    isActive: number;
+    age: number;
+    role: number;
+  };
+  _sum: { age: number };
+  _avg: { age: number | null };
+  _min: {
+    id: NonNullable<ExtUser['id']> | null;
+    createdAt: NonNullable<ExtUser['createdAt']> | null;
+    updatedAt: NonNullable<ExtUser['updatedAt']> | null;
+    email: NonNullable<ExtUser['email']> | null;
+    name: NonNullable<ExtUser['name']> | null;
+    isActive: NonNullable<ExtUser['isActive']> | null;
+    age: NonNullable<ExtUser['age']> | null;
+    role: NonNullable<ExtUser['role']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtUser['id']> | null;
+    createdAt: NonNullable<ExtUser['createdAt']> | null;
+    updatedAt: NonNullable<ExtUser['updatedAt']> | null;
+    email: NonNullable<ExtUser['email']> | null;
+    name: NonNullable<ExtUser['name']> | null;
+    isActive: NonNullable<ExtUser['isActive']> | null;
+    age: NonNullable<ExtUser['age']> | null;
+    role: NonNullable<ExtUser['role']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtUser['id']>[];
+    createdAt: GroupMember<ExtUser['createdAt']>[];
+    updatedAt: GroupMember<ExtUser['updatedAt']>[];
+    email: GroupMember<ExtUser['email']>[];
+    name: GroupMember<ExtUser['name']>[];
+    isActive: GroupMember<ExtUser['isActive']>[];
+    age: GroupMember<ExtUser['age']>[];
+    role: GroupMember<ExtUser['role']>[];
+  };
+}
+
+export type ExtUserGroupByResult<A extends ExtUserGroupByArgs> = GroupByRow<ExtUser, A, ExtUserGroupByAggregates>;
+
 export type ExtUser$Relations = {};
 
 export type GetExtUserPayload<S extends ExtUserSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -3329,6 +4679,11 @@ export interface ExtUserModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ExtUser, R>>;
 
   count(where?: ExtUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ExtUserGroupByArgs>(
+    args: GroupByArg<A, ExtUserGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtUserGroupByResult<A>[]>;
 
   exists(where?: ExtUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

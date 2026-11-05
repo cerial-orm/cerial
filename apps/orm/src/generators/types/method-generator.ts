@@ -13,6 +13,7 @@ import type {
 } from '../../types';
 import { schemaTypeToTsInputType } from '../../utils/type-utils';
 import { getLiteralTypeName } from './enums';
+import { generateGroupByMethod } from './group-by-generator';
 import { literalNeedsInputType } from './literals';
 import { getRecordInputType } from './record-type-helpers';
 
@@ -741,6 +742,7 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
     generateDeleteManyMethod(model),
     generateDeleteUniqueMethod(model),
     generateCountMethod(model),
+    generateGroupByMethod(model),
     generateExistsMethod(model),
     generateRawMethod(),
     generateLiveMethod(model),

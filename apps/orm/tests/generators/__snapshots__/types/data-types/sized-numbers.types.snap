@@ -23,6 +23,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -234,6 +237,154 @@ export interface SzFloat16OrderBy {
   objVal?: SzFloat16ObjOrderBy;
 }
 
+export interface SzFloat16GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzFloat16CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzFloat16NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzFloat16MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzFloat16GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzFloat16GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzFloat16GroupByArgs {
+  by: SzFloat16GroupByKeys;
+  where?: SzFloat16Where;
+  _count?: true | SzFloat16CountAggregate;
+  _sum?: SzFloat16NumericAggregate;
+  _avg?: SzFloat16NumericAggregate;
+  _min?: SzFloat16MinMaxAggregate;
+  _max?: SzFloat16MinMaxAggregate;
+  _group?: SzFloat16GroupAggregate;
+  orderBy?: SzFloat16GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzFloat16GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzFloat16['id']> | null;
+    reqVal: NonNullable<SzFloat16['reqVal']> | null;
+    optVal: NonNullable<SzFloat16['optVal']> | null;
+    nullVal: NonNullable<SzFloat16['nullVal']> | null;
+    dfltVal: NonNullable<SzFloat16['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzFloat16['id']> | null;
+    reqVal: NonNullable<SzFloat16['reqVal']> | null;
+    optVal: NonNullable<SzFloat16['optVal']> | null;
+    nullVal: NonNullable<SzFloat16['nullVal']> | null;
+    dfltVal: NonNullable<SzFloat16['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzFloat16['id']>[];
+    reqVal: GroupMember<SzFloat16['reqVal']>[];
+    optVal: GroupMember<SzFloat16['optVal']>[];
+    nullVal: (GroupMember<SzFloat16['nullVal']> | null)[];
+    arrVal: GroupMember<SzFloat16['arrVal']>[];
+    setVal: GroupMember<SzFloat16['setVal']>[];
+    dfltVal: GroupMember<SzFloat16['dfltVal']>[];
+  };
+}
+
+export type SzFloat16GroupByResult<A extends SzFloat16GroupByArgs> = GroupByRow<
+  SzFloat16,
+  A,
+  SzFloat16GroupByAggregates
+>;
+
 export type SzFloat16$Relations = {};
 
 export type GetSzFloat16Payload<S extends SzFloat16Select | undefined = undefined, I = undefined> = A.Compute<
@@ -380,6 +531,11 @@ export interface SzFloat16Model {
 
   count(where?: SzFloat16Where, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzFloat16GroupByArgs>(
+    args: GroupByArg<A, SzFloat16GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzFloat16GroupByResult<A>[]>;
+
   exists(where?: SzFloat16Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -418,6 +574,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -629,6 +788,154 @@ export interface SzFloat32OrderBy {
   objVal?: SzFloat32ObjOrderBy;
 }
 
+export interface SzFloat32GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzFloat32CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzFloat32NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzFloat32MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzFloat32GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzFloat32GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzFloat32GroupByArgs {
+  by: SzFloat32GroupByKeys;
+  where?: SzFloat32Where;
+  _count?: true | SzFloat32CountAggregate;
+  _sum?: SzFloat32NumericAggregate;
+  _avg?: SzFloat32NumericAggregate;
+  _min?: SzFloat32MinMaxAggregate;
+  _max?: SzFloat32MinMaxAggregate;
+  _group?: SzFloat32GroupAggregate;
+  orderBy?: SzFloat32GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzFloat32GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzFloat32['id']> | null;
+    reqVal: NonNullable<SzFloat32['reqVal']> | null;
+    optVal: NonNullable<SzFloat32['optVal']> | null;
+    nullVal: NonNullable<SzFloat32['nullVal']> | null;
+    dfltVal: NonNullable<SzFloat32['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzFloat32['id']> | null;
+    reqVal: NonNullable<SzFloat32['reqVal']> | null;
+    optVal: NonNullable<SzFloat32['optVal']> | null;
+    nullVal: NonNullable<SzFloat32['nullVal']> | null;
+    dfltVal: NonNullable<SzFloat32['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzFloat32['id']>[];
+    reqVal: GroupMember<SzFloat32['reqVal']>[];
+    optVal: GroupMember<SzFloat32['optVal']>[];
+    nullVal: (GroupMember<SzFloat32['nullVal']> | null)[];
+    arrVal: GroupMember<SzFloat32['arrVal']>[];
+    setVal: GroupMember<SzFloat32['setVal']>[];
+    dfltVal: GroupMember<SzFloat32['dfltVal']>[];
+  };
+}
+
+export type SzFloat32GroupByResult<A extends SzFloat32GroupByArgs> = GroupByRow<
+  SzFloat32,
+  A,
+  SzFloat32GroupByAggregates
+>;
+
 export type SzFloat32$Relations = {};
 
 export type GetSzFloat32Payload<S extends SzFloat32Select | undefined = undefined, I = undefined> = A.Compute<
@@ -775,6 +1082,11 @@ export interface SzFloat32Model {
 
   count(where?: SzFloat32Where, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzFloat32GroupByArgs>(
+    args: GroupByArg<A, SzFloat32GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzFloat32GroupByResult<A>[]>;
+
   exists(where?: SzFloat32Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -813,6 +1125,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1024,6 +1339,150 @@ export interface SzInt16OrderBy {
   objVal?: SzInt16ObjOrderBy;
 }
 
+export interface SzInt16GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzInt16CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzInt16NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt16MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt16GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt16GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzInt16GroupByArgs {
+  by: SzInt16GroupByKeys;
+  where?: SzInt16Where;
+  _count?: true | SzInt16CountAggregate;
+  _sum?: SzInt16NumericAggregate;
+  _avg?: SzInt16NumericAggregate;
+  _min?: SzInt16MinMaxAggregate;
+  _max?: SzInt16MinMaxAggregate;
+  _group?: SzInt16GroupAggregate;
+  orderBy?: SzInt16GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzInt16GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzInt16['id']> | null;
+    reqVal: NonNullable<SzInt16['reqVal']> | null;
+    optVal: NonNullable<SzInt16['optVal']> | null;
+    nullVal: NonNullable<SzInt16['nullVal']> | null;
+    dfltVal: NonNullable<SzInt16['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzInt16['id']> | null;
+    reqVal: NonNullable<SzInt16['reqVal']> | null;
+    optVal: NonNullable<SzInt16['optVal']> | null;
+    nullVal: NonNullable<SzInt16['nullVal']> | null;
+    dfltVal: NonNullable<SzInt16['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzInt16['id']>[];
+    reqVal: GroupMember<SzInt16['reqVal']>[];
+    optVal: GroupMember<SzInt16['optVal']>[];
+    nullVal: (GroupMember<SzInt16['nullVal']> | null)[];
+    arrVal: GroupMember<SzInt16['arrVal']>[];
+    setVal: GroupMember<SzInt16['setVal']>[];
+    dfltVal: GroupMember<SzInt16['dfltVal']>[];
+  };
+}
+
+export type SzInt16GroupByResult<A extends SzInt16GroupByArgs> = GroupByRow<SzInt16, A, SzInt16GroupByAggregates>;
+
 export type SzInt16$Relations = {};
 
 export type GetSzInt16Payload<S extends SzInt16Select | undefined = undefined, I = undefined> = A.Compute<
@@ -1170,6 +1629,11 @@ export interface SzInt16Model {
 
   count(where?: SzInt16Where, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzInt16GroupByArgs>(
+    args: GroupByArg<A, SzInt16GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzInt16GroupByResult<A>[]>;
+
   exists(where?: SzInt16Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1208,6 +1672,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1419,6 +1886,150 @@ export interface SzInt32OrderBy {
   objVal?: SzInt32ObjOrderBy;
 }
 
+export interface SzInt32GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzInt32CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzInt32NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt32MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt32GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt32GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzInt32GroupByArgs {
+  by: SzInt32GroupByKeys;
+  where?: SzInt32Where;
+  _count?: true | SzInt32CountAggregate;
+  _sum?: SzInt32NumericAggregate;
+  _avg?: SzInt32NumericAggregate;
+  _min?: SzInt32MinMaxAggregate;
+  _max?: SzInt32MinMaxAggregate;
+  _group?: SzInt32GroupAggregate;
+  orderBy?: SzInt32GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzInt32GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzInt32['id']> | null;
+    reqVal: NonNullable<SzInt32['reqVal']> | null;
+    optVal: NonNullable<SzInt32['optVal']> | null;
+    nullVal: NonNullable<SzInt32['nullVal']> | null;
+    dfltVal: NonNullable<SzInt32['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzInt32['id']> | null;
+    reqVal: NonNullable<SzInt32['reqVal']> | null;
+    optVal: NonNullable<SzInt32['optVal']> | null;
+    nullVal: NonNullable<SzInt32['nullVal']> | null;
+    dfltVal: NonNullable<SzInt32['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzInt32['id']>[];
+    reqVal: GroupMember<SzInt32['reqVal']>[];
+    optVal: GroupMember<SzInt32['optVal']>[];
+    nullVal: (GroupMember<SzInt32['nullVal']> | null)[];
+    arrVal: GroupMember<SzInt32['arrVal']>[];
+    setVal: GroupMember<SzInt32['setVal']>[];
+    dfltVal: GroupMember<SzInt32['dfltVal']>[];
+  };
+}
+
+export type SzInt32GroupByResult<A extends SzInt32GroupByArgs> = GroupByRow<SzInt32, A, SzInt32GroupByAggregates>;
+
 export type SzInt32$Relations = {};
 
 export type GetSzInt32Payload<S extends SzInt32Select | undefined = undefined, I = undefined> = A.Compute<
@@ -1565,6 +2176,11 @@ export interface SzInt32Model {
 
   count(where?: SzInt32Where, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzInt32GroupByArgs>(
+    args: GroupByArg<A, SzInt32GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzInt32GroupByResult<A>[]>;
+
   exists(where?: SzInt32Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1603,6 +2219,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1808,6 +2427,150 @@ export interface SzInt8OrderBy {
   objVal?: SzInt8ObjOrderBy;
 }
 
+export interface SzInt8GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzInt8CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzInt8NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt8MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt8GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzInt8GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzInt8GroupByArgs {
+  by: SzInt8GroupByKeys;
+  where?: SzInt8Where;
+  _count?: true | SzInt8CountAggregate;
+  _sum?: SzInt8NumericAggregate;
+  _avg?: SzInt8NumericAggregate;
+  _min?: SzInt8MinMaxAggregate;
+  _max?: SzInt8MinMaxAggregate;
+  _group?: SzInt8GroupAggregate;
+  orderBy?: SzInt8GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzInt8GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzInt8['id']> | null;
+    reqVal: NonNullable<SzInt8['reqVal']> | null;
+    optVal: NonNullable<SzInt8['optVal']> | null;
+    nullVal: NonNullable<SzInt8['nullVal']> | null;
+    dfltVal: NonNullable<SzInt8['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzInt8['id']> | null;
+    reqVal: NonNullable<SzInt8['reqVal']> | null;
+    optVal: NonNullable<SzInt8['optVal']> | null;
+    nullVal: NonNullable<SzInt8['nullVal']> | null;
+    dfltVal: NonNullable<SzInt8['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzInt8['id']>[];
+    reqVal: GroupMember<SzInt8['reqVal']>[];
+    optVal: GroupMember<SzInt8['optVal']>[];
+    nullVal: (GroupMember<SzInt8['nullVal']> | null)[];
+    arrVal: GroupMember<SzInt8['arrVal']>[];
+    setVal: GroupMember<SzInt8['setVal']>[];
+    dfltVal: GroupMember<SzInt8['dfltVal']>[];
+  };
+}
+
+export type SzInt8GroupByResult<A extends SzInt8GroupByArgs> = GroupByRow<SzInt8, A, SzInt8GroupByAggregates>;
+
 export type SzInt8$Relations = {};
 
 export type GetSzInt8Payload<S extends SzInt8Select | undefined = undefined, I = undefined> = A.Compute<
@@ -1949,6 +2712,11 @@ export interface SzInt8Model {
 
   count(where?: SzInt8Where, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzInt8GroupByArgs>(
+    args: GroupByArg<A, SzInt8GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzInt8GroupByResult<A>[]>;
+
   exists(where?: SzInt8Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1985,6 +2753,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2088,6 +2859,56 @@ export interface SzOwnerOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface SzOwnerGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface SzOwnerCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface SzOwnerMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface SzOwnerGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface SzOwnerGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface SzOwnerGroupByArgs {
+  by: SzOwnerGroupByKeys;
+  where?: SzOwnerWhere;
+  _count?: true | SzOwnerCountAggregate;
+  _min?: SzOwnerMinMaxAggregate;
+  _max?: SzOwnerMinMaxAggregate;
+  _group?: SzOwnerGroupAggregate;
+  orderBy?: SzOwnerGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzOwnerGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<SzOwner['id']> | null; name: NonNullable<SzOwner['name']> | null };
+  _max: { id: NonNullable<SzOwner['id']> | null; name: NonNullable<SzOwner['name']> | null };
+  _group: { id: GroupMember<SzOwner['id']>[]; name: GroupMember<SzOwner['name']>[] };
+}
+
+export type SzOwnerGroupByResult<A extends SzOwnerGroupByArgs> = GroupByRow<SzOwner, A, SzOwnerGroupByAggregates>;
 
 export interface SzOwnerInclude {
   readings?:
@@ -2299,6 +3120,11 @@ export interface SzOwnerModel {
 
   count(where?: SzOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzOwnerGroupByArgs>(
+    args: GroupByArg<A, SzOwnerGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzOwnerGroupByResult<A>[]>;
+
   exists(where?: SzOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2336,6 +3162,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2434,6 +3263,71 @@ export interface SzRawHolderOrderBy {
   id?: 'asc' | 'desc';
   numVal?: 'asc' | 'desc';
 }
+
+export interface SzRawHolderGroupByKeys {
+  id?: true;
+  numVal?: true;
+}
+
+export interface SzRawHolderCountAggregate {
+  _all?: true;
+  id?: true;
+  numVal?: true;
+  anyVal?: true;
+}
+
+export interface SzRawHolderNumericAggregate {
+  numVal?: true;
+}
+
+export interface SzRawHolderMinMaxAggregate {
+  id?: true;
+  numVal?: true;
+}
+
+export interface SzRawHolderGroupAggregate {
+  id?: true;
+  numVal?: true;
+}
+
+export interface SzRawHolderGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  numVal?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; numVal?: 'asc' | 'desc'; anyVal?: 'asc' | 'desc' };
+  _sum?: { numVal?: 'asc' | 'desc' };
+  _avg?: { numVal?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; numVal?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; numVal?: 'asc' | 'desc' };
+}
+
+export interface SzRawHolderGroupByArgs {
+  by: SzRawHolderGroupByKeys;
+  where?: SzRawHolderWhere;
+  _count?: true | SzRawHolderCountAggregate;
+  _sum?: SzRawHolderNumericAggregate;
+  _avg?: SzRawHolderNumericAggregate;
+  _min?: SzRawHolderMinMaxAggregate;
+  _max?: SzRawHolderMinMaxAggregate;
+  _group?: SzRawHolderGroupAggregate;
+  orderBy?: SzRawHolderGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzRawHolderGroupByAggregates {
+  _count: { _all: number; id: number; numVal: number; anyVal: number };
+  _sum: { numVal: number };
+  _avg: { numVal: number | null };
+  _min: { id: NonNullable<SzRawHolder['id']> | null; numVal: NonNullable<SzRawHolder['numVal']> | null };
+  _max: { id: NonNullable<SzRawHolder['id']> | null; numVal: NonNullable<SzRawHolder['numVal']> | null };
+  _group: { id: GroupMember<SzRawHolder['id']>[]; numVal: GroupMember<SzRawHolder['numVal']>[] };
+}
+
+export type SzRawHolderGroupByResult<A extends SzRawHolderGroupByArgs> = GroupByRow<
+  SzRawHolder,
+  A,
+  SzRawHolderGroupByAggregates
+>;
 
 export type SzRawHolder$Relations = {};
 
@@ -2581,6 +3475,11 @@ export interface SzRawHolderModel {
 
   count(where?: SzRawHolderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzRawHolderGroupByArgs>(
+    args: GroupByArg<A, SzRawHolderGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzRawHolderGroupByResult<A>[]>;
+
   exists(where?: SzRawHolderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2617,6 +3516,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2767,6 +3669,124 @@ export interface SzReadingOrderBy {
   level?: 'asc' | 'desc';
   counter?: 'asc' | 'desc';
 }
+
+export interface SzReadingGroupByKeys {
+  id?: true;
+  ownerId?: true;
+  channel?: true;
+  level?: true;
+  counter?: true;
+}
+
+export interface SzReadingCountAggregate {
+  _all?: true;
+  id?: true;
+  ownerId?: true;
+  channel?: true;
+  level?: true;
+  counter?: true;
+}
+
+export interface SzReadingNumericAggregate {
+  channel?: true;
+  level?: true;
+  counter?: true;
+}
+
+export interface SzReadingMinMaxAggregate {
+  id?: true;
+  ownerId?: true;
+  channel?: true;
+  level?: true;
+  counter?: true;
+}
+
+export interface SzReadingGroupAggregate {
+  id?: true;
+  ownerId?: true;
+  channel?: true;
+  level?: true;
+  counter?: true;
+}
+
+export interface SzReadingGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  channel?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  counter?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    ownerId?: 'asc' | 'desc';
+    channel?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    counter?: 'asc' | 'desc';
+  };
+  _sum?: { channel?: 'asc' | 'desc'; level?: 'asc' | 'desc'; counter?: 'asc' | 'desc' };
+  _avg?: { channel?: 'asc' | 'desc'; level?: 'asc' | 'desc'; counter?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    ownerId?: 'asc' | 'desc';
+    channel?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    counter?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    ownerId?: 'asc' | 'desc';
+    channel?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    counter?: 'asc' | 'desc';
+  };
+}
+
+export interface SzReadingGroupByArgs {
+  by: SzReadingGroupByKeys;
+  where?: SzReadingWhere;
+  _count?: true | SzReadingCountAggregate;
+  _sum?: SzReadingNumericAggregate;
+  _avg?: SzReadingNumericAggregate;
+  _min?: SzReadingMinMaxAggregate;
+  _max?: SzReadingMinMaxAggregate;
+  _group?: SzReadingGroupAggregate;
+  orderBy?: SzReadingGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzReadingGroupByAggregates {
+  _count: { _all: number; id: number; ownerId: number; channel: number; level: number; counter: number };
+  _sum: { channel: number; level: number; counter: number };
+  _avg: { channel: number | null; level: number | null; counter: number | null };
+  _min: {
+    id: NonNullable<SzReading['id']> | null;
+    ownerId: NonNullable<SzReading['ownerId']> | null;
+    channel: NonNullable<SzReading['channel']> | null;
+    level: NonNullable<SzReading['level']> | null;
+    counter: NonNullable<SzReading['counter']> | null;
+  };
+  _max: {
+    id: NonNullable<SzReading['id']> | null;
+    ownerId: NonNullable<SzReading['ownerId']> | null;
+    channel: NonNullable<SzReading['channel']> | null;
+    level: NonNullable<SzReading['level']> | null;
+    counter: NonNullable<SzReading['counter']> | null;
+  };
+  _group: {
+    id: GroupMember<SzReading['id']>[];
+    ownerId: GroupMember<SzReading['ownerId']>[];
+    channel: GroupMember<SzReading['channel']>[];
+    level: GroupMember<SzReading['level']>[];
+    counter: GroupMember<SzReading['counter']>[];
+  };
+}
+
+export type SzReadingGroupByResult<A extends SzReadingGroupByArgs> = GroupByRow<
+  SzReading,
+  A,
+  SzReadingGroupByAggregates
+>;
 
 export interface SzReadingInclude {
   owner?:
@@ -2975,6 +3995,11 @@ export interface SzReadingModel {
 
   count(where?: SzReadingWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzReadingGroupByArgs>(
+    args: GroupByArg<A, SzReadingGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzReadingGroupByResult<A>[]>;
+
   exists(where?: SzReadingWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3013,6 +4038,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3224,6 +4252,150 @@ export interface SzUint16OrderBy {
   objVal?: SzUint16ObjOrderBy;
 }
 
+export interface SzUint16GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzUint16CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzUint16NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint16MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint16GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint16GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzUint16GroupByArgs {
+  by: SzUint16GroupByKeys;
+  where?: SzUint16Where;
+  _count?: true | SzUint16CountAggregate;
+  _sum?: SzUint16NumericAggregate;
+  _avg?: SzUint16NumericAggregate;
+  _min?: SzUint16MinMaxAggregate;
+  _max?: SzUint16MinMaxAggregate;
+  _group?: SzUint16GroupAggregate;
+  orderBy?: SzUint16GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzUint16GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzUint16['id']> | null;
+    reqVal: NonNullable<SzUint16['reqVal']> | null;
+    optVal: NonNullable<SzUint16['optVal']> | null;
+    nullVal: NonNullable<SzUint16['nullVal']> | null;
+    dfltVal: NonNullable<SzUint16['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzUint16['id']> | null;
+    reqVal: NonNullable<SzUint16['reqVal']> | null;
+    optVal: NonNullable<SzUint16['optVal']> | null;
+    nullVal: NonNullable<SzUint16['nullVal']> | null;
+    dfltVal: NonNullable<SzUint16['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzUint16['id']>[];
+    reqVal: GroupMember<SzUint16['reqVal']>[];
+    optVal: GroupMember<SzUint16['optVal']>[];
+    nullVal: (GroupMember<SzUint16['nullVal']> | null)[];
+    arrVal: GroupMember<SzUint16['arrVal']>[];
+    setVal: GroupMember<SzUint16['setVal']>[];
+    dfltVal: GroupMember<SzUint16['dfltVal']>[];
+  };
+}
+
+export type SzUint16GroupByResult<A extends SzUint16GroupByArgs> = GroupByRow<SzUint16, A, SzUint16GroupByAggregates>;
+
 export type SzUint16$Relations = {};
 
 export type GetSzUint16Payload<S extends SzUint16Select | undefined = undefined, I = undefined> = A.Compute<
@@ -3370,6 +4542,11 @@ export interface SzUint16Model {
 
   count(where?: SzUint16Where, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzUint16GroupByArgs>(
+    args: GroupByArg<A, SzUint16GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzUint16GroupByResult<A>[]>;
+
   exists(where?: SzUint16Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3408,6 +4585,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3619,6 +4799,150 @@ export interface SzUint32OrderBy {
   objVal?: SzUint32ObjOrderBy;
 }
 
+export interface SzUint32GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzUint32CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzUint32NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint32MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint32GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint32GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzUint32GroupByArgs {
+  by: SzUint32GroupByKeys;
+  where?: SzUint32Where;
+  _count?: true | SzUint32CountAggregate;
+  _sum?: SzUint32NumericAggregate;
+  _avg?: SzUint32NumericAggregate;
+  _min?: SzUint32MinMaxAggregate;
+  _max?: SzUint32MinMaxAggregate;
+  _group?: SzUint32GroupAggregate;
+  orderBy?: SzUint32GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzUint32GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzUint32['id']> | null;
+    reqVal: NonNullable<SzUint32['reqVal']> | null;
+    optVal: NonNullable<SzUint32['optVal']> | null;
+    nullVal: NonNullable<SzUint32['nullVal']> | null;
+    dfltVal: NonNullable<SzUint32['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzUint32['id']> | null;
+    reqVal: NonNullable<SzUint32['reqVal']> | null;
+    optVal: NonNullable<SzUint32['optVal']> | null;
+    nullVal: NonNullable<SzUint32['nullVal']> | null;
+    dfltVal: NonNullable<SzUint32['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzUint32['id']>[];
+    reqVal: GroupMember<SzUint32['reqVal']>[];
+    optVal: GroupMember<SzUint32['optVal']>[];
+    nullVal: (GroupMember<SzUint32['nullVal']> | null)[];
+    arrVal: GroupMember<SzUint32['arrVal']>[];
+    setVal: GroupMember<SzUint32['setVal']>[];
+    dfltVal: GroupMember<SzUint32['dfltVal']>[];
+  };
+}
+
+export type SzUint32GroupByResult<A extends SzUint32GroupByArgs> = GroupByRow<SzUint32, A, SzUint32GroupByAggregates>;
+
 export type SzUint32$Relations = {};
 
 export type GetSzUint32Payload<S extends SzUint32Select | undefined = undefined, I = undefined> = A.Compute<
@@ -3765,6 +5089,11 @@ export interface SzUint32Model {
 
   count(where?: SzUint32Where, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzUint32GroupByArgs>(
+    args: GroupByArg<A, SzUint32GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzUint32GroupByResult<A>[]>;
+
   exists(where?: SzUint32Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3803,6 +5132,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -4014,6 +5346,150 @@ export interface SzUint64OrderBy {
   objVal?: SzUint64ObjOrderBy;
 }
 
+export interface SzUint64GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzUint64CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzUint64NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint64MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint64GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint64GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzUint64GroupByArgs {
+  by: SzUint64GroupByKeys;
+  where?: SzUint64Where;
+  _count?: true | SzUint64CountAggregate;
+  _sum?: SzUint64NumericAggregate;
+  _avg?: SzUint64NumericAggregate;
+  _min?: SzUint64MinMaxAggregate;
+  _max?: SzUint64MinMaxAggregate;
+  _group?: SzUint64GroupAggregate;
+  orderBy?: SzUint64GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzUint64GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzUint64['id']> | null;
+    reqVal: NonNullable<SzUint64['reqVal']> | null;
+    optVal: NonNullable<SzUint64['optVal']> | null;
+    nullVal: NonNullable<SzUint64['nullVal']> | null;
+    dfltVal: NonNullable<SzUint64['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzUint64['id']> | null;
+    reqVal: NonNullable<SzUint64['reqVal']> | null;
+    optVal: NonNullable<SzUint64['optVal']> | null;
+    nullVal: NonNullable<SzUint64['nullVal']> | null;
+    dfltVal: NonNullable<SzUint64['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzUint64['id']>[];
+    reqVal: GroupMember<SzUint64['reqVal']>[];
+    optVal: GroupMember<SzUint64['optVal']>[];
+    nullVal: (GroupMember<SzUint64['nullVal']> | null)[];
+    arrVal: GroupMember<SzUint64['arrVal']>[];
+    setVal: GroupMember<SzUint64['setVal']>[];
+    dfltVal: GroupMember<SzUint64['dfltVal']>[];
+  };
+}
+
+export type SzUint64GroupByResult<A extends SzUint64GroupByArgs> = GroupByRow<SzUint64, A, SzUint64GroupByAggregates>;
+
 export type SzUint64$Relations = {};
 
 export type GetSzUint64Payload<S extends SzUint64Select | undefined = undefined, I = undefined> = A.Compute<
@@ -4160,6 +5636,11 @@ export interface SzUint64Model {
 
   count(where?: SzUint64Where, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends SzUint64GroupByArgs>(
+    args: GroupByArg<A, SzUint64GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzUint64GroupByResult<A>[]>;
+
   exists(where?: SzUint64Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -4198,6 +5679,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -4409,6 +5893,150 @@ export interface SzUint8OrderBy {
   objVal?: SzUint8ObjOrderBy;
 }
 
+export interface SzUint8GroupByKeys {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: { val?: true; opt?: true };
+}
+
+export interface SzUint8CountAggregate {
+  _all?: true;
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+  objVal?: true;
+  tupVal?: true;
+}
+
+export interface SzUint8NumericAggregate {
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint8MinMaxAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint8GroupAggregate {
+  id?: true;
+  reqVal?: true;
+  optVal?: true;
+  nullVal?: true;
+  arrVal?: true;
+  setVal?: true;
+  dfltVal?: true;
+}
+
+export interface SzUint8GroupByOrderBy {
+  id?: 'asc' | 'desc';
+  reqVal?: 'asc' | 'desc';
+  optVal?: 'asc' | 'desc';
+  nullVal?: 'asc' | 'desc';
+  arrVal?: 'asc' | 'desc';
+  setVal?: 'asc' | 'desc';
+  dfltVal?: 'asc' | 'desc';
+  objVal?: { val?: 'asc' | 'desc'; opt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    arrVal?: 'asc' | 'desc';
+    setVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+    objVal?: 'asc' | 'desc';
+    tupVal?: 'asc' | 'desc';
+  };
+  _sum?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _avg?: { reqVal?: 'asc' | 'desc'; optVal?: 'asc' | 'desc'; nullVal?: 'asc' | 'desc'; dfltVal?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    reqVal?: 'asc' | 'desc';
+    optVal?: 'asc' | 'desc';
+    nullVal?: 'asc' | 'desc';
+    dfltVal?: 'asc' | 'desc';
+  };
+}
+
+export interface SzUint8GroupByArgs {
+  by: SzUint8GroupByKeys;
+  where?: SzUint8Where;
+  _count?: true | SzUint8CountAggregate;
+  _sum?: SzUint8NumericAggregate;
+  _avg?: SzUint8NumericAggregate;
+  _min?: SzUint8MinMaxAggregate;
+  _max?: SzUint8MinMaxAggregate;
+  _group?: SzUint8GroupAggregate;
+  orderBy?: SzUint8GroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SzUint8GroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    reqVal: number;
+    optVal: number;
+    nullVal: number;
+    arrVal: number;
+    setVal: number;
+    dfltVal: number;
+    objVal: number;
+    tupVal: number;
+  };
+  _sum: { reqVal: number; optVal: number; nullVal: number; dfltVal: number };
+  _avg: { reqVal: number | null; optVal: number | null; nullVal: number | null; dfltVal: number | null };
+  _min: {
+    id: NonNullable<SzUint8['id']> | null;
+    reqVal: NonNullable<SzUint8['reqVal']> | null;
+    optVal: NonNullable<SzUint8['optVal']> | null;
+    nullVal: NonNullable<SzUint8['nullVal']> | null;
+    dfltVal: NonNullable<SzUint8['dfltVal']> | null;
+  };
+  _max: {
+    id: NonNullable<SzUint8['id']> | null;
+    reqVal: NonNullable<SzUint8['reqVal']> | null;
+    optVal: NonNullable<SzUint8['optVal']> | null;
+    nullVal: NonNullable<SzUint8['nullVal']> | null;
+    dfltVal: NonNullable<SzUint8['dfltVal']> | null;
+  };
+  _group: {
+    id: GroupMember<SzUint8['id']>[];
+    reqVal: GroupMember<SzUint8['reqVal']>[];
+    optVal: GroupMember<SzUint8['optVal']>[];
+    nullVal: (GroupMember<SzUint8['nullVal']> | null)[];
+    arrVal: GroupMember<SzUint8['arrVal']>[];
+    setVal: GroupMember<SzUint8['setVal']>[];
+    dfltVal: GroupMember<SzUint8['dfltVal']>[];
+  };
+}
+
+export type SzUint8GroupByResult<A extends SzUint8GroupByArgs> = GroupByRow<SzUint8, A, SzUint8GroupByAggregates>;
+
 export type SzUint8$Relations = {};
 
 export type GetSzUint8Payload<S extends SzUint8Select | undefined = undefined, I = undefined> = A.Compute<
@@ -4554,6 +6182,11 @@ export interface SzUint8Model {
   }): CerialQueryPromise<DeleteUniqueReturnType<SzUint8, R>>;
 
   count(where?: SzUint8Where, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends SzUint8GroupByArgs>(
+    args: GroupByArg<A, SzUint8GroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<SzUint8GroupByResult<A>[]>;
 
   exists(where?: SzUint8Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -170,6 +173,104 @@ export interface ExtAddressUserOrderBy {
   previousAddresses?: ExtGeoAddressOrderBy;
 }
 
+export interface ExtAddressUserGroupByKeys {
+  id?: true;
+  name?: true;
+  homeAddress?: { street?: true; city?: true; zip?: true; country?: true; apartment?: true; coordinates?: true };
+  workAddress?: {
+    street?: true;
+    city?: true;
+    zip?: true;
+    country?: true;
+    latitude?: true;
+    longitude?: true;
+    timezone?: true;
+  };
+}
+
+export interface ExtAddressUserCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  homeAddress?: true;
+  workAddress?: true;
+  previousAddresses?: true;
+}
+
+export interface ExtAddressUserMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ExtAddressUserGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ExtAddressUserGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  homeAddress?: {
+    street?: 'asc' | 'desc';
+    city?: 'asc' | 'desc';
+    zip?: 'asc' | 'desc';
+    country?: 'asc' | 'desc';
+    apartment?: 'asc' | 'desc';
+    coordinates?: 'asc' | 'desc';
+  };
+  workAddress?: {
+    street?: 'asc' | 'desc';
+    city?: 'asc' | 'desc';
+    zip?: 'asc' | 'desc';
+    country?: 'asc' | 'desc';
+    latitude?: 'asc' | 'desc';
+    longitude?: 'asc' | 'desc';
+    timezone?: 'asc' | 'desc';
+  };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    homeAddress?: 'asc' | 'desc';
+    workAddress?: 'asc' | 'desc';
+    previousAddresses?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface ExtAddressUserGroupByArgs {
+  by: ExtAddressUserGroupByKeys;
+  where?: ExtAddressUserWhere;
+  _count?: true | ExtAddressUserCountAggregate;
+  _min?: ExtAddressUserMinMaxAggregate;
+  _max?: ExtAddressUserMinMaxAggregate;
+  _group?: ExtAddressUserGroupAggregate;
+  orderBy?: ExtAddressUserGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtAddressUserGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    homeAddress: number;
+    workAddress: number;
+    previousAddresses: number;
+  };
+  _min: { id: NonNullable<ExtAddressUser['id']> | null; name: NonNullable<ExtAddressUser['name']> | null };
+  _max: { id: NonNullable<ExtAddressUser['id']> | null; name: NonNullable<ExtAddressUser['name']> | null };
+  _group: { id: GroupMember<ExtAddressUser['id']>[]; name: GroupMember<ExtAddressUser['name']>[] };
+}
+
+export type ExtAddressUserGroupByResult<A extends ExtAddressUserGroupByArgs> = GroupByRow<
+  ExtAddressUser,
+  A,
+  ExtAddressUserGroupByAggregates
+>;
+
 export type ExtAddressUser$Relations = {};
 
 export type GetExtAddressUserPayload<S extends ExtAddressUserSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -316,6 +417,11 @@ export interface ExtAddressUserModel {
 
   count(where?: ExtAddressUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtAddressUserGroupByArgs>(
+    args: GroupByArg<A, ExtAddressUserGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtAddressUserGroupByResult<A>[]>;
+
   exists(where?: ExtAddressUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -352,6 +458,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -443,6 +552,61 @@ export interface ExtChainModelOrderBy {
   pickThenOmit?: ExtChainPickedThenOmittedOrderBy;
   omitThenPick?: ExtChainOmittedThenPickedOrderBy;
 }
+
+export interface ExtChainModelGroupByKeys {
+  id?: true;
+  pickThenOmit?: { a?: true; b?: true; q?: true; r?: true };
+  omitThenPick?: { q?: true; r?: true };
+}
+
+export interface ExtChainModelCountAggregate {
+  _all?: true;
+  id?: true;
+  pickThenOmit?: true;
+  omitThenPick?: true;
+}
+
+export interface ExtChainModelMinMaxAggregate {
+  id?: true;
+}
+
+export interface ExtChainModelGroupAggregate {
+  id?: true;
+}
+
+export interface ExtChainModelGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  pickThenOmit?: { a?: 'asc' | 'desc'; b?: 'asc' | 'desc'; q?: 'asc' | 'desc'; r?: 'asc' | 'desc' };
+  omitThenPick?: { q?: 'asc' | 'desc'; r?: 'asc' | 'desc' };
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; pickThenOmit?: 'asc' | 'desc'; omitThenPick?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface ExtChainModelGroupByArgs {
+  by: ExtChainModelGroupByKeys;
+  where?: ExtChainModelWhere;
+  _count?: true | ExtChainModelCountAggregate;
+  _min?: ExtChainModelMinMaxAggregate;
+  _max?: ExtChainModelMinMaxAggregate;
+  _group?: ExtChainModelGroupAggregate;
+  orderBy?: ExtChainModelGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtChainModelGroupByAggregates {
+  _count: { _all: number; id: number; pickThenOmit: number; omitThenPick: number };
+  _min: { id: NonNullable<ExtChainModel['id']> | null };
+  _max: { id: NonNullable<ExtChainModel['id']> | null };
+  _group: { id: GroupMember<ExtChainModel['id']>[] };
+}
+
+export type ExtChainModelGroupByResult<A extends ExtChainModelGroupByArgs> = GroupByRow<
+  ExtChainModel,
+  A,
+  ExtChainModelGroupByAggregates
+>;
 
 export type ExtChainModel$Relations = {};
 
@@ -589,6 +753,11 @@ export interface ExtChainModelModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ExtChainModel, R>>;
 
   count(where?: ExtChainModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ExtChainModelGroupByArgs>(
+    args: GroupByArg<A, ExtChainModelGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtChainModelGroupByResult<A>[]>;
 
   exists(where?: ExtChainModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

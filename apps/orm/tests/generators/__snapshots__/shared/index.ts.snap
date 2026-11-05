@@ -4718,6 +4718,59 @@ export type SafeUnset<Unset, Data> = {
     : Unset[K];
 };
 
+export type GroupAggregateName = '_count' | '_sum' | '_avg' | '_min' | '_max' | '_group';
+/** The members of a group: the element of an array field, else the value; NONE and null are added back per field */
+export type GroupMember<T> = NonNullable<T> extends readonly (infer E)[] ? E : NonNullable<T>;
+/** The group keys of a row, with the field's own optionality (a NONE key is left off the row) */
+export type GroupKeyResult<T, K> = {
+  [P in keyof Pick<T, Extract<keyof K, keyof T>>]: K[P & keyof K] extends true
+    ? T[P]
+    : GroupKeyResult<NonNullable<T[P]>, K[P & keyof K]>;
+};
+/** The fields an aggregate was asked for, from the call's own arguments */
+export type GroupRequested<A, G extends GroupAggregateName> = G extends '_count'
+  ? A extends { _count: true }
+    ? '_all'
+    : A extends { _count: infer C }
+      ? keyof C
+      : never
+  : A extends Record<G, infer C>
+    ? keyof C
+    : never;
+/** One property per requested aggregate, narrowed to the requested fields */
+export type GroupByRow<T, A extends { by: object }, R> = Simplify<
+  GroupKeyResult<T, A['by']> & {
+    [G in GroupAggregateName as G extends keyof R ? (GroupRequested<A, G> extends never ? never : G) : never]: Pick<
+      R[G & keyof R],
+      Extract<GroupRequested<A, G>, keyof R[G & keyof R]>
+    >;
+  }
+>;
+/** An orderBy key that is not a group key of the call, refused at its position */
+export type GroupOrderKeysRefusal<O, B> = {
+  [K in Exclude<keyof O, GroupAggregateName>]: K extends keyof B
+    ? B[K] extends true
+      ? unknown
+      : GroupOrderKeysRefusal<O[K], B[K]>
+    : never;
+};
+/** An orderBy aggregate field the call does not request, refused at its position */
+export type GroupOrderAggregatesRefusal<O, A> = {
+  [G in Extract<keyof O, GroupAggregateName>]: {
+    [N in Exclude<keyof O[G], GroupRequested<A, G>>]: never;
+  };
+};
+/** The groupBy argument: A as written and the declared shape for completion; a key beyond the declared ones, and an
+ * orderBy on a key or aggregate the call does not group by or request, is refused at its position. */
+export type GroupByArg<A, T> = A &
+  NoInfer<T> & { [K in Exclude<keyof A, keyof T>]: never } & {
+    [K in Extract<keyof A, 'by' | GroupAggregateName>]: A[K] extends object
+      ? SelectRefusal<A[K], Exclude<T[K & keyof T], boolean | undefined>>
+      : unknown;
+  } & (A extends { by: infer B; orderBy: infer O }
+    ? { orderBy: GroupOrderKeysRefusal<O, B> & GroupOrderAggregatesRefusal<O, A> }
+    : unknown);
+
 /**
  * DeleteUnique return option
  * - undefined/null: RETURN NONE, always returns true (operation completed)

@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -164,6 +167,84 @@ export interface CourseOrderBy {
   code?: 'asc' | 'desc';
   studentIds?: 'asc' | 'desc';
 }
+
+export interface CourseGroupByKeys {
+  id?: true;
+  name?: true;
+  code?: true;
+  studentIds?: true;
+}
+
+export interface CourseCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  code?: true;
+  studentIds?: true;
+}
+
+export interface CourseMinMaxAggregate {
+  id?: true;
+  name?: true;
+  code?: true;
+}
+
+export interface CourseGroupAggregate {
+  id?: true;
+  name?: true;
+  code?: true;
+  studentIds?: true;
+}
+
+export interface CourseGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  code?: 'asc' | 'desc';
+  studentIds?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    code?: 'asc' | 'desc';
+    studentIds?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; code?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; code?: 'asc' | 'desc' };
+}
+
+export interface CourseGroupByArgs {
+  by: CourseGroupByKeys;
+  where?: CourseWhere;
+  _count?: true | CourseCountAggregate;
+  _min?: CourseMinMaxAggregate;
+  _max?: CourseMinMaxAggregate;
+  _group?: CourseGroupAggregate;
+  orderBy?: CourseGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface CourseGroupByAggregates {
+  _count: { _all: number; id: number; name: number; code: number; studentIds: number };
+  _min: {
+    id: NonNullable<Course['id']> | null;
+    name: NonNullable<Course['name']> | null;
+    code: NonNullable<Course['code']> | null;
+  };
+  _max: {
+    id: NonNullable<Course['id']> | null;
+    name: NonNullable<Course['name']> | null;
+    code: NonNullable<Course['code']> | null;
+  };
+  _group: {
+    id: GroupMember<Course['id']>[];
+    name: GroupMember<Course['name']>[];
+    code: GroupMember<Course['code']>[];
+    studentIds: GroupMember<Course['studentIds']>[];
+  };
+}
+
+export type CourseGroupByResult<A extends CourseGroupByArgs> = GroupByRow<Course, A, CourseGroupByAggregates>;
 
 export interface CourseInclude {
   students?:
@@ -371,6 +452,11 @@ export interface CourseModel {
 
   count(where?: CourseWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends CourseGroupByArgs>(
+    args: GroupByArg<A, CourseGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<CourseGroupByResult<A>[]>;
+
   exists(where?: CourseWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -407,6 +493,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -546,6 +635,84 @@ export interface StudentOrderBy {
   email?: 'asc' | 'desc';
   courseIds?: 'asc' | 'desc';
 }
+
+export interface StudentGroupByKeys {
+  id?: true;
+  name?: true;
+  email?: true;
+  courseIds?: true;
+}
+
+export interface StudentCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  email?: true;
+  courseIds?: true;
+}
+
+export interface StudentMinMaxAggregate {
+  id?: true;
+  name?: true;
+  email?: true;
+}
+
+export interface StudentGroupAggregate {
+  id?: true;
+  name?: true;
+  email?: true;
+  courseIds?: true;
+}
+
+export interface StudentGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  courseIds?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    courseIds?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; email?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; email?: 'asc' | 'desc' };
+}
+
+export interface StudentGroupByArgs {
+  by: StudentGroupByKeys;
+  where?: StudentWhere;
+  _count?: true | StudentCountAggregate;
+  _min?: StudentMinMaxAggregate;
+  _max?: StudentMinMaxAggregate;
+  _group?: StudentGroupAggregate;
+  orderBy?: StudentGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface StudentGroupByAggregates {
+  _count: { _all: number; id: number; name: number; email: number; courseIds: number };
+  _min: {
+    id: NonNullable<Student['id']> | null;
+    name: NonNullable<Student['name']> | null;
+    email: NonNullable<Student['email']> | null;
+  };
+  _max: {
+    id: NonNullable<Student['id']> | null;
+    name: NonNullable<Student['name']> | null;
+    email: NonNullable<Student['email']> | null;
+  };
+  _group: {
+    id: GroupMember<Student['id']>[];
+    name: GroupMember<Student['name']>[];
+    email: GroupMember<Student['email']>[];
+    courseIds: GroupMember<Student['courseIds']>[];
+  };
+}
+
+export type StudentGroupByResult<A extends StudentGroupByArgs> = GroupByRow<Student, A, StudentGroupByAggregates>;
 
 export interface StudentInclude {
   courses?:
@@ -753,6 +920,11 @@ export interface StudentModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<Student, R>>;
 
   count(where?: StudentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends StudentGroupByArgs>(
+    args: GroupByArg<A, StudentGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<StudentGroupByResult<A>[]>;
 
   exists(where?: StudentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

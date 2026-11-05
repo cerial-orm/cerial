@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -223,6 +226,123 @@ export interface ExtRelBlogAuthorOrderBy {
   email?: 'asc' | 'desc';
   bio?: 'asc' | 'desc';
 }
+
+export interface ExtRelBlogAuthorGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+  email?: true;
+  bio?: true;
+}
+
+export interface ExtRelBlogAuthorCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+  email?: true;
+  bio?: true;
+}
+
+export interface ExtRelBlogAuthorMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+  email?: true;
+  bio?: true;
+}
+
+export interface ExtRelBlogAuthorGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+  email?: true;
+  bio?: true;
+}
+
+export interface ExtRelBlogAuthorGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    bio?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    bio?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    bio?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtRelBlogAuthorGroupByArgs {
+  by: ExtRelBlogAuthorGroupByKeys;
+  where?: ExtRelBlogAuthorWhere;
+  _count?: true | ExtRelBlogAuthorCountAggregate;
+  _min?: ExtRelBlogAuthorMinMaxAggregate;
+  _max?: ExtRelBlogAuthorMinMaxAggregate;
+  _group?: ExtRelBlogAuthorGroupAggregate;
+  orderBy?: ExtRelBlogAuthorGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelBlogAuthorGroupByAggregates {
+  _count: { _all: number; id: number; createdAt: number; updatedAt: number; name: number; email: number; bio: number };
+  _min: {
+    id: NonNullable<ExtRelBlogAuthor['id']> | null;
+    createdAt: NonNullable<ExtRelBlogAuthor['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelBlogAuthor['updatedAt']> | null;
+    name: NonNullable<ExtRelBlogAuthor['name']> | null;
+    email: NonNullable<ExtRelBlogAuthor['email']> | null;
+    bio: NonNullable<ExtRelBlogAuthor['bio']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelBlogAuthor['id']> | null;
+    createdAt: NonNullable<ExtRelBlogAuthor['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelBlogAuthor['updatedAt']> | null;
+    name: NonNullable<ExtRelBlogAuthor['name']> | null;
+    email: NonNullable<ExtRelBlogAuthor['email']> | null;
+    bio: NonNullable<ExtRelBlogAuthor['bio']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelBlogAuthor['id']>[];
+    createdAt: GroupMember<ExtRelBlogAuthor['createdAt']>[];
+    updatedAt: GroupMember<ExtRelBlogAuthor['updatedAt']>[];
+    name: GroupMember<ExtRelBlogAuthor['name']>[];
+    email: GroupMember<ExtRelBlogAuthor['email']>[];
+    bio: GroupMember<ExtRelBlogAuthor['bio']>[];
+  };
+}
+
+export type ExtRelBlogAuthorGroupByResult<A extends ExtRelBlogAuthorGroupByArgs> = GroupByRow<
+  ExtRelBlogAuthor,
+  A,
+  ExtRelBlogAuthorGroupByAggregates
+>;
 
 export interface ExtRelBlogAuthorInclude {
   posts?:
@@ -438,6 +558,11 @@ export interface ExtRelBlogAuthorModel {
 
   count(where?: ExtRelBlogAuthorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtRelBlogAuthorGroupByArgs>(
+    args: GroupByArg<A, ExtRelBlogAuthorGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelBlogAuthorGroupByResult<A>[]>;
+
   exists(where?: ExtRelBlogAuthorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -475,6 +600,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -663,6 +791,131 @@ export interface ExtRelBlogPostOrderBy {
   authorId?: 'asc' | 'desc';
   author?: ExtRelBlogAuthorOrderBy;
 }
+
+export interface ExtRelBlogPostGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  body?: true;
+  authorId?: true;
+}
+
+export interface ExtRelBlogPostCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  body?: true;
+  authorId?: true;
+}
+
+export interface ExtRelBlogPostMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  body?: true;
+  authorId?: true;
+}
+
+export interface ExtRelBlogPostGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  body?: true;
+  authorId?: true;
+}
+
+export interface ExtRelBlogPostGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtRelBlogPostGroupByArgs {
+  by: ExtRelBlogPostGroupByKeys;
+  where?: ExtRelBlogPostWhere;
+  _count?: true | ExtRelBlogPostCountAggregate;
+  _min?: ExtRelBlogPostMinMaxAggregate;
+  _max?: ExtRelBlogPostMinMaxAggregate;
+  _group?: ExtRelBlogPostGroupAggregate;
+  orderBy?: ExtRelBlogPostGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelBlogPostGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    title: number;
+    body: number;
+    authorId: number;
+  };
+  _min: {
+    id: NonNullable<ExtRelBlogPost['id']> | null;
+    createdAt: NonNullable<ExtRelBlogPost['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelBlogPost['updatedAt']> | null;
+    title: NonNullable<ExtRelBlogPost['title']> | null;
+    body: NonNullable<ExtRelBlogPost['body']> | null;
+    authorId: NonNullable<ExtRelBlogPost['authorId']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelBlogPost['id']> | null;
+    createdAt: NonNullable<ExtRelBlogPost['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelBlogPost['updatedAt']> | null;
+    title: NonNullable<ExtRelBlogPost['title']> | null;
+    body: NonNullable<ExtRelBlogPost['body']> | null;
+    authorId: NonNullable<ExtRelBlogPost['authorId']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelBlogPost['id']>[];
+    createdAt: GroupMember<ExtRelBlogPost['createdAt']>[];
+    updatedAt: GroupMember<ExtRelBlogPost['updatedAt']>[];
+    title: GroupMember<ExtRelBlogPost['title']>[];
+    body: GroupMember<ExtRelBlogPost['body']>[];
+    authorId: GroupMember<ExtRelBlogPost['authorId']>[];
+  };
+}
+
+export type ExtRelBlogPostGroupByResult<A extends ExtRelBlogPostGroupByArgs> = GroupByRow<
+  ExtRelBlogPost,
+  A,
+  ExtRelBlogPostGroupByAggregates
+>;
 
 export interface ExtRelBlogPostInclude {
   author?:
@@ -875,6 +1128,11 @@ export interface ExtRelBlogPostModel {
 
   count(where?: ExtRelBlogPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtRelBlogPostGroupByArgs>(
+    args: GroupByArg<A, ExtRelBlogPostGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelBlogPostGroupByResult<A>[]>;
+
   exists(where?: ExtRelBlogPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -912,6 +1170,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1045,6 +1306,77 @@ export interface ExtRelBlogPostTagOrderBy {
   tagId?: 'asc' | 'desc';
   tag?: ExtRelBlogTagOrderBy;
 }
+
+export interface ExtRelBlogPostTagGroupByKeys {
+  id?: true;
+  postId?: true;
+  tagId?: true;
+}
+
+export interface ExtRelBlogPostTagCountAggregate {
+  _all?: true;
+  id?: true;
+  postId?: true;
+  tagId?: true;
+}
+
+export interface ExtRelBlogPostTagMinMaxAggregate {
+  id?: true;
+  postId?: true;
+  tagId?: true;
+}
+
+export interface ExtRelBlogPostTagGroupAggregate {
+  id?: true;
+  postId?: true;
+  tagId?: true;
+}
+
+export interface ExtRelBlogPostTagGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  postId?: 'asc' | 'desc';
+  tagId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; postId?: 'asc' | 'desc'; tagId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; postId?: 'asc' | 'desc'; tagId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; postId?: 'asc' | 'desc'; tagId?: 'asc' | 'desc' };
+}
+
+export interface ExtRelBlogPostTagGroupByArgs {
+  by: ExtRelBlogPostTagGroupByKeys;
+  where?: ExtRelBlogPostTagWhere;
+  _count?: true | ExtRelBlogPostTagCountAggregate;
+  _min?: ExtRelBlogPostTagMinMaxAggregate;
+  _max?: ExtRelBlogPostTagMinMaxAggregate;
+  _group?: ExtRelBlogPostTagGroupAggregate;
+  orderBy?: ExtRelBlogPostTagGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelBlogPostTagGroupByAggregates {
+  _count: { _all: number; id: number; postId: number; tagId: number };
+  _min: {
+    id: NonNullable<ExtRelBlogPostTag['id']> | null;
+    postId: NonNullable<ExtRelBlogPostTag['postId']> | null;
+    tagId: NonNullable<ExtRelBlogPostTag['tagId']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelBlogPostTag['id']> | null;
+    postId: NonNullable<ExtRelBlogPostTag['postId']> | null;
+    tagId: NonNullable<ExtRelBlogPostTag['tagId']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelBlogPostTag['id']>[];
+    postId: GroupMember<ExtRelBlogPostTag['postId']>[];
+    tagId: GroupMember<ExtRelBlogPostTag['tagId']>[];
+  };
+}
+
+export type ExtRelBlogPostTagGroupByResult<A extends ExtRelBlogPostTagGroupByArgs> = GroupByRow<
+  ExtRelBlogPostTag,
+  A,
+  ExtRelBlogPostTagGroupByAggregates
+>;
 
 export interface ExtRelBlogPostTagInclude {
   post?:
@@ -1285,6 +1617,11 @@ export interface ExtRelBlogPostTagModel {
 
   count(where?: ExtRelBlogPostTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtRelBlogPostTagGroupByArgs>(
+    args: GroupByArg<A, ExtRelBlogPostTagGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelBlogPostTagGroupByResult<A>[]>;
+
   exists(where?: ExtRelBlogPostTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1322,6 +1659,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1479,6 +1819,91 @@ export interface ExtRelBlogTagOrderBy {
   updatedAt?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface ExtRelBlogTagGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+}
+
+export interface ExtRelBlogTagCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+}
+
+export interface ExtRelBlogTagMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+}
+
+export interface ExtRelBlogTagGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+}
+
+export interface ExtRelBlogTagGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; createdAt?: 'asc' | 'desc'; updatedAt?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; createdAt?: 'asc' | 'desc'; updatedAt?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface ExtRelBlogTagGroupByArgs {
+  by: ExtRelBlogTagGroupByKeys;
+  where?: ExtRelBlogTagWhere;
+  _count?: true | ExtRelBlogTagCountAggregate;
+  _min?: ExtRelBlogTagMinMaxAggregate;
+  _max?: ExtRelBlogTagMinMaxAggregate;
+  _group?: ExtRelBlogTagGroupAggregate;
+  orderBy?: ExtRelBlogTagGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelBlogTagGroupByAggregates {
+  _count: { _all: number; id: number; createdAt: number; updatedAt: number; name: number };
+  _min: {
+    id: NonNullable<ExtRelBlogTag['id']> | null;
+    createdAt: NonNullable<ExtRelBlogTag['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelBlogTag['updatedAt']> | null;
+    name: NonNullable<ExtRelBlogTag['name']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelBlogTag['id']> | null;
+    createdAt: NonNullable<ExtRelBlogTag['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelBlogTag['updatedAt']> | null;
+    name: NonNullable<ExtRelBlogTag['name']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelBlogTag['id']>[];
+    createdAt: GroupMember<ExtRelBlogTag['createdAt']>[];
+    updatedAt: GroupMember<ExtRelBlogTag['updatedAt']>[];
+    name: GroupMember<ExtRelBlogTag['name']>[];
+  };
+}
+
+export type ExtRelBlogTagGroupByResult<A extends ExtRelBlogTagGroupByArgs> = GroupByRow<
+  ExtRelBlogTag,
+  A,
+  ExtRelBlogTagGroupByAggregates
+>;
 
 export interface ExtRelBlogTagInclude {
   postTags?:
@@ -1693,6 +2118,11 @@ export interface ExtRelBlogTagModel {
 
   count(where?: ExtRelBlogTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtRelBlogTagGroupByArgs>(
+    args: GroupByArg<A, ExtRelBlogTagGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelBlogTagGroupByResult<A>[]>;
+
   exists(where?: ExtRelBlogTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1730,6 +2160,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1892,6 +2325,112 @@ export interface ExtRelCommentOrderBy {
   parentCommentId?: 'asc' | 'desc';
   parentComment?: ExtRelCommentOrderBy;
 }
+
+export interface ExtRelCommentGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  body?: true;
+  parentCommentId?: true;
+}
+
+export interface ExtRelCommentCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  body?: true;
+  parentCommentId?: true;
+}
+
+export interface ExtRelCommentMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  body?: true;
+  parentCommentId?: true;
+}
+
+export interface ExtRelCommentGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  body?: true;
+  parentCommentId?: true;
+}
+
+export interface ExtRelCommentGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  parentCommentId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    parentCommentId?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    parentCommentId?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    parentCommentId?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtRelCommentGroupByArgs {
+  by: ExtRelCommentGroupByKeys;
+  where?: ExtRelCommentWhere;
+  _count?: true | ExtRelCommentCountAggregate;
+  _min?: ExtRelCommentMinMaxAggregate;
+  _max?: ExtRelCommentMinMaxAggregate;
+  _group?: ExtRelCommentGroupAggregate;
+  orderBy?: ExtRelCommentGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelCommentGroupByAggregates {
+  _count: { _all: number; id: number; createdAt: number; updatedAt: number; body: number; parentCommentId: number };
+  _min: {
+    id: NonNullable<ExtRelComment['id']> | null;
+    createdAt: NonNullable<ExtRelComment['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelComment['updatedAt']> | null;
+    body: NonNullable<ExtRelComment['body']> | null;
+    parentCommentId: NonNullable<ExtRelComment['parentCommentId']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelComment['id']> | null;
+    createdAt: NonNullable<ExtRelComment['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelComment['updatedAt']> | null;
+    body: NonNullable<ExtRelComment['body']> | null;
+    parentCommentId: NonNullable<ExtRelComment['parentCommentId']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelComment['id']>[];
+    createdAt: GroupMember<ExtRelComment['createdAt']>[];
+    updatedAt: GroupMember<ExtRelComment['updatedAt']>[];
+    body: GroupMember<ExtRelComment['body']>[];
+    parentCommentId: GroupMember<ExtRelComment['parentCommentId']>[];
+  };
+}
+
+export type ExtRelCommentGroupByResult<A extends ExtRelCommentGroupByArgs> = GroupByRow<
+  ExtRelComment,
+  A,
+  ExtRelCommentGroupByAggregates
+>;
 
 export interface ExtRelCommentInclude {
   parentComment?:
@@ -2103,6 +2642,11 @@ export interface ExtRelCommentModel {
 
   count(where?: ExtRelCommentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtRelCommentGroupByArgs>(
+    args: GroupByArg<A, ExtRelCommentGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelCommentGroupByResult<A>[]>;
+
   exists(where?: ExtRelCommentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2140,6 +2684,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2362,6 +2909,143 @@ export interface ExtRelCommentModeratedOrderBy {
   approvedBy?: 'asc' | 'desc';
   approver?: ExtRelBlogAuthorOrderBy;
 }
+
+export interface ExtRelCommentModeratedGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  body?: true;
+  parentCommentId?: true;
+  isApproved?: true;
+  approvedBy?: true;
+}
+
+export interface ExtRelCommentModeratedCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  body?: true;
+  parentCommentId?: true;
+  isApproved?: true;
+  approvedBy?: true;
+}
+
+export interface ExtRelCommentModeratedMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  body?: true;
+  parentCommentId?: true;
+  isApproved?: true;
+  approvedBy?: true;
+}
+
+export interface ExtRelCommentModeratedGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  body?: true;
+  parentCommentId?: true;
+  isApproved?: true;
+  approvedBy?: true;
+}
+
+export interface ExtRelCommentModeratedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  parentCommentId?: 'asc' | 'desc';
+  isApproved?: 'asc' | 'desc';
+  approvedBy?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    parentCommentId?: 'asc' | 'desc';
+    isApproved?: 'asc' | 'desc';
+    approvedBy?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    parentCommentId?: 'asc' | 'desc';
+    isApproved?: 'asc' | 'desc';
+    approvedBy?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    parentCommentId?: 'asc' | 'desc';
+    isApproved?: 'asc' | 'desc';
+    approvedBy?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtRelCommentModeratedGroupByArgs {
+  by: ExtRelCommentModeratedGroupByKeys;
+  where?: ExtRelCommentModeratedWhere;
+  _count?: true | ExtRelCommentModeratedCountAggregate;
+  _min?: ExtRelCommentModeratedMinMaxAggregate;
+  _max?: ExtRelCommentModeratedMinMaxAggregate;
+  _group?: ExtRelCommentModeratedGroupAggregate;
+  orderBy?: ExtRelCommentModeratedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelCommentModeratedGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    body: number;
+    parentCommentId: number;
+    isApproved: number;
+    approvedBy: number;
+  };
+  _min: {
+    id: NonNullable<ExtRelCommentModerated['id']> | null;
+    createdAt: NonNullable<ExtRelCommentModerated['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelCommentModerated['updatedAt']> | null;
+    body: NonNullable<ExtRelCommentModerated['body']> | null;
+    parentCommentId: NonNullable<ExtRelCommentModerated['parentCommentId']> | null;
+    isApproved: NonNullable<ExtRelCommentModerated['isApproved']> | null;
+    approvedBy: NonNullable<ExtRelCommentModerated['approvedBy']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelCommentModerated['id']> | null;
+    createdAt: NonNullable<ExtRelCommentModerated['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelCommentModerated['updatedAt']> | null;
+    body: NonNullable<ExtRelCommentModerated['body']> | null;
+    parentCommentId: NonNullable<ExtRelCommentModerated['parentCommentId']> | null;
+    isApproved: NonNullable<ExtRelCommentModerated['isApproved']> | null;
+    approvedBy: NonNullable<ExtRelCommentModerated['approvedBy']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelCommentModerated['id']>[];
+    createdAt: GroupMember<ExtRelCommentModerated['createdAt']>[];
+    updatedAt: GroupMember<ExtRelCommentModerated['updatedAt']>[];
+    body: GroupMember<ExtRelCommentModerated['body']>[];
+    parentCommentId: GroupMember<ExtRelCommentModerated['parentCommentId']>[];
+    isApproved: GroupMember<ExtRelCommentModerated['isApproved']>[];
+    approvedBy: GroupMember<ExtRelCommentModerated['approvedBy']>[];
+  };
+}
+
+export type ExtRelCommentModeratedGroupByResult<A extends ExtRelCommentModeratedGroupByArgs> = GroupByRow<
+  ExtRelCommentModerated,
+  A,
+  ExtRelCommentModeratedGroupByAggregates
+>;
 
 export interface ExtRelCommentModeratedInclude {
   parentComment?:
@@ -2604,6 +3288,11 @@ export interface ExtRelCommentModeratedModel {
 
   count(where?: ExtRelCommentModeratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtRelCommentModeratedGroupByArgs>(
+    args: GroupByArg<A, ExtRelCommentModeratedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelCommentModeratedGroupByResult<A>[]>;
+
   exists(where?: ExtRelCommentModeratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2643,6 +3332,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2819,6 +3511,131 @@ export interface ExtRelPostArchiveOrderBy {
   archiveReason?: 'asc' | 'desc';
 }
 
+export interface ExtRelPostArchiveGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  archivedAt?: true;
+  archiveReason?: true;
+}
+
+export interface ExtRelPostArchiveCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  archivedAt?: true;
+  archiveReason?: true;
+}
+
+export interface ExtRelPostArchiveMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  archivedAt?: true;
+  archiveReason?: true;
+}
+
+export interface ExtRelPostArchiveGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  archivedAt?: true;
+  archiveReason?: true;
+}
+
+export interface ExtRelPostArchiveGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  archivedAt?: 'asc' | 'desc';
+  archiveReason?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    archivedAt?: 'asc' | 'desc';
+    archiveReason?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    archivedAt?: 'asc' | 'desc';
+    archiveReason?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    archivedAt?: 'asc' | 'desc';
+    archiveReason?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtRelPostArchiveGroupByArgs {
+  by: ExtRelPostArchiveGroupByKeys;
+  where?: ExtRelPostArchiveWhere;
+  _count?: true | ExtRelPostArchiveCountAggregate;
+  _min?: ExtRelPostArchiveMinMaxAggregate;
+  _max?: ExtRelPostArchiveMinMaxAggregate;
+  _group?: ExtRelPostArchiveGroupAggregate;
+  orderBy?: ExtRelPostArchiveGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelPostArchiveGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    title: number;
+    archivedAt: number;
+    archiveReason: number;
+  };
+  _min: {
+    id: NonNullable<ExtRelPostArchive['id']> | null;
+    createdAt: NonNullable<ExtRelPostArchive['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelPostArchive['updatedAt']> | null;
+    title: NonNullable<ExtRelPostArchive['title']> | null;
+    archivedAt: NonNullable<ExtRelPostArchive['archivedAt']> | null;
+    archiveReason: NonNullable<ExtRelPostArchive['archiveReason']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelPostArchive['id']> | null;
+    createdAt: NonNullable<ExtRelPostArchive['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelPostArchive['updatedAt']> | null;
+    title: NonNullable<ExtRelPostArchive['title']> | null;
+    archivedAt: NonNullable<ExtRelPostArchive['archivedAt']> | null;
+    archiveReason: NonNullable<ExtRelPostArchive['archiveReason']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelPostArchive['id']>[];
+    createdAt: GroupMember<ExtRelPostArchive['createdAt']>[];
+    updatedAt: GroupMember<ExtRelPostArchive['updatedAt']>[];
+    title: GroupMember<ExtRelPostArchive['title']>[];
+    archivedAt: GroupMember<ExtRelPostArchive['archivedAt']>[];
+    archiveReason: GroupMember<ExtRelPostArchive['archiveReason']>[];
+  };
+}
+
+export type ExtRelPostArchiveGroupByResult<A extends ExtRelPostArchiveGroupByArgs> = GroupByRow<
+  ExtRelPostArchive,
+  A,
+  ExtRelPostArchiveGroupByAggregates
+>;
+
 export type ExtRelPostArchive$Relations = {};
 
 export type GetExtRelPostArchivePayload<
@@ -2968,6 +3785,11 @@ export interface ExtRelPostArchiveModel {
 
   count(where?: ExtRelPostArchiveWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtRelPostArchiveGroupByArgs>(
+    args: GroupByArg<A, ExtRelPostArchiveGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelPostArchiveGroupByResult<A>[]>;
+
   exists(where?: ExtRelPostArchiveWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3005,6 +3827,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3203,6 +4028,153 @@ export interface ExtRelPostSummaryOrderBy {
   wordCount?: 'asc' | 'desc';
 }
 
+export interface ExtRelPostSummaryGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  body?: true;
+  summary?: true;
+  wordCount?: true;
+}
+
+export interface ExtRelPostSummaryCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  body?: true;
+  summary?: true;
+  wordCount?: true;
+}
+
+export interface ExtRelPostSummaryNumericAggregate {
+  wordCount?: true;
+}
+
+export interface ExtRelPostSummaryMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  body?: true;
+  summary?: true;
+  wordCount?: true;
+}
+
+export interface ExtRelPostSummaryGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  title?: true;
+  body?: true;
+  summary?: true;
+  wordCount?: true;
+}
+
+export interface ExtRelPostSummaryGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  summary?: 'asc' | 'desc';
+  wordCount?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    summary?: 'asc' | 'desc';
+    wordCount?: 'asc' | 'desc';
+  };
+  _sum?: { wordCount?: 'asc' | 'desc' };
+  _avg?: { wordCount?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    summary?: 'asc' | 'desc';
+    wordCount?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    summary?: 'asc' | 'desc';
+    wordCount?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtRelPostSummaryGroupByArgs {
+  by: ExtRelPostSummaryGroupByKeys;
+  where?: ExtRelPostSummaryWhere;
+  _count?: true | ExtRelPostSummaryCountAggregate;
+  _sum?: ExtRelPostSummaryNumericAggregate;
+  _avg?: ExtRelPostSummaryNumericAggregate;
+  _min?: ExtRelPostSummaryMinMaxAggregate;
+  _max?: ExtRelPostSummaryMinMaxAggregate;
+  _group?: ExtRelPostSummaryGroupAggregate;
+  orderBy?: ExtRelPostSummaryGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelPostSummaryGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    title: number;
+    body: number;
+    summary: number;
+    wordCount: number;
+  };
+  _sum: { wordCount: number };
+  _avg: { wordCount: number | null };
+  _min: {
+    id: NonNullable<ExtRelPostSummary['id']> | null;
+    createdAt: NonNullable<ExtRelPostSummary['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelPostSummary['updatedAt']> | null;
+    title: NonNullable<ExtRelPostSummary['title']> | null;
+    body: NonNullable<ExtRelPostSummary['body']> | null;
+    summary: NonNullable<ExtRelPostSummary['summary']> | null;
+    wordCount: NonNullable<ExtRelPostSummary['wordCount']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelPostSummary['id']> | null;
+    createdAt: NonNullable<ExtRelPostSummary['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelPostSummary['updatedAt']> | null;
+    title: NonNullable<ExtRelPostSummary['title']> | null;
+    body: NonNullable<ExtRelPostSummary['body']> | null;
+    summary: NonNullable<ExtRelPostSummary['summary']> | null;
+    wordCount: NonNullable<ExtRelPostSummary['wordCount']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelPostSummary['id']>[];
+    createdAt: GroupMember<ExtRelPostSummary['createdAt']>[];
+    updatedAt: GroupMember<ExtRelPostSummary['updatedAt']>[];
+    title: GroupMember<ExtRelPostSummary['title']>[];
+    body: GroupMember<ExtRelPostSummary['body']>[];
+    summary: GroupMember<ExtRelPostSummary['summary']>[];
+    wordCount: GroupMember<ExtRelPostSummary['wordCount']>[];
+  };
+}
+
+export type ExtRelPostSummaryGroupByResult<A extends ExtRelPostSummaryGroupByArgs> = GroupByRow<
+  ExtRelPostSummary,
+  A,
+  ExtRelPostSummaryGroupByAggregates
+>;
+
 export type ExtRelPostSummary$Relations = {};
 
 export type GetExtRelPostSummaryPayload<
@@ -3352,6 +4324,11 @@ export interface ExtRelPostSummaryModel {
 
   count(where?: ExtRelPostSummaryWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtRelPostSummaryGroupByArgs>(
+    args: GroupByArg<A, ExtRelPostSummaryGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelPostSummaryGroupByResult<A>[]>;
+
   exists(where?: ExtRelPostSummaryWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3389,6 +4366,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3582,6 +4562,131 @@ export interface ExtRelProjectOrderBy {
   ownerId?: 'asc' | 'desc';
   owner?: ExtRelBlogAuthorOrderBy;
 }
+
+export interface ExtRelProjectGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+  description?: true;
+  ownerId?: true;
+}
+
+export interface ExtRelProjectCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+  description?: true;
+  ownerId?: true;
+}
+
+export interface ExtRelProjectMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+  description?: true;
+  ownerId?: true;
+}
+
+export interface ExtRelProjectGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  name?: true;
+  description?: true;
+  ownerId?: true;
+}
+
+export interface ExtRelProjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    ownerId?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    ownerId?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    ownerId?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtRelProjectGroupByArgs {
+  by: ExtRelProjectGroupByKeys;
+  where?: ExtRelProjectWhere;
+  _count?: true | ExtRelProjectCountAggregate;
+  _min?: ExtRelProjectMinMaxAggregate;
+  _max?: ExtRelProjectMinMaxAggregate;
+  _group?: ExtRelProjectGroupAggregate;
+  orderBy?: ExtRelProjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtRelProjectGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    name: number;
+    description: number;
+    ownerId: number;
+  };
+  _min: {
+    id: NonNullable<ExtRelProject['id']> | null;
+    createdAt: NonNullable<ExtRelProject['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelProject['updatedAt']> | null;
+    name: NonNullable<ExtRelProject['name']> | null;
+    description: NonNullable<ExtRelProject['description']> | null;
+    ownerId: NonNullable<ExtRelProject['ownerId']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtRelProject['id']> | null;
+    createdAt: NonNullable<ExtRelProject['createdAt']> | null;
+    updatedAt: NonNullable<ExtRelProject['updatedAt']> | null;
+    name: NonNullable<ExtRelProject['name']> | null;
+    description: NonNullable<ExtRelProject['description']> | null;
+    ownerId: NonNullable<ExtRelProject['ownerId']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtRelProject['id']>[];
+    createdAt: GroupMember<ExtRelProject['createdAt']>[];
+    updatedAt: GroupMember<ExtRelProject['updatedAt']>[];
+    name: GroupMember<ExtRelProject['name']>[];
+    description: GroupMember<ExtRelProject['description']>[];
+    ownerId: GroupMember<ExtRelProject['ownerId']>[];
+  };
+}
+
+export type ExtRelProjectGroupByResult<A extends ExtRelProjectGroupByArgs> = GroupByRow<
+  ExtRelProject,
+  A,
+  ExtRelProjectGroupByAggregates
+>;
 
 export interface ExtRelProjectInclude {
   owner?:
@@ -3792,6 +4897,11 @@ export interface ExtRelProjectModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelProject, R>>;
 
   count(where?: ExtRelProjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ExtRelProjectGroupByArgs>(
+    args: GroupByArg<A, ExtRelProjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtRelProjectGroupByResult<A>[]>;
 
   exists(where?: ExtRelProjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

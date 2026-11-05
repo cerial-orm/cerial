@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -129,6 +132,70 @@ export interface ExtLiteralContainerOrderBy {
   details?: ExtLiteralInfoOrderBy;
   detailsList?: ExtLiteralInfoOrderBy;
 }
+
+export interface ExtLiteralContainerGroupByKeys {
+  id?: true;
+  name?: true;
+  details?: { priority?: true; level?: true; status?: true };
+}
+
+export interface ExtLiteralContainerCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  details?: true;
+  detailsList?: true;
+}
+
+export interface ExtLiteralContainerMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ExtLiteralContainerGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ExtLiteralContainerGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  details?: { priority?: 'asc' | 'desc'; level?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    details?: 'asc' | 'desc';
+    detailsList?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface ExtLiteralContainerGroupByArgs {
+  by: ExtLiteralContainerGroupByKeys;
+  where?: ExtLiteralContainerWhere;
+  _count?: true | ExtLiteralContainerCountAggregate;
+  _min?: ExtLiteralContainerMinMaxAggregate;
+  _max?: ExtLiteralContainerMinMaxAggregate;
+  _group?: ExtLiteralContainerGroupAggregate;
+  orderBy?: ExtLiteralContainerGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtLiteralContainerGroupByAggregates {
+  _count: { _all: number; id: number; name: number; details: number; detailsList: number };
+  _min: { id: NonNullable<ExtLiteralContainer['id']> | null; name: NonNullable<ExtLiteralContainer['name']> | null };
+  _max: { id: NonNullable<ExtLiteralContainer['id']> | null; name: NonNullable<ExtLiteralContainer['name']> | null };
+  _group: { id: GroupMember<ExtLiteralContainer['id']>[]; name: GroupMember<ExtLiteralContainer['name']>[] };
+}
+
+export type ExtLiteralContainerGroupByResult<A extends ExtLiteralContainerGroupByArgs> = GroupByRow<
+  ExtLiteralContainer,
+  A,
+  ExtLiteralContainerGroupByAggregates
+>;
 
 export type ExtLiteralContainer$Relations = {};
 
@@ -279,6 +346,11 @@ export interface ExtLiteralContainerModel {
 
   count(where?: ExtLiteralContainerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtLiteralContainerGroupByArgs>(
+    args: GroupByArg<A, ExtLiteralContainerGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtLiteralContainerGroupByResult<A>[]>;
+
   exists(where?: ExtLiteralContainerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -318,6 +390,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -419,6 +494,138 @@ export type ExtLiteralModelSelect = AtLeastOne<ExtLiteralModelSelectFields>;
 export interface ExtLiteralModelOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface ExtLiteralModelGroupByKeys {
+  id?: true;
+  priority?: true;
+  level?: true;
+  status?: true;
+  broadValue?: true;
+  highPriority?: true;
+  priorities?: true;
+}
+
+export interface ExtLiteralModelCountAggregate {
+  _all?: true;
+  id?: true;
+  priority?: true;
+  level?: true;
+  status?: true;
+  broadValue?: true;
+  highPriority?: true;
+  priorities?: true;
+}
+
+export interface ExtLiteralModelMinMaxAggregate {
+  id?: true;
+  priority?: true;
+  level?: true;
+  status?: true;
+  broadValue?: true;
+  highPriority?: true;
+}
+
+export interface ExtLiteralModelGroupAggregate {
+  id?: true;
+  priority?: true;
+  level?: true;
+  status?: true;
+  broadValue?: true;
+  highPriority?: true;
+  priorities?: true;
+}
+
+export interface ExtLiteralModelGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  broadValue?: 'asc' | 'desc';
+  highPriority?: 'asc' | 'desc';
+  priorities?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    broadValue?: 'asc' | 'desc';
+    highPriority?: 'asc' | 'desc';
+    priorities?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    broadValue?: 'asc' | 'desc';
+    highPriority?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    broadValue?: 'asc' | 'desc';
+    highPriority?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtLiteralModelGroupByArgs {
+  by: ExtLiteralModelGroupByKeys;
+  where?: ExtLiteralModelWhere;
+  _count?: true | ExtLiteralModelCountAggregate;
+  _min?: ExtLiteralModelMinMaxAggregate;
+  _max?: ExtLiteralModelMinMaxAggregate;
+  _group?: ExtLiteralModelGroupAggregate;
+  orderBy?: ExtLiteralModelGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtLiteralModelGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    priority: number;
+    level: number;
+    status: number;
+    broadValue: number;
+    highPriority: number;
+    priorities: number;
+  };
+  _min: {
+    id: NonNullable<ExtLiteralModel['id']> | null;
+    priority: NonNullable<ExtLiteralModel['priority']> | null;
+    level: NonNullable<ExtLiteralModel['level']> | null;
+    status: NonNullable<ExtLiteralModel['status']> | null;
+    broadValue: NonNullable<ExtLiteralModel['broadValue']> | null;
+    highPriority: NonNullable<ExtLiteralModel['highPriority']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtLiteralModel['id']> | null;
+    priority: NonNullable<ExtLiteralModel['priority']> | null;
+    level: NonNullable<ExtLiteralModel['level']> | null;
+    status: NonNullable<ExtLiteralModel['status']> | null;
+    broadValue: NonNullable<ExtLiteralModel['broadValue']> | null;
+    highPriority: NonNullable<ExtLiteralModel['highPriority']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtLiteralModel['id']>[];
+    priority: GroupMember<ExtLiteralModel['priority']>[];
+    level: GroupMember<ExtLiteralModel['level']>[];
+    status: GroupMember<ExtLiteralModel['status']>[];
+    broadValue: GroupMember<ExtLiteralModel['broadValue']>[];
+    highPriority: GroupMember<ExtLiteralModel['highPriority']>[];
+    priorities: GroupMember<ExtLiteralModel['priorities']>[];
+  };
+}
+
+export type ExtLiteralModelGroupByResult<A extends ExtLiteralModelGroupByArgs> = GroupByRow<
+  ExtLiteralModel,
+  A,
+  ExtLiteralModelGroupByAggregates
+>;
 
 export type ExtLiteralModel$Relations = {};
 
@@ -569,6 +776,11 @@ export interface ExtLiteralModelModel {
 
   count(where?: ExtLiteralModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtLiteralModelGroupByArgs>(
+    args: GroupByArg<A, ExtLiteralModelGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtLiteralModelGroupByResult<A>[]>;
+
   exists(where?: ExtLiteralModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -605,6 +817,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -672,6 +887,77 @@ export type ExtLiteralQuotedSelect = AtLeastOne<ExtLiteralQuotedSelectFields>;
 export interface ExtLiteralQuotedOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface ExtLiteralQuotedGroupByKeys {
+  id?: true;
+  picked?: true;
+  omitted?: true;
+}
+
+export interface ExtLiteralQuotedCountAggregate {
+  _all?: true;
+  id?: true;
+  picked?: true;
+  omitted?: true;
+}
+
+export interface ExtLiteralQuotedMinMaxAggregate {
+  id?: true;
+  picked?: true;
+  omitted?: true;
+}
+
+export interface ExtLiteralQuotedGroupAggregate {
+  id?: true;
+  picked?: true;
+  omitted?: true;
+}
+
+export interface ExtLiteralQuotedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  picked?: 'asc' | 'desc';
+  omitted?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; picked?: 'asc' | 'desc'; omitted?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; picked?: 'asc' | 'desc'; omitted?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; picked?: 'asc' | 'desc'; omitted?: 'asc' | 'desc' };
+}
+
+export interface ExtLiteralQuotedGroupByArgs {
+  by: ExtLiteralQuotedGroupByKeys;
+  where?: ExtLiteralQuotedWhere;
+  _count?: true | ExtLiteralQuotedCountAggregate;
+  _min?: ExtLiteralQuotedMinMaxAggregate;
+  _max?: ExtLiteralQuotedMinMaxAggregate;
+  _group?: ExtLiteralQuotedGroupAggregate;
+  orderBy?: ExtLiteralQuotedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtLiteralQuotedGroupByAggregates {
+  _count: { _all: number; id: number; picked: number; omitted: number };
+  _min: {
+    id: NonNullable<ExtLiteralQuoted['id']> | null;
+    picked: NonNullable<ExtLiteralQuoted['picked']> | null;
+    omitted: NonNullable<ExtLiteralQuoted['omitted']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtLiteralQuoted['id']> | null;
+    picked: NonNullable<ExtLiteralQuoted['picked']> | null;
+    omitted: NonNullable<ExtLiteralQuoted['omitted']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtLiteralQuoted['id']>[];
+    picked: GroupMember<ExtLiteralQuoted['picked']>[];
+    omitted: GroupMember<ExtLiteralQuoted['omitted']>[];
+  };
+}
+
+export type ExtLiteralQuotedGroupByResult<A extends ExtLiteralQuotedGroupByArgs> = GroupByRow<
+  ExtLiteralQuoted,
+  A,
+  ExtLiteralQuotedGroupByAggregates
+>;
 
 export type ExtLiteralQuoted$Relations = {};
 
@@ -821,6 +1107,11 @@ export interface ExtLiteralQuotedModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ExtLiteralQuoted, R>>;
 
   count(where?: ExtLiteralQuotedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ExtLiteralQuotedGroupByArgs>(
+    args: GroupByArg<A, ExtLiteralQuotedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtLiteralQuotedGroupByResult<A>[]>;
 
   exists(where?: ExtLiteralQuotedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

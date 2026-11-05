@@ -24,6 +24,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -167,6 +170,72 @@ export interface BytesBasicOrderBy {
   tag?: 'asc' | 'desc';
   chunks?: 'asc' | 'desc';
 }
+
+export interface BytesBasicGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  payload?: true;
+  metadata?: true;
+  tag?: true;
+  chunks?: true;
+}
+
+export interface BytesBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesBasicGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    payload?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    tag?: 'asc' | 'desc';
+    chunks?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface BytesBasicGroupByArgs {
+  by: BytesBasicGroupByKeys;
+  where?: BytesBasicWhere;
+  _count?: true | BytesBasicCountAggregate;
+  _min?: BytesBasicMinMaxAggregate;
+  _max?: BytesBasicMinMaxAggregate;
+  _group?: BytesBasicGroupAggregate;
+  orderBy?: BytesBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface BytesBasicGroupByAggregates {
+  _count: { _all: number; id: number; name: number; payload: number; metadata: number; tag: number; chunks: number };
+  _min: { id: NonNullable<BytesBasic['id']> | null; name: NonNullable<BytesBasic['name']> | null };
+  _max: { id: NonNullable<BytesBasic['id']> | null; name: NonNullable<BytesBasic['name']> | null };
+  _group: { id: GroupMember<BytesBasic['id']>[]; name: GroupMember<BytesBasic['name']>[] };
+}
+
+export type BytesBasicGroupByResult<A extends BytesBasicGroupByArgs> = GroupByRow<
+  BytesBasic,
+  A,
+  BytesBasicGroupByAggregates
+>;
 
 export type BytesBasic$Relations = {};
 
@@ -314,6 +383,11 @@ export interface BytesBasicModel {
 
   count(where?: BytesBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends BytesBasicGroupByArgs>(
+    args: GroupByArg<A, BytesBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<BytesBasicGroupByResult<A>[]>;
+
   exists(where?: BytesBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -350,6 +424,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -442,6 +519,61 @@ export interface BytesWithObjectOrderBy {
   name?: 'asc' | 'desc';
   details?: BytesInfoOrderBy;
 }
+
+export interface BytesWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  details?: true;
+}
+
+export interface BytesWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; details?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface BytesWithObjectGroupByArgs {
+  by: BytesWithObjectGroupByKeys;
+  where?: BytesWithObjectWhere;
+  _count?: true | BytesWithObjectCountAggregate;
+  _min?: BytesWithObjectMinMaxAggregate;
+  _max?: BytesWithObjectMinMaxAggregate;
+  _group?: BytesWithObjectGroupAggregate;
+  orderBy?: BytesWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface BytesWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; details: number };
+  _min: { id: NonNullable<BytesWithObject['id']> | null; name: NonNullable<BytesWithObject['name']> | null };
+  _max: { id: NonNullable<BytesWithObject['id']> | null; name: NonNullable<BytesWithObject['name']> | null };
+  _group: { id: GroupMember<BytesWithObject['id']>[]; name: GroupMember<BytesWithObject['name']>[] };
+}
+
+export type BytesWithObjectGroupByResult<A extends BytesWithObjectGroupByArgs> = GroupByRow<
+  BytesWithObject,
+  A,
+  BytesWithObjectGroupByAggregates
+>;
 
 export type BytesWithObject$Relations = {};
 
@@ -592,6 +724,11 @@ export interface BytesWithObjectModel {
 
   count(where?: BytesWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends BytesWithObjectGroupByArgs>(
+    args: GroupByArg<A, BytesWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<BytesWithObjectGroupByResult<A>[]>;
+
   exists(where?: BytesWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -628,6 +765,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -711,6 +851,61 @@ export interface BytesWithTupleOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface BytesWithTupleGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesWithTupleCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pair?: true;
+}
+
+export interface BytesWithTupleMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesWithTupleGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface BytesWithTupleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pair?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface BytesWithTupleGroupByArgs {
+  by: BytesWithTupleGroupByKeys;
+  where?: BytesWithTupleWhere;
+  _count?: true | BytesWithTupleCountAggregate;
+  _min?: BytesWithTupleMinMaxAggregate;
+  _max?: BytesWithTupleMinMaxAggregate;
+  _group?: BytesWithTupleGroupAggregate;
+  orderBy?: BytesWithTupleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface BytesWithTupleGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pair: number };
+  _min: { id: NonNullable<BytesWithTuple['id']> | null; name: NonNullable<BytesWithTuple['name']> | null };
+  _max: { id: NonNullable<BytesWithTuple['id']> | null; name: NonNullable<BytesWithTuple['name']> | null };
+  _group: { id: GroupMember<BytesWithTuple['id']>[]; name: GroupMember<BytesWithTuple['name']>[] };
+}
+
+export type BytesWithTupleGroupByResult<A extends BytesWithTupleGroupByArgs> = GroupByRow<
+  BytesWithTuple,
+  A,
+  BytesWithTupleGroupByAggregates
+>;
 
 export type BytesWithTuple$Relations = {};
 
@@ -857,6 +1052,11 @@ export interface BytesWithTupleModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<BytesWithTuple, R>>;
 
   count(where?: BytesWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends BytesWithTupleGroupByArgs>(
+    args: GroupByArg<A, BytesWithTupleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<BytesWithTupleGroupByResult<A>[]>;
 
   exists(where?: BytesWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

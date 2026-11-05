@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -238,6 +241,112 @@ export interface ArrayDecoratorTestOrderBy {
   normalScores?: 'asc' | 'desc';
 }
 
+export interface ArrayDecoratorTestGroupByKeys {
+  id?: true;
+  uniqueTags?: true;
+  sortedScores?: true;
+  recentDates?: true;
+  uniqueSortedCategories?: true;
+  uniqueSortedPriorities?: true;
+  normalTags?: true;
+  normalScores?: true;
+}
+
+export interface ArrayDecoratorTestCountAggregate {
+  _all?: true;
+  id?: true;
+  uniqueTags?: true;
+  sortedScores?: true;
+  recentDates?: true;
+  uniqueSortedCategories?: true;
+  uniqueSortedPriorities?: true;
+  normalTags?: true;
+  normalScores?: true;
+}
+
+export interface ArrayDecoratorTestMinMaxAggregate {
+  id?: true;
+}
+
+export interface ArrayDecoratorTestGroupAggregate {
+  id?: true;
+  uniqueTags?: true;
+  sortedScores?: true;
+  recentDates?: true;
+  uniqueSortedCategories?: true;
+  uniqueSortedPriorities?: true;
+  normalTags?: true;
+  normalScores?: true;
+}
+
+export interface ArrayDecoratorTestGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  uniqueTags?: 'asc' | 'desc';
+  sortedScores?: 'asc' | 'desc';
+  recentDates?: 'asc' | 'desc';
+  uniqueSortedCategories?: 'asc' | 'desc';
+  uniqueSortedPriorities?: 'asc' | 'desc';
+  normalTags?: 'asc' | 'desc';
+  normalScores?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    uniqueTags?: 'asc' | 'desc';
+    sortedScores?: 'asc' | 'desc';
+    recentDates?: 'asc' | 'desc';
+    uniqueSortedCategories?: 'asc' | 'desc';
+    uniqueSortedPriorities?: 'asc' | 'desc';
+    normalTags?: 'asc' | 'desc';
+    normalScores?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface ArrayDecoratorTestGroupByArgs {
+  by: ArrayDecoratorTestGroupByKeys;
+  where?: ArrayDecoratorTestWhere;
+  _count?: true | ArrayDecoratorTestCountAggregate;
+  _min?: ArrayDecoratorTestMinMaxAggregate;
+  _max?: ArrayDecoratorTestMinMaxAggregate;
+  _group?: ArrayDecoratorTestGroupAggregate;
+  orderBy?: ArrayDecoratorTestGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ArrayDecoratorTestGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    uniqueTags: number;
+    sortedScores: number;
+    recentDates: number;
+    uniqueSortedCategories: number;
+    uniqueSortedPriorities: number;
+    normalTags: number;
+    normalScores: number;
+  };
+  _min: { id: NonNullable<ArrayDecoratorTest['id']> | null };
+  _max: { id: NonNullable<ArrayDecoratorTest['id']> | null };
+  _group: {
+    id: GroupMember<ArrayDecoratorTest['id']>[];
+    uniqueTags: GroupMember<ArrayDecoratorTest['uniqueTags']>[];
+    sortedScores: GroupMember<ArrayDecoratorTest['sortedScores']>[];
+    recentDates: GroupMember<ArrayDecoratorTest['recentDates']>[];
+    uniqueSortedCategories: GroupMember<ArrayDecoratorTest['uniqueSortedCategories']>[];
+    uniqueSortedPriorities: GroupMember<ArrayDecoratorTest['uniqueSortedPriorities']>[];
+    normalTags: GroupMember<ArrayDecoratorTest['normalTags']>[];
+    normalScores: GroupMember<ArrayDecoratorTest['normalScores']>[];
+  };
+}
+
+export type ArrayDecoratorTestGroupByResult<A extends ArrayDecoratorTestGroupByArgs> = GroupByRow<
+  ArrayDecoratorTest,
+  A,
+  ArrayDecoratorTestGroupByAggregates
+>;
+
 export type ArrayDecoratorTest$Relations = {};
 
 export type GetArrayDecoratorTestPayload<
@@ -387,6 +496,11 @@ export interface ArrayDecoratorTestModel {
 
   count(where?: ArrayDecoratorTestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ArrayDecoratorTestGroupByArgs>(
+    args: GroupByArg<A, ArrayDecoratorTestGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ArrayDecoratorTestGroupByResult<A>[]>;
+
   exists(where?: ArrayDecoratorTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -423,6 +537,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -517,6 +634,67 @@ export interface ScalarArraysOrderBy {
   emails?: 'asc' | 'desc';
   flags?: 'asc' | 'desc';
 }
+
+export interface ScalarArraysGroupByKeys {
+  id?: true;
+  emails?: true;
+  flags?: true;
+}
+
+export interface ScalarArraysCountAggregate {
+  _all?: true;
+  id?: true;
+  emails?: true;
+  flags?: true;
+}
+
+export interface ScalarArraysMinMaxAggregate {
+  id?: true;
+}
+
+export interface ScalarArraysGroupAggregate {
+  id?: true;
+  emails?: true;
+  flags?: true;
+}
+
+export interface ScalarArraysGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  emails?: 'asc' | 'desc';
+  flags?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; emails?: 'asc' | 'desc'; flags?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface ScalarArraysGroupByArgs {
+  by: ScalarArraysGroupByKeys;
+  where?: ScalarArraysWhere;
+  _count?: true | ScalarArraysCountAggregate;
+  _min?: ScalarArraysMinMaxAggregate;
+  _max?: ScalarArraysMinMaxAggregate;
+  _group?: ScalarArraysGroupAggregate;
+  orderBy?: ScalarArraysGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ScalarArraysGroupByAggregates {
+  _count: { _all: number; id: number; emails: number; flags: number };
+  _min: { id: NonNullable<ScalarArrays['id']> | null };
+  _max: { id: NonNullable<ScalarArrays['id']> | null };
+  _group: {
+    id: GroupMember<ScalarArrays['id']>[];
+    emails: GroupMember<ScalarArrays['emails']>[];
+    flags: GroupMember<ScalarArrays['flags']>[];
+  };
+}
+
+export type ScalarArraysGroupByResult<A extends ScalarArraysGroupByArgs> = GroupByRow<
+  ScalarArrays,
+  A,
+  ScalarArraysGroupByAggregates
+>;
 
 export type ScalarArrays$Relations = {};
 
@@ -663,6 +841,11 @@ export interface ScalarArraysModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ScalarArrays, R>>;
 
   count(where?: ScalarArraysWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ScalarArraysGroupByArgs>(
+    args: GroupByArg<A, ScalarArraysGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ScalarArraysGroupByResult<A>[]>;
 
   exists(where?: ScalarArraysWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -135,6 +138,150 @@ export interface LiteralBasicOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface LiteralBasicGroupByKeys {
+  id?: true;
+  name?: true;
+  status?: true;
+  priority?: true;
+  optStatus?: true;
+  nullStatus?: true;
+  statuses?: true;
+  mixed?: true;
+}
+
+export interface LiteralBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  status?: true;
+  priority?: true;
+  optStatus?: true;
+  nullStatus?: true;
+  statuses?: true;
+  mixed?: true;
+}
+
+export interface LiteralBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+  status?: true;
+  priority?: true;
+  optStatus?: true;
+  nullStatus?: true;
+  mixed?: true;
+}
+
+export interface LiteralBasicGroupAggregate {
+  id?: true;
+  name?: true;
+  status?: true;
+  priority?: true;
+  optStatus?: true;
+  nullStatus?: true;
+  statuses?: true;
+  mixed?: true;
+}
+
+export interface LiteralBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+  optStatus?: 'asc' | 'desc';
+  nullStatus?: 'asc' | 'desc';
+  statuses?: 'asc' | 'desc';
+  mixed?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    optStatus?: 'asc' | 'desc';
+    nullStatus?: 'asc' | 'desc';
+    statuses?: 'asc' | 'desc';
+    mixed?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    optStatus?: 'asc' | 'desc';
+    nullStatus?: 'asc' | 'desc';
+    mixed?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    optStatus?: 'asc' | 'desc';
+    nullStatus?: 'asc' | 'desc';
+    mixed?: 'asc' | 'desc';
+  };
+}
+
+export interface LiteralBasicGroupByArgs {
+  by: LiteralBasicGroupByKeys;
+  where?: LiteralBasicWhere;
+  _count?: true | LiteralBasicCountAggregate;
+  _min?: LiteralBasicMinMaxAggregate;
+  _max?: LiteralBasicMinMaxAggregate;
+  _group?: LiteralBasicGroupAggregate;
+  orderBy?: LiteralBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralBasicGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    status: number;
+    priority: number;
+    optStatus: number;
+    nullStatus: number;
+    statuses: number;
+    mixed: number;
+  };
+  _min: {
+    id: NonNullable<LiteralBasic['id']> | null;
+    name: NonNullable<LiteralBasic['name']> | null;
+    status: NonNullable<LiteralBasic['status']> | null;
+    priority: NonNullable<LiteralBasic['priority']> | null;
+    optStatus: NonNullable<LiteralBasic['optStatus']> | null;
+    nullStatus: NonNullable<LiteralBasic['nullStatus']> | null;
+    mixed: NonNullable<LiteralBasic['mixed']> | null;
+  };
+  _max: {
+    id: NonNullable<LiteralBasic['id']> | null;
+    name: NonNullable<LiteralBasic['name']> | null;
+    status: NonNullable<LiteralBasic['status']> | null;
+    priority: NonNullable<LiteralBasic['priority']> | null;
+    optStatus: NonNullable<LiteralBasic['optStatus']> | null;
+    nullStatus: NonNullable<LiteralBasic['nullStatus']> | null;
+    mixed: NonNullable<LiteralBasic['mixed']> | null;
+  };
+  _group: {
+    id: GroupMember<LiteralBasic['id']>[];
+    name: GroupMember<LiteralBasic['name']>[];
+    status: GroupMember<LiteralBasic['status']>[];
+    priority: GroupMember<LiteralBasic['priority']>[];
+    optStatus: GroupMember<LiteralBasic['optStatus']>[];
+    nullStatus: (GroupMember<LiteralBasic['nullStatus']> | null)[];
+    statuses: GroupMember<LiteralBasic['statuses']>[];
+    mixed: GroupMember<LiteralBasic['mixed']>[];
+  };
+}
+
+export type LiteralBasicGroupByResult<A extends LiteralBasicGroupByArgs> = GroupByRow<
+  LiteralBasic,
+  A,
+  LiteralBasicGroupByAggregates
+>;
 
 export type LiteralBasic$Relations = {};
 
@@ -282,6 +429,11 @@ export interface LiteralBasicModel {
 
   count(where?: LiteralBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralBasicGroupByArgs>(
+    args: GroupByArg<A, LiteralBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralBasicGroupByResult<A>[]>;
+
   exists(where?: LiteralBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -318,6 +470,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -391,6 +546,68 @@ export type LiteralBroadSelect = AtLeastOne<LiteralBroadSelectFields>;
 export interface LiteralBroadOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralBroadGroupByKeys {
+  id?: true;
+  payload?: true;
+  values?: true;
+}
+
+export interface LiteralBroadCountAggregate {
+  _all?: true;
+  id?: true;
+  payload?: true;
+  values?: true;
+}
+
+export interface LiteralBroadMinMaxAggregate {
+  id?: true;
+  payload?: true;
+}
+
+export interface LiteralBroadGroupAggregate {
+  id?: true;
+  payload?: true;
+  values?: true;
+}
+
+export interface LiteralBroadGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
+  values?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; payload?: 'asc' | 'desc'; values?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; payload?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; payload?: 'asc' | 'desc' };
+}
+
+export interface LiteralBroadGroupByArgs {
+  by: LiteralBroadGroupByKeys;
+  where?: LiteralBroadWhere;
+  _count?: true | LiteralBroadCountAggregate;
+  _min?: LiteralBroadMinMaxAggregate;
+  _max?: LiteralBroadMinMaxAggregate;
+  _group?: LiteralBroadGroupAggregate;
+  orderBy?: LiteralBroadGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralBroadGroupByAggregates {
+  _count: { _all: number; id: number; payload: number; values: number };
+  _min: { id: NonNullable<LiteralBroad['id']> | null; payload: NonNullable<LiteralBroad['payload']> | null };
+  _max: { id: NonNullable<LiteralBroad['id']> | null; payload: NonNullable<LiteralBroad['payload']> | null };
+  _group: {
+    id: GroupMember<LiteralBroad['id']>[];
+    payload: GroupMember<LiteralBroad['payload']>[];
+    values: GroupMember<LiteralBroad['values']>[];
+  };
+}
+
+export type LiteralBroadGroupByResult<A extends LiteralBroadGroupByArgs> = GroupByRow<
+  LiteralBroad,
+  A,
+  LiteralBroadGroupByAggregates
+>;
 
 export type LiteralBroad$Relations = {};
 
@@ -538,6 +755,11 @@ export interface LiteralBroadModel {
 
   count(where?: LiteralBroadWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralBroadGroupByArgs>(
+    args: GroupByArg<A, LiteralBroadGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralBroadGroupByResult<A>[]>;
+
   exists(where?: LiteralBroadWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -574,6 +796,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -658,6 +883,91 @@ export interface LiteralDefaultsOrderBy {
   id?: 'asc' | 'desc';
   label?: 'asc' | 'desc';
 }
+
+export interface LiteralDefaultsGroupByKeys {
+  id?: true;
+  label?: true;
+  status?: true;
+  priority?: true;
+}
+
+export interface LiteralDefaultsCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+  status?: true;
+  priority?: true;
+}
+
+export interface LiteralDefaultsMinMaxAggregate {
+  id?: true;
+  label?: true;
+  status?: true;
+  priority?: true;
+}
+
+export interface LiteralDefaultsGroupAggregate {
+  id?: true;
+  label?: true;
+  status?: true;
+  priority?: true;
+}
+
+export interface LiteralDefaultsGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc'; status?: 'asc' | 'desc'; priority?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc'; status?: 'asc' | 'desc'; priority?: 'asc' | 'desc' };
+}
+
+export interface LiteralDefaultsGroupByArgs {
+  by: LiteralDefaultsGroupByKeys;
+  where?: LiteralDefaultsWhere;
+  _count?: true | LiteralDefaultsCountAggregate;
+  _min?: LiteralDefaultsMinMaxAggregate;
+  _max?: LiteralDefaultsMinMaxAggregate;
+  _group?: LiteralDefaultsGroupAggregate;
+  orderBy?: LiteralDefaultsGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralDefaultsGroupByAggregates {
+  _count: { _all: number; id: number; label: number; status: number; priority: number };
+  _min: {
+    id: NonNullable<LiteralDefaults['id']> | null;
+    label: NonNullable<LiteralDefaults['label']> | null;
+    status: NonNullable<LiteralDefaults['status']> | null;
+    priority: NonNullable<LiteralDefaults['priority']> | null;
+  };
+  _max: {
+    id: NonNullable<LiteralDefaults['id']> | null;
+    label: NonNullable<LiteralDefaults['label']> | null;
+    status: NonNullable<LiteralDefaults['status']> | null;
+    priority: NonNullable<LiteralDefaults['priority']> | null;
+  };
+  _group: {
+    id: GroupMember<LiteralDefaults['id']>[];
+    label: GroupMember<LiteralDefaults['label']>[];
+    status: GroupMember<LiteralDefaults['status']>[];
+    priority: GroupMember<LiteralDefaults['priority']>[];
+  };
+}
+
+export type LiteralDefaultsGroupByResult<A extends LiteralDefaultsGroupByArgs> = GroupByRow<
+  LiteralDefaults,
+  A,
+  LiteralDefaultsGroupByAggregates
+>;
 
 export type LiteralDefaults$Relations = {};
 
@@ -808,6 +1118,11 @@ export interface LiteralDefaultsModel {
 
   count(where?: LiteralDefaultsWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralDefaultsGroupByArgs>(
+    args: GroupByArg<A, LiteralDefaultsGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralDefaultsGroupByResult<A>[]>;
+
   exists(where?: LiteralDefaultsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -844,6 +1159,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -906,6 +1224,60 @@ export type LiteralExtendedSelect = AtLeastOne<LiteralExtendedSelectFields>;
 export interface LiteralExtendedOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralExtendedGroupByKeys {
+  id?: true;
+  status?: true;
+}
+
+export interface LiteralExtendedCountAggregate {
+  _all?: true;
+  id?: true;
+  status?: true;
+}
+
+export interface LiteralExtendedMinMaxAggregate {
+  id?: true;
+  status?: true;
+}
+
+export interface LiteralExtendedGroupAggregate {
+  id?: true;
+  status?: true;
+}
+
+export interface LiteralExtendedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+}
+
+export interface LiteralExtendedGroupByArgs {
+  by: LiteralExtendedGroupByKeys;
+  where?: LiteralExtendedWhere;
+  _count?: true | LiteralExtendedCountAggregate;
+  _min?: LiteralExtendedMinMaxAggregate;
+  _max?: LiteralExtendedMinMaxAggregate;
+  _group?: LiteralExtendedGroupAggregate;
+  orderBy?: LiteralExtendedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralExtendedGroupByAggregates {
+  _count: { _all: number; id: number; status: number };
+  _min: { id: NonNullable<LiteralExtended['id']> | null; status: NonNullable<LiteralExtended['status']> | null };
+  _max: { id: NonNullable<LiteralExtended['id']> | null; status: NonNullable<LiteralExtended['status']> | null };
+  _group: { id: GroupMember<LiteralExtended['id']>[]; status: GroupMember<LiteralExtended['status']>[] };
+}
+
+export type LiteralExtendedGroupByResult<A extends LiteralExtendedGroupByArgs> = GroupByRow<
+  LiteralExtended,
+  A,
+  LiteralExtendedGroupByAggregates
+>;
 
 export type LiteralExtended$Relations = {};
 
@@ -1056,6 +1428,11 @@ export interface LiteralExtendedModel {
 
   count(where?: LiteralExtendedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralExtendedGroupByArgs>(
+    args: GroupByArg<A, LiteralExtendedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralExtendedGroupByResult<A>[]>;
+
   exists(where?: LiteralExtendedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1092,6 +1469,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1164,6 +1544,91 @@ export type LiteralNumberKindsSelect = AtLeastOne<LiteralNumberKindsSelectFields
 export interface LiteralNumberKindsOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralNumberKindsGroupByKeys {
+  id?: true;
+  ratio?: true;
+  amount?: true;
+  moment?: true;
+}
+
+export interface LiteralNumberKindsCountAggregate {
+  _all?: true;
+  id?: true;
+  ratio?: true;
+  amount?: true;
+  moment?: true;
+}
+
+export interface LiteralNumberKindsMinMaxAggregate {
+  id?: true;
+  ratio?: true;
+  amount?: true;
+  moment?: true;
+}
+
+export interface LiteralNumberKindsGroupAggregate {
+  id?: true;
+  ratio?: true;
+  amount?: true;
+  moment?: true;
+}
+
+export interface LiteralNumberKindsGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  ratio?: 'asc' | 'desc';
+  amount?: 'asc' | 'desc';
+  moment?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    ratio?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    moment?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; ratio?: 'asc' | 'desc'; amount?: 'asc' | 'desc'; moment?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; ratio?: 'asc' | 'desc'; amount?: 'asc' | 'desc'; moment?: 'asc' | 'desc' };
+}
+
+export interface LiteralNumberKindsGroupByArgs {
+  by: LiteralNumberKindsGroupByKeys;
+  where?: LiteralNumberKindsWhere;
+  _count?: true | LiteralNumberKindsCountAggregate;
+  _min?: LiteralNumberKindsMinMaxAggregate;
+  _max?: LiteralNumberKindsMinMaxAggregate;
+  _group?: LiteralNumberKindsGroupAggregate;
+  orderBy?: LiteralNumberKindsGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralNumberKindsGroupByAggregates {
+  _count: { _all: number; id: number; ratio: number; amount: number; moment: number };
+  _min: {
+    id: NonNullable<LiteralNumberKinds['id']> | null;
+    ratio: NonNullable<LiteralNumberKinds['ratio']> | null;
+    amount: NonNullable<LiteralNumberKinds['amount']> | null;
+    moment: NonNullable<LiteralNumberKinds['moment']> | null;
+  };
+  _max: {
+    id: NonNullable<LiteralNumberKinds['id']> | null;
+    ratio: NonNullable<LiteralNumberKinds['ratio']> | null;
+    amount: NonNullable<LiteralNumberKinds['amount']> | null;
+    moment: NonNullable<LiteralNumberKinds['moment']> | null;
+  };
+  _group: {
+    id: GroupMember<LiteralNumberKinds['id']>[];
+    ratio: GroupMember<LiteralNumberKinds['ratio']>[];
+    amount: GroupMember<LiteralNumberKinds['amount']>[];
+    moment: GroupMember<LiteralNumberKinds['moment']>[];
+  };
+}
+
+export type LiteralNumberKindsGroupByResult<A extends LiteralNumberKindsGroupByArgs> = GroupByRow<
+  LiteralNumberKinds,
+  A,
+  LiteralNumberKindsGroupByAggregates
+>;
 
 export type LiteralNumberKinds$Relations = {};
 
@@ -1314,6 +1779,11 @@ export interface LiteralNumberKindsModel {
 
   count(where?: LiteralNumberKindsWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralNumberKindsGroupByArgs>(
+    args: GroupByArg<A, LiteralNumberKindsGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralNumberKindsGroupByResult<A>[]>;
+
   exists(where?: LiteralNumberKindsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1351,6 +1821,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1421,6 +1894,77 @@ export type LiteralNumericSelect = AtLeastOne<LiteralNumericSelectFields>;
 export interface LiteralNumericOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralNumericGroupByKeys {
+  id?: true;
+  rank?: true;
+  optRank?: true;
+}
+
+export interface LiteralNumericCountAggregate {
+  _all?: true;
+  id?: true;
+  rank?: true;
+  optRank?: true;
+}
+
+export interface LiteralNumericMinMaxAggregate {
+  id?: true;
+  rank?: true;
+  optRank?: true;
+}
+
+export interface LiteralNumericGroupAggregate {
+  id?: true;
+  rank?: true;
+  optRank?: true;
+}
+
+export interface LiteralNumericGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  rank?: 'asc' | 'desc';
+  optRank?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; rank?: 'asc' | 'desc'; optRank?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; rank?: 'asc' | 'desc'; optRank?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; rank?: 'asc' | 'desc'; optRank?: 'asc' | 'desc' };
+}
+
+export interface LiteralNumericGroupByArgs {
+  by: LiteralNumericGroupByKeys;
+  where?: LiteralNumericWhere;
+  _count?: true | LiteralNumericCountAggregate;
+  _min?: LiteralNumericMinMaxAggregate;
+  _max?: LiteralNumericMinMaxAggregate;
+  _group?: LiteralNumericGroupAggregate;
+  orderBy?: LiteralNumericGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralNumericGroupByAggregates {
+  _count: { _all: number; id: number; rank: number; optRank: number };
+  _min: {
+    id: NonNullable<LiteralNumeric['id']> | null;
+    rank: NonNullable<LiteralNumeric['rank']> | null;
+    optRank: NonNullable<LiteralNumeric['optRank']> | null;
+  };
+  _max: {
+    id: NonNullable<LiteralNumeric['id']> | null;
+    rank: NonNullable<LiteralNumeric['rank']> | null;
+    optRank: NonNullable<LiteralNumeric['optRank']> | null;
+  };
+  _group: {
+    id: GroupMember<LiteralNumeric['id']>[];
+    rank: GroupMember<LiteralNumeric['rank']>[];
+    optRank: GroupMember<LiteralNumeric['optRank']>[];
+  };
+}
+
+export type LiteralNumericGroupByResult<A extends LiteralNumericGroupByArgs> = GroupByRow<
+  LiteralNumeric,
+  A,
+  LiteralNumericGroupByAggregates
+>;
 
 export type LiteralNumeric$Relations = {};
 
@@ -1568,6 +2112,11 @@ export interface LiteralNumericModel {
 
   count(where?: LiteralNumericWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralNumericGroupByArgs>(
+    args: GroupByArg<A, LiteralNumericGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralNumericGroupByResult<A>[]>;
+
   exists(where?: LiteralNumericWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1604,6 +2153,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1675,6 +2227,58 @@ export interface LiteralObjectArrayOrderBy {
   id?: 'asc' | 'desc';
   tagged?: LiteralTaggedOrderBy;
 }
+
+export interface LiteralObjectArrayGroupByKeys {
+  id?: true;
+  tagged?: { states?: true; label?: true };
+}
+
+export interface LiteralObjectArrayCountAggregate {
+  _all?: true;
+  id?: true;
+  tagged?: true;
+}
+
+export interface LiteralObjectArrayMinMaxAggregate {
+  id?: true;
+}
+
+export interface LiteralObjectArrayGroupAggregate {
+  id?: true;
+}
+
+export interface LiteralObjectArrayGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  tagged?: { states?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; tagged?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface LiteralObjectArrayGroupByArgs {
+  by: LiteralObjectArrayGroupByKeys;
+  where?: LiteralObjectArrayWhere;
+  _count?: true | LiteralObjectArrayCountAggregate;
+  _min?: LiteralObjectArrayMinMaxAggregate;
+  _max?: LiteralObjectArrayMinMaxAggregate;
+  _group?: LiteralObjectArrayGroupAggregate;
+  orderBy?: LiteralObjectArrayGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralObjectArrayGroupByAggregates {
+  _count: { _all: number; id: number; tagged: number };
+  _min: { id: NonNullable<LiteralObjectArray['id']> | null };
+  _max: { id: NonNullable<LiteralObjectArray['id']> | null };
+  _group: { id: GroupMember<LiteralObjectArray['id']>[] };
+}
+
+export type LiteralObjectArrayGroupByResult<A extends LiteralObjectArrayGroupByArgs> = GroupByRow<
+  LiteralObjectArray,
+  A,
+  LiteralObjectArrayGroupByAggregates
+>;
 
 export type LiteralObjectArray$Relations = {};
 
@@ -1825,6 +2429,11 @@ export interface LiteralObjectArrayModel {
 
   count(where?: LiteralObjectArrayWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralObjectArrayGroupByArgs>(
+    args: GroupByArg<A, LiteralObjectArrayGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralObjectArrayGroupByResult<A>[]>;
+
   exists(where?: LiteralObjectArrayWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1861,6 +2470,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1926,6 +2538,60 @@ export type LiteralUniqueSelect = AtLeastOne<LiteralUniqueSelectFields>;
 export interface LiteralUniqueOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralUniqueGroupByKeys {
+  id?: true;
+  status?: true;
+}
+
+export interface LiteralUniqueCountAggregate {
+  _all?: true;
+  id?: true;
+  status?: true;
+}
+
+export interface LiteralUniqueMinMaxAggregate {
+  id?: true;
+  status?: true;
+}
+
+export interface LiteralUniqueGroupAggregate {
+  id?: true;
+  status?: true;
+}
+
+export interface LiteralUniqueGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+}
+
+export interface LiteralUniqueGroupByArgs {
+  by: LiteralUniqueGroupByKeys;
+  where?: LiteralUniqueWhere;
+  _count?: true | LiteralUniqueCountAggregate;
+  _min?: LiteralUniqueMinMaxAggregate;
+  _max?: LiteralUniqueMinMaxAggregate;
+  _group?: LiteralUniqueGroupAggregate;
+  orderBy?: LiteralUniqueGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralUniqueGroupByAggregates {
+  _count: { _all: number; id: number; status: number };
+  _min: { id: NonNullable<LiteralUnique['id']> | null; status: NonNullable<LiteralUnique['status']> | null };
+  _max: { id: NonNullable<LiteralUnique['id']> | null; status: NonNullable<LiteralUnique['status']> | null };
+  _group: { id: GroupMember<LiteralUnique['id']>[]; status: GroupMember<LiteralUnique['status']>[] };
+}
+
+export type LiteralUniqueGroupByResult<A extends LiteralUniqueGroupByArgs> = GroupByRow<
+  LiteralUnique,
+  A,
+  LiteralUniqueGroupByAggregates
+>;
 
 export type LiteralUnique$Relations = {};
 
@@ -2073,6 +2739,11 @@ export interface LiteralUniqueModel {
 
   count(where?: LiteralUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralUniqueGroupByArgs>(
+    args: GroupByArg<A, LiteralUniqueGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralUniqueGroupByResult<A>[]>;
+
   exists(where?: LiteralUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2110,6 +2781,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2180,6 +2854,57 @@ export type LiteralWithBothSelect = AtLeastOne<LiteralWithBothSelectFields>;
 export interface LiteralWithBothOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralWithBothGroupByKeys {
+  id?: true;
+}
+
+export interface LiteralWithBothCountAggregate {
+  _all?: true;
+  id?: true;
+  data?: true;
+  optData?: true;
+}
+
+export interface LiteralWithBothMinMaxAggregate {
+  id?: true;
+}
+
+export interface LiteralWithBothGroupAggregate {
+  id?: true;
+}
+
+export interface LiteralWithBothGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; data?: 'asc' | 'desc'; optData?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface LiteralWithBothGroupByArgs {
+  by: LiteralWithBothGroupByKeys;
+  where?: LiteralWithBothWhere;
+  _count?: true | LiteralWithBothCountAggregate;
+  _min?: LiteralWithBothMinMaxAggregate;
+  _max?: LiteralWithBothMinMaxAggregate;
+  _group?: LiteralWithBothGroupAggregate;
+  orderBy?: LiteralWithBothGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralWithBothGroupByAggregates {
+  _count: { _all: number; id: number; data: number; optData: number };
+  _min: { id: NonNullable<LiteralWithBoth['id']> | null };
+  _max: { id: NonNullable<LiteralWithBoth['id']> | null };
+  _group: { id: GroupMember<LiteralWithBoth['id']>[] };
+}
+
+export type LiteralWithBothGroupByResult<A extends LiteralWithBothGroupByArgs> = GroupByRow<
+  LiteralWithBoth,
+  A,
+  LiteralWithBothGroupByAggregates
+>;
 
 export type LiteralWithBoth$Relations = {};
 
@@ -2330,6 +3055,11 @@ export interface LiteralWithBothModel {
 
   count(where?: LiteralWithBothWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralWithBothGroupByArgs>(
+    args: GroupByArg<A, LiteralWithBothGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralWithBothGroupByResult<A>[]>;
+
   exists(where?: LiteralWithBothWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2367,6 +3097,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2463,6 +3196,72 @@ export interface LiteralWithObjectOrderBy {
   address?: LiteralAddressOrderBy;
   optAddress?: LiteralAddressOrderBy;
 }
+
+export interface LiteralWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+  address?: { city?: true; status?: true };
+  optAddress?: { city?: true; status?: true };
+}
+
+export interface LiteralWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  address?: true;
+  optAddress?: true;
+}
+
+export interface LiteralWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface LiteralWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface LiteralWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  address?: { city?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+  optAddress?: { city?: 'asc' | 'desc'; status?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    address?: 'asc' | 'desc';
+    optAddress?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface LiteralWithObjectGroupByArgs {
+  by: LiteralWithObjectGroupByKeys;
+  where?: LiteralWithObjectWhere;
+  _count?: true | LiteralWithObjectCountAggregate;
+  _min?: LiteralWithObjectMinMaxAggregate;
+  _max?: LiteralWithObjectMinMaxAggregate;
+  _group?: LiteralWithObjectGroupAggregate;
+  orderBy?: LiteralWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; address: number; optAddress: number };
+  _min: { id: NonNullable<LiteralWithObject['id']> | null; name: NonNullable<LiteralWithObject['name']> | null };
+  _max: { id: NonNullable<LiteralWithObject['id']> | null; name: NonNullable<LiteralWithObject['name']> | null };
+  _group: { id: GroupMember<LiteralWithObject['id']>[]; name: GroupMember<LiteralWithObject['name']>[] };
+}
+
+export type LiteralWithObjectGroupByResult<A extends LiteralWithObjectGroupByArgs> = GroupByRow<
+  LiteralWithObject,
+  A,
+  LiteralWithObjectGroupByAggregates
+>;
 
 export type LiteralWithObject$Relations = {};
 
@@ -2613,6 +3412,11 @@ export interface LiteralWithObjectModel {
 
   count(where?: LiteralWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralWithObjectGroupByArgs>(
+    args: GroupByArg<A, LiteralWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralWithObjectGroupByResult<A>[]>;
+
   exists(where?: LiteralWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2650,6 +3454,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2720,6 +3527,57 @@ export type LiteralWithObjectOptSelect = AtLeastOne<LiteralWithObjectOptSelectFi
 export interface LiteralWithObjectOptOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralWithObjectOptGroupByKeys {
+  id?: true;
+}
+
+export interface LiteralWithObjectOptCountAggregate {
+  _all?: true;
+  id?: true;
+  payload?: true;
+  optPayload?: true;
+}
+
+export interface LiteralWithObjectOptMinMaxAggregate {
+  id?: true;
+}
+
+export interface LiteralWithObjectOptGroupAggregate {
+  id?: true;
+}
+
+export interface LiteralWithObjectOptGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; payload?: 'asc' | 'desc'; optPayload?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface LiteralWithObjectOptGroupByArgs {
+  by: LiteralWithObjectOptGroupByKeys;
+  where?: LiteralWithObjectOptWhere;
+  _count?: true | LiteralWithObjectOptCountAggregate;
+  _min?: LiteralWithObjectOptMinMaxAggregate;
+  _max?: LiteralWithObjectOptMinMaxAggregate;
+  _group?: LiteralWithObjectOptGroupAggregate;
+  orderBy?: LiteralWithObjectOptGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralWithObjectOptGroupByAggregates {
+  _count: { _all: number; id: number; payload: number; optPayload: number };
+  _min: { id: NonNullable<LiteralWithObjectOpt['id']> | null };
+  _max: { id: NonNullable<LiteralWithObjectOpt['id']> | null };
+  _group: { id: GroupMember<LiteralWithObjectOpt['id']>[] };
+}
+
+export type LiteralWithObjectOptGroupByResult<A extends LiteralWithObjectOptGroupByArgs> = GroupByRow<
+  LiteralWithObjectOpt,
+  A,
+  LiteralWithObjectOptGroupByAggregates
+>;
 
 export type LiteralWithObjectOpt$Relations = {};
 
@@ -2870,6 +3728,11 @@ export interface LiteralWithObjectOptModel {
 
   count(where?: LiteralWithObjectOptWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralWithObjectOptGroupByArgs>(
+    args: GroupByArg<A, LiteralWithObjectOptGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralWithObjectOptGroupByResult<A>[]>;
+
   exists(where?: LiteralWithObjectOptWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2909,6 +3772,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3000,6 +3866,64 @@ export type LiteralWithObjectVariantSelect = AtLeastOne<LiteralWithObjectVariant
 export interface LiteralWithObjectVariantOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralWithObjectVariantGroupByKeys {
+  id?: true;
+}
+
+export interface LiteralWithObjectVariantCountAggregate {
+  _all?: true;
+  id?: true;
+  payload?: true;
+  optPayload?: true;
+  payloads?: true;
+}
+
+export interface LiteralWithObjectVariantMinMaxAggregate {
+  id?: true;
+}
+
+export interface LiteralWithObjectVariantGroupAggregate {
+  id?: true;
+}
+
+export interface LiteralWithObjectVariantGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    payload?: 'asc' | 'desc';
+    optPayload?: 'asc' | 'desc';
+    payloads?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface LiteralWithObjectVariantGroupByArgs {
+  by: LiteralWithObjectVariantGroupByKeys;
+  where?: LiteralWithObjectVariantWhere;
+  _count?: true | LiteralWithObjectVariantCountAggregate;
+  _min?: LiteralWithObjectVariantMinMaxAggregate;
+  _max?: LiteralWithObjectVariantMinMaxAggregate;
+  _group?: LiteralWithObjectVariantGroupAggregate;
+  orderBy?: LiteralWithObjectVariantGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralWithObjectVariantGroupByAggregates {
+  _count: { _all: number; id: number; payload: number; optPayload: number; payloads: number };
+  _min: { id: NonNullable<LiteralWithObjectVariant['id']> | null };
+  _max: { id: NonNullable<LiteralWithObjectVariant['id']> | null };
+  _group: { id: GroupMember<LiteralWithObjectVariant['id']>[] };
+}
+
+export type LiteralWithObjectVariantGroupByResult<A extends LiteralWithObjectVariantGroupByArgs> = GroupByRow<
+  LiteralWithObjectVariant,
+  A,
+  LiteralWithObjectVariantGroupByAggregates
+>;
 
 export type LiteralWithObjectVariant$Relations = {};
 
@@ -3150,6 +4074,11 @@ export interface LiteralWithObjectVariantModel {
 
   count(where?: LiteralWithObjectVariantWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends LiteralWithObjectVariantGroupByArgs>(
+    args: GroupByArg<A, LiteralWithObjectVariantGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralWithObjectVariantGroupByResult<A>[]>;
+
   exists(where?: LiteralWithObjectVariantWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3189,6 +4118,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3269,6 +4201,64 @@ export type LiteralWithTupleSelect = AtLeastOne<LiteralWithTupleSelectFields>;
 export interface LiteralWithTupleOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface LiteralWithTupleGroupByKeys {
+  id?: true;
+}
+
+export interface LiteralWithTupleCountAggregate {
+  _all?: true;
+  id?: true;
+  payload?: true;
+  optPayload?: true;
+  payloads?: true;
+}
+
+export interface LiteralWithTupleMinMaxAggregate {
+  id?: true;
+}
+
+export interface LiteralWithTupleGroupAggregate {
+  id?: true;
+}
+
+export interface LiteralWithTupleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    payload?: 'asc' | 'desc';
+    optPayload?: 'asc' | 'desc';
+    payloads?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface LiteralWithTupleGroupByArgs {
+  by: LiteralWithTupleGroupByKeys;
+  where?: LiteralWithTupleWhere;
+  _count?: true | LiteralWithTupleCountAggregate;
+  _min?: LiteralWithTupleMinMaxAggregate;
+  _max?: LiteralWithTupleMinMaxAggregate;
+  _group?: LiteralWithTupleGroupAggregate;
+  orderBy?: LiteralWithTupleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LiteralWithTupleGroupByAggregates {
+  _count: { _all: number; id: number; payload: number; optPayload: number; payloads: number };
+  _min: { id: NonNullable<LiteralWithTuple['id']> | null };
+  _max: { id: NonNullable<LiteralWithTuple['id']> | null };
+  _group: { id: GroupMember<LiteralWithTuple['id']>[] };
+}
+
+export type LiteralWithTupleGroupByResult<A extends LiteralWithTupleGroupByArgs> = GroupByRow<
+  LiteralWithTuple,
+  A,
+  LiteralWithTupleGroupByAggregates
+>;
 
 export type LiteralWithTuple$Relations = {};
 
@@ -3418,6 +4408,11 @@ export interface LiteralWithTupleModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<LiteralWithTuple, R>>;
 
   count(where?: LiteralWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends LiteralWithTupleGroupByArgs>(
+    args: GroupByArg<A, LiteralWithTupleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LiteralWithTupleGroupByResult<A>[]>;
 
   exists(where?: LiteralWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

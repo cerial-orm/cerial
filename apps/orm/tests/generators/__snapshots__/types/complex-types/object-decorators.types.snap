@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -141,6 +144,82 @@ export interface ObjDecUserOrderBy {
   location?: LocationInfoOrderBy;
   altLocation?: LocationInfoOrderBy;
 }
+
+export interface ObjDecUserGroupByKeys {
+  id?: true;
+  name?: true;
+  contact?: { email?: true; phone?: true; city?: true; createdAt?: true; tags?: true };
+  location?: { address?: true; zip?: true; country?: true };
+  altLocation?: { address?: true; zip?: true; country?: true };
+}
+
+export interface ObjDecUserCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  contact?: true;
+  location?: true;
+  altLocation?: true;
+}
+
+export interface ObjDecUserMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ObjDecUserGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ObjDecUserGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  contact?: {
+    email?: 'asc' | 'desc';
+    phone?: 'asc' | 'desc';
+    city?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+  };
+  location?: { address?: 'asc' | 'desc'; zip?: 'asc' | 'desc'; country?: 'asc' | 'desc' };
+  altLocation?: { address?: 'asc' | 'desc'; zip?: 'asc' | 'desc'; country?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    contact?: 'asc' | 'desc';
+    location?: 'asc' | 'desc';
+    altLocation?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface ObjDecUserGroupByArgs {
+  by: ObjDecUserGroupByKeys;
+  where?: ObjDecUserWhere;
+  _count?: true | ObjDecUserCountAggregate;
+  _min?: ObjDecUserMinMaxAggregate;
+  _max?: ObjDecUserMinMaxAggregate;
+  _group?: ObjDecUserGroupAggregate;
+  orderBy?: ObjDecUserGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ObjDecUserGroupByAggregates {
+  _count: { _all: number; id: number; name: number; contact: number; location: number; altLocation: number };
+  _min: { id: NonNullable<ObjDecUser['id']> | null; name: NonNullable<ObjDecUser['name']> | null };
+  _max: { id: NonNullable<ObjDecUser['id']> | null; name: NonNullable<ObjDecUser['name']> | null };
+  _group: { id: GroupMember<ObjDecUser['id']>[]; name: GroupMember<ObjDecUser['name']>[] };
+}
+
+export type ObjDecUserGroupByResult<A extends ObjDecUserGroupByArgs> = GroupByRow<
+  ObjDecUser,
+  A,
+  ObjDecUserGroupByAggregates
+>;
 
 export type ObjDecUser$Relations = {};
 
@@ -287,6 +366,11 @@ export interface ObjDecUserModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ObjDecUser, R>>;
 
   count(where?: ObjDecUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ObjDecUserGroupByArgs>(
+    args: GroupByArg<A, ObjDecUserGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ObjDecUserGroupByResult<A>[]>;
 
   exists(where?: ObjDecUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

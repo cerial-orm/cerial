@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -127,6 +130,72 @@ export interface TupleBasicOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface TupleBasicGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  location?: true;
+  backup?: true;
+  history?: true;
+  entry?: true;
+}
+
+export interface TupleBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleBasicGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    location?: 'asc' | 'desc';
+    backup?: 'asc' | 'desc';
+    history?: 'asc' | 'desc';
+    entry?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface TupleBasicGroupByArgs {
+  by: TupleBasicGroupByKeys;
+  where?: TupleBasicWhere;
+  _count?: true | TupleBasicCountAggregate;
+  _min?: TupleBasicMinMaxAggregate;
+  _max?: TupleBasicMinMaxAggregate;
+  _group?: TupleBasicGroupAggregate;
+  orderBy?: TupleBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleBasicGroupByAggregates {
+  _count: { _all: number; id: number; name: number; location: number; backup: number; history: number; entry: number };
+  _min: { id: NonNullable<TupleBasic['id']> | null; name: NonNullable<TupleBasic['name']> | null };
+  _max: { id: NonNullable<TupleBasic['id']> | null; name: NonNullable<TupleBasic['name']> | null };
+  _group: { id: GroupMember<TupleBasic['id']>[]; name: GroupMember<TupleBasic['name']>[] };
+}
+
+export type TupleBasicGroupByResult<A extends TupleBasicGroupByArgs> = GroupByRow<
+  TupleBasic,
+  A,
+  TupleBasicGroupByAggregates
+>;
 
 export type TupleBasic$Relations = {};
 
@@ -274,6 +343,11 @@ export interface TupleBasicModel {
 
   count(where?: TupleBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleBasicGroupByArgs>(
+    args: GroupByArg<A, TupleBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleBasicGroupByResult<A>[]>;
+
   exists(where?: TupleBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -311,6 +385,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -401,6 +478,68 @@ export interface TupleDecoratedNestOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface TupleDecoratedNestGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleDecoratedNestCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  outer?: true;
+  maybe?: true;
+}
+
+export interface TupleDecoratedNestMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleDecoratedNestGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleDecoratedNestGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    outer?: 'asc' | 'desc';
+    maybe?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface TupleDecoratedNestGroupByArgs {
+  by: TupleDecoratedNestGroupByKeys;
+  where?: TupleDecoratedNestWhere;
+  _count?: true | TupleDecoratedNestCountAggregate;
+  _min?: TupleDecoratedNestMinMaxAggregate;
+  _max?: TupleDecoratedNestMinMaxAggregate;
+  _group?: TupleDecoratedNestGroupAggregate;
+  orderBy?: TupleDecoratedNestGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleDecoratedNestGroupByAggregates {
+  _count: { _all: number; id: number; name: number; outer: number; maybe: number };
+  _min: { id: NonNullable<TupleDecoratedNest['id']> | null; name: NonNullable<TupleDecoratedNest['name']> | null };
+  _max: { id: NonNullable<TupleDecoratedNest['id']> | null; name: NonNullable<TupleDecoratedNest['name']> | null };
+  _group: { id: GroupMember<TupleDecoratedNest['id']>[]; name: GroupMember<TupleDecoratedNest['name']>[] };
+}
+
+export type TupleDecoratedNestGroupByResult<A extends TupleDecoratedNestGroupByArgs> = GroupByRow<
+  TupleDecoratedNest,
+  A,
+  TupleDecoratedNestGroupByAggregates
+>;
 
 export type TupleDecoratedNest$Relations = {};
 
@@ -551,6 +690,11 @@ export interface TupleDecoratedNestModel {
 
   count(where?: TupleDecoratedNestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleDecoratedNestGroupByArgs>(
+    args: GroupByArg<A, TupleDecoratedNestGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleDecoratedNestGroupByResult<A>[]>;
+
   exists(where?: TupleDecoratedNestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -588,6 +732,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -682,6 +829,57 @@ export type TupleDeepNestSelect = AtLeastOne<TupleDeepNestSelectFields>;
 export interface TupleDeepNestOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface TupleDeepNestGroupByKeys {
+  id?: true;
+}
+
+export interface TupleDeepNestCountAggregate {
+  _all?: true;
+  id?: true;
+  deep?: true;
+  deepOpt?: true;
+}
+
+export interface TupleDeepNestMinMaxAggregate {
+  id?: true;
+}
+
+export interface TupleDeepNestGroupAggregate {
+  id?: true;
+}
+
+export interface TupleDeepNestGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; deep?: 'asc' | 'desc'; deepOpt?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface TupleDeepNestGroupByArgs {
+  by: TupleDeepNestGroupByKeys;
+  where?: TupleDeepNestWhere;
+  _count?: true | TupleDeepNestCountAggregate;
+  _min?: TupleDeepNestMinMaxAggregate;
+  _max?: TupleDeepNestMinMaxAggregate;
+  _group?: TupleDeepNestGroupAggregate;
+  orderBy?: TupleDeepNestGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleDeepNestGroupByAggregates {
+  _count: { _all: number; id: number; deep: number; deepOpt: number };
+  _min: { id: NonNullable<TupleDeepNest['id']> | null };
+  _max: { id: NonNullable<TupleDeepNest['id']> | null };
+  _group: { id: GroupMember<TupleDeepNest['id']>[] };
+}
+
+export type TupleDeepNestGroupByResult<A extends TupleDeepNestGroupByArgs> = GroupByRow<
+  TupleDeepNest,
+  A,
+  TupleDeepNestGroupByAggregates
+>;
 
 export type TupleDeepNest$Relations = {};
 
@@ -829,6 +1027,11 @@ export interface TupleDeepNestModel {
 
   count(where?: TupleDeepNestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleDeepNestGroupByArgs>(
+    args: GroupByArg<A, TupleDeepNestGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleDeepNestGroupByResult<A>[]>;
+
   exists(where?: TupleDeepNestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -865,6 +1068,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -946,6 +1152,61 @@ export interface TupleDefaultedOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface TupleDefaultedGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleDefaultedCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  meta?: true;
+}
+
+export interface TupleDefaultedMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleDefaultedGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleDefaultedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; meta?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface TupleDefaultedGroupByArgs {
+  by: TupleDefaultedGroupByKeys;
+  where?: TupleDefaultedWhere;
+  _count?: true | TupleDefaultedCountAggregate;
+  _min?: TupleDefaultedMinMaxAggregate;
+  _max?: TupleDefaultedMinMaxAggregate;
+  _group?: TupleDefaultedGroupAggregate;
+  orderBy?: TupleDefaultedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleDefaultedGroupByAggregates {
+  _count: { _all: number; id: number; name: number; meta: number };
+  _min: { id: NonNullable<TupleDefaulted['id']> | null; name: NonNullable<TupleDefaulted['name']> | null };
+  _max: { id: NonNullable<TupleDefaulted['id']> | null; name: NonNullable<TupleDefaulted['name']> | null };
+  _group: { id: GroupMember<TupleDefaulted['id']>[]; name: GroupMember<TupleDefaulted['name']>[] };
+}
+
+export type TupleDefaultedGroupByResult<A extends TupleDefaultedGroupByArgs> = GroupByRow<
+  TupleDefaulted,
+  A,
+  TupleDefaultedGroupByAggregates
+>;
 
 export type TupleDefaulted$Relations = {};
 
@@ -1093,6 +1354,11 @@ export interface TupleDefaultedModel {
 
   count(where?: TupleDefaultedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleDefaultedGroupByArgs>(
+    args: GroupByArg<A, TupleDefaultedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleDefaultedGroupByResult<A>[]>;
+
   exists(where?: TupleDefaultedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1129,6 +1395,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1204,6 +1473,58 @@ export interface TupleInObjOrderBy {
   id?: 'asc' | 'desc';
   details?: TupleHolderOrderBy;
 }
+
+export interface TupleInObjGroupByKeys {
+  id?: true;
+  details?: { label?: true };
+}
+
+export interface TupleInObjCountAggregate {
+  _all?: true;
+  id?: true;
+  details?: true;
+}
+
+export interface TupleInObjMinMaxAggregate {
+  id?: true;
+}
+
+export interface TupleInObjGroupAggregate {
+  id?: true;
+}
+
+export interface TupleInObjGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  details?: { label?: 'asc' | 'desc' };
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; details?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface TupleInObjGroupByArgs {
+  by: TupleInObjGroupByKeys;
+  where?: TupleInObjWhere;
+  _count?: true | TupleInObjCountAggregate;
+  _min?: TupleInObjMinMaxAggregate;
+  _max?: TupleInObjMinMaxAggregate;
+  _group?: TupleInObjGroupAggregate;
+  orderBy?: TupleInObjGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleInObjGroupByAggregates {
+  _count: { _all: number; id: number; details: number };
+  _min: { id: NonNullable<TupleInObj['id']> | null };
+  _max: { id: NonNullable<TupleInObj['id']> | null };
+  _group: { id: GroupMember<TupleInObj['id']>[] };
+}
+
+export type TupleInObjGroupByResult<A extends TupleInObjGroupByArgs> = GroupByRow<
+  TupleInObj,
+  A,
+  TupleInObjGroupByAggregates
+>;
 
 export type TupleInObj$Relations = {};
 
@@ -1351,6 +1672,11 @@ export interface TupleInObjModel {
 
   count(where?: TupleInObjWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleInObjGroupByArgs>(
+    args: GroupByArg<A, TupleInObjGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleInObjGroupByResult<A>[]>;
+
   exists(where?: TupleInObjWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1387,6 +1713,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1486,6 +1815,70 @@ export interface TupleLiteralElementOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface TupleLiteralElementGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleLiteralElementCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  status?: true;
+  role?: true;
+  history?: true;
+}
+
+export interface TupleLiteralElementMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleLiteralElementGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleLiteralElementGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    history?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface TupleLiteralElementGroupByArgs {
+  by: TupleLiteralElementGroupByKeys;
+  where?: TupleLiteralElementWhere;
+  _count?: true | TupleLiteralElementCountAggregate;
+  _min?: TupleLiteralElementMinMaxAggregate;
+  _max?: TupleLiteralElementMinMaxAggregate;
+  _group?: TupleLiteralElementGroupAggregate;
+  orderBy?: TupleLiteralElementGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleLiteralElementGroupByAggregates {
+  _count: { _all: number; id: number; name: number; status: number; role: number; history: number };
+  _min: { id: NonNullable<TupleLiteralElement['id']> | null; name: NonNullable<TupleLiteralElement['name']> | null };
+  _max: { id: NonNullable<TupleLiteralElement['id']> | null; name: NonNullable<TupleLiteralElement['name']> | null };
+  _group: { id: GroupMember<TupleLiteralElement['id']>[]; name: GroupMember<TupleLiteralElement['name']>[] };
+}
+
+export type TupleLiteralElementGroupByResult<A extends TupleLiteralElementGroupByArgs> = GroupByRow<
+  TupleLiteralElement,
+  A,
+  TupleLiteralElementGroupByAggregates
+>;
 
 export type TupleLiteralElement$Relations = {};
 
@@ -1636,6 +2029,11 @@ export interface TupleLiteralElementModel {
 
   count(where?: TupleLiteralElementWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleLiteralElementGroupByArgs>(
+    args: GroupByArg<A, TupleLiteralElementGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleLiteralElementGroupByResult<A>[]>;
+
   exists(where?: TupleLiteralElementWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1674,6 +2072,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1739,6 +2140,56 @@ export type TupleNestedSelect = AtLeastOne<TupleNestedSelectFields>;
 export interface TupleNestedOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface TupleNestedGroupByKeys {
+  id?: true;
+}
+
+export interface TupleNestedCountAggregate {
+  _all?: true;
+  id?: true;
+  payload?: true;
+}
+
+export interface TupleNestedMinMaxAggregate {
+  id?: true;
+}
+
+export interface TupleNestedGroupAggregate {
+  id?: true;
+}
+
+export interface TupleNestedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; payload?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface TupleNestedGroupByArgs {
+  by: TupleNestedGroupByKeys;
+  where?: TupleNestedWhere;
+  _count?: true | TupleNestedCountAggregate;
+  _min?: TupleNestedMinMaxAggregate;
+  _max?: TupleNestedMinMaxAggregate;
+  _group?: TupleNestedGroupAggregate;
+  orderBy?: TupleNestedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleNestedGroupByAggregates {
+  _count: { _all: number; id: number; payload: number };
+  _min: { id: NonNullable<TupleNested['id']> | null };
+  _max: { id: NonNullable<TupleNested['id']> | null };
+  _group: { id: GroupMember<TupleNested['id']>[] };
+}
+
+export type TupleNestedGroupByResult<A extends TupleNestedGroupByArgs> = GroupByRow<
+  TupleNested,
+  A,
+  TupleNestedGroupByAggregates
+>;
 
 export type TupleNested$Relations = {};
 
@@ -1886,6 +2337,11 @@ export interface TupleNestedModel {
 
   count(where?: TupleNestedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleNestedGroupByArgs>(
+    args: GroupByArg<A, TupleNestedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleNestedGroupByResult<A>[]>;
+
   exists(where?: TupleNestedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1922,6 +2378,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2037,6 +2496,70 @@ export interface TupleNullableOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface TupleNullableGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleNullableCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pair?: true;
+  optNull?: true;
+  mixed?: true;
+}
+
+export interface TupleNullableMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleNullableGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleNullableGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    pair?: 'asc' | 'desc';
+    optNull?: 'asc' | 'desc';
+    mixed?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface TupleNullableGroupByArgs {
+  by: TupleNullableGroupByKeys;
+  where?: TupleNullableWhere;
+  _count?: true | TupleNullableCountAggregate;
+  _min?: TupleNullableMinMaxAggregate;
+  _max?: TupleNullableMinMaxAggregate;
+  _group?: TupleNullableGroupAggregate;
+  orderBy?: TupleNullableGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleNullableGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pair: number; optNull: number; mixed: number };
+  _min: { id: NonNullable<TupleNullable['id']> | null; name: NonNullable<TupleNullable['name']> | null };
+  _max: { id: NonNullable<TupleNullable['id']> | null; name: NonNullable<TupleNullable['name']> | null };
+  _group: { id: GroupMember<TupleNullable['id']>[]; name: GroupMember<TupleNullable['name']>[] };
+}
+
+export type TupleNullableGroupByResult<A extends TupleNullableGroupByArgs> = GroupByRow<
+  TupleNullable,
+  A,
+  TupleNullableGroupByAggregates
+>;
 
 export type TupleNullable$Relations = {};
 
@@ -2184,6 +2707,11 @@ export interface TupleNullableModel {
 
   count(where?: TupleNullableWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleNullableGroupByArgs>(
+    args: GroupByArg<A, TupleNullableGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleNullableGroupByResult<A>[]>;
+
   exists(where?: TupleNullableWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2220,6 +2748,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2291,6 +2822,56 @@ export type TupleObjInTupleSelect = AtLeastOne<TupleObjInTupleSelectFields>;
 export interface TupleObjInTupleOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface TupleObjInTupleGroupByKeys {
+  id?: true;
+}
+
+export interface TupleObjInTupleCountAggregate {
+  _all?: true;
+  id?: true;
+  place?: true;
+}
+
+export interface TupleObjInTupleMinMaxAggregate {
+  id?: true;
+}
+
+export interface TupleObjInTupleGroupAggregate {
+  id?: true;
+}
+
+export interface TupleObjInTupleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; place?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface TupleObjInTupleGroupByArgs {
+  by: TupleObjInTupleGroupByKeys;
+  where?: TupleObjInTupleWhere;
+  _count?: true | TupleObjInTupleCountAggregate;
+  _min?: TupleObjInTupleMinMaxAggregate;
+  _max?: TupleObjInTupleMinMaxAggregate;
+  _group?: TupleObjInTupleGroupAggregate;
+  orderBy?: TupleObjInTupleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleObjInTupleGroupByAggregates {
+  _count: { _all: number; id: number; place: number };
+  _min: { id: NonNullable<TupleObjInTuple['id']> | null };
+  _max: { id: NonNullable<TupleObjInTuple['id']> | null };
+  _group: { id: GroupMember<TupleObjInTuple['id']>[] };
+}
+
+export type TupleObjInTupleGroupByResult<A extends TupleObjInTupleGroupByArgs> = GroupByRow<
+  TupleObjInTuple,
+  A,
+  TupleObjInTupleGroupByAggregates
+>;
 
 export type TupleObjInTuple$Relations = {};
 
@@ -2441,6 +3022,11 @@ export interface TupleObjInTupleModel {
 
   count(where?: TupleObjInTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleObjInTupleGroupByArgs>(
+    args: GroupByArg<A, TupleObjInTupleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleObjInTupleGroupByResult<A>[]>;
+
   exists(where?: TupleObjInTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2478,6 +3064,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2600,6 +3189,84 @@ export interface TupleRelatedPostOrderBy {
   authorId?: 'asc' | 'desc';
   author?: TupleWithRelationOrderBy;
 }
+
+export interface TupleRelatedPostGroupByKeys {
+  id?: true;
+  title?: true;
+  authorId?: true;
+}
+
+export interface TupleRelatedPostCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  position?: true;
+  authorId?: true;
+}
+
+export interface TupleRelatedPostMinMaxAggregate {
+  id?: true;
+  title?: true;
+  authorId?: true;
+}
+
+export interface TupleRelatedPostGroupAggregate {
+  id?: true;
+  title?: true;
+  authorId?: true;
+}
+
+export interface TupleRelatedPostGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    position?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; authorId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; authorId?: 'asc' | 'desc' };
+}
+
+export interface TupleRelatedPostGroupByArgs {
+  by: TupleRelatedPostGroupByKeys;
+  where?: TupleRelatedPostWhere;
+  _count?: true | TupleRelatedPostCountAggregate;
+  _min?: TupleRelatedPostMinMaxAggregate;
+  _max?: TupleRelatedPostMinMaxAggregate;
+  _group?: TupleRelatedPostGroupAggregate;
+  orderBy?: TupleRelatedPostGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleRelatedPostGroupByAggregates {
+  _count: { _all: number; id: number; title: number; position: number; authorId: number };
+  _min: {
+    id: NonNullable<TupleRelatedPost['id']> | null;
+    title: NonNullable<TupleRelatedPost['title']> | null;
+    authorId: NonNullable<TupleRelatedPost['authorId']> | null;
+  };
+  _max: {
+    id: NonNullable<TupleRelatedPost['id']> | null;
+    title: NonNullable<TupleRelatedPost['title']> | null;
+    authorId: NonNullable<TupleRelatedPost['authorId']> | null;
+  };
+  _group: {
+    id: GroupMember<TupleRelatedPost['id']>[];
+    title: GroupMember<TupleRelatedPost['title']>[];
+    authorId: GroupMember<TupleRelatedPost['authorId']>[];
+  };
+}
+
+export type TupleRelatedPostGroupByResult<A extends TupleRelatedPostGroupByArgs> = GroupByRow<
+  TupleRelatedPost,
+  A,
+  TupleRelatedPostGroupByAggregates
+>;
 
 export interface TupleRelatedPostInclude {
   author?:
@@ -2812,6 +3479,11 @@ export interface TupleRelatedPostModel {
 
   count(where?: TupleRelatedPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleRelatedPostGroupByArgs>(
+    args: GroupByArg<A, TupleRelatedPostGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleRelatedPostGroupByResult<A>[]>;
+
   exists(where?: TupleRelatedPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2848,6 +3520,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2929,6 +3604,61 @@ export interface TupleStampedOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface TupleStampedGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleStampedCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  stamp?: true;
+}
+
+export interface TupleStampedMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleStampedGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleStampedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; stamp?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface TupleStampedGroupByArgs {
+  by: TupleStampedGroupByKeys;
+  where?: TupleStampedWhere;
+  _count?: true | TupleStampedCountAggregate;
+  _min?: TupleStampedMinMaxAggregate;
+  _max?: TupleStampedMinMaxAggregate;
+  _group?: TupleStampedGroupAggregate;
+  orderBy?: TupleStampedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleStampedGroupByAggregates {
+  _count: { _all: number; id: number; name: number; stamp: number };
+  _min: { id: NonNullable<TupleStamped['id']> | null; name: NonNullable<TupleStamped['name']> | null };
+  _max: { id: NonNullable<TupleStamped['id']> | null; name: NonNullable<TupleStamped['name']> | null };
+  _group: { id: GroupMember<TupleStamped['id']>[]; name: GroupMember<TupleStamped['name']>[] };
+}
+
+export type TupleStampedGroupByResult<A extends TupleStampedGroupByArgs> = GroupByRow<
+  TupleStamped,
+  A,
+  TupleStampedGroupByAggregates
+>;
 
 export type TupleStamped$Relations = {};
 
@@ -3076,6 +3806,11 @@ export interface TupleStampedModel {
 
   count(where?: TupleStampedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TupleStampedGroupByArgs>(
+    args: GroupByArg<A, TupleStampedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleStampedGroupByResult<A>[]>;
+
   exists(where?: TupleStampedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3112,6 +3847,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3222,6 +3960,61 @@ export interface TupleWithRelationOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface TupleWithRelationGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleWithRelationCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  location?: true;
+}
+
+export interface TupleWithRelationMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleWithRelationGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface TupleWithRelationGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; location?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface TupleWithRelationGroupByArgs {
+  by: TupleWithRelationGroupByKeys;
+  where?: TupleWithRelationWhere;
+  _count?: true | TupleWithRelationCountAggregate;
+  _min?: TupleWithRelationMinMaxAggregate;
+  _max?: TupleWithRelationMinMaxAggregate;
+  _group?: TupleWithRelationGroupAggregate;
+  orderBy?: TupleWithRelationGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TupleWithRelationGroupByAggregates {
+  _count: { _all: number; id: number; name: number; location: number };
+  _min: { id: NonNullable<TupleWithRelation['id']> | null; name: NonNullable<TupleWithRelation['name']> | null };
+  _max: { id: NonNullable<TupleWithRelation['id']> | null; name: NonNullable<TupleWithRelation['name']> | null };
+  _group: { id: GroupMember<TupleWithRelation['id']>[]; name: GroupMember<TupleWithRelation['name']>[] };
+}
+
+export type TupleWithRelationGroupByResult<A extends TupleWithRelationGroupByArgs> = GroupByRow<
+  TupleWithRelation,
+  A,
+  TupleWithRelationGroupByAggregates
+>;
 
 export interface TupleWithRelationInclude {
   posts?:
@@ -3436,6 +4229,11 @@ export interface TupleWithRelationModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<TupleWithRelation, R>>;
 
   count(where?: TupleWithRelationWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends TupleWithRelationGroupByArgs>(
+    args: GroupByArg<A, TupleWithRelationGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TupleWithRelationGroupByResult<A>[]>;
 
   exists(where?: TupleWithRelationWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

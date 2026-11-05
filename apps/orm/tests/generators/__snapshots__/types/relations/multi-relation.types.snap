@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -165,6 +168,87 @@ export interface DocumentOrderBy {
   reviewerId?: 'asc' | 'desc';
   reviewer?: WriterOrderBy;
 }
+
+export interface DocumentGroupByKeys {
+  id?: true;
+  title?: true;
+  authorId?: true;
+  reviewerId?: true;
+}
+
+export interface DocumentCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  authorId?: true;
+  reviewerId?: true;
+}
+
+export interface DocumentMinMaxAggregate {
+  id?: true;
+  title?: true;
+  authorId?: true;
+  reviewerId?: true;
+}
+
+export interface DocumentGroupAggregate {
+  id?: true;
+  title?: true;
+  authorId?: true;
+  reviewerId?: true;
+}
+
+export interface DocumentGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  reviewerId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+    reviewerId?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; authorId?: 'asc' | 'desc'; reviewerId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; authorId?: 'asc' | 'desc'; reviewerId?: 'asc' | 'desc' };
+}
+
+export interface DocumentGroupByArgs {
+  by: DocumentGroupByKeys;
+  where?: DocumentWhere;
+  _count?: true | DocumentCountAggregate;
+  _min?: DocumentMinMaxAggregate;
+  _max?: DocumentMinMaxAggregate;
+  _group?: DocumentGroupAggregate;
+  orderBy?: DocumentGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DocumentGroupByAggregates {
+  _count: { _all: number; id: number; title: number; authorId: number; reviewerId: number };
+  _min: {
+    id: NonNullable<Document['id']> | null;
+    title: NonNullable<Document['title']> | null;
+    authorId: NonNullable<Document['authorId']> | null;
+    reviewerId: NonNullable<Document['reviewerId']> | null;
+  };
+  _max: {
+    id: NonNullable<Document['id']> | null;
+    title: NonNullable<Document['title']> | null;
+    authorId: NonNullable<Document['authorId']> | null;
+    reviewerId: NonNullable<Document['reviewerId']> | null;
+  };
+  _group: {
+    id: GroupMember<Document['id']>[];
+    title: GroupMember<Document['title']>[];
+    authorId: GroupMember<Document['authorId']>[];
+    reviewerId: (GroupMember<Document['reviewerId']> | null)[];
+  };
+}
+
+export type DocumentGroupByResult<A extends DocumentGroupByArgs> = GroupByRow<Document, A, DocumentGroupByAggregates>;
 
 export interface DocumentInclude {
   author?:
@@ -395,6 +479,11 @@ export interface DocumentModel {
 
   count(where?: DocumentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DocumentGroupByArgs>(
+    args: GroupByArg<A, DocumentGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DocumentGroupByResult<A>[]>;
+
   exists(where?: DocumentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -431,6 +520,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -552,6 +644,56 @@ export interface WriterOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface WriterGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface WriterCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface WriterMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface WriterGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface WriterGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface WriterGroupByArgs {
+  by: WriterGroupByKeys;
+  where?: WriterWhere;
+  _count?: true | WriterCountAggregate;
+  _min?: WriterMinMaxAggregate;
+  _max?: WriterMinMaxAggregate;
+  _group?: WriterGroupAggregate;
+  orderBy?: WriterGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface WriterGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<Writer['id']> | null; name: NonNullable<Writer['name']> | null };
+  _max: { id: NonNullable<Writer['id']> | null; name: NonNullable<Writer['name']> | null };
+  _group: { id: GroupMember<Writer['id']>[]; name: GroupMember<Writer['name']>[] };
+}
+
+export type WriterGroupByResult<A extends WriterGroupByArgs> = GroupByRow<Writer, A, WriterGroupByAggregates>;
 
 export interface WriterInclude {
   authoredDocs?:
@@ -792,6 +934,11 @@ export interface WriterModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<Writer, R>>;
 
   count(where?: WriterWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends WriterGroupByArgs>(
+    args: GroupByArg<A, WriterGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<WriterGroupByResult<A>[]>;
 
   exists(where?: WriterWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

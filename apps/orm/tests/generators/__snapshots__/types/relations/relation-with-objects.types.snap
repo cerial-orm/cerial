@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -155,6 +158,72 @@ export interface RelObjCompanyOrderBy {
   headquarters?: AddressOrderBy;
   meta?: CompanyMetaOrderBy;
 }
+
+export interface RelObjCompanyGroupByKeys {
+  id?: true;
+  name?: true;
+  headquarters?: { street?: true; city?: true; state?: true; zipCode?: true };
+  meta?: { industry?: true; founded?: true };
+}
+
+export interface RelObjCompanyCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  headquarters?: true;
+  meta?: true;
+}
+
+export interface RelObjCompanyMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface RelObjCompanyGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface RelObjCompanyGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  headquarters?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; state?: 'asc' | 'desc'; zipCode?: 'asc' | 'desc' };
+  meta?: { industry?: 'asc' | 'desc'; founded?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    headquarters?: 'asc' | 'desc';
+    meta?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface RelObjCompanyGroupByArgs {
+  by: RelObjCompanyGroupByKeys;
+  where?: RelObjCompanyWhere;
+  _count?: true | RelObjCompanyCountAggregate;
+  _min?: RelObjCompanyMinMaxAggregate;
+  _max?: RelObjCompanyMinMaxAggregate;
+  _group?: RelObjCompanyGroupAggregate;
+  orderBy?: RelObjCompanyGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RelObjCompanyGroupByAggregates {
+  _count: { _all: number; id: number; name: number; headquarters: number; meta: number };
+  _min: { id: NonNullable<RelObjCompany['id']> | null; name: NonNullable<RelObjCompany['name']> | null };
+  _max: { id: NonNullable<RelObjCompany['id']> | null; name: NonNullable<RelObjCompany['name']> | null };
+  _group: { id: GroupMember<RelObjCompany['id']>[]; name: GroupMember<RelObjCompany['name']>[] };
+}
+
+export type RelObjCompanyGroupByResult<A extends RelObjCompanyGroupByArgs> = GroupByRow<
+  RelObjCompany,
+  A,
+  RelObjCompanyGroupByAggregates
+>;
 
 export interface RelObjCompanyInclude {
   employees?:
@@ -369,6 +438,11 @@ export interface RelObjCompanyModel {
 
   count(where?: RelObjCompanyWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends RelObjCompanyGroupByArgs>(
+    args: GroupByArg<A, RelObjCompanyGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<RelObjCompanyGroupByResult<A>[]>;
+
   exists(where?: RelObjCompanyWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -405,6 +479,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -527,6 +604,86 @@ export interface RelObjEmployeeOrderBy {
   companyId?: 'asc' | 'desc';
   company?: RelObjCompanyOrderBy;
 }
+
+export interface RelObjEmployeeGroupByKeys {
+  id?: true;
+  name?: true;
+  homeAddress?: { street?: true; city?: true; state?: true; zipCode?: true };
+  companyId?: true;
+}
+
+export interface RelObjEmployeeCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  homeAddress?: true;
+  companyId?: true;
+}
+
+export interface RelObjEmployeeMinMaxAggregate {
+  id?: true;
+  name?: true;
+  companyId?: true;
+}
+
+export interface RelObjEmployeeGroupAggregate {
+  id?: true;
+  name?: true;
+  companyId?: true;
+}
+
+export interface RelObjEmployeeGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  homeAddress?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; state?: 'asc' | 'desc'; zipCode?: 'asc' | 'desc' };
+  companyId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    homeAddress?: 'asc' | 'desc';
+    companyId?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; companyId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; companyId?: 'asc' | 'desc' };
+}
+
+export interface RelObjEmployeeGroupByArgs {
+  by: RelObjEmployeeGroupByKeys;
+  where?: RelObjEmployeeWhere;
+  _count?: true | RelObjEmployeeCountAggregate;
+  _min?: RelObjEmployeeMinMaxAggregate;
+  _max?: RelObjEmployeeMinMaxAggregate;
+  _group?: RelObjEmployeeGroupAggregate;
+  orderBy?: RelObjEmployeeGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RelObjEmployeeGroupByAggregates {
+  _count: { _all: number; id: number; name: number; homeAddress: number; companyId: number };
+  _min: {
+    id: NonNullable<RelObjEmployee['id']> | null;
+    name: NonNullable<RelObjEmployee['name']> | null;
+    companyId: NonNullable<RelObjEmployee['companyId']> | null;
+  };
+  _max: {
+    id: NonNullable<RelObjEmployee['id']> | null;
+    name: NonNullable<RelObjEmployee['name']> | null;
+    companyId: NonNullable<RelObjEmployee['companyId']> | null;
+  };
+  _group: {
+    id: GroupMember<RelObjEmployee['id']>[];
+    name: GroupMember<RelObjEmployee['name']>[];
+    companyId: GroupMember<RelObjEmployee['companyId']>[];
+  };
+}
+
+export type RelObjEmployeeGroupByResult<A extends RelObjEmployeeGroupByArgs> = GroupByRow<
+  RelObjEmployee,
+  A,
+  RelObjEmployeeGroupByAggregates
+>;
 
 export interface RelObjEmployeeInclude {
   company?:
@@ -738,6 +895,11 @@ export interface RelObjEmployeeModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<RelObjEmployee, R>>;
 
   count(where?: RelObjEmployeeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends RelObjEmployeeGroupByArgs>(
+    args: GroupByArg<A, RelObjEmployeeGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<RelObjEmployeeGroupByResult<A>[]>;
 
   exists(where?: RelObjEmployeeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

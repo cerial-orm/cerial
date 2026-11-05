@@ -24,6 +24,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -184,6 +187,118 @@ export interface DurationBasicOrderBy {
   intervals?: 'asc' | 'desc';
 }
 
+export interface DurationBasicGroupByKeys {
+  id?: true;
+  name?: true;
+  ttl?: true;
+  expiry?: true;
+  cooldown?: true;
+  intervals?: true;
+}
+
+export interface DurationBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  ttl?: true;
+  expiry?: true;
+  cooldown?: true;
+  intervals?: true;
+}
+
+export interface DurationBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+  ttl?: true;
+  expiry?: true;
+  cooldown?: true;
+}
+
+export interface DurationBasicGroupAggregate {
+  id?: true;
+  name?: true;
+  ttl?: true;
+  expiry?: true;
+  cooldown?: true;
+  intervals?: true;
+}
+
+export interface DurationBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  ttl?: 'asc' | 'desc';
+  expiry?: 'asc' | 'desc';
+  cooldown?: 'asc' | 'desc';
+  intervals?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    ttl?: 'asc' | 'desc';
+    expiry?: 'asc' | 'desc';
+    cooldown?: 'asc' | 'desc';
+    intervals?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    ttl?: 'asc' | 'desc';
+    expiry?: 'asc' | 'desc';
+    cooldown?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    ttl?: 'asc' | 'desc';
+    expiry?: 'asc' | 'desc';
+    cooldown?: 'asc' | 'desc';
+  };
+}
+
+export interface DurationBasicGroupByArgs {
+  by: DurationBasicGroupByKeys;
+  where?: DurationBasicWhere;
+  _count?: true | DurationBasicCountAggregate;
+  _min?: DurationBasicMinMaxAggregate;
+  _max?: DurationBasicMinMaxAggregate;
+  _group?: DurationBasicGroupAggregate;
+  orderBy?: DurationBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DurationBasicGroupByAggregates {
+  _count: { _all: number; id: number; name: number; ttl: number; expiry: number; cooldown: number; intervals: number };
+  _min: {
+    id: NonNullable<DurationBasic['id']> | null;
+    name: NonNullable<DurationBasic['name']> | null;
+    ttl: NonNullable<DurationBasic['ttl']> | null;
+    expiry: NonNullable<DurationBasic['expiry']> | null;
+    cooldown: NonNullable<DurationBasic['cooldown']> | null;
+  };
+  _max: {
+    id: NonNullable<DurationBasic['id']> | null;
+    name: NonNullable<DurationBasic['name']> | null;
+    ttl: NonNullable<DurationBasic['ttl']> | null;
+    expiry: NonNullable<DurationBasic['expiry']> | null;
+    cooldown: NonNullable<DurationBasic['cooldown']> | null;
+  };
+  _group: {
+    id: GroupMember<DurationBasic['id']>[];
+    name: GroupMember<DurationBasic['name']>[];
+    ttl: GroupMember<DurationBasic['ttl']>[];
+    expiry: GroupMember<DurationBasic['expiry']>[];
+    cooldown: (GroupMember<DurationBasic['cooldown']> | null)[];
+    intervals: GroupMember<DurationBasic['intervals']>[];
+  };
+}
+
+export type DurationBasicGroupByResult<A extends DurationBasicGroupByArgs> = GroupByRow<
+  DurationBasic,
+  A,
+  DurationBasicGroupByAggregates
+>;
+
 export type DurationBasic$Relations = {};
 
 export type GetDurationBasicPayload<S extends DurationBasicSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -330,6 +445,11 @@ export interface DurationBasicModel {
 
   count(where?: DurationBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DurationBasicGroupByArgs>(
+    args: GroupByArg<A, DurationBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DurationBasicGroupByResult<A>[]>;
+
   exists(where?: DurationBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -369,6 +489,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -487,6 +610,91 @@ export interface DurationDecoratedOrderBy {
   defaultTtl?: 'asc' | 'desc';
   alwaysTtl?: 'asc' | 'desc';
 }
+
+export interface DurationDecoratedGroupByKeys {
+  id?: true;
+  name?: true;
+  defaultTtl?: true;
+  alwaysTtl?: true;
+}
+
+export interface DurationDecoratedCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  defaultTtl?: true;
+  alwaysTtl?: true;
+}
+
+export interface DurationDecoratedMinMaxAggregate {
+  id?: true;
+  name?: true;
+  defaultTtl?: true;
+  alwaysTtl?: true;
+}
+
+export interface DurationDecoratedGroupAggregate {
+  id?: true;
+  name?: true;
+  defaultTtl?: true;
+  alwaysTtl?: true;
+}
+
+export interface DurationDecoratedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  defaultTtl?: 'asc' | 'desc';
+  alwaysTtl?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    defaultTtl?: 'asc' | 'desc';
+    alwaysTtl?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; defaultTtl?: 'asc' | 'desc'; alwaysTtl?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; defaultTtl?: 'asc' | 'desc'; alwaysTtl?: 'asc' | 'desc' };
+}
+
+export interface DurationDecoratedGroupByArgs {
+  by: DurationDecoratedGroupByKeys;
+  where?: DurationDecoratedWhere;
+  _count?: true | DurationDecoratedCountAggregate;
+  _min?: DurationDecoratedMinMaxAggregate;
+  _max?: DurationDecoratedMinMaxAggregate;
+  _group?: DurationDecoratedGroupAggregate;
+  orderBy?: DurationDecoratedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DurationDecoratedGroupByAggregates {
+  _count: { _all: number; id: number; name: number; defaultTtl: number; alwaysTtl: number };
+  _min: {
+    id: NonNullable<DurationDecorated['id']> | null;
+    name: NonNullable<DurationDecorated['name']> | null;
+    defaultTtl: NonNullable<DurationDecorated['defaultTtl']> | null;
+    alwaysTtl: NonNullable<DurationDecorated['alwaysTtl']> | null;
+  };
+  _max: {
+    id: NonNullable<DurationDecorated['id']> | null;
+    name: NonNullable<DurationDecorated['name']> | null;
+    defaultTtl: NonNullable<DurationDecorated['defaultTtl']> | null;
+    alwaysTtl: NonNullable<DurationDecorated['alwaysTtl']> | null;
+  };
+  _group: {
+    id: GroupMember<DurationDecorated['id']>[];
+    name: GroupMember<DurationDecorated['name']>[];
+    defaultTtl: GroupMember<DurationDecorated['defaultTtl']>[];
+    alwaysTtl: GroupMember<DurationDecorated['alwaysTtl']>[];
+  };
+}
+
+export type DurationDecoratedGroupByResult<A extends DurationDecoratedGroupByArgs> = GroupByRow<
+  DurationDecorated,
+  A,
+  DurationDecoratedGroupByAggregates
+>;
 
 export type DurationDecorated$Relations = {};
 
@@ -637,6 +845,11 @@ export interface DurationDecoratedModel {
 
   count(where?: DurationDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DurationDecoratedGroupByArgs>(
+    args: GroupByArg<A, DurationDecoratedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DurationDecoratedGroupByResult<A>[]>;
+
   exists(where?: DurationDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -673,6 +886,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -765,6 +981,63 @@ export interface DurationWithObjectOrderBy {
   name?: 'asc' | 'desc';
   timing?: DurationInfoOrderBy;
 }
+
+export interface DurationWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+  timing?: { expires?: true; grace?: true };
+}
+
+export interface DurationWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  timing?: true;
+}
+
+export interface DurationWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface DurationWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface DurationWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  timing?: { expires?: 'asc' | 'desc'; grace?: 'asc' | 'desc' };
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; timing?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface DurationWithObjectGroupByArgs {
+  by: DurationWithObjectGroupByKeys;
+  where?: DurationWithObjectWhere;
+  _count?: true | DurationWithObjectCountAggregate;
+  _min?: DurationWithObjectMinMaxAggregate;
+  _max?: DurationWithObjectMinMaxAggregate;
+  _group?: DurationWithObjectGroupAggregate;
+  orderBy?: DurationWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DurationWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; timing: number };
+  _min: { id: NonNullable<DurationWithObject['id']> | null; name: NonNullable<DurationWithObject['name']> | null };
+  _max: { id: NonNullable<DurationWithObject['id']> | null; name: NonNullable<DurationWithObject['name']> | null };
+  _group: { id: GroupMember<DurationWithObject['id']>[]; name: GroupMember<DurationWithObject['name']>[] };
+}
+
+export type DurationWithObjectGroupByResult<A extends DurationWithObjectGroupByArgs> = GroupByRow<
+  DurationWithObject,
+  A,
+  DurationWithObjectGroupByAggregates
+>;
 
 export type DurationWithObject$Relations = {};
 
@@ -915,6 +1188,11 @@ export interface DurationWithObjectModel {
 
   count(where?: DurationWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DurationWithObjectGroupByArgs>(
+    args: GroupByArg<A, DurationWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DurationWithObjectGroupByResult<A>[]>;
+
   exists(where?: DurationWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -951,6 +1229,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1040,6 +1321,61 @@ export interface DurationWithTupleOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface DurationWithTupleGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface DurationWithTupleCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pair?: true;
+}
+
+export interface DurationWithTupleMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface DurationWithTupleGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface DurationWithTupleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pair?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface DurationWithTupleGroupByArgs {
+  by: DurationWithTupleGroupByKeys;
+  where?: DurationWithTupleWhere;
+  _count?: true | DurationWithTupleCountAggregate;
+  _min?: DurationWithTupleMinMaxAggregate;
+  _max?: DurationWithTupleMinMaxAggregate;
+  _group?: DurationWithTupleGroupAggregate;
+  orderBy?: DurationWithTupleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DurationWithTupleGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pair: number };
+  _min: { id: NonNullable<DurationWithTuple['id']> | null; name: NonNullable<DurationWithTuple['name']> | null };
+  _max: { id: NonNullable<DurationWithTuple['id']> | null; name: NonNullable<DurationWithTuple['name']> | null };
+  _group: { id: GroupMember<DurationWithTuple['id']>[]; name: GroupMember<DurationWithTuple['name']>[] };
+}
+
+export type DurationWithTupleGroupByResult<A extends DurationWithTupleGroupByArgs> = GroupByRow<
+  DurationWithTuple,
+  A,
+  DurationWithTupleGroupByAggregates
+>;
 
 export type DurationWithTuple$Relations = {};
 
@@ -1189,6 +1525,11 @@ export interface DurationWithTupleModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<DurationWithTuple, R>>;
 
   count(where?: DurationWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends DurationWithTupleGroupByArgs>(
+    args: GroupByArg<A, DurationWithTupleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DurationWithTupleGroupByResult<A>[]>;
 
   exists(where?: DurationWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

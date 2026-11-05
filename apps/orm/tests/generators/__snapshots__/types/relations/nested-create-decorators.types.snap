@@ -28,6 +28,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -433,6 +436,235 @@ export interface NcDocOrderBy {
   revHolder?: NcHolderOrderBy;
 }
 
+export interface NcDocGroupByKeys {
+  id?: true;
+  label?: true;
+  note?: true;
+  always?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  seenAt?: true;
+  token?: true;
+  tokenV7?: true;
+  amount?: true;
+  span?: true;
+  stamp?: true;
+  tags?: true;
+  groupIds?: true;
+  revHolderId?: true;
+}
+
+export interface NcDocCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+  note?: true;
+  always?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  seenAt?: true;
+  token?: true;
+  tokenV7?: true;
+  amount?: true;
+  span?: true;
+  stamp?: true;
+  tags?: true;
+  groupIds?: true;
+  revHolderId?: true;
+}
+
+export interface NcDocNumericAggregate {
+  amount?: true;
+}
+
+export interface NcDocMinMaxAggregate {
+  id?: true;
+  label?: true;
+  note?: true;
+  always?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  seenAt?: true;
+  token?: true;
+  tokenV7?: true;
+  amount?: true;
+  span?: true;
+  stamp?: true;
+  revHolderId?: true;
+}
+
+export interface NcDocGroupAggregate {
+  id?: true;
+  label?: true;
+  note?: true;
+  always?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  seenAt?: true;
+  token?: true;
+  tokenV7?: true;
+  amount?: true;
+  span?: true;
+  stamp?: true;
+  tags?: true;
+  groupIds?: true;
+  revHolderId?: true;
+}
+
+export interface NcDocGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+  always?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  seenAt?: 'asc' | 'desc';
+  token?: 'asc' | 'desc';
+  tokenV7?: 'asc' | 'desc';
+  amount?: 'asc' | 'desc';
+  span?: 'asc' | 'desc';
+  stamp?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  groupIds?: 'asc' | 'desc';
+  revHolderId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    note?: 'asc' | 'desc';
+    always?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    seenAt?: 'asc' | 'desc';
+    token?: 'asc' | 'desc';
+    tokenV7?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    span?: 'asc' | 'desc';
+    stamp?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+    groupIds?: 'asc' | 'desc';
+    revHolderId?: 'asc' | 'desc';
+  };
+  _sum?: { amount?: 'asc' | 'desc' };
+  _avg?: { amount?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    note?: 'asc' | 'desc';
+    always?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    seenAt?: 'asc' | 'desc';
+    token?: 'asc' | 'desc';
+    tokenV7?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    span?: 'asc' | 'desc';
+    stamp?: 'asc' | 'desc';
+    revHolderId?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    note?: 'asc' | 'desc';
+    always?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    seenAt?: 'asc' | 'desc';
+    token?: 'asc' | 'desc';
+    tokenV7?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    span?: 'asc' | 'desc';
+    stamp?: 'asc' | 'desc';
+    revHolderId?: 'asc' | 'desc';
+  };
+}
+
+export interface NcDocGroupByArgs {
+  by: NcDocGroupByKeys;
+  where?: NcDocWhere;
+  _count?: true | NcDocCountAggregate;
+  _sum?: NcDocNumericAggregate;
+  _avg?: NcDocNumericAggregate;
+  _min?: NcDocMinMaxAggregate;
+  _max?: NcDocMinMaxAggregate;
+  _group?: NcDocGroupAggregate;
+  orderBy?: NcDocGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NcDocGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    label: number;
+    note: number;
+    always: number;
+    createdAt: number;
+    updatedAt: number;
+    seenAt: number;
+    token: number;
+    tokenV7: number;
+    amount: number;
+    span: number;
+    stamp: number;
+    tags: number;
+    groupIds: number;
+    revHolderId: number;
+  };
+  _sum: { amount: CerialDecimal };
+  _avg: { amount: CerialDecimal | null };
+  _min: {
+    id: NonNullable<NcDoc['id']> | null;
+    label: NonNullable<NcDoc['label']> | null;
+    note: NonNullable<NcDoc['note']> | null;
+    always: NonNullable<NcDoc['always']> | null;
+    createdAt: NonNullable<NcDoc['createdAt']> | null;
+    updatedAt: NonNullable<NcDoc['updatedAt']> | null;
+    seenAt: NonNullable<NcDoc['seenAt']> | null;
+    token: NonNullable<NcDoc['token']> | null;
+    tokenV7: NonNullable<NcDoc['tokenV7']> | null;
+    amount: NonNullable<NcDoc['amount']> | null;
+    span: NonNullable<NcDoc['span']> | null;
+    stamp: NonNullable<NcDoc['stamp']> | null;
+    revHolderId: NonNullable<NcDoc['revHolderId']> | null;
+  };
+  _max: {
+    id: NonNullable<NcDoc['id']> | null;
+    label: NonNullable<NcDoc['label']> | null;
+    note: NonNullable<NcDoc['note']> | null;
+    always: NonNullable<NcDoc['always']> | null;
+    createdAt: NonNullable<NcDoc['createdAt']> | null;
+    updatedAt: NonNullable<NcDoc['updatedAt']> | null;
+    seenAt: NonNullable<NcDoc['seenAt']> | null;
+    token: NonNullable<NcDoc['token']> | null;
+    tokenV7: NonNullable<NcDoc['tokenV7']> | null;
+    amount: NonNullable<NcDoc['amount']> | null;
+    span: NonNullable<NcDoc['span']> | null;
+    stamp: NonNullable<NcDoc['stamp']> | null;
+    revHolderId: NonNullable<NcDoc['revHolderId']> | null;
+  };
+  _group: {
+    id: GroupMember<NcDoc['id']>[];
+    label: GroupMember<NcDoc['label']>[];
+    note: GroupMember<NcDoc['note']>[];
+    always: GroupMember<NcDoc['always']>[];
+    createdAt: GroupMember<NcDoc['createdAt']>[];
+    updatedAt: GroupMember<NcDoc['updatedAt']>[];
+    seenAt: GroupMember<NcDoc['seenAt']>[];
+    token: GroupMember<NcDoc['token']>[];
+    tokenV7: GroupMember<NcDoc['tokenV7']>[];
+    amount: GroupMember<NcDoc['amount']>[];
+    span: GroupMember<NcDoc['span']>[];
+    stamp: GroupMember<NcDoc['stamp']>[];
+    tags: GroupMember<NcDoc['tags']>[];
+    groupIds: GroupMember<NcDoc['groupIds']>[];
+    revHolderId: GroupMember<NcDoc['revHolderId']>[];
+  };
+}
+
+export type NcDocGroupByResult<A extends NcDocGroupByArgs> = GroupByRow<NcDoc, A, NcDocGroupByAggregates>;
+
 export interface NcDocInclude {
   groups?:
     | boolean
@@ -695,6 +927,11 @@ export interface NcDocModel {
 
   count(where?: NcDocWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends NcDocGroupByArgs>(
+    args: GroupByArg<A, NcDocGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NcDocGroupByResult<A>[]>;
+
   exists(where?: NcDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -731,6 +968,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -850,6 +1090,64 @@ export interface NcGroupOrderBy {
   name?: 'asc' | 'desc';
   docIds?: 'asc' | 'desc';
 }
+
+export interface NcGroupGroupByKeys {
+  id?: true;
+  name?: true;
+  docIds?: true;
+}
+
+export interface NcGroupCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  docIds?: true;
+}
+
+export interface NcGroupMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NcGroupGroupAggregate {
+  id?: true;
+  name?: true;
+  docIds?: true;
+}
+
+export interface NcGroupGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  docIds?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; docIds?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface NcGroupGroupByArgs {
+  by: NcGroupGroupByKeys;
+  where?: NcGroupWhere;
+  _count?: true | NcGroupCountAggregate;
+  _min?: NcGroupMinMaxAggregate;
+  _max?: NcGroupMinMaxAggregate;
+  _group?: NcGroupGroupAggregate;
+  orderBy?: NcGroupGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NcGroupGroupByAggregates {
+  _count: { _all: number; id: number; name: number; docIds: number };
+  _min: { id: NonNullable<NcGroup['id']> | null; name: NonNullable<NcGroup['name']> | null };
+  _max: { id: NonNullable<NcGroup['id']> | null; name: NonNullable<NcGroup['name']> | null };
+  _group: {
+    id: GroupMember<NcGroup['id']>[];
+    name: GroupMember<NcGroup['name']>[];
+    docIds: GroupMember<NcGroup['docIds']>[];
+  };
+}
+
+export type NcGroupGroupByResult<A extends NcGroupGroupByArgs> = GroupByRow<NcGroup, A, NcGroupGroupByAggregates>;
 
 export interface NcGroupInclude {
   docs?:
@@ -1058,6 +1356,11 @@ export interface NcGroupModel {
 
   count(where?: NcGroupWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends NcGroupGroupByArgs>(
+    args: GroupByArg<A, NcGroupGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NcGroupGroupByResult<A>[]>;
+
   exists(where?: NcGroupWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1095,6 +1398,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1230,6 +1536,73 @@ export interface NcHolderOrderBy {
   docId?: 'asc' | 'desc';
   doc?: NcDocOrderBy;
 }
+
+export interface NcHolderGroupByKeys {
+  id?: true;
+  name?: true;
+  docId?: true;
+}
+
+export interface NcHolderCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  docId?: true;
+}
+
+export interface NcHolderMinMaxAggregate {
+  id?: true;
+  name?: true;
+  docId?: true;
+}
+
+export interface NcHolderGroupAggregate {
+  id?: true;
+  name?: true;
+  docId?: true;
+}
+
+export interface NcHolderGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  docId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; docId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; docId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; docId?: 'asc' | 'desc' };
+}
+
+export interface NcHolderGroupByArgs {
+  by: NcHolderGroupByKeys;
+  where?: NcHolderWhere;
+  _count?: true | NcHolderCountAggregate;
+  _min?: NcHolderMinMaxAggregate;
+  _max?: NcHolderMinMaxAggregate;
+  _group?: NcHolderGroupAggregate;
+  orderBy?: NcHolderGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NcHolderGroupByAggregates {
+  _count: { _all: number; id: number; name: number; docId: number };
+  _min: {
+    id: NonNullable<NcHolder['id']> | null;
+    name: NonNullable<NcHolder['name']> | null;
+    docId: NonNullable<NcHolder['docId']> | null;
+  };
+  _max: {
+    id: NonNullable<NcHolder['id']> | null;
+    name: NonNullable<NcHolder['name']> | null;
+    docId: NonNullable<NcHolder['docId']> | null;
+  };
+  _group: {
+    id: GroupMember<NcHolder['id']>[];
+    name: GroupMember<NcHolder['name']>[];
+    docId: GroupMember<NcHolder['docId']>[];
+  };
+}
+
+export type NcHolderGroupByResult<A extends NcHolderGroupByArgs> = GroupByRow<NcHolder, A, NcHolderGroupByAggregates>;
 
 export interface NcHolderInclude {
   doc?:
@@ -1462,6 +1835,11 @@ export interface NcHolderModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<NcHolder, R>>;
 
   count(where?: NcHolderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends NcHolderGroupByArgs>(
+    args: GroupByArg<A, NcHolderGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NcHolderGroupByResult<A>[]>;
 
   exists(where?: NcHolderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

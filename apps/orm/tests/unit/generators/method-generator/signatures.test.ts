@@ -22,6 +22,7 @@ import {
   generateUpdateUniqueMethod,
   generateUpsertMethod,
 } from '../../../../src/generators/types/method-generator';
+import { generateGroupByMethod } from '../../../../src/generators/types/group-by-generator';
 import { field, model, relationField } from '../fixtures';
 
 const plain = model('User', [field({ name: 'name' })]);
@@ -389,7 +390,7 @@ describe('count, exists and introspection signatures', () => {
 });
 
 describe('generateMethodSignatures', () => {
-  test('returns the fourteen signatures in declaration order', () => {
+  test('returns the fifteen signatures in declaration order', () => {
     expect(generateMethodSignatures(related)).toEqual([
       generateFindOneMethod(related),
       generateFindManyMethod(related),
@@ -401,6 +402,7 @@ describe('generateMethodSignatures', () => {
       generateDeleteManyMethod(related),
       generateDeleteUniqueMethod(related),
       generateCountMethod(related),
+      generateGroupByMethod(related),
       generateExistsMethod(related),
       generateRawMethod(),
       generateLiveMethod(related),

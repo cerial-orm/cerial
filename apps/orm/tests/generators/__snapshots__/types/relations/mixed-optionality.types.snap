@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -124,6 +127,56 @@ export interface AgentOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface AgentGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface AgentCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface AgentMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface AgentGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface AgentGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface AgentGroupByArgs {
+  by: AgentGroupByKeys;
+  where?: AgentWhere;
+  _count?: true | AgentCountAggregate;
+  _min?: AgentMinMaxAggregate;
+  _max?: AgentMinMaxAggregate;
+  _group?: AgentGroupAggregate;
+  orderBy?: AgentGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AgentGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<Agent['id']> | null; name: NonNullable<Agent['name']> | null };
+  _max: { id: NonNullable<Agent['id']> | null; name: NonNullable<Agent['name']> | null };
+  _group: { id: GroupMember<Agent['id']>[]; name: GroupMember<Agent['name']>[] };
+}
+
+export type AgentGroupByResult<A extends AgentGroupByArgs> = GroupByRow<Agent, A, AgentGroupByAggregates>;
 
 export interface AgentInclude {
   assignedOrders?:
@@ -334,6 +387,11 @@ export interface AgentModel {
 
   count(where?: AgentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends AgentGroupByArgs>(
+    args: GroupByArg<A, AgentGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<AgentGroupByResult<A>[]>;
+
   exists(where?: AgentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -370,6 +428,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -473,6 +534,56 @@ export interface CustomerOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface CustomerGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface CustomerCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface CustomerMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface CustomerGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface CustomerGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface CustomerGroupByArgs {
+  by: CustomerGroupByKeys;
+  where?: CustomerWhere;
+  _count?: true | CustomerCountAggregate;
+  _min?: CustomerMinMaxAggregate;
+  _max?: CustomerMinMaxAggregate;
+  _group?: CustomerGroupAggregate;
+  orderBy?: CustomerGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface CustomerGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<Customer['id']> | null; name: NonNullable<Customer['name']> | null };
+  _max: { id: NonNullable<Customer['id']> | null; name: NonNullable<Customer['name']> | null };
+  _group: { id: GroupMember<Customer['id']>[]; name: GroupMember<Customer['name']>[] };
+}
+
+export type CustomerGroupByResult<A extends CustomerGroupByArgs> = GroupByRow<Customer, A, CustomerGroupByAggregates>;
 
 export interface CustomerInclude {
   orders?:
@@ -684,6 +795,11 @@ export interface CustomerModel {
 
   count(where?: CustomerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends CustomerGroupByArgs>(
+    args: GroupByArg<A, CustomerGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<CustomerGroupByResult<A>[]>;
+
   exists(where?: CustomerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -721,6 +837,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -876,6 +995,101 @@ export interface PurchaseOrderOrderBy {
   assigneeId?: 'asc' | 'desc';
   assignee?: AgentOrderBy;
 }
+
+export interface PurchaseOrderGroupByKeys {
+  id?: true;
+  orderNumber?: true;
+  customerId?: true;
+  assigneeId?: true;
+}
+
+export interface PurchaseOrderCountAggregate {
+  _all?: true;
+  id?: true;
+  orderNumber?: true;
+  customerId?: true;
+  assigneeId?: true;
+}
+
+export interface PurchaseOrderMinMaxAggregate {
+  id?: true;
+  orderNumber?: true;
+  customerId?: true;
+  assigneeId?: true;
+}
+
+export interface PurchaseOrderGroupAggregate {
+  id?: true;
+  orderNumber?: true;
+  customerId?: true;
+  assigneeId?: true;
+}
+
+export interface PurchaseOrderGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  orderNumber?: 'asc' | 'desc';
+  customerId?: 'asc' | 'desc';
+  assigneeId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    orderNumber?: 'asc' | 'desc';
+    customerId?: 'asc' | 'desc';
+    assigneeId?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    orderNumber?: 'asc' | 'desc';
+    customerId?: 'asc' | 'desc';
+    assigneeId?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    orderNumber?: 'asc' | 'desc';
+    customerId?: 'asc' | 'desc';
+    assigneeId?: 'asc' | 'desc';
+  };
+}
+
+export interface PurchaseOrderGroupByArgs {
+  by: PurchaseOrderGroupByKeys;
+  where?: PurchaseOrderWhere;
+  _count?: true | PurchaseOrderCountAggregate;
+  _min?: PurchaseOrderMinMaxAggregate;
+  _max?: PurchaseOrderMinMaxAggregate;
+  _group?: PurchaseOrderGroupAggregate;
+  orderBy?: PurchaseOrderGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PurchaseOrderGroupByAggregates {
+  _count: { _all: number; id: number; orderNumber: number; customerId: number; assigneeId: number };
+  _min: {
+    id: NonNullable<PurchaseOrder['id']> | null;
+    orderNumber: NonNullable<PurchaseOrder['orderNumber']> | null;
+    customerId: NonNullable<PurchaseOrder['customerId']> | null;
+    assigneeId: NonNullable<PurchaseOrder['assigneeId']> | null;
+  };
+  _max: {
+    id: NonNullable<PurchaseOrder['id']> | null;
+    orderNumber: NonNullable<PurchaseOrder['orderNumber']> | null;
+    customerId: NonNullable<PurchaseOrder['customerId']> | null;
+    assigneeId: NonNullable<PurchaseOrder['assigneeId']> | null;
+  };
+  _group: {
+    id: GroupMember<PurchaseOrder['id']>[];
+    orderNumber: GroupMember<PurchaseOrder['orderNumber']>[];
+    customerId: GroupMember<PurchaseOrder['customerId']>[];
+    assigneeId: (GroupMember<PurchaseOrder['assigneeId']> | null)[];
+  };
+}
+
+export type PurchaseOrderGroupByResult<A extends PurchaseOrderGroupByArgs> = GroupByRow<
+  PurchaseOrder,
+  A,
+  PurchaseOrderGroupByAggregates
+>;
 
 export interface PurchaseOrderInclude {
   customer?:
@@ -1108,6 +1322,11 @@ export interface PurchaseOrderModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<PurchaseOrder, R>>;
 
   count(where?: PurchaseOrderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends PurchaseOrderGroupByArgs>(
+    args: GroupByArg<A, PurchaseOrderGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<PurchaseOrderGroupByResult<A>[]>;
 
   exists(where?: PurchaseOrderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

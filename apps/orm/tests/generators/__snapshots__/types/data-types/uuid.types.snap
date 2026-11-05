@@ -24,6 +24,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -182,6 +185,126 @@ export interface UuidBasicOrderBy {
   tags?: 'asc' | 'desc';
 }
 
+export interface UuidBasicGroupByKeys {
+  id?: true;
+  name?: true;
+  token?: true;
+  optionalToken?: true;
+  nullableToken?: true;
+  tags?: true;
+}
+
+export interface UuidBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  token?: true;
+  optionalToken?: true;
+  nullableToken?: true;
+  tags?: true;
+}
+
+export interface UuidBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+  token?: true;
+  optionalToken?: true;
+  nullableToken?: true;
+}
+
+export interface UuidBasicGroupAggregate {
+  id?: true;
+  name?: true;
+  token?: true;
+  optionalToken?: true;
+  nullableToken?: true;
+  tags?: true;
+}
+
+export interface UuidBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  token?: 'asc' | 'desc';
+  optionalToken?: 'asc' | 'desc';
+  nullableToken?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    token?: 'asc' | 'desc';
+    optionalToken?: 'asc' | 'desc';
+    nullableToken?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    token?: 'asc' | 'desc';
+    optionalToken?: 'asc' | 'desc';
+    nullableToken?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    token?: 'asc' | 'desc';
+    optionalToken?: 'asc' | 'desc';
+    nullableToken?: 'asc' | 'desc';
+  };
+}
+
+export interface UuidBasicGroupByArgs {
+  by: UuidBasicGroupByKeys;
+  where?: UuidBasicWhere;
+  _count?: true | UuidBasicCountAggregate;
+  _min?: UuidBasicMinMaxAggregate;
+  _max?: UuidBasicMinMaxAggregate;
+  _group?: UuidBasicGroupAggregate;
+  orderBy?: UuidBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UuidBasicGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    token: number;
+    optionalToken: number;
+    nullableToken: number;
+    tags: number;
+  };
+  _min: {
+    id: NonNullable<UuidBasic['id']> | null;
+    name: NonNullable<UuidBasic['name']> | null;
+    token: NonNullable<UuidBasic['token']> | null;
+    optionalToken: NonNullable<UuidBasic['optionalToken']> | null;
+    nullableToken: NonNullable<UuidBasic['nullableToken']> | null;
+  };
+  _max: {
+    id: NonNullable<UuidBasic['id']> | null;
+    name: NonNullable<UuidBasic['name']> | null;
+    token: NonNullable<UuidBasic['token']> | null;
+    optionalToken: NonNullable<UuidBasic['optionalToken']> | null;
+    nullableToken: NonNullable<UuidBasic['nullableToken']> | null;
+  };
+  _group: {
+    id: GroupMember<UuidBasic['id']>[];
+    name: GroupMember<UuidBasic['name']>[];
+    token: GroupMember<UuidBasic['token']>[];
+    optionalToken: GroupMember<UuidBasic['optionalToken']>[];
+    nullableToken: (GroupMember<UuidBasic['nullableToken']> | null)[];
+    tags: GroupMember<UuidBasic['tags']>[];
+  };
+}
+
+export type UuidBasicGroupByResult<A extends UuidBasicGroupByArgs> = GroupByRow<
+  UuidBasic,
+  A,
+  UuidBasicGroupByAggregates
+>;
+
 export type UuidBasic$Relations = {};
 
 export type GetUuidBasicPayload<S extends UuidBasicSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -328,6 +451,11 @@ export interface UuidBasicModel {
 
   count(where?: UuidBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends UuidBasicGroupByArgs>(
+    args: GroupByArg<A, UuidBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UuidBasicGroupByResult<A>[]>;
+
   exists(where?: UuidBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -367,6 +495,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -537,6 +668,123 @@ export interface UuidDecoratedOrderBy {
   optAutoId?: 'asc' | 'desc';
 }
 
+export interface UuidDecoratedGroupByKeys {
+  id?: true;
+  name?: true;
+  autoId?: true;
+  autoV4?: true;
+  autoV7?: true;
+  optAutoId?: true;
+}
+
+export interface UuidDecoratedCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  autoId?: true;
+  autoV4?: true;
+  autoV7?: true;
+  optAutoId?: true;
+}
+
+export interface UuidDecoratedMinMaxAggregate {
+  id?: true;
+  name?: true;
+  autoId?: true;
+  autoV4?: true;
+  autoV7?: true;
+  optAutoId?: true;
+}
+
+export interface UuidDecoratedGroupAggregate {
+  id?: true;
+  name?: true;
+  autoId?: true;
+  autoV4?: true;
+  autoV7?: true;
+  optAutoId?: true;
+}
+
+export interface UuidDecoratedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  autoId?: 'asc' | 'desc';
+  autoV4?: 'asc' | 'desc';
+  autoV7?: 'asc' | 'desc';
+  optAutoId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    autoId?: 'asc' | 'desc';
+    autoV4?: 'asc' | 'desc';
+    autoV7?: 'asc' | 'desc';
+    optAutoId?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    autoId?: 'asc' | 'desc';
+    autoV4?: 'asc' | 'desc';
+    autoV7?: 'asc' | 'desc';
+    optAutoId?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    autoId?: 'asc' | 'desc';
+    autoV4?: 'asc' | 'desc';
+    autoV7?: 'asc' | 'desc';
+    optAutoId?: 'asc' | 'desc';
+  };
+}
+
+export interface UuidDecoratedGroupByArgs {
+  by: UuidDecoratedGroupByKeys;
+  where?: UuidDecoratedWhere;
+  _count?: true | UuidDecoratedCountAggregate;
+  _min?: UuidDecoratedMinMaxAggregate;
+  _max?: UuidDecoratedMinMaxAggregate;
+  _group?: UuidDecoratedGroupAggregate;
+  orderBy?: UuidDecoratedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UuidDecoratedGroupByAggregates {
+  _count: { _all: number; id: number; name: number; autoId: number; autoV4: number; autoV7: number; optAutoId: number };
+  _min: {
+    id: NonNullable<UuidDecorated['id']> | null;
+    name: NonNullable<UuidDecorated['name']> | null;
+    autoId: NonNullable<UuidDecorated['autoId']> | null;
+    autoV4: NonNullable<UuidDecorated['autoV4']> | null;
+    autoV7: NonNullable<UuidDecorated['autoV7']> | null;
+    optAutoId: NonNullable<UuidDecorated['optAutoId']> | null;
+  };
+  _max: {
+    id: NonNullable<UuidDecorated['id']> | null;
+    name: NonNullable<UuidDecorated['name']> | null;
+    autoId: NonNullable<UuidDecorated['autoId']> | null;
+    autoV4: NonNullable<UuidDecorated['autoV4']> | null;
+    autoV7: NonNullable<UuidDecorated['autoV7']> | null;
+    optAutoId: NonNullable<UuidDecorated['optAutoId']> | null;
+  };
+  _group: {
+    id: GroupMember<UuidDecorated['id']>[];
+    name: GroupMember<UuidDecorated['name']>[];
+    autoId: GroupMember<UuidDecorated['autoId']>[];
+    autoV4: GroupMember<UuidDecorated['autoV4']>[];
+    autoV7: GroupMember<UuidDecorated['autoV7']>[];
+    optAutoId: GroupMember<UuidDecorated['optAutoId']>[];
+  };
+}
+
+export type UuidDecoratedGroupByResult<A extends UuidDecoratedGroupByArgs> = GroupByRow<
+  UuidDecorated,
+  A,
+  UuidDecoratedGroupByAggregates
+>;
+
 export type UuidDecorated$Relations = {};
 
 export type GetUuidDecoratedPayload<S extends UuidDecoratedSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -683,6 +931,11 @@ export interface UuidDecoratedModel {
 
   count(where?: UuidDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends UuidDecoratedGroupByArgs>(
+    args: GroupByArg<A, UuidDecoratedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UuidDecoratedGroupByResult<A>[]>;
+
   exists(where?: UuidDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -720,6 +973,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -829,6 +1085,82 @@ export interface UuidWithObjectOrderBy {
   meta?: UuidInfoOrderBy;
   optMeta?: UuidInfoOrderBy;
 }
+
+export interface UuidWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+  meta?: { label?: true; trackingId?: true; optionalId?: true; autoGenId?: true };
+  optMeta?: { label?: true; trackingId?: true; optionalId?: true; autoGenId?: true };
+}
+
+export interface UuidWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  meta?: true;
+  optMeta?: true;
+}
+
+export interface UuidWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface UuidWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface UuidWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  meta?: {
+    label?: 'asc' | 'desc';
+    trackingId?: 'asc' | 'desc';
+    optionalId?: 'asc' | 'desc';
+    autoGenId?: 'asc' | 'desc';
+  };
+  optMeta?: {
+    label?: 'asc' | 'desc';
+    trackingId?: 'asc' | 'desc';
+    optionalId?: 'asc' | 'desc';
+    autoGenId?: 'asc' | 'desc';
+  };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    meta?: 'asc' | 'desc';
+    optMeta?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface UuidWithObjectGroupByArgs {
+  by: UuidWithObjectGroupByKeys;
+  where?: UuidWithObjectWhere;
+  _count?: true | UuidWithObjectCountAggregate;
+  _min?: UuidWithObjectMinMaxAggregate;
+  _max?: UuidWithObjectMinMaxAggregate;
+  _group?: UuidWithObjectGroupAggregate;
+  orderBy?: UuidWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UuidWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; meta: number; optMeta: number };
+  _min: { id: NonNullable<UuidWithObject['id']> | null; name: NonNullable<UuidWithObject['name']> | null };
+  _max: { id: NonNullable<UuidWithObject['id']> | null; name: NonNullable<UuidWithObject['name']> | null };
+  _group: { id: GroupMember<UuidWithObject['id']>[]; name: GroupMember<UuidWithObject['name']>[] };
+}
+
+export type UuidWithObjectGroupByResult<A extends UuidWithObjectGroupByArgs> = GroupByRow<
+  UuidWithObject,
+  A,
+  UuidWithObjectGroupByAggregates
+>;
 
 export type UuidWithObject$Relations = {};
 
@@ -976,6 +1308,11 @@ export interface UuidWithObjectModel {
 
   count(where?: UuidWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends UuidWithObjectGroupByArgs>(
+    args: GroupByArg<A, UuidWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UuidWithObjectGroupByResult<A>[]>;
+
   exists(where?: UuidWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1013,6 +1350,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1101,6 +1441,68 @@ export interface UuidWithTupleOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface UuidWithTupleGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface UuidWithTupleCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pair?: true;
+  optPair?: true;
+}
+
+export interface UuidWithTupleMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface UuidWithTupleGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface UuidWithTupleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    pair?: 'asc' | 'desc';
+    optPair?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface UuidWithTupleGroupByArgs {
+  by: UuidWithTupleGroupByKeys;
+  where?: UuidWithTupleWhere;
+  _count?: true | UuidWithTupleCountAggregate;
+  _min?: UuidWithTupleMinMaxAggregate;
+  _max?: UuidWithTupleMinMaxAggregate;
+  _group?: UuidWithTupleGroupAggregate;
+  orderBy?: UuidWithTupleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UuidWithTupleGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pair: number; optPair: number };
+  _min: { id: NonNullable<UuidWithTuple['id']> | null; name: NonNullable<UuidWithTuple['name']> | null };
+  _max: { id: NonNullable<UuidWithTuple['id']> | null; name: NonNullable<UuidWithTuple['name']> | null };
+  _group: { id: GroupMember<UuidWithTuple['id']>[]; name: GroupMember<UuidWithTuple['name']>[] };
+}
+
+export type UuidWithTupleGroupByResult<A extends UuidWithTupleGroupByArgs> = GroupByRow<
+  UuidWithTuple,
+  A,
+  UuidWithTupleGroupByAggregates
+>;
 
 export type UuidWithTuple$Relations = {};
 
@@ -1247,6 +1649,11 @@ export interface UuidWithTupleModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<UuidWithTuple, R>>;
 
   count(where?: UuidWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends UuidWithTupleGroupByArgs>(
+    args: GroupByArg<A, UuidWithTupleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UuidWithTupleGroupByResult<A>[]>;
 
   exists(where?: UuidWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

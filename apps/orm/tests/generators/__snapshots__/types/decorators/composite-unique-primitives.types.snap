@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -185,6 +188,137 @@ export interface StaffOrderBy {
   age?: 'asc' | 'desc';
 }
 
+export interface StaffGroupByKeys {
+  id?: true;
+  firstName?: true;
+  lastName?: true;
+  department?: true;
+  email?: true;
+  age?: true;
+}
+
+export interface StaffCountAggregate {
+  _all?: true;
+  id?: true;
+  firstName?: true;
+  lastName?: true;
+  department?: true;
+  email?: true;
+  age?: true;
+}
+
+export interface StaffNumericAggregate {
+  age?: true;
+}
+
+export interface StaffMinMaxAggregate {
+  id?: true;
+  firstName?: true;
+  lastName?: true;
+  department?: true;
+  email?: true;
+  age?: true;
+}
+
+export interface StaffGroupAggregate {
+  id?: true;
+  firstName?: true;
+  lastName?: true;
+  department?: true;
+  email?: true;
+  age?: true;
+}
+
+export interface StaffGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  firstName?: 'asc' | 'desc';
+  lastName?: 'asc' | 'desc';
+  department?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    firstName?: 'asc' | 'desc';
+    lastName?: 'asc' | 'desc';
+    department?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+  };
+  _sum?: { age?: 'asc' | 'desc' };
+  _avg?: { age?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    firstName?: 'asc' | 'desc';
+    lastName?: 'asc' | 'desc';
+    department?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    firstName?: 'asc' | 'desc';
+    lastName?: 'asc' | 'desc';
+    department?: 'asc' | 'desc';
+    email?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+  };
+}
+
+export interface StaffGroupByArgs {
+  by: StaffGroupByKeys;
+  where?: StaffWhere;
+  _count?: true | StaffCountAggregate;
+  _sum?: StaffNumericAggregate;
+  _avg?: StaffNumericAggregate;
+  _min?: StaffMinMaxAggregate;
+  _max?: StaffMinMaxAggregate;
+  _group?: StaffGroupAggregate;
+  orderBy?: StaffGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface StaffGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    firstName: number;
+    lastName: number;
+    department: number;
+    email: number;
+    age: number;
+  };
+  _sum: { age: number };
+  _avg: { age: number | null };
+  _min: {
+    id: NonNullable<Staff['id']> | null;
+    firstName: NonNullable<Staff['firstName']> | null;
+    lastName: NonNullable<Staff['lastName']> | null;
+    department: NonNullable<Staff['department']> | null;
+    email: NonNullable<Staff['email']> | null;
+    age: NonNullable<Staff['age']> | null;
+  };
+  _max: {
+    id: NonNullable<Staff['id']> | null;
+    firstName: NonNullable<Staff['firstName']> | null;
+    lastName: NonNullable<Staff['lastName']> | null;
+    department: NonNullable<Staff['department']> | null;
+    email: NonNullable<Staff['email']> | null;
+    age: NonNullable<Staff['age']> | null;
+  };
+  _group: {
+    id: GroupMember<Staff['id']>[];
+    firstName: GroupMember<Staff['firstName']>[];
+    lastName: GroupMember<Staff['lastName']>[];
+    department: GroupMember<Staff['department']>[];
+    email: GroupMember<Staff['email']>[];
+    age: GroupMember<Staff['age']>[];
+  };
+}
+
+export type StaffGroupByResult<A extends StaffGroupByArgs> = GroupByRow<Staff, A, StaffGroupByAggregates>;
+
 export type Staff$Relations = {};
 
 export type GetStaffPayload<S extends StaffSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -325,6 +459,11 @@ export interface StaffModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<Staff, R>>;
 
   count(where?: StaffWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends StaffGroupByArgs>(
+    args: GroupByArg<A, StaffGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<StaffGroupByResult<A>[]>;
 
   exists(where?: StaffWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

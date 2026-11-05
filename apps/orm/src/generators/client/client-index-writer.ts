@@ -8,7 +8,7 @@ import { ensureDir, formatCode } from '../shared';
 import { objectHasDefaultOrTimestamp, tupleHasObjectElementsDeep, tupleHasUnsetableElements } from '../types';
 import { literalNeedsInputType } from '../types/literals';
 import { hasRelations } from './import-helpers';
-import { RETURN_UTILITY_TYPES, SAFE_UNSET_TYPE, SELECT_UTILITY_TYPES } from './utility-types';
+import { GROUP_BY_UTILITY_TYPES, RETURN_UTILITY_TYPES, SAFE_UNSET_TYPE, SELECT_UTILITY_TYPES } from './utility-types';
 
 /** Write main client index file with all type exports */
 export async function writeClientIndex(
@@ -334,6 +334,7 @@ export type Optional<T extends object, K extends keyof T> = O.Optional<T, K>;
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
 ${SELECT_UTILITY_TYPES}
 ${SAFE_UNSET_TYPE}
+${GROUP_BY_UTILITY_TYPES}
 ${RETURN_UTILITY_TYPES}
 `;
 

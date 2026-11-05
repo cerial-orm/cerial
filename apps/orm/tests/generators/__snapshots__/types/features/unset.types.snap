@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -333,6 +336,158 @@ export interface UnsetTestOrderBy {
   tree?: UnsetTreeNodeOrderBy;
 }
 
+export interface UnsetTestGroupByKeys {
+  id?: true;
+  name?: true;
+  bio?: true;
+  age?: true;
+  address?: { street?: true; city?: true; zip?: true };
+  shipping?: { street?: true; city?: true; zip?: true };
+  nested?: { title?: true; mid?: { label?: true; score?: true; deep?: { code?: true; note?: true } }; desc?: true };
+  optNested?: { title?: true; mid?: { label?: true; score?: true; deep?: { code?: true; note?: true } }; desc?: true };
+  tree?: { payload?: true; extra?: true };
+}
+
+export interface UnsetTestCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  bio?: true;
+  age?: true;
+  address?: true;
+  shipping?: true;
+  pos?: true;
+  backup?: true;
+  opt?: true;
+  tagged?: true;
+  nested?: true;
+  optNested?: true;
+  deepTuple?: true;
+  tree?: true;
+  recursive?: true;
+}
+
+export interface UnsetTestNumericAggregate {
+  age?: true;
+}
+
+export interface UnsetTestMinMaxAggregate {
+  id?: true;
+  name?: true;
+  bio?: true;
+  age?: true;
+}
+
+export interface UnsetTestGroupAggregate {
+  id?: true;
+  name?: true;
+  bio?: true;
+  age?: true;
+}
+
+export interface UnsetTestGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+  address?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; zip?: 'asc' | 'desc' };
+  shipping?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; zip?: 'asc' | 'desc' };
+  nested?: {
+    title?: 'asc' | 'desc';
+    mid?: { label?: 'asc' | 'desc'; score?: 'asc' | 'desc'; deep?: { code?: 'asc' | 'desc'; note?: 'asc' | 'desc' } };
+    desc?: 'asc' | 'desc';
+  };
+  optNested?: {
+    title?: 'asc' | 'desc';
+    mid?: { label?: 'asc' | 'desc'; score?: 'asc' | 'desc'; deep?: { code?: 'asc' | 'desc'; note?: 'asc' | 'desc' } };
+    desc?: 'asc' | 'desc';
+  };
+  tree?: { payload?: 'asc' | 'desc'; extra?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    bio?: 'asc' | 'desc';
+    age?: 'asc' | 'desc';
+    address?: 'asc' | 'desc';
+    shipping?: 'asc' | 'desc';
+    pos?: 'asc' | 'desc';
+    backup?: 'asc' | 'desc';
+    opt?: 'asc' | 'desc';
+    tagged?: 'asc' | 'desc';
+    nested?: 'asc' | 'desc';
+    optNested?: 'asc' | 'desc';
+    deepTuple?: 'asc' | 'desc';
+    tree?: 'asc' | 'desc';
+    recursive?: 'asc' | 'desc';
+  };
+  _sum?: { age?: 'asc' | 'desc' };
+  _avg?: { age?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; bio?: 'asc' | 'desc'; age?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; bio?: 'asc' | 'desc'; age?: 'asc' | 'desc' };
+}
+
+export interface UnsetTestGroupByArgs {
+  by: UnsetTestGroupByKeys;
+  where?: UnsetTestWhere;
+  _count?: true | UnsetTestCountAggregate;
+  _sum?: UnsetTestNumericAggregate;
+  _avg?: UnsetTestNumericAggregate;
+  _min?: UnsetTestMinMaxAggregate;
+  _max?: UnsetTestMinMaxAggregate;
+  _group?: UnsetTestGroupAggregate;
+  orderBy?: UnsetTestGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UnsetTestGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    bio: number;
+    age: number;
+    address: number;
+    shipping: number;
+    pos: number;
+    backup: number;
+    opt: number;
+    tagged: number;
+    nested: number;
+    optNested: number;
+    deepTuple: number;
+    tree: number;
+    recursive: number;
+  };
+  _sum: { age: number };
+  _avg: { age: number | null };
+  _min: {
+    id: NonNullable<UnsetTest['id']> | null;
+    name: NonNullable<UnsetTest['name']> | null;
+    bio: NonNullable<UnsetTest['bio']> | null;
+    age: NonNullable<UnsetTest['age']> | null;
+  };
+  _max: {
+    id: NonNullable<UnsetTest['id']> | null;
+    name: NonNullable<UnsetTest['name']> | null;
+    bio: NonNullable<UnsetTest['bio']> | null;
+    age: NonNullable<UnsetTest['age']> | null;
+  };
+  _group: {
+    id: GroupMember<UnsetTest['id']>[];
+    name: GroupMember<UnsetTest['name']>[];
+    bio: GroupMember<UnsetTest['bio']>[];
+    age: GroupMember<UnsetTest['age']>[];
+  };
+}
+
+export type UnsetTestGroupByResult<A extends UnsetTestGroupByArgs> = GroupByRow<
+  UnsetTest,
+  A,
+  UnsetTestGroupByAggregates
+>;
+
 export type UnsetTest$Relations = {};
 
 export type GetUnsetTestPayload<S extends UnsetTestSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -478,6 +633,11 @@ export interface UnsetTestModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<UnsetTest, R>>;
 
   count(where?: UnsetTestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends UnsetTestGroupByArgs>(
+    args: GroupByArg<A, UnsetTestGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UnsetTestGroupByResult<A>[]>;
 
   exists(where?: UnsetTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

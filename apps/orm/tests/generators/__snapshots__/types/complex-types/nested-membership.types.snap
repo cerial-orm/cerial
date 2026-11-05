@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -173,6 +176,92 @@ export interface NmObjectDocOrderBy {
   tops?: NmTopOrderBy;
 }
 
+export interface NmObjectDocGroupByKeys {
+  id?: true;
+  name?: true;
+  leaf?: { grade?: true; code?: true };
+  mid?: { label?: true; leaf?: { grade?: true; code?: true } };
+  top?: { title?: true; mid?: { label?: true; leaf?: { grade?: true; code?: true } } };
+}
+
+export interface NmObjectDocCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  leaf?: true;
+  mid?: true;
+  top?: true;
+  leaves?: true;
+  tops?: true;
+}
+
+export interface NmObjectDocMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NmObjectDocGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NmObjectDocGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  leaf?: { grade?: 'asc' | 'desc'; code?: 'asc' | 'desc' };
+  mid?: { label?: 'asc' | 'desc'; leaf?: { grade?: 'asc' | 'desc'; code?: 'asc' | 'desc' } };
+  top?: {
+    title?: 'asc' | 'desc';
+    mid?: { label?: 'asc' | 'desc'; leaf?: { grade?: 'asc' | 'desc'; code?: 'asc' | 'desc' } };
+  };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    leaf?: 'asc' | 'desc';
+    mid?: 'asc' | 'desc';
+    top?: 'asc' | 'desc';
+    leaves?: 'asc' | 'desc';
+    tops?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface NmObjectDocGroupByArgs {
+  by: NmObjectDocGroupByKeys;
+  where?: NmObjectDocWhere;
+  _count?: true | NmObjectDocCountAggregate;
+  _min?: NmObjectDocMinMaxAggregate;
+  _max?: NmObjectDocMinMaxAggregate;
+  _group?: NmObjectDocGroupAggregate;
+  orderBy?: NmObjectDocGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NmObjectDocGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    leaf: number;
+    mid: number;
+    top: number;
+    leaves: number;
+    tops: number;
+  };
+  _min: { id: NonNullable<NmObjectDoc['id']> | null; name: NonNullable<NmObjectDoc['name']> | null };
+  _max: { id: NonNullable<NmObjectDoc['id']> | null; name: NonNullable<NmObjectDoc['name']> | null };
+  _group: { id: GroupMember<NmObjectDoc['id']>[]; name: GroupMember<NmObjectDoc['name']>[] };
+}
+
+export type NmObjectDocGroupByResult<A extends NmObjectDocGroupByArgs> = GroupByRow<
+  NmObjectDoc,
+  A,
+  NmObjectDocGroupByAggregates
+>;
+
 export type NmObjectDoc$Relations = {};
 
 export type GetNmObjectDocPayload<S extends NmObjectDocSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -319,6 +408,11 @@ export interface NmObjectDocModel {
 
   count(where?: NmObjectDocWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends NmObjectDocGroupByArgs>(
+    args: GroupByArg<A, NmObjectDocGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NmObjectDocGroupByResult<A>[]>;
+
   exists(where?: NmObjectDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -356,6 +450,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -542,6 +639,89 @@ export interface NmTupleDocOrderBy {
   deepHolds?: NmHoldsHolderOrderBy;
 }
 
+export interface NmTupleDocGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface NmTupleDocCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  withLeaf?: true;
+  named?: true;
+  outer?: true;
+  holds?: true;
+  deepHolds?: true;
+  withLeaves?: true;
+  nameds?: true;
+}
+
+export interface NmTupleDocMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NmTupleDocGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NmTupleDocGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    withLeaf?: 'asc' | 'desc';
+    named?: 'asc' | 'desc';
+    outer?: 'asc' | 'desc';
+    holds?: 'asc' | 'desc';
+    deepHolds?: 'asc' | 'desc';
+    withLeaves?: 'asc' | 'desc';
+    nameds?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface NmTupleDocGroupByArgs {
+  by: NmTupleDocGroupByKeys;
+  where?: NmTupleDocWhere;
+  _count?: true | NmTupleDocCountAggregate;
+  _min?: NmTupleDocMinMaxAggregate;
+  _max?: NmTupleDocMinMaxAggregate;
+  _group?: NmTupleDocGroupAggregate;
+  orderBy?: NmTupleDocGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NmTupleDocGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    withLeaf: number;
+    named: number;
+    outer: number;
+    holds: number;
+    deepHolds: number;
+    withLeaves: number;
+    nameds: number;
+  };
+  _min: { id: NonNullable<NmTupleDoc['id']> | null; name: NonNullable<NmTupleDoc['name']> | null };
+  _max: { id: NonNullable<NmTupleDoc['id']> | null; name: NonNullable<NmTupleDoc['name']> | null };
+  _group: { id: GroupMember<NmTupleDoc['id']>[]; name: GroupMember<NmTupleDoc['name']>[] };
+}
+
+export type NmTupleDocGroupByResult<A extends NmTupleDocGroupByArgs> = GroupByRow<
+  NmTupleDoc,
+  A,
+  NmTupleDocGroupByAggregates
+>;
+
 export type NmTupleDoc$Relations = {};
 
 export type GetNmTupleDocPayload<S extends NmTupleDocSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -687,6 +867,11 @@ export interface NmTupleDocModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<NmTupleDoc, R>>;
 
   count(where?: NmTupleDocWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends NmTupleDocGroupByArgs>(
+    args: GroupByArg<A, NmTupleDocGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NmTupleDocGroupByResult<A>[]>;
 
   exists(where?: NmTupleDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

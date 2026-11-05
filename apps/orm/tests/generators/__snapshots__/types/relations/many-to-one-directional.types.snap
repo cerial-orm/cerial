@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -132,6 +135,64 @@ export interface BloggerOrderBy {
   name?: 'asc' | 'desc';
   labelIds?: 'asc' | 'desc';
 }
+
+export interface BloggerGroupByKeys {
+  id?: true;
+  name?: true;
+  labelIds?: true;
+}
+
+export interface BloggerCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  labelIds?: true;
+}
+
+export interface BloggerMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface BloggerGroupAggregate {
+  id?: true;
+  name?: true;
+  labelIds?: true;
+}
+
+export interface BloggerGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  labelIds?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; labelIds?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface BloggerGroupByArgs {
+  by: BloggerGroupByKeys;
+  where?: BloggerWhere;
+  _count?: true | BloggerCountAggregate;
+  _min?: BloggerMinMaxAggregate;
+  _max?: BloggerMinMaxAggregate;
+  _group?: BloggerGroupAggregate;
+  orderBy?: BloggerGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface BloggerGroupByAggregates {
+  _count: { _all: number; id: number; name: number; labelIds: number };
+  _min: { id: NonNullable<Blogger['id']> | null; name: NonNullable<Blogger['name']> | null };
+  _max: { id: NonNullable<Blogger['id']> | null; name: NonNullable<Blogger['name']> | null };
+  _group: {
+    id: GroupMember<Blogger['id']>[];
+    name: GroupMember<Blogger['name']>[];
+    labelIds: GroupMember<Blogger['labelIds']>[];
+  };
+}
+
+export type BloggerGroupByResult<A extends BloggerGroupByArgs> = GroupByRow<Blogger, A, BloggerGroupByAggregates>;
 
 export interface BloggerInclude {
   labels?:
@@ -331,6 +392,11 @@ export interface BloggerModel {
 
   count(where?: BloggerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends BloggerGroupByArgs>(
+    args: GroupByArg<A, BloggerGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<BloggerGroupByResult<A>[]>;
+
   exists(where?: BloggerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -367,6 +433,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -444,6 +513,56 @@ export interface LabelOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface LabelGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface LabelCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface LabelMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface LabelGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface LabelGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface LabelGroupByArgs {
+  by: LabelGroupByKeys;
+  where?: LabelWhere;
+  _count?: true | LabelCountAggregate;
+  _min?: LabelMinMaxAggregate;
+  _max?: LabelMinMaxAggregate;
+  _group?: LabelGroupAggregate;
+  orderBy?: LabelGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface LabelGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<Label['id']> | null; name: NonNullable<Label['name']> | null };
+  _max: { id: NonNullable<Label['id']> | null; name: NonNullable<Label['name']> | null };
+  _group: { id: GroupMember<Label['id']>[]; name: GroupMember<Label['name']>[] };
+}
+
+export type LabelGroupByResult<A extends LabelGroupByArgs> = GroupByRow<Label, A, LabelGroupByAggregates>;
 
 export type Label$Relations = {};
 
@@ -585,6 +704,11 @@ export interface LabelModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<Label, R>>;
 
   count(where?: LabelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends LabelGroupByArgs>(
+    args: GroupByArg<A, LabelGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<LabelGroupByResult<A>[]>;
 
   exists(where?: LabelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

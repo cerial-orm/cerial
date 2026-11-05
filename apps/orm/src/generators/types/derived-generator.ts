@@ -19,12 +19,14 @@ import type {
 import { schemaTypeToTsInputType } from '../../utils/type-utils';
 import { getLiteralTypeName } from './enums';
 import { getGeometryInputType } from './geometry-helpers';
+import { generateGroupByTypes } from './group-by-generator';
 import { literalNeedsInputType } from './literals';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
 import { getRecordInputType, isIdOptionalInCreate } from './record-type-helpers';
 import { generateTupleArrayForm, tupleHasUnsetableElements } from './tuples';
 
 /** Whether to use ts-toolbelt utilities in generated types */
+
 const USE_TS_TOOLBELT = true;
 
 function getInputType(field: FieldMetadata, tupleRegistry?: TupleRegistry, objectRegistry?: ObjectRegistry): string {
@@ -1153,6 +1155,7 @@ export function generateDerivedTypes(
     generateUnsetType(model),
     generateSelectType(model),
     generateOrderByType(model),
+    generateGroupByTypes(model),
   ];
 
   const includeType = generateIncludeType(model, registry);

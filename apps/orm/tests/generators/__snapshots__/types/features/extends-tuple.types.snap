@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -101,6 +104,57 @@ export type ExtTupleByNameSelect = AtLeastOne<ExtTupleByNameSelectFields>;
 export interface ExtTupleByNameOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface ExtTupleByNameGroupByKeys {
+  id?: true;
+}
+
+export interface ExtTupleByNameCountAggregate {
+  _all?: true;
+  id?: true;
+  picked?: true;
+  omitted?: true;
+}
+
+export interface ExtTupleByNameMinMaxAggregate {
+  id?: true;
+}
+
+export interface ExtTupleByNameGroupAggregate {
+  id?: true;
+}
+
+export interface ExtTupleByNameGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; picked?: 'asc' | 'desc'; omitted?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface ExtTupleByNameGroupByArgs {
+  by: ExtTupleByNameGroupByKeys;
+  where?: ExtTupleByNameWhere;
+  _count?: true | ExtTupleByNameCountAggregate;
+  _min?: ExtTupleByNameMinMaxAggregate;
+  _max?: ExtTupleByNameMinMaxAggregate;
+  _group?: ExtTupleByNameGroupAggregate;
+  orderBy?: ExtTupleByNameGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtTupleByNameGroupByAggregates {
+  _count: { _all: number; id: number; picked: number; omitted: number };
+  _min: { id: NonNullable<ExtTupleByName['id']> | null };
+  _max: { id: NonNullable<ExtTupleByName['id']> | null };
+  _group: { id: GroupMember<ExtTupleByName['id']>[] };
+}
+
+export type ExtTupleByNameGroupByResult<A extends ExtTupleByNameGroupByArgs> = GroupByRow<
+  ExtTupleByName,
+  A,
+  ExtTupleByNameGroupByAggregates
+>;
 
 export type ExtTupleByName$Relations = {};
 
@@ -248,6 +302,11 @@ export interface ExtTupleByNameModel {
 
   count(where?: ExtTupleByNameWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtTupleByNameGroupByArgs>(
+    args: GroupByArg<A, ExtTupleByNameGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtTupleByNameGroupByResult<A>[]>;
+
   exists(where?: ExtTupleByNameWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -285,6 +344,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -401,6 +463,79 @@ export type ExtTupleModelSelect = AtLeastOne<ExtTupleModelSelectFields>;
 export interface ExtTupleModelOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface ExtTupleModelGroupByKeys {
+  id?: true;
+}
+
+export interface ExtTupleModelCountAggregate {
+  _all?: true;
+  id?: true;
+  pair?: true;
+  triple?: true;
+  namedTriple?: true;
+  quad?: true;
+  coordPair?: true;
+  optionalTriple?: true;
+}
+
+export interface ExtTupleModelMinMaxAggregate {
+  id?: true;
+}
+
+export interface ExtTupleModelGroupAggregate {
+  id?: true;
+}
+
+export interface ExtTupleModelGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    pair?: 'asc' | 'desc';
+    triple?: 'asc' | 'desc';
+    namedTriple?: 'asc' | 'desc';
+    quad?: 'asc' | 'desc';
+    coordPair?: 'asc' | 'desc';
+    optionalTriple?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface ExtTupleModelGroupByArgs {
+  by: ExtTupleModelGroupByKeys;
+  where?: ExtTupleModelWhere;
+  _count?: true | ExtTupleModelCountAggregate;
+  _min?: ExtTupleModelMinMaxAggregate;
+  _max?: ExtTupleModelMinMaxAggregate;
+  _group?: ExtTupleModelGroupAggregate;
+  orderBy?: ExtTupleModelGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtTupleModelGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    pair: number;
+    triple: number;
+    namedTriple: number;
+    quad: number;
+    coordPair: number;
+    optionalTriple: number;
+  };
+  _min: { id: NonNullable<ExtTupleModel['id']> | null };
+  _max: { id: NonNullable<ExtTupleModel['id']> | null };
+  _group: { id: GroupMember<ExtTupleModel['id']>[] };
+}
+
+export type ExtTupleModelGroupByResult<A extends ExtTupleModelGroupByArgs> = GroupByRow<
+  ExtTupleModel,
+  A,
+  ExtTupleModelGroupByAggregates
+>;
 
 export type ExtTupleModel$Relations = {};
 
@@ -547,6 +682,11 @@ export interface ExtTupleModelModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ExtTupleModel, R>>;
 
   count(where?: ExtTupleModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ExtTupleModelGroupByArgs>(
+    args: GroupByArg<A, ExtTupleModelGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtTupleModelGroupByResult<A>[]>;
 
   exists(where?: ExtTupleModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

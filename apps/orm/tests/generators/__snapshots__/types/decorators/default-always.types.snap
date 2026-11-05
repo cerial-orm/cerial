@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -229,6 +232,159 @@ export interface ContentItemOrderBy {
   meta?: ReviewMetaOrderBy;
 }
 
+export interface ContentItemGroupByKeys {
+  id?: true;
+  title?: true;
+  body?: true;
+  reviewed?: true;
+  syncStatus?: true;
+  retryCount?: true;
+  score?: true;
+  meta?: { note?: true; flagged?: true };
+}
+
+export interface ContentItemCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  body?: true;
+  reviewed?: true;
+  syncStatus?: true;
+  retryCount?: true;
+  score?: true;
+  meta?: true;
+}
+
+export interface ContentItemNumericAggregate {
+  retryCount?: true;
+  score?: true;
+}
+
+export interface ContentItemMinMaxAggregate {
+  id?: true;
+  title?: true;
+  body?: true;
+  reviewed?: true;
+  syncStatus?: true;
+  retryCount?: true;
+  score?: true;
+}
+
+export interface ContentItemGroupAggregate {
+  id?: true;
+  title?: true;
+  body?: true;
+  reviewed?: true;
+  syncStatus?: true;
+  retryCount?: true;
+  score?: true;
+}
+
+export interface ContentItemGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  reviewed?: 'asc' | 'desc';
+  syncStatus?: 'asc' | 'desc';
+  retryCount?: 'asc' | 'desc';
+  score?: 'asc' | 'desc';
+  meta?: { note?: 'asc' | 'desc'; flagged?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    reviewed?: 'asc' | 'desc';
+    syncStatus?: 'asc' | 'desc';
+    retryCount?: 'asc' | 'desc';
+    score?: 'asc' | 'desc';
+    meta?: 'asc' | 'desc';
+  };
+  _sum?: { retryCount?: 'asc' | 'desc'; score?: 'asc' | 'desc' };
+  _avg?: { retryCount?: 'asc' | 'desc'; score?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    reviewed?: 'asc' | 'desc';
+    syncStatus?: 'asc' | 'desc';
+    retryCount?: 'asc' | 'desc';
+    score?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    reviewed?: 'asc' | 'desc';
+    syncStatus?: 'asc' | 'desc';
+    retryCount?: 'asc' | 'desc';
+    score?: 'asc' | 'desc';
+  };
+}
+
+export interface ContentItemGroupByArgs {
+  by: ContentItemGroupByKeys;
+  where?: ContentItemWhere;
+  _count?: true | ContentItemCountAggregate;
+  _sum?: ContentItemNumericAggregate;
+  _avg?: ContentItemNumericAggregate;
+  _min?: ContentItemMinMaxAggregate;
+  _max?: ContentItemMinMaxAggregate;
+  _group?: ContentItemGroupAggregate;
+  orderBy?: ContentItemGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ContentItemGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    title: number;
+    body: number;
+    reviewed: number;
+    syncStatus: number;
+    retryCount: number;
+    score: number;
+    meta: number;
+  };
+  _sum: { retryCount: number; score: number };
+  _avg: { retryCount: number | null; score: number | null };
+  _min: {
+    id: NonNullable<ContentItem['id']> | null;
+    title: NonNullable<ContentItem['title']> | null;
+    body: NonNullable<ContentItem['body']> | null;
+    reviewed: NonNullable<ContentItem['reviewed']> | null;
+    syncStatus: NonNullable<ContentItem['syncStatus']> | null;
+    retryCount: NonNullable<ContentItem['retryCount']> | null;
+    score: NonNullable<ContentItem['score']> | null;
+  };
+  _max: {
+    id: NonNullable<ContentItem['id']> | null;
+    title: NonNullable<ContentItem['title']> | null;
+    body: NonNullable<ContentItem['body']> | null;
+    reviewed: NonNullable<ContentItem['reviewed']> | null;
+    syncStatus: NonNullable<ContentItem['syncStatus']> | null;
+    retryCount: NonNullable<ContentItem['retryCount']> | null;
+    score: NonNullable<ContentItem['score']> | null;
+  };
+  _group: {
+    id: GroupMember<ContentItem['id']>[];
+    title: GroupMember<ContentItem['title']>[];
+    body: GroupMember<ContentItem['body']>[];
+    reviewed: GroupMember<ContentItem['reviewed']>[];
+    syncStatus: GroupMember<ContentItem['syncStatus']>[];
+    retryCount: GroupMember<ContentItem['retryCount']>[];
+    score: GroupMember<ContentItem['score']>[];
+  };
+}
+
+export type ContentItemGroupByResult<A extends ContentItemGroupByArgs> = GroupByRow<
+  ContentItem,
+  A,
+  ContentItemGroupByAggregates
+>;
+
 export type ContentItem$Relations = {};
 
 export type GetContentItemPayload<S extends ContentItemSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -374,6 +530,11 @@ export interface ContentItemModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ContentItem, R>>;
 
   count(where?: ContentItemWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ContentItemGroupByArgs>(
+    args: GroupByArg<A, ContentItemGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ContentItemGroupByResult<A>[]>;
 
   exists(where?: ContentItemWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -221,6 +224,165 @@ export interface ExtL4AltConcreteOrderBy {
   lastViewed?: 'asc' | 'desc';
 }
 
+export interface ExtL4AltConcreteGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  owner?: true;
+  isPublic?: true;
+  viewCount?: true;
+  lastViewed?: true;
+}
+
+export interface ExtL4AltConcreteCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  owner?: true;
+  isPublic?: true;
+  viewCount?: true;
+  lastViewed?: true;
+}
+
+export interface ExtL4AltConcreteNumericAggregate {
+  viewCount?: true;
+}
+
+export interface ExtL4AltConcreteMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  owner?: true;
+  isPublic?: true;
+  viewCount?: true;
+  lastViewed?: true;
+}
+
+export interface ExtL4AltConcreteGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  owner?: true;
+  isPublic?: true;
+  viewCount?: true;
+  lastViewed?: true;
+}
+
+export interface ExtL4AltConcreteGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  owner?: 'asc' | 'desc';
+  isPublic?: 'asc' | 'desc';
+  viewCount?: 'asc' | 'desc';
+  lastViewed?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    owner?: 'asc' | 'desc';
+    isPublic?: 'asc' | 'desc';
+    viewCount?: 'asc' | 'desc';
+    lastViewed?: 'asc' | 'desc';
+  };
+  _sum?: { viewCount?: 'asc' | 'desc' };
+  _avg?: { viewCount?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    owner?: 'asc' | 'desc';
+    isPublic?: 'asc' | 'desc';
+    viewCount?: 'asc' | 'desc';
+    lastViewed?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    owner?: 'asc' | 'desc';
+    isPublic?: 'asc' | 'desc';
+    viewCount?: 'asc' | 'desc';
+    lastViewed?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtL4AltConcreteGroupByArgs {
+  by: ExtL4AltConcreteGroupByKeys;
+  where?: ExtL4AltConcreteWhere;
+  _count?: true | ExtL4AltConcreteCountAggregate;
+  _sum?: ExtL4AltConcreteNumericAggregate;
+  _avg?: ExtL4AltConcreteNumericAggregate;
+  _min?: ExtL4AltConcreteMinMaxAggregate;
+  _max?: ExtL4AltConcreteMinMaxAggregate;
+  _group?: ExtL4AltConcreteGroupAggregate;
+  orderBy?: ExtL4AltConcreteGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtL4AltConcreteGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    name: number;
+    description: number;
+    owner: number;
+    isPublic: number;
+    viewCount: number;
+    lastViewed: number;
+  };
+  _sum: { viewCount: number };
+  _avg: { viewCount: number | null };
+  _min: {
+    id: NonNullable<ExtL4AltConcrete['id']> | null;
+    createdAt: NonNullable<ExtL4AltConcrete['createdAt']> | null;
+    name: NonNullable<ExtL4AltConcrete['name']> | null;
+    description: NonNullable<ExtL4AltConcrete['description']> | null;
+    owner: NonNullable<ExtL4AltConcrete['owner']> | null;
+    isPublic: NonNullable<ExtL4AltConcrete['isPublic']> | null;
+    viewCount: NonNullable<ExtL4AltConcrete['viewCount']> | null;
+    lastViewed: NonNullable<ExtL4AltConcrete['lastViewed']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtL4AltConcrete['id']> | null;
+    createdAt: NonNullable<ExtL4AltConcrete['createdAt']> | null;
+    name: NonNullable<ExtL4AltConcrete['name']> | null;
+    description: NonNullable<ExtL4AltConcrete['description']> | null;
+    owner: NonNullable<ExtL4AltConcrete['owner']> | null;
+    isPublic: NonNullable<ExtL4AltConcrete['isPublic']> | null;
+    viewCount: NonNullable<ExtL4AltConcrete['viewCount']> | null;
+    lastViewed: NonNullable<ExtL4AltConcrete['lastViewed']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtL4AltConcrete['id']>[];
+    createdAt: GroupMember<ExtL4AltConcrete['createdAt']>[];
+    name: GroupMember<ExtL4AltConcrete['name']>[];
+    description: GroupMember<ExtL4AltConcrete['description']>[];
+    owner: GroupMember<ExtL4AltConcrete['owner']>[];
+    isPublic: GroupMember<ExtL4AltConcrete['isPublic']>[];
+    viewCount: GroupMember<ExtL4AltConcrete['viewCount']>[];
+    lastViewed: GroupMember<ExtL4AltConcrete['lastViewed']>[];
+  };
+}
+
+export type ExtL4AltConcreteGroupByResult<A extends ExtL4AltConcreteGroupByArgs> = GroupByRow<
+  ExtL4AltConcrete,
+  A,
+  ExtL4AltConcreteGroupByAggregates
+>;
+
 export type ExtL4AltConcrete$Relations = {};
 
 export type GetExtL4AltConcretePayload<
@@ -370,6 +532,11 @@ export interface ExtL4AltConcreteModel {
 
   count(where?: ExtL4AltConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtL4AltConcreteGroupByArgs>(
+    args: GroupByArg<A, ExtL4AltConcreteGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtL4AltConcreteGroupByResult<A>[]>;
+
   exists(where?: ExtL4AltConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -407,6 +574,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -614,6 +784,161 @@ export interface ExtL4ConcreteOrderBy {
   priority?: 'asc' | 'desc';
 }
 
+export interface ExtL4ConcreteGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+}
+
+export interface ExtL4ConcreteCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+}
+
+export interface ExtL4ConcreteNumericAggregate {
+  metadata?: true;
+  priority?: true;
+}
+
+export interface ExtL4ConcreteMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+}
+
+export interface ExtL4ConcreteGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+}
+
+export interface ExtL4ConcreteGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+  };
+  _sum?: { metadata?: 'asc' | 'desc'; priority?: 'asc' | 'desc' };
+  _avg?: { metadata?: 'asc' | 'desc'; priority?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtL4ConcreteGroupByArgs {
+  by: ExtL4ConcreteGroupByKeys;
+  where?: ExtL4ConcreteWhere;
+  _count?: true | ExtL4ConcreteCountAggregate;
+  _sum?: ExtL4ConcreteNumericAggregate;
+  _avg?: ExtL4ConcreteNumericAggregate;
+  _min?: ExtL4ConcreteMinMaxAggregate;
+  _max?: ExtL4ConcreteMinMaxAggregate;
+  _group?: ExtL4ConcreteGroupAggregate;
+  orderBy?: ExtL4ConcreteGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtL4ConcreteGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    name: number;
+    description: number;
+    tags: number;
+    metadata: number;
+    status: number;
+    priority: number;
+  };
+  _sum: { metadata: number; priority: number };
+  _avg: { metadata: number | null; priority: number | null };
+  _min: {
+    id: NonNullable<ExtL4Concrete['id']> | null;
+    createdAt: NonNullable<ExtL4Concrete['createdAt']> | null;
+    name: NonNullable<ExtL4Concrete['name']> | null;
+    description: NonNullable<ExtL4Concrete['description']> | null;
+    metadata: NonNullable<ExtL4Concrete['metadata']> | null;
+    status: NonNullable<ExtL4Concrete['status']> | null;
+    priority: NonNullable<ExtL4Concrete['priority']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtL4Concrete['id']> | null;
+    createdAt: NonNullable<ExtL4Concrete['createdAt']> | null;
+    name: NonNullable<ExtL4Concrete['name']> | null;
+    description: NonNullable<ExtL4Concrete['description']> | null;
+    metadata: NonNullable<ExtL4Concrete['metadata']> | null;
+    status: NonNullable<ExtL4Concrete['status']> | null;
+    priority: NonNullable<ExtL4Concrete['priority']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtL4Concrete['id']>[];
+    createdAt: GroupMember<ExtL4Concrete['createdAt']>[];
+    name: GroupMember<ExtL4Concrete['name']>[];
+    description: GroupMember<ExtL4Concrete['description']>[];
+    tags: GroupMember<ExtL4Concrete['tags']>[];
+    metadata: GroupMember<ExtL4Concrete['metadata']>[];
+    status: GroupMember<ExtL4Concrete['status']>[];
+    priority: GroupMember<ExtL4Concrete['priority']>[];
+  };
+}
+
+export type ExtL4ConcreteGroupByResult<A extends ExtL4ConcreteGroupByArgs> = GroupByRow<
+  ExtL4Concrete,
+  A,
+  ExtL4ConcreteGroupByAggregates
+>;
+
 export type ExtL4Concrete$Relations = {};
 
 export type GetExtL4ConcretePayload<S extends ExtL4ConcreteSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -760,6 +1085,11 @@ export interface ExtL4ConcreteModel {
 
   count(where?: ExtL4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtL4ConcreteGroupByArgs>(
+    args: GroupByArg<A, ExtL4ConcreteGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtL4ConcreteGroupByResult<A>[]>;
+
   exists(where?: ExtL4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -797,6 +1127,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -958,6 +1291,133 @@ export interface ExtL4OmitConcreteOrderBy {
   version?: 'asc' | 'desc';
 }
 
+export interface ExtL4OmitConcreteGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  kind?: true;
+  subtype?: true;
+  version?: true;
+}
+
+export interface ExtL4OmitConcreteCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  kind?: true;
+  subtype?: true;
+  version?: true;
+}
+
+export interface ExtL4OmitConcreteNumericAggregate {
+  version?: true;
+}
+
+export interface ExtL4OmitConcreteMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  kind?: true;
+  subtype?: true;
+  version?: true;
+}
+
+export interface ExtL4OmitConcreteGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  kind?: true;
+  subtype?: true;
+  version?: true;
+}
+
+export interface ExtL4OmitConcreteGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  kind?: 'asc' | 'desc';
+  subtype?: 'asc' | 'desc';
+  version?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    kind?: 'asc' | 'desc';
+    subtype?: 'asc' | 'desc';
+    version?: 'asc' | 'desc';
+  };
+  _sum?: { version?: 'asc' | 'desc' };
+  _avg?: { version?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    kind?: 'asc' | 'desc';
+    subtype?: 'asc' | 'desc';
+    version?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    kind?: 'asc' | 'desc';
+    subtype?: 'asc' | 'desc';
+    version?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtL4OmitConcreteGroupByArgs {
+  by: ExtL4OmitConcreteGroupByKeys;
+  where?: ExtL4OmitConcreteWhere;
+  _count?: true | ExtL4OmitConcreteCountAggregate;
+  _sum?: ExtL4OmitConcreteNumericAggregate;
+  _avg?: ExtL4OmitConcreteNumericAggregate;
+  _min?: ExtL4OmitConcreteMinMaxAggregate;
+  _max?: ExtL4OmitConcreteMinMaxAggregate;
+  _group?: ExtL4OmitConcreteGroupAggregate;
+  orderBy?: ExtL4OmitConcreteGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtL4OmitConcreteGroupByAggregates {
+  _count: { _all: number; id: number; createdAt: number; name: number; kind: number; subtype: number; version: number };
+  _sum: { version: number };
+  _avg: { version: number | null };
+  _min: {
+    id: NonNullable<ExtL4OmitConcrete['id']> | null;
+    createdAt: NonNullable<ExtL4OmitConcrete['createdAt']> | null;
+    name: NonNullable<ExtL4OmitConcrete['name']> | null;
+    kind: NonNullable<ExtL4OmitConcrete['kind']> | null;
+    subtype: NonNullable<ExtL4OmitConcrete['subtype']> | null;
+    version: NonNullable<ExtL4OmitConcrete['version']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtL4OmitConcrete['id']> | null;
+    createdAt: NonNullable<ExtL4OmitConcrete['createdAt']> | null;
+    name: NonNullable<ExtL4OmitConcrete['name']> | null;
+    kind: NonNullable<ExtL4OmitConcrete['kind']> | null;
+    subtype: NonNullable<ExtL4OmitConcrete['subtype']> | null;
+    version: NonNullable<ExtL4OmitConcrete['version']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtL4OmitConcrete['id']>[];
+    createdAt: GroupMember<ExtL4OmitConcrete['createdAt']>[];
+    name: GroupMember<ExtL4OmitConcrete['name']>[];
+    kind: GroupMember<ExtL4OmitConcrete['kind']>[];
+    subtype: GroupMember<ExtL4OmitConcrete['subtype']>[];
+    version: GroupMember<ExtL4OmitConcrete['version']>[];
+  };
+}
+
+export type ExtL4OmitConcreteGroupByResult<A extends ExtL4OmitConcreteGroupByArgs> = GroupByRow<
+  ExtL4OmitConcrete,
+  A,
+  ExtL4OmitConcreteGroupByAggregates
+>;
+
 export type ExtL4OmitConcrete$Relations = {};
 
 export type GetExtL4OmitConcretePayload<
@@ -1107,6 +1567,11 @@ export interface ExtL4OmitConcreteModel {
 
   count(where?: ExtL4OmitConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtL4OmitConcreteGroupByArgs>(
+    args: GroupByArg<A, ExtL4OmitConcreteGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtL4OmitConcreteGroupByResult<A>[]>;
+
   exists(where?: ExtL4OmitConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1144,6 +1609,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1336,6 +1804,153 @@ export interface ExtL4PickConcreteOrderBy {
   rank?: 'asc' | 'desc';
 }
 
+export interface ExtL4PickConcreteGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  category?: true;
+  subcategory?: true;
+  rank?: true;
+}
+
+export interface ExtL4PickConcreteCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  category?: true;
+  subcategory?: true;
+  rank?: true;
+}
+
+export interface ExtL4PickConcreteNumericAggregate {
+  rank?: true;
+}
+
+export interface ExtL4PickConcreteMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  category?: true;
+  subcategory?: true;
+  rank?: true;
+}
+
+export interface ExtL4PickConcreteGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  category?: true;
+  subcategory?: true;
+  rank?: true;
+}
+
+export interface ExtL4PickConcreteGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  category?: 'asc' | 'desc';
+  subcategory?: 'asc' | 'desc';
+  rank?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    category?: 'asc' | 'desc';
+    subcategory?: 'asc' | 'desc';
+    rank?: 'asc' | 'desc';
+  };
+  _sum?: { rank?: 'asc' | 'desc' };
+  _avg?: { rank?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    category?: 'asc' | 'desc';
+    subcategory?: 'asc' | 'desc';
+    rank?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    category?: 'asc' | 'desc';
+    subcategory?: 'asc' | 'desc';
+    rank?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtL4PickConcreteGroupByArgs {
+  by: ExtL4PickConcreteGroupByKeys;
+  where?: ExtL4PickConcreteWhere;
+  _count?: true | ExtL4PickConcreteCountAggregate;
+  _sum?: ExtL4PickConcreteNumericAggregate;
+  _avg?: ExtL4PickConcreteNumericAggregate;
+  _min?: ExtL4PickConcreteMinMaxAggregate;
+  _max?: ExtL4PickConcreteMinMaxAggregate;
+  _group?: ExtL4PickConcreteGroupAggregate;
+  orderBy?: ExtL4PickConcreteGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtL4PickConcreteGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    name: number;
+    description: number;
+    category: number;
+    subcategory: number;
+    rank: number;
+  };
+  _sum: { rank: number };
+  _avg: { rank: number | null };
+  _min: {
+    id: NonNullable<ExtL4PickConcrete['id']> | null;
+    createdAt: NonNullable<ExtL4PickConcrete['createdAt']> | null;
+    name: NonNullable<ExtL4PickConcrete['name']> | null;
+    description: NonNullable<ExtL4PickConcrete['description']> | null;
+    category: NonNullable<ExtL4PickConcrete['category']> | null;
+    subcategory: NonNullable<ExtL4PickConcrete['subcategory']> | null;
+    rank: NonNullable<ExtL4PickConcrete['rank']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtL4PickConcrete['id']> | null;
+    createdAt: NonNullable<ExtL4PickConcrete['createdAt']> | null;
+    name: NonNullable<ExtL4PickConcrete['name']> | null;
+    description: NonNullable<ExtL4PickConcrete['description']> | null;
+    category: NonNullable<ExtL4PickConcrete['category']> | null;
+    subcategory: NonNullable<ExtL4PickConcrete['subcategory']> | null;
+    rank: NonNullable<ExtL4PickConcrete['rank']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtL4PickConcrete['id']>[];
+    createdAt: GroupMember<ExtL4PickConcrete['createdAt']>[];
+    name: GroupMember<ExtL4PickConcrete['name']>[];
+    description: GroupMember<ExtL4PickConcrete['description']>[];
+    category: GroupMember<ExtL4PickConcrete['category']>[];
+    subcategory: GroupMember<ExtL4PickConcrete['subcategory']>[];
+    rank: GroupMember<ExtL4PickConcrete['rank']>[];
+  };
+}
+
+export type ExtL4PickConcreteGroupByResult<A extends ExtL4PickConcreteGroupByArgs> = GroupByRow<
+  ExtL4PickConcrete,
+  A,
+  ExtL4PickConcreteGroupByAggregates
+>;
+
 export type ExtL4PickConcrete$Relations = {};
 
 export type GetExtL4PickConcretePayload<
@@ -1485,6 +2100,11 @@ export interface ExtL4PickConcreteModel {
 
   count(where?: ExtL4PickConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtL4PickConcreteGroupByArgs>(
+    args: GroupByArg<A, ExtL4PickConcreteGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtL4PickConcreteGroupByResult<A>[]>;
+
   exists(where?: ExtL4PickConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1522,6 +2142,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1739,6 +2362,173 @@ export interface ExtL5VeryDeepOrderBy {
   archived?: 'asc' | 'desc';
 }
 
+export interface ExtL5VeryDeepGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+  archived?: true;
+}
+
+export interface ExtL5VeryDeepCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+  archived?: true;
+}
+
+export interface ExtL5VeryDeepNumericAggregate {
+  metadata?: true;
+  priority?: true;
+}
+
+export interface ExtL5VeryDeepMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+  archived?: true;
+}
+
+export interface ExtL5VeryDeepGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+  archived?: true;
+}
+
+export interface ExtL5VeryDeepGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+  archived?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    archived?: 'asc' | 'desc';
+  };
+  _sum?: { metadata?: 'asc' | 'desc'; priority?: 'asc' | 'desc' };
+  _avg?: { metadata?: 'asc' | 'desc'; priority?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    archived?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    archived?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtL5VeryDeepGroupByArgs {
+  by: ExtL5VeryDeepGroupByKeys;
+  where?: ExtL5VeryDeepWhere;
+  _count?: true | ExtL5VeryDeepCountAggregate;
+  _sum?: ExtL5VeryDeepNumericAggregate;
+  _avg?: ExtL5VeryDeepNumericAggregate;
+  _min?: ExtL5VeryDeepMinMaxAggregate;
+  _max?: ExtL5VeryDeepMinMaxAggregate;
+  _group?: ExtL5VeryDeepGroupAggregate;
+  orderBy?: ExtL5VeryDeepGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtL5VeryDeepGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    name: number;
+    description: number;
+    tags: number;
+    metadata: number;
+    status: number;
+    priority: number;
+    archived: number;
+  };
+  _sum: { metadata: number; priority: number };
+  _avg: { metadata: number | null; priority: number | null };
+  _min: {
+    id: NonNullable<ExtL5VeryDeep['id']> | null;
+    createdAt: NonNullable<ExtL5VeryDeep['createdAt']> | null;
+    name: NonNullable<ExtL5VeryDeep['name']> | null;
+    description: NonNullable<ExtL5VeryDeep['description']> | null;
+    metadata: NonNullable<ExtL5VeryDeep['metadata']> | null;
+    status: NonNullable<ExtL5VeryDeep['status']> | null;
+    priority: NonNullable<ExtL5VeryDeep['priority']> | null;
+    archived: NonNullable<ExtL5VeryDeep['archived']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtL5VeryDeep['id']> | null;
+    createdAt: NonNullable<ExtL5VeryDeep['createdAt']> | null;
+    name: NonNullable<ExtL5VeryDeep['name']> | null;
+    description: NonNullable<ExtL5VeryDeep['description']> | null;
+    metadata: NonNullable<ExtL5VeryDeep['metadata']> | null;
+    status: NonNullable<ExtL5VeryDeep['status']> | null;
+    priority: NonNullable<ExtL5VeryDeep['priority']> | null;
+    archived: NonNullable<ExtL5VeryDeep['archived']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtL5VeryDeep['id']>[];
+    createdAt: GroupMember<ExtL5VeryDeep['createdAt']>[];
+    name: GroupMember<ExtL5VeryDeep['name']>[];
+    description: GroupMember<ExtL5VeryDeep['description']>[];
+    tags: GroupMember<ExtL5VeryDeep['tags']>[];
+    metadata: GroupMember<ExtL5VeryDeep['metadata']>[];
+    status: GroupMember<ExtL5VeryDeep['status']>[];
+    priority: GroupMember<ExtL5VeryDeep['priority']>[];
+    archived: GroupMember<ExtL5VeryDeep['archived']>[];
+  };
+}
+
+export type ExtL5VeryDeepGroupByResult<A extends ExtL5VeryDeepGroupByArgs> = GroupByRow<
+  ExtL5VeryDeep,
+  A,
+  ExtL5VeryDeepGroupByAggregates
+>;
+
 export type ExtL5VeryDeep$Relations = {};
 
 export type GetExtL5VeryDeepPayload<S extends ExtL5VeryDeepSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -1885,6 +2675,11 @@ export interface ExtL5VeryDeepModel {
 
   count(where?: ExtL5VeryDeepWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtL5VeryDeepGroupByArgs>(
+    args: GroupByArg<A, ExtL5VeryDeepGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtL5VeryDeepGroupByResult<A>[]>;
+
   exists(where?: ExtL5VeryDeepWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1922,6 +2717,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2202,6 +3000,197 @@ export interface ExtL6UltraDeepOrderBy {
   archivedAt?: 'asc' | 'desc';
 }
 
+export interface ExtL6UltraDeepGroupByKeys {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+  archived?: true;
+  archiveReason?: true;
+  archivedAt?: true;
+}
+
+export interface ExtL6UltraDeepCountAggregate {
+  _all?: true;
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+  archived?: true;
+  archiveReason?: true;
+  archivedAt?: true;
+}
+
+export interface ExtL6UltraDeepNumericAggregate {
+  metadata?: true;
+  priority?: true;
+}
+
+export interface ExtL6UltraDeepMinMaxAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+  archived?: true;
+  archiveReason?: true;
+  archivedAt?: true;
+}
+
+export interface ExtL6UltraDeepGroupAggregate {
+  id?: true;
+  createdAt?: true;
+  name?: true;
+  description?: true;
+  tags?: true;
+  metadata?: true;
+  status?: true;
+  priority?: true;
+  archived?: true;
+  archiveReason?: true;
+  archivedAt?: true;
+}
+
+export interface ExtL6UltraDeepGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+  archived?: 'asc' | 'desc';
+  archiveReason?: 'asc' | 'desc';
+  archivedAt?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    archived?: 'asc' | 'desc';
+    archiveReason?: 'asc' | 'desc';
+    archivedAt?: 'asc' | 'desc';
+  };
+  _sum?: { metadata?: 'asc' | 'desc'; priority?: 'asc' | 'desc' };
+  _avg?: { metadata?: 'asc' | 'desc'; priority?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    archived?: 'asc' | 'desc';
+    archiveReason?: 'asc' | 'desc';
+    archivedAt?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    description?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    priority?: 'asc' | 'desc';
+    archived?: 'asc' | 'desc';
+    archiveReason?: 'asc' | 'desc';
+    archivedAt?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtL6UltraDeepGroupByArgs {
+  by: ExtL6UltraDeepGroupByKeys;
+  where?: ExtL6UltraDeepWhere;
+  _count?: true | ExtL6UltraDeepCountAggregate;
+  _sum?: ExtL6UltraDeepNumericAggregate;
+  _avg?: ExtL6UltraDeepNumericAggregate;
+  _min?: ExtL6UltraDeepMinMaxAggregate;
+  _max?: ExtL6UltraDeepMinMaxAggregate;
+  _group?: ExtL6UltraDeepGroupAggregate;
+  orderBy?: ExtL6UltraDeepGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtL6UltraDeepGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    createdAt: number;
+    name: number;
+    description: number;
+    tags: number;
+    metadata: number;
+    status: number;
+    priority: number;
+    archived: number;
+    archiveReason: number;
+    archivedAt: number;
+  };
+  _sum: { metadata: number; priority: number };
+  _avg: { metadata: number | null; priority: number | null };
+  _min: {
+    id: NonNullable<ExtL6UltraDeep['id']> | null;
+    createdAt: NonNullable<ExtL6UltraDeep['createdAt']> | null;
+    name: NonNullable<ExtL6UltraDeep['name']> | null;
+    description: NonNullable<ExtL6UltraDeep['description']> | null;
+    metadata: NonNullable<ExtL6UltraDeep['metadata']> | null;
+    status: NonNullable<ExtL6UltraDeep['status']> | null;
+    priority: NonNullable<ExtL6UltraDeep['priority']> | null;
+    archived: NonNullable<ExtL6UltraDeep['archived']> | null;
+    archiveReason: NonNullable<ExtL6UltraDeep['archiveReason']> | null;
+    archivedAt: NonNullable<ExtL6UltraDeep['archivedAt']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtL6UltraDeep['id']> | null;
+    createdAt: NonNullable<ExtL6UltraDeep['createdAt']> | null;
+    name: NonNullable<ExtL6UltraDeep['name']> | null;
+    description: NonNullable<ExtL6UltraDeep['description']> | null;
+    metadata: NonNullable<ExtL6UltraDeep['metadata']> | null;
+    status: NonNullable<ExtL6UltraDeep['status']> | null;
+    priority: NonNullable<ExtL6UltraDeep['priority']> | null;
+    archived: NonNullable<ExtL6UltraDeep['archived']> | null;
+    archiveReason: NonNullable<ExtL6UltraDeep['archiveReason']> | null;
+    archivedAt: NonNullable<ExtL6UltraDeep['archivedAt']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtL6UltraDeep['id']>[];
+    createdAt: GroupMember<ExtL6UltraDeep['createdAt']>[];
+    name: GroupMember<ExtL6UltraDeep['name']>[];
+    description: GroupMember<ExtL6UltraDeep['description']>[];
+    tags: GroupMember<ExtL6UltraDeep['tags']>[];
+    metadata: GroupMember<ExtL6UltraDeep['metadata']>[];
+    status: GroupMember<ExtL6UltraDeep['status']>[];
+    priority: GroupMember<ExtL6UltraDeep['priority']>[];
+    archived: GroupMember<ExtL6UltraDeep['archived']>[];
+    archiveReason: GroupMember<ExtL6UltraDeep['archiveReason']>[];
+    archivedAt: GroupMember<ExtL6UltraDeep['archivedAt']>[];
+  };
+}
+
+export type ExtL6UltraDeepGroupByResult<A extends ExtL6UltraDeepGroupByArgs> = GroupByRow<
+  ExtL6UltraDeep,
+  A,
+  ExtL6UltraDeepGroupByAggregates
+>;
+
 export type ExtL6UltraDeep$Relations = {};
 
 export type GetExtL6UltraDeepPayload<S extends ExtL6UltraDeepSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -2348,6 +3337,11 @@ export interface ExtL6UltraDeepModel {
 
   count(where?: ExtL6UltraDeepWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtL6UltraDeepGroupByArgs>(
+    args: GroupByArg<A, ExtL6UltraDeepGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtL6UltraDeepGroupByResult<A>[]>;
+
   exists(where?: ExtL6UltraDeepWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2385,6 +3379,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2559,6 +3556,153 @@ export interface ExtP4ConcreteOrderBy {
   final?: 'asc' | 'desc';
 }
 
+export interface ExtP4ConcreteGroupByKeys {
+  id?: true;
+  secret?: true;
+  name?: true;
+  tag?: true;
+  extra?: true;
+  level?: true;
+  final?: true;
+}
+
+export interface ExtP4ConcreteCountAggregate {
+  _all?: true;
+  id?: true;
+  secret?: true;
+  name?: true;
+  tag?: true;
+  extra?: true;
+  level?: true;
+  final?: true;
+}
+
+export interface ExtP4ConcreteNumericAggregate {
+  level?: true;
+}
+
+export interface ExtP4ConcreteMinMaxAggregate {
+  id?: true;
+  secret?: true;
+  name?: true;
+  tag?: true;
+  extra?: true;
+  level?: true;
+  final?: true;
+}
+
+export interface ExtP4ConcreteGroupAggregate {
+  id?: true;
+  secret?: true;
+  name?: true;
+  tag?: true;
+  extra?: true;
+  level?: true;
+  final?: true;
+}
+
+export interface ExtP4ConcreteGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  secret?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  tag?: 'asc' | 'desc';
+  extra?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  final?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    secret?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    tag?: 'asc' | 'desc';
+    extra?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    final?: 'asc' | 'desc';
+  };
+  _sum?: { level?: 'asc' | 'desc' };
+  _avg?: { level?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    secret?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    tag?: 'asc' | 'desc';
+    extra?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    final?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    secret?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    tag?: 'asc' | 'desc';
+    extra?: 'asc' | 'desc';
+    level?: 'asc' | 'desc';
+    final?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtP4ConcreteGroupByArgs {
+  by: ExtP4ConcreteGroupByKeys;
+  where?: ExtP4ConcreteWhere;
+  _count?: true | ExtP4ConcreteCountAggregate;
+  _sum?: ExtP4ConcreteNumericAggregate;
+  _avg?: ExtP4ConcreteNumericAggregate;
+  _min?: ExtP4ConcreteMinMaxAggregate;
+  _max?: ExtP4ConcreteMinMaxAggregate;
+  _group?: ExtP4ConcreteGroupAggregate;
+  orderBy?: ExtP4ConcreteGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtP4ConcreteGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    secret: number;
+    name: number;
+    tag: number;
+    extra: number;
+    level: number;
+    final: number;
+  };
+  _sum: { level: number };
+  _avg: { level: number | null };
+  _min: {
+    id: NonNullable<ExtP4Concrete['id']> | null;
+    secret: NonNullable<ExtP4Concrete['secret']> | null;
+    name: NonNullable<ExtP4Concrete['name']> | null;
+    tag: NonNullable<ExtP4Concrete['tag']> | null;
+    extra: NonNullable<ExtP4Concrete['extra']> | null;
+    level: NonNullable<ExtP4Concrete['level']> | null;
+    final: NonNullable<ExtP4Concrete['final']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtP4Concrete['id']> | null;
+    secret: NonNullable<ExtP4Concrete['secret']> | null;
+    name: NonNullable<ExtP4Concrete['name']> | null;
+    tag: NonNullable<ExtP4Concrete['tag']> | null;
+    extra: NonNullable<ExtP4Concrete['extra']> | null;
+    level: NonNullable<ExtP4Concrete['level']> | null;
+    final: NonNullable<ExtP4Concrete['final']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtP4Concrete['id']>[];
+    secret: GroupMember<ExtP4Concrete['secret']>[];
+    name: GroupMember<ExtP4Concrete['name']>[];
+    tag: GroupMember<ExtP4Concrete['tag']>[];
+    extra: GroupMember<ExtP4Concrete['extra']>[];
+    level: GroupMember<ExtP4Concrete['level']>[];
+    final: GroupMember<ExtP4Concrete['final']>[];
+  };
+}
+
+export type ExtP4ConcreteGroupByResult<A extends ExtP4ConcreteGroupByArgs> = GroupByRow<
+  ExtP4Concrete,
+  A,
+  ExtP4ConcreteGroupByAggregates
+>;
+
 export type ExtP4Concrete$Relations = {};
 
 export type GetExtP4ConcretePayload<S extends ExtP4ConcreteSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -2704,6 +3848,11 @@ export interface ExtP4ConcreteModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ExtP4Concrete, R>>;
 
   count(where?: ExtP4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ExtP4ConcreteGroupByArgs>(
+    args: GroupByArg<A, ExtP4ConcreteGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtP4ConcreteGroupByResult<A>[]>;
 
   exists(where?: ExtP4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -179,6 +182,124 @@ export interface TimestampTestOrderBy {
   meta?: TimestampInfoOrderBy;
 }
 
+export interface TimestampTestGroupByKeys {
+  id?: true;
+  name?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  accessedAt?: true;
+  meta?: { label?: true; createdAt?: true; updatedAt?: true };
+}
+
+export interface TimestampTestCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  accessedAt?: true;
+  meta?: true;
+}
+
+export interface TimestampTestMinMaxAggregate {
+  id?: true;
+  name?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  accessedAt?: true;
+}
+
+export interface TimestampTestGroupAggregate {
+  id?: true;
+  name?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  accessedAt?: true;
+}
+
+export interface TimestampTestGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  accessedAt?: 'asc' | 'desc';
+  meta?: { label?: 'asc' | 'desc'; createdAt?: 'asc' | 'desc'; updatedAt?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    accessedAt?: 'asc' | 'desc';
+    meta?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    accessedAt?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+    updatedAt?: 'asc' | 'desc';
+    accessedAt?: 'asc' | 'desc';
+  };
+}
+
+export interface TimestampTestGroupByArgs {
+  by: TimestampTestGroupByKeys;
+  where?: TimestampTestWhere;
+  _count?: true | TimestampTestCountAggregate;
+  _min?: TimestampTestMinMaxAggregate;
+  _max?: TimestampTestMinMaxAggregate;
+  _group?: TimestampTestGroupAggregate;
+  orderBy?: TimestampTestGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TimestampTestGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    createdAt: number;
+    updatedAt: number;
+    accessedAt: number;
+    meta: number;
+  };
+  _min: {
+    id: NonNullable<TimestampTest['id']> | null;
+    name: NonNullable<TimestampTest['name']> | null;
+    createdAt: NonNullable<TimestampTest['createdAt']> | null;
+    updatedAt: NonNullable<TimestampTest['updatedAt']> | null;
+    accessedAt: NonNullable<TimestampTest['accessedAt']> | null;
+  };
+  _max: {
+    id: NonNullable<TimestampTest['id']> | null;
+    name: NonNullable<TimestampTest['name']> | null;
+    createdAt: NonNullable<TimestampTest['createdAt']> | null;
+    updatedAt: NonNullable<TimestampTest['updatedAt']> | null;
+    accessedAt: NonNullable<TimestampTest['accessedAt']> | null;
+  };
+  _group: {
+    id: GroupMember<TimestampTest['id']>[];
+    name: GroupMember<TimestampTest['name']>[];
+    createdAt: GroupMember<TimestampTest['createdAt']>[];
+    updatedAt: GroupMember<TimestampTest['updatedAt']>[];
+    accessedAt: GroupMember<TimestampTest['accessedAt']>[];
+  };
+}
+
+export type TimestampTestGroupByResult<A extends TimestampTestGroupByArgs> = GroupByRow<
+  TimestampTest,
+  A,
+  TimestampTestGroupByAggregates
+>;
+
 export type TimestampTest$Relations = {};
 
 export type GetTimestampTestPayload<S extends TimestampTestSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -324,6 +445,11 @@ export interface TimestampTestModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<TimestampTest, R>>;
 
   count(where?: TimestampTestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends TimestampTestGroupByArgs>(
+    args: GroupByArg<A, TimestampTestGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TimestampTestGroupByResult<A>[]>;
 
   exists(where?: TimestampTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

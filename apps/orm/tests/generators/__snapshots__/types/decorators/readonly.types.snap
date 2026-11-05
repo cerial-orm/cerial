@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -128,6 +131,77 @@ export interface ReadonlyRecordOrderBy {
   authorId?: 'asc' | 'desc';
   author?: ReadonlyTestOrderBy;
 }
+
+export interface ReadonlyRecordGroupByKeys {
+  id?: true;
+  name?: true;
+  authorId?: true;
+}
+
+export interface ReadonlyRecordCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  authorId?: true;
+}
+
+export interface ReadonlyRecordMinMaxAggregate {
+  id?: true;
+  name?: true;
+  authorId?: true;
+}
+
+export interface ReadonlyRecordGroupAggregate {
+  id?: true;
+  name?: true;
+  authorId?: true;
+}
+
+export interface ReadonlyRecordGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; authorId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; authorId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; authorId?: 'asc' | 'desc' };
+}
+
+export interface ReadonlyRecordGroupByArgs {
+  by: ReadonlyRecordGroupByKeys;
+  where?: ReadonlyRecordWhere;
+  _count?: true | ReadonlyRecordCountAggregate;
+  _min?: ReadonlyRecordMinMaxAggregate;
+  _max?: ReadonlyRecordMinMaxAggregate;
+  _group?: ReadonlyRecordGroupAggregate;
+  orderBy?: ReadonlyRecordGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ReadonlyRecordGroupByAggregates {
+  _count: { _all: number; id: number; name: number; authorId: number };
+  _min: {
+    id: NonNullable<ReadonlyRecord['id']> | null;
+    name: NonNullable<ReadonlyRecord['name']> | null;
+    authorId: NonNullable<ReadonlyRecord['authorId']> | null;
+  };
+  _max: {
+    id: NonNullable<ReadonlyRecord['id']> | null;
+    name: NonNullable<ReadonlyRecord['name']> | null;
+    authorId: NonNullable<ReadonlyRecord['authorId']> | null;
+  };
+  _group: {
+    id: GroupMember<ReadonlyRecord['id']>[];
+    name: GroupMember<ReadonlyRecord['name']>[];
+    authorId: GroupMember<ReadonlyRecord['authorId']>[];
+  };
+}
+
+export type ReadonlyRecordGroupByResult<A extends ReadonlyRecordGroupByArgs> = GroupByRow<
+  ReadonlyRecord,
+  A,
+  ReadonlyRecordGroupByAggregates
+>;
 
 export interface ReadonlyRecordInclude {
   author?:
@@ -328,6 +402,11 @@ export interface ReadonlyRecordModel {
 
   count(where?: ReadonlyRecordWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ReadonlyRecordGroupByArgs>(
+    args: GroupByArg<A, ReadonlyRecordGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ReadonlyRecordGroupByResult<A>[]>;
+
   exists(where?: ReadonlyRecordWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -365,6 +444,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -547,6 +629,146 @@ export interface ReadonlyTestOrderBy {
   meta?: ReadonlyMetaOrderBy;
 }
 
+export interface ReadonlyTestGroupByKeys {
+  id?: true;
+  name?: true;
+  code?: true;
+  score?: true;
+  tags?: true;
+  createdBy?: true;
+  address?: { street?: true; city?: true; zip?: true };
+  meta?: { label?: true; payload?: true };
+}
+
+export interface ReadonlyTestCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  code?: true;
+  score?: true;
+  tags?: true;
+  createdBy?: true;
+  address?: true;
+  meta?: true;
+}
+
+export interface ReadonlyTestNumericAggregate {
+  score?: true;
+}
+
+export interface ReadonlyTestMinMaxAggregate {
+  id?: true;
+  name?: true;
+  code?: true;
+  score?: true;
+  createdBy?: true;
+}
+
+export interface ReadonlyTestGroupAggregate {
+  id?: true;
+  name?: true;
+  code?: true;
+  score?: true;
+  tags?: true;
+  createdBy?: true;
+}
+
+export interface ReadonlyTestGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  code?: 'asc' | 'desc';
+  score?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  createdBy?: 'asc' | 'desc';
+  address?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; zip?: 'asc' | 'desc' };
+  meta?: { label?: 'asc' | 'desc'; payload?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    code?: 'asc' | 'desc';
+    score?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+    createdBy?: 'asc' | 'desc';
+    address?: 'asc' | 'desc';
+    meta?: 'asc' | 'desc';
+  };
+  _sum?: { score?: 'asc' | 'desc' };
+  _avg?: { score?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    code?: 'asc' | 'desc';
+    score?: 'asc' | 'desc';
+    createdBy?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    code?: 'asc' | 'desc';
+    score?: 'asc' | 'desc';
+    createdBy?: 'asc' | 'desc';
+  };
+}
+
+export interface ReadonlyTestGroupByArgs {
+  by: ReadonlyTestGroupByKeys;
+  where?: ReadonlyTestWhere;
+  _count?: true | ReadonlyTestCountAggregate;
+  _sum?: ReadonlyTestNumericAggregate;
+  _avg?: ReadonlyTestNumericAggregate;
+  _min?: ReadonlyTestMinMaxAggregate;
+  _max?: ReadonlyTestMinMaxAggregate;
+  _group?: ReadonlyTestGroupAggregate;
+  orderBy?: ReadonlyTestGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ReadonlyTestGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    code: number;
+    score: number;
+    tags: number;
+    createdBy: number;
+    address: number;
+    meta: number;
+  };
+  _sum: { score: number };
+  _avg: { score: number | null };
+  _min: {
+    id: NonNullable<ReadonlyTest['id']> | null;
+    name: NonNullable<ReadonlyTest['name']> | null;
+    code: NonNullable<ReadonlyTest['code']> | null;
+    score: NonNullable<ReadonlyTest['score']> | null;
+    createdBy: NonNullable<ReadonlyTest['createdBy']> | null;
+  };
+  _max: {
+    id: NonNullable<ReadonlyTest['id']> | null;
+    name: NonNullable<ReadonlyTest['name']> | null;
+    code: NonNullable<ReadonlyTest['code']> | null;
+    score: NonNullable<ReadonlyTest['score']> | null;
+    createdBy: NonNullable<ReadonlyTest['createdBy']> | null;
+  };
+  _group: {
+    id: GroupMember<ReadonlyTest['id']>[];
+    name: GroupMember<ReadonlyTest['name']>[];
+    code: GroupMember<ReadonlyTest['code']>[];
+    score: GroupMember<ReadonlyTest['score']>[];
+    tags: GroupMember<ReadonlyTest['tags']>[];
+    createdBy: GroupMember<ReadonlyTest['createdBy']>[];
+  };
+}
+
+export type ReadonlyTestGroupByResult<A extends ReadonlyTestGroupByArgs> = GroupByRow<
+  ReadonlyTest,
+  A,
+  ReadonlyTestGroupByAggregates
+>;
+
 export type ReadonlyTest$Relations = {};
 
 export type GetReadonlyTestPayload<S extends ReadonlyTestSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -692,6 +914,11 @@ export interface ReadonlyTestModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ReadonlyTest, R>>;
 
   count(where?: ReadonlyTestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ReadonlyTestGroupByArgs>(
+    args: GroupByArg<A, ReadonlyTestGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ReadonlyTestGroupByResult<A>[]>;
 
   exists(where?: ReadonlyTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

@@ -42,6 +42,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -214,6 +217,89 @@ export interface GeometryBasicOrderBy {
   name?: 'asc' | 'desc';
 }
 
+export interface GeometryBasicGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  location?: true;
+  area?: true;
+  shape?: true;
+  route?: true;
+  multi?: true;
+  optionalGeo?: true;
+  geoArray?: true;
+}
+
+export interface GeometryBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryBasicGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    location?: 'asc' | 'desc';
+    area?: 'asc' | 'desc';
+    shape?: 'asc' | 'desc';
+    route?: 'asc' | 'desc';
+    multi?: 'asc' | 'desc';
+    optionalGeo?: 'asc' | 'desc';
+    geoArray?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface GeometryBasicGroupByArgs {
+  by: GeometryBasicGroupByKeys;
+  where?: GeometryBasicWhere;
+  _count?: true | GeometryBasicCountAggregate;
+  _min?: GeometryBasicMinMaxAggregate;
+  _max?: GeometryBasicMinMaxAggregate;
+  _group?: GeometryBasicGroupAggregate;
+  orderBy?: GeometryBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GeometryBasicGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    location: number;
+    area: number;
+    shape: number;
+    route: number;
+    multi: number;
+    optionalGeo: number;
+    geoArray: number;
+  };
+  _min: { id: NonNullable<GeometryBasic['id']> | null; name: NonNullable<GeometryBasic['name']> | null };
+  _max: { id: NonNullable<GeometryBasic['id']> | null; name: NonNullable<GeometryBasic['name']> | null };
+  _group: { id: GroupMember<GeometryBasic['id']>[]; name: GroupMember<GeometryBasic['name']>[] };
+}
+
+export type GeometryBasicGroupByResult<A extends GeometryBasicGroupByArgs> = GroupByRow<
+  GeometryBasic,
+  A,
+  GeometryBasicGroupByAggregates
+>;
+
 export type GeometryBasic$Relations = {};
 
 export type GetGeometryBasicPayload<S extends GeometryBasicSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -360,6 +446,11 @@ export interface GeometryBasicModel {
 
   count(where?: GeometryBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends GeometryBasicGroupByArgs>(
+    args: GroupByArg<A, GeometryBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GeometryBasicGroupByResult<A>[]>;
+
   exists(where?: GeometryBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -416,6 +507,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -538,6 +632,80 @@ export interface GeometryMultiOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface GeometryMultiGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryMultiCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  points?: true;
+  lines?: true;
+  polygons?: true;
+  collection?: true;
+}
+
+export interface GeometryMultiMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryMultiGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryMultiGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    points?: 'asc' | 'desc';
+    lines?: 'asc' | 'desc';
+    polygons?: 'asc' | 'desc';
+    collection?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface GeometryMultiGroupByArgs {
+  by: GeometryMultiGroupByKeys;
+  where?: GeometryMultiWhere;
+  _count?: true | GeometryMultiCountAggregate;
+  _min?: GeometryMultiMinMaxAggregate;
+  _max?: GeometryMultiMinMaxAggregate;
+  _group?: GeometryMultiGroupAggregate;
+  orderBy?: GeometryMultiGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GeometryMultiGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    points: number;
+    lines: number;
+    polygons: number;
+    collection: number;
+  };
+  _min: { id: NonNullable<GeometryMulti['id']> | null; name: NonNullable<GeometryMulti['name']> | null };
+  _max: { id: NonNullable<GeometryMulti['id']> | null; name: NonNullable<GeometryMulti['name']> | null };
+  _group: { id: GroupMember<GeometryMulti['id']>[]; name: GroupMember<GeometryMulti['name']>[] };
+}
+
+export type GeometryMultiGroupByResult<A extends GeometryMultiGroupByArgs> = GroupByRow<
+  GeometryMulti,
+  A,
+  GeometryMultiGroupByAggregates
+>;
 
 export type GeometryMulti$Relations = {};
 
@@ -685,6 +853,11 @@ export interface GeometryMultiModel {
 
   count(where?: GeometryMultiWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends GeometryMultiGroupByArgs>(
+    args: GroupByArg<A, GeometryMultiGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GeometryMultiGroupByResult<A>[]>;
+
   exists(where?: GeometryMultiWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -721,6 +894,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -807,6 +983,61 @@ export interface GeometryWithObjectOrderBy {
   name?: 'asc' | 'desc';
   geo?: GeoInfoOrderBy;
 }
+
+export interface GeometryWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  geo?: true;
+}
+
+export interface GeometryWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; geo?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface GeometryWithObjectGroupByArgs {
+  by: GeometryWithObjectGroupByKeys;
+  where?: GeometryWithObjectWhere;
+  _count?: true | GeometryWithObjectCountAggregate;
+  _min?: GeometryWithObjectMinMaxAggregate;
+  _max?: GeometryWithObjectMinMaxAggregate;
+  _group?: GeometryWithObjectGroupAggregate;
+  orderBy?: GeometryWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GeometryWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; geo: number };
+  _min: { id: NonNullable<GeometryWithObject['id']> | null; name: NonNullable<GeometryWithObject['name']> | null };
+  _max: { id: NonNullable<GeometryWithObject['id']> | null; name: NonNullable<GeometryWithObject['name']> | null };
+  _group: { id: GroupMember<GeometryWithObject['id']>[]; name: GroupMember<GeometryWithObject['name']>[] };
+}
+
+export type GeometryWithObjectGroupByResult<A extends GeometryWithObjectGroupByArgs> = GroupByRow<
+  GeometryWithObject,
+  A,
+  GeometryWithObjectGroupByAggregates
+>;
 
 export type GeometryWithObject$Relations = {};
 
@@ -957,6 +1188,11 @@ export interface GeometryWithObjectModel {
 
   count(where?: GeometryWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends GeometryWithObjectGroupByArgs>(
+    args: GroupByArg<A, GeometryWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GeometryWithObjectGroupByResult<A>[]>;
+
   exists(where?: GeometryWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -993,6 +1229,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1076,6 +1315,61 @@ export interface GeometryWithTupleOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface GeometryWithTupleGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryWithTupleCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pair?: true;
+}
+
+export interface GeometryWithTupleMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryWithTupleGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GeometryWithTupleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pair?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface GeometryWithTupleGroupByArgs {
+  by: GeometryWithTupleGroupByKeys;
+  where?: GeometryWithTupleWhere;
+  _count?: true | GeometryWithTupleCountAggregate;
+  _min?: GeometryWithTupleMinMaxAggregate;
+  _max?: GeometryWithTupleMinMaxAggregate;
+  _group?: GeometryWithTupleGroupAggregate;
+  orderBy?: GeometryWithTupleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GeometryWithTupleGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pair: number };
+  _min: { id: NonNullable<GeometryWithTuple['id']> | null; name: NonNullable<GeometryWithTuple['name']> | null };
+  _max: { id: NonNullable<GeometryWithTuple['id']> | null; name: NonNullable<GeometryWithTuple['name']> | null };
+  _group: { id: GroupMember<GeometryWithTuple['id']>[]; name: GroupMember<GeometryWithTuple['name']>[] };
+}
+
+export type GeometryWithTupleGroupByResult<A extends GeometryWithTupleGroupByArgs> = GroupByRow<
+  GeometryWithTuple,
+  A,
+  GeometryWithTupleGroupByAggregates
+>;
 
 export type GeometryWithTuple$Relations = {};
 
@@ -1225,6 +1519,11 @@ export interface GeometryWithTupleModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<GeometryWithTuple, R>>;
 
   count(where?: GeometryWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends GeometryWithTupleGroupByArgs>(
+    args: GroupByArg<A, GeometryWithTupleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GeometryWithTupleGroupByResult<A>[]>;
 
   exists(where?: GeometryWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

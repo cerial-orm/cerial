@@ -50,5 +50,5 @@ export { writeModelTypes } from './model-writer';
 export { writeObjectTypes } from './object-writer';
 export { generateClientClass, generateClientTemplate, generateImports, generateTypedDbInterface } from './template';
 export { writeTupleTypes } from './tuple-writer';
-export { RETURN_UTILITY_TYPES, SAFE_UNSET_TYPE, SELECT_UTILITY_TYPES } from './utility-types';
+export { GROUP_BY_UTILITY_TYPES, RETURN_UTILITY_TYPES, SAFE_UNSET_TYPE, SELECT_UTILITY_TYPES } from './utility-types';
 export { formatCode, writeClient, writeClientMain } from './writer';

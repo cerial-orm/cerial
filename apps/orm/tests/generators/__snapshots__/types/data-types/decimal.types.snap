@@ -24,6 +24,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -184,6 +187,130 @@ export interface DecimalBasicOrderBy {
   amounts?: 'asc' | 'desc';
 }
 
+export interface DecimalBasicGroupByKeys {
+  id?: true;
+  name?: true;
+  price?: true;
+  discount?: true;
+  tax?: true;
+  amounts?: true;
+}
+
+export interface DecimalBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  price?: true;
+  discount?: true;
+  tax?: true;
+  amounts?: true;
+}
+
+export interface DecimalBasicNumericAggregate {
+  price?: true;
+  discount?: true;
+  tax?: true;
+}
+
+export interface DecimalBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+  price?: true;
+  discount?: true;
+  tax?: true;
+}
+
+export interface DecimalBasicGroupAggregate {
+  id?: true;
+  name?: true;
+  price?: true;
+  discount?: true;
+  tax?: true;
+  amounts?: true;
+}
+
+export interface DecimalBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  price?: 'asc' | 'desc';
+  discount?: 'asc' | 'desc';
+  tax?: 'asc' | 'desc';
+  amounts?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    discount?: 'asc' | 'desc';
+    tax?: 'asc' | 'desc';
+    amounts?: 'asc' | 'desc';
+  };
+  _sum?: { price?: 'asc' | 'desc'; discount?: 'asc' | 'desc'; tax?: 'asc' | 'desc' };
+  _avg?: { price?: 'asc' | 'desc'; discount?: 'asc' | 'desc'; tax?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    discount?: 'asc' | 'desc';
+    tax?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    discount?: 'asc' | 'desc';
+    tax?: 'asc' | 'desc';
+  };
+}
+
+export interface DecimalBasicGroupByArgs {
+  by: DecimalBasicGroupByKeys;
+  where?: DecimalBasicWhere;
+  _count?: true | DecimalBasicCountAggregate;
+  _sum?: DecimalBasicNumericAggregate;
+  _avg?: DecimalBasicNumericAggregate;
+  _min?: DecimalBasicMinMaxAggregate;
+  _max?: DecimalBasicMinMaxAggregate;
+  _group?: DecimalBasicGroupAggregate;
+  orderBy?: DecimalBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DecimalBasicGroupByAggregates {
+  _count: { _all: number; id: number; name: number; price: number; discount: number; tax: number; amounts: number };
+  _sum: { price: CerialDecimal; discount: CerialDecimal; tax: CerialDecimal };
+  _avg: { price: CerialDecimal | null; discount: CerialDecimal | null; tax: CerialDecimal | null };
+  _min: {
+    id: NonNullable<DecimalBasic['id']> | null;
+    name: NonNullable<DecimalBasic['name']> | null;
+    price: NonNullable<DecimalBasic['price']> | null;
+    discount: NonNullable<DecimalBasic['discount']> | null;
+    tax: NonNullable<DecimalBasic['tax']> | null;
+  };
+  _max: {
+    id: NonNullable<DecimalBasic['id']> | null;
+    name: NonNullable<DecimalBasic['name']> | null;
+    price: NonNullable<DecimalBasic['price']> | null;
+    discount: NonNullable<DecimalBasic['discount']> | null;
+    tax: NonNullable<DecimalBasic['tax']> | null;
+  };
+  _group: {
+    id: GroupMember<DecimalBasic['id']>[];
+    name: GroupMember<DecimalBasic['name']>[];
+    price: GroupMember<DecimalBasic['price']>[];
+    discount: GroupMember<DecimalBasic['discount']>[];
+    tax: (GroupMember<DecimalBasic['tax']> | null)[];
+    amounts: GroupMember<DecimalBasic['amounts']>[];
+  };
+}
+
+export type DecimalBasicGroupByResult<A extends DecimalBasicGroupByArgs> = GroupByRow<
+  DecimalBasic,
+  A,
+  DecimalBasicGroupByAggregates
+>;
+
 export type DecimalBasic$Relations = {};
 
 export type GetDecimalBasicPayload<S extends DecimalBasicSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -330,6 +457,11 @@ export interface DecimalBasicModel {
 
   count(where?: DecimalBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DecimalBasicGroupByArgs>(
+    args: GroupByArg<A, DecimalBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DecimalBasicGroupByResult<A>[]>;
+
   exists(where?: DecimalBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -369,6 +501,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -487,6 +622,102 @@ export interface DecimalDecoratedOrderBy {
   defaultPrice?: 'asc' | 'desc';
   alwaysPrice?: 'asc' | 'desc';
 }
+
+export interface DecimalDecoratedGroupByKeys {
+  id?: true;
+  name?: true;
+  defaultPrice?: true;
+  alwaysPrice?: true;
+}
+
+export interface DecimalDecoratedCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  defaultPrice?: true;
+  alwaysPrice?: true;
+}
+
+export interface DecimalDecoratedNumericAggregate {
+  defaultPrice?: true;
+  alwaysPrice?: true;
+}
+
+export interface DecimalDecoratedMinMaxAggregate {
+  id?: true;
+  name?: true;
+  defaultPrice?: true;
+  alwaysPrice?: true;
+}
+
+export interface DecimalDecoratedGroupAggregate {
+  id?: true;
+  name?: true;
+  defaultPrice?: true;
+  alwaysPrice?: true;
+}
+
+export interface DecimalDecoratedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  defaultPrice?: 'asc' | 'desc';
+  alwaysPrice?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    defaultPrice?: 'asc' | 'desc';
+    alwaysPrice?: 'asc' | 'desc';
+  };
+  _sum?: { defaultPrice?: 'asc' | 'desc'; alwaysPrice?: 'asc' | 'desc' };
+  _avg?: { defaultPrice?: 'asc' | 'desc'; alwaysPrice?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; defaultPrice?: 'asc' | 'desc'; alwaysPrice?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; defaultPrice?: 'asc' | 'desc'; alwaysPrice?: 'asc' | 'desc' };
+}
+
+export interface DecimalDecoratedGroupByArgs {
+  by: DecimalDecoratedGroupByKeys;
+  where?: DecimalDecoratedWhere;
+  _count?: true | DecimalDecoratedCountAggregate;
+  _sum?: DecimalDecoratedNumericAggregate;
+  _avg?: DecimalDecoratedNumericAggregate;
+  _min?: DecimalDecoratedMinMaxAggregate;
+  _max?: DecimalDecoratedMinMaxAggregate;
+  _group?: DecimalDecoratedGroupAggregate;
+  orderBy?: DecimalDecoratedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DecimalDecoratedGroupByAggregates {
+  _count: { _all: number; id: number; name: number; defaultPrice: number; alwaysPrice: number };
+  _sum: { defaultPrice: CerialDecimal; alwaysPrice: CerialDecimal };
+  _avg: { defaultPrice: CerialDecimal | null; alwaysPrice: CerialDecimal | null };
+  _min: {
+    id: NonNullable<DecimalDecorated['id']> | null;
+    name: NonNullable<DecimalDecorated['name']> | null;
+    defaultPrice: NonNullable<DecimalDecorated['defaultPrice']> | null;
+    alwaysPrice: NonNullable<DecimalDecorated['alwaysPrice']> | null;
+  };
+  _max: {
+    id: NonNullable<DecimalDecorated['id']> | null;
+    name: NonNullable<DecimalDecorated['name']> | null;
+    defaultPrice: NonNullable<DecimalDecorated['defaultPrice']> | null;
+    alwaysPrice: NonNullable<DecimalDecorated['alwaysPrice']> | null;
+  };
+  _group: {
+    id: GroupMember<DecimalDecorated['id']>[];
+    name: GroupMember<DecimalDecorated['name']>[];
+    defaultPrice: GroupMember<DecimalDecorated['defaultPrice']>[];
+    alwaysPrice: GroupMember<DecimalDecorated['alwaysPrice']>[];
+  };
+}
+
+export type DecimalDecoratedGroupByResult<A extends DecimalDecoratedGroupByArgs> = GroupByRow<
+  DecimalDecorated,
+  A,
+  DecimalDecoratedGroupByAggregates
+>;
 
 export type DecimalDecorated$Relations = {};
 
@@ -637,6 +868,11 @@ export interface DecimalDecoratedModel {
 
   count(where?: DecimalDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DecimalDecoratedGroupByArgs>(
+    args: GroupByArg<A, DecimalDecoratedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DecimalDecoratedGroupByResult<A>[]>;
+
   exists(where?: DecimalDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -673,6 +909,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -765,6 +1004,63 @@ export interface DecimalWithObjectOrderBy {
   name?: 'asc' | 'desc';
   pricing?: DecimalInfoOrderBy;
 }
+
+export interface DecimalWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+  pricing?: { amount?: true; fee?: true };
+}
+
+export interface DecimalWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pricing?: true;
+}
+
+export interface DecimalWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface DecimalWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface DecimalWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  pricing?: { amount?: 'asc' | 'desc'; fee?: 'asc' | 'desc' };
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pricing?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface DecimalWithObjectGroupByArgs {
+  by: DecimalWithObjectGroupByKeys;
+  where?: DecimalWithObjectWhere;
+  _count?: true | DecimalWithObjectCountAggregate;
+  _min?: DecimalWithObjectMinMaxAggregate;
+  _max?: DecimalWithObjectMinMaxAggregate;
+  _group?: DecimalWithObjectGroupAggregate;
+  orderBy?: DecimalWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DecimalWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pricing: number };
+  _min: { id: NonNullable<DecimalWithObject['id']> | null; name: NonNullable<DecimalWithObject['name']> | null };
+  _max: { id: NonNullable<DecimalWithObject['id']> | null; name: NonNullable<DecimalWithObject['name']> | null };
+  _group: { id: GroupMember<DecimalWithObject['id']>[]; name: GroupMember<DecimalWithObject['name']>[] };
+}
+
+export type DecimalWithObjectGroupByResult<A extends DecimalWithObjectGroupByArgs> = GroupByRow<
+  DecimalWithObject,
+  A,
+  DecimalWithObjectGroupByAggregates
+>;
 
 export type DecimalWithObject$Relations = {};
 
@@ -915,6 +1211,11 @@ export interface DecimalWithObjectModel {
 
   count(where?: DecimalWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DecimalWithObjectGroupByArgs>(
+    args: GroupByArg<A, DecimalWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DecimalWithObjectGroupByResult<A>[]>;
+
   exists(where?: DecimalWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -951,6 +1252,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1040,6 +1344,61 @@ export interface DecimalWithTupleOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface DecimalWithTupleGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface DecimalWithTupleCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pair?: true;
+}
+
+export interface DecimalWithTupleMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface DecimalWithTupleGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface DecimalWithTupleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pair?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface DecimalWithTupleGroupByArgs {
+  by: DecimalWithTupleGroupByKeys;
+  where?: DecimalWithTupleWhere;
+  _count?: true | DecimalWithTupleCountAggregate;
+  _min?: DecimalWithTupleMinMaxAggregate;
+  _max?: DecimalWithTupleMinMaxAggregate;
+  _group?: DecimalWithTupleGroupAggregate;
+  orderBy?: DecimalWithTupleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DecimalWithTupleGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pair: number };
+  _min: { id: NonNullable<DecimalWithTuple['id']> | null; name: NonNullable<DecimalWithTuple['name']> | null };
+  _max: { id: NonNullable<DecimalWithTuple['id']> | null; name: NonNullable<DecimalWithTuple['name']> | null };
+  _group: { id: GroupMember<DecimalWithTuple['id']>[]; name: GroupMember<DecimalWithTuple['name']>[] };
+}
+
+export type DecimalWithTupleGroupByResult<A extends DecimalWithTupleGroupByArgs> = GroupByRow<
+  DecimalWithTuple,
+  A,
+  DecimalWithTupleGroupByAggregates
+>;
 
 export type DecimalWithTuple$Relations = {};
 
@@ -1189,6 +1548,11 @@ export interface DecimalWithTupleModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<DecimalWithTuple, R>>;
 
   count(where?: DecimalWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends DecimalWithTupleGroupByArgs>(
+    args: GroupByArg<A, DecimalWithTupleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DecimalWithTupleGroupByResult<A>[]>;
 
   exists(where?: DecimalWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

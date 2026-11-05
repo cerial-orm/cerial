@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -130,6 +133,118 @@ export interface EnumBasicOrderBy {
   nullRole?: 'asc' | 'desc';
   roles?: 'asc' | 'desc';
 }
+
+export interface EnumBasicGroupByKeys {
+  id?: true;
+  name?: true;
+  role?: true;
+  optRole?: true;
+  nullRole?: true;
+  roles?: true;
+}
+
+export interface EnumBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  role?: true;
+  optRole?: true;
+  nullRole?: true;
+  roles?: true;
+}
+
+export interface EnumBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+  role?: true;
+  optRole?: true;
+  nullRole?: true;
+}
+
+export interface EnumBasicGroupAggregate {
+  id?: true;
+  name?: true;
+  role?: true;
+  optRole?: true;
+  nullRole?: true;
+  roles?: true;
+}
+
+export interface EnumBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  optRole?: 'asc' | 'desc';
+  nullRole?: 'asc' | 'desc';
+  roles?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    optRole?: 'asc' | 'desc';
+    nullRole?: 'asc' | 'desc';
+    roles?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    optRole?: 'asc' | 'desc';
+    nullRole?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    optRole?: 'asc' | 'desc';
+    nullRole?: 'asc' | 'desc';
+  };
+}
+
+export interface EnumBasicGroupByArgs {
+  by: EnumBasicGroupByKeys;
+  where?: EnumBasicWhere;
+  _count?: true | EnumBasicCountAggregate;
+  _min?: EnumBasicMinMaxAggregate;
+  _max?: EnumBasicMinMaxAggregate;
+  _group?: EnumBasicGroupAggregate;
+  orderBy?: EnumBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface EnumBasicGroupByAggregates {
+  _count: { _all: number; id: number; name: number; role: number; optRole: number; nullRole: number; roles: number };
+  _min: {
+    id: NonNullable<EnumBasic['id']> | null;
+    name: NonNullable<EnumBasic['name']> | null;
+    role: NonNullable<EnumBasic['role']> | null;
+    optRole: NonNullable<EnumBasic['optRole']> | null;
+    nullRole: NonNullable<EnumBasic['nullRole']> | null;
+  };
+  _max: {
+    id: NonNullable<EnumBasic['id']> | null;
+    name: NonNullable<EnumBasic['name']> | null;
+    role: NonNullable<EnumBasic['role']> | null;
+    optRole: NonNullable<EnumBasic['optRole']> | null;
+    nullRole: NonNullable<EnumBasic['nullRole']> | null;
+  };
+  _group: {
+    id: GroupMember<EnumBasic['id']>[];
+    name: GroupMember<EnumBasic['name']>[];
+    role: GroupMember<EnumBasic['role']>[];
+    optRole: GroupMember<EnumBasic['optRole']>[];
+    nullRole: (GroupMember<EnumBasic['nullRole']> | null)[];
+    roles: GroupMember<EnumBasic['roles']>[];
+  };
+}
+
+export type EnumBasicGroupByResult<A extends EnumBasicGroupByArgs> = GroupByRow<
+  EnumBasic,
+  A,
+  EnumBasicGroupByAggregates
+>;
 
 export type EnumBasic$Relations = {};
 
@@ -277,6 +392,11 @@ export interface EnumBasicModel {
 
   count(where?: EnumBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends EnumBasicGroupByArgs>(
+    args: GroupByArg<A, EnumBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<EnumBasicGroupByResult<A>[]>;
+
   exists(where?: EnumBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -313,6 +433,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -401,6 +524,91 @@ export interface EnumDefaultsOrderBy {
   role?: 'asc' | 'desc';
   severity?: 'asc' | 'desc';
 }
+
+export interface EnumDefaultsGroupByKeys {
+  id?: true;
+  label?: true;
+  role?: true;
+  severity?: true;
+}
+
+export interface EnumDefaultsCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+  role?: true;
+  severity?: true;
+}
+
+export interface EnumDefaultsMinMaxAggregate {
+  id?: true;
+  label?: true;
+  role?: true;
+  severity?: true;
+}
+
+export interface EnumDefaultsGroupAggregate {
+  id?: true;
+  label?: true;
+  role?: true;
+  severity?: true;
+}
+
+export interface EnumDefaultsGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  severity?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    severity?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc'; role?: 'asc' | 'desc'; severity?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc'; role?: 'asc' | 'desc'; severity?: 'asc' | 'desc' };
+}
+
+export interface EnumDefaultsGroupByArgs {
+  by: EnumDefaultsGroupByKeys;
+  where?: EnumDefaultsWhere;
+  _count?: true | EnumDefaultsCountAggregate;
+  _min?: EnumDefaultsMinMaxAggregate;
+  _max?: EnumDefaultsMinMaxAggregate;
+  _group?: EnumDefaultsGroupAggregate;
+  orderBy?: EnumDefaultsGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface EnumDefaultsGroupByAggregates {
+  _count: { _all: number; id: number; label: number; role: number; severity: number };
+  _min: {
+    id: NonNullable<EnumDefaults['id']> | null;
+    label: NonNullable<EnumDefaults['label']> | null;
+    role: NonNullable<EnumDefaults['role']> | null;
+    severity: NonNullable<EnumDefaults['severity']> | null;
+  };
+  _max: {
+    id: NonNullable<EnumDefaults['id']> | null;
+    label: NonNullable<EnumDefaults['label']> | null;
+    role: NonNullable<EnumDefaults['role']> | null;
+    severity: NonNullable<EnumDefaults['severity']> | null;
+  };
+  _group: {
+    id: GroupMember<EnumDefaults['id']>[];
+    label: GroupMember<EnumDefaults['label']>[];
+    role: GroupMember<EnumDefaults['role']>[];
+    severity: GroupMember<EnumDefaults['severity']>[];
+  };
+}
+
+export type EnumDefaultsGroupByResult<A extends EnumDefaultsGroupByArgs> = GroupByRow<
+  EnumDefaults,
+  A,
+  EnumDefaultsGroupByAggregates
+>;
 
 export type EnumDefaults$Relations = {};
 
@@ -548,6 +756,11 @@ export interface EnumDefaultsModel {
 
   count(where?: EnumDefaultsWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends EnumDefaultsGroupByArgs>(
+    args: GroupByArg<A, EnumDefaultsGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<EnumDefaultsGroupByResult<A>[]>;
+
   exists(where?: EnumDefaultsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -584,6 +797,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -646,6 +862,60 @@ export type EnumLiteralRefSelect = AtLeastOne<EnumLiteralRefSelectFields>;
 export interface EnumLiteralRefOrderBy {
   id?: 'asc' | 'desc';
 }
+
+export interface EnumLiteralRefGroupByKeys {
+  id?: true;
+  visibility?: true;
+}
+
+export interface EnumLiteralRefCountAggregate {
+  _all?: true;
+  id?: true;
+  visibility?: true;
+}
+
+export interface EnumLiteralRefMinMaxAggregate {
+  id?: true;
+  visibility?: true;
+}
+
+export interface EnumLiteralRefGroupAggregate {
+  id?: true;
+  visibility?: true;
+}
+
+export interface EnumLiteralRefGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  visibility?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; visibility?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; visibility?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; visibility?: 'asc' | 'desc' };
+}
+
+export interface EnumLiteralRefGroupByArgs {
+  by: EnumLiteralRefGroupByKeys;
+  where?: EnumLiteralRefWhere;
+  _count?: true | EnumLiteralRefCountAggregate;
+  _min?: EnumLiteralRefMinMaxAggregate;
+  _max?: EnumLiteralRefMinMaxAggregate;
+  _group?: EnumLiteralRefGroupAggregate;
+  orderBy?: EnumLiteralRefGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface EnumLiteralRefGroupByAggregates {
+  _count: { _all: number; id: number; visibility: number };
+  _min: { id: NonNullable<EnumLiteralRef['id']> | null; visibility: NonNullable<EnumLiteralRef['visibility']> | null };
+  _max: { id: NonNullable<EnumLiteralRef['id']> | null; visibility: NonNullable<EnumLiteralRef['visibility']> | null };
+  _group: { id: GroupMember<EnumLiteralRef['id']>[]; visibility: GroupMember<EnumLiteralRef['visibility']>[] };
+}
+
+export type EnumLiteralRefGroupByResult<A extends EnumLiteralRefGroupByArgs> = GroupByRow<
+  EnumLiteralRef,
+  A,
+  EnumLiteralRefGroupByAggregates
+>;
 
 export type EnumLiteralRef$Relations = {};
 
@@ -793,6 +1063,11 @@ export interface EnumLiteralRefModel {
 
   count(where?: EnumLiteralRefWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends EnumLiteralRefGroupByArgs>(
+    args: GroupByArg<A, EnumLiteralRefGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<EnumLiteralRefGroupByResult<A>[]>;
+
   exists(where?: EnumLiteralRefWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -829,6 +1104,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -924,6 +1202,112 @@ export interface EnumMultipleOrderBy {
   color?: 'asc' | 'desc';
   severity?: 'asc' | 'desc';
 }
+
+export interface EnumMultipleGroupByKeys {
+  id?: true;
+  title?: true;
+  role?: true;
+  color?: true;
+  severity?: true;
+}
+
+export interface EnumMultipleCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  role?: true;
+  color?: true;
+  severity?: true;
+}
+
+export interface EnumMultipleMinMaxAggregate {
+  id?: true;
+  title?: true;
+  role?: true;
+  color?: true;
+  severity?: true;
+}
+
+export interface EnumMultipleGroupAggregate {
+  id?: true;
+  title?: true;
+  role?: true;
+  color?: true;
+  severity?: true;
+}
+
+export interface EnumMultipleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  color?: 'asc' | 'desc';
+  severity?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    color?: 'asc' | 'desc';
+    severity?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    color?: 'asc' | 'desc';
+    severity?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    color?: 'asc' | 'desc';
+    severity?: 'asc' | 'desc';
+  };
+}
+
+export interface EnumMultipleGroupByArgs {
+  by: EnumMultipleGroupByKeys;
+  where?: EnumMultipleWhere;
+  _count?: true | EnumMultipleCountAggregate;
+  _min?: EnumMultipleMinMaxAggregate;
+  _max?: EnumMultipleMinMaxAggregate;
+  _group?: EnumMultipleGroupAggregate;
+  orderBy?: EnumMultipleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface EnumMultipleGroupByAggregates {
+  _count: { _all: number; id: number; title: number; role: number; color: number; severity: number };
+  _min: {
+    id: NonNullable<EnumMultiple['id']> | null;
+    title: NonNullable<EnumMultiple['title']> | null;
+    role: NonNullable<EnumMultiple['role']> | null;
+    color: NonNullable<EnumMultiple['color']> | null;
+    severity: NonNullable<EnumMultiple['severity']> | null;
+  };
+  _max: {
+    id: NonNullable<EnumMultiple['id']> | null;
+    title: NonNullable<EnumMultiple['title']> | null;
+    role: NonNullable<EnumMultiple['role']> | null;
+    color: NonNullable<EnumMultiple['color']> | null;
+    severity: NonNullable<EnumMultiple['severity']> | null;
+  };
+  _group: {
+    id: GroupMember<EnumMultiple['id']>[];
+    title: GroupMember<EnumMultiple['title']>[];
+    role: GroupMember<EnumMultiple['role']>[];
+    color: GroupMember<EnumMultiple['color']>[];
+    severity: GroupMember<EnumMultiple['severity']>[];
+  };
+}
+
+export type EnumMultipleGroupByResult<A extends EnumMultipleGroupByArgs> = GroupByRow<
+  EnumMultiple,
+  A,
+  EnumMultipleGroupByAggregates
+>;
 
 export type EnumMultiple$Relations = {};
 
@@ -1071,6 +1455,11 @@ export interface EnumMultipleModel {
 
   count(where?: EnumMultipleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends EnumMultipleGroupByArgs>(
+    args: GroupByArg<A, EnumMultipleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<EnumMultipleGroupByResult<A>[]>;
+
   exists(where?: EnumMultipleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1107,6 +1496,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1174,6 +1566,60 @@ export interface EnumUniqueOrderBy {
   id?: 'asc' | 'desc';
   role?: 'asc' | 'desc';
 }
+
+export interface EnumUniqueGroupByKeys {
+  id?: true;
+  role?: true;
+}
+
+export interface EnumUniqueCountAggregate {
+  _all?: true;
+  id?: true;
+  role?: true;
+}
+
+export interface EnumUniqueMinMaxAggregate {
+  id?: true;
+  role?: true;
+}
+
+export interface EnumUniqueGroupAggregate {
+  id?: true;
+  role?: true;
+}
+
+export interface EnumUniqueGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; role?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; role?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; role?: 'asc' | 'desc' };
+}
+
+export interface EnumUniqueGroupByArgs {
+  by: EnumUniqueGroupByKeys;
+  where?: EnumUniqueWhere;
+  _count?: true | EnumUniqueCountAggregate;
+  _min?: EnumUniqueMinMaxAggregate;
+  _max?: EnumUniqueMinMaxAggregate;
+  _group?: EnumUniqueGroupAggregate;
+  orderBy?: EnumUniqueGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface EnumUniqueGroupByAggregates {
+  _count: { _all: number; id: number; role: number };
+  _min: { id: NonNullable<EnumUnique['id']> | null; role: NonNullable<EnumUnique['role']> | null };
+  _max: { id: NonNullable<EnumUnique['id']> | null; role: NonNullable<EnumUnique['role']> | null };
+  _group: { id: GroupMember<EnumUnique['id']>[]; role: GroupMember<EnumUnique['role']>[] };
+}
+
+export type EnumUniqueGroupByResult<A extends EnumUniqueGroupByArgs> = GroupByRow<
+  EnumUnique,
+  A,
+  EnumUniqueGroupByAggregates
+>;
 
 export type EnumUnique$Relations = {};
 
@@ -1321,6 +1767,11 @@ export interface EnumUniqueModel {
 
   count(where?: EnumUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends EnumUniqueGroupByArgs>(
+    args: GroupByArg<A, EnumUniqueGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<EnumUniqueGroupByResult<A>[]>;
+
   exists(where?: EnumUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1358,6 +1809,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1454,6 +1908,72 @@ export interface EnumWithObjectOrderBy {
   address?: EnumAddressOrderBy;
   optAddress?: EnumAddressOrderBy;
 }
+
+export interface EnumWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+  address?: { city?: true; severity?: true };
+  optAddress?: { city?: true; severity?: true };
+}
+
+export interface EnumWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  address?: true;
+  optAddress?: true;
+}
+
+export interface EnumWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface EnumWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface EnumWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  address?: { city?: 'asc' | 'desc'; severity?: 'asc' | 'desc' };
+  optAddress?: { city?: 'asc' | 'desc'; severity?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    address?: 'asc' | 'desc';
+    optAddress?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface EnumWithObjectGroupByArgs {
+  by: EnumWithObjectGroupByKeys;
+  where?: EnumWithObjectWhere;
+  _count?: true | EnumWithObjectCountAggregate;
+  _min?: EnumWithObjectMinMaxAggregate;
+  _max?: EnumWithObjectMinMaxAggregate;
+  _group?: EnumWithObjectGroupAggregate;
+  orderBy?: EnumWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface EnumWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; address: number; optAddress: number };
+  _min: { id: NonNullable<EnumWithObject['id']> | null; name: NonNullable<EnumWithObject['name']> | null };
+  _max: { id: NonNullable<EnumWithObject['id']> | null; name: NonNullable<EnumWithObject['name']> | null };
+  _group: { id: GroupMember<EnumWithObject['id']>[]; name: GroupMember<EnumWithObject['name']>[] };
+}
+
+export type EnumWithObjectGroupByResult<A extends EnumWithObjectGroupByArgs> = GroupByRow<
+  EnumWithObject,
+  A,
+  EnumWithObjectGroupByAggregates
+>;
 
 export type EnumWithObject$Relations = {};
 
@@ -1600,6 +2120,11 @@ export interface EnumWithObjectModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<EnumWithObject, R>>;
 
   count(where?: EnumWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends EnumWithObjectGroupByArgs>(
+    args: GroupByArg<A, EnumWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<EnumWithObjectGroupByResult<A>[]>;
 
   exists(where?: EnumWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

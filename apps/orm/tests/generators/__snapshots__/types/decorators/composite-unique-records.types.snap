@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -178,6 +181,56 @@ export interface AttendeeOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface AttendeeGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface AttendeeCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface AttendeeMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface AttendeeGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface AttendeeGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface AttendeeGroupByArgs {
+  by: AttendeeGroupByKeys;
+  where?: AttendeeWhere;
+  _count?: true | AttendeeCountAggregate;
+  _min?: AttendeeMinMaxAggregate;
+  _max?: AttendeeMinMaxAggregate;
+  _group?: AttendeeGroupAggregate;
+  orderBy?: AttendeeGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AttendeeGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<Attendee['id']> | null; name: NonNullable<Attendee['name']> | null };
+  _max: { id: NonNullable<Attendee['id']> | null; name: NonNullable<Attendee['name']> | null };
+  _group: { id: GroupMember<Attendee['id']>[]; name: GroupMember<Attendee['name']>[] };
+}
+
+export type AttendeeGroupByResult<A extends AttendeeGroupByArgs> = GroupByRow<Attendee, A, AttendeeGroupByAggregates>;
 
 export interface AttendeeInclude {
   registrations?:
@@ -445,6 +498,11 @@ export interface AttendeeModel {
 
   count(where?: AttendeeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends AttendeeGroupByArgs>(
+    args: GroupByArg<A, AttendeeGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<AttendeeGroupByResult<A>[]>;
+
   exists(where?: AttendeeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -481,6 +539,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -597,6 +658,59 @@ export interface BookingOrderBy {
   attendee?: AttendeeOrderBy;
   slot?: SlotOrderBy;
 }
+
+export interface BookingGroupByKeys {
+  id?: true;
+  attendeeId?: true;
+  slot?: { row?: true };
+}
+
+export interface BookingCountAggregate {
+  _all?: true;
+  id?: true;
+  attendeeId?: true;
+  slot?: true;
+}
+
+export interface BookingMinMaxAggregate {
+  id?: true;
+  attendeeId?: true;
+}
+
+export interface BookingGroupAggregate {
+  id?: true;
+  attendeeId?: true;
+}
+
+export interface BookingGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  attendeeId?: 'asc' | 'desc';
+  slot?: { row?: 'asc' | 'desc' };
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; attendeeId?: 'asc' | 'desc'; slot?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; attendeeId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; attendeeId?: 'asc' | 'desc' };
+}
+
+export interface BookingGroupByArgs {
+  by: BookingGroupByKeys;
+  where?: BookingWhere;
+  _count?: true | BookingCountAggregate;
+  _min?: BookingMinMaxAggregate;
+  _max?: BookingMinMaxAggregate;
+  _group?: BookingGroupAggregate;
+  orderBy?: BookingGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface BookingGroupByAggregates {
+  _count: { _all: number; id: number; attendeeId: number; slot: number };
+  _min: { id: NonNullable<Booking['id']> | null; attendeeId: NonNullable<Booking['attendeeId']> | null };
+  _max: { id: NonNullable<Booking['id']> | null; attendeeId: NonNullable<Booking['attendeeId']> | null };
+  _group: { id: GroupMember<Booking['id']>[]; attendeeId: GroupMember<Booking['attendeeId']>[] };
+}
+
+export type BookingGroupByResult<A extends BookingGroupByArgs> = GroupByRow<Booking, A, BookingGroupByAggregates>;
 
 export interface BookingInclude {
   attendee?:
@@ -802,6 +916,11 @@ export interface BookingModel {
 
   count(where?: BookingWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends BookingGroupByArgs>(
+    args: GroupByArg<A, BookingGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<BookingGroupByResult<A>[]>;
+
   exists(where?: BookingWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -839,6 +958,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -998,6 +1120,91 @@ export interface RegistrationOrderBy {
   workshop?: WorkshopOrderBy;
   role?: 'asc' | 'desc';
 }
+
+export interface RegistrationGroupByKeys {
+  id?: true;
+  attendeeId?: true;
+  workshopId?: true;
+  role?: true;
+}
+
+export interface RegistrationCountAggregate {
+  _all?: true;
+  id?: true;
+  attendeeId?: true;
+  workshopId?: true;
+  role?: true;
+}
+
+export interface RegistrationMinMaxAggregate {
+  id?: true;
+  attendeeId?: true;
+  workshopId?: true;
+  role?: true;
+}
+
+export interface RegistrationGroupAggregate {
+  id?: true;
+  attendeeId?: true;
+  workshopId?: true;
+  role?: true;
+}
+
+export interface RegistrationGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  attendeeId?: 'asc' | 'desc';
+  workshopId?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    attendeeId?: 'asc' | 'desc';
+    workshopId?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; attendeeId?: 'asc' | 'desc'; workshopId?: 'asc' | 'desc'; role?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; attendeeId?: 'asc' | 'desc'; workshopId?: 'asc' | 'desc'; role?: 'asc' | 'desc' };
+}
+
+export interface RegistrationGroupByArgs {
+  by: RegistrationGroupByKeys;
+  where?: RegistrationWhere;
+  _count?: true | RegistrationCountAggregate;
+  _min?: RegistrationMinMaxAggregate;
+  _max?: RegistrationMinMaxAggregate;
+  _group?: RegistrationGroupAggregate;
+  orderBy?: RegistrationGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RegistrationGroupByAggregates {
+  _count: { _all: number; id: number; attendeeId: number; workshopId: number; role: number };
+  _min: {
+    id: NonNullable<Registration['id']> | null;
+    attendeeId: NonNullable<Registration['attendeeId']> | null;
+    workshopId: NonNullable<Registration['workshopId']> | null;
+    role: NonNullable<Registration['role']> | null;
+  };
+  _max: {
+    id: NonNullable<Registration['id']> | null;
+    attendeeId: NonNullable<Registration['attendeeId']> | null;
+    workshopId: NonNullable<Registration['workshopId']> | null;
+    role: NonNullable<Registration['role']> | null;
+  };
+  _group: {
+    id: GroupMember<Registration['id']>[];
+    attendeeId: GroupMember<Registration['attendeeId']>[];
+    workshopId: GroupMember<Registration['workshopId']>[];
+    role: GroupMember<Registration['role']>[];
+  };
+}
+
+export type RegistrationGroupByResult<A extends RegistrationGroupByArgs> = GroupByRow<
+  Registration,
+  A,
+  RegistrationGroupByAggregates
+>;
 
 export interface RegistrationInclude {
   attendee?:
@@ -1231,6 +1438,11 @@ export interface RegistrationModel {
 
   count(where?: RegistrationWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends RegistrationGroupByArgs>(
+    args: GroupByArg<A, RegistrationGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<RegistrationGroupByResult<A>[]>;
+
   exists(where?: RegistrationWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1267,6 +1479,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1429,6 +1644,87 @@ export interface TicketOrderBy {
   workshop?: WorkshopOrderBy;
   seat?: 'asc' | 'desc';
 }
+
+export interface TicketGroupByKeys {
+  id?: true;
+  attendeeId?: true;
+  workshopId?: true;
+  seat?: true;
+}
+
+export interface TicketCountAggregate {
+  _all?: true;
+  id?: true;
+  attendeeId?: true;
+  workshopId?: true;
+  seat?: true;
+}
+
+export interface TicketMinMaxAggregate {
+  id?: true;
+  attendeeId?: true;
+  workshopId?: true;
+  seat?: true;
+}
+
+export interface TicketGroupAggregate {
+  id?: true;
+  attendeeId?: true;
+  workshopId?: true;
+  seat?: true;
+}
+
+export interface TicketGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  attendeeId?: 'asc' | 'desc';
+  workshopId?: 'asc' | 'desc';
+  seat?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    attendeeId?: 'asc' | 'desc';
+    workshopId?: 'asc' | 'desc';
+    seat?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; attendeeId?: 'asc' | 'desc'; workshopId?: 'asc' | 'desc'; seat?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; attendeeId?: 'asc' | 'desc'; workshopId?: 'asc' | 'desc'; seat?: 'asc' | 'desc' };
+}
+
+export interface TicketGroupByArgs {
+  by: TicketGroupByKeys;
+  where?: TicketWhere;
+  _count?: true | TicketCountAggregate;
+  _min?: TicketMinMaxAggregate;
+  _max?: TicketMinMaxAggregate;
+  _group?: TicketGroupAggregate;
+  orderBy?: TicketGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface TicketGroupByAggregates {
+  _count: { _all: number; id: number; attendeeId: number; workshopId: number; seat: number };
+  _min: {
+    id: NonNullable<Ticket['id']> | null;
+    attendeeId: NonNullable<Ticket['attendeeId']> | null;
+    workshopId: NonNullable<Ticket['workshopId']> | null;
+    seat: NonNullable<Ticket['seat']> | null;
+  };
+  _max: {
+    id: NonNullable<Ticket['id']> | null;
+    attendeeId: NonNullable<Ticket['attendeeId']> | null;
+    workshopId: NonNullable<Ticket['workshopId']> | null;
+    seat: NonNullable<Ticket['seat']> | null;
+  };
+  _group: {
+    id: GroupMember<Ticket['id']>[];
+    attendeeId: GroupMember<Ticket['attendeeId']>[];
+    workshopId: GroupMember<Ticket['workshopId']>[];
+    seat: GroupMember<Ticket['seat']>[];
+  };
+}
+
+export type TicketGroupByResult<A extends TicketGroupByArgs> = GroupByRow<Ticket, A, TicketGroupByAggregates>;
 
 export interface TicketInclude {
   attendee?:
@@ -1658,6 +1954,11 @@ export interface TicketModel {
 
   count(where?: TicketWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends TicketGroupByArgs>(
+    args: GroupByArg<A, TicketGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<TicketGroupByResult<A>[]>;
+
   exists(where?: TicketWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1694,6 +1995,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1824,6 +2128,56 @@ export interface WorkshopOrderBy {
   id?: 'asc' | 'desc';
   title?: 'asc' | 'desc';
 }
+
+export interface WorkshopGroupByKeys {
+  id?: true;
+  title?: true;
+}
+
+export interface WorkshopCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+}
+
+export interface WorkshopMinMaxAggregate {
+  id?: true;
+  title?: true;
+}
+
+export interface WorkshopGroupAggregate {
+  id?: true;
+  title?: true;
+}
+
+export interface WorkshopGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; title?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc' };
+}
+
+export interface WorkshopGroupByArgs {
+  by: WorkshopGroupByKeys;
+  where?: WorkshopWhere;
+  _count?: true | WorkshopCountAggregate;
+  _min?: WorkshopMinMaxAggregate;
+  _max?: WorkshopMinMaxAggregate;
+  _group?: WorkshopGroupAggregate;
+  orderBy?: WorkshopGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface WorkshopGroupByAggregates {
+  _count: { _all: number; id: number; title: number };
+  _min: { id: NonNullable<Workshop['id']> | null; title: NonNullable<Workshop['title']> | null };
+  _max: { id: NonNullable<Workshop['id']> | null; title: NonNullable<Workshop['title']> | null };
+  _group: { id: GroupMember<Workshop['id']>[]; title: GroupMember<Workshop['title']>[] };
+}
+
+export type WorkshopGroupByResult<A extends WorkshopGroupByArgs> = GroupByRow<Workshop, A, WorkshopGroupByAggregates>;
 
 export interface WorkshopInclude {
   registrations?:
@@ -2062,6 +2416,11 @@ export interface WorkshopModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<Workshop, R>>;
 
   count(where?: WorkshopWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends WorkshopGroupByArgs>(
+    args: GroupByArg<A, WorkshopGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<WorkshopGroupByResult<A>[]>;
 
   exists(where?: WorkshopWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

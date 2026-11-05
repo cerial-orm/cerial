@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -161,6 +164,87 @@ export interface BookOrderBy {
   publisherId?: 'asc' | 'desc';
   publisher?: PublisherOrderBy;
 }
+
+export interface BookGroupByKeys {
+  id?: true;
+  title?: true;
+  isbn?: true;
+  publisherId?: true;
+}
+
+export interface BookCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  isbn?: true;
+  publisherId?: true;
+}
+
+export interface BookMinMaxAggregate {
+  id?: true;
+  title?: true;
+  isbn?: true;
+  publisherId?: true;
+}
+
+export interface BookGroupAggregate {
+  id?: true;
+  title?: true;
+  isbn?: true;
+  publisherId?: true;
+}
+
+export interface BookGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  isbn?: 'asc' | 'desc';
+  publisherId?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    isbn?: 'asc' | 'desc';
+    publisherId?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; isbn?: 'asc' | 'desc'; publisherId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; isbn?: 'asc' | 'desc'; publisherId?: 'asc' | 'desc' };
+}
+
+export interface BookGroupByArgs {
+  by: BookGroupByKeys;
+  where?: BookWhere;
+  _count?: true | BookCountAggregate;
+  _min?: BookMinMaxAggregate;
+  _max?: BookMinMaxAggregate;
+  _group?: BookGroupAggregate;
+  orderBy?: BookGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface BookGroupByAggregates {
+  _count: { _all: number; id: number; title: number; isbn: number; publisherId: number };
+  _min: {
+    id: NonNullable<Book['id']> | null;
+    title: NonNullable<Book['title']> | null;
+    isbn: NonNullable<Book['isbn']> | null;
+    publisherId: NonNullable<Book['publisherId']> | null;
+  };
+  _max: {
+    id: NonNullable<Book['id']> | null;
+    title: NonNullable<Book['title']> | null;
+    isbn: NonNullable<Book['isbn']> | null;
+    publisherId: NonNullable<Book['publisherId']> | null;
+  };
+  _group: {
+    id: GroupMember<Book['id']>[];
+    title: GroupMember<Book['title']>[];
+    isbn: GroupMember<Book['isbn']>[];
+    publisherId: (GroupMember<Book['publisherId']> | null)[];
+  };
+}
+
+export type BookGroupByResult<A extends BookGroupByArgs> = GroupByRow<Book, A, BookGroupByAggregates>;
 
 export interface BookInclude {
   publisher?:
@@ -368,6 +452,11 @@ export interface BookModel {
 
   count(where?: BookWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends BookGroupByArgs>(
+    args: GroupByArg<A, BookGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<BookGroupByResult<A>[]>;
+
   exists(where?: BookWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -404,6 +493,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -507,6 +599,60 @@ export interface PublisherOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface PublisherGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface PublisherCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface PublisherMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface PublisherGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface PublisherGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface PublisherGroupByArgs {
+  by: PublisherGroupByKeys;
+  where?: PublisherWhere;
+  _count?: true | PublisherCountAggregate;
+  _min?: PublisherMinMaxAggregate;
+  _max?: PublisherMinMaxAggregate;
+  _group?: PublisherGroupAggregate;
+  orderBy?: PublisherGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PublisherGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<Publisher['id']> | null; name: NonNullable<Publisher['name']> | null };
+  _max: { id: NonNullable<Publisher['id']> | null; name: NonNullable<Publisher['name']> | null };
+  _group: { id: GroupMember<Publisher['id']>[]; name: GroupMember<Publisher['name']>[] };
+}
+
+export type PublisherGroupByResult<A extends PublisherGroupByArgs> = GroupByRow<
+  Publisher,
+  A,
+  PublisherGroupByAggregates
+>;
 
 export interface PublisherInclude {
   books?:
@@ -717,6 +863,11 @@ export interface PublisherModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<Publisher, R>>;
 
   count(where?: PublisherWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends PublisherGroupByArgs>(
+    args: GroupByArg<A, PublisherGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<PublisherGroupByResult<A>[]>;
 
   exists(where?: PublisherWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -182,6 +185,130 @@ export interface NumberBasicOrderBy {
   scores?: 'asc' | 'desc';
 }
 
+export interface NumberBasicGroupByKeys {
+  id?: true;
+  name?: true;
+  price?: true;
+  rating?: true;
+  weight?: true;
+  scores?: true;
+}
+
+export interface NumberBasicCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  price?: true;
+  rating?: true;
+  weight?: true;
+  scores?: true;
+}
+
+export interface NumberBasicNumericAggregate {
+  price?: true;
+  rating?: true;
+  weight?: true;
+}
+
+export interface NumberBasicMinMaxAggregate {
+  id?: true;
+  name?: true;
+  price?: true;
+  rating?: true;
+  weight?: true;
+}
+
+export interface NumberBasicGroupAggregate {
+  id?: true;
+  name?: true;
+  price?: true;
+  rating?: true;
+  weight?: true;
+  scores?: true;
+}
+
+export interface NumberBasicGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  price?: 'asc' | 'desc';
+  rating?: 'asc' | 'desc';
+  weight?: 'asc' | 'desc';
+  scores?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    rating?: 'asc' | 'desc';
+    weight?: 'asc' | 'desc';
+    scores?: 'asc' | 'desc';
+  };
+  _sum?: { price?: 'asc' | 'desc'; rating?: 'asc' | 'desc'; weight?: 'asc' | 'desc' };
+  _avg?: { price?: 'asc' | 'desc'; rating?: 'asc' | 'desc'; weight?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    rating?: 'asc' | 'desc';
+    weight?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    rating?: 'asc' | 'desc';
+    weight?: 'asc' | 'desc';
+  };
+}
+
+export interface NumberBasicGroupByArgs {
+  by: NumberBasicGroupByKeys;
+  where?: NumberBasicWhere;
+  _count?: true | NumberBasicCountAggregate;
+  _sum?: NumberBasicNumericAggregate;
+  _avg?: NumberBasicNumericAggregate;
+  _min?: NumberBasicMinMaxAggregate;
+  _max?: NumberBasicMinMaxAggregate;
+  _group?: NumberBasicGroupAggregate;
+  orderBy?: NumberBasicGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NumberBasicGroupByAggregates {
+  _count: { _all: number; id: number; name: number; price: number; rating: number; weight: number; scores: number };
+  _sum: { price: number; rating: number; weight: number };
+  _avg: { price: number | null; rating: number | null; weight: number | null };
+  _min: {
+    id: NonNullable<NumberBasic['id']> | null;
+    name: NonNullable<NumberBasic['name']> | null;
+    price: NonNullable<NumberBasic['price']> | null;
+    rating: NonNullable<NumberBasic['rating']> | null;
+    weight: NonNullable<NumberBasic['weight']> | null;
+  };
+  _max: {
+    id: NonNullable<NumberBasic['id']> | null;
+    name: NonNullable<NumberBasic['name']> | null;
+    price: NonNullable<NumberBasic['price']> | null;
+    rating: NonNullable<NumberBasic['rating']> | null;
+    weight: NonNullable<NumberBasic['weight']> | null;
+  };
+  _group: {
+    id: GroupMember<NumberBasic['id']>[];
+    name: GroupMember<NumberBasic['name']>[];
+    price: GroupMember<NumberBasic['price']>[];
+    rating: GroupMember<NumberBasic['rating']>[];
+    weight: (GroupMember<NumberBasic['weight']> | null)[];
+    scores: GroupMember<NumberBasic['scores']>[];
+  };
+}
+
+export type NumberBasicGroupByResult<A extends NumberBasicGroupByArgs> = GroupByRow<
+  NumberBasic,
+  A,
+  NumberBasicGroupByAggregates
+>;
+
 export type NumberBasic$Relations = {};
 
 export type GetNumberBasicPayload<S extends NumberBasicSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -328,6 +455,11 @@ export interface NumberBasicModel {
 
   count(where?: NumberBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends NumberBasicGroupByArgs>(
+    args: GroupByArg<A, NumberBasicGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NumberBasicGroupByResult<A>[]>;
+
   exists(where?: NumberBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -365,6 +497,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -483,6 +618,102 @@ export interface NumberDecoratedOrderBy {
   score?: 'asc' | 'desc';
   multiplier?: 'asc' | 'desc';
 }
+
+export interface NumberDecoratedGroupByKeys {
+  id?: true;
+  name?: true;
+  score?: true;
+  multiplier?: true;
+}
+
+export interface NumberDecoratedCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  score?: true;
+  multiplier?: true;
+}
+
+export interface NumberDecoratedNumericAggregate {
+  score?: true;
+  multiplier?: true;
+}
+
+export interface NumberDecoratedMinMaxAggregate {
+  id?: true;
+  name?: true;
+  score?: true;
+  multiplier?: true;
+}
+
+export interface NumberDecoratedGroupAggregate {
+  id?: true;
+  name?: true;
+  score?: true;
+  multiplier?: true;
+}
+
+export interface NumberDecoratedGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  score?: 'asc' | 'desc';
+  multiplier?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    score?: 'asc' | 'desc';
+    multiplier?: 'asc' | 'desc';
+  };
+  _sum?: { score?: 'asc' | 'desc'; multiplier?: 'asc' | 'desc' };
+  _avg?: { score?: 'asc' | 'desc'; multiplier?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; score?: 'asc' | 'desc'; multiplier?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; score?: 'asc' | 'desc'; multiplier?: 'asc' | 'desc' };
+}
+
+export interface NumberDecoratedGroupByArgs {
+  by: NumberDecoratedGroupByKeys;
+  where?: NumberDecoratedWhere;
+  _count?: true | NumberDecoratedCountAggregate;
+  _sum?: NumberDecoratedNumericAggregate;
+  _avg?: NumberDecoratedNumericAggregate;
+  _min?: NumberDecoratedMinMaxAggregate;
+  _max?: NumberDecoratedMinMaxAggregate;
+  _group?: NumberDecoratedGroupAggregate;
+  orderBy?: NumberDecoratedGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NumberDecoratedGroupByAggregates {
+  _count: { _all: number; id: number; name: number; score: number; multiplier: number };
+  _sum: { score: number; multiplier: number };
+  _avg: { score: number | null; multiplier: number | null };
+  _min: {
+    id: NonNullable<NumberDecorated['id']> | null;
+    name: NonNullable<NumberDecorated['name']> | null;
+    score: NonNullable<NumberDecorated['score']> | null;
+    multiplier: NonNullable<NumberDecorated['multiplier']> | null;
+  };
+  _max: {
+    id: NonNullable<NumberDecorated['id']> | null;
+    name: NonNullable<NumberDecorated['name']> | null;
+    score: NonNullable<NumberDecorated['score']> | null;
+    multiplier: NonNullable<NumberDecorated['multiplier']> | null;
+  };
+  _group: {
+    id: GroupMember<NumberDecorated['id']>[];
+    name: GroupMember<NumberDecorated['name']>[];
+    score: GroupMember<NumberDecorated['score']>[];
+    multiplier: GroupMember<NumberDecorated['multiplier']>[];
+  };
+}
+
+export type NumberDecoratedGroupByResult<A extends NumberDecoratedGroupByArgs> = GroupByRow<
+  NumberDecorated,
+  A,
+  NumberDecoratedGroupByAggregates
+>;
 
 export type NumberDecorated$Relations = {};
 
@@ -633,6 +864,11 @@ export interface NumberDecoratedModel {
 
   count(where?: NumberDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends NumberDecoratedGroupByArgs>(
+    args: GroupByArg<A, NumberDecoratedGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NumberDecoratedGroupByResult<A>[]>;
+
   exists(where?: NumberDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -670,6 +906,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -777,6 +1016,72 @@ export interface NumberWithObjectOrderBy {
   stats?: NumberInfoOrderBy;
   optStats?: NumberInfoOrderBy;
 }
+
+export interface NumberWithObjectGroupByKeys {
+  id?: true;
+  name?: true;
+  stats?: { views?: true; downloads?: true; rating?: true };
+  optStats?: { views?: true; downloads?: true; rating?: true };
+}
+
+export interface NumberWithObjectCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  stats?: true;
+  optStats?: true;
+}
+
+export interface NumberWithObjectMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NumberWithObjectGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NumberWithObjectGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  stats?: { views?: 'asc' | 'desc'; downloads?: 'asc' | 'desc'; rating?: 'asc' | 'desc' };
+  optStats?: { views?: 'asc' | 'desc'; downloads?: 'asc' | 'desc'; rating?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    stats?: 'asc' | 'desc';
+    optStats?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface NumberWithObjectGroupByArgs {
+  by: NumberWithObjectGroupByKeys;
+  where?: NumberWithObjectWhere;
+  _count?: true | NumberWithObjectCountAggregate;
+  _min?: NumberWithObjectMinMaxAggregate;
+  _max?: NumberWithObjectMinMaxAggregate;
+  _group?: NumberWithObjectGroupAggregate;
+  orderBy?: NumberWithObjectGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NumberWithObjectGroupByAggregates {
+  _count: { _all: number; id: number; name: number; stats: number; optStats: number };
+  _min: { id: NonNullable<NumberWithObject['id']> | null; name: NonNullable<NumberWithObject['name']> | null };
+  _max: { id: NonNullable<NumberWithObject['id']> | null; name: NonNullable<NumberWithObject['name']> | null };
+  _group: { id: GroupMember<NumberWithObject['id']>[]; name: GroupMember<NumberWithObject['name']>[] };
+}
+
+export type NumberWithObjectGroupByResult<A extends NumberWithObjectGroupByArgs> = GroupByRow<
+  NumberWithObject,
+  A,
+  NumberWithObjectGroupByAggregates
+>;
 
 export type NumberWithObject$Relations = {};
 
@@ -927,6 +1232,11 @@ export interface NumberWithObjectModel {
 
   count(where?: NumberWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends NumberWithObjectGroupByArgs>(
+    args: GroupByArg<A, NumberWithObjectGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NumberWithObjectGroupByResult<A>[]>;
+
   exists(where?: NumberWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -964,6 +1274,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1059,6 +1372,68 @@ export interface NumberWithTupleOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
 }
+
+export interface NumberWithTupleGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface NumberWithTupleCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  coord?: true;
+  optCoord?: true;
+}
+
+export interface NumberWithTupleMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NumberWithTupleGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface NumberWithTupleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    coord?: 'asc' | 'desc';
+    optCoord?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface NumberWithTupleGroupByArgs {
+  by: NumberWithTupleGroupByKeys;
+  where?: NumberWithTupleWhere;
+  _count?: true | NumberWithTupleCountAggregate;
+  _min?: NumberWithTupleMinMaxAggregate;
+  _max?: NumberWithTupleMinMaxAggregate;
+  _group?: NumberWithTupleGroupAggregate;
+  orderBy?: NumberWithTupleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface NumberWithTupleGroupByAggregates {
+  _count: { _all: number; id: number; name: number; coord: number; optCoord: number };
+  _min: { id: NonNullable<NumberWithTuple['id']> | null; name: NonNullable<NumberWithTuple['name']> | null };
+  _max: { id: NonNullable<NumberWithTuple['id']> | null; name: NonNullable<NumberWithTuple['name']> | null };
+  _group: { id: GroupMember<NumberWithTuple['id']>[]; name: GroupMember<NumberWithTuple['name']>[] };
+}
+
+export type NumberWithTupleGroupByResult<A extends NumberWithTupleGroupByArgs> = GroupByRow<
+  NumberWithTuple,
+  A,
+  NumberWithTupleGroupByAggregates
+>;
 
 export type NumberWithTuple$Relations = {};
 
@@ -1208,6 +1583,11 @@ export interface NumberWithTupleModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<NumberWithTuple, R>>;
 
   count(where?: NumberWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends NumberWithTupleGroupByArgs>(
+    args: GroupByArg<A, NumberWithTupleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<NumberWithTupleGroupByResult<A>[]>;
 
   exists(where?: NumberWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

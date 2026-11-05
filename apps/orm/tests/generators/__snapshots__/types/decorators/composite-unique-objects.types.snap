@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -108,6 +111,59 @@ export interface DepotOrderBy {
   label?: 'asc' | 'desc';
   dock?: DockOrderBy;
 }
+
+export interface DepotGroupByKeys {
+  id?: true;
+  label?: true;
+  dock?: { bay?: true; level?: true };
+}
+
+export interface DepotCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+  dock?: true;
+}
+
+export interface DepotMinMaxAggregate {
+  id?: true;
+  label?: true;
+}
+
+export interface DepotGroupAggregate {
+  id?: true;
+  label?: true;
+}
+
+export interface DepotGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  dock?: { bay?: 'asc' | 'desc'; level?: 'asc' | 'desc' };
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; label?: 'asc' | 'desc'; dock?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+}
+
+export interface DepotGroupByArgs {
+  by: DepotGroupByKeys;
+  where?: DepotWhere;
+  _count?: true | DepotCountAggregate;
+  _min?: DepotMinMaxAggregate;
+  _max?: DepotMinMaxAggregate;
+  _group?: DepotGroupAggregate;
+  orderBy?: DepotGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DepotGroupByAggregates {
+  _count: { _all: number; id: number; label: number; dock: number };
+  _min: { id: NonNullable<Depot['id']> | null; label: NonNullable<Depot['label']> | null };
+  _max: { id: NonNullable<Depot['id']> | null; label: NonNullable<Depot['label']> | null };
+  _group: { id: GroupMember<Depot['id']>[]; label: GroupMember<Depot['label']>[] };
+}
+
+export type DepotGroupByResult<A extends DepotGroupByArgs> = GroupByRow<Depot, A, DepotGroupByAggregates>;
 
 export type Depot$Relations = {};
 
@@ -250,6 +306,11 @@ export interface DepotModel {
 
   count(where?: DepotWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DepotGroupByArgs>(
+    args: GroupByArg<A, DepotGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DepotGroupByResult<A>[]>;
+
   exists(where?: DepotWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -287,6 +348,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -411,6 +475,96 @@ export interface WarehouseOrderBy {
   location?: LocationOrderBy;
   capacity?: 'asc' | 'desc';
 }
+
+export interface WarehouseGroupByKeys {
+  id?: true;
+  name?: true;
+  location?: { city?: true; zip?: true; street?: true };
+  capacity?: true;
+}
+
+export interface WarehouseCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  location?: true;
+  capacity?: true;
+}
+
+export interface WarehouseNumericAggregate {
+  capacity?: true;
+}
+
+export interface WarehouseMinMaxAggregate {
+  id?: true;
+  name?: true;
+  capacity?: true;
+}
+
+export interface WarehouseGroupAggregate {
+  id?: true;
+  name?: true;
+  capacity?: true;
+}
+
+export interface WarehouseGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  location?: { city?: 'asc' | 'desc'; zip?: 'asc' | 'desc'; street?: 'asc' | 'desc' };
+  capacity?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    location?: 'asc' | 'desc';
+    capacity?: 'asc' | 'desc';
+  };
+  _sum?: { capacity?: 'asc' | 'desc' };
+  _avg?: { capacity?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; capacity?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; capacity?: 'asc' | 'desc' };
+}
+
+export interface WarehouseGroupByArgs {
+  by: WarehouseGroupByKeys;
+  where?: WarehouseWhere;
+  _count?: true | WarehouseCountAggregate;
+  _sum?: WarehouseNumericAggregate;
+  _avg?: WarehouseNumericAggregate;
+  _min?: WarehouseMinMaxAggregate;
+  _max?: WarehouseMinMaxAggregate;
+  _group?: WarehouseGroupAggregate;
+  orderBy?: WarehouseGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface WarehouseGroupByAggregates {
+  _count: { _all: number; id: number; name: number; location: number; capacity: number };
+  _sum: { capacity: number };
+  _avg: { capacity: number | null };
+  _min: {
+    id: NonNullable<Warehouse['id']> | null;
+    name: NonNullable<Warehouse['name']> | null;
+    capacity: NonNullable<Warehouse['capacity']> | null;
+  };
+  _max: {
+    id: NonNullable<Warehouse['id']> | null;
+    name: NonNullable<Warehouse['name']> | null;
+    capacity: NonNullable<Warehouse['capacity']> | null;
+  };
+  _group: {
+    id: GroupMember<Warehouse['id']>[];
+    name: GroupMember<Warehouse['name']>[];
+    capacity: GroupMember<Warehouse['capacity']>[];
+  };
+}
+
+export type WarehouseGroupByResult<A extends WarehouseGroupByArgs> = GroupByRow<
+  Warehouse,
+  A,
+  WarehouseGroupByAggregates
+>;
 
 export type Warehouse$Relations = {};
 
@@ -557,6 +711,11 @@ export interface WarehouseModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<Warehouse, R>>;
 
   count(where?: WarehouseWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends WarehouseGroupByArgs>(
+    args: GroupByArg<A, WarehouseGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<WarehouseGroupByResult<A>[]>;
 
   exists(where?: WarehouseWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

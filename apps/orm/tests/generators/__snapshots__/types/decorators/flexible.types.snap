@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -177,6 +180,87 @@ export interface FlexUserOrderBy {
   strictAddress?: FlexAddressOrderBy;
 }
 
+export interface FlexUserGroupByKeys {
+  id?: true;
+  name?: true;
+  address?: { street?: true; city?: true; zip?: true };
+  shipping?: { street?: true; city?: true; zip?: true };
+  profile?: { bio?: true; metadata?: { label?: true } };
+  strictAddress?: { street?: true; city?: true; zip?: true };
+}
+
+export interface FlexUserCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  address?: true;
+  shipping?: true;
+  tags?: true;
+  profile?: true;
+  strictAddress?: true;
+}
+
+export interface FlexUserMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface FlexUserGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface FlexUserGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  address?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; zip?: 'asc' | 'desc' };
+  shipping?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; zip?: 'asc' | 'desc' };
+  profile?: { bio?: 'asc' | 'desc'; metadata?: { label?: 'asc' | 'desc' } };
+  strictAddress?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; zip?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    address?: 'asc' | 'desc';
+    shipping?: 'asc' | 'desc';
+    tags?: 'asc' | 'desc';
+    profile?: 'asc' | 'desc';
+    strictAddress?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface FlexUserGroupByArgs {
+  by: FlexUserGroupByKeys;
+  where?: FlexUserWhere;
+  _count?: true | FlexUserCountAggregate;
+  _min?: FlexUserMinMaxAggregate;
+  _max?: FlexUserMinMaxAggregate;
+  _group?: FlexUserGroupAggregate;
+  orderBy?: FlexUserGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface FlexUserGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    address: number;
+    shipping: number;
+    tags: number;
+    profile: number;
+    strictAddress: number;
+  };
+  _min: { id: NonNullable<FlexUser['id']> | null; name: NonNullable<FlexUser['name']> | null };
+  _max: { id: NonNullable<FlexUser['id']> | null; name: NonNullable<FlexUser['name']> | null };
+  _group: { id: GroupMember<FlexUser['id']>[]; name: GroupMember<FlexUser['name']>[] };
+}
+
+export type FlexUserGroupByResult<A extends FlexUserGroupByArgs> = GroupByRow<FlexUser, A, FlexUserGroupByAggregates>;
+
 export type FlexUser$Relations = {};
 
 export type GetFlexUserPayload<S extends FlexUserSelect | undefined = undefined, I = undefined> = A.Compute<
@@ -322,6 +406,11 @@ export interface FlexUserModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<FlexUser, R>>;
 
   count(where?: FlexUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends FlexUserGroupByArgs>(
+    args: GroupByArg<A, FlexUserGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<FlexUserGroupByResult<A>[]>;
 
   exists(where?: FlexUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

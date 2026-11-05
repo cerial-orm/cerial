@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -129,6 +132,70 @@ export interface ExtEnumContainerOrderBy {
   details?: ExtEnumInfoOrderBy;
   detailsList?: ExtEnumInfoOrderBy;
 }
+
+export interface ExtEnumContainerGroupByKeys {
+  id?: true;
+  name?: true;
+  details?: { role?: true; status?: true; backupRole?: true };
+}
+
+export interface ExtEnumContainerCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  details?: true;
+  detailsList?: true;
+}
+
+export interface ExtEnumContainerMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ExtEnumContainerGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ExtEnumContainerGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  details?: { role?: 'asc' | 'desc'; status?: 'asc' | 'desc'; backupRole?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    details?: 'asc' | 'desc';
+    detailsList?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface ExtEnumContainerGroupByArgs {
+  by: ExtEnumContainerGroupByKeys;
+  where?: ExtEnumContainerWhere;
+  _count?: true | ExtEnumContainerCountAggregate;
+  _min?: ExtEnumContainerMinMaxAggregate;
+  _max?: ExtEnumContainerMinMaxAggregate;
+  _group?: ExtEnumContainerGroupAggregate;
+  orderBy?: ExtEnumContainerGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtEnumContainerGroupByAggregates {
+  _count: { _all: number; id: number; name: number; details: number; detailsList: number };
+  _min: { id: NonNullable<ExtEnumContainer['id']> | null; name: NonNullable<ExtEnumContainer['name']> | null };
+  _max: { id: NonNullable<ExtEnumContainer['id']> | null; name: NonNullable<ExtEnumContainer['name']> | null };
+  _group: { id: GroupMember<ExtEnumContainer['id']>[]; name: GroupMember<ExtEnumContainer['name']>[] };
+}
+
+export type ExtEnumContainerGroupByResult<A extends ExtEnumContainerGroupByArgs> = GroupByRow<
+  ExtEnumContainer,
+  A,
+  ExtEnumContainerGroupByAggregates
+>;
 
 export type ExtEnumContainer$Relations = {};
 
@@ -279,6 +346,11 @@ export interface ExtEnumContainerModel {
 
   count(where?: ExtEnumContainerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ExtEnumContainerGroupByArgs>(
+    args: GroupByArg<A, ExtEnumContainerGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtEnumContainerGroupByResult<A>[]>;
+
   exists(where?: ExtEnumContainerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -316,6 +388,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -447,6 +522,133 @@ export interface ExtEnumModelOrderBy {
   roles?: 'asc' | 'desc';
   statuses?: 'asc' | 'desc';
 }
+
+export interface ExtEnumModelGroupByKeys {
+  id?: true;
+  role?: true;
+  status?: true;
+  coreRole?: true;
+  nonAdminRole?: true;
+  roles?: true;
+  statuses?: true;
+}
+
+export interface ExtEnumModelCountAggregate {
+  _all?: true;
+  id?: true;
+  role?: true;
+  status?: true;
+  coreRole?: true;
+  nonAdminRole?: true;
+  roles?: true;
+  statuses?: true;
+}
+
+export interface ExtEnumModelMinMaxAggregate {
+  id?: true;
+  role?: true;
+  status?: true;
+  coreRole?: true;
+  nonAdminRole?: true;
+}
+
+export interface ExtEnumModelGroupAggregate {
+  id?: true;
+  role?: true;
+  status?: true;
+  coreRole?: true;
+  nonAdminRole?: true;
+  roles?: true;
+  statuses?: true;
+}
+
+export interface ExtEnumModelGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  coreRole?: 'asc' | 'desc';
+  nonAdminRole?: 'asc' | 'desc';
+  roles?: 'asc' | 'desc';
+  statuses?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    coreRole?: 'asc' | 'desc';
+    nonAdminRole?: 'asc' | 'desc';
+    roles?: 'asc' | 'desc';
+    statuses?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    coreRole?: 'asc' | 'desc';
+    nonAdminRole?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    role?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    coreRole?: 'asc' | 'desc';
+    nonAdminRole?: 'asc' | 'desc';
+  };
+}
+
+export interface ExtEnumModelGroupByArgs {
+  by: ExtEnumModelGroupByKeys;
+  where?: ExtEnumModelWhere;
+  _count?: true | ExtEnumModelCountAggregate;
+  _min?: ExtEnumModelMinMaxAggregate;
+  _max?: ExtEnumModelMinMaxAggregate;
+  _group?: ExtEnumModelGroupAggregate;
+  orderBy?: ExtEnumModelGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExtEnumModelGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    role: number;
+    status: number;
+    coreRole: number;
+    nonAdminRole: number;
+    roles: number;
+    statuses: number;
+  };
+  _min: {
+    id: NonNullable<ExtEnumModel['id']> | null;
+    role: NonNullable<ExtEnumModel['role']> | null;
+    status: NonNullable<ExtEnumModel['status']> | null;
+    coreRole: NonNullable<ExtEnumModel['coreRole']> | null;
+    nonAdminRole: NonNullable<ExtEnumModel['nonAdminRole']> | null;
+  };
+  _max: {
+    id: NonNullable<ExtEnumModel['id']> | null;
+    role: NonNullable<ExtEnumModel['role']> | null;
+    status: NonNullable<ExtEnumModel['status']> | null;
+    coreRole: NonNullable<ExtEnumModel['coreRole']> | null;
+    nonAdminRole: NonNullable<ExtEnumModel['nonAdminRole']> | null;
+  };
+  _group: {
+    id: GroupMember<ExtEnumModel['id']>[];
+    role: GroupMember<ExtEnumModel['role']>[];
+    status: GroupMember<ExtEnumModel['status']>[];
+    coreRole: GroupMember<ExtEnumModel['coreRole']>[];
+    nonAdminRole: GroupMember<ExtEnumModel['nonAdminRole']>[];
+    roles: GroupMember<ExtEnumModel['roles']>[];
+    statuses: GroupMember<ExtEnumModel['statuses']>[];
+  };
+}
+
+export type ExtEnumModelGroupByResult<A extends ExtEnumModelGroupByArgs> = GroupByRow<
+  ExtEnumModel,
+  A,
+  ExtEnumModelGroupByAggregates
+>;
 
 export type ExtEnumModel$Relations = {};
 
@@ -593,6 +795,11 @@ export interface ExtEnumModelModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ExtEnumModel, R>>;
 
   count(where?: ExtEnumModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ExtEnumModelGroupByArgs>(
+    args: GroupByArg<A, ExtEnumModelGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ExtEnumModelGroupByResult<A>[]>;
 
   exists(where?: ExtEnumModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

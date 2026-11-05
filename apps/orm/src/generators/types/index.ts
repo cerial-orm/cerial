@@ -2,6 +2,7 @@
  * Types generators barrel export
  */
 
+export { generateGroupByMethod, generateGroupByTypes } from './group-by-generator';
 export {
   generateAllDerivedTypes,
   generateAllObjectDerivedTypes,

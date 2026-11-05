@@ -21,6 +21,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -95,6 +98,56 @@ export interface ArticleOrderBy {
   id?: 'asc' | 'desc';
   title?: 'asc' | 'desc';
 }
+
+export interface ArticleGroupByKeys {
+  id?: true;
+  title?: true;
+}
+
+export interface ArticleCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+}
+
+export interface ArticleMinMaxAggregate {
+  id?: true;
+  title?: true;
+}
+
+export interface ArticleGroupAggregate {
+  id?: true;
+  title?: true;
+}
+
+export interface ArticleGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; title?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc' };
+}
+
+export interface ArticleGroupByArgs {
+  by: ArticleGroupByKeys;
+  where?: ArticleWhere;
+  _count?: true | ArticleCountAggregate;
+  _min?: ArticleMinMaxAggregate;
+  _max?: ArticleMinMaxAggregate;
+  _group?: ArticleGroupAggregate;
+  orderBy?: ArticleGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ArticleGroupByAggregates {
+  _count: { _all: number; id: number; title: number };
+  _min: { id: NonNullable<Article['id']> | null; title: NonNullable<Article['title']> | null };
+  _max: { id: NonNullable<Article['id']> | null; title: NonNullable<Article['title']> | null };
+  _group: { id: GroupMember<Article['id']>[]; title: GroupMember<Article['title']>[] };
+}
+
+export type ArticleGroupByResult<A extends ArticleGroupByArgs> = GroupByRow<Article, A, ArticleGroupByAggregates>;
 
 export type Article$Relations = {};
 
@@ -242,6 +295,11 @@ export interface ArticleModel {
 
   count(where?: ArticleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ArticleGroupByArgs>(
+    args: GroupByArg<A, ArticleGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ArticleGroupByResult<A>[]>;
+
   exists(where?: ArticleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -278,6 +336,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -401,6 +462,73 @@ export interface AuthorOrderBy {
   name?: 'asc' | 'desc';
   email?: 'asc' | 'desc';
 }
+
+export interface AuthorGroupByKeys {
+  id?: true;
+  name?: true;
+  email?: true;
+}
+
+export interface AuthorCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  email?: true;
+}
+
+export interface AuthorMinMaxAggregate {
+  id?: true;
+  name?: true;
+  email?: true;
+}
+
+export interface AuthorGroupAggregate {
+  id?: true;
+  name?: true;
+  email?: true;
+}
+
+export interface AuthorGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; email?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; email?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; email?: 'asc' | 'desc' };
+}
+
+export interface AuthorGroupByArgs {
+  by: AuthorGroupByKeys;
+  where?: AuthorWhere;
+  _count?: true | AuthorCountAggregate;
+  _min?: AuthorMinMaxAggregate;
+  _max?: AuthorMinMaxAggregate;
+  _group?: AuthorGroupAggregate;
+  orderBy?: AuthorGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface AuthorGroupByAggregates {
+  _count: { _all: number; id: number; name: number; email: number };
+  _min: {
+    id: NonNullable<Author['id']> | null;
+    name: NonNullable<Author['name']> | null;
+    email: NonNullable<Author['email']> | null;
+  };
+  _max: {
+    id: NonNullable<Author['id']> | null;
+    name: NonNullable<Author['name']> | null;
+    email: NonNullable<Author['email']> | null;
+  };
+  _group: {
+    id: GroupMember<Author['id']>[];
+    name: GroupMember<Author['name']>[];
+    email: GroupMember<Author['email']>[];
+  };
+}
+
+export type AuthorGroupByResult<A extends AuthorGroupByArgs> = GroupByRow<Author, A, AuthorGroupByAggregates>;
 
 export interface AuthorInclude {
   posts?:
@@ -611,6 +739,11 @@ export interface AuthorModel {
 
   count(where?: AuthorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends AuthorGroupByArgs>(
+    args: GroupByArg<A, AuthorGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<AuthorGroupByResult<A>[]>;
+
   exists(where?: AuthorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -648,6 +781,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -759,6 +895,73 @@ export interface CommentOrderBy {
   articleId?: 'asc' | 'desc';
   article?: ArticleOrderBy;
 }
+
+export interface CommentGroupByKeys {
+  id?: true;
+  text?: true;
+  articleId?: true;
+}
+
+export interface CommentCountAggregate {
+  _all?: true;
+  id?: true;
+  text?: true;
+  articleId?: true;
+}
+
+export interface CommentMinMaxAggregate {
+  id?: true;
+  text?: true;
+  articleId?: true;
+}
+
+export interface CommentGroupAggregate {
+  id?: true;
+  text?: true;
+  articleId?: true;
+}
+
+export interface CommentGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  text?: 'asc' | 'desc';
+  articleId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; text?: 'asc' | 'desc'; articleId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; text?: 'asc' | 'desc'; articleId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; text?: 'asc' | 'desc'; articleId?: 'asc' | 'desc' };
+}
+
+export interface CommentGroupByArgs {
+  by: CommentGroupByKeys;
+  where?: CommentWhere;
+  _count?: true | CommentCountAggregate;
+  _min?: CommentMinMaxAggregate;
+  _max?: CommentMinMaxAggregate;
+  _group?: CommentGroupAggregate;
+  orderBy?: CommentGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface CommentGroupByAggregates {
+  _count: { _all: number; id: number; text: number; articleId: number };
+  _min: {
+    id: NonNullable<Comment['id']> | null;
+    text: NonNullable<Comment['text']> | null;
+    articleId: NonNullable<Comment['articleId']> | null;
+  };
+  _max: {
+    id: NonNullable<Comment['id']> | null;
+    text: NonNullable<Comment['text']> | null;
+    articleId: NonNullable<Comment['articleId']> | null;
+  };
+  _group: {
+    id: GroupMember<Comment['id']>[];
+    text: GroupMember<Comment['text']>[];
+    articleId: (GroupMember<Comment['articleId']> | null)[];
+  };
+}
+
+export type CommentGroupByResult<A extends CommentGroupByArgs> = GroupByRow<Comment, A, CommentGroupByAggregates>;
 
 export interface CommentInclude {
   article?:
@@ -955,6 +1158,11 @@ export interface CommentModel {
 
   count(where?: CommentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends CommentGroupByArgs>(
+    args: GroupByArg<A, CommentGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<CommentGroupByResult<A>[]>;
+
   exists(where?: CommentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -992,6 +1200,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1154,6 +1365,112 @@ export interface PostRequiredOrderBy {
   author?: AuthorOrderBy;
   createdAt?: 'asc' | 'desc';
 }
+
+export interface PostRequiredGroupByKeys {
+  id?: true;
+  title?: true;
+  body?: true;
+  authorId?: true;
+  createdAt?: true;
+}
+
+export interface PostRequiredCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  body?: true;
+  authorId?: true;
+  createdAt?: true;
+}
+
+export interface PostRequiredMinMaxAggregate {
+  id?: true;
+  title?: true;
+  body?: true;
+  authorId?: true;
+  createdAt?: true;
+}
+
+export interface PostRequiredGroupAggregate {
+  id?: true;
+  title?: true;
+  body?: true;
+  authorId?: true;
+  createdAt?: true;
+}
+
+export interface PostRequiredGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    body?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+    createdAt?: 'asc' | 'desc';
+  };
+}
+
+export interface PostRequiredGroupByArgs {
+  by: PostRequiredGroupByKeys;
+  where?: PostRequiredWhere;
+  _count?: true | PostRequiredCountAggregate;
+  _min?: PostRequiredMinMaxAggregate;
+  _max?: PostRequiredMinMaxAggregate;
+  _group?: PostRequiredGroupAggregate;
+  orderBy?: PostRequiredGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PostRequiredGroupByAggregates {
+  _count: { _all: number; id: number; title: number; body: number; authorId: number; createdAt: number };
+  _min: {
+    id: NonNullable<PostRequired['id']> | null;
+    title: NonNullable<PostRequired['title']> | null;
+    body: NonNullable<PostRequired['body']> | null;
+    authorId: NonNullable<PostRequired['authorId']> | null;
+    createdAt: NonNullable<PostRequired['createdAt']> | null;
+  };
+  _max: {
+    id: NonNullable<PostRequired['id']> | null;
+    title: NonNullable<PostRequired['title']> | null;
+    body: NonNullable<PostRequired['body']> | null;
+    authorId: NonNullable<PostRequired['authorId']> | null;
+    createdAt: NonNullable<PostRequired['createdAt']> | null;
+  };
+  _group: {
+    id: GroupMember<PostRequired['id']>[];
+    title: GroupMember<PostRequired['title']>[];
+    body: (GroupMember<PostRequired['body']> | null)[];
+    authorId: GroupMember<PostRequired['authorId']>[];
+    createdAt: GroupMember<PostRequired['createdAt']>[];
+  };
+}
+
+export type PostRequiredGroupByResult<A extends PostRequiredGroupByArgs> = GroupByRow<
+  PostRequired,
+  A,
+  PostRequiredGroupByAggregates
+>;
 
 export interface PostRequiredInclude {
   author?:
@@ -1361,6 +1678,11 @@ export interface PostRequiredModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<PostRequired, R>>;
 
   count(where?: PostRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends PostRequiredGroupByArgs>(
+    args: GroupByArg<A, PostRequiredGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<PostRequiredGroupByResult<A>[]>;
 
   exists(where?: PostRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

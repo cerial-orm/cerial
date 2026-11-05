@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -138,6 +141,84 @@ export interface ObjectTestOrderOrderBy {
   items?: OrderItemOrderBy;
   metadata?: TreeNodeOrderBy;
 }
+
+export interface ObjectTestOrderGroupByKeys {
+  id?: true;
+  billingAddress?: { street?: true; city?: true; state?: true; zipCode?: true };
+  shippingAddress?: { street?: true; city?: true; state?: true; zipCode?: true };
+  metadata?: { payload?: true };
+}
+
+export interface ObjectTestOrderCountAggregate {
+  _all?: true;
+  id?: true;
+  billingAddress?: true;
+  shippingAddress?: true;
+  items?: true;
+  metadata?: true;
+}
+
+export interface ObjectTestOrderMinMaxAggregate {
+  id?: true;
+}
+
+export interface ObjectTestOrderGroupAggregate {
+  id?: true;
+}
+
+export interface ObjectTestOrderGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  billingAddress?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; state?: 'asc' | 'desc'; zipCode?: 'asc' | 'desc' };
+  shippingAddress?: {
+    street?: 'asc' | 'desc';
+    city?: 'asc' | 'desc';
+    state?: 'asc' | 'desc';
+    zipCode?: 'asc' | 'desc';
+  };
+  metadata?: { payload?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    billingAddress?: 'asc' | 'desc';
+    shippingAddress?: 'asc' | 'desc';
+    items?: 'asc' | 'desc';
+    metadata?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface ObjectTestOrderGroupByArgs {
+  by: ObjectTestOrderGroupByKeys;
+  where?: ObjectTestOrderWhere;
+  _count?: true | ObjectTestOrderCountAggregate;
+  _min?: ObjectTestOrderMinMaxAggregate;
+  _max?: ObjectTestOrderMinMaxAggregate;
+  _group?: ObjectTestOrderGroupAggregate;
+  orderBy?: ObjectTestOrderGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ObjectTestOrderGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    billingAddress: number;
+    shippingAddress: number;
+    items: number;
+    metadata: number;
+  };
+  _min: { id: NonNullable<ObjectTestOrder['id']> | null };
+  _max: { id: NonNullable<ObjectTestOrder['id']> | null };
+  _group: { id: GroupMember<ObjectTestOrder['id']>[] };
+}
+
+export type ObjectTestOrderGroupByResult<A extends ObjectTestOrderGroupByArgs> = GroupByRow<
+  ObjectTestOrder,
+  A,
+  ObjectTestOrderGroupByAggregates
+>;
 
 export type ObjectTestOrder$Relations = {};
 
@@ -288,6 +369,11 @@ export interface ObjectTestOrderModel {
 
   count(where?: ObjectTestOrderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends ObjectTestOrderGroupByArgs>(
+    args: GroupByArg<A, ObjectTestOrderGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ObjectTestOrderGroupByResult<A>[]>;
+
   exists(where?: ObjectTestOrderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -325,6 +411,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -459,6 +548,90 @@ export interface ObjectTestUserOrderBy {
   locations?: GeoPointOrderBy;
   primaryLocation?: GeoPointOrderBy;
 }
+
+export interface ObjectTestUserGroupByKeys {
+  id?: true;
+  name?: true;
+  address?: { street?: true; city?: true; state?: true; zipCode?: true };
+  shipping?: { street?: true; city?: true; state?: true; zipCode?: true };
+  primaryLocation?: { lat?: true; lng?: true; label?: { street?: true; city?: true; state?: true; zipCode?: true } };
+}
+
+export interface ObjectTestUserCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  address?: true;
+  shipping?: true;
+  locations?: true;
+  primaryLocation?: true;
+}
+
+export interface ObjectTestUserMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ObjectTestUserGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface ObjectTestUserGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  address?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; state?: 'asc' | 'desc'; zipCode?: 'asc' | 'desc' };
+  shipping?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; state?: 'asc' | 'desc'; zipCode?: 'asc' | 'desc' };
+  primaryLocation?: {
+    lat?: 'asc' | 'desc';
+    lng?: 'asc' | 'desc';
+    label?: { street?: 'asc' | 'desc'; city?: 'asc' | 'desc'; state?: 'asc' | 'desc'; zipCode?: 'asc' | 'desc' };
+  };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    address?: 'asc' | 'desc';
+    shipping?: 'asc' | 'desc';
+    locations?: 'asc' | 'desc';
+    primaryLocation?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface ObjectTestUserGroupByArgs {
+  by: ObjectTestUserGroupByKeys;
+  where?: ObjectTestUserWhere;
+  _count?: true | ObjectTestUserCountAggregate;
+  _min?: ObjectTestUserMinMaxAggregate;
+  _max?: ObjectTestUserMinMaxAggregate;
+  _group?: ObjectTestUserGroupAggregate;
+  orderBy?: ObjectTestUserGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ObjectTestUserGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    address: number;
+    shipping: number;
+    locations: number;
+    primaryLocation: number;
+  };
+  _min: { id: NonNullable<ObjectTestUser['id']> | null; name: NonNullable<ObjectTestUser['name']> | null };
+  _max: { id: NonNullable<ObjectTestUser['id']> | null; name: NonNullable<ObjectTestUser['name']> | null };
+  _group: { id: GroupMember<ObjectTestUser['id']>[]; name: GroupMember<ObjectTestUser['name']>[] };
+}
+
+export type ObjectTestUserGroupByResult<A extends ObjectTestUserGroupByArgs> = GroupByRow<
+  ObjectTestUser,
+  A,
+  ObjectTestUserGroupByAggregates
+>;
 
 export type ObjectTestUser$Relations = {};
 
@@ -605,6 +778,11 @@ export interface ObjectTestUserModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<ObjectTestUser, R>>;
 
   count(where?: ObjectTestUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends ObjectTestUserGroupByArgs>(
+    args: GroupByArg<A, ObjectTestUserGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<ObjectTestUserGroupByResult<A>[]>;
 
   exists(where?: ObjectTestUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 

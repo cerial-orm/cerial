@@ -22,6 +22,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -141,6 +144,77 @@ export interface DdAtThreeCascadeOrderBy {
   twoId?: 'asc' | 'desc';
   two?: DdTwoOrderBy;
 }
+
+export interface DdAtThreeCascadeGroupByKeys {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeCascadeCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeCascadeMinMaxAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeCascadeGroupAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeCascadeGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  twoId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+}
+
+export interface DdAtThreeCascadeGroupByArgs {
+  by: DdAtThreeCascadeGroupByKeys;
+  where?: DdAtThreeCascadeWhere;
+  _count?: true | DdAtThreeCascadeCountAggregate;
+  _min?: DdAtThreeCascadeMinMaxAggregate;
+  _max?: DdAtThreeCascadeMinMaxAggregate;
+  _group?: DdAtThreeCascadeGroupAggregate;
+  orderBy?: DdAtThreeCascadeGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtThreeCascadeGroupByAggregates {
+  _count: { _all: number; id: number; name: number; twoId: number };
+  _min: {
+    id: NonNullable<DdAtThreeCascade['id']> | null;
+    name: NonNullable<DdAtThreeCascade['name']> | null;
+    twoId: NonNullable<DdAtThreeCascade['twoId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtThreeCascade['id']> | null;
+    name: NonNullable<DdAtThreeCascade['name']> | null;
+    twoId: NonNullable<DdAtThreeCascade['twoId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtThreeCascade['id']>[];
+    name: GroupMember<DdAtThreeCascade['name']>[];
+    twoId: (GroupMember<DdAtThreeCascade['twoId']> | null)[];
+  };
+}
+
+export type DdAtThreeCascadeGroupByResult<A extends DdAtThreeCascadeGroupByArgs> = GroupByRow<
+  DdAtThreeCascade,
+  A,
+  DdAtThreeCascadeGroupByAggregates
+>;
 
 export interface DdAtThreeCascadeInclude {
   two?:
@@ -350,6 +424,11 @@ export interface DdAtThreeCascadeModel {
 
   count(where?: DdAtThreeCascadeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtThreeCascadeGroupByArgs>(
+    args: GroupByArg<A, DdAtThreeCascadeGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtThreeCascadeGroupByResult<A>[]>;
+
   exists(where?: DdAtThreeCascadeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -387,6 +466,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -506,6 +588,77 @@ export interface DdAtThreeNoActionOrderBy {
   twoId?: 'asc' | 'desc';
   two?: DdTwoOrderBy;
 }
+
+export interface DdAtThreeNoActionGroupByKeys {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeNoActionCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeNoActionMinMaxAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeNoActionGroupAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeNoActionGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  twoId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+}
+
+export interface DdAtThreeNoActionGroupByArgs {
+  by: DdAtThreeNoActionGroupByKeys;
+  where?: DdAtThreeNoActionWhere;
+  _count?: true | DdAtThreeNoActionCountAggregate;
+  _min?: DdAtThreeNoActionMinMaxAggregate;
+  _max?: DdAtThreeNoActionMinMaxAggregate;
+  _group?: DdAtThreeNoActionGroupAggregate;
+  orderBy?: DdAtThreeNoActionGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtThreeNoActionGroupByAggregates {
+  _count: { _all: number; id: number; name: number; twoId: number };
+  _min: {
+    id: NonNullable<DdAtThreeNoAction['id']> | null;
+    name: NonNullable<DdAtThreeNoAction['name']> | null;
+    twoId: NonNullable<DdAtThreeNoAction['twoId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtThreeNoAction['id']> | null;
+    name: NonNullable<DdAtThreeNoAction['name']> | null;
+    twoId: NonNullable<DdAtThreeNoAction['twoId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtThreeNoAction['id']>[];
+    name: GroupMember<DdAtThreeNoAction['name']>[];
+    twoId: (GroupMember<DdAtThreeNoAction['twoId']> | null)[];
+  };
+}
+
+export type DdAtThreeNoActionGroupByResult<A extends DdAtThreeNoActionGroupByArgs> = GroupByRow<
+  DdAtThreeNoAction,
+  A,
+  DdAtThreeNoActionGroupByAggregates
+>;
 
 export interface DdAtThreeNoActionInclude {
   two?:
@@ -715,6 +868,11 @@ export interface DdAtThreeNoActionModel {
 
   count(where?: DdAtThreeNoActionWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtThreeNoActionGroupByArgs>(
+    args: GroupByArg<A, DdAtThreeNoActionGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtThreeNoActionGroupByResult<A>[]>;
+
   exists(where?: DdAtThreeNoActionWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -752,6 +910,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -871,6 +1032,77 @@ export interface DdAtThreeRestrictOrderBy {
   twoId?: 'asc' | 'desc';
   two?: DdTwoOrderBy;
 }
+
+export interface DdAtThreeRestrictGroupByKeys {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeRestrictCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeRestrictMinMaxAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeRestrictGroupAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeRestrictGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  twoId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+}
+
+export interface DdAtThreeRestrictGroupByArgs {
+  by: DdAtThreeRestrictGroupByKeys;
+  where?: DdAtThreeRestrictWhere;
+  _count?: true | DdAtThreeRestrictCountAggregate;
+  _min?: DdAtThreeRestrictMinMaxAggregate;
+  _max?: DdAtThreeRestrictMinMaxAggregate;
+  _group?: DdAtThreeRestrictGroupAggregate;
+  orderBy?: DdAtThreeRestrictGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtThreeRestrictGroupByAggregates {
+  _count: { _all: number; id: number; name: number; twoId: number };
+  _min: {
+    id: NonNullable<DdAtThreeRestrict['id']> | null;
+    name: NonNullable<DdAtThreeRestrict['name']> | null;
+    twoId: NonNullable<DdAtThreeRestrict['twoId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtThreeRestrict['id']> | null;
+    name: NonNullable<DdAtThreeRestrict['name']> | null;
+    twoId: NonNullable<DdAtThreeRestrict['twoId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtThreeRestrict['id']>[];
+    name: GroupMember<DdAtThreeRestrict['name']>[];
+    twoId: (GroupMember<DdAtThreeRestrict['twoId']> | null)[];
+  };
+}
+
+export type DdAtThreeRestrictGroupByResult<A extends DdAtThreeRestrictGroupByArgs> = GroupByRow<
+  DdAtThreeRestrict,
+  A,
+  DdAtThreeRestrictGroupByAggregates
+>;
 
 export interface DdAtThreeRestrictInclude {
   two?:
@@ -1080,6 +1312,11 @@ export interface DdAtThreeRestrictModel {
 
   count(where?: DdAtThreeRestrictWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtThreeRestrictGroupByArgs>(
+    args: GroupByArg<A, DdAtThreeRestrictGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtThreeRestrictGroupByResult<A>[]>;
+
   exists(where?: DdAtThreeRestrictWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1117,6 +1354,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1234,6 +1474,77 @@ export interface DdAtThreeSetNoneOrderBy {
   twoId?: 'asc' | 'desc';
   two?: DdTwoOrderBy;
 }
+
+export interface DdAtThreeSetNoneGroupByKeys {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeSetNoneCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeSetNoneMinMaxAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeSetNoneGroupAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeSetNoneGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  twoId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+}
+
+export interface DdAtThreeSetNoneGroupByArgs {
+  by: DdAtThreeSetNoneGroupByKeys;
+  where?: DdAtThreeSetNoneWhere;
+  _count?: true | DdAtThreeSetNoneCountAggregate;
+  _min?: DdAtThreeSetNoneMinMaxAggregate;
+  _max?: DdAtThreeSetNoneMinMaxAggregate;
+  _group?: DdAtThreeSetNoneGroupAggregate;
+  orderBy?: DdAtThreeSetNoneGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtThreeSetNoneGroupByAggregates {
+  _count: { _all: number; id: number; name: number; twoId: number };
+  _min: {
+    id: NonNullable<DdAtThreeSetNone['id']> | null;
+    name: NonNullable<DdAtThreeSetNone['name']> | null;
+    twoId: NonNullable<DdAtThreeSetNone['twoId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtThreeSetNone['id']> | null;
+    name: NonNullable<DdAtThreeSetNone['name']> | null;
+    twoId: NonNullable<DdAtThreeSetNone['twoId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtThreeSetNone['id']>[];
+    name: GroupMember<DdAtThreeSetNone['name']>[];
+    twoId: GroupMember<DdAtThreeSetNone['twoId']>[];
+  };
+}
+
+export type DdAtThreeSetNoneGroupByResult<A extends DdAtThreeSetNoneGroupByArgs> = GroupByRow<
+  DdAtThreeSetNone,
+  A,
+  DdAtThreeSetNoneGroupByAggregates
+>;
 
 export interface DdAtThreeSetNoneInclude {
   two?:
@@ -1443,6 +1754,11 @@ export interface DdAtThreeSetNoneModel {
 
   count(where?: DdAtThreeSetNoneWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtThreeSetNoneGroupByArgs>(
+    args: GroupByArg<A, DdAtThreeSetNoneGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtThreeSetNoneGroupByResult<A>[]>;
+
   exists(where?: DdAtThreeSetNoneWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1480,6 +1796,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1599,6 +1918,77 @@ export interface DdAtThreeSetNullOrderBy {
   twoId?: 'asc' | 'desc';
   two?: DdTwoOrderBy;
 }
+
+export interface DdAtThreeSetNullGroupByKeys {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeSetNullCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeSetNullMinMaxAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeSetNullGroupAggregate {
+  id?: true;
+  name?: true;
+  twoId?: true;
+}
+
+export interface DdAtThreeSetNullGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  twoId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; twoId?: 'asc' | 'desc' };
+}
+
+export interface DdAtThreeSetNullGroupByArgs {
+  by: DdAtThreeSetNullGroupByKeys;
+  where?: DdAtThreeSetNullWhere;
+  _count?: true | DdAtThreeSetNullCountAggregate;
+  _min?: DdAtThreeSetNullMinMaxAggregate;
+  _max?: DdAtThreeSetNullMinMaxAggregate;
+  _group?: DdAtThreeSetNullGroupAggregate;
+  orderBy?: DdAtThreeSetNullGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtThreeSetNullGroupByAggregates {
+  _count: { _all: number; id: number; name: number; twoId: number };
+  _min: {
+    id: NonNullable<DdAtThreeSetNull['id']> | null;
+    name: NonNullable<DdAtThreeSetNull['name']> | null;
+    twoId: NonNullable<DdAtThreeSetNull['twoId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtThreeSetNull['id']> | null;
+    name: NonNullable<DdAtThreeSetNull['name']> | null;
+    twoId: NonNullable<DdAtThreeSetNull['twoId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtThreeSetNull['id']>[];
+    name: GroupMember<DdAtThreeSetNull['name']>[];
+    twoId: (GroupMember<DdAtThreeSetNull['twoId']> | null)[];
+  };
+}
+
+export type DdAtThreeSetNullGroupByResult<A extends DdAtThreeSetNullGroupByArgs> = GroupByRow<
+  DdAtThreeSetNull,
+  A,
+  DdAtThreeSetNullGroupByAggregates
+>;
 
 export interface DdAtThreeSetNullInclude {
   two?:
@@ -1808,6 +2198,11 @@ export interface DdAtThreeSetNullModel {
 
   count(where?: DdAtThreeSetNullWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtThreeSetNullGroupByArgs>(
+    args: GroupByArg<A, DdAtThreeSetNullGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtThreeSetNullGroupByResult<A>[]>;
+
   exists(where?: DdAtThreeSetNullWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -1845,6 +2240,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -1964,6 +2362,77 @@ export interface DdAtTwoCascadeOrderBy {
   oneId?: 'asc' | 'desc';
   one?: DdOneOrderBy;
 }
+
+export interface DdAtTwoCascadeGroupByKeys {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoCascadeCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoCascadeMinMaxAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoCascadeGroupAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoCascadeGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  oneId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+}
+
+export interface DdAtTwoCascadeGroupByArgs {
+  by: DdAtTwoCascadeGroupByKeys;
+  where?: DdAtTwoCascadeWhere;
+  _count?: true | DdAtTwoCascadeCountAggregate;
+  _min?: DdAtTwoCascadeMinMaxAggregate;
+  _max?: DdAtTwoCascadeMinMaxAggregate;
+  _group?: DdAtTwoCascadeGroupAggregate;
+  orderBy?: DdAtTwoCascadeGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtTwoCascadeGroupByAggregates {
+  _count: { _all: number; id: number; name: number; oneId: number };
+  _min: {
+    id: NonNullable<DdAtTwoCascade['id']> | null;
+    name: NonNullable<DdAtTwoCascade['name']> | null;
+    oneId: NonNullable<DdAtTwoCascade['oneId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtTwoCascade['id']> | null;
+    name: NonNullable<DdAtTwoCascade['name']> | null;
+    oneId: NonNullable<DdAtTwoCascade['oneId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtTwoCascade['id']>[];
+    name: GroupMember<DdAtTwoCascade['name']>[];
+    oneId: (GroupMember<DdAtTwoCascade['oneId']> | null)[];
+  };
+}
+
+export type DdAtTwoCascadeGroupByResult<A extends DdAtTwoCascadeGroupByArgs> = GroupByRow<
+  DdAtTwoCascade,
+  A,
+  DdAtTwoCascadeGroupByAggregates
+>;
 
 export interface DdAtTwoCascadeInclude {
   one?:
@@ -2173,6 +2642,11 @@ export interface DdAtTwoCascadeModel {
 
   count(where?: DdAtTwoCascadeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtTwoCascadeGroupByArgs>(
+    args: GroupByArg<A, DdAtTwoCascadeGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtTwoCascadeGroupByResult<A>[]>;
+
   exists(where?: DdAtTwoCascadeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2210,6 +2684,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2329,6 +2806,77 @@ export interface DdAtTwoNoActionOrderBy {
   oneId?: 'asc' | 'desc';
   one?: DdOneOrderBy;
 }
+
+export interface DdAtTwoNoActionGroupByKeys {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoNoActionCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoNoActionMinMaxAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoNoActionGroupAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoNoActionGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  oneId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+}
+
+export interface DdAtTwoNoActionGroupByArgs {
+  by: DdAtTwoNoActionGroupByKeys;
+  where?: DdAtTwoNoActionWhere;
+  _count?: true | DdAtTwoNoActionCountAggregate;
+  _min?: DdAtTwoNoActionMinMaxAggregate;
+  _max?: DdAtTwoNoActionMinMaxAggregate;
+  _group?: DdAtTwoNoActionGroupAggregate;
+  orderBy?: DdAtTwoNoActionGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtTwoNoActionGroupByAggregates {
+  _count: { _all: number; id: number; name: number; oneId: number };
+  _min: {
+    id: NonNullable<DdAtTwoNoAction['id']> | null;
+    name: NonNullable<DdAtTwoNoAction['name']> | null;
+    oneId: NonNullable<DdAtTwoNoAction['oneId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtTwoNoAction['id']> | null;
+    name: NonNullable<DdAtTwoNoAction['name']> | null;
+    oneId: NonNullable<DdAtTwoNoAction['oneId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtTwoNoAction['id']>[];
+    name: GroupMember<DdAtTwoNoAction['name']>[];
+    oneId: (GroupMember<DdAtTwoNoAction['oneId']> | null)[];
+  };
+}
+
+export type DdAtTwoNoActionGroupByResult<A extends DdAtTwoNoActionGroupByArgs> = GroupByRow<
+  DdAtTwoNoAction,
+  A,
+  DdAtTwoNoActionGroupByAggregates
+>;
 
 export interface DdAtTwoNoActionInclude {
   one?:
@@ -2538,6 +3086,11 @@ export interface DdAtTwoNoActionModel {
 
   count(where?: DdAtTwoNoActionWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtTwoNoActionGroupByArgs>(
+    args: GroupByArg<A, DdAtTwoNoActionGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtTwoNoActionGroupByResult<A>[]>;
+
   exists(where?: DdAtTwoNoActionWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2575,6 +3128,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -2694,6 +3250,77 @@ export interface DdAtTwoRestrictOrderBy {
   oneId?: 'asc' | 'desc';
   one?: DdOneOrderBy;
 }
+
+export interface DdAtTwoRestrictGroupByKeys {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoRestrictCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoRestrictMinMaxAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoRestrictGroupAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoRestrictGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  oneId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+}
+
+export interface DdAtTwoRestrictGroupByArgs {
+  by: DdAtTwoRestrictGroupByKeys;
+  where?: DdAtTwoRestrictWhere;
+  _count?: true | DdAtTwoRestrictCountAggregate;
+  _min?: DdAtTwoRestrictMinMaxAggregate;
+  _max?: DdAtTwoRestrictMinMaxAggregate;
+  _group?: DdAtTwoRestrictGroupAggregate;
+  orderBy?: DdAtTwoRestrictGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtTwoRestrictGroupByAggregates {
+  _count: { _all: number; id: number; name: number; oneId: number };
+  _min: {
+    id: NonNullable<DdAtTwoRestrict['id']> | null;
+    name: NonNullable<DdAtTwoRestrict['name']> | null;
+    oneId: NonNullable<DdAtTwoRestrict['oneId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtTwoRestrict['id']> | null;
+    name: NonNullable<DdAtTwoRestrict['name']> | null;
+    oneId: NonNullable<DdAtTwoRestrict['oneId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtTwoRestrict['id']>[];
+    name: GroupMember<DdAtTwoRestrict['name']>[];
+    oneId: (GroupMember<DdAtTwoRestrict['oneId']> | null)[];
+  };
+}
+
+export type DdAtTwoRestrictGroupByResult<A extends DdAtTwoRestrictGroupByArgs> = GroupByRow<
+  DdAtTwoRestrict,
+  A,
+  DdAtTwoRestrictGroupByAggregates
+>;
 
 export interface DdAtTwoRestrictInclude {
   one?:
@@ -2903,6 +3530,11 @@ export interface DdAtTwoRestrictModel {
 
   count(where?: DdAtTwoRestrictWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtTwoRestrictGroupByArgs>(
+    args: GroupByArg<A, DdAtTwoRestrictGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtTwoRestrictGroupByResult<A>[]>;
+
   exists(where?: DdAtTwoRestrictWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -2940,6 +3572,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3057,6 +3692,77 @@ export interface DdAtTwoSetNoneOrderBy {
   oneId?: 'asc' | 'desc';
   one?: DdOneOrderBy;
 }
+
+export interface DdAtTwoSetNoneGroupByKeys {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoSetNoneCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoSetNoneMinMaxAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoSetNoneGroupAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoSetNoneGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  oneId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+}
+
+export interface DdAtTwoSetNoneGroupByArgs {
+  by: DdAtTwoSetNoneGroupByKeys;
+  where?: DdAtTwoSetNoneWhere;
+  _count?: true | DdAtTwoSetNoneCountAggregate;
+  _min?: DdAtTwoSetNoneMinMaxAggregate;
+  _max?: DdAtTwoSetNoneMinMaxAggregate;
+  _group?: DdAtTwoSetNoneGroupAggregate;
+  orderBy?: DdAtTwoSetNoneGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtTwoSetNoneGroupByAggregates {
+  _count: { _all: number; id: number; name: number; oneId: number };
+  _min: {
+    id: NonNullable<DdAtTwoSetNone['id']> | null;
+    name: NonNullable<DdAtTwoSetNone['name']> | null;
+    oneId: NonNullable<DdAtTwoSetNone['oneId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtTwoSetNone['id']> | null;
+    name: NonNullable<DdAtTwoSetNone['name']> | null;
+    oneId: NonNullable<DdAtTwoSetNone['oneId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtTwoSetNone['id']>[];
+    name: GroupMember<DdAtTwoSetNone['name']>[];
+    oneId: GroupMember<DdAtTwoSetNone['oneId']>[];
+  };
+}
+
+export type DdAtTwoSetNoneGroupByResult<A extends DdAtTwoSetNoneGroupByArgs> = GroupByRow<
+  DdAtTwoSetNone,
+  A,
+  DdAtTwoSetNoneGroupByAggregates
+>;
 
 export interface DdAtTwoSetNoneInclude {
   one?:
@@ -3266,6 +3972,11 @@ export interface DdAtTwoSetNoneModel {
 
   count(where?: DdAtTwoSetNoneWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtTwoSetNoneGroupByArgs>(
+    args: GroupByArg<A, DdAtTwoSetNoneGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtTwoSetNoneGroupByResult<A>[]>;
+
   exists(where?: DdAtTwoSetNoneWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3303,6 +4014,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3422,6 +4136,77 @@ export interface DdAtTwoSetNullOrderBy {
   oneId?: 'asc' | 'desc';
   one?: DdOneOrderBy;
 }
+
+export interface DdAtTwoSetNullGroupByKeys {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoSetNullCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoSetNullMinMaxAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoSetNullGroupAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdAtTwoSetNullGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  oneId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+}
+
+export interface DdAtTwoSetNullGroupByArgs {
+  by: DdAtTwoSetNullGroupByKeys;
+  where?: DdAtTwoSetNullWhere;
+  _count?: true | DdAtTwoSetNullCountAggregate;
+  _min?: DdAtTwoSetNullMinMaxAggregate;
+  _max?: DdAtTwoSetNullMinMaxAggregate;
+  _group?: DdAtTwoSetNullGroupAggregate;
+  orderBy?: DdAtTwoSetNullGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdAtTwoSetNullGroupByAggregates {
+  _count: { _all: number; id: number; name: number; oneId: number };
+  _min: {
+    id: NonNullable<DdAtTwoSetNull['id']> | null;
+    name: NonNullable<DdAtTwoSetNull['name']> | null;
+    oneId: NonNullable<DdAtTwoSetNull['oneId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdAtTwoSetNull['id']> | null;
+    name: NonNullable<DdAtTwoSetNull['name']> | null;
+    oneId: NonNullable<DdAtTwoSetNull['oneId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdAtTwoSetNull['id']>[];
+    name: GroupMember<DdAtTwoSetNull['name']>[];
+    oneId: (GroupMember<DdAtTwoSetNull['oneId']> | null)[];
+  };
+}
+
+export type DdAtTwoSetNullGroupByResult<A extends DdAtTwoSetNullGroupByArgs> = GroupByRow<
+  DdAtTwoSetNull,
+  A,
+  DdAtTwoSetNullGroupByAggregates
+>;
 
 export interface DdAtTwoSetNullInclude {
   one?:
@@ -3631,6 +4416,11 @@ export interface DdAtTwoSetNullModel {
 
   count(where?: DdAtTwoSetNullWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdAtTwoSetNullGroupByArgs>(
+    args: GroupByArg<A, DdAtTwoSetNullGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdAtTwoSetNullGroupByResult<A>[]>;
+
   exists(where?: DdAtTwoSetNullWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -3668,6 +4458,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -3981,6 +4774,73 @@ export interface DdOneOrderBy {
   rootId?: 'asc' | 'desc';
   root?: DdRootOrderBy;
 }
+
+export interface DdOneGroupByKeys {
+  id?: true;
+  name?: true;
+  rootId?: true;
+}
+
+export interface DdOneCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  rootId?: true;
+}
+
+export interface DdOneMinMaxAggregate {
+  id?: true;
+  name?: true;
+  rootId?: true;
+}
+
+export interface DdOneGroupAggregate {
+  id?: true;
+  name?: true;
+  rootId?: true;
+}
+
+export interface DdOneGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  rootId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; rootId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; rootId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; rootId?: 'asc' | 'desc' };
+}
+
+export interface DdOneGroupByArgs {
+  by: DdOneGroupByKeys;
+  where?: DdOneWhere;
+  _count?: true | DdOneCountAggregate;
+  _min?: DdOneMinMaxAggregate;
+  _max?: DdOneMinMaxAggregate;
+  _group?: DdOneGroupAggregate;
+  orderBy?: DdOneGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdOneGroupByAggregates {
+  _count: { _all: number; id: number; name: number; rootId: number };
+  _min: {
+    id: NonNullable<DdOne['id']> | null;
+    name: NonNullable<DdOne['name']> | null;
+    rootId: NonNullable<DdOne['rootId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdOne['id']> | null;
+    name: NonNullable<DdOne['name']> | null;
+    rootId: NonNullable<DdOne['rootId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdOne['id']>[];
+    name: GroupMember<DdOne['name']>[];
+    rootId: (GroupMember<DdOne['rootId']> | null)[];
+  };
+}
+
+export type DdOneGroupByResult<A extends DdOneGroupByArgs> = GroupByRow<DdOne, A, DdOneGroupByAggregates>;
 
 export interface DdOneInclude {
   root?:
@@ -4368,6 +5228,11 @@ export interface DdOneModel {
 
   count(where?: DdOneWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdOneGroupByArgs>(
+    args: GroupByArg<A, DdOneGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdOneGroupByResult<A>[]>;
+
   exists(where?: DdOneWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -4405,6 +5270,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -4542,6 +5410,73 @@ export interface DdPingOrderBy {
   pongId?: 'asc' | 'desc';
   pong?: DdPongOrderBy;
 }
+
+export interface DdPingGroupByKeys {
+  id?: true;
+  name?: true;
+  pongId?: true;
+}
+
+export interface DdPingCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pongId?: true;
+}
+
+export interface DdPingMinMaxAggregate {
+  id?: true;
+  name?: true;
+  pongId?: true;
+}
+
+export interface DdPingGroupAggregate {
+  id?: true;
+  name?: true;
+  pongId?: true;
+}
+
+export interface DdPingGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  pongId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pongId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pongId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pongId?: 'asc' | 'desc' };
+}
+
+export interface DdPingGroupByArgs {
+  by: DdPingGroupByKeys;
+  where?: DdPingWhere;
+  _count?: true | DdPingCountAggregate;
+  _min?: DdPingMinMaxAggregate;
+  _max?: DdPingMinMaxAggregate;
+  _group?: DdPingGroupAggregate;
+  orderBy?: DdPingGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdPingGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pongId: number };
+  _min: {
+    id: NonNullable<DdPing['id']> | null;
+    name: NonNullable<DdPing['name']> | null;
+    pongId: NonNullable<DdPing['pongId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdPing['id']> | null;
+    name: NonNullable<DdPing['name']> | null;
+    pongId: NonNullable<DdPing['pongId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdPing['id']>[];
+    name: GroupMember<DdPing['name']>[];
+    pongId: (GroupMember<DdPing['pongId']> | null)[];
+  };
+}
+
+export type DdPingGroupByResult<A extends DdPingGroupByArgs> = GroupByRow<DdPing, A, DdPingGroupByAggregates>;
 
 export interface DdPingInclude {
   pong?:
@@ -4774,6 +5709,11 @@ export interface DdPingModel {
 
   count(where?: DdPingWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdPingGroupByArgs>(
+    args: GroupByArg<A, DdPingGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdPingGroupByResult<A>[]>;
+
   exists(where?: DdPingWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -4811,6 +5751,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -4948,6 +5891,73 @@ export interface DdPongOrderBy {
   pingId?: 'asc' | 'desc';
   ping?: DdPingOrderBy;
 }
+
+export interface DdPongGroupByKeys {
+  id?: true;
+  name?: true;
+  pingId?: true;
+}
+
+export interface DdPongCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  pingId?: true;
+}
+
+export interface DdPongMinMaxAggregate {
+  id?: true;
+  name?: true;
+  pingId?: true;
+}
+
+export interface DdPongGroupAggregate {
+  id?: true;
+  name?: true;
+  pingId?: true;
+}
+
+export interface DdPongGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  pingId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pingId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pingId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; pingId?: 'asc' | 'desc' };
+}
+
+export interface DdPongGroupByArgs {
+  by: DdPongGroupByKeys;
+  where?: DdPongWhere;
+  _count?: true | DdPongCountAggregate;
+  _min?: DdPongMinMaxAggregate;
+  _max?: DdPongMinMaxAggregate;
+  _group?: DdPongGroupAggregate;
+  orderBy?: DdPongGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdPongGroupByAggregates {
+  _count: { _all: number; id: number; name: number; pingId: number };
+  _min: {
+    id: NonNullable<DdPong['id']> | null;
+    name: NonNullable<DdPong['name']> | null;
+    pingId: NonNullable<DdPong['pingId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdPong['id']> | null;
+    name: NonNullable<DdPong['name']> | null;
+    pingId: NonNullable<DdPong['pingId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdPong['id']>[];
+    name: GroupMember<DdPong['name']>[];
+    pingId: (GroupMember<DdPong['pingId']> | null)[];
+  };
+}
+
+export type DdPongGroupByResult<A extends DdPongGroupByArgs> = GroupByRow<DdPong, A, DdPongGroupByAggregates>;
 
 export interface DdPongInclude {
   ping?:
@@ -5180,6 +6190,11 @@ export interface DdPongModel {
 
   count(where?: DdPongWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdPongGroupByArgs>(
+    args: GroupByArg<A, DdPongGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdPongGroupByResult<A>[]>;
+
   exists(where?: DdPongWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -5216,6 +6231,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -5339,6 +6357,69 @@ export interface DdRootOrderBy {
   name?: 'asc' | 'desc';
   code?: 'asc' | 'desc';
 }
+
+export interface DdRootGroupByKeys {
+  id?: true;
+  name?: true;
+  code?: true;
+}
+
+export interface DdRootCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  code?: true;
+}
+
+export interface DdRootMinMaxAggregate {
+  id?: true;
+  name?: true;
+  code?: true;
+}
+
+export interface DdRootGroupAggregate {
+  id?: true;
+  name?: true;
+  code?: true;
+}
+
+export interface DdRootGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  code?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; code?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; code?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; code?: 'asc' | 'desc' };
+}
+
+export interface DdRootGroupByArgs {
+  by: DdRootGroupByKeys;
+  where?: DdRootWhere;
+  _count?: true | DdRootCountAggregate;
+  _min?: DdRootMinMaxAggregate;
+  _max?: DdRootMinMaxAggregate;
+  _group?: DdRootGroupAggregate;
+  orderBy?: DdRootGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdRootGroupByAggregates {
+  _count: { _all: number; id: number; name: number; code: number };
+  _min: {
+    id: NonNullable<DdRoot['id']> | null;
+    name: NonNullable<DdRoot['name']> | null;
+    code: NonNullable<DdRoot['code']> | null;
+  };
+  _max: {
+    id: NonNullable<DdRoot['id']> | null;
+    name: NonNullable<DdRoot['name']> | null;
+    code: NonNullable<DdRoot['code']> | null;
+  };
+  _group: { id: GroupMember<DdRoot['id']>[]; name: GroupMember<DdRoot['name']>[]; code: GroupMember<DdRoot['code']>[] };
+}
+
+export type DdRootGroupByResult<A extends DdRootGroupByArgs> = GroupByRow<DdRoot, A, DdRootGroupByAggregates>;
 
 export interface DdRootInclude {
   ones?:
@@ -5546,6 +6627,11 @@ export interface DdRootModel {
 
   count(where?: DdRootWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdRootGroupByArgs>(
+    args: GroupByArg<A, DdRootGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdRootGroupByResult<A>[]>;
+
   exists(where?: DdRootWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -5583,6 +6669,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -5711,6 +6800,73 @@ export interface DdTreeOrderBy {
   parentId?: 'asc' | 'desc';
   parent?: DdTreeOrderBy;
 }
+
+export interface DdTreeGroupByKeys {
+  id?: true;
+  name?: true;
+  parentId?: true;
+}
+
+export interface DdTreeCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  parentId?: true;
+}
+
+export interface DdTreeMinMaxAggregate {
+  id?: true;
+  name?: true;
+  parentId?: true;
+}
+
+export interface DdTreeGroupAggregate {
+  id?: true;
+  name?: true;
+  parentId?: true;
+}
+
+export interface DdTreeGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  parentId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; parentId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; parentId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; parentId?: 'asc' | 'desc' };
+}
+
+export interface DdTreeGroupByArgs {
+  by: DdTreeGroupByKeys;
+  where?: DdTreeWhere;
+  _count?: true | DdTreeCountAggregate;
+  _min?: DdTreeMinMaxAggregate;
+  _max?: DdTreeMinMaxAggregate;
+  _group?: DdTreeGroupAggregate;
+  orderBy?: DdTreeGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdTreeGroupByAggregates {
+  _count: { _all: number; id: number; name: number; parentId: number };
+  _min: {
+    id: NonNullable<DdTree['id']> | null;
+    name: NonNullable<DdTree['name']> | null;
+    parentId: NonNullable<DdTree['parentId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdTree['id']> | null;
+    name: NonNullable<DdTree['name']> | null;
+    parentId: NonNullable<DdTree['parentId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdTree['id']>[];
+    name: GroupMember<DdTree['name']>[];
+    parentId: (GroupMember<DdTree['parentId']> | null)[];
+  };
+}
+
+export type DdTreeGroupByResult<A extends DdTreeGroupByArgs> = GroupByRow<DdTree, A, DdTreeGroupByAggregates>;
 
 export interface DdTreeInclude {
   parent?:
@@ -5943,6 +7099,11 @@ export interface DdTreeModel {
 
   count(where?: DdTreeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
 
+  groupBy<const A extends DdTreeGroupByArgs>(
+    args: GroupByArg<A, DdTreeGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdTreeGroupByResult<A>[]>;
+
   exists(where?: DdTreeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
   $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
@@ -5980,6 +7141,9 @@ import type {
   SelectArg,
   DataArg,
   IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
 } from '..';
 import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
@@ -6264,6 +7428,73 @@ export interface DdTwoOrderBy {
   oneId?: 'asc' | 'desc';
   one?: DdOneOrderBy;
 }
+
+export interface DdTwoGroupByKeys {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdTwoCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdTwoMinMaxAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdTwoGroupAggregate {
+  id?: true;
+  name?: true;
+  oneId?: true;
+}
+
+export interface DdTwoGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  oneId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; oneId?: 'asc' | 'desc' };
+}
+
+export interface DdTwoGroupByArgs {
+  by: DdTwoGroupByKeys;
+  where?: DdTwoWhere;
+  _count?: true | DdTwoCountAggregate;
+  _min?: DdTwoMinMaxAggregate;
+  _max?: DdTwoMinMaxAggregate;
+  _group?: DdTwoGroupAggregate;
+  orderBy?: DdTwoGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface DdTwoGroupByAggregates {
+  _count: { _all: number; id: number; name: number; oneId: number };
+  _min: {
+    id: NonNullable<DdTwo['id']> | null;
+    name: NonNullable<DdTwo['name']> | null;
+    oneId: NonNullable<DdTwo['oneId']> | null;
+  };
+  _max: {
+    id: NonNullable<DdTwo['id']> | null;
+    name: NonNullable<DdTwo['name']> | null;
+    oneId: NonNullable<DdTwo['oneId']> | null;
+  };
+  _group: {
+    id: GroupMember<DdTwo['id']>[];
+    name: GroupMember<DdTwo['name']>[];
+    oneId: (GroupMember<DdTwo['oneId']> | null)[];
+  };
+}
+
+export type DdTwoGroupByResult<A extends DdTwoGroupByArgs> = GroupByRow<DdTwo, A, DdTwoGroupByAggregates>;
 
 export interface DdTwoInclude {
   one?:
@@ -6622,6 +7853,11 @@ export interface DdTwoModel {
   }): CerialQueryPromise<DeleteUniqueReturnType<DdTwo, R>>;
 
   count(where?: DdTwoWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends DdTwoGroupByArgs>(
+    args: GroupByArg<A, DdTwoGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<DdTwoGroupByResult<A>[]>;
 
   exists(where?: DdTwoWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
 
