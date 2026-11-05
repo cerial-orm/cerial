@@ -14,9 +14,11 @@ import {
   symlink,
   writeFile,
 } from 'node:fs/promises';
-import { basename, dirname, join, relative } from 'node:path';
+import path, { basename, dirname, join } from 'node:path';
 import { CerialGenerationError } from '../../errors';
 import { isInside, type OutputPlan } from './output-paths';
+
+type PathModule = typeof path;
 
 export interface StagedFile {
   readonly source: string;
@@ -148,32 +150,82 @@ async function preflight(plan: OutputPlan, force: boolean): Promise<Checked[]> {
   return checked;
 }
 
+function within(pm: PathModule, root: string, path: string): boolean {
+  const rel = pm.relative(root, path);
+
+  return rel === '' || (!rel.startsWith(`..${pm.sep}`) && rel !== '..' && !pm.isAbsolute(rel));
+}
+
+/**
+ * Maps each path to a stage-relative path that mirrors the layout under the deepest directory shared by the
+ * paths on one filesystem root. Paths on another root (another drive, a UNC share) get their own `~<n>` folder (the entry's root is `~0`, so a real `~1` folder cannot collide),
+ * so no relative path can climb out of the stage, and the base search stops at the root.
+ */
+export function stageLayout(
+  entryRoot: string,
+  paths: readonly string[],
+  pm: PathModule = path,
+): { readonly entry: string; readonly rel: ReadonlyMap<string, string> } {
+  const roots = [pm.parse(entryRoot).root];
+  const rootOf = (p: string): string => pm.parse(p).root;
+  for (const p of paths) if (!roots.includes(rootOf(p))) roots.push(rootOf(p));
+
+  const bases = roots.map((root) => {
+    const members = [entryRoot, ...paths].filter((p) => rootOf(p) === root);
+    let base = pm.dirname(members[0] as string);
+    for (const member of members) {
+      while (!within(pm, base, member) && pm.dirname(base) !== base) base = pm.dirname(base);
+    }
+
+    return base;
+  });
+
+  const place = (p: string): string => {
+    const index = roots.indexOf(rootOf(p));
+
+    return pm.join(`~${index}`, pm.relative(bases[index] as string, p));
+  };
+
+  return { entry: place(entryRoot), rel: new Map(paths.map((p) => [p, place(p)])) };
+}
+
+/** Stage path for `file`; refuses one that would leave the stage, by name or through a symlink. */
+async function stagePath(stageDir: string, rel: string, file: string): Promise<string> {
+  const staged = join(stageDir, rel);
+  if (!isInside(stageDir, staged))
+    throw new CerialGenerationError(`Internal: ${file} would be staged outside the stage`);
+  await mkdir(dirname(staged), { recursive: true });
+  if (!isInside(await realpath(stageDir), await realpath(dirname(staged))))
+    throw new CerialGenerationError(`Internal: ${file} would be staged outside the stage`);
+
+  return staged;
+}
+
 async function stageTree(
   plan: OutputPlan,
   checked: readonly Checked[],
   options: WriteOutputsOptions,
   stageDir: string,
-): Promise<StagedFile[]> {
+): Promise<{ readonly dir: string; readonly files: StagedFile[] }> {
   const files: StagedFile[] = [];
+  const keptInside = plan.keptModules.filter((k) => isInside(plan.entryRoot, k));
+  const layout = stageLayout(plan.entryRoot, [...checked.map((c) => c.target), ...keptInside]);
+  const rel = (file: string): string => layout.rel.get(file) as string;
   for (const { source, target } of checked) {
     const content = options.contents.get(source);
     if (content === undefined) throw new CerialGenerationError(`No output text was produced for ${source}`);
-    const base = isInside(plan.entryRoot, target) ? plan.entryRoot : (plan.outDir ?? plan.entryRoot);
-    const path = join(stageDir, relative(base, target));
-    await mkdir(dirname(path), { recursive: true });
+    const path = await stagePath(stageDir, rel(target), target);
     await writeFile(path, content);
     files.push({ source, target, path });
   }
 
-  for (const kept of plan.keptModules) {
-    if (!isInside(plan.entryRoot, kept)) continue;
-    const path = join(stageDir, relative(plan.entryRoot, kept));
+  for (const kept of keptInside) {
+    const path = await stagePath(stageDir, rel(kept), kept);
     if (files.some((f) => f.path === path)) continue;
-    await mkdir(dirname(path), { recursive: true });
     await symlink(kept, path);
   }
 
-  return files;
+  return { dir: join(stageDir, layout.entry), files };
 }
 
 async function missingDirs(dir: string): Promise<string[]> {
@@ -202,8 +254,8 @@ export async function writeOutputs(plan: OutputPlan, options: WriteOutputsOption
   const doRename = options.rename ?? rename;
 
   try {
-    const files = await stageTree(plan, checked, options, stageDir);
-    await options.verify?.({ dir: stageDir, files });
+    const { dir, files } = await stageTree(plan, checked, options, stageDir);
+    await options.verify?.({ dir, files });
 
     return { dryRun: false, plan, written: await commit(checked, files, id, doRename) };
   } finally {

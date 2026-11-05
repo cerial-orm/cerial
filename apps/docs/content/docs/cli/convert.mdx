@@ -131,6 +131,7 @@ That comment is how the two directions agree. A key you declared by hand in Type
 - Output goes beside its source by default. `-o <dir>` writes under that directory instead and mirrors the folder layout.
 - An output file that already exists is an error: `out/blog.schema.ts: already exists (pass --force to replace it)`. `--force` replaces output files. It never replaces a schema source.
 - A refused or failed run writes nothing and leaves your tree as it was. Output is built and checked first, and a message beginning `Nothing was written.` names every problem in one report.
+- A source outside the entry root (for example a module a `defineSchema` entry imports from a parent folder) is converted beside itself, under the same exists, `--force` and schema-source checks as every other output, and no file outside the planned outputs is touched.
 - `--dry-run` runs the same checks and prints `would write source -> target` lines. It writes nothing and leaves no file behind.
 - Two declarations with one name, in both forms, are refused as a duplicate. This is the same rule `generate` applies.
 

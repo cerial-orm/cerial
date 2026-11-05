@@ -396,3 +396,40 @@ describe('Node resolution of a project import', () => {
     expect(hits.map((hit) => hit.id)).toContain('npm-field-set');
   });
 });
+
+describe('a source outside the entry root', () => {
+  it('writes only the output beside it, leaves its neighbours and sources alone and leaves no stage', async () => {
+    await project({
+      'cerial.config.json': config({ main: { entry: './proj/schema/index.ts' } }),
+      'proj/schema/index.ts': `${IMPORT}import { User } from '../../ext/user.schema';\nexport default defineSchema({ models: [User] });\n`,
+      'ext/user.schema.ts': USER,
+      'ext/notes.txt': 'mine',
+      'ext/user.cerial': 'VICTIM\n',
+    });
+    process.chdir(root);
+    const before = await snapshot(root);
+
+    const error = await convert({ schema: undefined }).then(
+      () => undefined,
+      (e: unknown) => e,
+    );
+
+    expect((error as Error).message).toContain('already exists');
+    expect(await snapshot(root)).toEqual(before);
+
+    await rm(join(root, 'ext/user.cerial'));
+    const result = await convert({ schema: undefined });
+
+    expect(result.written).toEqual([join(root, 'ext/user.cerial')]);
+    const after = await snapshot(root);
+    const { 'ext/user.cerial': created, ...rest } = after;
+    const { 'ext/user.cerial': _victim, ...beforeRest } = before;
+
+    expect(created).toBeDefined();
+    expect(rest).toEqual(beforeRest);
+    expect(await readFile(join(root, 'ext/user.cerial'), 'utf8')).toContain('model User {');
+    expect(await readFile(join(root, 'ext/notes.txt'), 'utf8')).toBe('mine');
+    expect(await readFile(join(root, 'ext/user.schema.ts'), 'utf8')).toBe(USER);
+    expect((await readdir(root, { recursive: true })).filter((n) => n.includes('.cerial-convert-'))).toEqual([]);
+  });
+});

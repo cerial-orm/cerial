@@ -15,10 +15,10 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { posix, win32, join } from 'node:path';
 import { CerialGenerationError } from '../../../../src/errors';
 import { planOutputs, type OutputPlan } from '../../../../src/cli/convert/output-paths';
-import { writeOutputs, type StagedTree } from '../../../../src/cli/convert/write-output';
+import { stageLayout, writeOutputs, type StagedTree } from '../../../../src/cli/convert/write-output';
 
 let root: string;
 
@@ -348,5 +348,140 @@ describe('writeOutputs rollback', () => {
     );
 
     await expect(stat(join(root, 'out'))).rejects.toThrow();
+  });
+});
+
+describe('writeOutputs with a source outside the entry root', () => {
+  // The entry root is root/proj; the sources sit beside it, so every relative path to them starts with ../
+  const scattered = (names: string[]) => {
+    const plan = planOutputs({
+      sources: names.map((n) => join(root, n)),
+      entryRoot: join(root, 'proj'),
+      toExtension: '.schema.ts',
+      protectedSources: names.map((n) => join(root, n)),
+    });
+
+    return { plan, contents: new Map(plan.outputs.map((o) => [o.source, '// converted\n'])) };
+  };
+
+  it('writes the output beside its outside source and touches no other file', async () => {
+    await project({ 'proj/main.cerial': 'x', 'ext/user.cerial': 'model User {}\n', 'ext/victim.txt': 'mine' });
+    const before = await snapshot(join(root, 'ext'));
+    const { plan, contents } = scattered(['proj/main.cerial', 'ext/user.cerial']);
+
+    const result = await writeOutputs(plan, { contents });
+
+    expect(result.written).toEqual([join(root, 'proj/main.schema.ts'), join(root, 'ext/user.schema.ts')]);
+    expect(await readFile(join(root, 'ext/user.schema.ts'), 'utf8')).toBe('// converted\n');
+    expect(await readFile(join(root, 'ext/user.cerial'), 'utf8')).toBe('model User {}\n');
+    expect(await readFile(join(root, 'ext/victim.txt'), 'utf8')).toBe('mine');
+    expect(Object.keys(await snapshot(join(root, 'ext'))).sort()).toEqual(
+      [...Object.keys(before), 'user.schema.ts'].sort(),
+    );
+    expect((await readdir(root, { recursive: true })).filter((n) => n.includes('.cerial-convert-'))).toEqual([]);
+  });
+
+  it('stages every file inside the stage directory', async () => {
+    await project({ 'proj/main.cerial': 'x', 'ext/user.cerial': 'x' });
+    const { plan, contents } = scattered(['proj/main.cerial', 'ext/user.cerial']);
+    let paths: string[] = [];
+
+    await writeOutputs(plan, {
+      contents,
+      verify: (tree) => {
+        paths = tree.files.map((f) => f.path);
+        expect(tree.dir.startsWith(join(plan.entryRoot, '.cerial-convert-'))).toBe(true);
+      },
+    });
+
+    for (const path of paths) expect(path).toContain('.cerial-convert-');
+    expect(await readdir(root)).not.toContain('user.schema.ts');
+  });
+
+  it('never overwrites an outside protected source, and an existing outside output needs --force', async () => {
+    await project({
+      'proj/main.cerial': 'x',
+      'ext/user.cerial': 'model Post {}\n',
+      'ext/user.schema.ts': '// mine\n',
+    });
+    const before = await snapshot(root);
+    const { plan, contents } = scattered(['proj/main.cerial', 'ext/user.cerial']);
+
+    const message = await refusal(writeOutputs(plan, { contents }));
+
+    expect(message).toStartWith('Nothing was written.');
+    expect(message).toContain('already exists');
+    expect(await snapshot(root)).toEqual(before);
+  });
+
+  it('refuses a target that is a protected source, even outside the entry root', async () => {
+    await project({ 'proj/main.cerial': 'x', 'ext/user.cerial': 'model Post {}\n' });
+    const before = await snapshot(root);
+    const plan = planOutputs({
+      sources: [join(root, 'proj/main.cerial')],
+      entryRoot: join(root, 'proj'),
+      toExtension: '.cerial',
+      protectedSources: [join(root, 'proj/main.cerial'), join(root, 'ext/user.cerial')],
+    });
+    const forged: OutputPlan = {
+      ...plan,
+      outputs: [{ source: join(root, 'proj/main.cerial'), target: join(root, 'ext/user.cerial') }],
+    };
+
+    const message = await refusal(
+      writeOutputs(forged, { contents: new Map([[join(root, 'proj/main.cerial'), 'model User {}\n']]), force: true }),
+    );
+
+    expect(message).toContain('is a schema source and is never overwritten');
+    expect(await snapshot(root)).toEqual(before);
+  });
+
+  it('a failing verify leaves the outside tree untouched', async () => {
+    await project({ 'proj/main.cerial': 'x', 'ext/user.cerial': 'x', 'ext/user.schema.ts': '// mine\n' });
+    const { plan, contents } = scattered(['proj/main.cerial', 'ext/user.cerial']);
+    const before = await snapshot(root);
+
+    const message = await refusal(
+      writeOutputs(plan, {
+        contents,
+        force: true,
+        verify: () => {
+          throw new CerialGenerationError('Nothing was written. verify says no');
+        },
+      }),
+    );
+
+    expect(message).toContain('verify says no');
+    expect(await readFile(join(root, 'ext/user.schema.ts'), 'utf8')).toBe('// mine\n');
+    expect(Object.keys(await snapshot(root))).toEqual(Object.keys(before));
+  });
+});
+
+describe('stageLayout', () => {
+  it('terminates and stays relative for paths on other drives and a UNC share', () => {
+    const { entry, rel } = stageLayout(
+      'C:\\proj',
+      ['C:\\proj\\a.ts', 'D:\\out\\user.cerial', '\\\\srv\\share\\x\\u.cerial'],
+      win32,
+    );
+
+    expect(entry).toBe(win32.join('~0', 'proj'));
+    expect(rel.get('C:\\proj\\a.ts')).toBe(win32.join('~0', 'proj', 'a.ts'));
+    expect(rel.get('D:\\out\\user.cerial')).toBe(win32.join('~1', 'user.cerial'));
+    expect(rel.get('\\\\srv\\share\\x\\u.cerial')).toBe(win32.join('~2', 'u.cerial'));
+    for (const value of rel.values()) expect(win32.isAbsolute(value) || value.startsWith('..')).toBe(false);
+  });
+
+  it('mirrors a source above the entry root without climbing', () => {
+    const { entry, rel } = stageLayout('/r/proj', ['/r/proj/a.ts', '/r/ext/u.ts'], posix);
+
+    expect(entry).toBe('~0/proj');
+    expect(rel.get('/r/ext/u.ts')).toBe('~0/ext/u.ts');
+  });
+
+  it('keeps a real ~1 folder apart from the group of another drive', () => {
+    const { rel } = stageLayout('C:\\proj', ['C:\\~1\\x.cerial', 'D:\\x.cerial'], win32);
+
+    expect(rel.get('C:\\~1\\x.cerial')).not.toBe(rel.get('D:\\x.cerial'));
   });
 });
