@@ -135,10 +135,10 @@
     }
   },
   "devDependencies": {
-    "@types/bun": "1.4.3",
+    "@types/bun": "1.4.4",
     "@types/node": "^26.6.6",
-    "oxlint": "^1.86.0",
-    "tsdown": "^0.23.1",
+    "oxlint": "^1.91.0",
+    "tsdown": "^0.23.5",
     "typescript": "5.9.3",
     "typescript-5.9": "npm:typescript@5.9.3",
     "typescript-7": "npm:typescript@7.0.2"
@@ -148,14 +148,14 @@
   },
   "//surrealdb": "Pinned exactly: the driver owns reconnect, session and error behaviour this ORM depends on, and a caret would let a minor change them unreviewed. 2.2.1 is the floor because SDKs before 2.1 refuse a SurrealDB 4.0 server with a version mismatch. 2.1 added WebSocket keepalive pings, connect() rejection on refused or exhausted connections and root-cause errors from Query.collect(); 2.2.1 reconnects without a limit, capped at 20 s. Take any later bump as its own change with the full integration and e2e suites run.",
   "dependencies": {
-    "citty": "^0.2.1",
+    "citty": "^0.2.2",
     "fast-glob": "^3.3.3",
-    "ignore": "^7.0.5",
+    "ignore": "^7.0.14",
     "jiti": "^2.7.0",
-    "oxfmt": "0.73.0",
-    "surrealdb": "2.2.1",
+    "oxfmt": "0.76.0",
+    "surrealdb": "2.2.2",
     "ts-toolbelt": "^9.6.0",
-    "valibot": "^1.2.0"
+    "valibot": "^1.5.0"
   },
   "scripts": {
     "build": "tsdown",
