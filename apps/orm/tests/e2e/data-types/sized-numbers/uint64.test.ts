@@ -6,7 +6,17 @@ const TWO_53 = 2n ** 53n;
 const TWO_63 = 2n ** 63n;
 const MAX = 2n ** 64n - 1n;
 /** Values that a double cannot tell apart, and the ones past the signed 64-bit range. */
-const BIG_VALUES = [TWO_53 + 1n, TWO_53 + 3n, TWO_63 - 1n, TWO_63, TWO_63 + 1n, TWO_63 + 12345n, MAX - 1n, MAX];
+const BIG_VALUES = [
+  TWO_53 - 1n,
+  TWO_53 + 1n,
+  TWO_53 + 3n,
+  TWO_63 - 1n,
+  TWO_63,
+  TWO_63 + 1n,
+  TWO_63 + 12345n,
+  MAX - 1n,
+  MAX,
+];
 
 describe('E2E Uint64: values past 2^53 and past 2^63', () => {
   const { getClient } = setup();
@@ -72,9 +82,32 @@ describe('E2E Uint64: values past 2^53 and past 2^63', () => {
     });
   });
 
+  describe('the signed 64-bit boundary, where the wire type changes from bigint to U64', () => {
+    test('the number 2 ** 53 - 1 and the neighbours of 2 ** 53 are created, read and found', async () => {
+      // Exactly 2^53 is not covered: SDK 2.2.1 drops any row holding a u64 of exactly 2^53 on read (pinned in
+      // surrealdb-facts/sized-numbers.test.ts), so create, findOne and every filter hit on it fail
+      const row = await model().create({ data: data(2 ** 53 - 1, { arrVal: [2 ** 53 - 1] }) });
+
+      expect(row.reqVal).toBe(TWO_53 - 1n);
+      expect(row.arrVal).toEqual([TWO_53 - 1n]);
+      expect((await model().findOne({ where: { reqVal: 2 ** 53 - 1 } }))!.id).toEqual(row.id);
+      expect((await model().findMany({ where: { reqVal: { gt: TWO_53 } } })).length).toBe(0);
+      expect((await model().findMany({ where: { reqVal: { lt: TWO_53 } } })).length).toBe(1);
+    });
+
+    test('the signed maximum and one above it both round trip and filter', async () => {
+      await seed([TWO_63 - 1n, TWO_63]);
+
+      expect((await model().findMany({ where: { reqVal: TWO_63 - 1n } })).map((r) => r.reqVal)).toEqual([TWO_63 - 1n]);
+      expect((await model().findMany({ where: { reqVal: { gt: TWO_63 - 1n } } })).map((r) => r.reqVal)).toEqual([
+        TWO_63,
+      ]);
+    });
+  });
+
   describe('filtering is exact', () => {
     test('equality finds the one neighbour of three that a double could not separate', async () => {
-      // 2^53 itself is skipped: SDK 2.2.1 refuses to encode exactly that U64
+      // 2^53 itself is skipped: SDK 2.2.1 drops a row holding exactly that u64 on read
       await seed([TWO_53 + 1n, TWO_53 + 2n, TWO_53 + 3n]);
 
       for (const target of [TWO_53 + 1n, TWO_53 + 2n, TWO_53 + 3n]) {

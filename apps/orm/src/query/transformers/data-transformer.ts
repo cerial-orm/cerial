@@ -50,11 +50,9 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
       if (typeof value === 'string') return parseFloat(value);
       return value;
 
-    // The SDK refuses a bigint above the signed 64-bit maximum, so every u64 goes as a U64. Floats go
-    // unchanged and the server rounds them; the other sized integers cross kinds by value.
+    // Floats go unchanged and the server rounds them; the other sized integers cross kinds by value.
     case 'uint64':
-      if (typeof value === 'number' || typeof value === 'bigint') return new U64(value);
-      return value;
+      return toU64Param(value);
 
     case 'bool':
       if (typeof value === 'boolean') return value;
@@ -622,6 +620,20 @@ function transformLiteralValue(value: unknown, literalInfo: LiteralFieldMetadata
   }
 
   return value;
+}
+
+const I64_MAX = 2n ** 63n - 1n;
+
+/**
+ * A Uint64 value as the SDK should carry it. The encoder takes a bigint up to the signed 64-bit maximum
+ * and the server stores it as u64; above that only a `U64` fits. `new U64(number)` refuses exactly 2 ** 53,
+ * so a number goes through a bigint. Anything that is not a number is returned unchanged.
+ */
+export function toU64Param(value: unknown): unknown {
+  if (typeof value === 'number') return Number.isInteger(value) ? toU64Param(BigInt(value)) : value;
+  if (typeof value !== 'bigint') return value;
+
+  return value > I64_MAX ? new U64(value) : value;
 }
 
 /**

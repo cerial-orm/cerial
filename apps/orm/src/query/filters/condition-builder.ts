@@ -2,7 +2,7 @@
  * Condition builder - builds WHERE clause conditions
  */
 
-import { Decimal, Duration, F16, F32, Geometry, RecordId, StringRecordId, U64, Uuid } from 'surrealdb';
+import { Decimal, Duration, F16, F32, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   FieldMetadata,
   ModelMetadata,
@@ -24,7 +24,7 @@ import { joinFragments, wrapParens } from '../compile/fragment';
 import { compileFragment, isSqlFragment } from '../compile/sql-fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
-import { transformOrValidateRecordId } from '../transformers';
+import { toU64Param, transformOrValidateRecordId } from '../transformers';
 import { expandCompositeKeys } from './composite-key';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
@@ -70,7 +70,7 @@ function transformDecimalValue(value: unknown): unknown {
  */
 function transformSizedValue(value: unknown, type: FieldMetadata['type']): unknown {
   if (typeof value !== 'number' && typeof value !== 'bigint') return value;
-  if (type === 'uint64') return new U64(value);
+  if (type === 'uint64') return toU64Param(value);
   if (typeof value === 'bigint') return value;
   if (type === 'float16') return new F16(value);
   if (type === 'float32') return new F32(value);

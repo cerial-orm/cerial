@@ -1,7 +1,7 @@
 /**
  * Unit Tests: write values for sized number fields
  *
- * Uint64 goes as the SDK U64 (the SDK refuses a bigint above the signed maximum). Float16 and Float32
+ * Uint64 goes as a bigint up to the signed 64-bit maximum and as the SDK U64 above it. Float16 and Float32
  * go unchanged so the server does the rounding, and the other integer kinds go as plain numbers.
  */
 
@@ -10,7 +10,16 @@ import { U64 } from 'surrealdb';
 import { transformData, transformValue } from '../../../../src/query/transformers/data-transformer';
 import { SIZED_CASES, sizedModel } from './helpers';
 
+const I64_MAX = 2n ** 63n - 1n;
+
+/** A u64 goes as a plain bigint up to the signed maximum (the encoder takes it) and as a U64 above. */
 function expectU64(value: unknown, expected: bigint): void {
+  if (expected <= I64_MAX) {
+    expect(typeof value).toBe('bigint');
+    expect(value).toBe(expected);
+
+    return;
+  }
   expect(value).toBeInstanceOf(U64);
   expect((value as U64).value).toBe(expected);
 }
@@ -24,10 +33,27 @@ describe('sized number write transform', () => {
     expect(transformValue(0.1, type)).toBe(0.1);
   });
 
-  test('Uint64 wraps a bigint above the signed range and a number', () => {
+  test('Uint64 sends a bigint as is up to the signed maximum, wraps one above it, and converts a number to a bigint', () => {
     expectU64(transformValue(2n ** 64n - 1n, 'uint64'), 2n ** 64n - 1n);
     expectU64(transformValue(7, 'uint64'), 7n);
     expectU64(transformValue(0n, 'uint64'), 0n);
+  });
+
+  test.each([
+    ['0', 0n],
+    ['2^53 - 1', 2n ** 53n - 1n],
+    ['2^53', 2n ** 53n],
+    ['2^53 + 1', 2n ** 53n + 1n],
+    ['the signed maximum', 2n ** 63n - 1n],
+    ['one above the signed maximum', 2n ** 63n],
+    ['the unsigned maximum', 2n ** 64n - 1n],
+  ])('Uint64 %s: bigint input keeps its value and takes the right wire type', (_name, v) => {
+    expectU64(transformValue(v, 'uint64'), v);
+  });
+
+  test('Uint64 converts the number 2 ** 53, which new U64 refuses, to a bigint', () => {
+    expect(transformValue(2 ** 53, 'uint64')).toBe(2n ** 53n);
+    expect(transformValue(Number.MAX_SAFE_INTEGER, 'uint64')).toBe(BigInt(Number.MAX_SAFE_INTEGER));
   });
 
   test('null and undefined pass through', () => {
@@ -55,15 +81,19 @@ describe('sized number write transform', () => {
       const update = transformData({ calib: { gain: 9n } }, model, 'update') as { calib: { gain: unknown } };
 
       expectU64(update.calib.gain, 9n);
-      expect(transformData({ value: 1n }, model, 'update').value).toBeInstanceOf(U64);
+      expectU64(transformData({ value: 2n ** 64n - 1n }, model, 'update').value, 2n ** 64n - 1n);
     });
 
-    test('Uint64 wraps the members of a pushed list', () => {
-      const out = transformData({ list: { push: [1n, 2n] } }, sizedModel('uint64'), 'update') as {
-        list: { push: unknown[] };
-      };
+    test('Uint64 converts every member of a pushed, set and unset list the same way', () => {
+      for (const op of ['push', 'set', 'unset']) {
+        const out = transformData({ list: { [op]: [1n, 2 ** 53, 2n ** 63n] } }, sizedModel('uint64'), 'update') as {
+          list: Record<string, unknown[]>;
+        };
 
-      expect(out.list.push.every((v) => v instanceof U64)).toBe(true);
+        expectU64(out.list[op]![0], 1n);
+        expectU64(out.list[op]![1], 2n ** 53n);
+        expectU64(out.list[op]![2], 2n ** 63n);
+      }
     });
 
     test.each([...SIZED_CASES.map((c) => c.type), 'float16', 'float32'] as const)('%s data is not wrapped', (type) => {

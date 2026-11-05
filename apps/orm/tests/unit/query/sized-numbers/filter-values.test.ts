@@ -1,7 +1,7 @@
 /**
  * Unit Tests: values bound for filters on sized number fields
  *
- * Uint64 binds as the SDK U64, Float16 and Float32 as F16 and F32 (so 0.1 finds the row the server
+ * Uint64 binds as a bigint up to the signed maximum and as the SDK U64 above it, Float16 and Float32 as F16 and F32 (so 0.1 finds the row the server
  * rounded), and the other integer kinds bind as plain numbers.
  */
 
@@ -9,7 +9,16 @@ import { describe, expect, test } from 'bun:test';
 import { F16, F32, U64 } from 'surrealdb';
 import { compileWhere, SIZED_CASES } from './helpers';
 
+const I64_MAX = 2n ** 63n - 1n;
+
+/** A u64 goes as a plain bigint up to the signed maximum (the encoder takes it) and as a U64 above. */
 function expectU64(value: unknown, expected: bigint): void {
+  if (expected <= I64_MAX) {
+    expect(typeof value).toBe('bigint');
+    expect(value).toBe(expected);
+
+    return;
+  }
   expect(value).toBeInstanceOf(U64);
   expect((value as U64).value).toBe(expected);
 }
@@ -33,8 +42,18 @@ describe('sized number filter values', () => {
       expectU64(values[0], 2n ** 64n - 1n);
     });
 
-    test('binds a safe-integer number as U64 holding the same value', () => {
+    test('binds a safe-integer number as a bigint holding the same value', () => {
       expectU64(compileWhere('uint64', { value: 5 }).values[0], 5n);
+    });
+
+    test('binds exactly 2^53 as a bigint, whether it arrives as a bigint or a number', () => {
+      expect(compileWhere('uint64', { value: 2n ** 53n }).values[0]).toBe(2n ** 53n);
+      expect(compileWhere('uint64', { value: 2 ** 53 }).values[0]).toBe(2n ** 53n);
+    });
+
+    test('the signed maximum binds as a bigint and one above it as U64', () => {
+      expect(compileWhere('uint64', { value: 2n ** 63n - 1n }).values[0]).toBe(2n ** 63n - 1n);
+      expectU64(compileWhere('uint64', { value: 2n ** 63n }).values[0], 2n ** 63n);
     });
 
     test.each([

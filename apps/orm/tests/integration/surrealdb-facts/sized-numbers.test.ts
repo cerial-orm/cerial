@@ -510,6 +510,62 @@ describe('SDK 2.2.1 over cbor.2, which a default connection negotiates with 4.0'
     expect(String(await sdk(surreal, 'SELECT VALUE id FROM t WHERE u < $n;', { n: max }))).toBe('t:2');
   });
 
+  test('a bigint up to the i64 maximum is stored as u64, including exactly 2^53 (the number 2 ** 53 is what new U64 refuses)', async () => {
+    const { db, surreal } = await seeded('sdk2_bigint_u64');
+    const i64Max = 2n ** 63n - 1n;
+
+    // The refusal is for the number 2 ** 53 (a double that cannot be told from 2 ** 53 + 1), not the bigint
+    expect(await sdkError(async () => new U64(2 ** 53))).toContain('not an integer which u64 can hold exactly');
+    await sdk(surreal, 'CREATE t:20 SET u = $u;', { u: new U64(2n ** 53n) });
+    for (const [id, v] of [
+      [21, 2n ** 53n],
+      [22, 2n ** 53n + 1n],
+      [23, 2n ** 54n],
+      [24, i64Max],
+      [25, 0n],
+    ] as const)
+      await sdk(surreal, `CREATE t:${id} SET u = $u;`, { u: v });
+
+    expect(await sdk(surreal, 'SELECT VALUE type::of(u) FROM t:21, t:24, t:25;')).toEqual(['u64', 'u64', 'u64']);
+    expect(await ok(db, 'SELECT VALUE u FROM t WHERE id >= t:21 AND id <= t:25 ORDER BY id;')).toEqual([
+      2 ** 53,
+      2 ** 53 + 1,
+      2 ** 54,
+      2 ** 63 - 1,
+      0,
+    ]);
+  });
+
+  test('SDK 2.2.1 drops a row holding a u64 of exactly 2^53 on read, while 2^53 - 1 and 2^53 + 1 read', async () => {
+    const { surreal } = await seeded('sdk2_u64_2_53');
+    await sdk(surreal, 'CREATE t:40 SET u = 9007199254740991u64; CREATE t:41 SET u = 9007199254740992u64;');
+    await sdk(surreal, 'CREATE t:42 SET u = 9007199254740993u64; CREATE t:43 SET u = 9007199254740992;');
+    const rows = async (id: number): Promise<number> =>
+      ((await sdk(surreal, `SELECT * FROM t:${id}`)) as unknown[]).length;
+
+    expect([await rows(40), await rows(41), await rows(42), await rows(43)]).toEqual([1, 0, 1, 0]);
+  });
+
+  test('bigint params filter a u64 field by equality, range and IN, below and above 2^53', async () => {
+    const { surreal } = await seeded('sdk2_bigint_where');
+    for (const [id, v] of [
+      [30, 2n ** 53n],
+      [31, 2n ** 53n + 1n],
+      [32, 2n ** 63n - 1n],
+    ] as const)
+      await sdk(surreal, `CREATE t:${id} SET u = $u;`, { u: v });
+    const ids = async (where: string, vars: Record<string, unknown>): Promise<string[]> =>
+      ((await sdk(surreal, `SELECT VALUE id FROM t WHERE u != NONE AND ${where} ORDER BY u;`, vars)) as unknown[])
+        .map(String)
+        .filter((id) => Number(id.slice(2)) >= 30);
+
+    expect(await ids('u = $n', { n: 2n ** 53n })).toEqual(['t:30']);
+    expect(await ids('u > $n', { n: 2n ** 53n })).toEqual(['t:31', 't:32']);
+    expect(await ids('u < $n', { n: 2n ** 63n - 1n })).toEqual(['t:30', 't:31']);
+    expect(await ids('u IN $n', { n: [2n ** 53n, 2n ** 63n - 1n] })).toEqual(['t:30', 't:32']);
+    expect(await ids('u = $n', { n: 2n ** 53n + 1n })).toEqual(['t:31']);
+  });
+
   test('the number param 0.1 does not find the f16 or f32 it was written into; the rounded value or an F32 / F16 instance does', async () => {
     const { surreal } = await seeded('sdk2_where_float');
     const where = async (field: string, value: unknown): Promise<string[]> =>
