@@ -10,7 +10,7 @@ development branch and is not available on npm.
 
 ## 0.3.0
 
-**SurrealDB compatibility:** 4.0.0 | **SDK:** surrealdb 2.2.1
+**SurrealDB compatibility:** 4.0.0 | **SDK:** surrealdb 2.2.2
 
 ### Security
 
@@ -135,6 +135,58 @@ development branch and is not available on npm.
   handler caught every error while claiming to catch only the root-style-config case,
   so a malformed config read as absent.
 
+- Record ids reached query text through the SDK's own string form, and that
+  escaping is defeatable. It escapes the closing bracket of a quoted id but
+  leaves a backslash alone, so an id ending in a backslash before the bracket
+  cancels the escape and closes the id early; whatever follows runs as part of
+  the statement. Run against a live database, a crafted id passed to
+  `findUnique`, `updateUnique` or `upsert` deleted every row of an unrelated
+  table. It is reachable wherever an id comes from request input, such as a
+  route parameter. Present in 0.1.0 and 0.2.0.
+
+  Record ids are now bound as parameters at every site and never written into
+  query text, so no escaper is involved. A nested create or upsert option now
+  carries a record id rather than a string. If you pass ids from request input,
+  upgrade; until then reject any id containing a backslash.
+
+- In a nested create through a reverse relation, a key you passed became a
+  column name in the query text without being checked or quoted. A key shaped
+  to end the clause and start a statement ran that statement: a `DELETE`
+  against an unrelated table removed rows while the create returned success.
+  It is reachable through `create`, and the create half of `upsert`, wherever
+  the keys of a nested create come from request input, such as
+  `{ posts: { create: body.post } }`. Present in 0.1.0 and 0.2.0.
+
+  Each key of a nested create is now checked against the target model, and an
+  unknown key throws before any query is built. If you forward user input into
+  a nested create, upgrade; until then allow-list its keys.
+
+- The sort direction of an `orderBy` key under a `@flexible` object field was
+  not validated, on the top-level `orderBy` and on `orderBy` inside `include`.
+  An undeclared sub-key is accepted there by design, but its direction went
+  into the query text unchecked, and forcing it to upper case did not help
+  because the database is case-insensitive. Against a live database on the
+  development branch, a crafted direction deleted every row of an unrelated
+  table. Reach in a published version not established: the validator in 0.1.0
+  and 0.2.0 had a different shape, though 0.2.0 already wrote the direction
+  into the query text. Treat 0.1.0 and 0.2.0 as exposed.
+
+  The direction is now checked against `asc` and `desc` for every sub-key,
+  declared or not, and a nested object is checked recursively. If you forward
+  user input into an `orderBy` on a flexible field, upgrade; until then allow
+  only `asc` and `desc`.
+
+- The operator lookup in `where` answered to every name on `Object.prototype`,
+  so `where: { name: { toString: 1 } }` (and `constructor`) was treated as a
+  registered operator, dropped the filter and matched every row. In a
+  `deleteMany` or `updateMany` that is every row in the table. `hasOwnProperty`,
+  `valueOf` and `__proto__` raised a raw `TypeError` instead. It is reachable
+  wherever a filter body comes from request input. Present in 0.2.0.
+
+  Operators are now looked up by own property, so a prototype name is reported
+  as an unknown operator like any other. If you forward a JSON filter body,
+  upgrade; until then allow-list the operator names you accept.
+
 ### Added
 
 - A raw query hatch for SurrealQL the typed API has no position for: graph
@@ -222,6 +274,25 @@ development branch and is not available on npm.
   `.cerial` drops TypeScript comments and carries only declarations, not helpers
   or other code in a module; the report names each module that holds some. See
   [Convert](/cli/convert).
+
+- `cerial migrate` inspects the live database and changes it to match your
+  schema, for deployments where a change should be seen before it runs.
+  `status` reports whether the database is in sync (exit 0), drifted or pending
+  (exit 1) or unreachable (exit 2). `plan` writes the pending changes to a
+  timestamped `.surql` file with destructive statements commented out. `apply`
+  runs them, from the schema with `--from-schema` or from a reviewed plan file
+  with `apply <file>`; destructive changes need `--allow-destructive`, and
+  removing a table also needs `--allow-data-loss`. `baseline` records the
+  current database as applied without running any DDL. There are no `down`
+  migrations. Connection values come from flags, `CERIAL_DB_*` environment
+  variables or your config, and there is no password flag. See
+  [Migrate](/cli/migrate).
+
+  ```bash
+  bunx cerial migrate status
+  bunx cerial migrate plan
+  bunx cerial migrate apply --from-schema
+  ```
 
 - `parse()` and `parseWithLexer()` take an optional last argument, the path of the
   schema file being parsed, and every node in the returned AST records it in a new
@@ -958,6 +1029,50 @@ development branch and is not available on npm.
   relied on an unnoticed typo stops compiling. Files with many nested writes
   type-check about twice as slowly; other projects see no measurable change. See
   [Typos, Completion and Depth](/types/dynamic-return-types#typos-completion-and-depth).
+- **Breaking.** Formatting of the generated client moved from Biome to `oxfmt`,
+  now a runtime dependency; `@biomejs/js-api` and `@biomejs/wasm-nodejs` are
+  gone. Generated files may differ in whitespace from 0.2.0 output, so expect a
+  one-time diff after you regenerate.
+- **Breaking.** A nested connect to a record that does not exist now throws.
+  `create` used to surface the database's raw error and `updateUnique` and
+  `updateMany` stored the dangling id, so a later `include` resolved to nothing.
+- A nested upsert keeps the relation, names the record it wrote, and honours
+  `unset` and `select`. Before, those options were ignored.
+- A nested updateUnique in `$transaction` array mode now returns the row, or
+  `null`, not `[row]`, and `return: true` gives a boolean, matching the other
+  modes.
+- **Breaking.** `cerial generate` refuses a SurrealDB reserved keyword used as a
+  model, object, tuple, enum or field name, case-insensitively. Rename the
+  declaration or the generate fails and names it.
+- The schema validators that never ran on `cerial generate` now do, so a schema
+  that generated in 0.2.0 can be refused with a message naming the declaration.
+  See the `validateSchema` entry under Removed.
+- Wrong tuple members and wrong literal members, such as a fraction in an `int`
+  position or a wrong-typed member, are refused on `create`, `updateMany`,
+  `updateUnique` and `upsert`, naming the field, instead of reaching the
+  database.
+- **Breaking.** An empty OR (`OR: []`) and `NOT: {}` now match no rows, in reads and
+  writes alike. A guard on a destructive call needs no extra handling.
+- **Breaking.** A destructive where that has keys but compiles to no
+  conditions throws on `deleteMany`, `updateMany`, `deleteUnique`,
+  `updateUnique` and the update half of `upsert`, instead of touching every row.
+  Omit `where`, or pass `{}`, to affect every row on purpose.
+- A `$raw` fragment placed in a value position, such as inside `data` or as a
+  field value, is refused with the path of the offending key instead of
+  matching nothing. Use `$raw` only as a `where` key, a `compute` entry or a
+  whole statement.
+- Every error Cerial raises is now a `CerialError` subclass carrying `code`,
+  `model`, `operation` and `field` where they apply, so you can catch by class
+  rather than match a message. Code that matched on `message` text of a bare
+  `Error` should switch to `instanceof`. See [Errors](/errors).
+- **Breaking.** On SurrealDB 4.0, a REMOVE FIELD in `cerial migrate` (or a
+  migration) deletes its stored values, and tuple types are written inline
+  rather than as per-element field definitions. The plan marks removals as
+  destructive.
+- **Breaking.** A model's `<Model>Select` and an object's `<Object>Select` type is
+  now `AtLeastOne<...SelectFields>`, so an empty `select: {}` is a type error and
+  the editor suggests the remaining keys after you type some. Pass at least one
+  key, or omit `select`.
 
 ### Removed
 
@@ -1001,3 +1116,24 @@ development branch and is not available on npm.
   `cerial.config.ts` keeps working. The CLI types (`CLIOptions`, `GenerateResult`,
   `LoggerOptions`, `LogLevel`, `SchemaResolveOptions`, `WriteOptions` and the
   validation result types) stay on the root too. Generated clients are unaffected.
+
+- **Breaking.** The remaining names that left the root entry point, grouped by
+  where they live now. Move the import to the subpath; the signatures are unchanged.
+
+  | Names | Import them from |
+  |---|---|
+  | `DefineFieldOptions`, `DefineTableOptions`, `SurrealQLType`, `generateAllDerivedTypes`, `generateAssertClause`, `generateClientClass`, `generateClientTemplate`, `generateConnectionExports`, `generateCreateType`, `generateDbClientInterface`, `generateDefaultClause`, `generateDefineField`, `generateDefineIndex`, `generateDefineTable`, `generateDerivedTypes`, `generateFieldDefinition`, `generateFieldType`, `generateFieldWhereType`, `generateImports`, `generateInterface`, `generateInterfaces`, `generateMethodSignatures`, `generateModelDefineStatements`, `generateModelInterface`, `generateModelTypes`, `generateOrderByType`, `generateRegistryCode`, `generateRegistryDefineStatements`, `generateSelectType`, `generateTypeClause`, `generateTypedDbInterface`, `generateUpdateType`, `generateWhereInputInterface`, `generateWhereInterface`, `generateWhereTypes`, `getTypeAssertion`, `hasTypeAssertion`, `mapToSurrealType` | `cerial/generators` |
+  | `clearModelCache`, `createModelProxy`, `createProxyHandler` | `cerial/client` |
+  | `ValidationResult`, `validResult`, `invalidResult`, `validateFieldType`, `validateTypedRecordId`, `isValidEmail`, `isValidFieldName`, `isValidModelName`, `isPrimitiveType`, `getSchemaFieldType`, `schemaTypeToSurrealType`, `schemaTypeToTsType`, `isArrayOperator`, `isComparisonOperator`, `isLogicalOperator`, `isSpecialOperator`, `isStringOperator` | `cerial/utils` |
+  | `capitalize`, `uncapitalize`, `toCamelCase`, `toPascalCase`, `toSnakeCase`, `indent`, `normalizeWhitespace`, `removeComments`, `escapeRegex`, `escapeString` | `cerial/utils` |
+  | `chunk`, `first`, `last`, `flatten`, `findIndex`, `groupBy`, `partition`, `unique`, `uniqueBy`, `zip`, `isArray`, `isArrayNotEmpty`, `isBoolean`, `isDate`, `isEmpty`, `isNotEmpty`, `isNullish`, `isNumber`, `isObject`, `isString` | `cerial/utils` |
+
+- **Breaking.** `Token` and `ValidationError` were renamed, not just moved: the
+  lexer token type is now `CerialToken` and the schema validation issue type is
+  now `CerialValidationIssue`. `Token` is also gone from `cerial/types`, and
+  `ValidationError` from `cerial/query`. Rename the imports.
+- `filterModelFields` (from `cerial/query` and the root) and `isValidIdentifier`
+  (from `cerial/utils` and the root) have no replacement. They were internal
+  helpers; for identifier quoting use `sql.ident`.
+- `@biomejs/js-api` and `@biomejs/wasm-nodejs` are no longer dependencies.
+  Install them yourself only if your own code imports them.
