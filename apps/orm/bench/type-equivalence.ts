@@ -150,7 +150,7 @@ function parseParam(text: string): TypeParam {
   const equals = topLevelEquals(text);
   const head = (equals < 0 ? text : text.slice(0, equals)).trim();
   const fallback = equals < 0 ? null : text.slice(equals + 1).trim();
-  const match = /^(\w+)(?:\s+extends\s+([\s\S]+))?$/.exec(head);
+  const match = /^(?:const\s+)?(\w+)(?:\s+extends\s+([\s\S]+))?$/.exec(head);
   if (!match) throw new Error(`cannot read type parameter "${text.trim().slice(0, 80)}"`);
 
   return { name: match[1]!, constraint: match[2]?.trim() ?? null, fallback };
