@@ -36,6 +36,8 @@ interface PackageJson {
 
 const ALLOWED_TOP = new Set(['package/package.json', 'package/README.md', 'package/LICENSE']);
 const RESOLUTIONS = ['nodenext', 'node16'] as const;
+/** The module systems a consumer's package.json can declare; the generated output must typecheck under both. */
+export const CONSUMER_TYPES = ['commonjs', 'module'] as const;
 
 function run(command: string, args: string[], cwd: string): Ran {
   const proc = Bun.spawnSync([command, ...args], { cwd, env: withoutGit(), stdout: 'pipe', stderr: 'pipe' });
@@ -134,7 +136,7 @@ export const Post = model('Post', {
 `;
 // Reaches a model declared in a .cerial file through the generated handles, which import `cerial/schema`
 const ORDER_MODULE = `import { f, model } from 'cerial/schema';
-import { Customer } from './cerial/handles';
+import { Customer } from './cerial/handles.js';
 
 export const Purchase = model('Purchase', {
   id: f.record('int').id(),
@@ -268,15 +270,10 @@ function smokeHelp(smoke: Smoke, dir: string, runtime: Runtime): void {
   }
 }
 
-/**
- * The generated output, typechecked under both Node resolution modes. The consumer is CommonJS because the
- * generated client imports its own files without extensions, which an ES module consumer under these modes refuses
- * (TS2835); that is a property of the generated output, not of the published declarations this check is for.
- */
+/** The generated output, typechecked under both Node resolution modes, as a CommonJS and as an ES module consumer. */
 function smokeTypes(smoke: Smoke, root: string, tarball: string, peer: string[]): void {
   for (const resolution of RESOLUTIONS) {
-    {
-      const type = 'commonjs';
+    for (const type of CONSUMER_TYPES) {
       const label = `tsc ${resolution} (${type} consumer)`;
       const dir = consumer(
         root,

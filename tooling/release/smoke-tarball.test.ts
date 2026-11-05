@@ -5,7 +5,14 @@ import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { newScratch, removeScratchesAfterAll, seed, write } from '../hooks/test-support.ts';
-import { dirtyViolation, disallowedFiles, exportSpecifiers, mapLeaks, smokeTarball } from './smoke-tarball.ts';
+import {
+  CONSUMER_TYPES,
+  dirtyViolation,
+  disallowedFiles,
+  exportSpecifiers,
+  mapLeaks,
+  smokeTarball,
+} from './smoke-tarball.ts';
 
 removeScratchesAfterAll();
 
@@ -98,6 +105,17 @@ describe('export specifiers', () => {
     const pkg = { name: 'cerial', version: '1.0.0', exports: { '.': {}, './schema': {}, './package.json': {} } };
 
     expect(exportSpecifiers(pkg)).toEqual(['cerial', 'cerial/schema', 'cerial/package.json']);
+  });
+});
+
+describe('typecheck consumers', () => {
+  test('both a CommonJS and an ES module consumer are typechecked', () => {
+    expect([...CONSUMER_TYPES].sort()).toEqual(['commonjs', 'module']);
+  });
+
+  test('the typecheck loops over every consumer type under each resolution mode', () => {
+    expect(SOURCE).toMatch(/for \(const type of CONSUMER_TYPES\)/);
+    expect(SOURCE).not.toMatch(/const type = 'commonjs'/);
   });
 });
 
