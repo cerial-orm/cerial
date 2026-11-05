@@ -246,6 +246,40 @@ describe('buildDesiredSchema fixtures', () => {
   });
 });
 
+describe('buildDesiredSchema index clauses', () => {
+  test('the nullsNotDistinct option reaches field and composite indexes, and plain forms stay plain', () => {
+    const schema = buildDesiredSchema(
+      registryOf(
+        model(
+          'Post',
+          [
+            field('a', 'string', { isUnique: true, uniqueNullsNotDistinct: true }),
+            field('b', 'string', { isUnique: true }),
+          ],
+          {
+            compositeDirectives: [
+              { kind: 'unique', name: 'withOpt', fields: ['a', 'b'], nullsNotDistinct: true },
+              { kind: 'unique', name: 'plain', fields: ['a', 'b'] },
+              { kind: 'index', name: 'idx', fields: ['a', 'b'] },
+            ],
+          },
+        ),
+      ),
+      {},
+      {},
+      {},
+    );
+
+    expect(schema.tables[0]!.indexes.map((i) => [i.name, i.index])).toEqual([
+      ['post_a_unique', 'UNIQUE NULLS NOT DISTINCT'],
+      ['post_b_unique', 'UNIQUE'],
+      ['withOpt', 'UNIQUE NULLS NOT DISTINCT'],
+      ['plain', 'UNIQUE'],
+      ['idx', ''],
+    ]);
+  });
+});
+
 describe('buildDesiredSchema over the corpus', () => {
   const outputDir = mkdtempSync(join(tmpdir(), 'cerial-desired-'));
   afterAll(() => rmSync(outputDir, { recursive: true, force: true }));

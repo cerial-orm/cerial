@@ -195,7 +195,7 @@ function isRequired(field: FieldModel): boolean {
   );
 }
 
-const KNOWN_INDEX_CLAUSES: ReadonlySet<string> = new Set(['', 'UNIQUE']);
+const KNOWN_INDEX_CLAUSES: ReadonlySet<string> = new Set(['', 'UNIQUE', 'UNIQUE NULLS NOT DISTINCT']);
 
 function diffIndex(table: string, desired: IndexModel, live: IndexModel): SchemaDifference | undefined {
   const sameColumns = sameValue(desired.columns, live.columns);
@@ -208,7 +208,9 @@ function diffIndex(table: string, desired: IndexModel, live: IndexModel): Schema
       );
     }
   }
-  const kind = desired.index === 'UNIQUE' ? 'index-unique-added' : 'index-changed';
+  // Dropping the option relaxes the index and cannot fail; adding UNIQUE or the option can meet duplicates.
+  const tightens = desired.index.startsWith('UNIQUE') && live.index !== 'UNIQUE NULLS NOT DISTINCT';
+  const kind = tightens ? 'index-unique-added' : 'index-changed';
 
   return difference(kind, {
     table,

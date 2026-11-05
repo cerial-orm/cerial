@@ -120,5 +120,44 @@ describe('Migration Generator', () => {
       expect(indexStmt).not.toContain('UNIQUE');
       expect(uniqueStmt).toContain('UNIQUE');
     });
+
+    test('@unique(nullsNotDistinct) emits UNIQUE NULLS NOT DISTINCT; plain @unique does not', () => {
+      const registry = parseModelRegistry(`
+        model User {
+          id Record @id
+          email Email @unique
+          nick String @nullable @unique(nullsNotDistinct)
+        }
+      `);
+      const statements = generateModelDefineStatements(registry.User!);
+
+      expect(statements.find((s) => s.includes('user_nick_unique'))).toBe(
+        'DEFINE INDEX OVERWRITE user_nick_unique ON TABLE user COLUMNS nick UNIQUE NULLS NOT DISTINCT;',
+      );
+      expect(statements.find((s) => s.includes('user_email_unique'))).toBe(
+        'DEFINE INDEX OVERWRITE user_email_unique ON TABLE user COLUMNS email UNIQUE;',
+      );
+    });
+
+    test('@@unique(name, [..], nullsNotDistinct) emits the option; a plain @@unique and @@index do not', () => {
+      const registry = parseModelRegistry(`
+        model User {
+          id Record @id
+          a String @nullable
+          b String @nullable
+          @@unique(withOpt, [a, b], nullsNotDistinct)
+          @@unique(plain, [a, b])
+          @@index(idx, [a, b])
+        }
+      `);
+      const statements = generateModelDefineStatements(registry.User!);
+      const find = (name: string) => statements.find((s) => s.includes(`INDEX OVERWRITE ${name} `));
+
+      expect(find('withOpt')).toBe(
+        'DEFINE INDEX OVERWRITE withOpt ON TABLE user COLUMNS a, b UNIQUE NULLS NOT DISTINCT;',
+      );
+      expect(find('plain')).toBe('DEFINE INDEX OVERWRITE plain ON TABLE user COLUMNS a, b UNIQUE;');
+      expect(find('idx')).toBe('DEFINE INDEX OVERWRITE idx ON TABLE user COLUMNS a, b;');
+    });
   });
 });

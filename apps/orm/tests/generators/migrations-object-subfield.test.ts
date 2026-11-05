@@ -94,6 +94,31 @@ describe('Migration Generator', () => {
       expect(indexStmt).not.toContain('UNIQUE');
     });
 
+    test('@unique(nullsNotDistinct) on an object subfield emits the option; a sibling plain @unique does not', () => {
+      const objFields = [
+        makeField({ name: 'zip', type: 'string', isUnique: true, uniqueNullsNotDistinct: true }),
+        makeField({ name: 'code', type: 'string', isUnique: true }),
+      ];
+      const objectRegistry = { Address: { name: 'Address', fields: objFields } };
+      const model = {
+        name: 'User',
+        tableName: 'user',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'address', type: 'object', objectInfo: { objectName: 'Address', fields: objFields } }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+
+      expect(statements).toContain(
+        'DEFINE INDEX OVERWRITE user_address_zip_unique ON TABLE user COLUMNS address.zip UNIQUE NULLS NOT DISTINCT;',
+      );
+      expect(statements).toContain(
+        'DEFINE INDEX OVERWRITE user_address_code_unique ON TABLE user COLUMNS address.code UNIQUE;',
+      );
+    });
+
     test('generates DEFINE INDEX UNIQUE for @unique on object subfield', () => {
       const objFields = [
         makeField({ name: 'city', type: 'string' }),

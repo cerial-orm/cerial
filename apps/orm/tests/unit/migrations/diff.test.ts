@@ -66,6 +66,45 @@ describe('refusing what it cannot classify', () => {
     expect(() => diffSchema(desired, live, { managedTables: [] })).toThrow("index 'ix'");
   });
 
+  describe('UNIQUE NULLS NOT DISTINCT', () => {
+    const NND = 'UNIQUE NULLS NOT DISTINCT';
+    const run = (desired: string, live: string) =>
+      diffSchema(
+        schema([table('t', [], [index('ix', 'a', desired)])]),
+        schema([table('t', [], [index('ix', 'a', live)])]),
+        { managedTables: [] },
+      );
+
+    test('adding the option to a UNIQUE index is index-unique-added and may fail at apply', () => {
+      const [found, ...rest] = run(NND, 'UNIQUE');
+
+      expect(rest).toEqual([]);
+      expect(found!.kind).toBe('index-unique-added');
+      expect(found!.mayFailAtApply).toBe(true);
+    });
+
+    test('adding the option to a non-unique index is index-unique-added', () => {
+      expect(run(NND, '').map((d) => d.kind)).toEqual(['index-unique-added']);
+    });
+
+    test('dropping the option is index-changed and cannot fail at apply', () => {
+      const [found, ...rest] = run('UNIQUE', NND);
+
+      expect(rest).toEqual([]);
+      expect(found!.kind).toBe('index-changed');
+      expect(found!.mayFailAtApply).toBeUndefined();
+    });
+
+    test('dropping UNIQUE altogether from an option index is index-changed', () => {
+      expect(run('', NND).map((d) => d.kind)).toEqual(['index-changed']);
+    });
+
+    test('near miss: the same clause on both sides is no difference', () => {
+      expect(run(NND, NND)).toEqual([]);
+      expect(run('UNIQUE', 'UNIQUE')).toEqual([]);
+    });
+  });
+
   test('near miss: an unknown clause that is identical on both sides is not a difference', () => {
     const same = schema([table('t', [], [index('ix', 'a', 'SEARCH ANALYZER x')])]);
 

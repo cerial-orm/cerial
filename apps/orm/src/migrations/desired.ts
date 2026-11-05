@@ -128,7 +128,7 @@ function objectSubFields(
       indexes.push({
         name: `${table}_${subPath.replace(/\.\*/g, '').replace(/\./g, '_')}_${suffix}`,
         columns: [parseFieldIdiom(subPath)],
-        index: sub.isUnique ? 'UNIQUE' : '',
+        index: sub.isUnique ? (sub.uniqueNullsNotDistinct ? 'UNIQUE NULLS NOT DISTINCT' : 'UNIQUE') : '',
       });
     }
 
@@ -255,7 +255,7 @@ function buildTable(model: ModelMetadata, context: Context): TableModel {
     indexes.push({
       name: `${model.tableName}_${field.name}_${field.isUnique ? 'unique' : 'index'}`,
       columns: [[field.name]],
-      index: field.isUnique ? 'UNIQUE' : '',
+      index: field.isUnique ? (field.uniqueNullsNotDistinct ? 'UNIQUE NULLS NOT DISTINCT' : 'UNIQUE') : '',
     });
   }
   indexes.push(...subIndexes);
@@ -263,7 +263,7 @@ function buildTable(model: ModelMetadata, context: Context): TableModel {
     indexes.push({
       name: directive.name,
       columns: directive.fields.map((name) => parseFieldIdiom(name)),
-      index: directive.kind === 'unique' ? 'UNIQUE' : '',
+      index: directive.kind === 'unique' ? (directive.nullsNotDistinct ? 'UNIQUE NULLS NOT DISTINCT' : 'UNIQUE') : '',
     });
   }
 

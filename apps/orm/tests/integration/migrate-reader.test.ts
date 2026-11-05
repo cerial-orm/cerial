@@ -332,6 +332,49 @@ describe('readLiveSchema', () => {
     expect((error as CerialMigrationError).statement?.text).toBe('INFO FOR TABLE `t` STRUCTURE');
   });
 
+  test('reads UNIQUE NULLS NOT DISTINCT; adding or dropping the option diffs, and an unchanged schema does not', async () => {
+    const db = await scratch('nnd');
+    await exec(
+      db,
+      `DEFINE TABLE t SCHEMAFULL;
+       DEFINE FIELD a ON t TYPE string | null;
+       DEFINE FIELD b ON t TYPE string | null;
+       DEFINE INDEX one ON t FIELDS a UNIQUE NULLS NOT DISTINCT;
+       DEFINE INDEX many ON t FIELDS a, b UNIQUE NULLS NOT DISTINCT;
+       DEFINE INDEX plain ON t FIELDS b UNIQUE;`,
+    );
+
+    const live = await readLiveSchema(db);
+    const indexes = table(live.tables, 't').indexes;
+    const clause = (name: string) => indexes.find((i) => i.name === name)?.index;
+    expect([clause('one'), clause('many'), clause('plain')]).toEqual([
+      'UNIQUE NULLS NOT DISTINCT',
+      'UNIQUE NULLS NOT DISTINCT',
+      'UNIQUE',
+    ]);
+
+    const desired = (clauses: Record<string, string>): SchemaModel => ({
+      ...live,
+      tables: live.tables.map((t) => ({
+        ...t,
+        indexes: t.indexes.map((i) => ({ ...i, index: clauses[i.name] ?? i.index })),
+      })),
+    });
+    const kinds = (model: SchemaModel) =>
+      diffSchema(model, live, { managedTables: [] })
+        .filter((d) => d.index)
+        .map((d) => `${d.index}:${d.kind}`);
+
+    expect(kinds(desired({}))).toEqual([]);
+    expect(kinds(desired({ plain: 'UNIQUE NULLS NOT DISTINCT' }))).toEqual(['plain:index-unique-added']);
+    expect(kinds(desired({ one: 'UNIQUE' }))).toEqual(['one:index-changed']);
+
+    // The redefinition the plan emits moves the live clause, so the diff then settles.
+    await exec(db, 'DEFINE INDEX OVERWRITE plain ON TABLE t COLUMNS b UNIQUE NULLS NOT DISTINCT;');
+    const after = await readLiveSchema(db);
+    expect(table(after.tables, 't').indexes.find((i) => i.name === 'plain')?.index).toBe('UNIQUE NULLS NOT DISTINCT');
+  });
+
   test('a dropped connection stays a connection error', async () => {
     const db = await scratch('dropped');
     await db.close();

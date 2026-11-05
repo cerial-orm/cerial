@@ -182,7 +182,7 @@ export function generateDefineIndex(field: FieldMetadata, tableName: string, opt
   parts.push('COLUMNS');
   parts.push(field.name);
 
-  if (isUnique) parts.push('UNIQUE');
+  if (isUnique) parts.push(field.uniqueNullsNotDistinct ? 'UNIQUE NULLS NOT DISTINCT' : 'UNIQUE');
 
   return `${parts.join(' ')};`;
 }
@@ -205,7 +205,7 @@ export function generateDefineCompositeIndex(
   parts.push('COLUMNS');
   parts.push(directive.fields.join(', '));
 
-  if (directive.kind === 'unique') parts.push('UNIQUE');
+  if (directive.kind === 'unique') parts.push(directive.nullsNotDistinct ? 'UNIQUE NULLS NOT DISTINCT' : 'UNIQUE');
 
   return `${parts.join(' ')};`;
 }
@@ -423,7 +423,7 @@ export function collectObjectFieldIndexes(
       parts.push('COLUMNS');
       parts.push(subPath);
 
-      if (isUnique) parts.push('UNIQUE');
+      if (isUnique) parts.push(subField.uniqueNullsNotDistinct ? 'UNIQUE NULLS NOT DISTINCT' : 'UNIQUE');
 
       statements.push(`${parts.join(' ')};`);
     }
