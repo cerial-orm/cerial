@@ -64,6 +64,31 @@ bun run bench -- --runtime
 bun run bench:live
 ```
 
+## Baseline
+
+Current baseline, taken 2026-11-05 on darwin arm64 (24 GB), Bun 1.4.4, Node v24.18.0, at commit `2e6865b0`, by `bun run bench` with its default sizes: TypeScript 5.9.3 (`typescript-5.9`, under the 4096 MB pin) and TypeScript 7.0.2 (`typescript-7`). Check s / types / memory MB, default `.d.ts` layout, median of 3 runs:
+
+| models | 5.9 | 7 |
+|---|---|---|
+| 100 | 0.190 / 22,348 / 274 | 0.029 / 28,108 / 170 |
+| 500 | 0.500 / 86,910 / 864 | 0.126 / 107,212 / 547 |
+| 1000 | 0.870 / 167,614 / 1,537 | 0.291 / 279,673 / 1,107 |
+| 1500 | 1.240 / 248,318 / 2,229 | 0.407 / 303,952 / 1,489 |
+| corpus (200) | 0.240 / 30,122 / 344 | 0.060 / 50,048 / 249 |
+
+Every size to 1500 completes on 5.9 under the pin.
+
+Previous baseline (2026-11-04, commit `0438b0a5`, same compilers 5.9.3 and 7.0.2), same columns:
+
+| models | 5.9 | 7 |
+|---|---|---|
+| 100 | 0.210 / 21,824 / 262 | 0.036 / 27,515 / 152 |
+| 500 | 0.490 / 86,386 / 699 | 0.133 / 106,619 / 456 |
+| 1000 | 1.020 / 167,090 / 1,230 | 0.284 / 279,080 / 927 |
+| corpus (200) | 0.220 / 27,774 / 326 | 0.057 / 46,209 / 218 |
+
+Memory at 500 and 1000 models is 19 to 25 per cent above that run and output is 24 per cent larger; types and check times are within noise. Before the `.d.ts` layout, the `.ts` layout took 21.93 s and 3,930 MB on 5.9 at 1000 models.
+
 ## Requirements
 
 - `bun run bench:live` needs SurrealDB on `http://127.0.0.1:8000` (`root`/`root`, namespace `main`). It makes its own database inside that instance and removes it afterwards. Nothing else here needs a database.
