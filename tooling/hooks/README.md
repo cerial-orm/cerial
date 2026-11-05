@@ -124,10 +124,10 @@ fails. A step that cannot start counts as failed. The refusal reads
 |---|---|---|
 | oxfmt check on the staged files | repo root | `bun x oxfmt --check` over the staged paths |
 | oxlint on the staged files | repo root | `bun x oxlint --deny-warnings` over the staged paths |
-| ORM unit and generator suites | `apps/orm` | `bun test tests/unit tests/generators` |
+| ORM unit suites | `apps/orm` | `bun run test`, the package's own `test` script, so the hook and the documented unit scope are one list |
 | extension unit and grammar suites | `apps/vscode-extension` | `bun test tests/unit tests/grammar` |
 
-The whole verify takes about a second. The extension's suites are 656 tests in about 90 ms.
+The whole verify takes about three minutes on a quiet machine. The ORM unit suites are about 12,300 tests and dominate; the extension's suites are 656 tests in about 90 ms.
 
 The verify stops here on purpose, and nobody should "fix" that by adding more.
 

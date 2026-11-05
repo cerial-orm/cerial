@@ -223,11 +223,27 @@ describe('verify', () => {
     expect(extension?.command).toContain('tests/unit');
     expect(extension?.command).toContain('tests/grammar');
   });
+
+  test('the ORM step runs the package test script, so it covers every folder that script lists', () => {
+    const orm = verifySteps([], 'bun').find((step) => step.cwd.endsWith('apps/orm'));
+    const pkg = JSON.parse(readFileSync(join(REPO_ROOT, 'apps/orm/package.json'), 'utf8')) as {
+      scripts: Record<string, string>;
+    };
+    const folders = (pkg.scripts.test ?? '').split(/\s+/).filter((word) => word.startsWith('tests/'));
+
+    expect(orm?.command).toEqual(['bun', 'run', 'test']);
+    for (const folder of ['tests/client/', 'tests/parser/', 'tests/query/', 'tests/validators/', 'tests/utils/']) {
+      expect(folders).toContain(folder);
+    }
+    expect(pkg.scripts.test).not.toMatch(/e2e|integration/);
+  });
 });
 
 const CAST = ['as', 'any'].join(' ');
 const UNIT = 'apps/orm/tests/unit';
 const PASSING = "import { expect, test } from 'bun:test';\n\ntest('passes', () => {\n  expect(1).toBe(1);\n});\n";
+
+const FAILING = "import { expect, test } from 'bun:test';\n\ntest('fails', () => {\n  expect(1).toBe(2);\n});\n";
 
 /** Run the installer the way `bun run setup` does, inside a scratch repository. */
 function setup(scratch: Scratch): Ran {
@@ -255,7 +271,11 @@ function gatedRepository(): Scratch {
   seed(scratch, {
     'tooling/hooks/baseline.json': JSON.stringify({ 'as-any': { [UNIT]: 1 } }),
     [`${UNIT}/a.test.ts`]: `export const a = 1 ${CAST};\n`,
+    'apps/orm/package.json': JSON.stringify({
+      scripts: { test: 'bun test tests/unit/ tests/generators/ tests/client/' },
+    }),
     'apps/orm/tests/generators/ok.test.ts': PASSING,
+    'apps/orm/tests/client/ok.test.ts': PASSING,
     'apps/vscode-extension/tests/unit/ok.test.ts': PASSING,
     'apps/vscode-extension/tests/grammar/ok.test.ts': PASSING,
   });
@@ -360,6 +380,18 @@ describe('the activated gate, driven by git', () => {
 
     expect(run.status).not.toBe(0);
     expect(run.stderr).toContain('cast to any');
+    expect(commitCount(scratch)).toBe('1');
+  });
+
+  test('refuses a commit while a suite in a folder only the package script lists is failing', () => {
+    const scratch = gatedRepository();
+    write(scratch, 'apps/orm/tests/client/stale.test.ts', FAILING);
+    write(scratch, `${UNIT}/c.test.ts`, 'export const c = 1;\n');
+    stage(scratch, `${UNIT}/c.test.ts`);
+    const run = attempt(scratch, 'test(orm): cover the client');
+
+    expect(run.status).not.toBe(0);
+    expect(run.stderr).toContain('ORM unit suites exited');
     expect(commitCount(scratch)).toBe('1');
   });
 

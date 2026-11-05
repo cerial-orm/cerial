@@ -58,8 +58,10 @@ export function verifySteps(paths: readonly string[], bun: string = process.exec
       cwd: ROOT,
     },
     {
-      name: 'ORM unit and generator suites',
-      command: [bun, 'test', 'tests/unit', 'tests/generators'],
+      // Runs the package's own script rather than a copy of its folder list, so a folder added to
+      // that script is gated without a second edit here.
+      name: 'ORM unit suites',
+      command: [bun, 'run', 'test'],
       cwd: join(ROOT, 'apps/orm'),
     },
     {
