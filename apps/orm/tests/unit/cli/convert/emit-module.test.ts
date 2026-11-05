@@ -200,6 +200,58 @@ describe('modules and imports', () => {
     expect(text).toContain('extends: BaseModel');
   });
 
+  describe('kept module export names', () => {
+    function withExport(name: string): { p: Project; ast: SchemaAST } {
+      const p = project(scratch(), { 'user.cerial': 'model User extends Base {\n  name String\n}\n' });
+      const base = {
+        ...p.ast.models[0]!,
+        name: 'Base',
+        extends: undefined,
+        origin: { kind: 'ts' as const, file: join(p.dir, 'shared/base.schema.ts'), export: name },
+      };
+
+      return { p, ast: { ...p.ast, models: [...p.ast.models, base] } };
+    }
+
+    test.each([`A } from './kept.schema'; console.log('PWN_EXPORT'); import { B`, 'my-addr', 'a b'])(
+      'refuses %j, names the module and export, and emits nothing',
+      (name) => {
+        const { p, ast } = withExport(name);
+        const result = emitTypescript(ast, { schemaImport: SCHEMA_MODULE });
+
+        expect(result.modules).toEqual([]);
+        expect(result.refusals.map((r) => [r.caseId, r.declaration, r.module])).toEqual([
+          ['export-name-invalid', 'User', join(p.dir, 'user.schema.ts')],
+        ]);
+        expect(result.refusals[0]!.reason).toContain(JSON.stringify(name));
+        expect(result.refusals[0]!.reason).toContain('base.schema.ts');
+      },
+    );
+
+    test.each(['default', 'class'])('imports the export %j under a safe alias', (name) => {
+      const { ast } = withExport(name);
+      const result = emitTypescript(ast, { schemaImport: SCHEMA_MODULE });
+
+      expect(result.refusals).toEqual([]);
+      expect(textOf(result, 'user.cerial')).toContain(`import { ${name} as _${name} } from './shared/base.schema';`);
+    });
+
+    test('a quoted export name that is a valid identifier converts as a plain one', () => {
+      const { ast } = withExport('Valid');
+      const result = emitTypescript(ast, { schemaImport: SCHEMA_MODULE });
+
+      expect(result.refusals).toEqual([]);
+      expect(textOf(result, 'user.cerial')).toContain("import { Valid } from './shared/base.schema';");
+    });
+
+    test('an invalid export name nothing references is not refused', () => {
+      const { ast } = withExport('my-addr');
+      const alone = { ...ast, models: ast.models.map((m) => ({ ...m, extends: undefined })) };
+
+      expect(emitTypescript(alone, { schemaImport: SCHEMA_MODULE }).refusals).toEqual([]);
+    });
+  });
+
   test('emitting twice gives equal text', () => {
     const p = fixture('child-first.cerial');
 

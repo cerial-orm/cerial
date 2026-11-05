@@ -13,6 +13,7 @@ import type {
   Origin,
   SchemaAST,
 } from '../../types';
+import { IDENTIFIER_PATTERN } from '../tokenizer';
 import { createSchemaAST } from '../types/ast';
 import { enumNode, isEnumHandle } from './enum';
 import { isLiteralHandle, literalNode } from './literal';
@@ -60,8 +61,18 @@ function compare(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
+/** An export name a generated import can bind: an identifier, or `default`, which is imported under an alias */
+export function isImportableExportName(name: string): boolean {
+  return name === 'default' || IDENTIFIER_PATTERN.test(name);
+}
+
+/** Importable names before the rest, even across modules, then module and name, so a bad re-export never wins */
 function byPlace(a: ExportedDeclaration, b: ExportedDeclaration): number {
-  return compare(a.module, b.module) || compare(a.exportName, b.exportName);
+  return (
+    Number(isImportableExportName(b.exportName)) - Number(isImportableExportName(a.exportName)) ||
+    compare(a.module, b.module) ||
+    compare(a.exportName, b.exportName)
+  );
 }
 
 /** Within one module: the order the declarations ran in, which is the order they were written. */

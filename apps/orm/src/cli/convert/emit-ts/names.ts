@@ -1,3 +1,4 @@
+import { isImportableExportName } from '../../../parser/builder/materialise';
 import { IDENTIFIER_PATTERN } from '../../../parser/tokenizer';
 import { quote } from './strings';
 
@@ -117,4 +118,15 @@ export function propertyKey(name: string): string {
   if (name === '__proto__') return `[${quote(name)}]`;
 
   return IDENTIFIER_PATTERN.test(name) ? name : quote(name);
+}
+
+/**
+ * Why a kept TypeScript module's export name cannot be written into an import, or undefined when it can.
+ * The name comes from source text (a string export name can hold anything), so only an identifier or `default`
+ * is printed; a reserved word or `default` is imported under a safe alias by `bindingFor`.
+ */
+export function exportNameProblem(name: string): string | undefined {
+  if (isImportableExportName(name)) return undefined;
+
+  return 'an export name must be an identifier (a letter or underscore, then letters, digits and underscores) or default';
 }

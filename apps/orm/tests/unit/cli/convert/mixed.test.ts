@@ -267,3 +267,71 @@ describe('a rerun with both forms of one model present', () => {
     expect(result.written).toEqual([join(root, 'account.schema.ts')]);
   });
 });
+
+describe('--to ts, kept module exports', () => {
+  const MAIN = 'model M {\n  id Record @id\n  addr Addr\n}\n';
+  const ADDR = "object('Addr', { street: f.string() })";
+
+  it('imports a kept default export under an alias', async () => {
+    await project({ 'main.cerial': MAIN, 'kept.schema.ts': `${IMPORT}export default ${ADDR};\n` });
+
+    const result = await convert({ to: 'ts' });
+
+    expect(result.written).toEqual([join(root, 'main.schema.ts')]);
+    expect(await read('main.schema.ts')).toContain("import { default as _default } from './kept.schema';");
+  });
+
+  it('imports a kept export named like a reserved word under an alias', async () => {
+    await project({ 'main.cerial': MAIN, 'kept.schema.ts': `${IMPORT}const A = ${ADDR};\nexport { A as class };\n` });
+
+    await convert({ to: 'ts' });
+
+    expect(await read('main.schema.ts')).toContain("import { class as _class } from './kept.schema';");
+  });
+
+  it('prefers the export name that is an identifier over an earlier string name', async () => {
+    await project({
+      'main.cerial': MAIN,
+      'kept.schema.ts': `${IMPORT}export const Addr = ${ADDR};\nexport { Addr as "A-bad" };\n`,
+    });
+
+    await convert({ to: 'ts' });
+
+    expect(await read('main.schema.ts')).toContain("import { Addr } from './kept.schema';");
+  });
+
+  it('prefers an identifier export in a later module over a bad name in an earlier one', async () => {
+    await project({
+      'main.cerial': MAIN,
+      'a.schema.ts': `${IMPORT}import { Addr } from './b.schema';\nexport { Addr as "A-bad" };\n`,
+      'b.schema.ts': `${IMPORT}export const Addr = ${ADDR};\n`,
+    });
+
+    await convert({ to: 'ts' });
+
+    expect(await read('main.schema.ts')).toContain("import { Addr } from './b.schema';");
+  });
+
+  it('refuses a declaration whose only export name is not an identifier, nothing written', async () => {
+    await project({
+      'main.cerial': MAIN,
+      'kept.schema.ts': `${IMPORT}const A = ${ADDR};\nexport { A as "my-addr" };\n`,
+    });
+
+    const error = await refused({ to: 'ts' });
+
+    expect(error.message).toContain('"my-addr"');
+    expect(error.message).toContain('kept.schema.ts');
+  });
+
+  it('converts an entry whose kept module no emitted file imports', async () => {
+    await project({
+      'main.cerial': 'model M {\n  id Record @id\n  n String\n}\n',
+      'kept.schema.ts': `${IMPORT}export const Addr = ${ADDR};\n`,
+    });
+
+    const result = await convert({ to: 'ts' });
+
+    expect(result.written).toEqual([join(root, 'main.schema.ts')]);
+  });
+});

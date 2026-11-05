@@ -6,7 +6,7 @@ import { emitEnum, emitLiteral, emitModel, emitObject, emitTuple } from './decla
 import type { DeclarationContext, EmittedDeclaration } from './declaration';
 import type { ReferenceKind } from './field';
 import { printImport } from './layout';
-import { assignBindings, bindingFor } from './names';
+import { assignBindings, bindingFor, exportNameProblem } from './names';
 import { quote } from './strings';
 
 type Kind = 'enum' | 'literal' | 'object' | 'tuple' | 'model';
@@ -41,7 +41,7 @@ export interface EmittedModule {
 }
 
 export interface ExtendsRefusal {
-  readonly caseId: 'extends-cross-file-cycle';
+  readonly caseId: 'extends-cross-file-cycle' | 'export-name-invalid';
   /** The child declaration whose `extends` closes the cycle. */
   readonly declaration: string;
   /** The module the child would have been written to. */
@@ -233,6 +233,19 @@ function planGraph(declarations: readonly Declaration[], emit: (d: Declaration) 
       declaration: edge.from.name,
       module: moduleFileOf(edge.from.file),
       reason: `${edge.from.name} extends ${edge.to.name} from ${moduleFileOf(edge.to.file)}, and the modules that extend one another form a cycle: no order of their imports loads`,
+    });
+  }
+
+  for (const edge of all) {
+    if (edge.to.written || refused.has(edge.from)) continue;
+    const problem = exportNameProblem(edge.to.exportName);
+    if (problem === undefined) continue;
+    refusedFiles.add(edge.from.file);
+    refused.set(edge.from, {
+      caseId: 'export-name-invalid',
+      declaration: edge.from.name,
+      module: moduleFileOf(edge.from.file),
+      reason: `${edge.from.name} refers to ${edge.to.name}, exported as ${JSON.stringify(edge.to.exportName)} from ${edge.to.file}, and that export name cannot be written into an import: ${problem}`,
     });
   }
 

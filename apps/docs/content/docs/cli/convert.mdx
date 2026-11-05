@@ -260,6 +260,7 @@ A package-provided field set is refused rather than expanded. Convert does not l
 | A cycle of one `extends` and a relation or reference back to the child | Converted | The back reference is written as a bare name string, which the builder accepts for cyclic graphs. |
 | `@@index` and `@@unique` interleaved on one model, which a builder option object cannot order | Converted | Indexes and uniques are grouped by kind, with a warning naming the model. Only their order changes. |
 | A declaration named like a builder import (`f`, `model`). A reserved word such as `class` is refused by the generated-name rule | Converted | The module uses a safe binding with an aliased export. The `.cerial` name is kept in the first argument. |
+| A declaration that refers to a kept TypeScript module's export whose name is not an identifier or `default` (`export { Addr as "my-addr" }`) | Refused | Refused with the module and the export named, and nothing is written, because the name cannot be written safely into an import. A `default` export or one named like a reserved word is imported under an alias (`default as _default`), and when a declaration has several export names the first identifier one is used. Rename the export otherwise. |
 | A field or tuple element named like an `Object.prototype` member (`__proto__`, `constructor`, `toString`, `valueOf`) or `prototype` | Refused | The generated-name rule refuses these names for every kind of name, so the emitted module fails to load and nothing is written. |
 
 ### Both directions

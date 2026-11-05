@@ -204,7 +204,8 @@ async function verifyGroup(group: Group, tree: StagedTree): Promise<void> {
       .filter((d) => d.origin.kind === 'dsl')
       .map((d) => d.name),
   );
-  const mixed = group.kept.length > 0;
+  // A kept module no emitted file imports is not rebuilt either, so any TypeScript source makes the entry mixed
+  const mixed = group.result.typescriptFiles.length > 0;
   const differences = compareExact(
     mixed ? restrictTo(expected, written) : expected,
     mixed ? restrictTo(built, written) : built,
