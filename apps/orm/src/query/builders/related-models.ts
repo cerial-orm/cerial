@@ -3,7 +3,9 @@
  * related tables before a nested write or include reaches them.
  */
 
+import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry } from '../../types';
+import { validateNoNestedWrites } from '../validators/data-validator';
 import { walkCascade } from './cascade-graph';
 import { extractNestedOperations, isNestedCreate } from './nested-builder';
 import type { IncludeClause } from './relation-builder';
@@ -22,8 +24,18 @@ function collectFromData(
     names.add(target.name);
     if (!isNestedCreate(op)) continue;
 
+    // Nested writes go one level deep, so the data of a nested create holds no further operation to collect;
+    // a relation value there is refused here, with its path, before any query is built
     const created = Array.isArray(op.create) ? op.create : [op.create];
-    for (const item of created) collectFromData(target, item as Record<string, unknown>, registry, names);
+    created.forEach((item, idx) => {
+      const path = Array.isArray(op.create) ? `${fieldName}[${idx}]` : fieldName;
+      const deep = validateNoNestedWrites(item as Record<string, unknown>, target, path);
+      if (deep.length)
+        throw new CerialValidationError(`Invalid data: ${deep.map((e) => e.message).join('; ')}`, {
+          model: target.name,
+          field: deep[0]!.field,
+        });
+    });
   }
 }
 

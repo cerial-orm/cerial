@@ -77,12 +77,12 @@ describe('collectRelatedModelNames', () => {
     ]);
   });
 
-  test('follows nested creates inside nested creates', () => {
-    const names = collectRelatedModelNames(comment, registry, {
-      data: [{ post: { create: { title: 't', author: { create: { name: 'a' } } } } }],
-    });
-
-    expect(new Set(names)).toEqual(new Set(['Comment', 'Post', 'Author']));
+  test('refuses a nested create inside a nested create, naming its path', () => {
+    expect(() =>
+      collectRelatedModelNames(comment, registry, {
+        data: [{ post: { create: { title: 't', author: { create: { name: 'a' } } } } }],
+      }),
+    ).toThrow("'post.author' holds a relation value");
   });
 
   test('follows nested includes recursively', () => {

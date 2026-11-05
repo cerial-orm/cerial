@@ -114,3 +114,129 @@ describe('Nested-write variable names', () => {
     expect(stored?.rev_create_posts).toBe('SETVAL');
   });
 });
+
+describe('Deep nested writes', () => {
+  let client: CerialClient;
+  const refused = "'posts_set[0].owner' holds a relation value";
+  const deep = { posts_set: { create: [{ body: 'B', owner: { create: { title: 'DEEP', inc_title: 'd' } } }] } };
+
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanupTables(client, tables.placeholderNames);
+  });
+
+  afterAll(async () => {
+    await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.placeholderNames);
+  });
+
+  const counts = async () => [(await client.db.PnOwner.findMany()).length, (await client.db.PnPost.findMany()).length];
+
+  test('positive: one level of nested create and connect still works', async () => {
+    const owner = await client.db.PnOwner.create({ data: { title: 'o', inc_title: 'i' } });
+    await client.db.PnOwner.updateUnique({
+      where: { id: owner.id },
+      data: { posts_set: { create: [{ body: 'B' }] }, tags: { create: [{ label: 'L' }] } },
+    });
+    const tag = (await client.db.PnTag.findMany())[0]!;
+    await client.db.PnOwner.create({ data: { title: 'p', inc_title: 'j', tags: { connect: [tag.id] } } });
+
+    expect(await counts()).toEqual([2, 1]);
+  });
+
+  test('negative: updateUnique refuses the deep create and writes nothing', async () => {
+    const owner = await client.db.PnOwner.create({ data: { title: 'o', inc_title: 'i' } });
+
+    await expect(
+      (async () => {
+        // @ts-expect-error — deep nested writes are not in the input type, testing the runtime guard
+        await client.db.PnOwner.updateUnique({ where: { id: owner.id }, data: deep });
+      })(),
+    ).rejects.toThrow(refused);
+    expect(await counts()).toEqual([1, 0]);
+  });
+
+  test('negative: updateMany refuses it', async () => {
+    await client.db.PnOwner.create({ data: { title: 'o', inc_title: 'i' } });
+
+    await expect(
+      (async () => {
+        // @ts-expect-error — testing the runtime guard
+        await client.db.PnOwner.updateMany({ where: { title: 'o' }, data: deep });
+      })(),
+    ).rejects.toThrow(refused);
+    expect(await counts()).toEqual([1, 0]);
+  });
+
+  test('negative: create refuses it', async () => {
+    await expect(
+      (async () => {
+        await client.db.PnOwner.create({ data: { title: 'o', inc_title: 'i', ...deep } });
+      })(),
+    ).rejects.toThrow(refused);
+    expect(await counts()).toEqual([0, 0]);
+  });
+
+  test.each([
+    ['a plain record id', 'pn_owner:other'],
+    ['{ update }', { update: { title: 'x' } }],
+    ['{ connectOrCreate }', { connectOrCreate: {} }],
+    ['{ upsert }', { upsert: {} }],
+    ['{}', {}],
+  ])('negative: a nested create refuses %s on a relation and writes nothing', async (_label, value) => {
+    const owner = await client.db.PnOwner.create({ data: { title: 'o', inc_title: 'i' } });
+
+    await expect(
+      (async () => {
+        await client.db.PnOwner.updateUnique({
+          where: { id: owner.id },
+          // @ts-expect-error — relations are not in the nested create type, testing the runtime guard
+          data: { posts_set: { create: [{ body: 'B', owner: value }] } },
+        });
+      })(),
+    ).rejects.toThrow("'posts_set[0].owner' holds a relation value");
+    expect(await counts()).toEqual([1, 0]);
+  });
+
+  test('negative: a plain object on a top-level relation is refused, not dropped', async () => {
+    await expect(
+      (async () => {
+        // @ts-expect-error — a relation takes only nested operations, testing the runtime guard
+        await client.db.PnPost.create({ data: { body: 'B', owner: { title: 'x', inc_title: 'i' } } });
+      })(),
+    ).rejects.toThrow("Relation 'owner' on model PnPost takes a nested operation");
+    expect(await counts()).toEqual([0, 0]);
+  });
+
+  test('negative: { update } on an array relation is refused before the database', async () => {
+    const owner = await client.db.PnOwner.create({ data: { title: 'o', inc_title: 'i' } });
+
+    await expect(
+      (async () => {
+        // @ts-expect-error — update is not a nested operation, testing the runtime guard
+        await client.db.PnOwner.updateUnique({ where: { id: owner.id }, data: { posts_set: { update: {} } } });
+      })(),
+    ).rejects.toThrow("Relation 'posts_set' on model PnOwner takes a nested operation with only these keys");
+  });
+
+  test('negative: upsert refuses it in the create half and in the update half', async () => {
+    const owner = await client.db.PnOwner.create({ data: { title: 'o', inc_title: 'i' } });
+    const run = (where: { id: unknown }) =>
+      (async () => {
+        // @ts-expect-error — testing the runtime guard
+        await client.db.PnOwner.upsert({
+          where,
+          create: { title: 'c', inc_title: 'c', ...deep },
+          update: { title: 'u', ...deep },
+        });
+      })();
+
+    await expect(run({ id: owner.id })).rejects.toThrow(refused);
+    await expect(run({ id: 'pn_owner:missing' })).rejects.toThrow(refused);
+    expect(await counts()).toEqual([1, 0]);
+  });
+});

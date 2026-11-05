@@ -219,6 +219,12 @@ Record fields that are managed by a relation (like `authorId` on `Post`) are aut
 
 Required array fields on the target model that you don't provide in the nested `create` will automatically default to empty arrays — the same defaults that apply to regular `create` operations.
 
+## Limits
+
+Nested writes go one level deep. Any relation value inside the data of a nested `create` (a nested `create` or `connect`, a plain record id, `{ update }`, `{}`) is refused with an error naming the path (for example `posts[0].author`), and nothing is written. Create or connect the inner record in a separate call, or create the outer records first and connect them.
+
+A relation field takes only nested operations: `create`, `connect` and `disconnect`, plus `set` on an array relation. A plain value or any other key (`update`, `upsert`) is refused with an error naming the field and the allowed keys.
+
 ## Transaction Guarantees
 
 Nested create operations are wrapped in a transaction:

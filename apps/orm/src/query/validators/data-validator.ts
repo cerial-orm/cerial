@@ -196,6 +196,59 @@ export function validateKnownKeys(data: Record<string, unknown>, model: ModelMet
     .map((key) => unknownSubKey(key, model));
 }
 
+const NESTED_WRITE_KEYS = ['create', 'connect', 'disconnect', 'set'];
+
+/** The operations a relation field takes: `set` replaces an array, so only an array relation has it. */
+function allowedNestedOps(field: ModelMetadata['fields'][number]): string[] {
+  return field.isArray ? NESTED_WRITE_KEYS : NESTED_WRITE_KEYS.filter((key) => key !== 'set');
+}
+
+/**
+ * A relation is virtual, so its value is only ever a nested operation. Anything else (a plain record id, a
+ * plain object, `{ update }`, `{}`, an unknown key beside a valid one) has no emitted form and used to be
+ * dropped without a word or fail in the database with a raw error. Returns the refusal, or null.
+ */
+export function validateRelationValue(
+  field: ModelMetadata['fields'][number],
+  value: unknown,
+  model: ModelMetadata,
+  path: string = field.name,
+): DataValidationError | null {
+  if (value === undefined) return null;
+  const allowed = allowedNestedOps(field);
+  const keys = isObject(value) ? Object.keys(value) : [];
+  if (keys.length && keys.every((key) => allowed.includes(key))) return null;
+
+  return {
+    field: path,
+    message: `Relation '${path}' on model ${model.name} takes a nested operation with only these keys: ${allowed.join(', ')}. Got ${
+      isObject(value) ? `keys {${keys.join(', ') || 'none'}}` : 'a plain value'
+    }, which cannot be written`,
+  };
+}
+
+/**
+ * Refuse every relation value inside the data of a nested create. The nested builders emit one level and the
+ * generated nested-create type has no relations, so any value here (a nested operation or not) was dropped
+ * without a word. `path` names the nested create the data belongs to, for example `posts[0]`.
+ */
+export function validateNoNestedWrites(
+  data: Record<string, unknown>,
+  model: ModelMetadata,
+  path: string,
+): DataValidationError[] {
+  const errors: DataValidationError[] = [];
+  for (const field of model.fields) {
+    if (field.type !== 'relation' || data[field.name] === undefined) continue;
+    errors.push({
+      field: `${path}.${field.name}`,
+      message: `Nested writes inside a nested create are not supported: '${path}.${field.name}' holds a relation value. Create or connect that record in a separate call`,
+    });
+  }
+
+  return errors;
+}
+
 /** Validate data for create operation */
 export function validateCreateData(
   data: Record<string, unknown>,

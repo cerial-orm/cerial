@@ -17,7 +17,7 @@ import type { CompiledQuery, TargetCheckMap } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
-import { validateKnownKeys } from '../validators/data-validator';
+import { validateKnownKeys, validateNoNestedWrites, validateRelationValue } from '../validators/data-validator';
 import type { IncludeClause } from './relation-builder';
 import { buildSelectFields } from './select-builder';
 import { buildUpdateSetClauses } from './update-builder';
@@ -27,13 +27,25 @@ import { buildUpdateSetClauses } from './update-builder';
  * and RecordId transformation against the target model. Without this the nested row is written from
  * raw input, so a Date string, a CerialUuid or a Decimal reaches SurrealDB untransformed.
  */
-function prepareNestedCreateData(data: Record<string, unknown>, targetModel: ModelMetadata): Record<string, unknown> {
+function prepareNestedCreateData(
+  data: Record<string, unknown>,
+  targetModel: ModelMetadata,
+  path: string,
+): Record<string, unknown> {
   // A reverse create writes each key as a column name, so an undeclared key is refused before it can reach query text
   const unknownKeys = validateKnownKeys(data, targetModel);
   if (unknownKeys.length)
     throw new CerialValidationError(`Invalid data: ${unknownKeys.map((e) => e.message).join('; ')}`, {
       model: targetModel.name,
       field: unknownKeys[0]!.field,
+    });
+
+  // A nested write inside a nested create has no emitted form; refuse it rather than drop it
+  const deep = validateNoNestedWrites(data, targetModel, path);
+  if (deep.length)
+    throw new CerialValidationError(`Invalid data: ${deep.map((e) => e.message).join('; ')}`, {
+      model: targetModel.name,
+      field: deep[0]!.field,
     });
 
   return transformData(applyFieldDefaults(data, targetModel), targetModel);
@@ -162,9 +174,15 @@ export function extractNestedOperations(
     const field = model.fields.find((f) => f.name === key && f.type === 'relation');
 
     if (field && isNestedOperation(value)) {
+      const bad = validateRelationValue(field, value, model);
+      if (bad) throw new CerialValidationError(`Invalid data: ${bad.message}`, { model: model.name, field: key });
       // Validate the nested operation
       validateNestedOperation(key, value, field, model);
       nestedOps.set(key, value);
+    } else if (field) {
+      const bad = validateRelationValue(field, value, model);
+      if (bad) throw new CerialValidationError(`Invalid data: ${bad.message}`, { model: model.name, field: key });
+      cleanData[key] = value;
     } else {
       cleanData[key] = value;
     }
@@ -399,6 +417,7 @@ export function buildCreateWithNestedTransaction(
     targetModel: ModelMetadata;
     createData: Record<string, unknown> | Array<Record<string, unknown>>;
     recordFieldName: string; // The field in target that points to us
+    fieldName: string;
   }> = [];
 
   const reverseConnects: Array<{
@@ -444,6 +463,7 @@ export function buildCreateWithNestedTransaction(
               targetModel,
               createData: createData as Record<string, unknown> | Array<Record<string, unknown>>,
               recordFieldName: reverseFieldName,
+              fieldName,
             });
           }
         } else if (Array.isArray(createData)) {
@@ -454,6 +474,7 @@ export function buildCreateWithNestedTransaction(
             vars[contentName] = prepareNestedCreateData(
               item as Record<string, unknown>,
               targetModel,
+              `${fieldName}[${idx}]`,
             );
             statements.push(`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVarName};`);
             createdVars.push(`${varName}.id`);
@@ -527,13 +548,14 @@ export function buildCreateWithNestedTransaction(
             targetModel,
             createData: createData as Record<string, unknown> | Array<Record<string, unknown>>,
             recordFieldName: reverseFieldName,
+            fieldName,
           });
         }
       } else {
         const varName = `$${ctx.name('nested_create')}`;
         const contentName = ctx.name('nested_content');
         const contentVarName = `$${contentName}`;
-        vars[contentName] = prepareNestedCreateData(createData as Record<string, unknown>, targetModel);
+        vars[contentName] = prepareNestedCreateData(createData as Record<string, unknown>, targetModel, fieldName);
         statements.push(`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVarName};`);
 
         if (field.relationInfo.fieldRef) {
@@ -621,7 +643,11 @@ export function buildCreateWithNestedTransaction(
     dataItems.forEach((rawItem, itemIdx) => {
       // We need to use SET syntax to include the $resultId reference
       const setFields: string[] = [];
-      const item = prepareNestedCreateData(rawItem, rc.targetModel);
+      const item = prepareNestedCreateData(
+        rawItem,
+        rc.targetModel,
+        Array.isArray(rc.createData) ? `${rc.fieldName}[${itemIdx}]` : rc.fieldName,
+      );
 
       for (const [key, value] of Object.entries(item)) {
         // Skip undefined values (NONE semantics - field doesn't exist)
@@ -797,7 +823,11 @@ export function buildUpdateWithNestedTransaction(
 
         items.forEach((rawItem, idx) => {
           const varName = ctx.name('nested_rev_create');
-          const item = prepareNestedCreateData(rawItem, targetModel);
+          const item = prepareNestedCreateData(
+            rawItem,
+            targetModel,
+            Array.isArray(createData) ? `${fieldName}[${idx}]` : fieldName,
+          );
           // Filter out undefined and null record fields
           const itemContent: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(item)) {
@@ -847,7 +877,7 @@ export function buildUpdateWithNestedTransaction(
           const varName = `$${ctx.name('nested_create')}`;
           const contentName = ctx.name('nested_content');
           const contentVarName = `$${contentName}`;
-          vars[contentName] = prepareNestedCreateData(item, targetModel);
+          vars[contentName] = prepareNestedCreateData(item, targetModel, `${fieldName}[${idx}]`);
           // CREATE ONLY returns { id: ... }, access .id to get the RecordId
           statements.push(guardedCreate(varName, targetModel.tableName, contentVarName));
           createdVars.push(`${varName}.id`);
@@ -874,7 +904,7 @@ export function buildUpdateWithNestedTransaction(
         const varName = `$${ctx.name('nested_create')}`;
         const contentName = ctx.name('nested_content');
         const contentVarName = `$${contentName}`;
-        vars[contentName] = prepareNestedCreateData(createData, targetModel);
+        vars[contentName] = prepareNestedCreateData(createData, targetModel, fieldName);
         // CREATE ONLY returns { id: ... }, access .id to get the RecordId
         statements.push(guardedCreate(varName, targetModel.tableName, contentVarName));
 
