@@ -1,0 +1,164 @@
+---
+title: groupBy
+description: Group records by one or more fields and compute counts, sums, averages, minimums, maximums and distinct values per group.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Groups the records matching `where` by the fields in `by` and returns one row per group, with the aggregates you ask for. Returns an array of rows.
+
+```typescript
+const rows = await client.db.Order.groupBy({
+  by: { status: true },
+  _count: true,
+  _sum: { total: true },
+});
+// rows: { status: 'open' | 'shipped'; _count: { _all: number }; _sum: { total: CerialDecimal } }[]
+```
+
+## Options
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `by` | `OrderGroupByKeys` | Yes | Fields to group by. Name at least one. |
+| `where` | `OrderWhere` | No | Filter applied before grouping. Same shape as in [`findMany`](/queries/find-many). |
+| `_count` | `true \| OrderCountAggregate` | No | Number of rows, or of present values per field. |
+| `_sum` | `OrderNumericAggregate` | No | Sum of numeric fields. |
+| `_avg` | `OrderNumericAggregate` | No | Average of numeric fields. |
+| `_min` | `OrderMinMaxAggregate` | No | Smallest value per field. |
+| `_max` | `OrderMinMaxAggregate` | No | Largest value per field. |
+| `_group` | `OrderGroupAggregate` | No | Distinct values per field, as an array. |
+| `orderBy` | `OrderGroupByOrderBy` | No | Order the groups by keys and requested aggregates. |
+| `limit` | `number` | No | Maximum number of groups. |
+| `offset` | `number` | No | Number of groups to skip. |
+
+`by` alone is a valid call and returns the distinct combinations of the keys. `select`, `include`, `compute`, `unset`, `return` and `having` are not options of `groupBy`; the types refuse them and so does the runtime, with an error naming the option.
+
+## Choosing Keys
+
+`by` is shaped like `select`: `true` for a field, a nested object for sub-fields of an object.
+
+```typescript
+const rows = await client.db.Order.groupBy({
+  by: { status: true, address: { city: true } },
+  _count: true,
+});
+// rows: { status: ...; address: { city: string }; _count: { _all: number } }[]
+```
+
+You can group by:
+
+- Scalar fields, enums and literals
+- Record fields such as `customerId`
+- Array fields, which group by the whole array, not by its elements
+- Declared sub-fields of an object
+
+You cannot group by a relation, a whole object or tuple field, or `Bytes`, `Geometry` and `Any` fields. A field named `_count`, `_sum`, `_avg`, `_min`, `_max` or `_group` cannot be a key in a call that also requests that aggregate.
+
+Keys follow the field's output type. An optional key is optional on the row, and a `@nullable` key can be `null`:
+
+- A group of records where the optional field is absent has no such property on its row.
+- A group where the field is `null` has the property set to `null`.
+- Absent and `null` are separate groups.
+
+## Aggregates
+
+Each aggregate takes `true` per field. Only the aggregates you request appear on the row, and each holds only the fields you requested.
+
+| Aggregate | Accepts | Row value |
+| --- | --- | --- |
+| `_count: true` or `_count: { _all: true }` | Rows in the group | `{ _all: number }` |
+| `_count: { field: true }` | Any stored field | `number`, counting records where the field is present and not `null` |
+| `_sum` | `Int`, `Float`, `Number`, `Decimal` and sized number fields | `number`, or `CerialDecimal` for a `Decimal` field |
+| `_avg` | Same as `_sum` | `number \| null`, or `CerialDecimal \| null` for a `Decimal` field |
+| `_min`, `_max` | Strings, numbers, decimals, dates, durations, UUIDs, booleans, enums, literals and record fields | The field's type or `null` |
+| `_group` | Same as `_min`, plus arrays of them | An array of the distinct values |
+
+```typescript
+const rows = await client.db.Order.groupBy({
+  by: { status: true },
+  _count: { _all: true, couponCode: true },
+  _sum: { total: true },
+  _avg: { total: true },
+  _min: { createdAt: true },
+  _max: { createdAt: true },
+  _group: { customerId: true },
+});
+// rows[0]._count: { _all: number; couponCode: number }
+// rows[0]._sum:   { total: CerialDecimal }
+// rows[0]._avg:   { total: CerialDecimal | null }
+// rows[0]._min:   { createdAt: Date | null }
+// rows[0]._group: { customerId: CerialId<string>[] }
+```
+
+Edge cases:
+
+- `_sum` of a group with no values is `0`, or a `CerialDecimal` of `0` for a `Decimal` field.
+- `_avg` of a group with no values is `null`.
+- `_min` and `_max` of a group with no values are `null`.
+- `_count: { field: true }` counts `0` and `false`; it skips only absent and `null` values.
+- `_group` drops absent values. It keeps `null` only for `@nullable` fields.
+- `_group` lists each value once, and the order of its members is not guaranteed. Sort the array yourself if you need an order.
+- Decimal results come back without trailing zeros, so `1.650` reads as `1.65`. Use `.toString()` rather than `.toNumber()` to keep full precision.
+
+Asking for an aggregate over a field it cannot take is refused by the types and again at runtime, with an error naming the aggregate and field (for example `_sum.label`). A model with no numeric field has no `_sum` or `_avg`.
+
+## Filtering
+
+`where` runs before grouping, so it decides which records are counted and summed.
+
+```typescript
+const recent = await client.db.Order.groupBy({
+  by: { status: true },
+  where: { createdAt: { gte: new Date('2024-01-01') } },
+  _count: true,
+});
+```
+
+There is no `having`. To keep only groups that pass a condition, filter the returned rows in your code:
+
+```typescript
+const busy = recent.filter((row) => row._count._all >= 10);
+```
+
+## Ordering and Paging
+
+`orderBy` takes the keys in `by`, with the same nesting, and the `_count`, `_sum`, `_avg`, `_min` and `_max` fields that the call requests. Directions are `'asc'` or `'desc'`. Ordering by an aggregate you did not request, by a field that is not a key, or by `_group` is refused.
+
+```typescript
+const top = await client.db.Order.groupBy({
+  by: { customerId: true },
+  _count: true,
+  _sum: { total: true },
+  orderBy: { _sum: { total: 'desc' }, customerId: 'asc' },
+  limit: 10,
+  offset: 0,
+});
+```
+
+`limit` and `offset` apply to groups, not to records. Without `orderBy`, groups come back ordered by their keys, with absent values first and then `null`.
+
+## Empty Results
+
+`groupBy` returns an empty array when no records match, since there are no groups. For whole-table totals, use [`count`](/queries/count).
+
+## In Transactions
+
+`groupBy` works in every [`$transaction`](/transactions) mode, and its result type is kept at its position:
+
+```typescript
+const [byStatus, total] = await client.$transaction([
+  client.db.Order.groupBy({ by: { status: true }, _count: true }),
+  client.db.Order.count(),
+]);
+// byStatus: { status: ...; _count: { _all: number } }[]
+// total: number
+```
+
+## Related
+
+- [`count`](/queries/count) counts the records matching a filter
+- [Generated Types](/types/generated-types) lists the `groupBy` types generated for each model
+- [Dynamic Return Types](/types/dynamic-return-types#groupby-rows) explains how the row type follows the call

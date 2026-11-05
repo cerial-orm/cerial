@@ -26,6 +26,7 @@ const user = await client.db.User.findOne({ where: { id: '123' } });
 | [`deleteMany`](/queries/delete-many) | Delete matching records | `number` |
 | [`deleteUnique`](/queries/delete-unique) | Delete by unique field | `boolean \| T \| null` |
 | [`count`](/queries/count) | Count matching records | `number` |
+| [`groupBy`](/queries/group-by) | Group records and aggregate per group | `Row[]` |
 | [`exists`](/queries/exists) | Check if any match | `boolean` |
 | [`$transaction`](/transactions) | Atomic batch execution | Typed tuple |
 

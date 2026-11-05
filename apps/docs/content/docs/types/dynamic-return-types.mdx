@@ -276,6 +276,42 @@ const sensor = await client.db.Sensor.findOne({
 // sensor: { channel: number; counter: bigint } | null
 ```
 
+## groupBy Rows
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+The row type of [`groupBy`](/queries/group-by) follows the arguments of the call. Keys are narrowed like `select`, and each aggregate you request adds a property holding only the fields you named.
+
+```typescript
+const rows = await client.db.Order.groupBy({
+  by: { status: true, address: { city: true } },
+  _count: true,
+  _sum: { total: true },
+  _min: { createdAt: true },
+});
+// rows: {
+//   status: 'open' | 'shipped';
+//   address: { city: string };
+//   _count: { _all: number };
+//   _sum: { total: CerialDecimal };
+//   _min: { createdAt: Date | null };
+// }[]
+```
+
+| Part of the call | Part of the row |
+|---|---|
+| `by: { field: true }` | `field` with its output type. Optional fields are optional, `@nullable` fields add `null`. |
+| `by: { obj: { sub: true } }` | `obj: { sub: ... }` |
+| `_count: true` | `_count: { _all: number }` |
+| `_sum`, `_avg` | `number`, or `CerialDecimal` for `Decimal` fields. `_avg` adds `null`. |
+| `_min`, `_max` | The field's type plus `null` |
+| `_group` | An array of the field's type. `null` is in the array only for `@nullable` fields. |
+| Aggregate left out | No property for it on the row |
+
+Reading an aggregate or field you did not request is a type error. `orderBy` only accepts keys from `by` and aggregates the call requests.
+
 ## Typed Tuples in Transactions
 
 When using [`$transaction`](/transactions), each query's return type is preserved at its position in the result array:

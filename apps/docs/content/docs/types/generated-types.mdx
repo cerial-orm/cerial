@@ -334,6 +334,34 @@ Key features:
 
 Methods check the keys you pass against these types, so a misspelt key is refused even next to valid ones, and the editor suggests the keys you have not typed yet. See [Typos, Completion and Depth](/types/dynamic-return-types#typos-completion-and-depth).
 
+## groupBy Types
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Each model gets the types behind [`groupBy`](/queries/group-by). A type that would have no members is left out: a model with no numeric field has no `UserNumericAggregate`, and `_sum` and `_avg` are not accepted for it.
+
+| Type | Description |
+|---|---|
+| `UserGroupByKeys` | Fields allowed in `by`: `true` per field, a nested object for declared sub-fields of an object. |
+| `UserCountAggregate` | Fields `_count` accepts, plus `_all`. |
+| `UserNumericAggregate` | Numeric fields accepted by `_sum` and `_avg`. |
+| `UserMinMaxAggregate` | Fields accepted by `_min` and `_max`. |
+| `UserGroupAggregate` | Fields accepted by `_group`. |
+| `UserGroupByOrderBy` | `'asc' \| 'desc'` per key, and per field of the `_count`, `_sum`, `_avg`, `_min` and `_max` aggregates. |
+| `UserGroupByArgs` | The argument type: `by`, `where`, the aggregates, `orderBy`, `limit` and `offset`. |
+| `UserGroupByResult<A>` | One row for the arguments `A`. See [Dynamic Return Types](/types/dynamic-return-types#groupby-rows). |
+
+```typescript
+const rows = await client.db.User.groupBy({
+  by: { role: true },
+  _count: true,
+  orderBy: { _count: { _all: 'desc' } },
+});
+// rows: { role: string; _count: { _all: number } }[]
+```
+
 ## CerialQueryPromise
 
 All model methods return `CerialQueryPromise<T>` instead of `Promise<T>`. It works exactly like a regular Promise: you can `await` it, call `.then()`, `.catch()`, and `.finally()` as usual. It can also be passed to [`$transaction`](/transactions) for atomic batched execution.

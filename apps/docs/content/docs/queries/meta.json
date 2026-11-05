@@ -13,6 +13,7 @@
     "delete-many",
     "delete-unique",
     "count",
+    "group-by",
     "exists",
     "raw-queries"
   ]
