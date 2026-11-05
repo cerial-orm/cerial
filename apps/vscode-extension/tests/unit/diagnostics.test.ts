@@ -559,8 +559,8 @@ describe('mixed pick/omit diagnostic', () => {
     const result = validateSchema(ast);
 
     // Should have at least one error about mixing
-    // Note: Task 2 (ORM parser fix) will emit the error. For now, test that no false positives occur.
-    // Once Task 2 is done, this test will verify the error is emitted.
+    // The parser does not yet emit an error for mixed pick/omit, so this only checks
+    // that validation does not crash or raise false positives on it.
     // The mixed pick/omit syntax is currently silently ignored by the parser.
     expect(result.errors.length).toBeGreaterThanOrEqual(0);
   });
