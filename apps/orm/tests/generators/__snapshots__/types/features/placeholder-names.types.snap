@@ -1,0 +1,2004 @@
+// ===== models/pnitem.ts =====
+/**
+ * Generated types for PnItem
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  PnOwner,
+  PnOwnerWhere,
+  PnOwnerSelect,
+  PnOwnerOrderBy,
+  PnOwnerNestedCreate,
+  PnOwnerInclude,
+  GetPnOwnerIncludePayload,
+} from './pnowner.js';
+export interface PnItem {
+  id: CerialId<string>;
+  title: string;
+  ownerId: CerialId<string>;
+}
+
+export interface PnItemInput {
+  id?: string;
+  title: string;
+  ownerId: RecordIdInput<string>;
+}
+
+export interface PnItemWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  ownerId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  owner?: Omit<PnOwnerWhere, '$raw'>;
+  $raw?: SqlFragment;
+  AND?: PnItemWhere[];
+  OR?: PnItemWhere[];
+  NOT?: PnItemWhere;
+}
+
+export type PnItemWhereInput = PnItemWhere;
+
+export type PnItemFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PnItemWhere, 'id'>;
+
+export type PnItemCreate = O.Optional<O.Omit<PnItemInput, 'owner'>, 'id'>;
+
+export type PnItemNestedCreate = O.Optional<O.Omit<PnItemInput, 'owner' | 'ownerId'>, 'id'>;
+
+export type PnItemCreateInput =
+  | PnItemCreate
+  | (O.Omit<PnItemCreate, 'ownerId'> & {
+      owner: { create: PnOwnerNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type PnItemUpdate = Partial<O.Omit<PnItemInput, 'id' | 'owner'>>;
+
+export type PnItemUpdateInput =
+  | PnItemUpdate
+  | (O.Omit<PnItemUpdate, 'ownerId'> & {
+      owner?: { create: PnOwnerNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type PnItemUnset = {};
+
+export interface PnItemSelectFields {
+  id?: boolean;
+  title?: boolean;
+  ownerId?: boolean;
+}
+
+export type PnItemSelect = AtLeastOne<PnItemSelectFields>;
+
+export interface PnItemOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  owner?: PnOwnerOrderBy;
+}
+
+export interface PnItemGroupByKeys {
+  id?: true;
+  title?: true;
+  ownerId?: true;
+}
+
+export interface PnItemCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  ownerId?: true;
+}
+
+export interface PnItemMinMaxAggregate {
+  id?: true;
+  title?: true;
+  ownerId?: true;
+}
+
+export interface PnItemGroupAggregate {
+  id?: true;
+  title?: true;
+  ownerId?: true;
+}
+
+export interface PnItemGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; title?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+}
+
+export interface PnItemGroupByArgs {
+  by: PnItemGroupByKeys;
+  where?: PnItemWhere;
+  _count?: true | PnItemCountAggregate;
+  _min?: PnItemMinMaxAggregate;
+  _max?: PnItemMinMaxAggregate;
+  _group?: PnItemGroupAggregate;
+  orderBy?: PnItemGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PnItemGroupByAggregates {
+  _count: { _all: number; id: number; title: number; ownerId: number };
+  _min: {
+    id: NonNullable<PnItem['id']> | null;
+    title: NonNullable<PnItem['title']> | null;
+    ownerId: NonNullable<PnItem['ownerId']> | null;
+  };
+  _max: {
+    id: NonNullable<PnItem['id']> | null;
+    title: NonNullable<PnItem['title']> | null;
+    ownerId: NonNullable<PnItem['ownerId']> | null;
+  };
+  _group: {
+    id: GroupMember<PnItem['id']>[];
+    title: GroupMember<PnItem['title']>[];
+    ownerId: GroupMember<PnItem['ownerId']>[];
+  };
+}
+
+export type PnItemGroupByResult<A extends PnItemGroupByArgs> = GroupByRow<PnItem, A, PnItemGroupByAggregates>;
+
+export interface PnItemInclude {
+  owner?:
+    | boolean
+    | {
+        select?: PnOwnerSelect;
+        where?: PnOwnerWhere;
+        include?: PnOwnerInclude;
+      };
+}
+
+export type PnItem$Relations = {
+  owner: { type: PnOwner; include: PnOwnerInclude };
+};
+
+export type GetPnItemIncludePayload<I extends PnItemInclude | undefined> = I extends PnItemInclude
+  ? Pick<
+      {
+        owner: I['owner'] extends true
+          ? PnOwner
+          : I['owner'] extends { select: infer S extends PnOwnerSelect; include: infer NI extends PnOwnerInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnOwner
+                  ? ResolveFieldSelect<PnOwner[P], S[P]>
+                  : never;
+              } & GetPnOwnerIncludePayload<NI>
+            : I['owner'] extends { select: infer S extends PnOwnerSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnOwner
+                    ? ResolveFieldSelect<PnOwner[P], S[P]>
+                    : never;
+                }
+              : I['owner'] extends { include: infer NI extends PnOwnerInclude }
+                ? PnOwner & GetPnOwnerIncludePayload<NI>
+                : PnOwner;
+      },
+      Extract<keyof I, keyof PnItem$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetPnItemPayload<
+  S extends PnItemSelect | undefined = undefined,
+  I extends PnItemInclude | undefined = undefined,
+> = A.Compute<
+  S extends PnItemSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof PnItem
+          ? ResolveFieldSelect<PnItem[K], S[K]>
+          : never;
+      } & GetPnItemIncludePayload<I>
+    : I extends PnItemInclude
+      ? PnItem & GetPnItemIncludePayload<I>
+      : PnItem,
+  'flat'
+>;
+
+export interface PnItemModel {
+  findOne<
+    S extends PnItemSelect | undefined = undefined,
+    I extends PnItemInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: PnItemWhere;
+    select?: SelectArg<S, PnItemSelectFields>;
+    include?: IncludeArg<I, PnItemInclude>;
+    compute?: C & { [K in keyof C & (keyof PnItem | keyof PnItemWhere)]?: never };
+    orderBy?: PnItemOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnItemPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends PnItemSelect | undefined = undefined,
+    I extends PnItemInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: PnItemWhere;
+    select?: SelectArg<S, PnItemSelectFields>;
+    compute?: C & { [K in keyof C & (keyof PnItem | keyof PnItemWhere)]?: never };
+    orderBy?: PnItemOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, PnItemInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnItemPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends PnItemSelect | undefined = undefined,
+    I extends PnItemInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: PnItemFindUniqueWhere;
+    select?: SelectArg<S, PnItemSelectFields>;
+    include?: IncludeArg<I, PnItemInclude>;
+    compute?: C & { [K in keyof C & (keyof PnItem | keyof PnItemWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnItemPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends PnItemSelect | undefined = undefined, I extends PnItemInclude | undefined = undefined>(options: {
+    data: PnItemCreateInput;
+    select?: SelectArg<S, PnItemSelectFields>;
+    include?: IncludeArg<I, PnItemInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPnItemPayload<S, I>>;
+
+  updateMany<
+    S extends PnItemSelect | undefined = undefined,
+    I extends PnItemInclude | undefined = undefined,
+    D extends PnItemUpdateInput = PnItemUpdateInput,
+  >(options: {
+    where: PnItemWhere;
+    data: DataArg<D, PnItemUpdateInput>;
+    unset?: SafeUnset<PnItemUnset, D>;
+    select?: SelectArg<S, PnItemSelectFields>;
+    include?: IncludeArg<I, PnItemInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPnItemPayload<S, I>[]>;
+
+  updateUnique<
+    S extends PnItemSelect | undefined = undefined,
+    I extends PnItemInclude | undefined = undefined,
+    D extends PnItemUpdateInput = PnItemUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: PnItemFindUniqueWhere;
+    data: DataArg<D, PnItemUpdateInput>;
+    unset?: SafeUnset<PnItemUnset, D>;
+    select?: SelectArg<S, PnItemSelectFields>;
+    include?: IncludeArg<I, PnItemInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns PnItem | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetPnItemPayload<S, I>, R>>;
+
+  upsert<
+    S extends PnItemSelect | undefined = undefined,
+    I extends PnItemInclude | undefined = undefined,
+    D extends PnItemUpdateInput = PnItemUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PnItemFindUniqueWhere;
+    create: PnItemCreateInput;
+    update?: DataArg<D, PnItemUpdateInput>;
+    unset?: SafeUnset<PnItemUnset, D>;
+    select?: SelectArg<S, PnItemSelectFields>;
+    include?: IncludeArg<I, PnItemInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetPnItemPayload<S, I>, R>>;
+
+  upsert<
+    S extends PnItemSelect | undefined = undefined,
+    I extends PnItemInclude | undefined = undefined,
+    D extends PnItemUpdateInput = PnItemUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PnItemWhere;
+    create: PnItemCreateInput;
+    update?: DataArg<D, PnItemUpdateInput>;
+    unset?: SafeUnset<PnItemUnset, D>;
+    select?: SelectArg<S, PnItemSelectFields>;
+    include?: IncludeArg<I, PnItemInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetPnItemPayload<S, I>, R>>;
+
+  deleteMany(options: { where: PnItemWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: PnItemFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns PnItem | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<PnItem, R>>;
+
+  count(where?: PnItemWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends PnItemGroupByArgs>(
+    args: GroupByArg<A, PnItemGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<PnItemGroupByResult<A>[]>;
+
+  exists(where?: PnItemWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: PnItemWhere }): Promise<import('cerial').CerialLiveHandle<PnItem>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/pnowner.ts =====
+/**
+ * Generated types for PnOwner
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  PnItem,
+  PnItemWhere,
+  PnItemSelect,
+  PnItemOrderBy,
+  PnItemNestedCreate,
+  PnItemInclude,
+  GetPnItemIncludePayload,
+} from './pnitem.js';
+import type {
+  PnTag,
+  PnTagWhere,
+  PnTagSelect,
+  PnTagOrderBy,
+  PnTagNestedCreate,
+  PnTagInclude,
+  GetPnTagIncludePayload,
+} from './pntag.js';
+import type {
+  PnPost,
+  PnPostWhere,
+  PnPostSelect,
+  PnPostOrderBy,
+  PnPostNestedCreate,
+  PnPostInclude,
+  GetPnPostIncludePayload,
+} from './pnpost.js';
+export interface PnOwner {
+  id: CerialId<string>;
+  title: string;
+  inc_title: string;
+  rev_create_posts?: string;
+  tagIds: CerialId<string>[];
+  tag0Id?: CerialId<string>;
+}
+
+export interface PnOwnerInput {
+  id?: string;
+  title: string;
+  inc_title: string;
+  rev_create_posts?: string;
+  tagIds: RecordIdInput<string>[];
+  tag0Id?: RecordIdInput<string>;
+}
+
+export interface PnOwnerWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  inc_title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  rev_create_posts?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  items?:
+    | {
+        some?: Omit<PnItemWhere, '$raw'>;
+        every?: Omit<PnItemWhere, '$raw'>;
+        none?: Omit<PnItemWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<PnItemWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  tags?: { some?: Omit<PnTagWhere, '$raw'>; every?: Omit<PnTagWhere, '$raw'>; none?: Omit<PnTagWhere, '$raw'> };
+  tag0Id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  tags0?: Omit<PnTagWhere, '$raw'>;
+  posts_set?:
+    | {
+        some?: Omit<PnPostWhere, '$raw'>;
+        every?: Omit<PnPostWhere, '$raw'>;
+        none?: Omit<PnPostWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<PnPostWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
+  AND?: PnOwnerWhere[];
+  OR?: PnOwnerWhere[];
+  NOT?: PnOwnerWhere;
+}
+
+export type PnOwnerWhereInput = PnOwnerWhere;
+
+export type PnOwnerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PnOwnerWhere, 'id'>;
+
+export type PnOwnerCreate = O.Optional<
+  O.Omit<PnOwnerInput, 'items' | 'tags' | 'tags0' | 'posts_set'>,
+  'id' | 'rev_create_posts' | 'tagIds' | 'tag0Id'
+>;
+
+export type PnOwnerNestedCreate = O.Optional<
+  O.Omit<PnOwnerInput, 'items' | 'tags' | 'tags0' | 'posts_set' | 'tagIds' | 'tag0Id'>,
+  'id' | 'rev_create_posts'
+>;
+
+export type PnOwnerCreateInput =
+  | PnOwnerCreate
+  | (O.Omit<PnOwnerCreate, 'tagIds' | 'tag0Id'> & {
+      items?: {
+        create?: PnItemNestedCreate | PnItemNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+      tags?: {
+        create?: PnTagNestedCreate | PnTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+      tags0?: { create: PnTagNestedCreate } | { connect: RecordIdInput };
+      posts_set?: {
+        create?: PnPostNestedCreate | PnPostNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type PnOwnerUpdate = Partial<
+  O.Omit<PnOwnerInput, 'id' | 'items' | 'tags' | 'tags0' | 'posts_set' | 'tagIds' | 'rev_create_posts' | 'tag0Id'>
+> & {
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+  rev_create_posts?: string | CerialNone;
+  tag0Id?: RecordIdInput<string> | CerialNone;
+};
+
+export type PnOwnerUpdateInput =
+  | PnOwnerUpdate
+  | (O.Omit<PnOwnerUpdate, 'tagIds' | 'tag0Id'> & {
+      items?: {
+        create?: PnItemNestedCreate | PnItemNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+      tags?: {
+        create?: PnTagNestedCreate | PnTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+      tags0?: { create: PnTagNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      posts_set?: {
+        create?: PnPostNestedCreate | PnPostNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type PnOwnerUnset = {
+  rev_create_posts?: true;
+  tag0Id?: true;
+};
+
+export interface PnOwnerSelectFields {
+  id?: boolean;
+  title?: boolean;
+  inc_title?: boolean;
+  rev_create_posts?: boolean;
+  tagIds?: boolean;
+  tag0Id?: boolean;
+}
+
+export type PnOwnerSelect = AtLeastOne<PnOwnerSelectFields>;
+
+export interface PnOwnerOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  inc_title?: 'asc' | 'desc';
+  rev_create_posts?: 'asc' | 'desc';
+  tagIds?: 'asc' | 'desc';
+  tag0Id?: 'asc' | 'desc';
+  tags0?: PnTagOrderBy;
+}
+
+export interface PnOwnerGroupByKeys {
+  id?: true;
+  title?: true;
+  inc_title?: true;
+  rev_create_posts?: true;
+  tagIds?: true;
+  tag0Id?: true;
+}
+
+export interface PnOwnerCountAggregate {
+  _all?: true;
+  id?: true;
+  title?: true;
+  inc_title?: true;
+  rev_create_posts?: true;
+  tagIds?: true;
+  tag0Id?: true;
+}
+
+export interface PnOwnerMinMaxAggregate {
+  id?: true;
+  title?: true;
+  inc_title?: true;
+  rev_create_posts?: true;
+  tag0Id?: true;
+}
+
+export interface PnOwnerGroupAggregate {
+  id?: true;
+  title?: true;
+  inc_title?: true;
+  rev_create_posts?: true;
+  tagIds?: true;
+  tag0Id?: true;
+}
+
+export interface PnOwnerGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  inc_title?: 'asc' | 'desc';
+  rev_create_posts?: 'asc' | 'desc';
+  tagIds?: 'asc' | 'desc';
+  tag0Id?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    inc_title?: 'asc' | 'desc';
+    rev_create_posts?: 'asc' | 'desc';
+    tagIds?: 'asc' | 'desc';
+    tag0Id?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    inc_title?: 'asc' | 'desc';
+    rev_create_posts?: 'asc' | 'desc';
+    tag0Id?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    title?: 'asc' | 'desc';
+    inc_title?: 'asc' | 'desc';
+    rev_create_posts?: 'asc' | 'desc';
+    tag0Id?: 'asc' | 'desc';
+  };
+}
+
+export interface PnOwnerGroupByArgs {
+  by: PnOwnerGroupByKeys;
+  where?: PnOwnerWhere;
+  _count?: true | PnOwnerCountAggregate;
+  _min?: PnOwnerMinMaxAggregate;
+  _max?: PnOwnerMinMaxAggregate;
+  _group?: PnOwnerGroupAggregate;
+  orderBy?: PnOwnerGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PnOwnerGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    title: number;
+    inc_title: number;
+    rev_create_posts: number;
+    tagIds: number;
+    tag0Id: number;
+  };
+  _min: {
+    id: NonNullable<PnOwner['id']> | null;
+    title: NonNullable<PnOwner['title']> | null;
+    inc_title: NonNullable<PnOwner['inc_title']> | null;
+    rev_create_posts: NonNullable<PnOwner['rev_create_posts']> | null;
+    tag0Id: NonNullable<PnOwner['tag0Id']> | null;
+  };
+  _max: {
+    id: NonNullable<PnOwner['id']> | null;
+    title: NonNullable<PnOwner['title']> | null;
+    inc_title: NonNullable<PnOwner['inc_title']> | null;
+    rev_create_posts: NonNullable<PnOwner['rev_create_posts']> | null;
+    tag0Id: NonNullable<PnOwner['tag0Id']> | null;
+  };
+  _group: {
+    id: GroupMember<PnOwner['id']>[];
+    title: GroupMember<PnOwner['title']>[];
+    inc_title: GroupMember<PnOwner['inc_title']>[];
+    rev_create_posts: GroupMember<PnOwner['rev_create_posts']>[];
+    tagIds: GroupMember<PnOwner['tagIds']>[];
+    tag0Id: GroupMember<PnOwner['tag0Id']>[];
+  };
+}
+
+export type PnOwnerGroupByResult<A extends PnOwnerGroupByArgs> = GroupByRow<PnOwner, A, PnOwnerGroupByAggregates>;
+
+export interface PnOwnerInclude {
+  items?:
+    | boolean
+    | {
+        select?: PnItemSelect;
+        where?: PnItemWhere;
+        orderBy?: PnItemOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: PnItemInclude;
+      };
+  tags?:
+    | boolean
+    | {
+        select?: PnTagSelect;
+        where?: PnTagWhere;
+        orderBy?: PnTagOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: PnTagInclude;
+      };
+  tags0?:
+    | boolean
+    | {
+        select?: PnTagSelect;
+        where?: PnTagWhere;
+        include?: PnTagInclude;
+      };
+  posts_set?:
+    | boolean
+    | {
+        select?: PnPostSelect;
+        where?: PnPostWhere;
+        orderBy?: PnPostOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: PnPostInclude;
+      };
+}
+
+export type PnOwner$Relations = {
+  items: { type: PnItem[]; include: PnItemInclude };
+  tags: { type: PnTag[]; include: PnTagInclude };
+  tags0: { type: PnTag; include: PnTagInclude };
+  posts_set: { type: PnPost[]; include: PnPostInclude };
+};
+
+export type GetPnOwnerIncludePayload<I extends PnOwnerInclude | undefined> = I extends PnOwnerInclude
+  ? Pick<
+      {
+        items: I['items'] extends true
+          ? PnItem[]
+          : I['items'] extends { select: infer S extends PnItemSelect; include: infer NI extends PnItemInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnItem
+                  ? ResolveFieldSelect<PnItem[P], S[P]>
+                  : never;
+              } & GetPnItemIncludePayload<NI>)[]
+            : I['items'] extends { select: infer S extends PnItemSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnItem
+                    ? ResolveFieldSelect<PnItem[P], S[P]>
+                    : never;
+                }[]
+              : I['items'] extends { include: infer NI extends PnItemInclude }
+                ? (PnItem & GetPnItemIncludePayload<NI>)[]
+                : PnItem[];
+        tags: I['tags'] extends true
+          ? PnTag[]
+          : I['tags'] extends { select: infer S extends PnTagSelect; include: infer NI extends PnTagInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnTag
+                  ? ResolveFieldSelect<PnTag[P], S[P]>
+                  : never;
+              } & GetPnTagIncludePayload<NI>)[]
+            : I['tags'] extends { select: infer S extends PnTagSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnTag
+                    ? ResolveFieldSelect<PnTag[P], S[P]>
+                    : never;
+                }[]
+              : I['tags'] extends { include: infer NI extends PnTagInclude }
+                ? (PnTag & GetPnTagIncludePayload<NI>)[]
+                : PnTag[];
+        tags0: I['tags0'] extends true
+          ? PnTag
+          : I['tags0'] extends { select: infer S extends PnTagSelect; include: infer NI extends PnTagInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnTag
+                  ? ResolveFieldSelect<PnTag[P], S[P]>
+                  : never;
+              } & GetPnTagIncludePayload<NI>
+            : I['tags0'] extends { select: infer S extends PnTagSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnTag
+                    ? ResolveFieldSelect<PnTag[P], S[P]>
+                    : never;
+                }
+              : I['tags0'] extends { include: infer NI extends PnTagInclude }
+                ? PnTag & GetPnTagIncludePayload<NI>
+                : PnTag;
+        posts_set: I['posts_set'] extends true
+          ? PnPost[]
+          : I['posts_set'] extends { select: infer S extends PnPostSelect; include: infer NI extends PnPostInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnPost
+                  ? ResolveFieldSelect<PnPost[P], S[P]>
+                  : never;
+              } & GetPnPostIncludePayload<NI>)[]
+            : I['posts_set'] extends { select: infer S extends PnPostSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnPost
+                    ? ResolveFieldSelect<PnPost[P], S[P]>
+                    : never;
+                }[]
+              : I['posts_set'] extends { include: infer NI extends PnPostInclude }
+                ? (PnPost & GetPnPostIncludePayload<NI>)[]
+                : PnPost[];
+      },
+      Extract<keyof I, keyof PnOwner$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetPnOwnerPayload<
+  S extends PnOwnerSelect | undefined = undefined,
+  I extends PnOwnerInclude | undefined = undefined,
+> = A.Compute<
+  S extends PnOwnerSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof PnOwner
+          ? ResolveFieldSelect<PnOwner[K], S[K]>
+          : never;
+      } & GetPnOwnerIncludePayload<I>
+    : I extends PnOwnerInclude
+      ? PnOwner & GetPnOwnerIncludePayload<I>
+      : PnOwner,
+  'flat'
+>;
+
+export interface PnOwnerModel {
+  findOne<
+    S extends PnOwnerSelect | undefined = undefined,
+    I extends PnOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: PnOwnerWhere;
+    select?: SelectArg<S, PnOwnerSelectFields>;
+    include?: IncludeArg<I, PnOwnerInclude>;
+    compute?: C & { [K in keyof C & (keyof PnOwner | keyof PnOwnerWhere)]?: never };
+    orderBy?: PnOwnerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends PnOwnerSelect | undefined = undefined,
+    I extends PnOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: PnOwnerWhere;
+    select?: SelectArg<S, PnOwnerSelectFields>;
+    compute?: C & { [K in keyof C & (keyof PnOwner | keyof PnOwnerWhere)]?: never };
+    orderBy?: PnOwnerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, PnOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends PnOwnerSelect | undefined = undefined,
+    I extends PnOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: PnOwnerFindUniqueWhere;
+    select?: SelectArg<S, PnOwnerSelectFields>;
+    include?: IncludeArg<I, PnOwnerInclude>;
+    compute?: C & { [K in keyof C & (keyof PnOwner | keyof PnOwnerWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends PnOwnerSelect | undefined = undefined, I extends PnOwnerInclude | undefined = undefined>(options: {
+    data: PnOwnerCreateInput;
+    select?: SelectArg<S, PnOwnerSelectFields>;
+    include?: IncludeArg<I, PnOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPnOwnerPayload<S, I>>;
+
+  updateMany<
+    S extends PnOwnerSelect | undefined = undefined,
+    I extends PnOwnerInclude | undefined = undefined,
+    D extends PnOwnerUpdateInput = PnOwnerUpdateInput,
+  >(options: {
+    where: PnOwnerWhere;
+    data: DataArg<D, PnOwnerUpdateInput>;
+    unset?: SafeUnset<PnOwnerUnset, D>;
+    select?: SelectArg<S, PnOwnerSelectFields>;
+    include?: IncludeArg<I, PnOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPnOwnerPayload<S, I>[]>;
+
+  updateUnique<
+    S extends PnOwnerSelect | undefined = undefined,
+    I extends PnOwnerInclude | undefined = undefined,
+    D extends PnOwnerUpdateInput = PnOwnerUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: PnOwnerFindUniqueWhere;
+    data: DataArg<D, PnOwnerUpdateInput>;
+    unset?: SafeUnset<PnOwnerUnset, D>;
+    select?: SelectArg<S, PnOwnerSelectFields>;
+    include?: IncludeArg<I, PnOwnerInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns PnOwner | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetPnOwnerPayload<S, I>, R>>;
+
+  upsert<
+    S extends PnOwnerSelect | undefined = undefined,
+    I extends PnOwnerInclude | undefined = undefined,
+    D extends PnOwnerUpdateInput = PnOwnerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PnOwnerFindUniqueWhere;
+    create: PnOwnerCreateInput;
+    update?: DataArg<D, PnOwnerUpdateInput>;
+    unset?: SafeUnset<PnOwnerUnset, D>;
+    select?: SelectArg<S, PnOwnerSelectFields>;
+    include?: IncludeArg<I, PnOwnerInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetPnOwnerPayload<S, I>, R>>;
+
+  upsert<
+    S extends PnOwnerSelect | undefined = undefined,
+    I extends PnOwnerInclude | undefined = undefined,
+    D extends PnOwnerUpdateInput = PnOwnerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PnOwnerWhere;
+    create: PnOwnerCreateInput;
+    update?: DataArg<D, PnOwnerUpdateInput>;
+    unset?: SafeUnset<PnOwnerUnset, D>;
+    select?: SelectArg<S, PnOwnerSelectFields>;
+    include?: IncludeArg<I, PnOwnerInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetPnOwnerPayload<S, I>, R>>;
+
+  deleteMany(options: { where: PnOwnerWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: PnOwnerFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns PnOwner | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<PnOwner, R>>;
+
+  count(where?: PnOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends PnOwnerGroupByArgs>(
+    args: GroupByArg<A, PnOwnerGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<PnOwnerGroupByResult<A>[]>;
+
+  exists(where?: PnOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: PnOwnerWhere }): Promise<import('cerial').CerialLiveHandle<PnOwner>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/pnpost.ts =====
+/**
+ * Generated types for PnPost
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  PnOwner,
+  PnOwnerWhere,
+  PnOwnerSelect,
+  PnOwnerOrderBy,
+  PnOwnerNestedCreate,
+  PnOwnerInclude,
+  GetPnOwnerIncludePayload,
+} from './pnowner.js';
+export interface PnPost {
+  id: CerialId<string>;
+  body: string;
+  ownerId?: CerialId<string>;
+}
+
+export interface PnPostInput {
+  id?: string;
+  body: string;
+  ownerId?: RecordIdInput<string>;
+}
+
+export interface PnPostWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  body?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  ownerId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  owner?: Omit<PnOwnerWhere, '$raw'>;
+  $raw?: SqlFragment;
+  AND?: PnPostWhere[];
+  OR?: PnPostWhere[];
+  NOT?: PnPostWhere;
+}
+
+export type PnPostWhereInput = PnPostWhere;
+
+export type PnPostFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PnPostWhere, 'id'>;
+
+export type PnPostCreate = O.Optional<O.Omit<PnPostInput, 'owner'>, 'id' | 'ownerId'>;
+
+export type PnPostNestedCreate = O.Optional<O.Omit<PnPostInput, 'owner' | 'ownerId'>, 'id'>;
+
+export type PnPostCreateInput =
+  | PnPostCreate
+  | (O.Omit<PnPostCreate, 'ownerId'> & {
+      owner?: { create: PnOwnerNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type PnPostUpdate = Partial<O.Omit<PnPostInput, 'id' | 'owner' | 'ownerId'>> & {
+  ownerId?: RecordIdInput<string> | CerialNone;
+};
+
+export type PnPostUpdateInput =
+  | PnPostUpdate
+  | (O.Omit<PnPostUpdate, 'ownerId'> & {
+      owner?: { create: PnOwnerNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type PnPostUnset = {
+  ownerId?: true;
+};
+
+export interface PnPostSelectFields {
+  id?: boolean;
+  body?: boolean;
+  ownerId?: boolean;
+}
+
+export type PnPostSelect = AtLeastOne<PnPostSelectFields>;
+
+export interface PnPostOrderBy {
+  id?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  owner?: PnOwnerOrderBy;
+}
+
+export interface PnPostGroupByKeys {
+  id?: true;
+  body?: true;
+  ownerId?: true;
+}
+
+export interface PnPostCountAggregate {
+  _all?: true;
+  id?: true;
+  body?: true;
+  ownerId?: true;
+}
+
+export interface PnPostMinMaxAggregate {
+  id?: true;
+  body?: true;
+  ownerId?: true;
+}
+
+export interface PnPostGroupAggregate {
+  id?: true;
+  body?: true;
+  ownerId?: true;
+}
+
+export interface PnPostGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; body?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; body?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; body?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+}
+
+export interface PnPostGroupByArgs {
+  by: PnPostGroupByKeys;
+  where?: PnPostWhere;
+  _count?: true | PnPostCountAggregate;
+  _min?: PnPostMinMaxAggregate;
+  _max?: PnPostMinMaxAggregate;
+  _group?: PnPostGroupAggregate;
+  orderBy?: PnPostGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PnPostGroupByAggregates {
+  _count: { _all: number; id: number; body: number; ownerId: number };
+  _min: {
+    id: NonNullable<PnPost['id']> | null;
+    body: NonNullable<PnPost['body']> | null;
+    ownerId: NonNullable<PnPost['ownerId']> | null;
+  };
+  _max: {
+    id: NonNullable<PnPost['id']> | null;
+    body: NonNullable<PnPost['body']> | null;
+    ownerId: NonNullable<PnPost['ownerId']> | null;
+  };
+  _group: {
+    id: GroupMember<PnPost['id']>[];
+    body: GroupMember<PnPost['body']>[];
+    ownerId: GroupMember<PnPost['ownerId']>[];
+  };
+}
+
+export type PnPostGroupByResult<A extends PnPostGroupByArgs> = GroupByRow<PnPost, A, PnPostGroupByAggregates>;
+
+export interface PnPostInclude {
+  owner?:
+    | boolean
+    | {
+        select?: PnOwnerSelect;
+        where?: PnOwnerWhere;
+        include?: PnOwnerInclude;
+      };
+}
+
+export type PnPost$Relations = {
+  owner: { type: PnOwner; include: PnOwnerInclude };
+};
+
+export type GetPnPostIncludePayload<I extends PnPostInclude | undefined> = I extends PnPostInclude
+  ? Pick<
+      {
+        owner: I['owner'] extends true
+          ? PnOwner
+          : I['owner'] extends { select: infer S extends PnOwnerSelect; include: infer NI extends PnOwnerInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnOwner
+                  ? ResolveFieldSelect<PnOwner[P], S[P]>
+                  : never;
+              } & GetPnOwnerIncludePayload<NI>
+            : I['owner'] extends { select: infer S extends PnOwnerSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnOwner
+                    ? ResolveFieldSelect<PnOwner[P], S[P]>
+                    : never;
+                }
+              : I['owner'] extends { include: infer NI extends PnOwnerInclude }
+                ? PnOwner & GetPnOwnerIncludePayload<NI>
+                : PnOwner;
+      },
+      Extract<keyof I, keyof PnPost$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetPnPostPayload<
+  S extends PnPostSelect | undefined = undefined,
+  I extends PnPostInclude | undefined = undefined,
+> = A.Compute<
+  S extends PnPostSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof PnPost
+          ? ResolveFieldSelect<PnPost[K], S[K]>
+          : never;
+      } & GetPnPostIncludePayload<I>
+    : I extends PnPostInclude
+      ? PnPost & GetPnPostIncludePayload<I>
+      : PnPost,
+  'flat'
+>;
+
+export interface PnPostModel {
+  findOne<
+    S extends PnPostSelect | undefined = undefined,
+    I extends PnPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: PnPostWhere;
+    select?: SelectArg<S, PnPostSelectFields>;
+    include?: IncludeArg<I, PnPostInclude>;
+    compute?: C & { [K in keyof C & (keyof PnPost | keyof PnPostWhere)]?: never };
+    orderBy?: PnPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends PnPostSelect | undefined = undefined,
+    I extends PnPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: PnPostWhere;
+    select?: SelectArg<S, PnPostSelectFields>;
+    compute?: C & { [K in keyof C & (keyof PnPost | keyof PnPostWhere)]?: never };
+    orderBy?: PnPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, PnPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends PnPostSelect | undefined = undefined,
+    I extends PnPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: PnPostFindUniqueWhere;
+    select?: SelectArg<S, PnPostSelectFields>;
+    include?: IncludeArg<I, PnPostInclude>;
+    compute?: C & { [K in keyof C & (keyof PnPost | keyof PnPostWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends PnPostSelect | undefined = undefined, I extends PnPostInclude | undefined = undefined>(options: {
+    data: PnPostCreateInput;
+    select?: SelectArg<S, PnPostSelectFields>;
+    include?: IncludeArg<I, PnPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPnPostPayload<S, I>>;
+
+  updateMany<
+    S extends PnPostSelect | undefined = undefined,
+    I extends PnPostInclude | undefined = undefined,
+    D extends PnPostUpdateInput = PnPostUpdateInput,
+  >(options: {
+    where: PnPostWhere;
+    data: DataArg<D, PnPostUpdateInput>;
+    unset?: SafeUnset<PnPostUnset, D>;
+    select?: SelectArg<S, PnPostSelectFields>;
+    include?: IncludeArg<I, PnPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPnPostPayload<S, I>[]>;
+
+  updateUnique<
+    S extends PnPostSelect | undefined = undefined,
+    I extends PnPostInclude | undefined = undefined,
+    D extends PnPostUpdateInput = PnPostUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: PnPostFindUniqueWhere;
+    data: DataArg<D, PnPostUpdateInput>;
+    unset?: SafeUnset<PnPostUnset, D>;
+    select?: SelectArg<S, PnPostSelectFields>;
+    include?: IncludeArg<I, PnPostInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns PnPost | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetPnPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends PnPostSelect | undefined = undefined,
+    I extends PnPostInclude | undefined = undefined,
+    D extends PnPostUpdateInput = PnPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PnPostFindUniqueWhere;
+    create: PnPostCreateInput;
+    update?: DataArg<D, PnPostUpdateInput>;
+    unset?: SafeUnset<PnPostUnset, D>;
+    select?: SelectArg<S, PnPostSelectFields>;
+    include?: IncludeArg<I, PnPostInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetPnPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends PnPostSelect | undefined = undefined,
+    I extends PnPostInclude | undefined = undefined,
+    D extends PnPostUpdateInput = PnPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PnPostWhere;
+    create: PnPostCreateInput;
+    update?: DataArg<D, PnPostUpdateInput>;
+    unset?: SafeUnset<PnPostUnset, D>;
+    select?: SelectArg<S, PnPostSelectFields>;
+    include?: IncludeArg<I, PnPostInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetPnPostPayload<S, I>, R>>;
+
+  deleteMany(options: { where: PnPostWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: PnPostFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns PnPost | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<PnPost, R>>;
+
+  count(where?: PnPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends PnPostGroupByArgs>(
+    args: GroupByArg<A, PnPostGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<PnPostGroupByResult<A>[]>;
+
+  exists(where?: PnPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: PnPostWhere }): Promise<import('cerial').CerialLiveHandle<PnPost>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/pntag.ts =====
+/**
+ * Generated types for PnTag
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  PnOwner,
+  PnOwnerWhere,
+  PnOwnerSelect,
+  PnOwnerOrderBy,
+  PnOwnerNestedCreate,
+  PnOwnerInclude,
+  GetPnOwnerIncludePayload,
+} from './pnowner.js';
+export interface PnTag {
+  id: CerialId<string>;
+  label: string;
+}
+
+export interface PnTagInput {
+  id?: string;
+  label: string;
+}
+
+export interface PnTagWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  ownersA?:
+    | {
+        some?: Omit<PnOwnerWhere, '$raw'>;
+        every?: Omit<PnOwnerWhere, '$raw'>;
+        none?: Omit<PnOwnerWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<PnOwnerWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  ownersB?:
+    | {
+        some?: Omit<PnOwnerWhere, '$raw'>;
+        every?: Omit<PnOwnerWhere, '$raw'>;
+        none?: Omit<PnOwnerWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<PnOwnerWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
+  AND?: PnTagWhere[];
+  OR?: PnTagWhere[];
+  NOT?: PnTagWhere;
+}
+
+export type PnTagWhereInput = PnTagWhere;
+
+export type PnTagFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PnTagWhere, 'id'>;
+
+export type PnTagCreate = O.Optional<O.Omit<PnTagInput, 'ownersA' | 'ownersB'>, 'id'>;
+
+export type PnTagNestedCreate = O.Optional<O.Omit<PnTagInput, 'ownersA' | 'ownersB'>, 'id'>;
+
+export type PnTagCreateInput = PnTagCreate & {
+  ownersA?: {
+    create?: PnOwnerNestedCreate | PnOwnerNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+  ownersB?: {
+    create?: PnOwnerNestedCreate | PnOwnerNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type PnTagUpdate = Partial<O.Omit<PnTagInput, 'id' | 'ownersA' | 'ownersB'>>;
+
+export type PnTagUpdateInput = PnTagUpdate & {
+  ownersA?: {
+    create?: PnOwnerNestedCreate | PnOwnerNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+  ownersB?: {
+    create?: PnOwnerNestedCreate | PnOwnerNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type PnTagUnset = {};
+
+export interface PnTagSelectFields {
+  id?: boolean;
+  label?: boolean;
+}
+
+export type PnTagSelect = AtLeastOne<PnTagSelectFields>;
+
+export interface PnTagOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+}
+
+export interface PnTagGroupByKeys {
+  id?: true;
+  label?: true;
+}
+
+export interface PnTagCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+}
+
+export interface PnTagMinMaxAggregate {
+  id?: true;
+  label?: true;
+}
+
+export interface PnTagGroupAggregate {
+  id?: true;
+  label?: true;
+}
+
+export interface PnTagGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+}
+
+export interface PnTagGroupByArgs {
+  by: PnTagGroupByKeys;
+  where?: PnTagWhere;
+  _count?: true | PnTagCountAggregate;
+  _min?: PnTagMinMaxAggregate;
+  _max?: PnTagMinMaxAggregate;
+  _group?: PnTagGroupAggregate;
+  orderBy?: PnTagGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface PnTagGroupByAggregates {
+  _count: { _all: number; id: number; label: number };
+  _min: { id: NonNullable<PnTag['id']> | null; label: NonNullable<PnTag['label']> | null };
+  _max: { id: NonNullable<PnTag['id']> | null; label: NonNullable<PnTag['label']> | null };
+  _group: { id: GroupMember<PnTag['id']>[]; label: GroupMember<PnTag['label']>[] };
+}
+
+export type PnTagGroupByResult<A extends PnTagGroupByArgs> = GroupByRow<PnTag, A, PnTagGroupByAggregates>;
+
+export interface PnTagInclude {
+  ownersA?:
+    | boolean
+    | {
+        select?: PnOwnerSelect;
+        where?: PnOwnerWhere;
+        orderBy?: PnOwnerOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: PnOwnerInclude;
+      };
+  ownersB?:
+    | boolean
+    | {
+        select?: PnOwnerSelect;
+        where?: PnOwnerWhere;
+        orderBy?: PnOwnerOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: PnOwnerInclude;
+      };
+}
+
+export type PnTag$Relations = {
+  ownersA: { type: PnOwner[]; include: PnOwnerInclude };
+  ownersB: { type: PnOwner[]; include: PnOwnerInclude };
+};
+
+export type GetPnTagIncludePayload<I extends PnTagInclude | undefined> = I extends PnTagInclude
+  ? Pick<
+      {
+        ownersA: I['ownersA'] extends true
+          ? PnOwner[]
+          : I['ownersA'] extends { select: infer S extends PnOwnerSelect; include: infer NI extends PnOwnerInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnOwner
+                  ? ResolveFieldSelect<PnOwner[P], S[P]>
+                  : never;
+              } & GetPnOwnerIncludePayload<NI>)[]
+            : I['ownersA'] extends { select: infer S extends PnOwnerSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnOwner
+                    ? ResolveFieldSelect<PnOwner[P], S[P]>
+                    : never;
+                }[]
+              : I['ownersA'] extends { include: infer NI extends PnOwnerInclude }
+                ? (PnOwner & GetPnOwnerIncludePayload<NI>)[]
+                : PnOwner[];
+        ownersB: I['ownersB'] extends true
+          ? PnOwner[]
+          : I['ownersB'] extends { select: infer S extends PnOwnerSelect; include: infer NI extends PnOwnerInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnOwner
+                  ? ResolveFieldSelect<PnOwner[P], S[P]>
+                  : never;
+              } & GetPnOwnerIncludePayload<NI>)[]
+            : I['ownersB'] extends { select: infer S extends PnOwnerSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PnOwner
+                    ? ResolveFieldSelect<PnOwner[P], S[P]>
+                    : never;
+                }[]
+              : I['ownersB'] extends { include: infer NI extends PnOwnerInclude }
+                ? (PnOwner & GetPnOwnerIncludePayload<NI>)[]
+                : PnOwner[];
+      },
+      Extract<keyof I, keyof PnTag$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetPnTagPayload<
+  S extends PnTagSelect | undefined = undefined,
+  I extends PnTagInclude | undefined = undefined,
+> = A.Compute<
+  S extends PnTagSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof PnTag
+          ? ResolveFieldSelect<PnTag[K], S[K]>
+          : never;
+      } & GetPnTagIncludePayload<I>
+    : I extends PnTagInclude
+      ? PnTag & GetPnTagIncludePayload<I>
+      : PnTag,
+  'flat'
+>;
+
+export interface PnTagModel {
+  findOne<
+    S extends PnTagSelect | undefined = undefined,
+    I extends PnTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: PnTagWhere;
+    select?: SelectArg<S, PnTagSelectFields>;
+    include?: IncludeArg<I, PnTagInclude>;
+    compute?: C & { [K in keyof C & (keyof PnTag | keyof PnTagWhere)]?: never };
+    orderBy?: PnTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends PnTagSelect | undefined = undefined,
+    I extends PnTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: PnTagWhere;
+    select?: SelectArg<S, PnTagSelectFields>;
+    compute?: C & { [K in keyof C & (keyof PnTag | keyof PnTagWhere)]?: never };
+    orderBy?: PnTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, PnTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends PnTagSelect | undefined = undefined,
+    I extends PnTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: PnTagFindUniqueWhere;
+    select?: SelectArg<S, PnTagSelectFields>;
+    include?: IncludeArg<I, PnTagInclude>;
+    compute?: C & { [K in keyof C & (keyof PnTag | keyof PnTagWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetPnTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends PnTagSelect | undefined = undefined, I extends PnTagInclude | undefined = undefined>(options: {
+    data: PnTagCreateInput;
+    select?: SelectArg<S, PnTagSelectFields>;
+    include?: IncludeArg<I, PnTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPnTagPayload<S, I>>;
+
+  updateMany<
+    S extends PnTagSelect | undefined = undefined,
+    I extends PnTagInclude | undefined = undefined,
+    D extends PnTagUpdateInput = PnTagUpdateInput,
+  >(options: {
+    where: PnTagWhere;
+    data: DataArg<D, PnTagUpdateInput>;
+    unset?: SafeUnset<PnTagUnset, D>;
+    select?: SelectArg<S, PnTagSelectFields>;
+    include?: IncludeArg<I, PnTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPnTagPayload<S, I>[]>;
+
+  updateUnique<
+    S extends PnTagSelect | undefined = undefined,
+    I extends PnTagInclude | undefined = undefined,
+    D extends PnTagUpdateInput = PnTagUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: PnTagFindUniqueWhere;
+    data: DataArg<D, PnTagUpdateInput>;
+    unset?: SafeUnset<PnTagUnset, D>;
+    select?: SelectArg<S, PnTagSelectFields>;
+    include?: IncludeArg<I, PnTagInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns PnTag | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetPnTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends PnTagSelect | undefined = undefined,
+    I extends PnTagInclude | undefined = undefined,
+    D extends PnTagUpdateInput = PnTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PnTagFindUniqueWhere;
+    create: PnTagCreateInput;
+    update?: DataArg<D, PnTagUpdateInput>;
+    unset?: SafeUnset<PnTagUnset, D>;
+    select?: SelectArg<S, PnTagSelectFields>;
+    include?: IncludeArg<I, PnTagInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetPnTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends PnTagSelect | undefined = undefined,
+    I extends PnTagInclude | undefined = undefined,
+    D extends PnTagUpdateInput = PnTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PnTagWhere;
+    create: PnTagCreateInput;
+    update?: DataArg<D, PnTagUpdateInput>;
+    unset?: SafeUnset<PnTagUnset, D>;
+    select?: SelectArg<S, PnTagSelectFields>;
+    include?: IncludeArg<I, PnTagInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetPnTagPayload<S, I>, R>>;
+
+  deleteMany(options: { where: PnTagWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: PnTagFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns PnTag | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<PnTag, R>>;
+
+  count(where?: PnTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends PnTagGroupByArgs>(
+    args: GroupByArg<A, PnTagGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<PnTagGroupByResult<A>[]>;
+
+  exists(where?: PnTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: PnTagWhere }): Promise<import('cerial').CerialLiveHandle<PnTag>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

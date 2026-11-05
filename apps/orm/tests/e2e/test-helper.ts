@@ -323,6 +323,7 @@ export const tables = {
     'standalone_ref_model',
   ],
   unset: ['unset_test'],
+  placeholderNames: ['pn_owner', 'pn_item', 'pn_tag', 'pn_post'],
   groupBy: ['gb_author', 'gb_tag', 'gb_order', 'gb_label', 'gb_bare'],
 
   // ── Multi-schema runtime (fixtures under tests/fixtures/multi-schema) ──

@@ -31,7 +31,7 @@ describe('nested reverse create keys', () => {
     const { query } = compileCreate(author, { data: { ...authorData, posts: { create: postData } } }, registry);
 
     expect(query.text).toContain('CREATE ONLY post SET');
-    expect(query.text).toContain('title = $rev_0_0_title');
+    expect(query.text).toContain('title = $nested_rev_n_1');
   });
 
   test('an item in a create array is checked too', () => {
@@ -115,16 +115,16 @@ describe('record id text is bound, never interpolated', () => {
   test.each(ids.filter((id) => id))('findUnique binds %j and round-trips it', (id) => {
     const { query } = compileFindUnique(post, { where: { id } }, registry);
 
-    expect(query.text).toContain('FROM ONLY $rid_record_id_0');
+    expect(query.text).toContain('FROM ONLY $record_id_rid_0');
     if (id.length > 2) expect(query.text).not.toContain(id);
-    expect(idOf(query.vars, 'rid_record_id_0')).toBe(id);
+    expect(idOf(query.vars, 'record_id_rid_0')).toBe(id);
   });
 
   test.each(ids.filter((id) => id))('updateUnique binds %j', (id) => {
     const { query } = compileUpdateUnique(post, { where: { id }, data: { title: 'x' } }, registry);
 
-    expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
-    expect(idOf(query.vars, 'rid_record_id_0')).toBe(id);
+    expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
+    expect(idOf(query.vars, 'record_id_rid_0')).toBe(id);
   });
 
   test.each(ids.filter((id) => id))('updateUnique with return before binds %j in the snapshot too', (id) => {
@@ -134,16 +134,16 @@ describe('record id text is bound, never interpolated', () => {
       registry,
     );
 
-    expect(query.text).toContain('FROM $rid_record_id_0');
-    expect(idOf(query.vars, 'rid_record_id_0')).toBe(id);
+    expect(query.text).toContain('FROM $record_id_rid_0');
+    expect(idOf(query.vars, 'record_id_rid_0')).toBe(id);
   });
 
   test.each(ids.filter((id) => id))('deleteUnique binds %j', (id) => {
     const { query } = compileDeleteUnique(post, { where: { id } }, registry);
 
-    expect(query.text).toContain('$rid_record_id_0');
+    expect(query.text).toContain('$record_id_rid_0');
     expect(query.text).not.toContain(id.length > 2 ? id : '\u0000');
-    expect(idOf(query.vars, 'rid_record_id_0')).toBe(id);
+    expect(idOf(query.vars, 'record_id_rid_0')).toBe(id);
   });
 
   test.each(ids.filter((id) => id))('upsert binds %j on every statement that names the record', (id) => {

@@ -253,6 +253,8 @@ export interface NestedWriteOptions {
   returnBefore?: boolean;
   select?: SelectClause;
   include?: IncludeClause;
+  /** Names already issued in the statement this call is a half of, so two halves never reuse a variable */
+  issued?: Set<string>;
 }
 
 /**
@@ -384,8 +386,8 @@ export function buildCreateWithNestedTransaction(
   options: NestedWriteOptions = {},
 ): CompiledQuery {
   const { transactionMode, recordId } = options;
-  const ctx = createCompileContext();
-  const includeCtx = createCompileContext('inc_');
+  const ctx = createCompileContext('', options.issued);
+  const includeCtx = createCompileContext('inc_', ctx.issued);
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
 
@@ -430,6 +432,7 @@ export function buildCreateWithNestedTransaction(
     if (field.isArray && field.relationInfo.fieldRef) {
       const createdVars: string[] = [];
       let connectVarName: string | undefined;
+      let connectName: string | undefined;
 
       // Process create operations
       if (hasCreate) {
@@ -445,9 +448,10 @@ export function buildCreateWithNestedTransaction(
           }
         } else if (Array.isArray(createData)) {
           createData.forEach((item, idx) => {
-            const varName = `$${fieldName}_create${idx}`;
-            const contentVarName = `${varName}_content`;
-            vars[`${fieldName}_create${idx}_content`] = prepareNestedCreateData(
+            const varName = `$${ctx.name('nested_create')}`;
+            const contentName = ctx.name('nested_content');
+            const contentVarName = `$${contentName}`;
+            vars[contentName] = prepareNestedCreateData(
               item as Record<string, unknown>,
               targetModel,
             );
@@ -471,9 +475,10 @@ export function buildCreateWithNestedTransaction(
             });
           }
         } else if (Array.isArray(op.connect)) {
-          connectVarName = `$${fieldName}_connect`;
+          connectName = ctx.name('nested_connect');
+          connectVarName = `$${connectName}`;
           const transformedIds = connectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
-          vars[`${fieldName}_connect`] = transformedIds;
+          vars[connectName] = transformedIds;
         }
       }
 
@@ -506,7 +511,7 @@ export function buildCreateWithNestedTransaction(
               targetModel,
               targetIds: op.connect as RecordIdInput[],
               targetRecordField: bidirectional.targetRecordField,
-              idsVarName: `${fieldName}_connect`,
+              idsVarName: connectName,
             });
           }
         }
@@ -525,9 +530,10 @@ export function buildCreateWithNestedTransaction(
           });
         }
       } else {
-        const varName = `$${fieldName}`;
-        const contentVarName = `${varName}_content`;
-        vars[`${fieldName}_content`] = prepareNestedCreateData(createData as Record<string, unknown>, targetModel);
+        const varName = `$${ctx.name('nested_create')}`;
+        const contentName = ctx.name('nested_content');
+        const contentVarName = `$${contentName}`;
+        vars[contentName] = prepareNestedCreateData(createData as Record<string, unknown>, targetModel);
         statements.push(`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVarName};`);
 
         if (field.relationInfo.fieldRef) {
@@ -610,7 +616,7 @@ export function buildCreateWithNestedTransaction(
   statements.push(`LET $resultId = $result.id;`);
 
   // Handle reverse creates (create nested records that point back to us)
-  reverseCreates.forEach((rc, idx) => {
+  reverseCreates.forEach((rc) => {
     const dataItems = Array.isArray(rc.createData) ? rc.createData : [rc.createData];
     dataItems.forEach((rawItem, itemIdx) => {
       // We need to use SET syntax to include the $resultId reference
@@ -629,7 +635,7 @@ export function buildCreateWithNestedTransaction(
           continue;
         }
 
-        const varName = `rev_${idx}_${itemIdx}_${key}`;
+        const varName = ctx.name('nested_rev');
         vars[varName] = value;
         setFields.push(`${key} = $${varName}`);
       }
@@ -705,8 +711,8 @@ export function buildUpdateWithNestedTransaction(
   options: NestedWriteOptions = {},
 ): CompiledQuery {
   const { transactionMode, returnBefore } = options;
-  const ctx = createCompileContext();
-  const includeCtx = createCompileContext('inc_');
+  const ctx = createCompileContext('', options.issued);
+  const includeCtx = createCompileContext('inc_', ctx.issued);
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
 
@@ -790,7 +796,7 @@ export function buildUpdateWithNestedTransaction(
         const items = Array.isArray(createData) ? createData : [createData];
 
         items.forEach((rawItem, idx) => {
-          const varName = `rev_create_${fieldName}_${idx}`;
+          const varName = ctx.name('nested_rev_create');
           const item = prepareNestedCreateData(rawItem, targetModel);
           // Filter out undefined and null record fields
           const itemContent: Record<string, unknown> = {};
@@ -838,9 +844,10 @@ export function buildUpdateWithNestedTransaction(
         // Create multiple records
         const createdVars: string[] = [];
         createData.forEach((item, idx) => {
-          const varName = `$${fieldName}${idx}`;
-          const contentVarName = `${varName}_content`;
-          vars[`${fieldName}${idx}_content`] = prepareNestedCreateData(item, targetModel);
+          const varName = `$${ctx.name('nested_create')}`;
+          const contentName = ctx.name('nested_content');
+          const contentVarName = `$${contentName}`;
+          vars[contentName] = prepareNestedCreateData(item, targetModel);
           // CREATE ONLY returns { id: ... }, access .id to get the RecordId
           statements.push(guardedCreate(varName, targetModel.tableName, contentVarName));
           createdVars.push(`${varName}.id`);
@@ -864,9 +871,10 @@ export function buildUpdateWithNestedTransaction(
         }
       } else {
         // Single create
-        const varName = `$${fieldName}`;
-        const contentVarName = `${varName}_content`;
-        vars[`${fieldName}_content`] = prepareNestedCreateData(createData, targetModel);
+        const varName = `$${ctx.name('nested_create')}`;
+        const contentName = ctx.name('nested_content');
+        const contentVarName = `$${contentName}`;
+        vars[contentName] = prepareNestedCreateData(createData, targetModel);
         // CREATE ONLY returns { id: ... }, access .id to get the RecordId
         statements.push(guardedCreate(varName, targetModel.tableName, contentVarName));
 
@@ -882,9 +890,10 @@ export function buildUpdateWithNestedTransaction(
 
       if (isNestedConnect(op)) {
         const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
-        const varName = `$${fieldName}_connect`;
+        const connectName = ctx.name('nested_connect');
+        const varName = `$${connectName}`;
         const transformedIds = connectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
-        vars[`${fieldName}_connect`] = transformedIds;
+        vars[connectName] = transformedIds;
 
         if (isArrayField) {
           // Array connect - add to array using var
@@ -910,12 +919,13 @@ export function buildUpdateWithNestedTransaction(
           // Array disconnect - remove from array
           const disconnectIds = Array.isArray(op.disconnect) ? op.disconnect : [];
           if (disconnectIds.length) {
-            const varName = `$${fieldName}_disconnect`;
+            const disconnectName = ctx.name('nested_disconnect');
+            const varName = `$${disconnectName}`;
             // Transform disconnect IDs to RecordId objects
             const transformedIds = disconnectIds.map((id) =>
               transformOrValidateRecordId(targetModel.tableName, id as string),
             );
-            vars[`${fieldName}_disconnect`] = transformedIds;
+            vars[disconnectName] = transformedIds;
             fieldUpdates.push(`${recordFieldName} -= ${varName}`);
 
             // Check for bidirectional n-n
@@ -943,7 +953,8 @@ export function buildUpdateWithNestedTransaction(
         // Set operation - replace all array contents
         if (isArrayField) {
           const setIds = op.set;
-          const varName = `$${fieldName}_set`;
+          const setName = ctx.name('nested_set');
+          const varName = `$${setName}`;
 
           if (setIds.length === 0) {
             // Empty set - clear the array
@@ -951,7 +962,7 @@ export function buildUpdateWithNestedTransaction(
           } else {
             // Transform set IDs to RecordId objects
             const transformedIds = setIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
-            vars[`${fieldName}_set`] = transformedIds;
+            vars[setName] = transformedIds;
             fieldUpdates.push(`${recordFieldName} = ${varName}`);
           }
 

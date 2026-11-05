@@ -2042,6 +2042,34 @@ export const manifest = deepFreeze({
     },
     { name: 'gb_bare', fields: [], indexes: [] },
     {
+      name: 'pn_owner',
+      fields: [
+        { path: ['title'], kind: 'string' },
+        { path: ['inc_title'], kind: 'string' },
+        { path: ['rev_create_posts'], kind: 'none | string' },
+        { path: ['tagIds'], kind: 'array<record<pn_tag>>', value: 'IF $value THEN $value.distinct() ELSE [] END' },
+        { path: ['tag0Id'], kind: 'none | record<pn_tag>' },
+      ],
+      indexes: [],
+    },
+    {
+      name: 'pn_item',
+      fields: [
+        { path: ['title'], kind: 'string' },
+        { path: ['ownerId'], kind: 'record<pn_owner>' },
+      ],
+      indexes: [],
+    },
+    { name: 'pn_tag', fields: [{ path: ['label'], kind: 'string' }], indexes: [] },
+    {
+      name: 'pn_post',
+      fields: [
+        { path: ['body'], kind: 'string' },
+        { path: ['ownerId'], kind: 'none | record<pn_owner>' },
+      ],
+      indexes: [],
+    },
+    {
       name: 'int_id_model',
       fields: [
         { path: ['id'], kind: 'int' },

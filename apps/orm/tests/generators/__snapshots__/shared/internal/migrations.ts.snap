@@ -198,6 +198,10 @@ export type ModelName =
   | 'GbOrder'
   | 'GbLabel'
   | 'GbBare'
+  | 'PnOwner'
+  | 'PnItem'
+  | 'PnTag'
+  | 'PnPost'
   | 'IntIdModel'
   | 'NumberIdModel'
   | 'StringIdModel'
@@ -439,6 +443,10 @@ export const modelNames = [
   'GbOrder',
   'GbLabel',
   'GbBare',
+  'PnOwner',
+  'PnItem',
+  'PnTag',
+  'PnPost',
   'IntIdModel',
   'NumberIdModel',
   'StringIdModel',
@@ -690,6 +698,10 @@ export const modelFingerprints: Record<ModelName, string> = {
   GbOrder: 'f1aeb0bbdb75d2cf228f153b2dd58c3ee65bfc6cf9e1d91d5b324536c038e773',
   GbLabel: '04d339c27a26a8b215bec59074114acf2244717f99262e87ad64a983f6e80882',
   GbBare: 'fd0e8ae2f8338b8191152defc442db971486bb674fbc8d83fba3cb89e2ef4b69',
+  PnOwner: 'd25bc1eb646aa3b18261eeb513c503dadd8ab9546b2debef513cd5d9d52f0094',
+  PnItem: 'fef15d804c8394d70e5bc8f5886623486acab7311ae6635046d795c80ebaf87e',
+  PnTag: '20b17ef8f0fa1878961e9dfd3f14b29139dc628d78b61dc62e151f0410e3a888',
+  PnPost: '0651e5c92d150e632766af70b381a09e0b69f9e21d62d1db51a65519aed56f0c',
   IntIdModel: '3a91b01b58181be3b258639a2afd8d25993dffcfcba2070c550b3c6124657980',
   NumberIdModel: 'ec2880bacb07b0b9a5bfb97e28831c2eeadbd38bbe00b1ec4f695415e5fa53a1',
   StringIdModel: 'd47e421297e0065143ec96d7291ba208d98984fc7c8e84e6897c84de4b173a05',
@@ -744,7 +756,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = '699bd595c85c33219ebfb9c6b18a36e011d1f60cd13f2e592f6b18329154be49';
+export const wholeSchemaFingerprint = 'b072e0120b9e69fa3f53b78c0524590c3f0beedb7f3591969f8d61961a282e0f';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

@@ -151,8 +151,8 @@ describe('compute compilation', () => {
   test('binds values under the include prefix, nested fragments included', () => {
     const { text, vars } = findMany({ compute: { score: sql`vector::x(${[1, 2]}, ${sql`${3}`})` } });
 
-    expect(text).toContain('vector::x($inc_raw_param_0, $inc_raw_param_1) AS `score`');
-    expect(vars).toEqual({ inc_raw_param_0: [1, 2], inc_raw_param_1: 3 });
+    expect(text).toContain('vector::x($raw_param_inc_0, $raw_param_inc_1) AS `score`');
+    expect(vars).toEqual({ raw_param_inc_0: [1, 2], raw_param_inc_1: 3 });
   });
 
   test('counters do not collide with an include where or a $raw filter', () => {
@@ -162,10 +162,10 @@ describe('compute compilation', () => {
       include: { author: { where: { $raw: sql`b = ${3}` } } },
     });
 
-    expect(Object.keys(vars).sort()).toEqual(['inc_raw_param_0', 'inc_raw_param_1', 'raw_param_0']);
+    expect(Object.keys(vars).sort()).toEqual(['raw_param_0', 'raw_param_inc_0', 'raw_param_inc_1']);
     expect(vars.raw_param_0).toBe(1);
-    expect(vars.inc_raw_param_0).toBe(2);
-    expect(text).toContain('$inc_raw_param_0 AS `score`');
+    expect(vars.raw_param_inc_0).toBe(2);
+    expect(text).toContain('$raw_param_inc_0 AS `score`');
   });
 
   test('findOne and findMany both carry it, findOne with its own limit', () => {
@@ -183,9 +183,9 @@ describe('compute compilation', () => {
       registry,
     );
 
-    expect(query.text).toContain('$inc_raw_param_0 AS `score`');
+    expect(query.text).toContain('$raw_param_inc_0 AS `score`');
     expect(query.text).toContain('FROM ONLY');
-    expect(query.vars.inc_raw_param_0).toBe(5);
+    expect(query.vars.raw_param_inc_0).toBe(5);
   });
 
   test('findUnique by a composite unique key keeps compute and its bindings', () => {
@@ -195,9 +195,9 @@ describe('compute compilation', () => {
       uniqueRegistry,
     );
 
-    expect(query.text).toContain('$inc_raw_param_0 AS `score`');
+    expect(query.text).toContain('$raw_param_inc_0 AS `score`');
     expect(query.text).toContain('FROM ONLY post');
-    expect(query.vars.inc_raw_param_0).toBe(5);
+    expect(query.vars.raw_param_inc_0).toBe(5);
   });
 });
 

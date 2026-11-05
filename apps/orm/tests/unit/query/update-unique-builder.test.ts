@@ -50,7 +50,7 @@ describe('update-unique-builder', () => {
       const data = { name: 'John' };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('SET name = $name_set_0');
       expect(query.text).toContain('RETURN *');
       expect(query.vars.name_set_0).toBe('John');
@@ -61,7 +61,7 @@ describe('update-unique-builder', () => {
       const data = { name: 'John' };
       const query = buildUpdateUniqueQuery(userModel, where, data, 'before');
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('SET name = $name_set_0');
       expect(query.text).toContain('RETURN BEFORE');
     });
@@ -71,7 +71,7 @@ describe('update-unique-builder', () => {
       const data = { name: 'John' };
       const query = buildUpdateUniqueQuery(userModel, where, data, true);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('SET name = $name_set_0');
       expect(query.text).not.toContain('RETURN');
     });
@@ -82,7 +82,7 @@ describe('update-unique-builder', () => {
       const select = { id: true, name: true };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined, select);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('RETURN id, name');
     });
 
@@ -101,8 +101,8 @@ describe('update-unique-builder', () => {
       const data = { name: 'John' };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
-      expect((query.vars.rid_record_id_0 as RecordId).id).toBe('user-with-dashes');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
+      expect((query.vars.record_id_rid_0 as RecordId).id).toBe('user-with-dashes');
     });
   });
 
@@ -116,7 +116,7 @@ describe('update-unique-builder', () => {
       const data = { name: 'John' };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('SET name = $name_set_0');
       expect(query.text).toContain('WHERE email = $email_eq_0');
       expect(query.vars.email_eq_0).toBe('test@example.com');
@@ -127,7 +127,7 @@ describe('update-unique-builder', () => {
       const data = { name: 'NewName' };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('WHERE name = $name_eq_0');
       expect(query.vars.name_eq_0).toBe('ExistingName');
     });
@@ -137,7 +137,7 @@ describe('update-unique-builder', () => {
       const data = { age: 25 };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('SET age = $age_set_0');
       expect(query.text).toMatch(/WHERE.*email.*AND.*name|WHERE.*name.*AND.*email/);
     });
@@ -192,7 +192,7 @@ describe('update-unique-builder', () => {
       const include = { profile: true };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined, undefined, include, registry);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('RETURN *, profileId.* AS profile');
     });
 
@@ -203,7 +203,7 @@ describe('update-unique-builder', () => {
       const include = { profile: true };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined, select, include, registry);
 
-      expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_rid_0');
       expect(query.text).toContain('RETURN id, name, profileId.* AS profile');
     });
 
@@ -215,8 +215,8 @@ describe('update-unique-builder', () => {
 
       expect(query.text.split('\n')).toEqual([
         'BEGIN TRANSACTION;',
-        'LET $before = (SELECT *, profileId.* AS profile FROM $rid_record_id_0);',
-        'UPDATE ONLY $rid_record_id_0 SET name = $name_set_0 RETURN NONE;',
+        'LET $before = (SELECT *, profileId.* AS profile FROM $record_id_rid_0);',
+        'UPDATE ONLY $record_id_rid_0 SET name = $name_set_0 RETURN NONE;',
         'COMMIT TRANSACTION;',
         'RETURN $before;',
       ]);
@@ -225,7 +225,7 @@ describe('update-unique-builder', () => {
     test('reads the row through the select for RETURN BEFORE mode', () => {
       const query = buildUpdateUniqueQuery(userModel, { id: 'abc123' }, { name: 'John' }, 'before', { name: true });
 
-      expect(query.text).toContain('LET $before = (SELECT name FROM $rid_record_id_0);');
+      expect(query.text).toContain('LET $before = (SELECT name FROM $record_id_rid_0);');
       expect(query.text).not.toContain('RETURN BEFORE');
     });
 

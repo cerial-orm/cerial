@@ -1,0 +1,36 @@
+# Placeholder and variable name collision schema. `inc_title` makes a main where bind the name an include
+# where on `title` gets; `tags` beside `tags0`, and `posts_set` beside `rev_create_posts`, are pairs whose
+# nested-write variables used to be built from the same text.
+model PnOwner {
+  id Record @id
+  title String
+  inc_title String
+  rev_create_posts String?
+  items Relation[] @model(PnItem)
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(PnTag) @key(a)
+  tag0Id Record?
+  tags0 Relation? @field(tag0Id) @model(PnTag) @key(b)
+  posts_set Relation[] @model(PnPost)
+}
+
+model PnItem {
+  id Record @id
+  title String
+  ownerId Record
+  owner Relation @field(ownerId) @model(PnOwner)
+}
+
+model PnTag {
+  id Record @id
+  label String
+  ownersA Relation[] @model(PnOwner) @key(a)
+  ownersB Relation[] @model(PnOwner) @key(b)
+}
+
+model PnPost {
+  id Record @id
+  body String
+  ownerId Record?
+  owner Relation? @field(ownerId) @model(PnOwner)
+}

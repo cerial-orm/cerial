@@ -183,7 +183,7 @@ describe('nested-builder', () => {
       expect(query.text).toContain('CREATE ONLY profile');
       expect(query.text).toContain('CREATE ONLY user');
       expect(query.text).toContain('COMMIT TRANSACTION');
-      expect(query.vars).toHaveProperty('profile_content');
+      expect(query.vars).toHaveProperty('nested_content_n_1');
     });
 
     test('generates transaction for single nested connect', () => {
@@ -216,8 +216,8 @@ describe('nested-builder', () => {
         'LET $target_missing = [(SELECT VALUE id FROM ONLY $validate_0_0), (SELECT VALUE id FROM ONLY $validate_0_1)].find_index(NONE);',
       );
       // Uses parameterized variable for tag IDs
-      expect(query.text).toContain('tagIds = $tags_connect');
-      expect(query.vars).toHaveProperty('tags_connect');
+      expect(query.text).toContain('tagIds = $nested_connect_n_0');
+      expect(query.vars).toHaveProperty('nested_connect_n_0');
       // Should include bidirectional sync updates via parameterized vars
       expect(query.text).toContain('UPDATE $sync_0_0 SET userIds += $resultId');
       expect(query.text).toContain('UPDATE $sync_0_1 SET userIds += $resultId');
@@ -234,9 +234,9 @@ describe('nested-builder', () => {
       const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry);
 
       expect(query.text).toContain('BEGIN TRANSACTION');
-      // Uses parameterized variable: $profile_connect[0] for single connect
-      expect(query.text).toContain('UPDATE user SET profileId = $profile_connect[0]');
-      expect(query.vars).toHaveProperty('profile_connect');
+      // Uses parameterized variable: $nested_connect_n_0[0] for single connect
+      expect(query.text).toContain('UPDATE user SET profileId = $nested_connect_n_0[0]');
+      expect(query.vars).toHaveProperty('nested_connect_n_0');
       expect(query.text).toContain('COMMIT TRANSACTION');
     });
 
@@ -262,8 +262,8 @@ describe('nested-builder', () => {
 
       expect(query.text).toContain('BEGIN TRANSACTION');
       // Uses parameterized variable for tag IDs
-      expect(query.text).toContain('tagIds += $tags_connect');
-      expect(query.vars).toHaveProperty('tags_connect');
+      expect(query.text).toContain('tagIds += $nested_connect_n_0');
+      expect(query.vars).toHaveProperty('nested_connect_n_0');
       // Bidirectional sync using WHERE id INSIDE for batch updates
       expect(query.text).toContain('UPDATE tag SET userIds += $result[0].id WHERE id INSIDE $sync_connect_ids_0');
       expect(query.text).toContain('COMMIT TRANSACTION');
@@ -278,8 +278,8 @@ describe('nested-builder', () => {
 
       expect(query.text).toContain('BEGIN TRANSACTION');
       // Uses parameterized variable for tag IDs
-      expect(query.text).toContain('tagIds -= $tags_disconnect');
-      expect(query.vars).toHaveProperty('tags_disconnect');
+      expect(query.text).toContain('tagIds -= $nested_disconnect_n_0');
+      expect(query.vars).toHaveProperty('nested_disconnect_n_0');
       // Bidirectional sync using WHERE id INSIDE for batch updates
       expect(query.text).toContain('UPDATE tag SET userIds -= $result[0].id WHERE id INSIDE $sync_disconnect_ids_0');
       expect(query.text).toContain('COMMIT TRANSACTION');
@@ -332,7 +332,7 @@ describe('nested-builder', () => {
         expect(query.text).toContain('CREATE ONLY user');
         expect(query.text).toContain('LET $resultId = $result.id;');
         expect(query.text).toContain('RETURN $result;');
-        expect(query.vars).toHaveProperty('profile_content');
+        expect(query.vars).toHaveProperty('nested_content_n_1');
       });
 
       test('transactionMode=true preserves array connect with bidirectional sync', () => {
@@ -363,9 +363,9 @@ describe('nested-builder', () => {
 
         expect(query.text).not.toContain('BEGIN TRANSACTION');
         expect(query.text).not.toContain('COMMIT TRANSACTION');
-        expect(query.text).toContain('UPDATE user SET profileId = $profile_connect[0]');
+        expect(query.text).toContain('UPDATE user SET profileId = $nested_connect_n_0[0]');
         expect(query.text).toContain('RETURN $result;');
-        expect(query.vars).toHaveProperty('profile_connect');
+        expect(query.vars).toHaveProperty('nested_connect_n_0');
       });
 
       test('transactionMode=true preserves disconnect operations', () => {
@@ -394,7 +394,7 @@ describe('nested-builder', () => {
 
         expect(query.text).not.toContain('BEGIN TRANSACTION');
         expect(query.text).not.toContain('COMMIT TRANSACTION');
-        expect(query.text).toContain('tagIds += $tags_connect');
+        expect(query.text).toContain('tagIds += $nested_connect_n_0');
         expect(query.text).toContain('UPDATE tag SET userIds += $result[0].id WHERE id INSIDE $sync_connect_ids_0');
         expect(query.text).toContain('RETURN $result;');
       });

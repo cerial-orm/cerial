@@ -48,8 +48,8 @@ describe('compileFragment', () => {
     const first = compileFragment(sql`a = ${1}`, ctx);
     const second = compileFragment(sql`b = ${2}`, ctx);
 
-    expect(first.vars).toEqual({ inc_raw_param_0: 1 });
-    expect(second.vars).toEqual({ inc_raw_param_1: 2 });
+    expect(first.vars).toEqual({ raw_param_inc_0: 1 });
+    expect(second.vars).toEqual({ raw_param_inc_1: 2 });
   });
 
   test('refuses a value that is not a fragment', () => {
@@ -126,7 +126,7 @@ describe('compileFragment: bound names cannot collide with generated names', () 
     const include = compileFragment(sql`a = ${1}`, createCompileContext('inc_')).vars;
 
     expect(Object.keys(where)).toEqual(['raw_param_0']);
-    expect(Object.keys(include)).toEqual(['inc_raw_param_0']);
+    expect(Object.keys(include)).toEqual(['raw_param_inc_0']);
   });
 
   test('a field named raw_param cannot produce raw_param_0', () => {

@@ -1,0 +1,21 @@
+-- PnItem
+DEFINE TABLE OVERWRITE pn_item SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE pn_item TYPE string;
+DEFINE FIELD OVERWRITE ownerId ON TABLE pn_item TYPE record<pn_owner>;
+
+-- PnOwner
+DEFINE TABLE OVERWRITE pn_owner SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE pn_owner TYPE string;
+DEFINE FIELD OVERWRITE inc_title ON TABLE pn_owner TYPE string;
+DEFINE FIELD OVERWRITE rev_create_posts ON TABLE pn_owner TYPE option<string>;
+DEFINE FIELD OVERWRITE tagIds ON TABLE pn_owner TYPE array<record<pn_tag>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE FIELD OVERWRITE tag0Id ON TABLE pn_owner TYPE option<record<pn_tag>>;
+
+-- PnPost
+DEFINE TABLE OVERWRITE pn_post SCHEMAFULL;
+DEFINE FIELD OVERWRITE body ON TABLE pn_post TYPE string;
+DEFINE FIELD OVERWRITE ownerId ON TABLE pn_post TYPE option<record<pn_owner>>;
+
+-- PnTag
+DEFINE TABLE OVERWRITE pn_tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE label ON TABLE pn_tag TYPE string;

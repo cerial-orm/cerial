@@ -246,6 +246,10 @@ import type {
   GbOrder,
   GbLabel,
   GbBare,
+  PnOwner,
+  PnItem,
+  PnTag,
+  PnPost,
   IntIdModel,
   NumberIdModel,
   StringIdModel,
@@ -484,6 +488,10 @@ import type {
   GbOrderModel,
   GbLabelModel,
   GbBareModel,
+  PnOwnerModel,
+  PnItemModel,
+  PnTagModel,
+  PnPostModel,
   IntIdModelModel,
   NumberIdModelModel,
   StringIdModelModel,
@@ -730,6 +738,10 @@ export interface TypedDb {
   GbOrder: GbOrderModel;
   GbLabel: GbLabelModel;
   GbBare: GbBareModel;
+  PnOwner: PnOwnerModel;
+  PnItem: PnItemModel;
+  PnTag: PnTagModel;
+  PnPost: PnPostModel;
   IntIdModel: IntIdModelModel;
   NumberIdModel: NumberIdModelModel;
   StringIdModel: StringIdModelModel;
@@ -1667,6 +1679,22 @@ export class CerialClient {
 
   get GbBare(): GbBareModel {
     return this._ensureDb().GbBare;
+  }
+
+  get PnOwner(): PnOwnerModel {
+    return this._ensureDb().PnOwner;
+  }
+
+  get PnItem(): PnItemModel {
+    return this._ensureDb().PnItem;
+  }
+
+  get PnTag(): PnTagModel {
+    return this._ensureDb().PnTag;
+  }
+
+  get PnPost(): PnPostModel {
+    return this._ensureDb().PnPost;
   }
 
   get IntIdModel(): IntIdModelModel {

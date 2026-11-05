@@ -225,7 +225,7 @@ export function buildUpsertWhereQuery(
   const whereClause = transformDestructiveWhere(where, model, 'upsert', registry);
 
   // Build RETURN clause
-  const includeCtx = createCompileContext('inc_');
+  const includeCtx = createCompileContext('inc_', ctx.issued);
   const snapshot = needsBeforeSnapshot(returnOption, select, include);
   const returnClause = snapshot
     ? 'RETURN NONE'

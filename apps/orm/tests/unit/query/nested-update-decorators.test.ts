@@ -55,7 +55,7 @@ describe('nested update: @defaultAlways', () => {
 
     expect(clause).toContain('note = NONE');
     expect(clause).toContain('flagged = NONE');
-    expect(clause).toContain('ownerId = $owner_connect[0]');
+    expect(clause).toContain('ownerId = $nested_connect_n_0[0]');
     for (const field of ['note', 'flagged']) expect(plain({ title: 't' })).toContain(`${field} = NONE`);
   });
 
@@ -108,6 +108,6 @@ describe('nested update: @now', () => {
     const clause = nested({ title: 't', seenAt: new Date('2020-01-01') });
 
     expect(clause).toMatch(/title = \$\w+/);
-    expect(clause).toContain('ownerId = $owner_connect[0]');
+    expect(clause).toContain('ownerId = $nested_connect_n_0[0]');
   });
 });

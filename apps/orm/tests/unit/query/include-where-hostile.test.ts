@@ -58,7 +58,7 @@ const expectBoundOnly = (compiled: Compiled, payload: string): void => {
   expect(compiled.text).not.toMatch(/['"`;]|\/\*|--/);
   expect(JSON.stringify(compiled.vars)).toContain(JSON.stringify(payload));
   for (const placeholder of compiled.text.match(/\$[^\s,)]*/g) ?? [])
-    expect(placeholder).toMatch(/^\$(parent|inc_[A-Za-z0-9_]+)(\.[A-Za-z]+)?$/);
+    expect(placeholder).toMatch(/^\$(parent|[A-Za-z0-9_]+_inc_[0-9]+)(\.[A-Za-z]+)?$/);
 };
 
 describe.each(PAYLOADS)('payload %j', (payload) => {
@@ -126,7 +126,7 @@ describe.each(PAYLOADS)('payload %j', (payload) => {
         authors: { where: { name: 'outer' }, include: { posts: { where: { title: payload } } } },
       });
       expectBoundOnly(compiled, payload);
-      expect(compiled.vars).toMatchObject({ inc_name_eq_1: 'outer' });
+      expect(compiled.vars).toMatchObject({ name_eq_inc_1: 'outer' });
       expect(Object.keys(compiled.vars)).toHaveLength(2);
     });
   });
@@ -223,7 +223,7 @@ describe('an object pretending to be an operator', () => {
       const compiled = posts({ address: { city: { [operator]: 'x' } } });
       expect(compiled.text).not.toContain(operator);
       expect(compiled.text).not.toMatch(/['"`;]|\/\*|--/);
-      expect(compiled.vars).toEqual({ inc_address_city_eq_0: { [operator]: 'x' } });
+      expect(compiled.vars).toEqual({ address_city_eq_inc_0: { [operator]: 'x' } });
     }
   });
 
@@ -247,20 +247,20 @@ describe('an operator with the wrong operand type', () => {
   // The operand is bound, never interpolated, so SurrealDB rejects the type at run time.
   test('a string where in takes an array is bound, not written into the text', () => {
     const compiled = posts({ title: { in: "x' OR '1'='1" } });
-    expect(compiled.text).toContain('title IN $inc_title_in_0');
+    expect(compiled.text).toContain('title IN $title_in_inc_0');
     expectBoundOnly(compiled, "x' OR '1'='1");
   });
 
   test('an object operand is bound as a variable', () => {
     const compiled = posts({ title: { gt: { "a'; DROP": 1 } } });
     expect(compiled.text).not.toContain('DROP');
-    expect(compiled.vars).toEqual({ inc_title_gt_0: { "a'; DROP": 1 } });
+    expect(compiled.vars).toEqual({ title_gt_inc_0: { "a'; DROP": 1 } });
   });
 
   test('an array operand to a scalar operator is bound as a variable', () => {
     const compiled = posts({ title: { contains: ["x'", '`'] } });
     expect(compiled.text).not.toMatch(/['"`;]/);
-    expect(compiled.vars).toEqual({ inc_title_contains_0: ["x'", '`'] });
+    expect(compiled.vars).toEqual({ title_contains_inc_0: ["x'", '`'] });
   });
 });
 
