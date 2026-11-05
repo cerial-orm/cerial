@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { buildFindManyQuery } from '../../../src/query/builders';
+import { buildFindManyQueryUnchecked as buildFindManyQuery } from '../../../src/query/builders';
 import { getOperatorHandler, getRegisteredOperators, isRegisteredOperator } from '../../../src/query/filters/registry';
 import { validateWhere } from '../../../src/query/validators/where-validator';
 import { post, registry } from './relation-order-by-helpers';

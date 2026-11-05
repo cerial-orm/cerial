@@ -3,9 +3,7 @@
  */
 
 // Array operators
-export { handleIn, handleNotIn } from './array-operators';
 // Comparison operators
-export { handleEq, handleGt, handleGte, handleLt, handleLte, handleNeq } from './comparison-operators';
 // Condition builder
 export { buildConditions, buildDirectCondition, buildFieldCondition, isOperatorObject } from './condition-builder';
 
@@ -20,10 +18,27 @@ export {
 } from './nested-condition-builder';
 export type { OperatorHandler } from './registry';
 // Registry
-export { getOperatorHandler, getRegisteredOperators, isRegisteredOperator, registerOperator } from './registry';
+export { getRegisteredOperators, isRegisteredOperator, registerOperator } from './registry';
 // Special operators
-export { handleBetween, handleIsDefined, handleIsNotDefined, handleIsNotNull, handleIsNull } from './special-operators';
 // String operators
-export { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
 // Transformer
 export { transformDestructiveWhere, transformWhere, transformWhereClause } from './transformer';
+export {
+  handleInChecked as handleIn,
+  handleNotInChecked as handleNotIn,
+  handleEqChecked as handleEq,
+  handleGtChecked as handleGt,
+  handleGteChecked as handleGte,
+  handleLtChecked as handleLt,
+  handleLteChecked as handleLte,
+  handleNeqChecked as handleNeq,
+  handleBetweenChecked as handleBetween,
+  handleIsDefinedChecked as handleIsDefined,
+  handleIsNotDefinedChecked as handleIsNotDefined,
+  handleIsNotNullChecked as handleIsNotNull,
+  handleIsNullChecked as handleIsNull,
+  handleContainsChecked as handleContains,
+  handleEndsWithChecked as handleEndsWith,
+  handleStartsWithChecked as handleStartsWith,
+  getOperatorHandlerChecked as getOperatorHandler,
+} from './checked';

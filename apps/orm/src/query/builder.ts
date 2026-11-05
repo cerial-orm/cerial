@@ -27,19 +27,19 @@ import type {
 } from '../types';
 import {
   buildCountQuery,
-  buildCreateQuery,
+  buildCreateQueryUnchecked,
   buildCreateWithNestedTransaction,
-  buildDeleteQuery,
-  buildDeleteQueryWithReturn,
+  buildDeleteQueryUnchecked,
+  buildDeleteQueryWithReturnUnchecked,
   buildDeleteUniqueQuery,
   buildDeleteUniqueWithCascade,
   buildDeleteWithCascade,
-  buildFindManyQuery,
-  buildFindOneQuery,
+  buildFindManyQueryUnchecked,
+  buildFindOneQueryUnchecked,
   buildFindUniqueQuery,
   buildGroupByQuery,
   buildSelectFields,
-  buildUpdateManyQuery,
+  buildUpdateManyQueryUnchecked,
   buildUpdateUniqueQuery,
   buildUpdateWithNestedTransaction,
   buildUpsertQuery,
@@ -63,13 +63,10 @@ import { transformWhereClause } from './filters';
 import { groupByRowShape, mapGroupByRows, mapResult, mapSingleResult } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import {
+  assertValidReadOptions,
   validateCreateData,
-  validateCompute,
   validateDataUnsetOverlap,
   validateGroupBy,
-  validateOrderBy,
-  validatePagination,
-  validateSelect,
   validateUnset,
   validateUpdateData,
   refuseFragmentInValue,
@@ -77,54 +74,6 @@ import {
   validationFailure,
   type GroupByArgs,
 } from './validators';
-
-/**
- * Options a find method's type omits. The builders would read them anyway (findOne forces its own limit
- * but still honours an offset; findUnique validates an orderBy it never emits), so a JavaScript or
- * dynamic caller is told rather than silently ignored.
- */
-const UNSUPPORTED_READ_OPTIONS: Record<string, readonly ('orderBy' | 'limit' | 'offset')[]> = {
-  findOne: ['limit', 'offset'],
-  findUnique: ['orderBy', 'limit', 'offset'],
-};
-
-/** Throw on select/orderBy/limit/offset values the model cannot honour, so a typo is not silently dropped. */
-function assertValidReadOptions(
-  model: ModelMetadata,
-  operation: string,
-  options: { select?: object; orderBy?: object; limit?: number; offset?: number; compute?: unknown },
-  registry?: ModelRegistry,
-): void {
-  for (const option of UNSUPPORTED_READ_OPTIONS[operation] ?? []) {
-    if (options[option] === undefined) continue;
-
-    throw validationFailure(
-      option,
-      [{ message: `${operation} does not accept ${option}`, field: option }],
-      model,
-      operation,
-    );
-  }
-
-  const checks = [
-    ['select', validateSelect(options.select, model)],
-    ['compute', validateCompute(options.compute, model)],
-    [
-      'orderBy',
-      validateOrderBy(
-        options.orderBy,
-        model,
-        registry,
-        isObject(options.compute) ? Object.keys(options.compute) : undefined,
-      ),
-    ],
-    ['limit/offset', validatePagination(options.limit, options.offset)],
-  ] as const;
-
-  for (const [context, errors] of checks) {
-    if (errors.length) throw validationFailure(context, errors, model, operation);
-  }
-}
 
 /** Extended find options with include support */
 export interface FindOneOptionsWithInclude extends FindOneOptions {
@@ -181,7 +130,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const validation = validateWhere(options.where, this.model, this.registry);
     if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'findOne');
 
-    const query = buildFindOneQuery(this.model, options as FindOptionsWithInclude, this.registry);
+    const query = buildFindOneQueryUnchecked(this.model, options as FindOptionsWithInclude, this.registry);
     const result = await executeQuerySingle(this.db, query);
 
     return mapSingleResult<T>(result, this.model, options.select);
@@ -212,7 +161,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const validation = validateWhere(options.where, this.model, this.registry);
     if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'findMany');
 
-    const query = buildFindManyQuery(this.model, options as FindOptionsWithInclude, this.registry);
+    const query = buildFindManyQueryUnchecked(this.model, options as FindOptionsWithInclude, this.registry);
     const result = await executeQuery(this.db, query);
 
     return mapResult<T>(result, this.model, options.select);
@@ -249,7 +198,13 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // Simple create without nested operations
-    const query = buildCreateQuery(this.model, transformedData, select, include as IncludeClause, this.registry);
+    const query = buildCreateQueryUnchecked(
+      this.model,
+      transformedData,
+      select,
+      include as IncludeClause,
+      this.registry,
+    );
     const result = await executeQuerySingle(this.db, query);
 
     return mapSingleResult<T>(result, this.model, select);
@@ -303,7 +258,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // Simple update without nested operations
-    const query = buildUpdateManyQuery(
+    const query = buildUpdateManyQueryUnchecked(
       this.model,
       where,
       transformedData,
@@ -449,7 +404,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // Simple delete without cascade
-    const query = buildDeleteQueryWithReturn(this.model, where, this.registry);
+    const query = buildDeleteQueryWithReturnUnchecked(this.model, where, this.registry);
     const result = await executeQuery(this.db, query);
 
     return Array.isArray(result) ? result.length : 0;
@@ -494,8 +449,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     } else {
       // Non-ID lookup without cascade - use simple WHERE-based delete
       const query = needsReturnBefore
-        ? buildDeleteQueryWithReturn(this.model, expandedWhere, this.registry, 'deleteUnique')
-        : buildDeleteQuery(this.model, expandedWhere, this.registry, 'deleteUnique');
+        ? buildDeleteQueryWithReturnUnchecked(this.model, expandedWhere, this.registry, 'deleteUnique')
+        : buildDeleteQueryUnchecked(this.model, expandedWhere, this.registry, 'deleteUnique');
       result = (await executeQuery(this.db, query)) as unknown[];
     }
 
@@ -812,7 +767,7 @@ export function compileFindOne(
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'findOne');
 
   return {
-    query: buildFindOneQuery(model, options as FindOptionsWithInclude, registry),
+    query: buildFindOneQueryUnchecked(model, options as FindOptionsWithInclude, registry),
     resultType: 'single',
   };
 }
@@ -844,7 +799,7 @@ export function compileFindMany(
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'findMany');
 
   return {
-    query: buildFindManyQuery(model, options as FindOptionsWithInclude, registry),
+    query: buildFindManyQueryUnchecked(model, options as FindOptionsWithInclude, registry),
     resultType: 'array',
   };
 }
@@ -875,7 +830,7 @@ export function compileCreate(
   }
 
   return {
-    query: buildCreateQuery(model, transformedData, select, include as IncludeClause, registry),
+    query: buildCreateQueryUnchecked(model, transformedData, select, include as IncludeClause, registry),
     resultType: 'single',
   };
 }
@@ -925,7 +880,15 @@ export function compileUpdateMany(
   }
 
   return {
-    query: buildUpdateManyQuery(model, where, transformedData, select, unset, registry, include as IncludeClause),
+    query: buildUpdateManyQueryUnchecked(
+      model,
+      where,
+      transformedData,
+      select,
+      unset,
+      registry,
+      include as IncludeClause,
+    ),
     resultType: 'array',
   };
 }
@@ -1024,7 +987,7 @@ export function compileDeleteMany(
   }
 
   return {
-    query: buildDeleteQueryWithReturn(model, where, registry),
+    query: buildDeleteQueryWithReturnUnchecked(model, where, registry),
     resultType: 'number',
   };
 }
@@ -1052,8 +1015,8 @@ export function compileDeleteUnique(
     query = buildDeleteUniqueQuery(model, id!, needsReturnBefore);
   } else {
     query = needsReturnBefore
-      ? buildDeleteQueryWithReturn(model, expandedWhere, registry, 'deleteUnique')
-      : buildDeleteQuery(model, expandedWhere, registry, 'deleteUnique');
+      ? buildDeleteQueryWithReturnUnchecked(model, expandedWhere, registry, 'deleteUnique')
+      : buildDeleteQueryUnchecked(model, expandedWhere, registry, 'deleteUnique');
   }
 
   // Determine result type based on return option

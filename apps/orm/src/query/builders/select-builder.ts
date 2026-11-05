@@ -343,7 +343,7 @@ function buildOrderByParts(
 
     // The alias is quoted because an expression cannot sit in ORDER BY
     if (!prefix && !fieldMeta && ctx.computeKeys?.includes(key) && typeof directionOrNested === 'string') {
-      ctx.parts.push(`\`${key}\` ${directionOrNested.toUpperCase()}`);
+      ctx.parts.push(`\`${key}\` ${orderDirection(directionOrNested, key)}`);
       continue;
     }
 
@@ -366,7 +366,7 @@ function buildOrderByParts(
     const nextFields = fieldMeta?.type === 'object' ? fieldMeta.objectInfo?.fields : undefined;
 
     if (typeof directionOrNested === 'string') {
-      const direction = directionOrNested.toUpperCase();
+      const direction = orderDirection(directionOrNested, key);
 
       if (viaRelation) {
         const alias = `${ORDER_ALIAS_PREFIX}${ctx.aliases.length}`;
@@ -412,15 +412,36 @@ export function buildOrderBy(
   return buildOrderByPlan(orderBy, model, registry).clause;
 }
 
+/** Paging is spliced as text, so only a safe non-negative integer may reach it */
+function assertPage(name: 'limit' | 'offset', value: unknown): void {
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) return;
+
+  throw new CerialValidationError(`${name} must be a non-negative integer, got ${String(value)}`, { field: name });
+}
+
+/** Only these two words are ever emitted into ORDER BY */
+function orderDirection(value: string, key: string): 'ASC' | 'DESC' {
+  const direction = value.toUpperCase();
+  if (direction === 'ASC' || direction === 'DESC') return direction;
+
+  throw new CerialValidationError(`orderBy.${key} must be 'asc' or 'desc', got ${JSON.stringify(value)}`, {
+    field: key,
+  });
+}
+
 /** Build LIMIT clause */
 export function buildLimit(limit: number | undefined): string {
   if (limit === undefined) return '';
+  assertPage('limit', limit);
+
   return `LIMIT ${limit}`;
 }
 
 /** Build OFFSET/START clause */
 export function buildOffset(offset: number | undefined): string {
   if (offset === undefined) return '';
+  assertPage('offset', offset);
+
   return `START ${offset}`;
 }
 

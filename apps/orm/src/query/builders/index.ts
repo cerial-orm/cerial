@@ -18,15 +18,28 @@ export {
   walkCascade,
 } from './cascade-graph';
 export {
-  buildDeleteQuery,
-  buildDeleteQueryWithReturn,
+  buildDeleteQuery as buildDeleteQueryUnchecked,
+  buildDeleteQueryWithReturn as buildDeleteQueryWithReturnUnchecked,
   buildDeleteUniqueQuery,
   buildDeleteUniqueWithCascade,
   buildDeleteWithCascade,
   getRecordIdFromWhere,
 } from './delete-builder';
+export {
+  buildCreateQueryChecked as buildCreateQuery,
+  buildDeleteQueryChecked as buildDeleteQuery,
+  buildDeleteQueryWithReturnChecked as buildDeleteQueryWithReturn,
+  buildFindManyQueryChecked as buildFindManyQuery,
+  buildFindOneQueryChecked as buildFindOneQuery,
+  buildSelectQueryChecked as buildSelectQuery,
+  buildUpdateManyQueryChecked as buildUpdateManyQuery,
+} from './checked';
 export { buildGroupByQuery } from './group-by-builder';
-export { applyDefaultValues, buildCreateQuery, stripComputedFields } from './insert-builder';
+export {
+  applyDefaultValues,
+  buildCreateQuery as buildCreateQueryUnchecked,
+  stripComputedFields,
+} from './insert-builder';
 export {
   buildCreateWithNestedTransaction,
   buildUpdateWithNestedTransaction,
@@ -52,14 +65,13 @@ export {
 } from './relation-builder';
 export {
   buildCountQuery,
-  buildFindManyQuery,
-  buildFindOneQuery,
+  buildFindManyQuery as buildFindManyQueryUnchecked,
+  buildFindOneQuery as buildFindOneQueryUnchecked,
   buildFindUniqueQuery,
   buildLimit,
   buildOffset,
   buildOrderBy,
   buildSelectFields,
-  buildSelectQuery,
   type ComputeClause,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
@@ -67,7 +79,11 @@ export {
   findObjectUniqueKey,
   validateUniqueField,
 } from './select-builder';
-export { buildUpdateManyQuery, buildUpdateUniqueQuery, mergeUnsetIntoData } from './update-builder';
+export {
+  buildUpdateManyQuery as buildUpdateManyQueryUnchecked,
+  buildUpdateUniqueQuery,
+  mergeUnsetIntoData,
+} from './update-builder';
 export {
   buildUpsertIdQuery,
   buildUpsertQuery,

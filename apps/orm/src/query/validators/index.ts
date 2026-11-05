@@ -19,3 +19,4 @@ export type { SelectValidationError } from './select-validator';
 export { validateCompute, validateOrderBy, validatePagination, validateSelect } from './select-validator';
 export type { CerialValidationIssue, WhereValidationResult } from './where-validator';
 export { validateFieldFilter, validateWhere, validateWhereClause } from './where-validator';
+export { assertValidReadOptions } from './read-options';
