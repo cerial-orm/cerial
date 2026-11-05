@@ -47,8 +47,8 @@ export function handleIsEmpty(
   isEmpty: boolean,
   _fieldMetadata: FieldMetadata,
 ): QueryFragment {
-  if (isEmpty) {
-    return { text: `array::len(${field}) = 0`, vars: {} };
-  }
-  return { text: `array::len(${field}) > 0`, vars: {} };
+  // Method form: 4.0 refuses array::len() on a set, while .len() accepts arrays and sets alike.
+  if (isEmpty) return { text: `${field}.len() = 0`, vars: {} };
+
+  return { text: `${field}.len() > 0`, vars: {} };
 }

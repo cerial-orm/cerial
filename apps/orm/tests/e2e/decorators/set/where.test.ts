@@ -81,4 +81,44 @@ describe('E2E Set: Where', () => {
     expect(results[0]!.name).toBe('a');
     expect(results[1]!.name).toBe('c');
   });
+
+  test('has with a value no set holds matches nothing', async () => {
+    expect(await client.db.SetBasic.findMany({ where: { tags: { has: 'rust' } } })).toHaveLength(0);
+  });
+
+  test('hasAll with one missing value matches nothing', async () => {
+    expect(await client.db.SetBasic.findMany({ where: { tags: { hasAll: ['ts', 'rust'] } } })).toHaveLength(0);
+  });
+
+  test('hasAny with no present value matches nothing', async () => {
+    expect(await client.db.SetBasic.findMany({ where: { tags: { hasAny: ['rust', 'zig'] } } })).toHaveLength(0);
+  });
+
+  test('isEmpty: true matches only records whose set is empty', async () => {
+    const results = await client.db.SetBasic.findMany({
+      where: { uuids: { isEmpty: true } },
+      orderBy: { name: 'asc' },
+    });
+
+    expect(results.map((r) => r.name)).toEqual(['a', 'b', 'c']);
+    expect(await client.db.SetBasic.findMany({ where: { tags: { isEmpty: true } } })).toHaveLength(0);
+  });
+
+  test('isEmpty: false matches only records whose set holds values', async () => {
+    const results = await client.db.SetBasic.findMany({
+      where: { tags: { isEmpty: false } },
+      orderBy: { name: 'asc' },
+    });
+
+    expect(results.map((r) => r.name)).toEqual(['a', 'b', 'c']);
+    expect(await client.db.SetBasic.findMany({ where: { uuids: { isEmpty: false } } })).toHaveLength(0);
+  });
+
+  test('isEmpty follows a set emptied by an update', async () => {
+    await client.db.SetBasic.updateMany({ where: { name: 'c' }, data: { tags: [] } });
+
+    const empty = await client.db.SetBasic.findMany({ where: { tags: { isEmpty: true } } });
+    expect(empty.map((r) => r.name)).toEqual(['c']);
+    expect(await client.db.SetBasic.findMany({ where: { tags: { isEmpty: false } } })).toHaveLength(2);
+  });
 });
