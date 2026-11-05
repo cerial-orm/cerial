@@ -1,0 +1,59 @@
+# groupBy feature schema: one model that carries every groupable and aggregatable field form,
+# plus a model with no numeric field and a model whose only groupable field is its id.
+
+enum GbStatus { OPEN, SHIPPED, CANCELLED }
+
+literal GbTier { 'free', 'pro', 'team' }
+
+object GbAddress {
+  city String
+  zip String?
+}
+
+model GbAuthor {
+  id Record @id
+  name String
+}
+
+model GbTag {
+  id Record @id
+  name String
+  orderIds Record[]
+  orders Relation[] @field(orderIds) @model(GbOrder)
+}
+
+model GbOrder {
+  id Record @id
+  label String
+  region String?
+  nick String? @nullable
+  qty Int
+  weight Float
+  amount Number
+  price Decimal
+  bonus Decimal?
+  units Int8
+  paid Bool
+  placed Date
+  ttl Duration
+  ref Uuid
+  status GbStatus
+  tier GbTier
+  codes String[]
+  address GbAddress
+  altAddress GbAddress?
+  authorId Record?
+  author Relation? @field(authorId) @model(GbAuthor)
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(GbTag)
+}
+
+model GbLabel {
+  id Record @id
+  name String
+  note String?
+}
+
+model GbBare {
+  id Record @id
+}

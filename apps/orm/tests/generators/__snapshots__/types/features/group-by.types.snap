@@ -1,0 +1,2517 @@
+// ===== models/gbauthor.ts =====
+/**
+ * Generated types for GbAuthor
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+export interface GbAuthor {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface GbAuthorInput {
+  id?: string;
+  name: string;
+}
+
+export interface GbAuthorWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  $raw?: SqlFragment;
+  AND?: GbAuthorWhere[];
+  OR?: GbAuthorWhere[];
+  NOT?: GbAuthorWhere;
+}
+
+export type GbAuthorWhereInput = GbAuthorWhere;
+
+export type GbAuthorFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GbAuthorWhere, 'id'>;
+
+export type GbAuthorCreate = O.Optional<GbAuthorInput, 'id'>;
+
+export type GbAuthorNestedCreate = O.Optional<GbAuthorInput, 'id'>;
+
+export type GbAuthorCreateInput = GbAuthorCreate;
+
+export type GbAuthorUpdate = Partial<O.Omit<GbAuthorInput, 'id'>>;
+
+export type GbAuthorUpdateInput = GbAuthorUpdate;
+
+export type GbAuthorUnset = {};
+
+export interface GbAuthorSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type GbAuthorSelect = AtLeastOne<GbAuthorSelectFields>;
+
+export interface GbAuthorOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface GbAuthorGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface GbAuthorCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface GbAuthorMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GbAuthorGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GbAuthorGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface GbAuthorGroupByArgs {
+  by: GbAuthorGroupByKeys;
+  where?: GbAuthorWhere;
+  _count?: true | GbAuthorCountAggregate;
+  _min?: GbAuthorMinMaxAggregate;
+  _max?: GbAuthorMinMaxAggregate;
+  _group?: GbAuthorGroupAggregate;
+  orderBy?: GbAuthorGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GbAuthorGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<GbAuthor['id']> | null; name: NonNullable<GbAuthor['name']> | null };
+  _max: { id: NonNullable<GbAuthor['id']> | null; name: NonNullable<GbAuthor['name']> | null };
+  _group: { id: GroupMember<GbAuthor['id']>[]; name: GroupMember<GbAuthor['name']>[] };
+}
+
+export type GbAuthorGroupByResult<A extends GbAuthorGroupByArgs> = GroupByRow<GbAuthor, A, GbAuthorGroupByAggregates>;
+
+export type GbAuthor$Relations = {};
+
+export type GetGbAuthorPayload<S extends GbAuthorSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends GbAuthorSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GbAuthor
+          ? ResolveFieldSelect<GbAuthor[K], S[K]>
+          : never;
+      }
+    : GbAuthor,
+  'flat'
+>;
+
+export interface GbAuthorModel {
+  findOne<
+    S extends GbAuthorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbAuthorWhere;
+    select?: SelectArg<S, GbAuthorSelectFields>;
+    compute?: C & { [K in keyof C & (keyof GbAuthor | keyof GbAuthorWhere)]?: never };
+    orderBy?: GbAuthorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbAuthorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends GbAuthorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbAuthorWhere;
+    select?: SelectArg<S, GbAuthorSelectFields>;
+    compute?: C & { [K in keyof C & (keyof GbAuthor | keyof GbAuthorWhere)]?: never };
+    orderBy?: GbAuthorOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbAuthorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends GbAuthorSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: GbAuthorFindUniqueWhere;
+    select?: SelectArg<S, GbAuthorSelectFields>;
+    compute?: C & { [K in keyof C & (keyof GbAuthor | keyof GbAuthorWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbAuthorPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends GbAuthorSelect | undefined = undefined>(options: {
+    data: GbAuthorCreateInput;
+    select?: SelectArg<S, GbAuthorSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbAuthorPayload<S>>;
+
+  updateMany<
+    S extends GbAuthorSelect | undefined = undefined,
+    D extends GbAuthorUpdateInput = GbAuthorUpdateInput,
+  >(options: {
+    where: GbAuthorWhere;
+    data: DataArg<D, GbAuthorUpdateInput>;
+    unset?: SafeUnset<GbAuthorUnset, D>;
+    select?: SelectArg<S, GbAuthorSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbAuthorPayload<S>[]>;
+
+  updateUnique<
+    S extends GbAuthorSelect | undefined = undefined,
+    D extends GbAuthorUpdateInput = GbAuthorUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GbAuthorFindUniqueWhere;
+    data: DataArg<D, GbAuthorUpdateInput>;
+    unset?: SafeUnset<GbAuthorUnset, D>;
+    select?: SelectArg<S, GbAuthorSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GbAuthor | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGbAuthorPayload<S>, R>>;
+
+  upsert<
+    S extends GbAuthorSelect | undefined = undefined,
+    D extends GbAuthorUpdateInput = GbAuthorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbAuthorFindUniqueWhere;
+    create: GbAuthorCreateInput;
+    update?: DataArg<D, GbAuthorUpdateInput>;
+    unset?: SafeUnset<GbAuthorUnset, D>;
+    select?: SelectArg<S, GbAuthorSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGbAuthorPayload<S>, R>>;
+
+  upsert<
+    S extends GbAuthorSelect | undefined = undefined,
+    D extends GbAuthorUpdateInput = GbAuthorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbAuthorWhere;
+    create: GbAuthorCreateInput;
+    update?: DataArg<D, GbAuthorUpdateInput>;
+    unset?: SafeUnset<GbAuthorUnset, D>;
+    select?: SelectArg<S, GbAuthorSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGbAuthorPayload<S>, R>>;
+
+  deleteMany(options: { where: GbAuthorWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GbAuthorFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GbAuthor | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GbAuthor, R>>;
+
+  count(where?: GbAuthorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends GbAuthorGroupByArgs>(
+    args: GroupByArg<A, GbAuthorGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GbAuthorGroupByResult<A>[]>;
+
+  exists(where?: GbAuthorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: GbAuthorWhere }): Promise<import('cerial').CerialLiveHandle<GbAuthor>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/gbbare.ts =====
+/**
+ * Generated types for GbBare
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface GbBare {
+  id: CerialId<string>;
+}
+
+export interface GbBareInput {
+  id?: string;
+}
+
+export interface GbBareWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  $raw?: SqlFragment;
+  AND?: GbBareWhere[];
+  OR?: GbBareWhere[];
+  NOT?: GbBareWhere;
+}
+
+export type GbBareWhereInput = GbBareWhere;
+
+export type GbBareFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GbBareWhere, 'id'>;
+
+export type GbBareCreate = O.Optional<GbBareInput, 'id'>;
+
+export type GbBareNestedCreate = O.Optional<GbBareInput, 'id'>;
+
+export type GbBareCreateInput = GbBareCreate;
+
+export type GbBareUpdate = Partial<O.Omit<GbBareInput, 'id'>>;
+
+export type GbBareUpdateInput = GbBareUpdate;
+
+export type GbBareUnset = {};
+
+export type GbBareSelect = { id: boolean };
+
+export interface GbBareOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export interface GbBareGroupByKeys {
+  id?: true;
+}
+
+export interface GbBareCountAggregate {
+  _all?: true;
+  id?: true;
+}
+
+export interface GbBareMinMaxAggregate {
+  id?: true;
+}
+
+export interface GbBareGroupAggregate {
+  id?: true;
+}
+
+export interface GbBareGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc' };
+}
+
+export interface GbBareGroupByArgs {
+  by: GbBareGroupByKeys;
+  where?: GbBareWhere;
+  _count?: true | GbBareCountAggregate;
+  _min?: GbBareMinMaxAggregate;
+  _max?: GbBareMinMaxAggregate;
+  _group?: GbBareGroupAggregate;
+  orderBy?: GbBareGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GbBareGroupByAggregates {
+  _count: { _all: number; id: number };
+  _min: { id: NonNullable<GbBare['id']> | null };
+  _max: { id: NonNullable<GbBare['id']> | null };
+  _group: { id: GroupMember<GbBare['id']>[] };
+}
+
+export type GbBareGroupByResult<A extends GbBareGroupByArgs> = GroupByRow<GbBare, A, GbBareGroupByAggregates>;
+
+export type GbBare$Relations = {};
+
+export type GetGbBarePayload<S extends GbBareSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends GbBareSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GbBare
+          ? ResolveFieldSelect<GbBare[K], S[K]>
+          : never;
+      }
+    : GbBare,
+  'flat'
+>;
+
+export interface GbBareModel {
+  findOne<
+    S extends GbBareSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbBareWhere;
+    select?: SelectArg<S, GbBareSelect>;
+    compute?: C & { [K in keyof C & (keyof GbBare | keyof GbBareWhere)]?: never };
+    orderBy?: GbBareOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbBarePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends GbBareSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbBareWhere;
+    select?: SelectArg<S, GbBareSelect>;
+    compute?: C & { [K in keyof C & (keyof GbBare | keyof GbBareWhere)]?: never };
+    orderBy?: GbBareOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<(GetGbBarePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]>;
+
+  findUnique<
+    S extends GbBareSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: GbBareFindUniqueWhere;
+    select?: SelectArg<S, GbBareSelect>;
+    compute?: C & { [K in keyof C & (keyof GbBare | keyof GbBareWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbBarePayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends GbBareSelect | undefined = undefined>(options: {
+    data: GbBareCreateInput;
+    select?: SelectArg<S, GbBareSelect>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbBarePayload<S>>;
+
+  updateMany<S extends GbBareSelect | undefined = undefined, D extends GbBareUpdateInput = GbBareUpdateInput>(options: {
+    where: GbBareWhere;
+    data: DataArg<D, GbBareUpdateInput>;
+    unset?: SafeUnset<GbBareUnset, D>;
+    select?: SelectArg<S, GbBareSelect>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbBarePayload<S>[]>;
+
+  updateUnique<
+    S extends GbBareSelect | undefined = undefined,
+    D extends GbBareUpdateInput = GbBareUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GbBareFindUniqueWhere;
+    data: DataArg<D, GbBareUpdateInput>;
+    unset?: SafeUnset<GbBareUnset, D>;
+    select?: SelectArg<S, GbBareSelect>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GbBare | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGbBarePayload<S>, R>>;
+
+  upsert<
+    S extends GbBareSelect | undefined = undefined,
+    D extends GbBareUpdateInput = GbBareUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbBareFindUniqueWhere;
+    create: GbBareCreateInput;
+    update?: DataArg<D, GbBareUpdateInput>;
+    unset?: SafeUnset<GbBareUnset, D>;
+    select?: SelectArg<S, GbBareSelect>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGbBarePayload<S>, R>>;
+
+  upsert<
+    S extends GbBareSelect | undefined = undefined,
+    D extends GbBareUpdateInput = GbBareUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbBareWhere;
+    create: GbBareCreateInput;
+    update?: DataArg<D, GbBareUpdateInput>;
+    unset?: SafeUnset<GbBareUnset, D>;
+    select?: SelectArg<S, GbBareSelect>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGbBarePayload<S>, R>>;
+
+  deleteMany(options: { where: GbBareWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GbBareFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GbBare | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GbBare, R>>;
+
+  count(where?: GbBareWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends GbBareGroupByArgs>(
+    args: GroupByArg<A, GbBareGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GbBareGroupByResult<A>[]>;
+
+  exists(where?: GbBareWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: GbBareWhere }): Promise<import('cerial').CerialLiveHandle<GbBare>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/gblabel.ts =====
+/**
+ * Generated types for GbLabel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+export interface GbLabel {
+  id: CerialId<string>;
+  name: string;
+  note?: string;
+}
+
+export interface GbLabelInput {
+  id?: string;
+  name: string;
+  note?: string;
+}
+
+export interface GbLabelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  note?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  $raw?: SqlFragment;
+  AND?: GbLabelWhere[];
+  OR?: GbLabelWhere[];
+  NOT?: GbLabelWhere;
+}
+
+export type GbLabelWhereInput = GbLabelWhere;
+
+export type GbLabelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GbLabelWhere, 'id'>;
+
+export type GbLabelCreate = O.Optional<GbLabelInput, 'id' | 'note'>;
+
+export type GbLabelNestedCreate = O.Optional<GbLabelInput, 'id' | 'note'>;
+
+export type GbLabelCreateInput = GbLabelCreate;
+
+export type GbLabelUpdate = Partial<O.Omit<GbLabelInput, 'id' | 'note'>> & {
+  note?: string | CerialNone;
+};
+
+export type GbLabelUpdateInput = GbLabelUpdate;
+
+export type GbLabelUnset = {
+  note?: true;
+};
+
+export interface GbLabelSelectFields {
+  id?: boolean;
+  name?: boolean;
+  note?: boolean;
+}
+
+export type GbLabelSelect = AtLeastOne<GbLabelSelectFields>;
+
+export interface GbLabelOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+}
+
+export interface GbLabelGroupByKeys {
+  id?: true;
+  name?: true;
+  note?: true;
+}
+
+export interface GbLabelCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  note?: true;
+}
+
+export interface GbLabelMinMaxAggregate {
+  id?: true;
+  name?: true;
+  note?: true;
+}
+
+export interface GbLabelGroupAggregate {
+  id?: true;
+  name?: true;
+  note?: true;
+}
+
+export interface GbLabelGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+}
+
+export interface GbLabelGroupByArgs {
+  by: GbLabelGroupByKeys;
+  where?: GbLabelWhere;
+  _count?: true | GbLabelCountAggregate;
+  _min?: GbLabelMinMaxAggregate;
+  _max?: GbLabelMinMaxAggregate;
+  _group?: GbLabelGroupAggregate;
+  orderBy?: GbLabelGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GbLabelGroupByAggregates {
+  _count: { _all: number; id: number; name: number; note: number };
+  _min: {
+    id: NonNullable<GbLabel['id']> | null;
+    name: NonNullable<GbLabel['name']> | null;
+    note: NonNullable<GbLabel['note']> | null;
+  };
+  _max: {
+    id: NonNullable<GbLabel['id']> | null;
+    name: NonNullable<GbLabel['name']> | null;
+    note: NonNullable<GbLabel['note']> | null;
+  };
+  _group: {
+    id: GroupMember<GbLabel['id']>[];
+    name: GroupMember<GbLabel['name']>[];
+    note: GroupMember<GbLabel['note']>[];
+  };
+}
+
+export type GbLabelGroupByResult<A extends GbLabelGroupByArgs> = GroupByRow<GbLabel, A, GbLabelGroupByAggregates>;
+
+export type GbLabel$Relations = {};
+
+export type GetGbLabelPayload<S extends GbLabelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends GbLabelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GbLabel
+          ? ResolveFieldSelect<GbLabel[K], S[K]>
+          : never;
+      }
+    : GbLabel,
+  'flat'
+>;
+
+export interface GbLabelModel {
+  findOne<
+    S extends GbLabelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbLabelWhere;
+    select?: SelectArg<S, GbLabelSelectFields>;
+    compute?: C & { [K in keyof C & (keyof GbLabel | keyof GbLabelWhere)]?: never };
+    orderBy?: GbLabelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbLabelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends GbLabelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbLabelWhere;
+    select?: SelectArg<S, GbLabelSelectFields>;
+    compute?: C & { [K in keyof C & (keyof GbLabel | keyof GbLabelWhere)]?: never };
+    orderBy?: GbLabelOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbLabelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends GbLabelSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: GbLabelFindUniqueWhere;
+    select?: SelectArg<S, GbLabelSelectFields>;
+    compute?: C & { [K in keyof C & (keyof GbLabel | keyof GbLabelWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbLabelPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends GbLabelSelect | undefined = undefined>(options: {
+    data: GbLabelCreateInput;
+    select?: SelectArg<S, GbLabelSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbLabelPayload<S>>;
+
+  updateMany<
+    S extends GbLabelSelect | undefined = undefined,
+    D extends GbLabelUpdateInput = GbLabelUpdateInput,
+  >(options: {
+    where: GbLabelWhere;
+    data: DataArg<D, GbLabelUpdateInput>;
+    unset?: SafeUnset<GbLabelUnset, D>;
+    select?: SelectArg<S, GbLabelSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbLabelPayload<S>[]>;
+
+  updateUnique<
+    S extends GbLabelSelect | undefined = undefined,
+    D extends GbLabelUpdateInput = GbLabelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GbLabelFindUniqueWhere;
+    data: DataArg<D, GbLabelUpdateInput>;
+    unset?: SafeUnset<GbLabelUnset, D>;
+    select?: SelectArg<S, GbLabelSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GbLabel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGbLabelPayload<S>, R>>;
+
+  upsert<
+    S extends GbLabelSelect | undefined = undefined,
+    D extends GbLabelUpdateInput = GbLabelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbLabelFindUniqueWhere;
+    create: GbLabelCreateInput;
+    update?: DataArg<D, GbLabelUpdateInput>;
+    unset?: SafeUnset<GbLabelUnset, D>;
+    select?: SelectArg<S, GbLabelSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGbLabelPayload<S>, R>>;
+
+  upsert<
+    S extends GbLabelSelect | undefined = undefined,
+    D extends GbLabelUpdateInput = GbLabelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbLabelWhere;
+    create: GbLabelCreateInput;
+    update?: DataArg<D, GbLabelUpdateInput>;
+    unset?: SafeUnset<GbLabelUnset, D>;
+    select?: SelectArg<S, GbLabelSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGbLabelPayload<S>, R>>;
+
+  deleteMany(options: { where: GbLabelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GbLabelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GbLabel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GbLabel, R>>;
+
+  count(where?: GbLabelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends GbLabelGroupByArgs>(
+    args: GroupByArg<A, GbLabelGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GbLabelGroupByResult<A>[]>;
+
+  exists(where?: GbLabelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: GbLabelWhere }): Promise<import('cerial').CerialLiveHandle<GbLabel>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/gborder.ts =====
+/**
+ * Generated types for GbOrder
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import { CerialUuid } from 'cerial';
+import type { CerialUuidInput } from 'cerial';
+import { CerialDuration } from 'cerial';
+import type { CerialDurationInput } from 'cerial';
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type { GbAuthor, GbAuthorWhere, GbAuthorSelect, GbAuthorOrderBy, GbAuthorNestedCreate } from './gbauthor';
+import type {
+  GbTag,
+  GbTagWhere,
+  GbTagSelect,
+  GbTagOrderBy,
+  GbTagNestedCreate,
+  GbTagInclude,
+  GetGbTagIncludePayload,
+} from './gbtag';
+import type {
+  GbAddress,
+  GbAddressInput,
+  GbAddressWhere,
+  GbAddressSelect,
+  GbAddressOrderBy,
+} from '../objects/gbaddress';
+import type { GbTier, GbTierWhere } from '../literals/gbtier';
+import { GbStatusEnum } from '../enums/gbstatus';
+import type { GbStatusEnumType, GbStatusEnumWhere } from '../enums/gbstatus';
+export interface GbOrder {
+  id: CerialId<string>;
+  label: string;
+  region?: string;
+  nick?: string | null;
+  qty: number;
+  weight: number;
+  amount: number;
+  price: CerialDecimal;
+  bonus?: CerialDecimal;
+  units: number;
+  paid: boolean;
+  placed: Date;
+  ttl: CerialDuration;
+  ref: CerialUuid;
+  status: GbStatusEnumType;
+  tier: GbTier;
+  codes: string[];
+  address: GbAddress;
+  altAddress?: GbAddress;
+  authorId?: CerialId<string>;
+  tagIds: CerialId<string>[];
+}
+
+export interface GbOrderInput {
+  id?: string;
+  label: string;
+  region?: string;
+  nick?: string | null;
+  qty: number;
+  weight: number;
+  amount: number;
+  price: CerialDecimalInput;
+  bonus?: CerialDecimalInput;
+  units: number;
+  paid: boolean;
+  placed: Date;
+  ttl: CerialDurationInput;
+  ref: CerialUuidInput;
+  status: GbStatusEnumType;
+  tier: GbTier;
+  codes: string[];
+  address: GbAddressInput;
+  altAddress?: GbAddressInput;
+  authorId?: RecordIdInput<string>;
+  tagIds: RecordIdInput<string>[];
+}
+
+export interface GbOrderWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  region?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  nick?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  qty?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  weight?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  amount?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  price?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  bonus?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        not?: CerialDecimalInput;
+        isNone?: boolean;
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  units?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  paid?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  placed?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        between?: [Date, Date];
+      });
+  ttl?:
+    | CerialDurationInput
+    | ({
+        eq?: CerialDurationInput;
+        neq?: CerialDurationInput;
+        gt?: CerialDurationInput;
+        gte?: CerialDurationInput;
+        lt?: CerialDurationInput;
+        lte?: CerialDurationInput;
+      } & {
+        in?: CerialDurationInput[];
+        notIn?: CerialDurationInput[];
+      } & {
+        between?: [CerialDurationInput, CerialDurationInput];
+      });
+  ref?:
+    | CerialUuidInput
+    | ({
+        eq?: CerialUuidInput;
+        neq?: CerialUuidInput;
+        gt?: CerialUuidInput;
+        gte?: CerialUuidInput;
+        lt?: CerialUuidInput;
+        lte?: CerialUuidInput;
+      } & {
+        in?: CerialUuidInput[];
+        notIn?: CerialUuidInput[];
+      } & {});
+  status?: GbStatusEnumType | GbStatusEnumWhere;
+  tier?: GbTier | GbTierWhere;
+  codes?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  address?: GbAddressWhere;
+  altAddress?: GbAddressWhere;
+  authorId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  author?: Omit<GbAuthorWhere, '$raw'>;
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  tags?: { some?: Omit<GbTagWhere, '$raw'>; every?: Omit<GbTagWhere, '$raw'>; none?: Omit<GbTagWhere, '$raw'> };
+  $raw?: SqlFragment;
+  AND?: GbOrderWhere[];
+  OR?: GbOrderWhere[];
+  NOT?: GbOrderWhere;
+}
+
+export type GbOrderWhereInput = GbOrderWhere;
+
+export type GbOrderFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GbOrderWhere, 'id'>;
+
+export type GbOrderCreate = O.Optional<
+  O.Omit<GbOrderInput, 'author' | 'tags'>,
+  'id' | 'region' | 'nick' | 'bonus' | 'codes' | 'altAddress' | 'authorId' | 'tagIds'
+>;
+
+export type GbOrderNestedCreate = O.Optional<
+  O.Omit<GbOrderInput, 'author' | 'tags' | 'authorId' | 'tagIds'>,
+  'id' | 'region' | 'nick' | 'bonus' | 'codes' | 'altAddress'
+>;
+
+export type GbOrderCreateInput =
+  | GbOrderCreate
+  | (O.Omit<GbOrderCreate, 'authorId' | 'tagIds'> & {
+      author?: { create: GbAuthorNestedCreate } | { connect: RecordIdInput };
+      tags?: {
+        create?: GbTagNestedCreate | GbTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type GbOrderUpdate = Partial<
+  O.Omit<
+    GbOrderInput,
+    'id' | 'author' | 'tags' | 'codes' | 'tagIds' | 'address' | 'altAddress' | 'region' | 'nick' | 'bonus' | 'authorId'
+  >
+> & {
+  codes?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+  address?: Partial<GbAddressInput> | { set: GbAddressInput };
+  altAddress?: Partial<GbAddressInput> | { set: GbAddressInput } | CerialNone;
+  region?: string | CerialNone;
+  nick?: string | null | CerialNone;
+  bonus?: CerialDecimalInput | CerialNone;
+  authorId?: RecordIdInput<string> | CerialNone;
+};
+
+export type GbOrderUpdateInput =
+  | GbOrderUpdate
+  | (O.Omit<GbOrderUpdate, 'authorId' | 'tagIds'> & {
+      author?: { create: GbAuthorNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      tags?: {
+        create?: GbTagNestedCreate | GbTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type GbOrderUnset = {
+  region?: true;
+  nick?: true;
+  bonus?: true;
+  address?: {
+    zip?: true;
+  };
+  altAddress?:
+    | true
+    | {
+        zip?: true;
+      };
+  authorId?: true;
+};
+
+export interface GbOrderSelectFields {
+  id?: boolean;
+  label?: boolean;
+  region?: boolean;
+  nick?: boolean;
+  qty?: boolean;
+  weight?: boolean;
+  amount?: boolean;
+  price?: boolean;
+  bonus?: boolean;
+  units?: boolean;
+  paid?: boolean;
+  placed?: boolean;
+  ttl?: boolean;
+  ref?: boolean;
+  status?: boolean;
+  tier?: boolean;
+  codes?: boolean;
+  address?: boolean | GbAddressSelect;
+  altAddress?: boolean | GbAddressSelect;
+  authorId?: boolean;
+  tagIds?: boolean;
+}
+
+export type GbOrderSelect = AtLeastOne<GbOrderSelectFields>;
+
+export interface GbOrderOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  region?: 'asc' | 'desc';
+  nick?: 'asc' | 'desc';
+  qty?: 'asc' | 'desc';
+  weight?: 'asc' | 'desc';
+  amount?: 'asc' | 'desc';
+  price?: 'asc' | 'desc';
+  bonus?: 'asc' | 'desc';
+  units?: 'asc' | 'desc';
+  paid?: 'asc' | 'desc';
+  placed?: 'asc' | 'desc';
+  ttl?: 'asc' | 'desc';
+  ref?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  codes?: 'asc' | 'desc';
+  address?: GbAddressOrderBy;
+  altAddress?: GbAddressOrderBy;
+  authorId?: 'asc' | 'desc';
+  author?: GbAuthorOrderBy;
+  tagIds?: 'asc' | 'desc';
+}
+
+export interface GbOrderGroupByKeys {
+  id?: true;
+  label?: true;
+  region?: true;
+  nick?: true;
+  qty?: true;
+  weight?: true;
+  amount?: true;
+  price?: true;
+  bonus?: true;
+  units?: true;
+  paid?: true;
+  placed?: true;
+  ttl?: true;
+  ref?: true;
+  status?: true;
+  tier?: true;
+  codes?: true;
+  address?: { city?: true; zip?: true };
+  altAddress?: { city?: true; zip?: true };
+  authorId?: true;
+  tagIds?: true;
+}
+
+export interface GbOrderCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+  region?: true;
+  nick?: true;
+  qty?: true;
+  weight?: true;
+  amount?: true;
+  price?: true;
+  bonus?: true;
+  units?: true;
+  paid?: true;
+  placed?: true;
+  ttl?: true;
+  ref?: true;
+  status?: true;
+  tier?: true;
+  codes?: true;
+  address?: true;
+  altAddress?: true;
+  authorId?: true;
+  tagIds?: true;
+}
+
+export interface GbOrderNumericAggregate {
+  qty?: true;
+  weight?: true;
+  amount?: true;
+  price?: true;
+  bonus?: true;
+  units?: true;
+}
+
+export interface GbOrderMinMaxAggregate {
+  id?: true;
+  label?: true;
+  region?: true;
+  nick?: true;
+  qty?: true;
+  weight?: true;
+  amount?: true;
+  price?: true;
+  bonus?: true;
+  units?: true;
+  paid?: true;
+  placed?: true;
+  ttl?: true;
+  ref?: true;
+  status?: true;
+  tier?: true;
+  authorId?: true;
+}
+
+export interface GbOrderGroupAggregate {
+  id?: true;
+  label?: true;
+  region?: true;
+  nick?: true;
+  qty?: true;
+  weight?: true;
+  amount?: true;
+  price?: true;
+  bonus?: true;
+  units?: true;
+  paid?: true;
+  placed?: true;
+  ttl?: true;
+  ref?: true;
+  status?: true;
+  tier?: true;
+  codes?: true;
+  authorId?: true;
+  tagIds?: true;
+}
+
+export interface GbOrderGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  region?: 'asc' | 'desc';
+  nick?: 'asc' | 'desc';
+  qty?: 'asc' | 'desc';
+  weight?: 'asc' | 'desc';
+  amount?: 'asc' | 'desc';
+  price?: 'asc' | 'desc';
+  bonus?: 'asc' | 'desc';
+  units?: 'asc' | 'desc';
+  paid?: 'asc' | 'desc';
+  placed?: 'asc' | 'desc';
+  ttl?: 'asc' | 'desc';
+  ref?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  tier?: 'asc' | 'desc';
+  codes?: 'asc' | 'desc';
+  address?: { city?: 'asc' | 'desc'; zip?: 'asc' | 'desc' };
+  altAddress?: { city?: 'asc' | 'desc'; zip?: 'asc' | 'desc' };
+  authorId?: 'asc' | 'desc';
+  tagIds?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    region?: 'asc' | 'desc';
+    nick?: 'asc' | 'desc';
+    qty?: 'asc' | 'desc';
+    weight?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    bonus?: 'asc' | 'desc';
+    units?: 'asc' | 'desc';
+    paid?: 'asc' | 'desc';
+    placed?: 'asc' | 'desc';
+    ttl?: 'asc' | 'desc';
+    ref?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    tier?: 'asc' | 'desc';
+    codes?: 'asc' | 'desc';
+    address?: 'asc' | 'desc';
+    altAddress?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+    tagIds?: 'asc' | 'desc';
+  };
+  _sum?: {
+    qty?: 'asc' | 'desc';
+    weight?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    bonus?: 'asc' | 'desc';
+    units?: 'asc' | 'desc';
+  };
+  _avg?: {
+    qty?: 'asc' | 'desc';
+    weight?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    bonus?: 'asc' | 'desc';
+    units?: 'asc' | 'desc';
+  };
+  _min?: {
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    region?: 'asc' | 'desc';
+    nick?: 'asc' | 'desc';
+    qty?: 'asc' | 'desc';
+    weight?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    bonus?: 'asc' | 'desc';
+    units?: 'asc' | 'desc';
+    paid?: 'asc' | 'desc';
+    placed?: 'asc' | 'desc';
+    ttl?: 'asc' | 'desc';
+    ref?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    tier?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    region?: 'asc' | 'desc';
+    nick?: 'asc' | 'desc';
+    qty?: 'asc' | 'desc';
+    weight?: 'asc' | 'desc';
+    amount?: 'asc' | 'desc';
+    price?: 'asc' | 'desc';
+    bonus?: 'asc' | 'desc';
+    units?: 'asc' | 'desc';
+    paid?: 'asc' | 'desc';
+    placed?: 'asc' | 'desc';
+    ttl?: 'asc' | 'desc';
+    ref?: 'asc' | 'desc';
+    status?: 'asc' | 'desc';
+    tier?: 'asc' | 'desc';
+    authorId?: 'asc' | 'desc';
+  };
+}
+
+export interface GbOrderGroupByArgs {
+  by: GbOrderGroupByKeys;
+  where?: GbOrderWhere;
+  _count?: true | GbOrderCountAggregate;
+  _sum?: GbOrderNumericAggregate;
+  _avg?: GbOrderNumericAggregate;
+  _min?: GbOrderMinMaxAggregate;
+  _max?: GbOrderMinMaxAggregate;
+  _group?: GbOrderGroupAggregate;
+  orderBy?: GbOrderGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GbOrderGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    label: number;
+    region: number;
+    nick: number;
+    qty: number;
+    weight: number;
+    amount: number;
+    price: number;
+    bonus: number;
+    units: number;
+    paid: number;
+    placed: number;
+    ttl: number;
+    ref: number;
+    status: number;
+    tier: number;
+    codes: number;
+    address: number;
+    altAddress: number;
+    authorId: number;
+    tagIds: number;
+  };
+  _sum: { qty: number; weight: number; amount: number; price: CerialDecimal; bonus: CerialDecimal; units: number };
+  _avg: {
+    qty: number | null;
+    weight: number | null;
+    amount: number | null;
+    price: CerialDecimal | null;
+    bonus: CerialDecimal | null;
+    units: number | null;
+  };
+  _min: {
+    id: NonNullable<GbOrder['id']> | null;
+    label: NonNullable<GbOrder['label']> | null;
+    region: NonNullable<GbOrder['region']> | null;
+    nick: NonNullable<GbOrder['nick']> | null;
+    qty: NonNullable<GbOrder['qty']> | null;
+    weight: NonNullable<GbOrder['weight']> | null;
+    amount: NonNullable<GbOrder['amount']> | null;
+    price: NonNullable<GbOrder['price']> | null;
+    bonus: NonNullable<GbOrder['bonus']> | null;
+    units: NonNullable<GbOrder['units']> | null;
+    paid: NonNullable<GbOrder['paid']> | null;
+    placed: NonNullable<GbOrder['placed']> | null;
+    ttl: NonNullable<GbOrder['ttl']> | null;
+    ref: NonNullable<GbOrder['ref']> | null;
+    status: NonNullable<GbOrder['status']> | null;
+    tier: NonNullable<GbOrder['tier']> | null;
+    authorId: NonNullable<GbOrder['authorId']> | null;
+  };
+  _max: {
+    id: NonNullable<GbOrder['id']> | null;
+    label: NonNullable<GbOrder['label']> | null;
+    region: NonNullable<GbOrder['region']> | null;
+    nick: NonNullable<GbOrder['nick']> | null;
+    qty: NonNullable<GbOrder['qty']> | null;
+    weight: NonNullable<GbOrder['weight']> | null;
+    amount: NonNullable<GbOrder['amount']> | null;
+    price: NonNullable<GbOrder['price']> | null;
+    bonus: NonNullable<GbOrder['bonus']> | null;
+    units: NonNullable<GbOrder['units']> | null;
+    paid: NonNullable<GbOrder['paid']> | null;
+    placed: NonNullable<GbOrder['placed']> | null;
+    ttl: NonNullable<GbOrder['ttl']> | null;
+    ref: NonNullable<GbOrder['ref']> | null;
+    status: NonNullable<GbOrder['status']> | null;
+    tier: NonNullable<GbOrder['tier']> | null;
+    authorId: NonNullable<GbOrder['authorId']> | null;
+  };
+  _group: {
+    id: GroupMember<GbOrder['id']>[];
+    label: GroupMember<GbOrder['label']>[];
+    region: GroupMember<GbOrder['region']>[];
+    nick: (GroupMember<GbOrder['nick']> | null)[];
+    qty: GroupMember<GbOrder['qty']>[];
+    weight: GroupMember<GbOrder['weight']>[];
+    amount: GroupMember<GbOrder['amount']>[];
+    price: GroupMember<GbOrder['price']>[];
+    bonus: GroupMember<GbOrder['bonus']>[];
+    units: GroupMember<GbOrder['units']>[];
+    paid: GroupMember<GbOrder['paid']>[];
+    placed: GroupMember<GbOrder['placed']>[];
+    ttl: GroupMember<GbOrder['ttl']>[];
+    ref: GroupMember<GbOrder['ref']>[];
+    status: GroupMember<GbOrder['status']>[];
+    tier: GroupMember<GbOrder['tier']>[];
+    codes: GroupMember<GbOrder['codes']>[];
+    authorId: GroupMember<GbOrder['authorId']>[];
+    tagIds: GroupMember<GbOrder['tagIds']>[];
+  };
+}
+
+export type GbOrderGroupByResult<A extends GbOrderGroupByArgs> = GroupByRow<GbOrder, A, GbOrderGroupByAggregates>;
+
+export interface GbOrderInclude {
+  author?:
+    | boolean
+    | {
+        select?: GbAuthorSelect;
+        where?: GbAuthorWhere;
+      };
+  tags?:
+    | boolean
+    | {
+        select?: GbTagSelect;
+        where?: GbTagWhere;
+        orderBy?: GbTagOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: GbTagInclude;
+      };
+}
+
+export type GbOrder$Relations = {
+  author: { type: GbAuthor; include: never };
+  tags: { type: GbTag[]; include: GbTagInclude };
+};
+
+export type GetGbOrderIncludePayload<I extends GbOrderInclude | undefined> = I extends GbOrderInclude
+  ? Pick<
+      {
+        author: I['author'] extends true
+          ? GbAuthor
+          : I['author'] extends { select: infer S extends GbAuthorSelect }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof GbAuthor
+                  ? ResolveFieldSelect<GbAuthor[P], S[P]>
+                  : never;
+              }
+            : GbAuthor;
+        tags: I['tags'] extends true
+          ? GbTag[]
+          : I['tags'] extends { select: infer S extends GbTagSelect; include: infer NI extends GbTagInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof GbTag
+                  ? ResolveFieldSelect<GbTag[P], S[P]>
+                  : never;
+              } & GetGbTagIncludePayload<NI>)[]
+            : I['tags'] extends { select: infer S extends GbTagSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof GbTag
+                    ? ResolveFieldSelect<GbTag[P], S[P]>
+                    : never;
+                }[]
+              : I['tags'] extends { include: infer NI extends GbTagInclude }
+                ? (GbTag & GetGbTagIncludePayload<NI>)[]
+                : GbTag[];
+      },
+      Extract<keyof I, keyof GbOrder$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetGbOrderPayload<
+  S extends GbOrderSelect | undefined = undefined,
+  I extends GbOrderInclude | undefined = undefined,
+> = A.Compute<
+  S extends GbOrderSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GbOrder
+          ? ResolveFieldSelect<GbOrder[K], S[K]>
+          : never;
+      } & GetGbOrderIncludePayload<I>
+    : I extends GbOrderInclude
+      ? GbOrder & GetGbOrderIncludePayload<I>
+      : GbOrder,
+  'flat'
+>;
+
+export interface GbOrderModel {
+  findOne<
+    S extends GbOrderSelect | undefined = undefined,
+    I extends GbOrderInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbOrderWhere;
+    select?: SelectArg<S, GbOrderSelectFields>;
+    include?: IncludeArg<I, GbOrderInclude>;
+    compute?: C & { [K in keyof C & (keyof GbOrder | keyof GbOrderWhere)]?: never };
+    orderBy?: GbOrderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbOrderPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends GbOrderSelect | undefined = undefined,
+    I extends GbOrderInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbOrderWhere;
+    select?: SelectArg<S, GbOrderSelectFields>;
+    compute?: C & { [K in keyof C & (keyof GbOrder | keyof GbOrderWhere)]?: never };
+    orderBy?: GbOrderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, GbOrderInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbOrderPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends GbOrderSelect | undefined = undefined,
+    I extends GbOrderInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: GbOrderFindUniqueWhere;
+    select?: SelectArg<S, GbOrderSelectFields>;
+    include?: IncludeArg<I, GbOrderInclude>;
+    compute?: C & { [K in keyof C & (keyof GbOrder | keyof GbOrderWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbOrderPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends GbOrderSelect | undefined = undefined, I extends GbOrderInclude | undefined = undefined>(options: {
+    data: GbOrderCreateInput;
+    select?: SelectArg<S, GbOrderSelectFields>;
+    include?: IncludeArg<I, GbOrderInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbOrderPayload<S, I>>;
+
+  updateMany<
+    S extends GbOrderSelect | undefined = undefined,
+    I extends GbOrderInclude | undefined = undefined,
+    D extends GbOrderUpdateInput = GbOrderUpdateInput,
+  >(options: {
+    where: GbOrderWhere;
+    data: DataArg<D, GbOrderUpdateInput>;
+    unset?: SafeUnset<GbOrderUnset, D>;
+    select?: SelectArg<S, GbOrderSelectFields>;
+    include?: IncludeArg<I, GbOrderInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbOrderPayload<S, I>[]>;
+
+  updateUnique<
+    S extends GbOrderSelect | undefined = undefined,
+    I extends GbOrderInclude | undefined = undefined,
+    D extends GbOrderUpdateInput = GbOrderUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GbOrderFindUniqueWhere;
+    data: DataArg<D, GbOrderUpdateInput>;
+    unset?: SafeUnset<GbOrderUnset, D>;
+    select?: SelectArg<S, GbOrderSelectFields>;
+    include?: IncludeArg<I, GbOrderInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GbOrder | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGbOrderPayload<S, I>, R>>;
+
+  upsert<
+    S extends GbOrderSelect | undefined = undefined,
+    I extends GbOrderInclude | undefined = undefined,
+    D extends GbOrderUpdateInput = GbOrderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbOrderFindUniqueWhere;
+    create: GbOrderCreateInput;
+    update?: DataArg<D, GbOrderUpdateInput>;
+    unset?: SafeUnset<GbOrderUnset, D>;
+    select?: SelectArg<S, GbOrderSelectFields>;
+    include?: IncludeArg<I, GbOrderInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGbOrderPayload<S, I>, R>>;
+
+  upsert<
+    S extends GbOrderSelect | undefined = undefined,
+    I extends GbOrderInclude | undefined = undefined,
+    D extends GbOrderUpdateInput = GbOrderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbOrderWhere;
+    create: GbOrderCreateInput;
+    update?: DataArg<D, GbOrderUpdateInput>;
+    unset?: SafeUnset<GbOrderUnset, D>;
+    select?: SelectArg<S, GbOrderSelectFields>;
+    include?: IncludeArg<I, GbOrderInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGbOrderPayload<S, I>, R>>;
+
+  deleteMany(options: { where: GbOrderWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GbOrderFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GbOrder | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GbOrder, R>>;
+
+  count(where?: GbOrderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends GbOrderGroupByArgs>(
+    args: GroupByArg<A, GbOrderGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GbOrderGroupByResult<A>[]>;
+
+  exists(where?: GbOrderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: GbOrderWhere }): Promise<import('cerial').CerialLiveHandle<GbOrder>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/gbtag.ts =====
+/**
+ * Generated types for GbTag
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '..';
+import type {
+  GbOrder,
+  GbOrderWhere,
+  GbOrderSelect,
+  GbOrderOrderBy,
+  GbOrderNestedCreate,
+  GbOrderInclude,
+  GetGbOrderIncludePayload,
+} from './gborder';
+export interface GbTag {
+  id: CerialId<string>;
+  name: string;
+  orderIds: CerialId<string>[];
+}
+
+export interface GbTagInput {
+  id?: string;
+  name: string;
+  orderIds: RecordIdInput<string>[];
+}
+
+export interface GbTagWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  orderIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  orders?: { some?: Omit<GbOrderWhere, '$raw'>; every?: Omit<GbOrderWhere, '$raw'>; none?: Omit<GbOrderWhere, '$raw'> };
+  $raw?: SqlFragment;
+  AND?: GbTagWhere[];
+  OR?: GbTagWhere[];
+  NOT?: GbTagWhere;
+}
+
+export type GbTagWhereInput = GbTagWhere;
+
+export type GbTagFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GbTagWhere, 'id'>;
+
+export type GbTagCreate = O.Optional<O.Omit<GbTagInput, 'orders'>, 'id' | 'orderIds'>;
+
+export type GbTagNestedCreate = O.Optional<O.Omit<GbTagInput, 'orders' | 'orderIds'>, 'id'>;
+
+export type GbTagCreateInput =
+  | GbTagCreate
+  | (O.Omit<GbTagCreate, 'orderIds'> & {
+      orders?: {
+        create?: GbOrderNestedCreate | GbOrderNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type GbTagUpdate = Partial<O.Omit<GbTagInput, 'id' | 'orders' | 'orderIds'>> & {
+  orderIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type GbTagUpdateInput =
+  | GbTagUpdate
+  | (O.Omit<GbTagUpdate, 'orderIds'> & {
+      orders?: {
+        create?: GbOrderNestedCreate | GbOrderNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type GbTagUnset = {};
+
+export interface GbTagSelectFields {
+  id?: boolean;
+  name?: boolean;
+  orderIds?: boolean;
+}
+
+export type GbTagSelect = AtLeastOne<GbTagSelectFields>;
+
+export interface GbTagOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  orderIds?: 'asc' | 'desc';
+}
+
+export interface GbTagGroupByKeys {
+  id?: true;
+  name?: true;
+  orderIds?: true;
+}
+
+export interface GbTagCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  orderIds?: true;
+}
+
+export interface GbTagMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface GbTagGroupAggregate {
+  id?: true;
+  name?: true;
+  orderIds?: true;
+}
+
+export interface GbTagGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  orderIds?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; orderIds?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface GbTagGroupByArgs {
+  by: GbTagGroupByKeys;
+  where?: GbTagWhere;
+  _count?: true | GbTagCountAggregate;
+  _min?: GbTagMinMaxAggregate;
+  _max?: GbTagMinMaxAggregate;
+  _group?: GbTagGroupAggregate;
+  orderBy?: GbTagGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GbTagGroupByAggregates {
+  _count: { _all: number; id: number; name: number; orderIds: number };
+  _min: { id: NonNullable<GbTag['id']> | null; name: NonNullable<GbTag['name']> | null };
+  _max: { id: NonNullable<GbTag['id']> | null; name: NonNullable<GbTag['name']> | null };
+  _group: {
+    id: GroupMember<GbTag['id']>[];
+    name: GroupMember<GbTag['name']>[];
+    orderIds: GroupMember<GbTag['orderIds']>[];
+  };
+}
+
+export type GbTagGroupByResult<A extends GbTagGroupByArgs> = GroupByRow<GbTag, A, GbTagGroupByAggregates>;
+
+export interface GbTagInclude {
+  orders?:
+    | boolean
+    | {
+        select?: GbOrderSelect;
+        where?: GbOrderWhere;
+        orderBy?: GbOrderOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: GbOrderInclude;
+      };
+}
+
+export type GbTag$Relations = {
+  orders: { type: GbOrder[]; include: GbOrderInclude };
+};
+
+export type GetGbTagIncludePayload<I extends GbTagInclude | undefined> = I extends GbTagInclude
+  ? Pick<
+      {
+        orders: I['orders'] extends true
+          ? GbOrder[]
+          : I['orders'] extends { select: infer S extends GbOrderSelect; include: infer NI extends GbOrderInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof GbOrder
+                  ? ResolveFieldSelect<GbOrder[P], S[P]>
+                  : never;
+              } & GetGbOrderIncludePayload<NI>)[]
+            : I['orders'] extends { select: infer S extends GbOrderSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof GbOrder
+                    ? ResolveFieldSelect<GbOrder[P], S[P]>
+                    : never;
+                }[]
+              : I['orders'] extends { include: infer NI extends GbOrderInclude }
+                ? (GbOrder & GetGbOrderIncludePayload<NI>)[]
+                : GbOrder[];
+      },
+      Extract<keyof I, keyof GbTag$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetGbTagPayload<
+  S extends GbTagSelect | undefined = undefined,
+  I extends GbTagInclude | undefined = undefined,
+> = A.Compute<
+  S extends GbTagSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GbTag
+          ? ResolveFieldSelect<GbTag[K], S[K]>
+          : never;
+      } & GetGbTagIncludePayload<I>
+    : I extends GbTagInclude
+      ? GbTag & GetGbTagIncludePayload<I>
+      : GbTag,
+  'flat'
+>;
+
+export interface GbTagModel {
+  findOne<
+    S extends GbTagSelect | undefined = undefined,
+    I extends GbTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbTagWhere;
+    select?: SelectArg<S, GbTagSelectFields>;
+    include?: IncludeArg<I, GbTagInclude>;
+    compute?: C & { [K in keyof C & (keyof GbTag | keyof GbTagWhere)]?: never };
+    orderBy?: GbTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends GbTagSelect | undefined = undefined,
+    I extends GbTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: GbTagWhere;
+    select?: SelectArg<S, GbTagSelectFields>;
+    compute?: C & { [K in keyof C & (keyof GbTag | keyof GbTagWhere)]?: never };
+    orderBy?: GbTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, GbTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends GbTagSelect | undefined = undefined,
+    I extends GbTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: GbTagFindUniqueWhere;
+    select?: SelectArg<S, GbTagSelectFields>;
+    include?: IncludeArg<I, GbTagInclude>;
+    compute?: C & { [K in keyof C & (keyof GbTag | keyof GbTagWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetGbTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends GbTagSelect | undefined = undefined, I extends GbTagInclude | undefined = undefined>(options: {
+    data: GbTagCreateInput;
+    select?: SelectArg<S, GbTagSelectFields>;
+    include?: IncludeArg<I, GbTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbTagPayload<S, I>>;
+
+  updateMany<
+    S extends GbTagSelect | undefined = undefined,
+    I extends GbTagInclude | undefined = undefined,
+    D extends GbTagUpdateInput = GbTagUpdateInput,
+  >(options: {
+    where: GbTagWhere;
+    data: DataArg<D, GbTagUpdateInput>;
+    unset?: SafeUnset<GbTagUnset, D>;
+    select?: SelectArg<S, GbTagSelectFields>;
+    include?: IncludeArg<I, GbTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGbTagPayload<S, I>[]>;
+
+  updateUnique<
+    S extends GbTagSelect | undefined = undefined,
+    I extends GbTagInclude | undefined = undefined,
+    D extends GbTagUpdateInput = GbTagUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GbTagFindUniqueWhere;
+    data: DataArg<D, GbTagUpdateInput>;
+    unset?: SafeUnset<GbTagUnset, D>;
+    select?: SelectArg<S, GbTagSelectFields>;
+    include?: IncludeArg<I, GbTagInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GbTag | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGbTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends GbTagSelect | undefined = undefined,
+    I extends GbTagInclude | undefined = undefined,
+    D extends GbTagUpdateInput = GbTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbTagFindUniqueWhere;
+    create: GbTagCreateInput;
+    update?: DataArg<D, GbTagUpdateInput>;
+    unset?: SafeUnset<GbTagUnset, D>;
+    select?: SelectArg<S, GbTagSelectFields>;
+    include?: IncludeArg<I, GbTagInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGbTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends GbTagSelect | undefined = undefined,
+    I extends GbTagInclude | undefined = undefined,
+    D extends GbTagUpdateInput = GbTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GbTagWhere;
+    create: GbTagCreateInput;
+    update?: DataArg<D, GbTagUpdateInput>;
+    unset?: SafeUnset<GbTagUnset, D>;
+    select?: SelectArg<S, GbTagSelectFields>;
+    include?: IncludeArg<I, GbTagInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGbTagPayload<S, I>, R>>;
+
+  deleteMany(options: { where: GbTagWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GbTagFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GbTag | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GbTag, R>>;
+
+  count(where?: GbTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends GbTagGroupByArgs>(
+    args: GroupByArg<A, GbTagGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<GbTagGroupByResult<A>[]>;
+
+  exists(where?: GbTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: GbTagWhere }): Promise<import('cerial').CerialLiveHandle<GbTag>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/gbaddress.ts =====
+/**
+ * Generated types for GbAddress
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '..';
+export interface GbAddress {
+  city: string;
+  zip?: string;
+}
+
+export interface GbAddressInput {
+  city: string;
+  zip?: string;
+}
+
+export interface GbAddressWhere {
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: GbAddressWhere[];
+  OR?: GbAddressWhere[];
+  NOT?: GbAddressWhere;
+}
+
+export interface GbAddressSelectFields {
+  city?: boolean;
+  zip?: boolean;
+}
+
+export type GbAddressSelect = AtLeastOne<GbAddressSelectFields>;
+
+export interface GbAddressOrderBy {
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+}
+
+// ===== literals/gbtier.ts =====
+/**
+ * Generated types for GbTier
+ * Do not edit manually
+ */
+
+export type GbTier = 'free' | 'pro' | 'team';
+
+export interface GbTierWhere {
+  eq?: GbTier;
+  neq?: GbTier;
+  in?: GbTier[];
+  notIn?: GbTier[];
+}
+
+// ===== enums/gbstatus.ts =====
+/**
+ * Generated types for GbStatus enum
+ * Do not edit manually
+ */
+
+export const GbStatusEnum = {
+  OPEN: 'OPEN',
+  SHIPPED: 'SHIPPED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export type GbStatusEnumType = (typeof GbStatusEnum)[keyof typeof GbStatusEnum];
+
+export interface GbStatusEnumWhere {
+  eq?: GbStatusEnumType;
+  neq?: GbStatusEnumType;
+  in?: GbStatusEnumType[];
+  notIn?: GbStatusEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}

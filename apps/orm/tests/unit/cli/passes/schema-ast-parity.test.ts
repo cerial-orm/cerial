@@ -15,7 +15,7 @@ const BEFORE_PASSES: Record<string, string> = {
   relations: 'b365ace75a04daf42b3579832f6ad3d6e080bbf0f1c61f44391f85329e7bdc2d',
   decorators: '0e5c57b5c60269f52a7eb55cded0f14aa3391f73dc6f77c0b968ac2de30d168b',
   'data-types': '42a65dc830a2f86c046973d9b13b73bc4a3ea38899896ebab7c6564b1fdacbfd',
-  features: 'acdb12bb0efb288a08f84bd268fa0c29b6c3fc166425618f3427e61888b4a076',
+  features: '5255d97d4a95e6e60f5e23746083acb272cc259e8628762a0379c5dcb70abe7b',
   'complex-types': '6ff1d4b21160c5c21af187d96964cc997004390580fd43246c3f16bffbd09e9d',
 };
 

@@ -323,6 +323,7 @@ export const tables = {
     'standalone_ref_model',
   ],
   unset: ['unset_test'],
+  groupBy: ['gb_author', 'gb_tag', 'gb_order', 'gb_label', 'gb_bare'],
 
   // ── Multi-schema runtime (fixtures under tests/fixtures/multi-schema) ──
   multiSchemaRuntime: ['ms_rt_alpha_user', 'ms_rt_alpha_note', 'ms_rt_beta_account', 'ms_rt_shared'],

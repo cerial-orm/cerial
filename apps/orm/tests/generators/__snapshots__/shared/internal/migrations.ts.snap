@@ -193,6 +193,11 @@ export type ModelName =
   | 'ExtRelCommentModerated'
   | 'ExtTupleModel'
   | 'ExtTupleByName'
+  | 'GbAuthor'
+  | 'GbTag'
+  | 'GbOrder'
+  | 'GbLabel'
+  | 'GbBare'
   | 'IntIdModel'
   | 'NumberIdModel'
   | 'StringIdModel'
@@ -429,6 +434,11 @@ export const modelNames = [
   'ExtRelCommentModerated',
   'ExtTupleModel',
   'ExtTupleByName',
+  'GbAuthor',
+  'GbTag',
+  'GbOrder',
+  'GbLabel',
+  'GbBare',
   'IntIdModel',
   'NumberIdModel',
   'StringIdModel',
@@ -675,6 +685,11 @@ export const modelFingerprints: Record<ModelName, string> = {
   ExtRelCommentModerated: 'd492d2e6284a74256c6d86047f04ca22341020ea16173b6038eb3f9bb700f5da',
   ExtTupleModel: 'b4b1088163e3f42e5afd47d7022f171fc852e2097607e3152cfae020a51fadb8',
   ExtTupleByName: '634f8b70f44dd47f7c9e941ae6bce6b163c51f38767f23748ddf4c7e19425c4e',
+  GbAuthor: 'c288e1533c6fc0232c9da0c7e086cd07b184af5da744c5cbc2ece16f93f5b446',
+  GbTag: '5c95c38cc7a25dd699b77735318148ab4eff36cd3e7f26f2f28d3cd8ef21902f',
+  GbOrder: 'f1aeb0bbdb75d2cf228f153b2dd58c3ee65bfc6cf9e1d91d5b324536c038e773',
+  GbLabel: '04d339c27a26a8b215bec59074114acf2244717f99262e87ad64a983f6e80882',
+  GbBare: 'fd0e8ae2f8338b8191152defc442db971486bb674fbc8d83fba3cb89e2ef4b69',
   IntIdModel: '3a91b01b58181be3b258639a2afd8d25993dffcfcba2070c550b3c6124657980',
   NumberIdModel: 'ec2880bacb07b0b9a5bfb97e28831c2eeadbd38bbe00b1ec4f695415e5fa53a1',
   StringIdModel: 'd47e421297e0065143ec96d7291ba208d98984fc7c8e84e6897c84de4b173a05',
@@ -729,7 +744,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = 'a6a825f314323c48a274dd6698d85e41fb214a2b263e6da9062a6b825f28bc63';
+export const wholeSchemaFingerprint = '699bd595c85c33219ebfb9c6b18a36e011d1f60cd13f2e592f6b18329154be49';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

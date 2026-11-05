@@ -67,6 +67,7 @@ export type * from './extchainpickedthenomitted';
 export type * from './extchainomitted';
 export type * from './extchainomittedthenpicked';
 export type * from './extcoord';
+export type * from './gbaddress';
 export type * from './idmetrickey';
 export type * from './unsetaddress';
 export type * from './unsetinner';

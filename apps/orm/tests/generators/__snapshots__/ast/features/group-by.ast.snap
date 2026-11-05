@@ -1,0 +1,561 @@
+{
+  "enums": [
+    {
+      "name": "GbStatus",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
+      "values": [
+        "OPEN",
+        "SHIPPED",
+        "CANCELLED"
+      ]
+    }
+  ],
+  "literals": [
+    {
+      "name": "GbTier",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
+      "variants": [
+        {
+          "kind": "string",
+          "value": "free"
+        },
+        {
+          "kind": "string",
+          "value": "pro"
+        },
+        {
+          "kind": "string",
+          "value": "team"
+        }
+      ]
+    }
+  ],
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "GbAuthor",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "orderIds",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "orderIds"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "GbOrder"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "orders",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "GbTag",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "region",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "nick",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "qty",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "weight",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "amount",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "number"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "price",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "decimal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bonus",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "decimal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "units",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int8"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "paid",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "bool"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "placed",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "ttl",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "duration"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "ref",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "uuid"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "GbStatus",
+          "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "GbTier",
+          "name": "tier",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "codes",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "address",
+          "objectName": "GbAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "altAddress",
+          "objectName": "GbAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "authorId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "authorId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "GbAuthor"
+            }
+          ],
+          "isOptional": true,
+          "name": "author",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tagIds",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "tagIds"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "GbTag"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "GbOrder",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "note",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "GbLabel",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        }
+      ],
+      "name": "GbBare",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "zip",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "GbAddress",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ]
+}

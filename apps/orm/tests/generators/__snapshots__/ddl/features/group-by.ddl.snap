@@ -1,0 +1,43 @@
+-- GbAuthor
+DEFINE TABLE OVERWRITE gb_author SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE gb_author TYPE string;
+
+-- GbBare
+DEFINE TABLE OVERWRITE gb_bare SCHEMAFULL;
+
+-- GbLabel
+DEFINE TABLE OVERWRITE gb_label SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE gb_label TYPE string;
+DEFINE FIELD OVERWRITE note ON TABLE gb_label TYPE option<string>;
+
+-- GbOrder
+DEFINE TABLE OVERWRITE gb_order SCHEMAFULL;
+DEFINE FIELD OVERWRITE label ON TABLE gb_order TYPE string;
+DEFINE FIELD OVERWRITE region ON TABLE gb_order TYPE option<string>;
+DEFINE FIELD OVERWRITE nick ON TABLE gb_order TYPE option<string | null>;
+DEFINE FIELD OVERWRITE qty ON TABLE gb_order TYPE int;
+DEFINE FIELD OVERWRITE weight ON TABLE gb_order TYPE float;
+DEFINE FIELD OVERWRITE amount ON TABLE gb_order TYPE number;
+DEFINE FIELD OVERWRITE price ON TABLE gb_order TYPE decimal;
+DEFINE FIELD OVERWRITE bonus ON TABLE gb_order TYPE option<decimal>;
+DEFINE FIELD OVERWRITE units ON TABLE gb_order TYPE i8;
+DEFINE FIELD OVERWRITE paid ON TABLE gb_order TYPE bool;
+DEFINE FIELD OVERWRITE placed ON TABLE gb_order TYPE datetime;
+DEFINE FIELD OVERWRITE ttl ON TABLE gb_order TYPE duration;
+DEFINE FIELD OVERWRITE ref ON TABLE gb_order TYPE uuid;
+DEFINE FIELD OVERWRITE status ON TABLE gb_order TYPE 'OPEN' | 'SHIPPED' | 'CANCELLED';
+DEFINE FIELD OVERWRITE tier ON TABLE gb_order TYPE 'free' | 'pro' | 'team';
+DEFINE FIELD OVERWRITE codes ON TABLE gb_order TYPE array<string>;
+DEFINE FIELD OVERWRITE address ON TABLE gb_order TYPE object;
+DEFINE FIELD OVERWRITE address.city ON TABLE gb_order TYPE string;
+DEFINE FIELD OVERWRITE address.zip ON TABLE gb_order TYPE option<string>;
+DEFINE FIELD OVERWRITE altAddress ON TABLE gb_order TYPE option<object>;
+DEFINE FIELD OVERWRITE altAddress.city ON TABLE gb_order TYPE string;
+DEFINE FIELD OVERWRITE altAddress.zip ON TABLE gb_order TYPE option<string>;
+DEFINE FIELD OVERWRITE authorId ON TABLE gb_order TYPE option<record<gb_author>>;
+DEFINE FIELD OVERWRITE tagIds ON TABLE gb_order TYPE array<record<gb_tag>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+
+-- GbTag
+DEFINE TABLE OVERWRITE gb_tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE gb_tag TYPE string;
+DEFINE FIELD OVERWRITE orderIds ON TABLE gb_tag TYPE array<record<gb_order>> VALUE IF $value THEN $value.distinct() ELSE [] END;

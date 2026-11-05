@@ -1,0 +1,464 @@
+{
+  "enums": {
+    "GbStatus": {
+      "name": "GbStatus",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "OPEN"
+        },
+        {
+          "kind": "string",
+          "value": "SHIPPED"
+        },
+        {
+          "kind": "string",
+          "value": "CANCELLED"
+        }
+      ]
+    }
+  },
+  "literals": {
+    "GbTier": {
+      "name": "GbTier",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "free"
+        },
+        {
+          "kind": "string",
+          "value": "pro"
+        },
+        {
+          "kind": "string",
+          "value": "team"
+        }
+      ]
+    }
+  },
+  "models": {
+    "GbAuthor": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "GbAuthor",
+      "tableName": "gb_author"
+    },
+    "GbBare": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        }
+      ],
+      "name": "GbBare",
+      "tableName": "gb_bare"
+    },
+    "GbLabel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "note",
+          "type": "string"
+        }
+      ],
+      "name": "GbLabel",
+      "tableName": "gb_label"
+    },
+    "GbOrder": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "region",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "nick",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "qty",
+          "type": "int"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "weight",
+          "type": "float"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "amount",
+          "type": "number"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "price",
+          "type": "decimal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bonus",
+          "type": "decimal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "units",
+          "type": "int8"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "paid",
+          "type": "bool"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "placed",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "ttl",
+          "type": "duration"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "ref",
+          "type": "uuid"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "GbStatus",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "OPEN"
+              },
+              {
+                "kind": "string",
+                "value": "SHIPPED"
+              },
+              {
+                "kind": "string",
+                "value": "CANCELLED"
+              }
+            ]
+          },
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "GbTier",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "free"
+              },
+              {
+                "kind": "string",
+                "value": "pro"
+              },
+              {
+                "kind": "string",
+                "value": "team"
+              }
+            ]
+          },
+          "name": "tier",
+          "type": "literal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "codes",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "address",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zip",
+                "type": "string"
+              }
+            ],
+            "objectName": "GbAddress"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "altAddress",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zip",
+                "type": "string"
+              }
+            ],
+            "objectName": "GbAddress"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "author",
+          "relationInfo": {
+            "fieldRef": "authorId",
+            "isReverse": false,
+            "targetModel": "GbAuthor",
+            "targetTable": "gb_author"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tagIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tags",
+          "relationInfo": {
+            "fieldRef": "tagIds",
+            "isReverse": false,
+            "targetModel": "GbTag",
+            "targetTable": "gb_tag"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "GbOrder",
+      "tableName": "gb_order"
+    },
+    "GbTag": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "orderIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "orders",
+          "relationInfo": {
+            "fieldRef": "orderIds",
+            "isReverse": false,
+            "targetModel": "GbOrder",
+            "targetTable": "gb_order"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "GbTag",
+      "tableName": "gb_tag"
+    }
+  },
+  "objects": {
+    "GbAddress": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "zip",
+          "type": "string"
+        }
+      ],
+      "name": "GbAddress"
+    }
+  }
+}

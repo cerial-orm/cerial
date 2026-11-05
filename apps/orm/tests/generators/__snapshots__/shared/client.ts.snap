@@ -241,6 +241,11 @@ import type {
   ExtRelCommentModerated,
   ExtTupleModel,
   ExtTupleByName,
+  GbAuthor,
+  GbTag,
+  GbOrder,
+  GbLabel,
+  GbBare,
   IntIdModel,
   NumberIdModel,
   StringIdModel,
@@ -474,6 +479,11 @@ import type {
   ExtRelCommentModeratedModel,
   ExtTupleModelModel,
   ExtTupleByNameModel,
+  GbAuthorModel,
+  GbTagModel,
+  GbOrderModel,
+  GbLabelModel,
+  GbBareModel,
   IntIdModelModel,
   NumberIdModelModel,
   StringIdModelModel,
@@ -715,6 +725,11 @@ export interface TypedDb {
   ExtRelCommentModerated: ExtRelCommentModeratedModel;
   ExtTupleModel: ExtTupleModelModel;
   ExtTupleByName: ExtTupleByNameModel;
+  GbAuthor: GbAuthorModel;
+  GbTag: GbTagModel;
+  GbOrder: GbOrderModel;
+  GbLabel: GbLabelModel;
+  GbBare: GbBareModel;
   IntIdModel: IntIdModelModel;
   NumberIdModel: NumberIdModelModel;
   StringIdModel: StringIdModelModel;
@@ -1632,6 +1647,26 @@ export class CerialClient {
 
   get ExtTupleByName(): ExtTupleByNameModel {
     return this._ensureDb().ExtTupleByName;
+  }
+
+  get GbAuthor(): GbAuthorModel {
+    return this._ensureDb().GbAuthor;
+  }
+
+  get GbTag(): GbTagModel {
+    return this._ensureDb().GbTag;
+  }
+
+  get GbOrder(): GbOrderModel {
+    return this._ensureDb().GbOrder;
+  }
+
+  get GbLabel(): GbLabelModel {
+    return this._ensureDb().GbLabel;
+  }
+
+  get GbBare(): GbBareModel {
+    return this._ensureDb().GbBare;
   }
 
   get IntIdModel(): IntIdModelModel {

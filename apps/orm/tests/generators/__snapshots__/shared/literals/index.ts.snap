@@ -32,3 +32,4 @@ export type * from './extstringonly';
 export type * from './extnonboolmixed';
 export type * from './extquotedpick';
 export type * from './extquotedomit';
+export type * from './gbtier';
