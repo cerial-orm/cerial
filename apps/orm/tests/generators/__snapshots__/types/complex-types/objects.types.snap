@@ -25,19 +25,19 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
+import type { AtLeastOne } from '../index.js';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address.js';
 import type {
   OrderItem,
   OrderItemInput,
   OrderItemWhere,
   OrderItemSelect,
   OrderItemOrderBy,
-} from '../objects/orderitem';
-import type { TreeNode, TreeNodeInput, TreeNodeWhere, TreeNodeSelect, TreeNodeOrderBy } from '../objects/treenode';
+} from '../objects/orderitem.js';
+import type { TreeNode, TreeNodeInput, TreeNodeWhere, TreeNodeSelect, TreeNodeOrderBy } from '../objects/treenode.js';
 export interface ObjectTestOrder {
   id: CerialId<string>;
   billingAddress: Address;
@@ -414,12 +414,12 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
-import type { GeoPoint, GeoPointInput, GeoPointWhere, GeoPointSelect, GeoPointOrderBy } from '../objects/geopoint';
+import type { AtLeastOne } from '../index.js';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address.js';
+import type { GeoPoint, GeoPointInput, GeoPointWhere, GeoPointSelect, GeoPointOrderBy } from '../objects/geopoint.js';
 export interface ObjectTestUser {
   id: CerialId<string>;
   name: string;
@@ -803,7 +803,7 @@ export interface ObjectTestUserModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface Address {
   street: string;
   city: string;
@@ -903,8 +903,8 @@ export interface AddressOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from './address';
+import type { AtLeastOne } from '../index.js';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from './address.js';
 export interface GeoPoint {
   lat: number;
   lng: number;
@@ -974,7 +974,7 @@ export interface GeoPointOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface OrderItem {
   productName: string;
   quantity: number;
@@ -1068,7 +1068,7 @@ export interface OrderItemOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface TreeNode {
   payload: number;
   children: TreeNode[];

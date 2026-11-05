@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ReviewMeta,
   ReviewMetaInput,
@@ -36,7 +36,7 @@ import type {
   ReviewMetaSelect,
   ReviewMetaOrderBy,
   ReviewMetaCreateInput,
-} from '../objects/reviewmeta';
+} from '../objects/reviewmeta.js';
 export interface ContentItem {
   id: CerialId<string>;
   title: string;
@@ -555,7 +555,7 @@ export interface ContentItemModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ReviewMeta {
   note?: string;
   flagged?: boolean;

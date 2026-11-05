@@ -24,17 +24,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtLiteralInfo,
   ExtLiteralInfoInput,
   ExtLiteralInfoWhere,
   ExtLiteralInfoSelect,
   ExtLiteralInfoOrderBy,
-} from '../objects/extliteralinfo';
+} from '../objects/extliteralinfo.js';
 export interface ExtLiteralContainer {
   id: CerialId<string>;
   name: string;
@@ -393,15 +393,15 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { ExtExtendedPriority, ExtExtendedPriorityWhere } from '../literals/extextendedpriority';
-import type { ExtExtendedLevel, ExtExtendedLevelWhere } from '../literals/extextendedlevel';
-import type { ExtExtendedMixed, ExtExtendedMixedWhere } from '../literals/extextendedmixed';
-import type { ExtExtendedBroad, ExtExtendedBroadWhere } from '../literals/extextendedbroad';
-import type { ExtHighPriority, ExtHighPriorityWhere } from '../literals/exthighpriority';
+import type { AtLeastOne } from '../index.js';
+import type { ExtExtendedPriority, ExtExtendedPriorityWhere } from '../literals/extextendedpriority.js';
+import type { ExtExtendedLevel, ExtExtendedLevelWhere } from '../literals/extextendedlevel.js';
+import type { ExtExtendedMixed, ExtExtendedMixedWhere } from '../literals/extextendedmixed.js';
+import type { ExtExtendedBroad, ExtExtendedBroadWhere } from '../literals/extextendedbroad.js';
+import type { ExtHighPriority, ExtHighPriorityWhere } from '../literals/exthighpriority.js';
 export interface ExtLiteralModel {
   id: CerialId<string>;
   priority: ExtExtendedPriority;
@@ -820,12 +820,12 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { ExtQuotedPick, ExtQuotedPickWhere } from '../literals/extquotedpick';
-import type { ExtQuotedOmit, ExtQuotedOmitWhere } from '../literals/extquotedomit';
+import type { AtLeastOne } from '../index.js';
+import type { ExtQuotedPick, ExtQuotedPickWhere } from '../literals/extquotedpick.js';
+import type { ExtQuotedOmit, ExtQuotedOmitWhere } from '../literals/extquotedomit.js';
 export interface ExtLiteralQuoted {
   id: CerialId<string>;
   picked: ExtQuotedPick;
@@ -1132,10 +1132,10 @@ export interface ExtLiteralQuotedModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { ExtExtendedPriority, ExtExtendedPriorityWhere } from '../literals/extextendedpriority';
-import type { ExtExtendedLevel, ExtExtendedLevelWhere } from '../literals/extextendedlevel';
-import type { ExtExtendedMixed, ExtExtendedMixedWhere } from '../literals/extextendedmixed';
+import type { AtLeastOne } from '../index.js';
+import type { ExtExtendedPriority, ExtExtendedPriorityWhere } from '../literals/extextendedpriority.js';
+import type { ExtExtendedLevel, ExtExtendedLevelWhere } from '../literals/extextendedlevel.js';
+import type { ExtExtendedMixed, ExtExtendedMixedWhere } from '../literals/extextendedmixed.js';
 export interface ExtLiteralInfo {
   priority: ExtExtendedPriority;
   level: ExtExtendedLevel;

@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface AnyBasic {
   id: CerialId<string>;
   name: string;
@@ -390,10 +390,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface AnyDecorated {
   id: CerialId<string>;
   defData: CerialAny;
@@ -849,10 +849,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface AnyUnique {
   id: CerialId<string>;
   uniqueData: CerialAny;
@@ -1172,11 +1172,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { AnyMeta, AnyMetaInput, AnyMetaWhere, AnyMetaSelect, AnyMetaOrderBy } from '../objects/anymeta';
+import type { AtLeastOne } from '../index.js';
+import type { AnyMeta, AnyMetaInput, AnyMetaWhere, AnyMetaSelect, AnyMetaOrderBy } from '../objects/anymeta.js';
 export interface AnyWithObject {
   id: CerialId<string>;
   name: string;
@@ -1483,7 +1483,7 @@ export interface AnyWithObjectModel {
  */
 
 import type { CerialAny } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface AnyMeta {
   data: CerialAny;
   label: string;

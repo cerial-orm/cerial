@@ -18,15 +18,15 @@ export async function writeInternalIndex(
   const filePath = `${internalDir}/index.ts`;
 
   const objectExports = hasObjects
-    ? `\nexport { objectRegistry } from './model-registry';\nexport type { ObjectRegistry } from './model-registry';`
+    ? `\nexport { objectRegistry } from './model-registry.js';\nexport type { ObjectRegistry } from './model-registry.js';`
     : '';
 
   const tupleExports = hasTuples
-    ? `\nexport { tupleRegistry } from './model-registry';\nexport type { TupleRegistry } from './model-registry';`
+    ? `\nexport { tupleRegistry } from './model-registry.js';\nexport type { TupleRegistry } from './model-registry.js';`
     : '';
 
   const literalExports = hasLiterals
-    ? `\nexport { literalRegistry } from './model-registry';\nexport type { LiteralRegistry } from './model-registry';`
+    ? `\nexport { literalRegistry } from './model-registry.js';\nexport type { LiteralRegistry } from './model-registry.js';`
     : '';
 
   const content = `/**
@@ -34,10 +34,10 @@ export async function writeInternalIndex(
  * Do not edit manually
  */
 
-export { modelRegistry } from './model-registry';
-export type { ModelRegistry } from './model-registry';${objectExports}${tupleExports}${literalExports}
-export { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, modelNames } from './migrations';
-export type { ModelName } from './migrations';
+export { modelRegistry } from './model-registry.js';
+export type { ModelRegistry } from './model-registry.js';${objectExports}${tupleExports}${literalExports}
+export { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, modelNames } from './migrations.js';
+export type { ModelName } from './migrations.js';
 `;
 
   const formatted = await formatCode(content, outputDir);

@@ -14,10 +14,10 @@ export function generateImports(models: ModelMetadata[]): string {
 
   return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, beginTransaction, validateBeginOptions, applyUnmatched, verifySchema, warnAutoChange, warnAutoInProduction, blameModels, matchedModels, readLazyState, type LazyMigrationContext, type MigrationState, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, refuseNestedTransaction, runInTransactionScope, runRouted, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionBeginOptions, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
-import { modelRegistry } from './internal/model-registry';
-import { manifest } from './internal/manifest';
-import { migrationsByModel, modelFingerprints, wholeSchemaFingerprint, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
-import type { ${modelImports}, ${modelTypeImports} } from './models';`;
+import { modelRegistry } from './internal/model-registry.js';
+import { manifest } from './internal/manifest.js';
+import { migrationsByModel, modelFingerprints, wholeSchemaFingerprint, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations.js';
+import type { ${modelImports}, ${modelTypeImports} } from './models/index.js';`;
 }
 
 /** Generate TypedDb interface for typed model access */

@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface NnPlainSlot {
   id: CerialId<string>;
   tenantId?: string | null;
@@ -412,10 +412,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface NnSlot {
   id: CerialId<string>;
   tenantId?: string | null;
@@ -790,17 +790,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   NnProfile,
   NnProfileInput,
   NnProfileWhere,
   NnProfileSelect,
   NnProfileOrderBy,
-} from '../objects/nnprofile';
+} from '../objects/nnprofile.js';
 export interface NnUser {
   id: CerialId<string>;
   email: string;

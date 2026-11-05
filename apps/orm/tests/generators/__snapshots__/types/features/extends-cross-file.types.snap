@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtCrossAdmin {
   id: CerialId<string>;
   createdAt?: Date;
@@ -647,10 +647,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtCrossModerator {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1144,10 +1144,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtCrossPremium {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1764,10 +1764,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtCrossPrivate {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2246,10 +2246,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtCrossProfile {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2892,10 +2892,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtCrossUser {
   id: CerialId<string>;
   createdAt?: Date;

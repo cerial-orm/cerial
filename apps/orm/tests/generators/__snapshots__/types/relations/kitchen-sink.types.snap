@@ -24,10 +24,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface KitchenSinkBadge {
   id: CerialId<string>;
   name: string;
@@ -349,10 +349,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   KitchenSinkUser,
   KitchenSinkUserWhere,
@@ -361,7 +361,7 @@ import type {
   KitchenSinkUserNestedCreate,
   KitchenSinkUserInclude,
   GetKitchenSinkUserIncludePayload,
-} from './kitchensinkuser';
+} from './kitchensinkuser.js';
 export interface KitchenSinkPost {
   id: CerialId<string>;
   title: string;
@@ -787,10 +787,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   KitchenSinkUser,
   KitchenSinkUserWhere,
@@ -799,7 +799,7 @@ import type {
   KitchenSinkUserNestedCreate,
   KitchenSinkUserInclude,
   GetKitchenSinkUserIncludePayload,
-} from './kitchensinkuser';
+} from './kitchensinkuser.js';
 export interface KitchenSinkProfile {
   id: CerialId<string>;
   bio?: string;
@@ -1235,10 +1235,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   KitchenSinkUser,
   KitchenSinkUserWhere,
@@ -1247,7 +1247,7 @@ import type {
   KitchenSinkUserNestedCreate,
   KitchenSinkUserInclude,
   GetKitchenSinkUserIncludePayload,
-} from './kitchensinkuser';
+} from './kitchensinkuser.js';
 export interface KitchenSinkSettings {
   id: CerialId<string>;
   theme: string;
@@ -1683,10 +1683,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   KitchenSinkUser,
   KitchenSinkUserWhere,
@@ -1695,7 +1695,7 @@ import type {
   KitchenSinkUserNestedCreate,
   KitchenSinkUserInclude,
   GetKitchenSinkUserIncludePayload,
-} from './kitchensinkuser';
+} from './kitchensinkuser.js';
 export interface KitchenSinkTag {
   id: CerialId<string>;
   name: string;
@@ -2131,10 +2131,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   KitchenSinkProfile,
   KitchenSinkProfileWhere,
@@ -2143,7 +2143,7 @@ import type {
   KitchenSinkProfileNestedCreate,
   KitchenSinkProfileInclude,
   GetKitchenSinkProfileIncludePayload,
-} from './kitchensinkprofile';
+} from './kitchensinkprofile.js';
 import type {
   KitchenSinkPost,
   KitchenSinkPostWhere,
@@ -2152,7 +2152,7 @@ import type {
   KitchenSinkPostNestedCreate,
   KitchenSinkPostInclude,
   GetKitchenSinkPostIncludePayload,
-} from './kitchensinkpost';
+} from './kitchensinkpost.js';
 import type {
   KitchenSinkTag,
   KitchenSinkTagWhere,
@@ -2161,7 +2161,7 @@ import type {
   KitchenSinkTagNestedCreate,
   KitchenSinkTagInclude,
   GetKitchenSinkTagIncludePayload,
-} from './kitchensinktag';
+} from './kitchensinktag.js';
 import type {
   KitchenSinkSettings,
   KitchenSinkSettingsWhere,
@@ -2170,14 +2170,14 @@ import type {
   KitchenSinkSettingsNestedCreate,
   KitchenSinkSettingsInclude,
   GetKitchenSinkSettingsIncludePayload,
-} from './kitchensinksettings';
+} from './kitchensinksettings.js';
 import type {
   KitchenSinkBadge,
   KitchenSinkBadgeWhere,
   KitchenSinkBadgeSelect,
   KitchenSinkBadgeOrderBy,
   KitchenSinkBadgeNestedCreate,
-} from './kitchensinkbadge';
+} from './kitchensinkbadge.js';
 export interface KitchenSinkUser {
   id: CerialId<string>;
   email: string;

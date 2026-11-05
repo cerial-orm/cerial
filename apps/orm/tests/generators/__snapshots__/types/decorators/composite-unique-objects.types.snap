@@ -24,11 +24,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Dock, DockInput, DockWhere, DockSelect, DockOrderBy } from '../objects/dock';
+import type { AtLeastOne } from '../index.js';
+import type { Dock, DockInput, DockWhere, DockSelect, DockOrderBy } from '../objects/dock.js';
 export interface Depot {
   id: CerialId<string>;
   label: string;
@@ -351,11 +351,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Location, LocationInput, LocationWhere, LocationSelect, LocationOrderBy } from '../objects/location';
+import type { AtLeastOne } from '../index.js';
+import type { Location, LocationInput, LocationWhere, LocationSelect, LocationOrderBy } from '../objects/location.js';
 export interface Warehouse {
   id: CerialId<string>;
   name: string;
@@ -736,7 +736,7 @@ export interface WarehouseModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface Dock {
   bay: string;
   level: number;
@@ -799,7 +799,7 @@ export interface DockOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface Location {
   city: string;
   zip: string;

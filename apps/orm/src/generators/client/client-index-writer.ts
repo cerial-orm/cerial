@@ -53,67 +53,67 @@ export async function writeClientIndex(
 // Model interfaces (output types - CerialId for Record fields)
 export type {
   ${modelExports},
-} from './models';
+} from './models/index.js';
 
 // Model input interfaces (input types - RecordIdInput for Record fields)
 export type {
   ${inputExports},
-} from './models';
+} from './models/index.js';
 
 // Create types
 export type {
   ${createExports},
-} from './models';
+} from './models/index.js';
 
 // NestedCreate types (for use in nested operations)
 export type {
   ${nestedCreateExports},
-} from './models';
+} from './models/index.js';
 
 // CreateInput types (with nested relation operations)
 export type {
   ${createInputExports},
-} from './models';
+} from './models/index.js';
 
 // Update types
 export type {
   ${updateExports},
-} from './models';
+} from './models/index.js';
 
 // UpdateInput types (with nested relation operations)
 export type {
   ${updateInputExports},
-} from './models';
+} from './models/index.js';
 
 // Unset types (for bulk field removal)
 export type {
   ${unsetExports},
-} from './models';
+} from './models/index.js';
 
 // Where types
 export type {
   ${whereExports},
-} from './models';
+} from './models/index.js';
 
 // FindUniqueWhere types
 export type {
   ${findUniqueWhereExports},
-} from './models';
+} from './models/index.js';
 
 // Select types
 export type {
   ${selectExports},
-} from './models';
+} from './models/index.js';
 
 // OrderBy types
 export type {
   ${orderByExports},
-} from './models';
+} from './models/index.js';
 
 // Model types
 export type {
   ${modelTypeExports},
-} from './models';
+} from './models/index.js';
 `;
 
   // Add Object type exports if there are objects
@@ -135,12 +135,12 @@ export type {
 // Object interfaces (output types)
 export type {
   ${objInterfaces},
-} from './objects';
+} from './objects/index.js';
 
 // Object input interfaces
 export type {
   ${objInputs},
-} from './objects';
+} from './objects/index.js';
 `;
 
     if (objectsWithDefaults.length) {
@@ -149,7 +149,7 @@ export type {
 // Object create input interfaces (fields with @default/@createdAt/@updatedAt are optional, @now fields omitted)
 export type {
   ${objCreateInputs},
-} from './objects';
+} from './objects/index.js';
 `;
     }
 
@@ -157,17 +157,17 @@ export type {
 // Object where types
 export type {
   ${objWheres},
-} from './objects';
+} from './objects/index.js';
 
 // Object select types
 export type {
   ${objSelects},
-} from './objects';
+} from './objects/index.js';
 
 // Object orderBy types
 export type {
   ${objOrderBys},
-} from './objects';
+} from './objects/index.js';
 `;
   }
 
@@ -187,22 +187,22 @@ export type {
 // Tuple types (output types - TypeScript tuple literals)
 export type {
   ${tupInterfaces},
-} from './tuples';
+} from './tuples/index.js';
 
 // Tuple input types (accepts array or object form)
 export type {
   ${tupInputs},
-} from './tuples';
+} from './tuples/index.js';
 
 // Tuple where types
 export type {
   ${tupWheres},
-} from './tuples';
+} from './tuples/index.js';
 
 // Tuple update types (per-element update)
 export type {
   ${tupUpdates},
-} from './tuples';
+} from './tuples/index.js';
 `;
 
     if (tuplesWithSelect.length) {
@@ -211,7 +211,7 @@ export type {
 // Tuple select types (sub-field selection for tuples with object elements)
 export type {
   ${tupSelects},
-} from './tuples';
+} from './tuples/index.js';
 `;
     }
 
@@ -221,7 +221,7 @@ export type {
 // Tuple unset types (per-element unset for tuples with optional elements)
 export type {
   ${tupUnsets},
-} from './tuples';
+} from './tuples/index.js';
 `;
     }
   }
@@ -238,12 +238,12 @@ export type {
 // Literal types (output types - union of variant values)
 export type {
   ${litOutputTypes},
-} from './literals';
+} from './literals/index.js';
 
 // Literal where types
 export type {
   ${litWheres},
-} from './literals';
+} from './literals/index.js';
 `;
 
     if (literalsWithInput.length) {
@@ -252,7 +252,7 @@ export type {
 // Literal input types (with Input variants for tupleRef/objectRef)
 export type {
   ${litInputTypes},
-} from './literals';
+} from './literals/index.js';
 `;
     }
   }
@@ -267,17 +267,17 @@ export type {
 // Enum const objects
 export {
   ${enumConsts},
-} from './enums';
+} from './enums/index.js';
 
 // Enum union types
 export type {
   ${enumTypes},
-} from './enums';
+} from './enums/index.js';
 
 // Enum where types
 export type {
   ${enumWheres},
-} from './enums';
+} from './enums/index.js';
 `;
   }
 
@@ -287,12 +287,12 @@ export type {
 // Include types
 export type {
   ${includeExports},
-} from './models';
+} from './models/index.js';
 
 // Include payload types (for type inference)
 export type {
   ${includePayloadExports},
-} from './models';
+} from './models/index.js';
 `;
   }
 
@@ -302,16 +302,16 @@ export type {
 // Relations types
 export type {
   ${relationsExports},
-} from './models';
+} from './models/index.js';
 
 // GetPayload types (for type inference)
 export type {
   ${getPayloadExports},
-} from './models';
+} from './models/index.js';
 
 // Client exports
-export { ${clientClassName} } from './client';
-export type { ConnectionConfig, TypedDb, ${connectConfigName} } from './client';
+export { ${clientClassName} } from './client.js';
+export type { ConnectionConfig, TypedDb, ${connectConfigName} } from './client.js';
 
 // CerialQueryPromise (for $transaction type inference)
 export { CerialQueryPromise } from 'cerial';
@@ -322,7 +322,7 @@ export { NONE } from 'cerial';
 export type { CerialNone } from 'cerial';
 
 // Registry
-export { modelRegistry } from './internal';
+export { modelRegistry } from './internal/index.js';
 
 // Type utilities from ts-toolbelt (re-exported for consumer convenience)
 import type { Object as O, Any as A } from 'ts-toolbelt';

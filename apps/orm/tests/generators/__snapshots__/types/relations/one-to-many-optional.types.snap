@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Publisher,
   PublisherWhere,
@@ -37,7 +37,7 @@ import type {
   PublisherNestedCreate,
   PublisherInclude,
   GetPublisherIncludePayload,
-} from './publisher';
+} from './publisher.js';
 export interface Book {
   id: CerialId<string>;
   title: string;
@@ -496,10 +496,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Book,
   BookWhere,
@@ -508,7 +508,7 @@ import type {
   BookNestedCreate,
   BookInclude,
   GetBookIncludePayload,
-} from './book';
+} from './book.js';
 export interface Publisher {
   id: CerialId<string>;
   name: string;

@@ -31,10 +31,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   NcGroup,
   NcGroupWhere,
@@ -43,7 +43,7 @@ import type {
   NcGroupNestedCreate,
   NcGroupInclude,
   GetNcGroupIncludePayload,
-} from './ncgroup';
+} from './ncgroup.js';
 import type {
   NcHolder,
   NcHolderWhere,
@@ -52,7 +52,7 @@ import type {
   NcHolderNestedCreate,
   NcHolderInclude,
   GetNcHolderIncludePayload,
-} from './ncholder';
+} from './ncholder.js';
 export interface NcDoc {
   id: CerialId<string>;
   label: string;
@@ -971,10 +971,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   NcDoc,
   NcDocWhere,
@@ -983,7 +983,7 @@ import type {
   NcDocNestedCreate,
   NcDocInclude,
   GetNcDocIncludePayload,
-} from './ncdoc';
+} from './ncdoc.js';
 export interface NcGroup {
   id: CerialId<string>;
   name: string;
@@ -1401,10 +1401,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   NcDoc,
   NcDocWhere,
@@ -1413,7 +1413,7 @@ import type {
   NcDocNestedCreate,
   NcDocInclude,
   GetNcDocIncludePayload,
-} from './ncdoc';
+} from './ncdoc.js';
 export interface NcHolder {
   id: CerialId<string>;
   name: string;

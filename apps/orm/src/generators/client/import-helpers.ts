@@ -50,12 +50,12 @@ export const SQL_FRAGMENT_IMPORT = `import type { SqlFragment } from 'cerial';`;
 export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
 /** DeleteUnique, UpdateUnique, Upsert, select utility types, SafeUnset, and CerialQueryPromise import for model files */
-export const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect, SafeUnset, SelectArg, DataArg, IncludeArg, GroupByArg, GroupByRow, GroupMember } from '..';
-import type { CerialQueryPromise } from '..';
+export const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect, SafeUnset, SelectArg, DataArg, IncludeArg, GroupByArg, GroupByRow, GroupMember } from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';`;
 
 /** AtLeastOne import for a Select type of two or more fields */
-export const AT_LEAST_ONE_IMPORT = `import type { AtLeastOne } from '..';`;
+export const AT_LEAST_ONE_IMPORT = `import type { AtLeastOne } from '../index.js';`;
 
 // ─── Import Resolvers ─────────────────────────────────────────────────────────
 
@@ -438,7 +438,7 @@ export function generateRelatedImports(relatedModels: string[], allModels: Model
       baseImports.push(`${name}Include`, `Get${name}IncludePayload`);
     }
 
-    return `import type { ${baseImports.join(', ')} } from './${fileName}';`;
+    return `import type { ${baseImports.join(', ')} } from './${fileName}.js';`;
   });
 
   return `${imports.join('\n')}\n`;
@@ -467,7 +467,7 @@ export function generateObjectImports(
       }
     }
 
-    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}.js';`;
   });
 
   return `${imports.join('\n')}\n`;
@@ -500,7 +500,7 @@ export function generateTupleImports(
       }
     }
 
-    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}.js';`;
   });
 
   return `${imports.join('\n')}\n`;
@@ -637,7 +637,7 @@ export function generateLiteralImports(
       }
     }
 
-    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}.js';`;
   });
 
   return `${imports.join('\n')}\n`;
@@ -659,7 +659,7 @@ export function generateEnumImports(enumNames: string[], importPrefix: string = 
     const typeName = `${name}EnumType`;
     const whereName = `${name}EnumWhere`;
 
-    return `import { ${constName} } from '${importPrefix}/${fileName}';\nimport type { ${typeName}, ${whereName} } from '${importPrefix}/${fileName}';`;
+    return `import { ${constName} } from '${importPrefix}/${fileName}.js';\nimport type { ${typeName}, ${whereName} } from '${importPrefix}/${fileName}.js';`;
   });
 
   return `${imports.join('\n')}\n`;
@@ -680,7 +680,7 @@ export function generateLiteralObjectImports(
     const fileName = name.toLowerCase();
     const importNames = [name, `${name}Input`];
 
-    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}.js';`;
   });
 
   return `${imports.join('\n')}\n`;
@@ -701,7 +701,7 @@ export function generateLiteralTupleImports(
     const fileName = name.toLowerCase();
     const importNames = [name, `${name}Input`];
 
-    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}.js';`;
   });
 
   return `${imports.join('\n')}\n`;

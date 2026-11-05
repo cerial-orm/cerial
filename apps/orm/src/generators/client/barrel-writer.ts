@@ -18,7 +18,7 @@ export async function writeModelsIndex(
   await ensureDir(modelsDir);
 
   const filePath = `${modelsDir}/${typeFileName('index', typeFiles)}`;
-  const exports = models.map((m) => `export type * from './${m.name.toLowerCase()}';`).join('\n');
+  const exports = models.map((m) => `export type * from './${m.name.toLowerCase()}.js';`).join('\n');
 
   const content = `/**
  * Generated model exports
@@ -46,7 +46,7 @@ export async function writeObjectsIndex(
   await ensureDir(objectsDir);
 
   const filePath = `${objectsDir}/${typeFileName('index', typeFiles)}`;
-  const exports = objects.map((o) => `export type * from './${o.name.toLowerCase()}';`).join('\n');
+  const exports = objects.map((o) => `export type * from './${o.name.toLowerCase()}.js';`).join('\n');
 
   const content = `/**
  * Generated object exports
@@ -74,7 +74,7 @@ export async function writeTuplesIndex(
   await ensureDir(tuplesDir);
 
   const filePath = `${tuplesDir}/${typeFileName('index', typeFiles)}`;
-  const exports = tuples.map((t) => `export type * from './${t.name.toLowerCase()}';`).join('\n');
+  const exports = tuples.map((t) => `export type * from './${t.name.toLowerCase()}.js';`).join('\n');
 
   const content = `/**
  * Generated tuple exports
@@ -102,7 +102,7 @@ export async function writeLiteralsIndex(
   await ensureDir(literalsDir);
 
   const filePath = `${literalsDir}/${typeFileName('index', typeFiles)}`;
-  const exports = literals.map((l) => `export type * from './${l.name.toLowerCase()}';`).join('\n');
+  const exports = literals.map((l) => `export type * from './${l.name.toLowerCase()}.js';`).join('\n');
 
   const content = `/**
  * Generated literal exports
@@ -126,7 +126,7 @@ export async function writeEnumsIndex(outputDir: string, enums: LiteralMetadata[
   await ensureDir(enumsDir);
 
   const filePath = `${enumsDir}/index.ts`;
-  const exports = enums.map((e) => `export * from './${e.name.toLowerCase()}';`).join('\n');
+  const exports = enums.map((e) => `export * from './${e.name.toLowerCase()}.js';`).join('\n');
 
   const content = `/**
  * Generated enum exports

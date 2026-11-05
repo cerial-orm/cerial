@@ -25,12 +25,12 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
-import type { Entry, EntryInput, EntryWhere, EntryUpdate } from '../tuples/entry';
+import type { AtLeastOne } from '../index.js';
+import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate.js';
+import type { Entry, EntryInput, EntryWhere, EntryUpdate } from '../tuples/entry.js';
 export interface TupleBasic {
   id: CerialId<string>;
   name: string;
@@ -388,13 +388,13 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { StampedOuter, StampedOuterInput, StampedOuterWhere, StampedOuterUpdate } from '../tuples/stampedouter';
-import type { Stamped, StampedInput, StampedWhere, StampedUpdate } from '../tuples/stamped';
-import type { StampedInner, StampedInnerInput, StampedInnerWhere, StampedInnerUpdate } from '../tuples/stampedinner';
+import type { AtLeastOne } from '../index.js';
+import type { StampedOuter, StampedOuterInput, StampedOuterWhere, StampedOuterUpdate } from '../tuples/stampedouter.js';
+import type { Stamped, StampedInput, StampedWhere, StampedUpdate } from '../tuples/stamped.js';
+import type { StampedInner, StampedInnerInput, StampedInnerWhere, StampedInnerUpdate } from '../tuples/stampedinner.js';
 export interface TupleDecoratedNest {
   id: CerialId<string>;
   name: string;
@@ -735,17 +735,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DeepMidObj,
   DeepMidObjInput,
   DeepMidObjWhere,
   DeepMidObjSelect,
   DeepMidObjOrderBy,
-} from '../objects/deepmidobj';
+} from '../objects/deepmidobj.js';
 import type {
   DeepOuterTuple,
   DeepOuterTupleInput,
@@ -753,7 +753,7 @@ import type {
   DeepOuterTupleUpdate,
   DeepOuterTupleSelect,
   DeepOuterTupleUnset,
-} from '../tuples/deepoutertuple';
+} from '../tuples/deepoutertuple.js';
 import type {
   DeepMidTuple,
   DeepMidTupleInput,
@@ -761,7 +761,7 @@ import type {
   DeepMidTupleUpdate,
   DeepMidTupleSelect,
   DeepMidTupleUnset,
-} from '../tuples/deepmidtuple';
+} from '../tuples/deepmidtuple.js';
 export interface TupleDeepNest {
   id: CerialId<string>;
   deep: DeepOuterTuple;
@@ -1071,11 +1071,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Defaulted, DefaultedInput, DefaultedWhere, DefaultedUpdate } from '../tuples/defaulted';
+import type { AtLeastOne } from '../index.js';
+import type { Defaulted, DefaultedInput, DefaultedWhere, DefaultedUpdate } from '../tuples/defaulted.js';
 export interface TupleDefaulted {
   id: CerialId<string>;
   name: string;
@@ -1398,17 +1398,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   TupleHolder,
   TupleHolderInput,
   TupleHolderWhere,
   TupleHolderSelect,
   TupleHolderOrderBy,
-} from '../objects/tupleholder';
+} from '../objects/tupleholder.js';
 export interface TupleInObj {
   id: CerialId<string>;
   details: TupleHolder;
@@ -1716,12 +1716,12 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { StatusPair, StatusPairInput, StatusPairWhere, StatusPairUpdate } from '../tuples/statuspair';
-import type { RolePair, RolePairInput, RolePairWhere, RolePairUpdate } from '../tuples/rolepair';
+import type { AtLeastOne } from '../index.js';
+import type { StatusPair, StatusPairInput, StatusPairWhere, StatusPairUpdate } from '../tuples/statuspair.js';
+import type { RolePair, RolePairInput, RolePairWhere, RolePairUpdate } from '../tuples/rolepair.js';
 export interface TupleLiteralElement {
   id: CerialId<string>;
   name: string;
@@ -2075,12 +2075,12 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Outer, OuterInput, OuterWhere, OuterUpdate } from '../tuples/outer';
-import type { Inner, InnerInput, InnerWhere, InnerUpdate } from '../tuples/inner';
+import type { AtLeastOne } from '../index.js';
+import type { Outer, OuterInput, OuterWhere, OuterUpdate } from '../tuples/outer.js';
+import type { Inner, InnerInput, InnerWhere, InnerUpdate } from '../tuples/inner.js';
 export interface TupleNested {
   id: CerialId<string>;
   payload: Outer;
@@ -2381,31 +2381,31 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   NullablePair,
   NullablePairInput,
   NullablePairWhere,
   NullablePairUpdate,
   NullablePairUnset,
-} from '../tuples/nullablepair';
+} from '../tuples/nullablepair.js';
 import type {
   OptNullPair,
   OptNullPairInput,
   OptNullPairWhere,
   OptNullPairUpdate,
   OptNullPairUnset,
-} from '../tuples/optnullpair';
+} from '../tuples/optnullpair.js';
 import type {
   MixedNullability,
   MixedNullabilityInput,
   MixedNullabilityWhere,
   MixedNullabilityUpdate,
   MixedNullabilityUnset,
-} from '../tuples/mixednullability';
+} from '../tuples/mixednullability.js';
 export interface TupleNullable {
   id: CerialId<string>;
   name: string;
@@ -2751,18 +2751,18 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   TupleAddress,
   TupleAddressInput,
   TupleAddressWhere,
   TupleAddressSelect,
   TupleAddressOrderBy,
-} from '../objects/tupleaddress';
-import type { Located, LocatedInput, LocatedWhere, LocatedUpdate, LocatedSelect } from '../tuples/located';
+} from '../objects/tupleaddress.js';
+import type { Located, LocatedInput, LocatedWhere, LocatedUpdate, LocatedSelect } from '../tuples/located.js';
 export interface TupleObjInTuple {
   id: CerialId<string>;
   place: Located;
@@ -3067,10 +3067,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   TupleWithRelation,
   TupleWithRelationWhere,
@@ -3079,8 +3079,8 @@ import type {
   TupleWithRelationNestedCreate,
   TupleWithRelationInclude,
   GetTupleWithRelationIncludePayload,
-} from './tuplewithrelation';
-import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
+} from './tuplewithrelation.js';
+import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate.js';
 export interface TupleRelatedPost {
   id: CerialId<string>;
   title: string;
@@ -3523,11 +3523,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Stamped, StampedInput, StampedWhere, StampedUpdate } from '../tuples/stamped';
+import type { AtLeastOne } from '../index.js';
+import type { Stamped, StampedInput, StampedWhere, StampedUpdate } from '../tuples/stamped.js';
 export interface TupleStamped {
   id: CerialId<string>;
   name: string;
@@ -3850,10 +3850,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   TupleRelatedPost,
   TupleRelatedPostWhere,
@@ -3862,8 +3862,8 @@ import type {
   TupleRelatedPostNestedCreate,
   TupleRelatedPostInclude,
   GetTupleRelatedPostIncludePayload,
-} from './tuplerelatedpost';
-import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
+} from './tuplerelatedpost.js';
+import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate.js';
 export interface TupleWithRelation {
   id: CerialId<string>;
   name: string;
@@ -4254,7 +4254,7 @@ export interface TupleWithRelationModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface DeepInnerObj {
   payload: string;
   extra: string;
@@ -4315,14 +4315,14 @@ export interface DeepInnerObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DeepInnerTuple,
   DeepInnerTupleInput,
   DeepInnerTupleWhere,
   DeepInnerTupleUpdate,
   DeepInnerTupleSelect,
-} from '../tuples/deepinnertuple';
+} from '../tuples/deepinnertuple.js';
 export interface DeepMidObj {
   name: string;
   age?: number;
@@ -4391,7 +4391,7 @@ export interface DeepMidObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface TupleAddress {
   street: string;
   city: string;
@@ -4452,8 +4452,8 @@ export interface TupleAddressOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
+import type { AtLeastOne } from '../index.js';
+import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate.js';
 export interface TupleHolder {
   label: string;
   coord: Coordinate;
@@ -4598,7 +4598,7 @@ import type {
   DeepInnerObjWhere,
   DeepInnerObjSelect,
   DeepInnerObjOrderBy,
-} from '../objects/deepinnerobj';
+} from '../objects/deepinnerobj.js';
 export type DeepInnerTuple = [number, DeepInnerObj];
 
 export type DeepInnerTupleInput =
@@ -4648,7 +4648,7 @@ import type {
   DeepMidObjWhere,
   DeepMidObjSelect,
   DeepMidObjOrderBy,
-} from '../objects/deepmidobj';
+} from '../objects/deepmidobj.js';
 export type DeepMidTuple = [string, DeepMidObj];
 
 export type DeepMidTupleInput =
@@ -4702,7 +4702,7 @@ import type {
   DeepMidObjWhere,
   DeepMidObjSelect,
   DeepMidObjOrderBy,
-} from '../objects/deepmidobj';
+} from '../objects/deepmidobj.js';
 import type {
   DeepMidTuple,
   DeepMidTupleInput,
@@ -4710,7 +4710,7 @@ import type {
   DeepMidTupleUpdate,
   DeepMidTupleSelect,
   DeepMidTupleUnset,
-} from './deepmidtuple';
+} from './deepmidtuple.js';
 export type DeepOuterTuple = [string, DeepMidTuple];
 
 export type DeepOuterTupleInput =
@@ -5006,7 +5006,7 @@ import type {
   TupleAddressWhere,
   TupleAddressSelect,
   TupleAddressOrderBy,
-} from '../objects/tupleaddress';
+} from '../objects/tupleaddress.js';
 export type Located = [string, TupleAddress];
 
 export type LocatedInput =
@@ -5413,7 +5413,7 @@ export type OptNullPairUnset = {
  * Do not edit manually
  */
 
-import type { Inner, InnerInput, InnerWhere, InnerUpdate } from './inner';
+import type { Inner, InnerInput, InnerWhere, InnerUpdate } from './inner.js';
 export type Outer = [string, Inner];
 
 export type OuterInput =
@@ -5466,8 +5466,8 @@ export type OuterUpdate = {
  * Do not edit manually
  */
 
-import { RoleEnum } from '../enums/role';
-import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
+import { RoleEnum } from '../enums/role.js';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role.js';
 export type RolePair = [RoleEnumType, number];
 
 export type RolePairInput =
@@ -5745,7 +5745,7 @@ export type StampedInnerUpdate = {
  * Do not edit manually
  */
 
-import type { StampedInner, StampedInnerInput, StampedInnerWhere, StampedInnerUpdate } from './stampedinner';
+import type { StampedInner, StampedInnerInput, StampedInnerWhere, StampedInnerUpdate } from './stampedinner.js';
 export type StampedOuter = [string, StampedInner];
 
 export type StampedOuterInput =
@@ -5798,7 +5798,7 @@ export type StampedOuterUpdate = {
  * Do not edit manually
  */
 
-import type { Status, StatusWhere } from '../literals/status';
+import type { Status, StatusWhere } from '../literals/status.js';
 export type StatusPair = [Status, number];
 
 export type StatusPairInput =

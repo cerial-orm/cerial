@@ -25,53 +25,53 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   UnsetAddress,
   UnsetAddressInput,
   UnsetAddressWhere,
   UnsetAddressSelect,
   UnsetAddressOrderBy,
-} from '../objects/unsetaddress';
+} from '../objects/unsetaddress.js';
 import type {
   UnsetDeepOuter,
   UnsetDeepOuterInput,
   UnsetDeepOuterWhere,
   UnsetDeepOuterSelect,
   UnsetDeepOuterOrderBy,
-} from '../objects/unsetdeepouter';
+} from '../objects/unsetdeepouter.js';
 import type {
   UnsetTreeNode,
   UnsetTreeNodeInput,
   UnsetTreeNodeWhere,
   UnsetTreeNodeSelect,
   UnsetTreeNodeOrderBy,
-} from '../objects/unsettreenode';
+} from '../objects/unsettreenode.js';
 import type {
   UnsetInner,
   UnsetInnerInput,
   UnsetInnerWhere,
   UnsetInnerSelect,
   UnsetInnerOrderBy,
-} from '../objects/unsetinner';
+} from '../objects/unsetinner.js';
 import type {
   UnsetDeepMid,
   UnsetDeepMidInput,
   UnsetDeepMidWhere,
   UnsetDeepMidSelect,
   UnsetDeepMidOrderBy,
-} from '../objects/unsetdeepmid';
-import type { UnsetCoord, UnsetCoordInput, UnsetCoordWhere, UnsetCoordUpdate } from '../tuples/unsetcoord';
+} from '../objects/unsetdeepmid.js';
+import type { UnsetCoord, UnsetCoordInput, UnsetCoordWhere, UnsetCoordUpdate } from '../tuples/unsetcoord.js';
 import type {
   UnsetOptTuple,
   UnsetOptTupleInput,
   UnsetOptTupleWhere,
   UnsetOptTupleUpdate,
   UnsetOptTupleUnset,
-} from '../tuples/unsetopttuple';
+} from '../tuples/unsetopttuple.js';
 import type {
   UnsetObjTuple,
   UnsetObjTupleInput,
@@ -79,7 +79,7 @@ import type {
   UnsetObjTupleUpdate,
   UnsetObjTupleSelect,
   UnsetObjTupleUnset,
-} from '../tuples/unsetobjtuple';
+} from '../tuples/unsetobjtuple.js';
 import type {
   UnsetDeepTuple,
   UnsetDeepTupleInput,
@@ -87,14 +87,14 @@ import type {
   UnsetDeepTupleUpdate,
   UnsetDeepTupleSelect,
   UnsetDeepTupleUnset,
-} from '../tuples/unsetdeeptuple';
+} from '../tuples/unsetdeeptuple.js';
 import type {
   UnsetRecursive,
   UnsetRecursiveInput,
   UnsetRecursiveWhere,
   UnsetRecursiveUpdate,
   UnsetRecursiveUnset,
-} from '../tuples/unsetrecursive';
+} from '../tuples/unsetrecursive.js';
 export interface UnsetTest {
   id: CerialId<string>;
   name: string;
@@ -658,7 +658,7 @@ export interface UnsetTestModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UnsetAddress {
   street: string;
   city: string;
@@ -739,7 +739,7 @@ export interface UnsetAddressOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UnsetDeepInner {
   code: string;
   note?: string;
@@ -803,14 +803,14 @@ export interface UnsetDeepInnerOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   UnsetDeepInner,
   UnsetDeepInnerInput,
   UnsetDeepInnerWhere,
   UnsetDeepInnerSelect,
   UnsetDeepInnerOrderBy,
-} from './unsetdeepinner';
+} from './unsetdeepinner.js';
 export interface UnsetDeepMid {
   label: string;
   score?: number;
@@ -880,14 +880,14 @@ export interface UnsetDeepMidOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   UnsetDeepMid,
   UnsetDeepMidInput,
   UnsetDeepMidWhere,
   UnsetDeepMidSelect,
   UnsetDeepMidOrderBy,
-} from './unsetdeepmid';
+} from './unsetdeepmid.js';
 export interface UnsetDeepOuter {
   title: string;
   mid: UnsetDeepMid;
@@ -956,7 +956,7 @@ export interface UnsetDeepOuterOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UnsetInner {
   payload: string;
   extra?: string;
@@ -1020,7 +1020,7 @@ export interface UnsetInnerOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UnsetTreeNode {
   payload: string;
   extra?: string;
@@ -1182,7 +1182,7 @@ import type {
   UnsetDeepMidWhere,
   UnsetDeepMidSelect,
   UnsetDeepMidOrderBy,
-} from '../objects/unsetdeepmid';
+} from '../objects/unsetdeepmid.js';
 export type UnsetDeepTuple = [string, UnsetDeepMid];
 
 export type UnsetDeepTupleInput =
@@ -1254,7 +1254,7 @@ import type {
   UnsetInnerWhere,
   UnsetInnerSelect,
   UnsetInnerOrderBy,
-} from '../objects/unsetinner';
+} from '../objects/unsetinner.js';
 export type UnsetObjTuple = [string, UnsetInner];
 
 export type UnsetObjTupleInput =

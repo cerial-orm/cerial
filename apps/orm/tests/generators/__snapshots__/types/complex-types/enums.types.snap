@@ -25,12 +25,12 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import { RoleEnum } from '../enums/role';
-import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
+import type { AtLeastOne } from '../index.js';
+import { RoleEnum } from '../enums/role.js';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role.js';
 export interface EnumBasic {
   id: CerialId<string>;
   name: string;
@@ -436,14 +436,14 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import { RoleEnum } from '../enums/role';
-import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
-import { SeverityEnum } from '../enums/severity';
-import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity';
+import type { AtLeastOne } from '../index.js';
+import { RoleEnum } from '../enums/role.js';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role.js';
+import { SeverityEnum } from '../enums/severity.js';
+import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity.js';
 export interface EnumDefaults {
   id: CerialId<string>;
   label: string;
@@ -800,11 +800,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { RoleOrCustom, RoleOrCustomWhere } from '../literals/roleorcustom';
+import type { AtLeastOne } from '../index.js';
+import type { RoleOrCustom, RoleOrCustomWhere } from '../literals/roleorcustom.js';
 export interface EnumLiteralRef {
   id: CerialId<string>;
   visibility: RoleOrCustom;
@@ -1107,16 +1107,16 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import { RoleEnum } from '../enums/role';
-import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
-import { ColorEnum } from '../enums/color';
-import type { ColorEnumType, ColorEnumWhere } from '../enums/color';
-import { SeverityEnum } from '../enums/severity';
-import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity';
+import type { AtLeastOne } from '../index.js';
+import { RoleEnum } from '../enums/role.js';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role.js';
+import { ColorEnum } from '../enums/color.js';
+import type { ColorEnumType, ColorEnumWhere } from '../enums/color.js';
+import { SeverityEnum } from '../enums/severity.js';
+import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity.js';
 export interface EnumMultiple {
   id: CerialId<string>;
   title: string;
@@ -1499,12 +1499,12 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import { RoleEnum } from '../enums/role';
-import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
+import type { AtLeastOne } from '../index.js';
+import { RoleEnum } from '../enums/role.js';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role.js';
 export interface EnumUnique {
   id: CerialId<string>;
   role: RoleEnumType;
@@ -1812,17 +1812,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   EnumAddress,
   EnumAddressInput,
   EnumAddressWhere,
   EnumAddressSelect,
   EnumAddressOrderBy,
-} from '../objects/enumaddress';
+} from '../objects/enumaddress.js';
 export interface EnumWithObject {
   id: CerialId<string>;
   name: string;
@@ -2145,9 +2145,9 @@ export interface EnumWithObjectModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import { SeverityEnum } from '../enums/severity';
-import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity';
+import type { AtLeastOne } from '../index.js';
+import { SeverityEnum } from '../enums/severity.js';
+import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity.js';
 export interface EnumAddress {
   city: string;
   severity: SeverityEnumType;

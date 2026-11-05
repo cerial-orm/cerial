@@ -25,24 +25,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   FlexAddress,
   FlexAddressInput,
   FlexAddressWhere,
   FlexAddressSelect,
   FlexAddressOrderBy,
-} from '../objects/flexaddress';
+} from '../objects/flexaddress.js';
 import type {
   FlexProfile,
   FlexProfileInput,
   FlexProfileWhere,
   FlexProfileSelect,
   FlexProfileOrderBy,
-} from '../objects/flexprofile';
+} from '../objects/flexprofile.js';
 export interface FlexUser {
   id: CerialId<string>;
   name: string;
@@ -431,7 +431,7 @@ export interface FlexUserModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface FlexAddress {
   street: string;
   city: string;
@@ -553,8 +553,8 @@ export interface FlexMetaOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { FlexMeta, FlexMetaInput, FlexMetaWhere, FlexMetaSelect, FlexMetaOrderBy } from './flexmeta';
+import type { AtLeastOne } from '../index.js';
+import type { FlexMeta, FlexMetaInput, FlexMetaWhere, FlexMetaSelect, FlexMetaOrderBy } from './flexmeta.js';
 export interface FlexProfile {
   bio: string;
   metadata: FlexMeta & Record<string, any>;

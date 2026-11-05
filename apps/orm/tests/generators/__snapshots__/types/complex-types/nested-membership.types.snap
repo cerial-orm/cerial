@@ -25,13 +25,13 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
-import type { NmMid, NmMidInput, NmMidWhere, NmMidSelect, NmMidOrderBy } from '../objects/nmmid';
-import type { NmTop, NmTopInput, NmTopWhere, NmTopSelect, NmTopOrderBy } from '../objects/nmtop';
+import type { AtLeastOne } from '../index.js';
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf.js';
+import type { NmMid, NmMidInput, NmMidWhere, NmMidSelect, NmMidOrderBy } from '../objects/nmmid.js';
+import type { NmTop, NmTopInput, NmTopWhere, NmTopSelect, NmTopOrderBy } from '../objects/nmtop.js';
 export interface NmObjectDoc {
   id: CerialId<string>;
   name: string;
@@ -453,25 +453,25 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   NmHoldsTuple,
   NmHoldsTupleInput,
   NmHoldsTupleWhere,
   NmHoldsTupleSelect,
   NmHoldsTupleOrderBy,
-} from '../objects/nmholdstuple';
+} from '../objects/nmholdstuple.js';
 import type {
   NmHoldsHolder,
   NmHoldsHolderInput,
   NmHoldsHolderWhere,
   NmHoldsHolderSelect,
   NmHoldsHolderOrderBy,
-} from '../objects/nmholdsholder';
-import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+} from '../objects/nmholdsholder.js';
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf.js';
 import type {
   NmWithLeaf,
   NmWithLeafInput,
@@ -479,7 +479,7 @@ import type {
   NmWithLeafUpdate,
   NmWithLeafSelect,
   NmWithLeafUnset,
-} from '../tuples/nmwithleaf';
+} from '../tuples/nmwithleaf.js';
 import type {
   NmNamedLeaf,
   NmNamedLeafInput,
@@ -487,7 +487,7 @@ import type {
   NmNamedLeafUpdate,
   NmNamedLeafSelect,
   NmNamedLeafUnset,
-} from '../tuples/nmnamedleaf';
+} from '../tuples/nmnamedleaf.js';
 import type {
   NmOuter,
   NmOuterInput,
@@ -495,7 +495,7 @@ import type {
   NmOuterUpdate,
   NmOuterSelect,
   NmOuterUnset,
-} from '../tuples/nmouter';
+} from '../tuples/nmouter.js';
 export interface NmTupleDoc {
   id: CerialId<string>;
   name: string;
@@ -898,7 +898,7 @@ import type {
   NmHoldsTupleWhere,
   NmHoldsTupleSelect,
   NmHoldsTupleOrderBy,
-} from './nmholdstuple';
+} from './nmholdstuple.js';
 export interface NmHoldsHolder {
   holder: NmHoldsTuple;
 }
@@ -933,7 +933,7 @@ import type {
   NmWithLeafUpdate,
   NmWithLeafSelect,
   NmWithLeafUnset,
-} from '../tuples/nmwithleaf';
+} from '../tuples/nmwithleaf.js';
 export interface NmHoldsTuple {
   entry: NmWithLeaf;
 }
@@ -959,10 +959,10 @@ export interface NmHoldsTupleOrderBy {}
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { NmCode, NmCodeWhere } from '../literals/nmcode';
-import { NmGradeEnum } from '../enums/nmgrade';
-import type { NmGradeEnumType, NmGradeEnumWhere } from '../enums/nmgrade';
+import type { AtLeastOne } from '../index.js';
+import type { NmCode, NmCodeWhere } from '../literals/nmcode.js';
+import { NmGradeEnum } from '../enums/nmgrade.js';
+import type { NmGradeEnumType, NmGradeEnumWhere } from '../enums/nmgrade.js';
 export interface NmLeaf {
   grade: NmGradeEnumType;
   code?: NmCode;
@@ -998,8 +998,8 @@ export interface NmLeafOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from './nmleaf';
+import type { AtLeastOne } from '../index.js';
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from './nmleaf.js';
 export interface NmMid {
   label: string;
   leaf: NmLeaf;
@@ -1048,8 +1048,8 @@ export interface NmMidOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { NmMid, NmMidInput, NmMidWhere, NmMidSelect, NmMidOrderBy } from './nmmid';
+import type { AtLeastOne } from '../index.js';
+import type { NmMid, NmMidInput, NmMidWhere, NmMidSelect, NmMidOrderBy } from './nmmid.js';
 export interface NmTop {
   title: string;
   mid: NmMid;
@@ -1098,7 +1098,7 @@ export interface NmTopOrderBy {
  * Do not edit manually
  */
 
-import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf.js';
 export type NmNamedLeaf = [string, NmLeaf];
 
 export type NmNamedLeafInput =
@@ -1168,7 +1168,7 @@ export type NmNamedLeafUnset = {
  * Do not edit manually
  */
 
-import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf.js';
 import type {
   NmWithLeaf,
   NmWithLeafInput,
@@ -1176,7 +1176,7 @@ import type {
   NmWithLeafUpdate,
   NmWithLeafSelect,
   NmWithLeafUnset,
-} from './nmwithleaf';
+} from './nmwithleaf.js';
 export type NmOuter = [NmWithLeaf, number];
 
 export type NmOuterInput =
@@ -1224,7 +1224,7 @@ export type NmOuterUnset = {
  * Do not edit manually
  */
 
-import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf.js';
 export type NmWithLeaf = [string, NmLeaf];
 
 export type NmWithLeafInput =

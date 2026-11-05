@@ -137,12 +137,12 @@ describe('generateLiteralImports', () => {
   });
 
   test('imports the type and its Where from the same directory by default', () => {
-    expect(generateLiteralImports(['Status'])).toBe(`import type { Status, StatusWhere } from './status';\n`);
+    expect(generateLiteralImports(['Status'])).toBe(`import type { Status, StatusWhere } from './status.js';\n`);
   });
 
   test('honours a custom import prefix', () => {
     expect(generateLiteralImports(['Status'], undefined, '../literals')).toBe(
-      `import type { Status, StatusWhere } from '../literals/status';\n`,
+      `import type { Status, StatusWhere } from '../literals/status.js';\n`,
     );
   });
 
@@ -150,7 +150,7 @@ describe('generateLiteralImports', () => {
     const registry: LiteralRegistry = { Spot: literal('Spot', [tupleRefVariant]) };
 
     expect(generateLiteralImports(['Spot'], registry)).toBe(
-      `import type { Spot, SpotWhere, SpotInput } from './spot';\n`,
+      `import type { Spot, SpotWhere, SpotInput } from './spot.js';\n`,
     );
   });
 
@@ -158,7 +158,7 @@ describe('generateLiteralImports', () => {
     const registry: LiteralRegistry = { Place: literal('Place', [objectRefVariant]) };
 
     expect(generateLiteralImports(['Place'], registry)).toBe(
-      `import type { Place, PlaceWhere, PlaceInput } from './place';\n`,
+      `import type { Place, PlaceWhere, PlaceInput } from './place.js';\n`,
     );
   });
 
@@ -166,7 +166,7 @@ describe('generateLiteralImports', () => {
     const registry: LiteralRegistry = { Status: literal('Status', statusVariants) };
 
     expect(generateLiteralImports(['Status', 'Ghost'], registry)).toBe(
-      `import type { Status, StatusWhere } from './status';\nimport type { Ghost, GhostWhere } from './ghost';\n`,
+      `import type { Status, StatusWhere } from './status.js';\nimport type { Ghost, GhostWhere } from './ghost.js';\n`,
     );
   });
 });
@@ -178,20 +178,20 @@ describe('generateEnumImports', () => {
 
   test('imports the const as a value and the type and Where as types', () => {
     expect(generateEnumImports(['Role'])).toBe(
-      `import { RoleEnum } from './role';\nimport type { RoleEnumType, RoleEnumWhere } from './role';\n`,
+      `import { RoleEnum } from './role.js';\nimport type { RoleEnumType, RoleEnumWhere } from './role.js';\n`,
     );
   });
 
   test('honours a custom import prefix', () => {
     expect(generateEnumImports(['Role'], '../enums')).toBe(
-      `import { RoleEnum } from '../enums/role';\nimport type { RoleEnumType, RoleEnumWhere } from '../enums/role';\n`,
+      `import { RoleEnum } from '../enums/role.js';\nimport type { RoleEnumType, RoleEnumWhere } from '../enums/role.js';\n`,
     );
   });
 
   test('lowercases the file name and emits one pair per enum', () => {
     expect(generateEnumImports(['UserRole', 'Tier'])).toBe(
-      `import { UserRoleEnum } from './userrole';\nimport type { UserRoleEnumType, UserRoleEnumWhere } from './userrole';\n` +
-        `import { TierEnum } from './tier';\nimport type { TierEnumType, TierEnumWhere } from './tier';\n`,
+      `import { UserRoleEnum } from './userrole.js';\nimport type { UserRoleEnumType, UserRoleEnumWhere } from './userrole.js';\n` +
+        `import { TierEnum } from './tier.js';\nimport type { TierEnumType, TierEnumWhere } from './tier.js';\n`,
     );
   });
 
@@ -207,13 +207,13 @@ describe('generateLiteralObjectImports / generateLiteralTupleImports', () => {
 
   test('object: imports the type and Input from ../objects by default', () => {
     expect(generateLiteralObjectImports(['Geo', 'Box'])).toBe(
-      `import type { Geo, GeoInput } from '../objects/geo';\nimport type { Box, BoxInput } from '../objects/box';\n`,
+      `import type { Geo, GeoInput } from '../objects/geo.js';\nimport type { Box, BoxInput } from '../objects/box.js';\n`,
     );
   });
 
   test('object: honours a custom prefix and ignores the registry', () => {
     expect(generateLiteralObjectImports(['Geo'], {}, './objects')).toBe(
-      `import type { Geo, GeoInput } from './objects/geo';\n`,
+      `import type { Geo, GeoInput } from './objects/geo.js';\n`,
     );
   });
 
@@ -223,13 +223,13 @@ describe('generateLiteralObjectImports / generateLiteralTupleImports', () => {
 
   test('tuple: imports the type and Input from ../tuples by default', () => {
     expect(generateLiteralTupleImports(['Coord', 'Range'])).toBe(
-      `import type { Coord, CoordInput } from '../tuples/coord';\nimport type { Range, RangeInput } from '../tuples/range';\n`,
+      `import type { Coord, CoordInput } from '../tuples/coord.js';\nimport type { Range, RangeInput } from '../tuples/range.js';\n`,
     );
   });
 
   test('tuple: honours a custom prefix and ignores the registry', () => {
     expect(generateLiteralTupleImports(['Coord'], {}, './tuples')).toBe(
-      `import type { Coord, CoordInput } from './tuples/coord';\n`,
+      `import type { Coord, CoordInput } from './tuples/coord.js';\n`,
     );
   });
 });

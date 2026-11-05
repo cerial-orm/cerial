@@ -27,10 +27,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface DecimalBasic {
   id: CerialId<string>;
   name: string;
@@ -504,10 +504,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface DecimalDecorated {
   id: CerialId<string>;
   name: string;
@@ -912,17 +912,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DecimalInfo,
   DecimalInfoInput,
   DecimalInfoWhere,
   DecimalInfoSelect,
   DecimalInfoOrderBy,
-} from '../objects/decimalinfo';
+} from '../objects/decimalinfo.js';
 export interface DecimalWithObject {
   id: CerialId<string>;
   name: string;
@@ -1255,17 +1255,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DecimalPair,
   DecimalPairInput,
   DecimalPairWhere,
   DecimalPairUpdate,
   DecimalPairUnset,
-} from '../tuples/decimalpair';
+} from '../tuples/decimalpair.js';
 export interface DecimalWithTuple {
   id: CerialId<string>;
   name: string;
@@ -1575,7 +1575,7 @@ export interface DecimalWithTupleModel {
 
 import { CerialDecimal } from 'cerial';
 import type { CerialDecimalInput } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface DecimalInfo {
   amount: CerialDecimal;
   fee?: CerialDecimal;

@@ -524,7 +524,7 @@ export function generateRegistryAggregatorCode(chunkCounts: Record<RegistryKind,
 
   for (const kind of kinds) {
     const names = Array.from({ length: chunkCounts[kind] }, (_, i) => `${kind}${i}`);
-    names.forEach((name, i) => imports.push(`import { chunk as ${name} } from './${registryChunkPath(kind, i)}';`));
+    names.forEach((name, i) => imports.push(`import { chunk as ${name} } from './${registryChunkPath(kind, i)}.js';`));
     bodies.push(`export const ${REGISTRY_CONST[kind]}: ${REGISTRY_TYPE[kind]} = {
 ${names.map((name) => `  ...${name},`).join('\n')}
 };

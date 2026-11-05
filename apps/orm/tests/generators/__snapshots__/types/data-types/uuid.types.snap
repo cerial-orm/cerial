@@ -27,10 +27,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UuidBasic {
   id: CerialId<string>;
   name: string;
@@ -498,10 +498,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UuidDecorated {
   id: CerialId<string>;
   name: string;
@@ -976,10 +976,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   UuidInfo,
   UuidInfoInput,
@@ -987,7 +987,7 @@ import type {
   UuidInfoSelect,
   UuidInfoOrderBy,
   UuidInfoCreateInput,
-} from '../objects/uuidinfo';
+} from '../objects/uuidinfo.js';
 export interface UuidWithObject {
   id: CerialId<string>;
   name: string;
@@ -1353,11 +1353,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { UuidPair, UuidPairInput, UuidPairWhere, UuidPairUpdate } from '../tuples/uuidpair';
+import type { AtLeastOne } from '../index.js';
+import type { UuidPair, UuidPairInput, UuidPairWhere, UuidPairUpdate } from '../tuples/uuidpair.js';
 export interface UuidWithTuple {
   id: CerialId<string>;
   name: string;
@@ -1676,7 +1676,7 @@ export interface UuidWithTupleModel {
 
 import { CerialUuid } from 'cerial';
 import type { CerialUuidInput } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UuidInfo {
   label: string;
   trackingId: CerialUuid;

@@ -25,13 +25,13 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Status, StatusWhere } from '../literals/status';
-import type { Priority, PriorityWhere } from '../literals/priority';
-import type { Mixed, MixedWhere } from '../literals/mixed';
+import type { AtLeastOne } from '../index.js';
+import type { Status, StatusWhere } from '../literals/status.js';
+import type { Priority, PriorityWhere } from '../literals/priority.js';
+import type { Mixed, MixedWhere } from '../literals/mixed.js';
 export interface LiteralBasic {
   id: CerialId<string>;
   name: string;
@@ -473,11 +473,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Broad, BroadWhere } from '../literals/broad';
+import type { AtLeastOne } from '../index.js';
+import type { Broad, BroadWhere } from '../literals/broad.js';
 export interface LiteralBroad {
   id: CerialId<string>;
   payload: Broad;
@@ -799,12 +799,12 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Status, StatusWhere } from '../literals/status';
-import type { Priority, PriorityWhere } from '../literals/priority';
+import type { AtLeastOne } from '../index.js';
+import type { Status, StatusWhere } from '../literals/status.js';
+import type { Priority, PriorityWhere } from '../literals/priority.js';
 export interface LiteralDefaults {
   id: CerialId<string>;
   label: string;
@@ -1162,11 +1162,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { ExtendedStatus, ExtendedStatusWhere } from '../literals/extendedstatus';
+import type { AtLeastOne } from '../index.js';
+import type { ExtendedStatus, ExtendedStatusWhere } from '../literals/extendedstatus.js';
 export interface LiteralExtended {
   id: CerialId<string>;
   status: ExtendedStatus;
@@ -1472,13 +1472,13 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Ratio, RatioWhere } from '../literals/ratio';
-import type { FloatOrText, FloatOrTextWhere } from '../literals/floatortext';
-import type { DateOrFlag, DateOrFlagWhere } from '../literals/dateorflag';
+import type { AtLeastOne } from '../index.js';
+import type { Ratio, RatioWhere } from '../literals/ratio.js';
+import type { FloatOrText, FloatOrTextWhere } from '../literals/floatortext.js';
+import type { DateOrFlag, DateOrFlagWhere } from '../literals/dateorflag.js';
 export interface LiteralNumberKinds {
   id: CerialId<string>;
   ratio: Ratio;
@@ -1824,11 +1824,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { NumericOnly, NumericOnlyWhere } from '../literals/numericonly';
+import type { AtLeastOne } from '../index.js';
+import type { NumericOnly, NumericOnlyWhere } from '../literals/numericonly.js';
 export interface LiteralNumeric {
   id: CerialId<string>;
   rank: NumericOnly;
@@ -2156,17 +2156,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   LiteralTagged,
   LiteralTaggedInput,
   LiteralTaggedWhere,
   LiteralTaggedSelect,
   LiteralTaggedOrderBy,
-} from '../objects/literaltagged';
+} from '../objects/literaltagged.js';
 export interface LiteralObjectArray {
   id: CerialId<string>;
   tagged: LiteralTagged;
@@ -2473,11 +2473,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Status, StatusWhere } from '../literals/status';
+import type { AtLeastOne } from '../index.js';
+import type { Status, StatusWhere } from '../literals/status.js';
 export interface LiteralUnique {
   id: CerialId<string>;
   status: Status;
@@ -2784,11 +2784,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { WithBoth, WithBothWhere, WithBothInput } from '../literals/withboth';
+import type { AtLeastOne } from '../index.js';
+import type { WithBoth, WithBothWhere, WithBothInput } from '../literals/withboth.js';
 export interface LiteralWithBoth {
   id: CerialId<string>;
   data: WithBoth;
@@ -3100,17 +3100,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   LiteralAddress,
   LiteralAddressInput,
   LiteralAddressWhere,
   LiteralAddressSelect,
   LiteralAddressOrderBy,
-} from '../objects/literaladdress';
+} from '../objects/literaladdress.js';
 export interface LiteralWithObject {
   id: CerialId<string>;
   name: string;
@@ -3457,11 +3457,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { WithObjectOpt, WithObjectOptWhere, WithObjectOptInput } from '../literals/withobjectopt';
+import type { AtLeastOne } from '../index.js';
+import type { WithObjectOpt, WithObjectOptWhere, WithObjectOptInput } from '../literals/withobjectopt.js';
 export interface LiteralWithObjectOpt {
   id: CerialId<string>;
   payload: WithObjectOpt;
@@ -3775,11 +3775,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { WithObject, WithObjectWhere, WithObjectInput } from '../literals/withobject';
+import type { AtLeastOne } from '../index.js';
+import type { WithObject, WithObjectWhere, WithObjectInput } from '../literals/withobject.js';
 export interface LiteralWithObjectVariant {
   id: CerialId<string>;
   payload: WithObject;
@@ -4121,11 +4121,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { WithTuple, WithTupleWhere, WithTupleInput } from '../literals/withtuple';
+import type { AtLeastOne } from '../index.js';
+import type { WithTuple, WithTupleWhere, WithTupleInput } from '../literals/withtuple.js';
 export interface LiteralWithTuple {
   id: CerialId<string>;
   payload: WithTuple;
@@ -4433,8 +4433,8 @@ export interface LiteralWithTupleModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { Status, StatusWhere } from '../literals/status';
+import type { AtLeastOne } from '../index.js';
+import type { Status, StatusWhere } from '../literals/status.js';
 export interface LiteralAddress {
   city: string;
   status: Status;
@@ -4482,7 +4482,7 @@ export interface LiteralAddressOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface LiteralPoint {
   label: string;
   payload: number;
@@ -4545,7 +4545,7 @@ export interface LiteralPointOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface LiteralPointOpt {
   label: string;
   count?: number;
@@ -4632,8 +4632,8 @@ export interface LiteralPointOptOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import type { Status, StatusWhere } from '../literals/status';
+import type { AtLeastOne } from '../index.js';
+import type { Status, StatusWhere } from '../literals/status.js';
 export interface LiteralTagged {
   states: Status[];
   label: string;
@@ -4929,8 +4929,8 @@ export interface StatusWhere {
  * Do not edit manually
  */
 
-import type { LiteralPoint, LiteralPointInput } from '../objects/literalpoint';
-import type { LiteralCoord, LiteralCoordInput } from '../tuples/literalcoord';
+import type { LiteralPoint, LiteralPointInput } from '../objects/literalpoint.js';
+import type { LiteralCoord, LiteralCoordInput } from '../tuples/literalcoord.js';
 export type WithBoth = 'none' | 'empty' | LiteralCoord | LiteralPoint;
 
 export type WithBothInput = 'none' | 'empty' | LiteralCoordInput | LiteralPointInput;
@@ -4948,7 +4948,7 @@ export interface WithBothWhere {
  * Do not edit manually
  */
 
-import type { LiteralPoint, LiteralPointInput } from '../objects/literalpoint';
+import type { LiteralPoint, LiteralPointInput } from '../objects/literalpoint.js';
 export type WithObject = 'empty' | LiteralPoint;
 
 export type WithObjectInput = 'empty' | LiteralPointInput;
@@ -4966,7 +4966,7 @@ export interface WithObjectWhere {
  * Do not edit manually
  */
 
-import type { LiteralPointOpt, LiteralPointOptInput } from '../objects/literalpointopt';
+import type { LiteralPointOpt, LiteralPointOptInput } from '../objects/literalpointopt.js';
 export type WithObjectOpt = 'empty' | LiteralPointOpt;
 
 export type WithObjectOptInput = 'empty' | LiteralPointOptInput;
@@ -4984,7 +4984,7 @@ export interface WithObjectOptWhere {
  * Do not edit manually
  */
 
-import type { LiteralCoord, LiteralCoordInput } from '../tuples/literalcoord';
+import type { LiteralCoord, LiteralCoordInput } from '../tuples/literalcoord.js';
 export type WithTuple = 'none' | LiteralCoord;
 
 export type WithTupleInput = 'none' | LiteralCoordInput;

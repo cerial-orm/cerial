@@ -27,10 +27,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SetBasic {
   id: CerialId<string>;
   name: string;
@@ -425,10 +425,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SetDecimal {
   id: CerialId<string>;
   name: string;
@@ -772,11 +772,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { SetBag, SetBagInput, SetBagWhere, SetBagSelect, SetBagOrderBy } from '../objects/setbag';
+import type { AtLeastOne } from '../index.js';
+import type { SetBag, SetBagInput, SetBagWhere, SetBagSelect, SetBagOrderBy } from '../objects/setbag.js';
 export interface SetNested {
   id: CerialId<string>;
   name: string;
@@ -1099,7 +1099,7 @@ export interface SetNestedModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SetBag {
   tags: string[];
   nums: number[];

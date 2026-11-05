@@ -24,10 +24,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   FkTargetIntId,
   FkTargetIntIdWhere,
@@ -36,7 +36,7 @@ import type {
   FkTargetIntIdNestedCreate,
   FkTargetIntIdInclude,
   GetFkTargetIntIdIncludePayload,
-} from './fktargetintid';
+} from './fktargetintid.js';
 export interface FkChildModel {
   id: CerialId<string>;
   parentId: CerialId<number>;
@@ -460,10 +460,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   FkChildModel,
   FkChildModelWhere,
@@ -472,7 +472,7 @@ import type {
   FkChildModelNestedCreate,
   FkChildModelInclude,
   GetFkChildModelIncludePayload,
-} from './fkchildmodel';
+} from './fkchildmodel.js';
 export interface FkTargetIntId {
   id: CerialId<number>;
   label: string;
@@ -875,10 +875,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface IntIdModel {
   id: CerialId<number>;
   name: string;
@@ -1194,10 +1194,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface IntUnionIdModel {
   id: CerialId<number | string>;
   label: string;
@@ -1516,10 +1516,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface NumberIdModel {
   id: CerialId<number>;
   label: string;
@@ -1835,17 +1835,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   IdMetricKey,
   IdMetricKeyInput,
   IdMetricKeyWhere,
   IdMetricKeySelect,
   IdMetricKeyOrderBy,
-} from '../objects/idmetrickey';
+} from '../objects/idmetrickey.js';
 export interface ObjectIdModel {
   id: CerialId<{ service: string; timestamp: number }>;
   payload: number;
@@ -2176,10 +2176,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface StandaloneRefModel {
   id: CerialId<string>;
   externalRef: CerialId<number>;
@@ -2562,10 +2562,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface StringIdModel {
   id: CerialId<string>;
   payload: string;
@@ -2881,11 +2881,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { IdCoord, IdCoordInput, IdCoordWhere, IdCoordUpdate } from '../tuples/idcoord';
+import type { AtLeastOne } from '../index.js';
+import type { IdCoord, IdCoordInput, IdCoordWhere, IdCoordUpdate } from '../tuples/idcoord.js';
 export interface TupleIdModel {
   id: CerialId<[number, number]>;
   city: string;
@@ -3201,10 +3201,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UnionIdModel {
   id: CerialId<string | number>;
   label: string;
@@ -3520,10 +3520,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UuidIdModel {
   id: CerialId<string>;
   data: string;
@@ -3819,7 +3819,7 @@ export interface UuidIdModelModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface IdMetricKey {
   service: string;
   timestamp: number;

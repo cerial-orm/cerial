@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtRelBlogPost,
   ExtRelBlogPostWhere,
@@ -37,7 +37,7 @@ import type {
   ExtRelBlogPostNestedCreate,
   ExtRelBlogPostInclude,
   GetExtRelBlogPostIncludePayload,
-} from './extrelblogpost';
+} from './extrelblogpost.js';
 export interface ExtRelBlogAuthor {
   id: CerialId<string>;
   createdAt?: Date;
@@ -603,10 +603,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtRelBlogAuthor,
   ExtRelBlogAuthorWhere,
@@ -615,7 +615,7 @@ import type {
   ExtRelBlogAuthorNestedCreate,
   ExtRelBlogAuthorInclude,
   GetExtRelBlogAuthorIncludePayload,
-} from './extrelblogauthor';
+} from './extrelblogauthor.js';
 export interface ExtRelBlogPost {
   id: CerialId<string>;
   createdAt?: Date;
@@ -1173,10 +1173,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtRelBlogPost,
   ExtRelBlogPostWhere,
@@ -1185,7 +1185,7 @@ import type {
   ExtRelBlogPostNestedCreate,
   ExtRelBlogPostInclude,
   GetExtRelBlogPostIncludePayload,
-} from './extrelblogpost';
+} from './extrelblogpost.js';
 import type {
   ExtRelBlogTag,
   ExtRelBlogTagWhere,
@@ -1194,7 +1194,7 @@ import type {
   ExtRelBlogTagNestedCreate,
   ExtRelBlogTagInclude,
   GetExtRelBlogTagIncludePayload,
-} from './extrelblogtag';
+} from './extrelblogtag.js';
 export interface ExtRelBlogPostTag {
   id: CerialId<string>;
   postId?: CerialId<string>;
@@ -1662,10 +1662,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtRelBlogPostTag,
   ExtRelBlogPostTagWhere,
@@ -1674,7 +1674,7 @@ import type {
   ExtRelBlogPostTagNestedCreate,
   ExtRelBlogPostTagInclude,
   GetExtRelBlogPostTagIncludePayload,
-} from './extrelblogposttag';
+} from './extrelblogposttag.js';
 export interface ExtRelBlogTag {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2163,10 +2163,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtRelComment {
   id: CerialId<string>;
   createdAt?: Date;
@@ -2687,10 +2687,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtRelComment,
   ExtRelCommentWhere,
@@ -2699,7 +2699,7 @@ import type {
   ExtRelCommentNestedCreate,
   ExtRelCommentInclude,
   GetExtRelCommentIncludePayload,
-} from './extrelcomment';
+} from './extrelcomment.js';
 import type {
   ExtRelBlogAuthor,
   ExtRelBlogAuthorWhere,
@@ -2708,7 +2708,7 @@ import type {
   ExtRelBlogAuthorNestedCreate,
   ExtRelBlogAuthorInclude,
   GetExtRelBlogAuthorIncludePayload,
-} from './extrelblogauthor';
+} from './extrelblogauthor.js';
 export interface ExtRelCommentModerated {
   id: CerialId<string>;
   createdAt?: Date;
@@ -3335,10 +3335,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtRelPostArchive {
   id: CerialId<string>;
   createdAt?: Date;
@@ -3830,10 +3830,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtRelPostSummary {
   id: CerialId<string>;
   createdAt?: Date;
@@ -4369,10 +4369,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtRelBlogAuthor,
   ExtRelBlogAuthorWhere,
@@ -4381,7 +4381,7 @@ import type {
   ExtRelBlogAuthorNestedCreate,
   ExtRelBlogAuthorInclude,
   GetExtRelBlogAuthorIncludePayload,
-} from './extrelblogauthor';
+} from './extrelblogauthor.js';
 export interface ExtRelProject {
   id: CerialId<string>;
   createdAt?: Date;

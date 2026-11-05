@@ -24,10 +24,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Registration,
   RegistrationWhere,
@@ -36,7 +36,7 @@ import type {
   RegistrationNestedCreate,
   RegistrationInclude,
   GetRegistrationIncludePayload,
-} from './registration';
+} from './registration.js';
 import type {
   Ticket,
   TicketWhere,
@@ -45,7 +45,7 @@ import type {
   TicketNestedCreate,
   TicketInclude,
   GetTicketIncludePayload,
-} from './ticket';
+} from './ticket.js';
 import type {
   Booking,
   BookingWhere,
@@ -54,7 +54,7 @@ import type {
   BookingNestedCreate,
   BookingInclude,
   GetBookingIncludePayload,
-} from './booking';
+} from './booking.js';
 export interface Attendee {
   id: CerialId<string>;
   name: string;
@@ -542,10 +542,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Attendee,
   AttendeeWhere,
@@ -554,8 +554,8 @@ import type {
   AttendeeNestedCreate,
   AttendeeInclude,
   GetAttendeeIncludePayload,
-} from './attendee';
-import type { Slot, SlotInput, SlotWhere, SlotSelect, SlotOrderBy } from '../objects/slot';
+} from './attendee.js';
+import type { Slot, SlotInput, SlotWhere, SlotSelect, SlotOrderBy } from '../objects/slot.js';
 export interface Booking {
   id: CerialId<string>;
   attendeeId: CerialId<string>;
@@ -961,10 +961,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Attendee,
   AttendeeWhere,
@@ -973,7 +973,7 @@ import type {
   AttendeeNestedCreate,
   AttendeeInclude,
   GetAttendeeIncludePayload,
-} from './attendee';
+} from './attendee.js';
 import type {
   Workshop,
   WorkshopWhere,
@@ -982,7 +982,7 @@ import type {
   WorkshopNestedCreate,
   WorkshopInclude,
   GetWorkshopIncludePayload,
-} from './workshop';
+} from './workshop.js';
 export interface Registration {
   id: CerialId<string>;
   attendeeId: CerialId<string>;
@@ -1482,10 +1482,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Attendee,
   AttendeeWhere,
@@ -1494,7 +1494,7 @@ import type {
   AttendeeNestedCreate,
   AttendeeInclude,
   GetAttendeeIncludePayload,
-} from './attendee';
+} from './attendee.js';
 import type {
   Workshop,
   WorkshopWhere,
@@ -1503,7 +1503,7 @@ import type {
   WorkshopNestedCreate,
   WorkshopInclude,
   GetWorkshopIncludePayload,
-} from './workshop';
+} from './workshop.js';
 export interface Ticket {
   id: CerialId<string>;
   attendeeId: CerialId<string>;
@@ -1998,10 +1998,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Registration,
   RegistrationWhere,
@@ -2010,7 +2010,7 @@ import type {
   RegistrationNestedCreate,
   RegistrationInclude,
   GetRegistrationIncludePayload,
-} from './registration';
+} from './registration.js';
 import type {
   Ticket,
   TicketWhere,
@@ -2019,7 +2019,7 @@ import type {
   TicketNestedCreate,
   TicketInclude,
   GetTicketIncludePayload,
-} from './ticket';
+} from './ticket.js';
 export interface Workshop {
   id: CerialId<string>;
   title: string;

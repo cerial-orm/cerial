@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   UserOptional,
   UserOptionalWhere,
@@ -37,7 +37,7 @@ import type {
   UserOptionalNestedCreate,
   UserOptionalInclude,
   GetUserOptionalIncludePayload,
-} from './useroptional';
+} from './useroptional.js';
 export interface ProfileOptional {
   id: CerialId<string>;
   bio?: string;
@@ -477,10 +477,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   UserRequired,
   UserRequiredWhere,
@@ -489,7 +489,7 @@ import type {
   UserRequiredNestedCreate,
   UserRequiredInclude,
   GetUserRequiredIncludePayload,
-} from './userrequired';
+} from './userrequired.js';
 export interface ProfileRequired {
   id: CerialId<string>;
   bio?: string;
@@ -961,17 +961,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   UserSingleSided,
   UserSingleSidedWhere,
   UserSingleSidedSelect,
   UserSingleSidedOrderBy,
   UserSingleSidedNestedCreate,
-} from './usersinglesided';
+} from './usersinglesided.js';
 export interface ProfileSingleSided {
   id: CerialId<string>;
   bio?: string;
@@ -1401,10 +1401,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ProfileOptional,
   ProfileOptionalWhere,
@@ -1413,7 +1413,7 @@ import type {
   ProfileOptionalNestedCreate,
   ProfileOptionalInclude,
   GetProfileOptionalIncludePayload,
-} from './profileoptional';
+} from './profileoptional.js';
 export interface UserOptional {
   id: CerialId<string>;
   email: string;
@@ -1838,10 +1838,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ProfileRequired,
   ProfileRequiredWhere,
@@ -1850,7 +1850,7 @@ import type {
   ProfileRequiredNestedCreate,
   ProfileRequiredInclude,
   GetProfileRequiredIncludePayload,
-} from './profilerequired';
+} from './profilerequired.js';
 export interface UserRequired {
   id: CerialId<string>;
   email: string;
@@ -2275,10 +2275,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface UserSingleSided {
   id: CerialId<string>;
   name: string;

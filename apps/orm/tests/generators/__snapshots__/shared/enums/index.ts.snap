@@ -3,16 +3,16 @@
  * Do not edit manually
  */
 
-export * from './role';
-export * from './color';
-export * from './severity';
-export * from './nmgrade';
-export * from './extbaserole';
-export * from './extextendedrole';
-export * from './extcorerole';
-export * from './extnonadminrole';
-export * from './extcustomrole';
-export * from './extbasestatus';
-export * from './extdetailedstatus';
-export * from './extsimplestatus';
-export * from './gbstatus';
+export * from './role.js';
+export * from './color.js';
+export * from './severity.js';
+export * from './nmgrade.js';
+export * from './extbaserole.js';
+export * from './extextendedrole.js';
+export * from './extcorerole.js';
+export * from './extnonadminrole.js';
+export * from './extcustomrole.js';
+export * from './extbasestatus.js';
+export * from './extdetailedstatus.js';
+export * from './extsimplestatus.js';
+export * from './gbstatus.js';

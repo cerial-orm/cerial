@@ -24,17 +24,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ReadonlyTest,
   ReadonlyTestWhere,
   ReadonlyTestSelect,
   ReadonlyTestOrderBy,
   ReadonlyTestNestedCreate,
-} from './readonlytest';
+} from './readonlytest.js';
 export interface ReadonlyRecord {
   id: CerialId<string>;
   name: string;
@@ -447,24 +447,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ReadonlyAddress,
   ReadonlyAddressInput,
   ReadonlyAddressWhere,
   ReadonlyAddressSelect,
   ReadonlyAddressOrderBy,
-} from '../objects/readonlyaddress';
+} from '../objects/readonlyaddress.js';
 import type {
   ReadonlyMeta,
   ReadonlyMetaInput,
   ReadonlyMetaWhere,
   ReadonlyMetaSelect,
   ReadonlyMetaOrderBy,
-} from '../objects/readonlymeta';
+} from '../objects/readonlymeta.js';
 export interface ReadonlyTest {
   id: CerialId<string>;
   name: string;
@@ -939,7 +939,7 @@ export interface ReadonlyTestModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ReadonlyAddress {
   street: string;
   city: string;
@@ -1020,7 +1020,7 @@ export interface ReadonlyAddressOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ReadonlyMeta {
   label: string;
   payload: number;

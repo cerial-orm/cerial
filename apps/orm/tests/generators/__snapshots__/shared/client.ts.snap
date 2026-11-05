@@ -48,8 +48,8 @@ import {
   type SqlFragment,
 } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
-import { modelRegistry } from './internal/model-registry';
-import { manifest } from './internal/manifest';
+import { modelRegistry } from './internal/model-registry.js';
+import { manifest } from './internal/manifest.js';
 import {
   migrationsByModel,
   modelFingerprints,
@@ -57,7 +57,7 @@ import {
   getModelMigrationQuery,
   getMigrationModelNames,
   type ModelName,
-} from './internal/migrations';
+} from './internal/migrations.js';
 import type {
   EnumBasic,
   EnumDefaults,
@@ -535,7 +535,7 @@ import type {
   FriendModel,
   SocialUserModel,
   CategoryTreeModel,
-} from './models';
+} from './models/index.js';
 
 const EMBEDDED_CONNECTION: ConnectionConfig | undefined = undefined;
 

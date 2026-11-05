@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   BasicsUser,
   BasicsUserWhere,
@@ -37,7 +37,7 @@ import type {
   BasicsUserNestedCreate,
   BasicsUserInclude,
   GetBasicsUserIncludePayload,
-} from './basicsuser';
+} from './basicsuser.js';
 export interface BasicsPost {
   id: CerialId<string>;
   title: string;
@@ -500,10 +500,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   BasicsUser,
   BasicsUserWhere,
@@ -512,7 +512,7 @@ import type {
   BasicsUserNestedCreate,
   BasicsUserInclude,
   GetBasicsUserIncludePayload,
-} from './basicsuser';
+} from './basicsuser.js';
 export interface BasicsProfile {
   id: CerialId<string>;
   bio?: string | null;
@@ -990,10 +990,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   BasicsUser,
   BasicsUserWhere,
@@ -1002,7 +1002,7 @@ import type {
   BasicsUserNestedCreate,
   BasicsUserInclude,
   GetBasicsUserIncludePayload,
-} from './basicsuser';
+} from './basicsuser.js';
 export interface BasicsTag {
   id: CerialId<string>;
   name: string;
@@ -1434,10 +1434,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   BasicsProfile,
   BasicsProfileWhere,
@@ -1446,7 +1446,7 @@ import type {
   BasicsProfileNestedCreate,
   BasicsProfileInclude,
   GetBasicsProfileIncludePayload,
-} from './basicsprofile';
+} from './basicsprofile.js';
 import type {
   BasicsTag,
   BasicsTagWhere,
@@ -1455,7 +1455,7 @@ import type {
   BasicsTagNestedCreate,
   BasicsTagInclude,
   GetBasicsTagIncludePayload,
-} from './basicstag';
+} from './basicstag.js';
 import type {
   BasicsPost,
   BasicsPostWhere,
@@ -1464,7 +1464,7 @@ import type {
   BasicsPostNestedCreate,
   BasicsPostInclude,
   GetBasicsPostIncludePayload,
-} from './basicspost';
+} from './basicspost.js';
 export interface BasicsUser {
   id: CerialId<string>;
   email: string;

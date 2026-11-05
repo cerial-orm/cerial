@@ -27,10 +27,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface BytesBasic {
   id: CerialId<string>;
   name: string;
@@ -427,17 +427,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   BytesInfo,
   BytesInfoInput,
   BytesInfoWhere,
   BytesInfoSelect,
   BytesInfoOrderBy,
-} from '../objects/bytesinfo';
+} from '../objects/bytesinfo.js';
 export interface BytesWithObject {
   id: CerialId<string>;
   name: string;
@@ -768,11 +768,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { BytesPair, BytesPairInput, BytesPairWhere, BytesPairUpdate, BytesPairUnset } from '../tuples/bytespair';
+import type { AtLeastOne } from '../index.js';
+import type {
+  BytesPair,
+  BytesPairInput,
+  BytesPairWhere,
+  BytesPairUpdate,
+  BytesPairUnset,
+} from '../tuples/bytespair.js';
 export interface BytesWithTuple {
   id: CerialId<string>;
   name: string;
@@ -1079,7 +1085,7 @@ export interface BytesWithTupleModel {
 
 import { CerialBytes } from 'cerial';
 import type { CerialBytesInput } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface BytesInfo {
   body: CerialBytes;
   extra?: CerialBytes;

@@ -24,10 +24,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface GbAuthor {
   id: CerialId<string>;
   name: string;
@@ -339,8 +339,8 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
 export interface GbBare {
   id: CerialId<string>;
@@ -623,10 +623,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface GbLabel {
   id: CerialId<string>;
   name: string;
@@ -986,11 +986,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { GbAuthor, GbAuthorWhere, GbAuthorSelect, GbAuthorOrderBy, GbAuthorNestedCreate } from './gbauthor';
+import type { AtLeastOne } from '../index.js';
+import type { GbAuthor, GbAuthorWhere, GbAuthorSelect, GbAuthorOrderBy, GbAuthorNestedCreate } from './gbauthor.js';
 import type {
   GbTag,
   GbTagWhere,
@@ -999,17 +999,17 @@ import type {
   GbTagNestedCreate,
   GbTagInclude,
   GetGbTagIncludePayload,
-} from './gbtag';
+} from './gbtag.js';
 import type {
   GbAddress,
   GbAddressInput,
   GbAddressWhere,
   GbAddressSelect,
   GbAddressOrderBy,
-} from '../objects/gbaddress';
-import type { GbTier, GbTierWhere } from '../literals/gbtier';
-import { GbStatusEnum } from '../enums/gbstatus';
-import type { GbStatusEnumType, GbStatusEnumWhere } from '../enums/gbstatus';
+} from '../objects/gbaddress.js';
+import type { GbTier, GbTierWhere } from '../literals/gbtier.js';
+import { GbStatusEnum } from '../enums/gbstatus.js';
+import type { GbStatusEnumType, GbStatusEnumWhere } from '../enums/gbstatus.js';
 export interface GbOrder {
   id: CerialId<string>;
   label: string;
@@ -2011,10 +2011,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   GbOrder,
   GbOrderWhere,
@@ -2023,7 +2023,7 @@ import type {
   GbOrderNestedCreate,
   GbOrderInclude,
   GetGbOrderIncludePayload,
-} from './gborder';
+} from './gborder.js';
 export interface GbTag {
   id: CerialId<string>;
   name: string;
@@ -2419,7 +2419,7 @@ export interface GbTagModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface GbAddress {
   city: string;
   zip?: string;

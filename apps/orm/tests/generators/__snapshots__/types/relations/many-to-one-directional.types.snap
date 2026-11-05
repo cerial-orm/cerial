@@ -24,11 +24,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Label, LabelWhere, LabelSelect, LabelOrderBy, LabelNestedCreate } from './label';
+import type { AtLeastOne } from '../index.js';
+import type { Label, LabelWhere, LabelSelect, LabelOrderBy, LabelNestedCreate } from './label.js';
 export interface Blogger {
   id: CerialId<string>;
   name: string;
@@ -436,10 +436,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface Label {
   id: CerialId<string>;
   name: string;

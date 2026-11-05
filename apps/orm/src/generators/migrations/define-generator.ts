@@ -680,7 +680,7 @@ ${mapEntries.slice(start, start + REGISTRY_CHUNK_SIZE).join(',\n')}
 `);
   }
   const chunkImports = chunks
-    .map((_, i) => `import { chunk as chunk${i} } from './${migrationChunkPath(i)}';`)
+    .map((_, i) => `import { chunk as chunk${i} } from './${migrationChunkPath(i)}.js';`)
     .join('\n');
   const chunkSpreads = chunks.map((_, i) => `  ...chunk${i},`).join('\n');
 

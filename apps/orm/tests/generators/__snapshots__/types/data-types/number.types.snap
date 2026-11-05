@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface NumberBasic {
   id: CerialId<string>;
   name: string;
@@ -500,10 +500,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface NumberDecorated {
   id: CerialId<string>;
   name: string;
@@ -909,10 +909,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   NumberInfo,
   NumberInfoInput,
@@ -920,7 +920,7 @@ import type {
   NumberInfoSelect,
   NumberInfoOrderBy,
   NumberInfoCreateInput,
-} from '../objects/numberinfo';
+} from '../objects/numberinfo.js';
 export interface NumberWithObject {
   id: CerialId<string>;
   name: string;
@@ -1277,17 +1277,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   NumberCoord,
   NumberCoordInput,
   NumberCoordWhere,
   NumberCoordUpdate,
   NumberCoordUnset,
-} from '../tuples/numbercoord';
+} from '../tuples/numbercoord.js';
 export interface NumberWithTuple {
   id: CerialId<string>;
   name: string;
@@ -1608,7 +1608,7 @@ export interface NumberWithTupleModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface NumberInfo {
   views: number;
   downloads?: number;

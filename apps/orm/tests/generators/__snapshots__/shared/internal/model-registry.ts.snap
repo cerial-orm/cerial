@@ -4,16 +4,16 @@
  */
 
 import type { ModelRegistry, ObjectRegistry, TupleRegistry, LiteralRegistry } from 'cerial';
-import { chunk as models0 } from './registry/models/chunk-0';
-import { chunk as models1 } from './registry/models/chunk-1';
-import { chunk as models2 } from './registry/models/chunk-2';
-import { chunk as models3 } from './registry/models/chunk-3';
-import { chunk as models4 } from './registry/models/chunk-4';
-import { chunk as objects0 } from './registry/objects/chunk-0';
-import { chunk as objects1 } from './registry/objects/chunk-1';
-import { chunk as tuples0 } from './registry/tuples/chunk-0';
-import { chunk as tuples1 } from './registry/tuples/chunk-1';
-import { chunk as literals0 } from './registry/literals/chunk-0';
+import { chunk as models0 } from './registry/models/chunk-0.js';
+import { chunk as models1 } from './registry/models/chunk-1.js';
+import { chunk as models2 } from './registry/models/chunk-2.js';
+import { chunk as models3 } from './registry/models/chunk-3.js';
+import { chunk as models4 } from './registry/models/chunk-4.js';
+import { chunk as objects0 } from './registry/objects/chunk-0.js';
+import { chunk as objects1 } from './registry/objects/chunk-1.js';
+import { chunk as tuples0 } from './registry/tuples/chunk-0.js';
+import { chunk as tuples1 } from './registry/tuples/chunk-1.js';
+import { chunk as literals0 } from './registry/literals/chunk-0.js';
 
 export const modelRegistry: ModelRegistry = {
   ...models0,

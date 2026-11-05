@@ -24,10 +24,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   PurchaseOrder,
   PurchaseOrderWhere,
@@ -36,7 +36,7 @@ import type {
   PurchaseOrderNestedCreate,
   PurchaseOrderInclude,
   GetPurchaseOrderIncludePayload,
-} from './purchaseorder';
+} from './purchaseorder.js';
 export interface Agent {
   id: CerialId<string>;
   name: string;
@@ -431,10 +431,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   PurchaseOrder,
   PurchaseOrderWhere,
@@ -443,7 +443,7 @@ import type {
   PurchaseOrderNestedCreate,
   PurchaseOrderInclude,
   GetPurchaseOrderIncludePayload,
-} from './purchaseorder';
+} from './purchaseorder.js';
 export interface Customer {
   id: CerialId<string>;
   name: string;
@@ -840,10 +840,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Customer,
   CustomerWhere,
@@ -852,7 +852,7 @@ import type {
   CustomerNestedCreate,
   CustomerInclude,
   GetCustomerIncludePayload,
-} from './customer';
+} from './customer.js';
 import type {
   Agent,
   AgentWhere,
@@ -861,7 +861,7 @@ import type {
   AgentNestedCreate,
   AgentInclude,
   GetAgentIncludePayload,
-} from './agent';
+} from './agent.js';
 export interface PurchaseOrder {
   id: CerialId<string>;
   orderNumber: string;

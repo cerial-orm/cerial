@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -37,7 +37,7 @@ import type {
   DdTwoNestedCreate,
   DdTwoInclude,
   GetDdTwoIncludePayload,
-} from './ddtwo';
+} from './ddtwo.js';
 export interface DdAtThreeCascade {
   id: CerialId<string>;
   name: string;
@@ -469,10 +469,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -481,7 +481,7 @@ import type {
   DdTwoNestedCreate,
   DdTwoInclude,
   GetDdTwoIncludePayload,
-} from './ddtwo';
+} from './ddtwo.js';
 export interface DdAtThreeNoAction {
   id: CerialId<string>;
   name: string;
@@ -913,10 +913,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -925,7 +925,7 @@ import type {
   DdTwoNestedCreate,
   DdTwoInclude,
   GetDdTwoIncludePayload,
-} from './ddtwo';
+} from './ddtwo.js';
 export interface DdAtThreeRestrict {
   id: CerialId<string>;
   name: string;
@@ -1357,10 +1357,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -1369,7 +1369,7 @@ import type {
   DdTwoNestedCreate,
   DdTwoInclude,
   GetDdTwoIncludePayload,
-} from './ddtwo';
+} from './ddtwo.js';
 export interface DdAtThreeSetNone {
   id: CerialId<string>;
   name: string;
@@ -1799,10 +1799,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -1811,7 +1811,7 @@ import type {
   DdTwoNestedCreate,
   DdTwoInclude,
   GetDdTwoIncludePayload,
-} from './ddtwo';
+} from './ddtwo.js';
 export interface DdAtThreeSetNull {
   id: CerialId<string>;
   name: string;
@@ -2243,10 +2243,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdOne,
   DdOneWhere,
@@ -2255,7 +2255,7 @@ import type {
   DdOneNestedCreate,
   DdOneInclude,
   GetDdOneIncludePayload,
-} from './ddone';
+} from './ddone.js';
 export interface DdAtTwoCascade {
   id: CerialId<string>;
   name: string;
@@ -2687,10 +2687,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdOne,
   DdOneWhere,
@@ -2699,7 +2699,7 @@ import type {
   DdOneNestedCreate,
   DdOneInclude,
   GetDdOneIncludePayload,
-} from './ddone';
+} from './ddone.js';
 export interface DdAtTwoNoAction {
   id: CerialId<string>;
   name: string;
@@ -3131,10 +3131,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdOne,
   DdOneWhere,
@@ -3143,7 +3143,7 @@ import type {
   DdOneNestedCreate,
   DdOneInclude,
   GetDdOneIncludePayload,
-} from './ddone';
+} from './ddone.js';
 export interface DdAtTwoRestrict {
   id: CerialId<string>;
   name: string;
@@ -3575,10 +3575,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdOne,
   DdOneWhere,
@@ -3587,7 +3587,7 @@ import type {
   DdOneNestedCreate,
   DdOneInclude,
   GetDdOneIncludePayload,
-} from './ddone';
+} from './ddone.js';
 export interface DdAtTwoSetNone {
   id: CerialId<string>;
   name: string;
@@ -4017,10 +4017,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdOne,
   DdOneWhere,
@@ -4029,7 +4029,7 @@ import type {
   DdOneNestedCreate,
   DdOneInclude,
   GetDdOneIncludePayload,
-} from './ddone';
+} from './ddone.js';
 export interface DdAtTwoSetNull {
   id: CerialId<string>;
   name: string;
@@ -4461,10 +4461,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdRoot,
   DdRootWhere,
@@ -4473,7 +4473,7 @@ import type {
   DdRootNestedCreate,
   DdRootInclude,
   GetDdRootIncludePayload,
-} from './ddroot';
+} from './ddroot.js';
 import type {
   DdTwo,
   DdTwoWhere,
@@ -4482,7 +4482,7 @@ import type {
   DdTwoNestedCreate,
   DdTwoInclude,
   GetDdTwoIncludePayload,
-} from './ddtwo';
+} from './ddtwo.js';
 import type {
   DdAtTwoCascade,
   DdAtTwoCascadeWhere,
@@ -4491,7 +4491,7 @@ import type {
   DdAtTwoCascadeNestedCreate,
   DdAtTwoCascadeInclude,
   GetDdAtTwoCascadeIncludePayload,
-} from './ddattwocascade';
+} from './ddattwocascade.js';
 import type {
   DdAtTwoRestrict,
   DdAtTwoRestrictWhere,
@@ -4500,7 +4500,7 @@ import type {
   DdAtTwoRestrictNestedCreate,
   DdAtTwoRestrictInclude,
   GetDdAtTwoRestrictIncludePayload,
-} from './ddattworestrict';
+} from './ddattworestrict.js';
 import type {
   DdAtTwoSetNull,
   DdAtTwoSetNullWhere,
@@ -4509,7 +4509,7 @@ import type {
   DdAtTwoSetNullNestedCreate,
   DdAtTwoSetNullInclude,
   GetDdAtTwoSetNullIncludePayload,
-} from './ddattwosetnull';
+} from './ddattwosetnull.js';
 import type {
   DdAtTwoSetNone,
   DdAtTwoSetNoneWhere,
@@ -4518,7 +4518,7 @@ import type {
   DdAtTwoSetNoneNestedCreate,
   DdAtTwoSetNoneInclude,
   GetDdAtTwoSetNoneIncludePayload,
-} from './ddattwosetnone';
+} from './ddattwosetnone.js';
 import type {
   DdAtTwoNoAction,
   DdAtTwoNoActionWhere,
@@ -4527,7 +4527,7 @@ import type {
   DdAtTwoNoActionNestedCreate,
   DdAtTwoNoActionInclude,
   GetDdAtTwoNoActionIncludePayload,
-} from './ddattwonoaction';
+} from './ddattwonoaction.js';
 export interface DdOne {
   id: CerialId<string>;
   name: string;
@@ -5273,10 +5273,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdPong,
   DdPongWhere,
@@ -5285,7 +5285,7 @@ import type {
   DdPongNestedCreate,
   DdPongInclude,
   GetDdPongIncludePayload,
-} from './ddpong';
+} from './ddpong.js';
 export interface DdPing {
   id: CerialId<string>;
   name: string;
@@ -5754,10 +5754,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdPing,
   DdPingWhere,
@@ -5766,7 +5766,7 @@ import type {
   DdPingNestedCreate,
   DdPingInclude,
   GetDdPingIncludePayload,
-} from './ddping';
+} from './ddping.js';
 export interface DdPong {
   id: CerialId<string>;
   name: string;
@@ -6234,10 +6234,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdOne,
   DdOneWhere,
@@ -6246,7 +6246,7 @@ import type {
   DdOneNestedCreate,
   DdOneInclude,
   GetDdOneIncludePayload,
-} from './ddone';
+} from './ddone.js';
 export interface DdRoot {
   id: CerialId<string>;
   name: string;
@@ -6672,10 +6672,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface DdTree {
   id: CerialId<string>;
   name: string;
@@ -7144,10 +7144,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   DdOne,
   DdOneWhere,
@@ -7156,7 +7156,7 @@ import type {
   DdOneNestedCreate,
   DdOneInclude,
   GetDdOneIncludePayload,
-} from './ddone';
+} from './ddone.js';
 import type {
   DdAtThreeCascade,
   DdAtThreeCascadeWhere,
@@ -7165,7 +7165,7 @@ import type {
   DdAtThreeCascadeNestedCreate,
   DdAtThreeCascadeInclude,
   GetDdAtThreeCascadeIncludePayload,
-} from './ddatthreecascade';
+} from './ddatthreecascade.js';
 import type {
   DdAtThreeRestrict,
   DdAtThreeRestrictWhere,
@@ -7174,7 +7174,7 @@ import type {
   DdAtThreeRestrictNestedCreate,
   DdAtThreeRestrictInclude,
   GetDdAtThreeRestrictIncludePayload,
-} from './ddatthreerestrict';
+} from './ddatthreerestrict.js';
 import type {
   DdAtThreeSetNull,
   DdAtThreeSetNullWhere,
@@ -7183,7 +7183,7 @@ import type {
   DdAtThreeSetNullNestedCreate,
   DdAtThreeSetNullInclude,
   GetDdAtThreeSetNullIncludePayload,
-} from './ddatthreesetnull';
+} from './ddatthreesetnull.js';
 import type {
   DdAtThreeSetNone,
   DdAtThreeSetNoneWhere,
@@ -7192,7 +7192,7 @@ import type {
   DdAtThreeSetNoneNestedCreate,
   DdAtThreeSetNoneInclude,
   GetDdAtThreeSetNoneIncludePayload,
-} from './ddatthreesetnone';
+} from './ddatthreesetnone.js';
 import type {
   DdAtThreeNoAction,
   DdAtThreeNoActionWhere,
@@ -7201,7 +7201,7 @@ import type {
   DdAtThreeNoActionNestedCreate,
   DdAtThreeNoActionInclude,
   GetDdAtThreeNoActionIncludePayload,
-} from './ddatthreenoaction';
+} from './ddatthreenoaction.js';
 export interface DdTwo {
   id: CerialId<string>;
   name: string;

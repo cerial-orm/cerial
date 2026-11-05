@@ -24,17 +24,17 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtEnumInfo,
   ExtEnumInfoInput,
   ExtEnumInfoWhere,
   ExtEnumInfoSelect,
   ExtEnumInfoOrderBy,
-} from '../objects/extenuminfo';
+} from '../objects/extenuminfo.js';
 export interface ExtEnumContainer {
   id: CerialId<string>;
   name: string;
@@ -391,18 +391,18 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import { ExtExtendedRoleEnum } from '../enums/extextendedrole';
-import type { ExtExtendedRoleEnumType, ExtExtendedRoleEnumWhere } from '../enums/extextendedrole';
-import { ExtDetailedStatusEnum } from '../enums/extdetailedstatus';
-import type { ExtDetailedStatusEnumType, ExtDetailedStatusEnumWhere } from '../enums/extdetailedstatus';
-import { ExtCoreRoleEnum } from '../enums/extcorerole';
-import type { ExtCoreRoleEnumType, ExtCoreRoleEnumWhere } from '../enums/extcorerole';
-import { ExtNonAdminRoleEnum } from '../enums/extnonadminrole';
-import type { ExtNonAdminRoleEnumType, ExtNonAdminRoleEnumWhere } from '../enums/extnonadminrole';
+import type { AtLeastOne } from '../index.js';
+import { ExtExtendedRoleEnum } from '../enums/extextendedrole.js';
+import type { ExtExtendedRoleEnumType, ExtExtendedRoleEnumWhere } from '../enums/extextendedrole.js';
+import { ExtDetailedStatusEnum } from '../enums/extdetailedstatus.js';
+import type { ExtDetailedStatusEnumType, ExtDetailedStatusEnumWhere } from '../enums/extdetailedstatus.js';
+import { ExtCoreRoleEnum } from '../enums/extcorerole.js';
+import type { ExtCoreRoleEnumType, ExtCoreRoleEnumWhere } from '../enums/extcorerole.js';
+import { ExtNonAdminRoleEnum } from '../enums/extnonadminrole.js';
+import type { ExtNonAdminRoleEnumType, ExtNonAdminRoleEnumWhere } from '../enums/extnonadminrole.js';
 export interface ExtEnumModel {
   id: CerialId<string>;
   role: ExtExtendedRoleEnumType;
@@ -820,13 +820,13 @@ export interface ExtEnumModelModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
-import { ExtExtendedRoleEnum } from '../enums/extextendedrole';
-import type { ExtExtendedRoleEnumType, ExtExtendedRoleEnumWhere } from '../enums/extextendedrole';
-import { ExtDetailedStatusEnum } from '../enums/extdetailedstatus';
-import type { ExtDetailedStatusEnumType, ExtDetailedStatusEnumWhere } from '../enums/extdetailedstatus';
-import { ExtCoreRoleEnum } from '../enums/extcorerole';
-import type { ExtCoreRoleEnumType, ExtCoreRoleEnumWhere } from '../enums/extcorerole';
+import type { AtLeastOne } from '../index.js';
+import { ExtExtendedRoleEnum } from '../enums/extextendedrole.js';
+import type { ExtExtendedRoleEnumType, ExtExtendedRoleEnumWhere } from '../enums/extextendedrole.js';
+import { ExtDetailedStatusEnum } from '../enums/extdetailedstatus.js';
+import type { ExtDetailedStatusEnumType, ExtDetailedStatusEnumWhere } from '../enums/extdetailedstatus.js';
+import { ExtCoreRoleEnum } from '../enums/extcorerole.js';
+import type { ExtCoreRoleEnumType, ExtCoreRoleEnumWhere } from '../enums/extcorerole.js';
 export interface ExtEnumInfo {
   role: ExtExtendedRoleEnumType;
   status: ExtDetailedStatusEnumType;

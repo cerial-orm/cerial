@@ -45,10 +45,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface GeometryBasic {
   id: CerialId<string>;
   name: string;
@@ -510,10 +510,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface GeometryMulti {
   id: CerialId<string>;
   name: string;
@@ -897,11 +897,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { GeoInfo, GeoInfoInput, GeoInfoWhere, GeoInfoSelect, GeoInfoOrderBy } from '../objects/geoinfo';
+import type { AtLeastOne } from '../index.js';
+import type { GeoInfo, GeoInfoInput, GeoInfoWhere, GeoInfoSelect, GeoInfoOrderBy } from '../objects/geoinfo.js';
 export interface GeometryWithObject {
   id: CerialId<string>;
   name: string;
@@ -1232,11 +1232,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { GeoPair, GeoPairInput, GeoPairWhere, GeoPairUpdate, GeoPairUnset } from '../tuples/geopair';
+import type { AtLeastOne } from '../index.js';
+import type { GeoPair, GeoPairInput, GeoPairWhere, GeoPairUpdate, GeoPairUnset } from '../tuples/geopair.js';
 export interface GeometryWithTuple {
   id: CerialId<string>;
   name: string;
@@ -1564,7 +1564,7 @@ import type {
   CerialMultiPolygonInput,
   CerialGeometryCollectionInput,
 } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface GeoInfo {
   position: CerialPoint;
   boundary?: CerialGeometry;

@@ -24,22 +24,22 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   ExtPickedName,
   ExtPickedNameInput,
   ExtPickedNameWhere,
   ExtPickedNameUpdate,
-} from '../tuples/extpickedname';
+} from '../tuples/extpickedname.js';
 import type {
   ExtOmittedAge,
   ExtOmittedAgeInput,
   ExtOmittedAgeWhere,
   ExtOmittedAgeUpdate,
-} from '../tuples/extomittedage';
+} from '../tuples/extomittedage.js';
 export interface ExtTupleByName {
   id: CerialId<string>;
   picked: ExtPickedName;
@@ -347,34 +347,34 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { ExtCoord, ExtCoordInput, ExtCoordWhere, ExtCoordSelect, ExtCoordOrderBy } from '../objects/extcoord';
-import type { ExtBasePair, ExtBasePairInput, ExtBasePairWhere, ExtBasePairUpdate } from '../tuples/extbasepair';
-import type { ExtTriple, ExtTripleInput, ExtTripleWhere, ExtTripleUpdate } from '../tuples/exttriple';
+import type { AtLeastOne } from '../index.js';
+import type { ExtCoord, ExtCoordInput, ExtCoordWhere, ExtCoordSelect, ExtCoordOrderBy } from '../objects/extcoord.js';
+import type { ExtBasePair, ExtBasePairInput, ExtBasePairWhere, ExtBasePairUpdate } from '../tuples/extbasepair.js';
+import type { ExtTriple, ExtTripleInput, ExtTripleWhere, ExtTripleUpdate } from '../tuples/exttriple.js';
 import type {
   ExtNamedTriple,
   ExtNamedTripleInput,
   ExtNamedTripleWhere,
   ExtNamedTripleUpdate,
-} from '../tuples/extnamedtriple';
-import type { ExtQuad, ExtQuadInput, ExtQuadWhere, ExtQuadUpdate } from '../tuples/extquad';
+} from '../tuples/extnamedtriple.js';
+import type { ExtQuad, ExtQuadInput, ExtQuadWhere, ExtQuadUpdate } from '../tuples/extquad.js';
 import type {
   ExtCoordPair,
   ExtCoordPairInput,
   ExtCoordPairWhere,
   ExtCoordPairUpdate,
   ExtCoordPairSelect,
-} from '../tuples/extcoordpair';
+} from '../tuples/extcoordpair.js';
 import type {
   ExtOptionalTriple,
   ExtOptionalTripleInput,
   ExtOptionalTripleWhere,
   ExtOptionalTripleUpdate,
   ExtOptionalTripleUnset,
-} from '../tuples/extoptionaltriple';
+} from '../tuples/extoptionaltriple.js';
 export interface ExtTupleModel {
   id: CerialId<string>;
   pair: ExtBasePair;
@@ -707,7 +707,7 @@ export interface ExtTupleModelModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface ExtCoord {
   x: number;
   y: number;
@@ -823,7 +823,7 @@ export type ExtBasePairUpdate = {
  * Do not edit manually
  */
 
-import type { ExtCoord, ExtCoordInput, ExtCoordWhere, ExtCoordSelect, ExtCoordOrderBy } from '../objects/extcoord';
+import type { ExtCoord, ExtCoordInput, ExtCoordWhere, ExtCoordSelect, ExtCoordOrderBy } from '../objects/extcoord.js';
 export type ExtCoordPair = [ExtCoord, ExtCoord];
 
 export type ExtCoordPairInput =

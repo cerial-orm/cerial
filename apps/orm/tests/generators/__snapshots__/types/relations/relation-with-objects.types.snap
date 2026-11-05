@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   RelObjEmployee,
   RelObjEmployeeWhere,
@@ -37,15 +37,15 @@ import type {
   RelObjEmployeeNestedCreate,
   RelObjEmployeeInclude,
   GetRelObjEmployeeIncludePayload,
-} from './relobjemployee';
-import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
+} from './relobjemployee.js';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address.js';
 import type {
   CompanyMeta,
   CompanyMetaInput,
   CompanyMetaWhere,
   CompanyMetaSelect,
   CompanyMetaOrderBy,
-} from '../objects/companymeta';
+} from '../objects/companymeta.js';
 export interface RelObjCompany {
   id: CerialId<string>;
   name: string;
@@ -482,10 +482,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   RelObjCompany,
   RelObjCompanyWhere,
@@ -494,8 +494,8 @@ import type {
   RelObjCompanyNestedCreate,
   RelObjCompanyInclude,
   GetRelObjCompanyIncludePayload,
-} from './relobjcompany';
-import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
+} from './relobjcompany.js';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address.js';
 export interface RelObjEmployee {
   id: CerialId<string>;
   name: string;
@@ -920,7 +920,7 @@ export interface RelObjEmployeeModel {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface CompanyMeta {
   industry: string;
   founded?: number;

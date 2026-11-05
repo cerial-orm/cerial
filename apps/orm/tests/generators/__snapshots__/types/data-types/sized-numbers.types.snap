@@ -26,24 +26,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzFloat16Obj,
   SzFloat16ObjInput,
   SzFloat16ObjWhere,
   SzFloat16ObjSelect,
   SzFloat16ObjOrderBy,
-} from '../objects/szfloat16obj';
+} from '../objects/szfloat16obj.js';
 import type {
   SzFloat16Tup,
   SzFloat16TupInput,
   SzFloat16TupWhere,
   SzFloat16TupUpdate,
   SzFloat16TupUnset,
-} from '../tuples/szfloat16tup';
+} from '../tuples/szfloat16tup.js';
 export interface SzFloat16 {
   id: CerialId<string>;
   reqVal: number;
@@ -577,24 +577,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzFloat32Obj,
   SzFloat32ObjInput,
   SzFloat32ObjWhere,
   SzFloat32ObjSelect,
   SzFloat32ObjOrderBy,
-} from '../objects/szfloat32obj';
+} from '../objects/szfloat32obj.js';
 import type {
   SzFloat32Tup,
   SzFloat32TupInput,
   SzFloat32TupWhere,
   SzFloat32TupUpdate,
   SzFloat32TupUnset,
-} from '../tuples/szfloat32tup';
+} from '../tuples/szfloat32tup.js';
 export interface SzFloat32 {
   id: CerialId<string>;
   reqVal: number;
@@ -1128,24 +1128,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzInt16Obj,
   SzInt16ObjInput,
   SzInt16ObjWhere,
   SzInt16ObjSelect,
   SzInt16ObjOrderBy,
-} from '../objects/szint16obj';
+} from '../objects/szint16obj.js';
 import type {
   SzInt16Tup,
   SzInt16TupInput,
   SzInt16TupWhere,
   SzInt16TupUpdate,
   SzInt16TupUnset,
-} from '../tuples/szint16tup';
+} from '../tuples/szint16tup.js';
 export interface SzInt16 {
   id: CerialId<string>;
   reqVal: number;
@@ -1675,24 +1675,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzInt32Obj,
   SzInt32ObjInput,
   SzInt32ObjWhere,
   SzInt32ObjSelect,
   SzInt32ObjOrderBy,
-} from '../objects/szint32obj';
+} from '../objects/szint32obj.js';
 import type {
   SzInt32Tup,
   SzInt32TupInput,
   SzInt32TupWhere,
   SzInt32TupUpdate,
   SzInt32TupUnset,
-} from '../tuples/szint32tup';
+} from '../tuples/szint32tup.js';
 export interface SzInt32 {
   id: CerialId<string>;
   reqVal: number;
@@ -2222,18 +2222,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzInt8Obj,
   SzInt8ObjInput,
   SzInt8ObjWhere,
   SzInt8ObjSelect,
   SzInt8ObjOrderBy,
-} from '../objects/szint8obj';
-import type { SzInt8Tup, SzInt8TupInput, SzInt8TupWhere, SzInt8TupUpdate, SzInt8TupUnset } from '../tuples/szint8tup';
+} from '../objects/szint8obj.js';
+import type {
+  SzInt8Tup,
+  SzInt8TupInput,
+  SzInt8TupWhere,
+  SzInt8TupUpdate,
+  SzInt8TupUnset,
+} from '../tuples/szint8tup.js';
 export interface SzInt8 {
   id: CerialId<string>;
   reqVal: number;
@@ -2756,10 +2762,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzReading,
   SzReadingWhere,
@@ -2768,7 +2774,7 @@ import type {
   SzReadingNestedCreate,
   SzReadingInclude,
   GetSzReadingIncludePayload,
-} from './szreading';
+} from './szreading.js';
 export interface SzOwner {
   id: CerialId<string>;
   name: string;
@@ -3165,10 +3171,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzRawHolder {
   id: CerialId<string>;
   numVal: number;
@@ -3519,10 +3525,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzOwner,
   SzOwnerWhere,
@@ -3531,7 +3537,7 @@ import type {
   SzOwnerNestedCreate,
   SzOwnerInclude,
   GetSzOwnerIncludePayload,
-} from './szowner';
+} from './szowner.js';
 export interface SzReading {
   id: CerialId<string>;
   ownerId: CerialId<string>;
@@ -4041,24 +4047,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzUint16Obj,
   SzUint16ObjInput,
   SzUint16ObjWhere,
   SzUint16ObjSelect,
   SzUint16ObjOrderBy,
-} from '../objects/szuint16obj';
+} from '../objects/szuint16obj.js';
 import type {
   SzUint16Tup,
   SzUint16TupInput,
   SzUint16TupWhere,
   SzUint16TupUpdate,
   SzUint16TupUnset,
-} from '../tuples/szuint16tup';
+} from '../tuples/szuint16tup.js';
 export interface SzUint16 {
   id: CerialId<string>;
   reqVal: number;
@@ -4588,24 +4594,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzUint32Obj,
   SzUint32ObjInput,
   SzUint32ObjWhere,
   SzUint32ObjSelect,
   SzUint32ObjOrderBy,
-} from '../objects/szuint32obj';
+} from '../objects/szuint32obj.js';
 import type {
   SzUint32Tup,
   SzUint32TupInput,
   SzUint32TupWhere,
   SzUint32TupUpdate,
   SzUint32TupUnset,
-} from '../tuples/szuint32tup';
+} from '../tuples/szuint32tup.js';
 export interface SzUint32 {
   id: CerialId<string>;
   reqVal: number;
@@ -5135,24 +5141,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzUint64Obj,
   SzUint64ObjInput,
   SzUint64ObjWhere,
   SzUint64ObjSelect,
   SzUint64ObjOrderBy,
-} from '../objects/szuint64obj';
+} from '../objects/szuint64obj.js';
 import type {
   SzUint64Tup,
   SzUint64TupInput,
   SzUint64TupWhere,
   SzUint64TupUpdate,
   SzUint64TupUnset,
-} from '../tuples/szuint64tup';
+} from '../tuples/szuint64tup.js';
 export interface SzUint64 {
   id: CerialId<string>;
   reqVal: bigint;
@@ -5682,24 +5688,24 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   SzUint8Obj,
   SzUint8ObjInput,
   SzUint8ObjWhere,
   SzUint8ObjSelect,
   SzUint8ObjOrderBy,
-} from '../objects/szuint8obj';
+} from '../objects/szuint8obj.js';
 import type {
   SzUint8Tup,
   SzUint8TupInput,
   SzUint8TupWhere,
   SzUint8TupUpdate,
   SzUint8TupUnset,
-} from '../tuples/szuint8tup';
+} from '../tuples/szuint8tup.js';
 export interface SzUint8 {
   id: CerialId<string>;
   reqVal: number;
@@ -6207,7 +6213,7 @@ export interface SzUint8Model {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzFloat16Obj {
   val: number;
   opt?: number;
@@ -6274,7 +6280,7 @@ export interface SzFloat16ObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzFloat32Obj {
   val: number;
   opt?: number;
@@ -6341,7 +6347,7 @@ export interface SzFloat32ObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzInt16Obj {
   val: number;
   opt?: number;
@@ -6408,7 +6414,7 @@ export interface SzInt16ObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzInt32Obj {
   val: number;
   opt?: number;
@@ -6475,7 +6481,7 @@ export interface SzInt32ObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzInt8Obj {
   val: number;
   opt?: number;
@@ -6542,7 +6548,7 @@ export interface SzInt8ObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzUint16Obj {
   val: number;
   opt?: number;
@@ -6609,7 +6615,7 @@ export interface SzUint16ObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzUint32Obj {
   val: number;
   opt?: number;
@@ -6676,7 +6682,7 @@ export interface SzUint32ObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzUint64Obj {
   val: bigint;
   opt?: bigint;
@@ -6743,7 +6749,7 @@ export interface SzUint64ObjOrderBy {
  * Do not edit manually
  */
 
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface SzUint8Obj {
   val: number;
   opt?: number;

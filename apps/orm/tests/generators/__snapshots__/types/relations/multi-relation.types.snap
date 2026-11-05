@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Writer,
   WriterWhere,
@@ -37,7 +37,7 @@ import type {
   WriterNestedCreate,
   WriterInclude,
   GetWriterIncludePayload,
-} from './writer';
+} from './writer.js';
 export interface Document {
   id: CerialId<string>;
   title: string;
@@ -523,10 +523,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Document,
   DocumentWhere,
@@ -535,7 +535,7 @@ import type {
   DocumentNestedCreate,
   DocumentInclude,
   GetDocumentIncludePayload,
-} from './document';
+} from './document.js';
 export interface Writer {
   id: CerialId<string>;
   name: string;

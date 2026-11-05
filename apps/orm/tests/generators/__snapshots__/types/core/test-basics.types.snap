@@ -25,10 +25,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   User,
   UserWhere,
@@ -37,7 +37,7 @@ import type {
   UserNestedCreate,
   UserInclude,
   GetUserIncludePayload,
-} from './user';
+} from './user.js';
 export interface Post {
   id: CerialId<string>;
   title: string;
@@ -489,10 +489,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   User,
   UserWhere,
@@ -501,7 +501,7 @@ import type {
   UserNestedCreate,
   UserInclude,
   GetUserIncludePayload,
-} from './user';
+} from './user.js';
 export interface Profile {
   id: CerialId<string>;
   bio?: string | null;
@@ -967,10 +967,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   User,
   UserWhere,
@@ -979,7 +979,7 @@ import type {
   UserNestedCreate,
   UserInclude,
   GetUserIncludePayload,
-} from './user';
+} from './user.js';
 export interface Tag {
   id: CerialId<string>;
   name: string;
@@ -1393,10 +1393,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Profile,
   ProfileWhere,
@@ -1405,8 +1405,8 @@ import type {
   ProfileNestedCreate,
   ProfileInclude,
   GetProfileIncludePayload,
-} from './profile';
-import type { Tag, TagWhere, TagSelect, TagOrderBy, TagNestedCreate, TagInclude, GetTagIncludePayload } from './tag';
+} from './profile.js';
+import type { Tag, TagWhere, TagSelect, TagOrderBy, TagNestedCreate, TagInclude, GetTagIncludePayload } from './tag.js';
 import type {
   Post,
   PostWhere,
@@ -1415,7 +1415,7 @@ import type {
   PostNestedCreate,
   PostInclude,
   GetPostIncludePayload,
-} from './post';
+} from './post.js';
 export interface User {
   id: CerialId<string>;
   email: string;

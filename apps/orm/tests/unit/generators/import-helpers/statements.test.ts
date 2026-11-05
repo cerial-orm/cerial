@@ -20,7 +20,7 @@ describe('generateRelatedImports', () => {
     const post = model('Post', [field({ name: 'title' })]);
 
     expect(generateRelatedImports(['Post'], [post])).toBe(
-      `import type { Post, PostWhere, PostSelect, PostOrderBy, PostNestedCreate } from './post';\n`,
+      `import type { Post, PostWhere, PostSelect, PostOrderBy, PostNestedCreate } from './post.js';\n`,
     );
   });
 
@@ -28,13 +28,13 @@ describe('generateRelatedImports', () => {
     const post = model('Post', [relationField('author', 'User')]);
 
     expect(generateRelatedImports(['Post'], [post])).toBe(
-      `import type { Post, PostWhere, PostSelect, PostOrderBy, PostNestedCreate, PostInclude, GetPostIncludePayload } from './post';\n`,
+      `import type { Post, PostWhere, PostSelect, PostOrderBy, PostNestedCreate, PostInclude, GetPostIncludePayload } from './post.js';\n`,
     );
   });
 
   test('a target missing from allModels gets the base names only', () => {
     expect(generateRelatedImports(['Ghost'], [])).toBe(
-      `import type { Ghost, GhostWhere, GhostSelect, GhostOrderBy, GhostNestedCreate } from './ghost';\n`,
+      `import type { Ghost, GhostWhere, GhostSelect, GhostOrderBy, GhostNestedCreate } from './ghost.js';\n`,
     );
   });
 
@@ -42,8 +42,8 @@ describe('generateRelatedImports', () => {
     const out = generateRelatedImports(['BlogPost', 'Tag'], [model('BlogPost', []), model('Tag', [])]);
 
     expect(out).toBe(
-      `import type { BlogPost, BlogPostWhere, BlogPostSelect, BlogPostOrderBy, BlogPostNestedCreate } from './blogpost';\n` +
-        `import type { Tag, TagWhere, TagSelect, TagOrderBy, TagNestedCreate } from './tag';\n`,
+      `import type { BlogPost, BlogPostWhere, BlogPostSelect, BlogPostOrderBy, BlogPostNestedCreate } from './blogpost.js';\n` +
+        `import type { Tag, TagWhere, TagSelect, TagOrderBy, TagNestedCreate } from './tag.js';\n`,
     );
   });
 });
@@ -55,13 +55,13 @@ describe('generateObjectImports', () => {
 
   test('imports the five names from the same directory by default, with no registry', () => {
     expect(generateObjectImports(['Address'])).toBe(
-      `import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from './address';\n`,
+      `import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from './address.js';\n`,
     );
   });
 
   test('honours a custom import prefix', () => {
     expect(generateObjectImports(['Address'], undefined, '../objects')).toBe(
-      `import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';\n`,
+      `import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address.js';\n`,
     );
   });
 
@@ -69,7 +69,7 @@ describe('generateObjectImports', () => {
     const registry: ObjectRegistry = { Address: object('Address', [field({ name: 'c', defaultValue: 'x' })]) };
 
     expect(generateObjectImports(['Address'], registry)).toBe(
-      `import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy, AddressCreateInput } from './address';\n`,
+      `import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy, AddressCreateInput } from './address.js';\n`,
     );
   });
 
@@ -96,7 +96,7 @@ describe('generateObjectImports', () => {
 
   test('one statement per object, newline separated', () => {
     expect(generateObjectImports(['A', 'B'])).toBe(
-      `import type { A, AInput, AWhere, ASelect, AOrderBy } from './a';\nimport type { B, BInput, BWhere, BSelect, BOrderBy } from './b';\n`,
+      `import type { A, AInput, AWhere, ASelect, AOrderBy } from './a.js';\nimport type { B, BInput, BWhere, BSelect, BOrderBy } from './b.js';\n`,
     );
   });
 });
@@ -108,13 +108,13 @@ describe('generateTupleImports', () => {
 
   test('imports the four base names with no registry', () => {
     expect(generateTupleImports(['Coord'])).toBe(
-      `import type { Coord, CoordInput, CoordWhere, CoordUpdate } from './coord';\n`,
+      `import type { Coord, CoordInput, CoordWhere, CoordUpdate } from './coord.js';\n`,
     );
   });
 
   test('honours a custom import prefix', () => {
     expect(generateTupleImports(['Coord'], undefined, '../tuples')).toBe(
-      `import type { Coord, CoordInput, CoordWhere, CoordUpdate } from '../tuples/coord';\n`,
+      `import type { Coord, CoordInput, CoordWhere, CoordUpdate } from '../tuples/coord.js';\n`,
     );
   });
 
@@ -122,7 +122,7 @@ describe('generateTupleImports', () => {
     const registry: TupleRegistry = { Coord: tuple('Coord', [element(0, 'float'), element(1, 'float')]) };
 
     expect(generateTupleImports(['Coord'], registry)).toBe(
-      `import type { Coord, CoordInput, CoordWhere, CoordUpdate } from './coord';\n`,
+      `import type { Coord, CoordInput, CoordWhere, CoordUpdate } from './coord.js';\n`,
     );
   });
 
@@ -132,7 +132,7 @@ describe('generateTupleImports', () => {
     };
 
     expect(generateTupleImports(['Located'], registry)).toBe(
-      `import type { Located, LocatedInput, LocatedWhere, LocatedUpdate, LocatedSelect } from './located';\n`,
+      `import type { Located, LocatedInput, LocatedWhere, LocatedUpdate, LocatedSelect } from './located.js';\n`,
     );
   });
 
@@ -149,7 +149,7 @@ describe('generateTupleImports', () => {
     };
 
     expect(generateTupleImports(['Coord'], registry)).toBe(
-      `import type { Coord, CoordInput, CoordWhere, CoordUpdate, CoordUnset } from './coord';\n`,
+      `import type { Coord, CoordInput, CoordWhere, CoordUpdate, CoordUnset } from './coord.js';\n`,
     );
   });
 
@@ -162,13 +162,13 @@ describe('generateTupleImports', () => {
     };
 
     expect(generateTupleImports(['Both'], registry)).toBe(
-      `import type { Both, BothInput, BothWhere, BothUpdate, BothSelect, BothUnset } from './both';\n`,
+      `import type { Both, BothInput, BothWhere, BothUpdate, BothSelect, BothUnset } from './both.js';\n`,
     );
   });
 
   test('a name absent from the registry gets the base names only', () => {
     expect(generateTupleImports(['Ghost'], {})).toBe(
-      `import type { Ghost, GhostInput, GhostWhere, GhostUpdate } from './ghost';\n`,
+      `import type { Ghost, GhostInput, GhostWhere, GhostUpdate } from './ghost.js';\n`,
     );
   });
 });

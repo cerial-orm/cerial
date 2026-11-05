@@ -3,11 +3,11 @@
  * Do not edit manually
  */
 
-import { chunk as chunk0 } from './migrations/chunk-0';
-import { chunk as chunk1 } from './migrations/chunk-1';
-import { chunk as chunk2 } from './migrations/chunk-2';
-import { chunk as chunk3 } from './migrations/chunk-3';
-import { chunk as chunk4 } from './migrations/chunk-4';
+import { chunk as chunk0 } from './migrations/chunk-0.js';
+import { chunk as chunk1 } from './migrations/chunk-1.js';
+import { chunk as chunk2 } from './migrations/chunk-2.js';
+import { chunk as chunk3 } from './migrations/chunk-3.js';
+import { chunk as chunk4 } from './migrations/chunk-4.js';
 
 /** Union type of all model names */
 export type ModelName =

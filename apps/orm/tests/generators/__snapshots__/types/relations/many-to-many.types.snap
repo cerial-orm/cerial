@@ -24,10 +24,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Student,
   StudentWhere,
@@ -36,7 +36,7 @@ import type {
   StudentNestedCreate,
   StudentInclude,
   GetStudentIncludePayload,
-} from './student';
+} from './student.js';
 export interface Course {
   id: CerialId<string>;
   name: string;
@@ -496,10 +496,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Course,
   CourseWhere,
@@ -508,7 +508,7 @@ import type {
   CourseNestedCreate,
   CourseInclude,
   GetCourseIncludePayload,
-} from './course';
+} from './course.js';
 export interface Student {
   id: CerialId<string>;
   name: string;

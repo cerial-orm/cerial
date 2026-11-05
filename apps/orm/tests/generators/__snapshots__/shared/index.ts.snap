@@ -243,7 +243,7 @@ export type {
   Friend,
   SocialUser,
   CategoryTree,
-} from './models';
+} from './models/index.js';
 
 // Model input interfaces (input types - RecordIdInput for Record fields)
 export type {
@@ -485,7 +485,7 @@ export type {
   FriendInput,
   SocialUserInput,
   CategoryTreeInput,
-} from './models';
+} from './models/index.js';
 
 // Create types
 export type {
@@ -727,7 +727,7 @@ export type {
   FriendCreate,
   SocialUserCreate,
   CategoryTreeCreate,
-} from './models';
+} from './models/index.js';
 
 // NestedCreate types (for use in nested operations)
 export type {
@@ -969,7 +969,7 @@ export type {
   FriendNestedCreate,
   SocialUserNestedCreate,
   CategoryTreeNestedCreate,
-} from './models';
+} from './models/index.js';
 
 // CreateInput types (with nested relation operations)
 export type {
@@ -1211,7 +1211,7 @@ export type {
   FriendCreateInput,
   SocialUserCreateInput,
   CategoryTreeCreateInput,
-} from './models';
+} from './models/index.js';
 
 // Update types
 export type {
@@ -1453,7 +1453,7 @@ export type {
   FriendUpdate,
   SocialUserUpdate,
   CategoryTreeUpdate,
-} from './models';
+} from './models/index.js';
 
 // UpdateInput types (with nested relation operations)
 export type {
@@ -1695,7 +1695,7 @@ export type {
   FriendUpdateInput,
   SocialUserUpdateInput,
   CategoryTreeUpdateInput,
-} from './models';
+} from './models/index.js';
 
 // Unset types (for bulk field removal)
 export type {
@@ -1937,7 +1937,7 @@ export type {
   FriendUnset,
   SocialUserUnset,
   CategoryTreeUnset,
-} from './models';
+} from './models/index.js';
 
 // Where types
 export type {
@@ -2179,7 +2179,7 @@ export type {
   FriendWhere,
   SocialUserWhere,
   CategoryTreeWhere,
-} from './models';
+} from './models/index.js';
 
 // FindUniqueWhere types
 export type {
@@ -2421,7 +2421,7 @@ export type {
   FriendFindUniqueWhere,
   SocialUserFindUniqueWhere,
   CategoryTreeFindUniqueWhere,
-} from './models';
+} from './models/index.js';
 
 // Select types
 export type {
@@ -2663,7 +2663,7 @@ export type {
   FriendSelect,
   SocialUserSelect,
   CategoryTreeSelect,
-} from './models';
+} from './models/index.js';
 
 // OrderBy types
 export type {
@@ -2905,7 +2905,7 @@ export type {
   FriendOrderBy,
   SocialUserOrderBy,
   CategoryTreeOrderBy,
-} from './models';
+} from './models/index.js';
 
 // Model types
 export type {
@@ -3147,7 +3147,7 @@ export type {
   FriendModel,
   SocialUserModel,
   CategoryTreeModel,
-} from './models';
+} from './models/index.js';
 
 // Object interfaces (output types)
 export type {
@@ -3224,7 +3224,7 @@ export type {
   UnsetDeepOuter,
   UnsetTreeNode,
   CompanyMeta,
-} from './objects';
+} from './objects/index.js';
 
 // Object input interfaces
 export type {
@@ -3301,7 +3301,7 @@ export type {
   UnsetDeepOuterInput,
   UnsetTreeNodeInput,
   CompanyMetaInput,
-} from './objects';
+} from './objects/index.js';
 
 // Object create input interfaces (fields with @default/@createdAt/@updatedAt are optional, @now fields omitted)
 export type {
@@ -3317,7 +3317,7 @@ export type {
   ExtPrivateAddressCreateInput,
   ExtGeoAddressCreateInput,
   ExtMetaAddressCreateInput,
-} from './objects';
+} from './objects/index.js';
 
 // Object where types
 export type {
@@ -3394,7 +3394,7 @@ export type {
   UnsetDeepOuterWhere,
   UnsetTreeNodeWhere,
   CompanyMetaWhere,
-} from './objects';
+} from './objects/index.js';
 
 // Object select types
 export type {
@@ -3471,7 +3471,7 @@ export type {
   UnsetDeepOuterSelect,
   UnsetTreeNodeSelect,
   CompanyMetaSelect,
-} from './objects';
+} from './objects/index.js';
 
 // Object orderBy types
 export type {
@@ -3548,7 +3548,7 @@ export type {
   UnsetDeepOuterOrderBy,
   UnsetTreeNodeOrderBy,
   CompanyMetaOrderBy,
-} from './objects';
+} from './objects/index.js';
 
 // Tuple types (output types - TypeScript tuple literals)
 export type {
@@ -3610,7 +3610,7 @@ export type {
   UnsetObjTuple,
   UnsetDeepTuple,
   UnsetRecursive,
-} from './tuples';
+} from './tuples/index.js';
 
 // Tuple input types (accepts array or object form)
 export type {
@@ -3672,7 +3672,7 @@ export type {
   UnsetObjTupleInput,
   UnsetDeepTupleInput,
   UnsetRecursiveInput,
-} from './tuples';
+} from './tuples/index.js';
 
 // Tuple where types
 export type {
@@ -3734,7 +3734,7 @@ export type {
   UnsetObjTupleWhere,
   UnsetDeepTupleWhere,
   UnsetRecursiveWhere,
-} from './tuples';
+} from './tuples/index.js';
 
 // Tuple update types (per-element update)
 export type {
@@ -3796,7 +3796,7 @@ export type {
   UnsetObjTupleUpdate,
   UnsetDeepTupleUpdate,
   UnsetRecursiveUpdate,
-} from './tuples';
+} from './tuples/index.js';
 
 // Tuple select types (sub-field selection for tuples with object elements)
 export type {
@@ -3810,7 +3810,7 @@ export type {
   ExtCoordPairSelect,
   UnsetObjTupleSelect,
   UnsetDeepTupleSelect,
-} from './tuples';
+} from './tuples/index.js';
 
 // Tuple unset types (per-element unset for tuples with optional elements)
 export type {
@@ -3843,7 +3843,7 @@ export type {
   UnsetObjTupleUnset,
   UnsetDeepTupleUnset,
   UnsetRecursiveUnset,
-} from './tuples';
+} from './tuples/index.js';
 
 // Literal types (output types - union of variant values)
 export type {
@@ -3877,7 +3877,7 @@ export type {
   ExtQuotedPick,
   ExtQuotedOmit,
   GbTier,
-} from './literals';
+} from './literals/index.js';
 
 // Literal where types
 export type {
@@ -3911,10 +3911,10 @@ export type {
   ExtQuotedPickWhere,
   ExtQuotedOmitWhere,
   GbTierWhere,
-} from './literals';
+} from './literals/index.js';
 
 // Literal input types (with Input variants for tupleRef/objectRef)
-export type { WithTupleInput, WithObjectInput, WithBothInput, WithObjectOptInput } from './literals';
+export type { WithTupleInput, WithObjectInput, WithBothInput, WithObjectOptInput } from './literals/index.js';
 
 // Enum const objects
 export {
@@ -3931,7 +3931,7 @@ export {
   ExtDetailedStatusEnum,
   ExtSimpleStatusEnum,
   GbStatusEnum,
-} from './enums';
+} from './enums/index.js';
 
 // Enum union types
 export type {
@@ -3948,7 +3948,7 @@ export type {
   ExtDetailedStatusEnumType,
   ExtSimpleStatusEnumType,
   GbStatusEnumType,
-} from './enums';
+} from './enums/index.js';
 
 // Enum where types
 export type {
@@ -3965,7 +3965,7 @@ export type {
   ExtDetailedStatusEnumWhere,
   ExtSimpleStatusEnumWhere,
   GbStatusEnumWhere,
-} from './enums';
+} from './enums/index.js';
 
 // Include types
 export type {
@@ -4071,7 +4071,7 @@ export type {
   FriendInclude,
   SocialUserInclude,
   CategoryTreeInclude,
-} from './models';
+} from './models/index.js';
 
 // Include payload types (for type inference)
 export type {
@@ -4177,7 +4177,7 @@ export type {
   GetFriendIncludePayload,
   GetSocialUserIncludePayload,
   GetCategoryTreeIncludePayload,
-} from './models';
+} from './models/index.js';
 
 // Relations types
 export type {
@@ -4419,7 +4419,7 @@ export type {
   Friend$Relations,
   SocialUser$Relations,
   CategoryTree$Relations,
-} from './models';
+} from './models/index.js';
 
 // GetPayload types (for type inference)
 export type {
@@ -4661,11 +4661,11 @@ export type {
   GetFriendPayload,
   GetSocialUserPayload,
   GetCategoryTreePayload,
-} from './models';
+} from './models/index.js';
 
 // Client exports
-export { CerialClient } from './client';
-export type { ConnectionConfig, TypedDb, CerialClientConnectConfig } from './client';
+export { CerialClient } from './client.js';
+export type { ConnectionConfig, TypedDb, CerialClientConnectConfig } from './client.js';
 
 // CerialQueryPromise (for $transaction type inference)
 export { CerialQueryPromise } from 'cerial';
@@ -4676,7 +4676,7 @@ export { NONE } from 'cerial';
 export type { CerialNone } from 'cerial';
 
 // Registry
-export { modelRegistry } from './internal';
+export { modelRegistry } from './internal/index.js';
 
 // Type utilities from ts-toolbelt (re-exported for consumer convenience)
 import type { Object as O, Any as A } from 'ts-toolbelt';

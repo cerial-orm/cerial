@@ -24,10 +24,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 export interface Article {
   id: CerialId<string>;
   title: string;
@@ -339,10 +339,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   PostRequired,
   PostRequiredWhere,
@@ -351,7 +351,7 @@ import type {
   PostRequiredNestedCreate,
   PostRequiredInclude,
   GetPostRequiredIncludePayload,
-} from './postrequired';
+} from './postrequired.js';
 export interface Author {
   id: CerialId<string>;
   name: string;
@@ -784,11 +784,11 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
-import type { Article, ArticleWhere, ArticleSelect, ArticleOrderBy, ArticleNestedCreate } from './article';
+import type { AtLeastOne } from '../index.js';
+import type { Article, ArticleWhere, ArticleSelect, ArticleOrderBy, ArticleNestedCreate } from './article.js';
 export interface Comment {
   id: CerialId<string>;
   text: string;
@@ -1203,10 +1203,10 @@ import type {
   GroupByArg,
   GroupByRow,
   GroupMember,
-} from '..';
-import type { CerialQueryPromise } from '..';
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
-import type { AtLeastOne } from '..';
+import type { AtLeastOne } from '../index.js';
 import type {
   Author,
   AuthorWhere,
@@ -1215,7 +1215,7 @@ import type {
   AuthorNestedCreate,
   AuthorInclude,
   GetAuthorIncludePayload,
-} from './author';
+} from './author.js';
 export interface PostRequired {
   id: CerialId<string>;
   title: string;

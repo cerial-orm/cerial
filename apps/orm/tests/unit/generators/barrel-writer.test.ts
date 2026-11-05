@@ -28,14 +28,14 @@ describe('type barrels', () => {
   test('models barrel re-exports with export type *', async () => {
     const text = await read(await writeModelsIndex(dir, [mdl('User', 'user', [])]));
 
-    expect(text).toContain("export type * from './user';");
+    expect(text).toContain("export type * from './user.js';");
     expect(text).not.toMatch(/export \* from/);
   });
 
   test('objects barrel re-exports with export type *', async () => {
     const text = await read(await writeObjectsIndex(dir, [obj('Address', [])]));
 
-    expect(text).toContain("export type * from './address';");
+    expect(text).toContain("export type * from './address.js';");
     expect(text).not.toMatch(/export \* from/);
   });
 
@@ -47,8 +47,8 @@ describe('type barrels', () => {
       ),
     );
 
-    expect(text).toContain("export type * from './alpha';");
-    expect(text).toContain("export type * from './beta';");
+    expect(text).toContain("export type * from './alpha.js';");
+    expect(text).toContain("export type * from './beta.js';");
     expect(text).not.toMatch(/export \* from/);
   });
 
@@ -60,7 +60,7 @@ describe('type barrels', () => {
       ),
     );
 
-    expect(text).toContain("export type * from './alpha';");
+    expect(text).toContain("export type * from './alpha.js';");
     expect(text).not.toMatch(/export \* from/);
   });
 });
@@ -74,8 +74,8 @@ describe('enums barrel', () => {
       ),
     );
 
-    expect(text).toContain("export * from './alpha';");
-    expect(text).toContain("export * from './beta';");
+    expect(text).toContain("export * from './alpha.js';");
+    expect(text).toContain("export * from './beta.js';");
     expect(text).not.toContain('export type');
   });
 });
