@@ -8,7 +8,7 @@ import { beginTransaction } from '../client/transaction-begin';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import { CerialValidationError } from '../errors';
 import type { CompiledQuery, TargetCheckMap } from './compile/types';
-import { mapRawResult, mapResult, mapSingleResult } from './mappers';
+import { mapGroupByRows, mapRawResult, mapResult, mapSingleResult } from './mappers';
 import { executeRawStatement } from './raw-statement';
 
 /** Query execution options */
@@ -375,6 +375,9 @@ function mapTransactionResult(
     }
     case 'raw':
       return mapRawResult(rawResult as unknown[], metadata);
+    // metadata is the row shape groupByRowShape described, not the model
+    case 'groupBy':
+      return mapGroupByRows(rawResult, metadata);
     default:
       return rawResult;
   }

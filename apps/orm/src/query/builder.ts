@@ -37,6 +37,7 @@ import {
   buildFindManyQuery,
   buildFindOneQuery,
   buildFindUniqueQuery,
+  buildGroupByQuery,
   buildSelectFields,
   buildUpdateManyQuery,
   buildUpdateUniqueQuery,
@@ -59,12 +60,13 @@ import type { CompiledQuery } from './compile/types';
 import { createCompileContext } from './compile/var-allocator';
 import { executeQuery, executeQuerySingle } from './executor';
 import { transformWhereClause } from './filters';
-import { mapResult, mapSingleResult } from './mappers';
+import { groupByRowShape, mapGroupByRows, mapResult, mapSingleResult } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import {
   validateCreateData,
   validateCompute,
   validateDataUnsetOverlap,
+  validateGroupBy,
   validateOrderBy,
   validatePagination,
   validateSelect,
@@ -73,6 +75,7 @@ import {
   refuseFragmentInValue,
   validateWhere,
   validationFailure,
+  type GroupByArgs,
 } from './validators';
 
 /**
@@ -158,6 +161,8 @@ export interface CompiledQueryDescriptor {
   hasId?: boolean;
   /** For updateUnique: the return option */
   returnOption?: unknown;
+  /** For groupBy: the description of the rows the query answers, which is not the model's shape */
+  rowShape?: ModelMetadata;
 }
 
 /** Query builder class for a specific model */
@@ -537,6 +542,14 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const count = await this.count(where);
 
     return count > 0;
+  }
+
+  /** One row per group: the keys, then the requested aggregates. Refuses invalid arguments before sending. */
+  async groupBy(args: GroupByArgs): Promise<Record<string, unknown>[]> {
+    const { query, rowShape } = compileGroupBy(this.model, args, this.registry);
+    const rows = await executeQuery<Record<string, unknown>>(this.db, query);
+
+    return mapGroupByRows(rows, rowShape!);
   }
 
   /**
@@ -1079,6 +1092,22 @@ export function compileCount(
   };
 }
 
+/** Compile a groupBy query without executing; throws when the arguments are invalid */
+export function compileGroupBy(
+  model: ModelMetadata,
+  args: GroupByArgs,
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const problems = validateGroupBy(args, model, registry);
+  if (problems.length) throw validationFailure('groupBy', problems, model, 'groupBy');
+
+  return {
+    query: buildGroupByQuery(model, args, registry),
+    resultType: 'groupBy',
+    rowShape: groupByRowShape(model, args),
+  };
+}
+
 /** Compile an exists query without executing (uses count internally) */
 export function compileExists(
   model: ModelMetadata,
@@ -1404,6 +1433,18 @@ export const QueryBuilderStatic = {
     const builder = new QueryBuilder(db, model, registry);
 
     return builder.exists(where);
+  },
+
+  /** One row per group */
+  async groupBy(
+    db: Surreal,
+    model: ModelMetadata,
+    args: GroupByArgs,
+    registry?: ModelRegistry,
+  ): Promise<Record<string, unknown>[]> {
+    const builder = new QueryBuilder(db, model, registry);
+
+    return builder.groupBy(args);
   },
 
   /**

@@ -16,6 +16,7 @@ import {
   compileFindMany,
   compileFindOne,
   compileFindUnique,
+  compileGroupBy,
   compileUpdateMany,
   compileUpdateUnique,
   compileUpsert,
@@ -29,6 +30,7 @@ import { CerialQueryPromise } from '../../query/cerial-query-promise';
 import type { SqlFragment } from '../../query/compile';
 import type { CompiledQuery } from '../../query/compile/types';
 import { mapRawResult } from '../../query/mappers';
+import type { GroupByArgs } from '../../query/validators';
 import { compileRawStatement, executeRawStatement } from '../../query/raw-statement';
 import type {
   CreateOptions,
@@ -442,6 +444,32 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       },
       compiled.query,
       this.metadata,
+      compiled.resultType,
+      this.registry,
+      modelNames,
+    );
+  }
+
+  /**
+   * One row per group: the group keys, then the requested aggregates. The arguments are validated when
+   * the method is called, so a bad call throws before anything is sent. The generated client types the
+   * arguments and rows per model; this signature is the generic runtime one.
+   */
+  groupBy(args: GroupByArgs, txn?: CerialTransaction): CerialQueryPromise<Record<string, unknown>[]> {
+    const modelNames = collectRelatedModelNames(this.metadata, this.registry, {});
+    const compiled = compileGroupBy(this.metadata, args, this.registry);
+
+    return new CerialQueryPromise<Record<string, unknown>[]>(
+      async () => {
+        await this.beforeQuery(modelNames);
+        const db = this.resolveDb(txn);
+
+        return this.run('groupBy', compiled.query, () =>
+          QueryBuilderStatic.groupBy(db, this.metadata, args, this.registry),
+        );
+      },
+      compiled.query,
+      compiled.rowShape,
       compiled.resultType,
       this.registry,
       modelNames,

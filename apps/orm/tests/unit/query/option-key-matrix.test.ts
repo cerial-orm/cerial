@@ -163,6 +163,8 @@ const NOT_QUERY_METHODS = new Set([
   '$raw',
   // Takes a where only, which the live suite covers
   '$live',
+  // Its keys are group keys and aggregates, refused by name in tests/unit/query/group-by/
+  'groupBy',
   'getMetadata',
   'getName',
   'getTableName',

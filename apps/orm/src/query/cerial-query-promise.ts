@@ -16,7 +16,7 @@ import type { ModelMetadata, ModelRegistry, SelectClause } from '../types';
 import type { CompiledQuery } from './compile/types';
 
 /** Result type classification for transaction result mapping */
-export type QueryResultType = 'single' | 'array' | 'count' | 'boolean' | 'number' | 'void' | 'raw';
+export type QueryResultType = 'single' | 'array' | 'count' | 'boolean' | 'number' | 'void' | 'raw' | 'groupBy';
 
 /** Symbol used to identify CerialQueryPromise instances */
 const CERIAL_QUERY_SYMBOL = Symbol.for('cerial.query');
