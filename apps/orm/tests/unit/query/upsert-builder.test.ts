@@ -3,7 +3,7 @@
  *
  * Tests SurrealQL output generation for upsert operations.
  * Two strategies:
- * - WHERE-based: Uses UPSERT SET with IF $this == NONE conditional logic
+ * - WHERE-based: UPSERT SET with IF $this == NONE logic when the WHERE matches, CREATE otherwise
  * - ID-based: Uses transaction with explicit existence check
  *
  * `create` is always required. `update` is optional.
@@ -184,7 +184,8 @@ describe('upsert-builder', () => {
         true,
       );
 
-      expect(query.text).not.toContain('RETURN');
+      expect(query.text).not.toMatch(/(UPSERT|CREATE)[^{}]*RETURN/);
+      expect(query.text).toContain('RETURN $up_result;');
     });
 
     test('generates RETURN with select fields', () => {
@@ -299,7 +300,7 @@ describe('upsert-builder', () => {
       );
 
       expect(query.text).toContain('UPSERT post');
-      expect(query.text).not.toContain('RETURN');
+      expect(query.text).not.toMatch(/(UPSERT|CREATE)[^{}]*RETURN/);
     });
 
     test('generates RETURN with select for non-unique', () => {
@@ -505,7 +506,7 @@ describe('upsert-builder', () => {
       );
 
       expect(query.text).toContain('UPSERT ONLY user');
-      expect(query.text).not.toContain('BEGIN TRANSACTION');
+      expect(query.text).not.toContain('$exists');
     });
 
     test('dispatches to WHERE-based without ONLY for non-unique where', () => {

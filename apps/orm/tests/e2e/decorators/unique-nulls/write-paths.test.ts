@@ -87,9 +87,7 @@ describe('@unique(nullsNotDistinct): write paths', () => {
     expect(await client.db.NnUser.count({ nickname: null })).toBe(1);
   });
 
-  // Open src bug: an upsert by a unique field whose create path hits another unique index (plain or
-  // nullsNotDistinct alike) resolves to null and writes nothing, instead of raising the violation.
-  test.todo('upsert whose create path would be a second null is refused', async () => {
+  test('upsert whose create path would be a second null is refused', async () => {
     await client.db.NnUser.create({ data: user({ nickname: null }) });
     const email = 'upsert-create@example.com';
 

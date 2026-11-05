@@ -4,7 +4,7 @@
  * Builds SurrealDB UPSERT statements with conditional create/update logic.
  *
  * Two strategies based on where clause:
- * 1. WHERE-based (unique field or non-unique): Uses native UPSERT SET with
+ * 1. WHERE-based (unique field or non-unique): UPSERT SET when the WHERE matches, CREATE otherwise, with
  *    IF $this == NONE THEN <create_value> ELSE <update_value> END
  *    ($this is NONE when the record doesn't exist yet)
  *
@@ -199,9 +199,9 @@ function buildUpsertSetClauses(
  * Build WHERE-based upsert query (for unique field or non-unique where).
  * Uses native UPSERT SET with IF $this == NONE conditional logic.
  *
- * Query patterns:
- * - Unique field: UPSERT ONLY table SET ... WHERE field = $val RETURN ...
- * - Non-unique: UPSERT table SET ... WHERE ... RETURN ...
+ * One transaction that branches on whether the WHERE matches a row:
+ * - Matched: UPSERT [ONLY] table SET ... WHERE ... RETURN ... (ONLY for a unique field)
+ * - Not matched: CREATE [ONLY] table SET ... RETURN ..., with the same SET clauses
  */
 export function buildUpsertWhereQuery(
   model: ModelMetadata,
@@ -230,29 +230,29 @@ export function buildUpsertWhereQuery(
     : buildUpsertReturnClause(returnOption, select, include, model, registry, includeCtx);
 
   const onlyKeyword = useOnly ? ' ONLY' : '';
-  const parts = [
-    `UPSERT${onlyKeyword} ${model.tableName}`,
-    setParts.length > 0 ? `SET ${setParts.join(', ')}` : '',
-    whereClause.text,
-    returnClause,
-  ].filter((p) => p);
-
-  // The matched rows are read through the projection first; the upsert itself returns nothing
-  if (snapshot) {
-    return {
-      text: [
-        'BEGIN TRANSACTION;',
-        buildBeforeSnapshot(model.tableName, whereClause.text, select, model, include, registry, includeCtx),
-        `${parts.join(' ')};`,
-        'COMMIT TRANSACTION;',
-        'RETURN $before;',
-      ].join('\n'),
-      vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
-    };
-  }
+  const setText = setParts.length > 0 ? `SET ${setParts.join(', ')}` : '';
+  const upsert = [`UPSERT${onlyKeyword} ${model.tableName}`, setText, whereClause.text, returnClause]
+    .filter((p) => p)
+    .join(' ');
+  // When nothing matches, UPSERT ... WHERE whose new row hits a unique index retries as an update of the
+  // conflicting row, which the WHERE then filters out: no row, no write, no error. A CREATE raises the
+  // violation. $this is NONE throughout a CREATE's SET, so the same clauses take their create values.
+  const create = [`CREATE${onlyKeyword} ${model.tableName}`, setText, returnClause].filter((p) => p).join(' ');
 
   return {
-    text: parts.join(' '),
+    text: [
+      'BEGIN TRANSACTION;',
+      // The matched rows are read through the projection first; the write itself returns nothing
+      snapshot
+        ? buildBeforeSnapshot(model.tableName, whereClause.text, select, model, include, registry, includeCtx)
+        : '',
+      `LET $up_matched = (SELECT id FROM ${model.tableName} ${whereClause.text} LIMIT 1)[0];`,
+      `LET $up_result = IF $up_matched { ${upsert} } ELSE { ${create} };`,
+      'COMMIT TRANSACTION;',
+      snapshot ? 'RETURN $before;' : 'RETURN $up_result;',
+    ]
+      .filter((p) => p)
+      .join('\n'),
     vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
   };
 }
