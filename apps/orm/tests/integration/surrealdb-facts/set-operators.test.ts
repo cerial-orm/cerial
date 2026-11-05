@@ -2,6 +2,8 @@
  * Facts about array operators on `set<T>` fields on SurrealDB 4.0. A set is its own value type:
  * `array::len()` refuses it, while the `.len()` method and the CONTAINS family accept arrays and
  * sets alike, at the top level and under an object. Each fact has a case that holds and one refused.
+ * `.len()` on NONE is refused, so the isEmpty form guards it: `(f != NONE AND f.len() = 0)` matches a
+ * present empty value only and never errors on an absent one.
  */
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
@@ -70,6 +72,37 @@ describe('isEmpty form on sets', () => {
   test('.len() on a present option<array> and option<set> works', async () => {
     const [res] = await run(db, 'SELECT VALUE meta::id(id) FROM t WHERE oa != NONE AND oa.len() > 0 AND os.len() > 0;');
     expect(res!.result).toEqual([2]);
+  });
+});
+
+describe('isEmpty guard form on absent values', () => {
+  const guarded = (f: string, op: '= 0' | '> 0'): string => `(${f} != NONE AND ${f}.len() ${op})`;
+
+  test('array, set, option<array>, option<set>: empty matches true, non-empty matches false, NONE neither', async () => {
+    for (const f of ['a', 's', 'oa', 'os']) {
+      expect(await ids(guarded(f, '= 0'))).toEqual([1, ...(f === 'a' || f === 's' ? [3] : [])]);
+      expect(await ids(guarded(f, '> 0'))).toEqual([2]);
+    }
+  });
+
+  test('a sub-field under an absent object matches neither and does not error', async () => {
+    for (const f of ['o.xs', 'o.ys']) {
+      expect(await ids(guarded(f, '= 0'))).toEqual([1]);
+      expect(await ids(guarded(f, '> 0'))).toEqual([2]);
+    }
+  });
+
+  test('isNone selects the absent value only, and OR with isEmpty: true gives empty plus absent', async () => {
+    expect(await ids('oa = NONE')).toEqual([3]);
+    expect(await ids('os != NONE')).toEqual([1, 2]);
+    expect(await ids('o.xs = NONE')).toEqual([3]);
+    expect(await ids(`${guarded('o.xs', '= 0')} OR o.xs = NONE`)).toEqual([1, 3]);
+    expect(await ids(`${guarded('oa', '= 0')} OR oa = NONE`)).toEqual([1, 3]);
+  });
+
+  test('NOT of the guarded form keeps the absent record', async () => {
+    expect(await ids(`!${guarded('oa', '= 0')}`)).toEqual([2, 3]);
+    expect(await ids(`!${guarded('o.xs', '> 0')}`)).toEqual([1, 3]);
   });
 });
 

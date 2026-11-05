@@ -461,7 +461,7 @@
   "src/query/filters/array-operators/array-field-handlers.ts::handleHasAll::template::v.placeholder": 1,
   "src/query/filters/array-operators/array-field-handlers.ts::handleHasAny::template::field": 1,
   "src/query/filters/array-operators/array-field-handlers.ts::handleHasAny::template::v.placeholder": 1,
-  "src/query/filters/array-operators/array-field-handlers.ts::handleIsEmpty::template::field": 2,
+  "src/query/filters/array-operators/array-field-handlers.ts::handleIsEmpty::template::field": 4,
   "src/query/filters/array-operators/in-handler.ts::handleIn::template::field": 1,
   "src/query/filters/array-operators/in-handler.ts::handleIn::template::v.placeholder": 1,
   "src/query/filters/array-operators/notIn-handler.ts::handleNotIn::template::field": 1,

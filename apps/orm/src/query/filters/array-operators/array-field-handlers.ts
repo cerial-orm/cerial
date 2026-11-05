@@ -40,7 +40,11 @@ export function handleHasAny(
   return { text: `${field} CONTAINSANY ${v.placeholder}`, vars: v.vars };
 }
 
-/** Handle isEmpty operator - checks if array is empty */
+/**
+ * Handle isEmpty operator - matches a present empty array (true) or a present non-empty one (false).
+ * An absent (NONE) field, such as a sub-field under an absent object, matches neither: .len() on NONE
+ * is a query error, so the guard comes first and short-circuits. Use isNone to select absent fields.
+ */
 export function handleIsEmpty(
   _ctx: FilterCompileContext,
   field: string,
@@ -48,7 +52,7 @@ export function handleIsEmpty(
   _fieldMetadata: FieldMetadata,
 ): QueryFragment {
   // Method form: 4.0 refuses array::len() on a set, while .len() accepts arrays and sets alike.
-  if (isEmpty) return { text: `${field}.len() = 0`, vars: {} };
+  if (isEmpty) return { text: `(${field} != NONE AND ${field}.len() = 0)`, vars: {} };
 
-  return { text: `${field}.len() > 0`, vars: {} };
+  return { text: `(${field} != NONE AND ${field}.len() > 0)`, vars: {} };
 }
