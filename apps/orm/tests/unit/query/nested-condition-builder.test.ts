@@ -100,17 +100,19 @@ describe('buildReverseNestedCondition — quantifiers', () => {
     );
   });
 
-  test.each(['some', 'every', 'none'])('%s with an empty inner where, alone, raises', (quantifier) => {
-    throwsNoConditions(() => reverse({ [quantifier]: {} }), 'Owner.places', `'${quantifier}'`);
+  test('some, none and every with an empty inner where compile to what they mean', () => {
+    expect(reverse({ some: {} })).toEqual({ text: `id IN (${SUB})`, vars: {} });
+    expect(reverse({ none: {} })).toEqual({ text: `id NOT IN (${SUB})`, vars: {} });
+    expect(reverse({ every: {} })).toEqual({ text: `id IN (${SUB})`, vars: {} });
   });
 
   test.each(['some', 'every', 'none'])('%s with an undefined value is skipped', (quantifier) => {
     expect(reverse({ [quantifier]: undefined })).toEqual(EMPTY);
   });
 
-  test('an empty quantifier does not suppress its siblings', () => {
+  test('an empty quantifier keeps its meaning beside its siblings', () => {
     expect(reverse({ some: {}, none: { name: 'y' } })).toEqual({
-      text: `id NOT IN (${SUB} WHERE name = $name_eq_0)`,
+      text: `id IN (${SUB}) AND id NOT IN (${SUB} WHERE name = $name_eq_0)`,
       vars: { name_eq_0: 'y' },
     });
   });
@@ -122,7 +124,7 @@ describe('buildReverseNestedCondition — quantifiers', () => {
 
   test('inner fields missing from the target model and undefined inner values are skipped', () => {
     throwsNoConditions(() => reverse({ some: { nope: 'x' } }), 'Owner.places', `'some'`);
-    throwsNoConditions(() => reverse({ some: { name: undefined } }), 'Owner.places', `'some'`);
+    expect(reverse({ some: { name: undefined } })).toEqual({ text: `id IN (${SUB})`, vars: {} });
     expect(reverse({ some: { nope: 'x', name: 'y' } }).text).toBe(`id IN (${SUB} WHERE name = $name_eq_0)`);
   });
 
@@ -133,8 +135,8 @@ describe('buildReverseNestedCondition — quantifiers', () => {
     });
   });
 
-  test('an operator object with only undefined values raises', () => {
-    throwsNoConditions(() => reverse({ some: { name: { eq: undefined } } }), 'Owner.places', `'some'`);
+  test('an operator object with only undefined values constrains nothing', () => {
+    expect(reverse({ some: { name: { eq: undefined } } })).toEqual({ text: `id IN (${SUB})`, vars: {} });
   });
 
   test('a direct value is shorthand for eq', () => {

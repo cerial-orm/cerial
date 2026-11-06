@@ -8,7 +8,7 @@ import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
-import { isOperatorObject } from './condition-builder';
+import { isOperatorShape } from './condition-builder';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { getOperatorHandler } from './registry';
 
@@ -106,7 +106,7 @@ function buildSubqueryConditions(
     if (!fieldMetadata) continue;
 
     // Handle operator object
-    if (isOperatorObject(value)) {
+    if (isOperatorShape(value, fieldMetadata)) {
       const operatorConditions: QueryFragment[] = [];
 
       for (const [op, opValue] of Object.entries(value as Record<string, unknown>)) {
@@ -212,7 +212,7 @@ function compileForwardNested(
     const dotField = `${fieldRef}.${nestedField}`;
 
     // Handle operator object
-    if (isOperatorObject(value)) {
+    if (isOperatorShape(value, nestedFieldMetadata)) {
       const operatorConditions: QueryFragment[] = [];
 
       for (const [op, opValue] of Object.entries(value as Record<string, unknown>)) {
@@ -328,7 +328,22 @@ function compileReverseNested(
       const innerWhere = value as WhereClause;
       const innerCondition = buildSubqueryConditions(ctx, innerWhere, targetModel);
 
-      if (!innerCondition.text) continue;
+      // A body with no condition holds for every related record: some and every (which already requires
+      // a related row) need one to exist, none needs there to be none
+      if (!innerCondition.text) {
+        // A key the target model does not have also compiles to nothing; that is a dropped filter, not a true one
+        if (namesUnknownField(innerWhere, targetModel)) continue;
+
+        if (key === 'some' || key === 'every') {
+          conditions.push({ text: `id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName})`, vars: {} });
+        } else if (key === 'none') {
+          conditions.push({
+            text: `id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName})`,
+            vars: {},
+          });
+        }
+        continue;
+      }
 
       // Build the subquery based on the operator
       let subqueryText: string;
@@ -373,6 +388,24 @@ function compileReverseNested(
   }
 
   return joinFragments(conditions, ' AND ');
+}
+
+function namesUnknownField(where: WhereClause, targetModel: ModelMetadata): boolean {
+  for (const [key, value] of Object.entries(where)) {
+    if (value === undefined) continue;
+
+    if (key === 'AND' || key === 'OR') {
+      if (Array.isArray(value) && value.some((w) => isObject(w) && namesUnknownField(w as WhereClause, targetModel))) {
+        return true;
+      }
+    } else if (key === 'NOT') {
+      if (isObject(value) && namesUnknownField(value as WhereClause, targetModel)) return true;
+    } else if (!targetModel.fields.some((f) => f.name === key)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

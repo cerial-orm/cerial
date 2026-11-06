@@ -116,13 +116,13 @@ describe('E2E array relation: shorthand for some, and isEmpty', () => {
       expect(await survivors()).toEqual(['Amy', 'Bob', 'Cat', 'Zed']);
     });
 
-    test('a lone empty some still throws and deleteMany deletes nothing', async () => {
-      await expect((async () => client.db.Author.findMany({ where: { posts: { some: {} } } }))()).rejects.toThrow(
-        'produced no conditions',
-      );
-      await expect((async () => client.db.Author.deleteMany({ where: { posts: { some: {} } } }))()).rejects.toThrow(
-        'produced no conditions',
-      );
+    test('a lone some on an unknown target field still throws and deleteMany deletes nothing', async () => {
+      const where = { posts: { some: { titel: 'a' } } };
+
+      // @ts-expect-error a typo in a target field is a type error, and the runtime refuses it as well
+      await expect((async () => client.db.Author.findMany({ where }))()).rejects.toThrow();
+      // @ts-expect-error a typo in a target field is a type error, and the runtime refuses it as well
+      await expect((async () => client.db.Author.deleteMany({ where }))()).rejects.toThrow();
       expect(await survivors()).toEqual(['Amy', 'Bob', 'Cat', 'Zed']);
     });
 

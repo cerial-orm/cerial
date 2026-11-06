@@ -93,11 +93,17 @@ describe('what stays refused', () => {
     }
   });
 
-  test.each(['some', 'every', 'none'])('a lone empty %s throws on every operation', (quantifier) => {
+  test.each([
+    ['some', `SELECT * FROM owner WHERE id IN (${SUB})`],
+    ['none', `SELECT * FROM owner WHERE id NOT IN (${SUB})`],
+    ['every', `SELECT * FROM owner WHERE id IN (${SUB})`],
+  ])('a lone empty %s compiles to what it means', (quantifier, text) => {
+    expect(compileFindMany(owner, { where: { places: { [quantifier]: {} } } }, placeRegistry).query.text).toBe(text);
+  });
+
+  test('a lone quantifier on an unknown target field is still refused on every operation', () => {
     for (const [, compile] of operations) {
-      expect(() => compile({ places: { [quantifier]: {} } })).toThrow(
-        `Relation filter on Owner.places produced no conditions from '${quantifier}'`,
-      );
+      expect(() => compile({ places: { some: { nope: 'x' } } } as WhereClause)).toThrow();
     }
   });
 

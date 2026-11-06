@@ -256,6 +256,21 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   return keys.some((k) => isRegisteredOperator(k));
 }
 
+/**
+ * An operator object, or a plain object with nothing in it ({} or only undefined values). The empty one
+ * is a filter that names no operator, so it constrains nothing; read as a direct value it would compare
+ * the field to {}. Any-typed and literal fields keep {} as a value they may hold.
+ */
+export function isOperatorShape(value: unknown, field: FieldMetadata): value is Record<string, unknown> {
+  if (isOperatorObject(value)) return true;
+  if (field.type === 'any' || field.type === 'literal') return false;
+  if (!isObject(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== null) return false;
+
+  return Object.values(value).every((v) => v === undefined);
+}
+
 /** Build conditions for a single/optional object field using dot notation */
 export function buildObjectCondition(
   ctx: FilterCompileContext,
@@ -329,7 +344,7 @@ export function buildObjectCondition(
     }
 
     // Primitive sub-field with operators
-    if (isOperatorObject(value)) {
+    if (isOperatorShape(value, subField)) {
       conditions.push(
         buildFieldCondition(ctx, subPath, value as Record<string, unknown>, subField, {} as ModelMetadata),
       );
@@ -346,6 +361,17 @@ export function buildObjectCondition(
   return joinFragments(conditions, ' AND ');
 }
 
+/**
+ * A quantifier body that compiles to no condition holds for every element, so it is decided by the array
+ * alone: some needs an element, none needs the array empty, every is always true (no fragment).
+ */
+function emptyBodyQuantifier(fieldPath: string, quantifier: string): QueryFragment | undefined {
+  if (quantifier === 'some') return { text: `array::len(${fieldPath}) > 0`, vars: {} };
+  if (quantifier === 'none') return { text: `array::len(${fieldPath}) = 0`, vars: {} };
+
+  return undefined;
+}
+
 /** Build conditions for an array-of-objects field using closure syntax */
 export function buildArrayObjectCondition(
   ctx: FilterCompileContext,
@@ -360,7 +386,11 @@ export function buildArrayObjectCondition(
 
     // Build inner conditions using closure variable $v
     const innerCondition = buildObjectConditionForClosure(ctx, '$v', subWhere as Record<string, unknown>, objectInfo);
-    if (!innerCondition.text) continue;
+    if (!innerCondition.text) {
+      const empty = emptyBodyQuantifier(fieldPath, quantifier);
+      if (empty) conditions.push(empty);
+      continue;
+    }
 
     if (quantifier === 'some') {
       conditions.push({ text: `${fieldPath}.any(|$v| ${innerCondition.text})`, vars: innerCondition.vars });
@@ -451,7 +481,7 @@ function buildObjectConditionForClosure(
       continue;
     }
 
-    if (isOperatorObject(value)) {
+    if (isOperatorShape(value, subField)) {
       conditions.push(
         buildFieldCondition(ctx, subPath, value as Record<string, unknown>, subField, {} as ModelMetadata),
       );
@@ -546,7 +576,7 @@ export function buildTupleCondition(
     }
 
     // Operator object
-    if (isOperatorObject(value)) {
+    if (isOperatorShape(value, syntheticField)) {
       conditions.push(
         buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, {} as ModelMetadata),
       );
@@ -577,7 +607,11 @@ export function buildArrayTupleCondition(
 
     // Build inner conditions using closure variable $v
     const innerCondition = buildTupleCondition(ctx, '$v', subWhere as Record<string, unknown>, tupleInfo);
-    if (!innerCondition.text) continue;
+    if (!innerCondition.text) {
+      const empty = emptyBodyQuantifier(fieldPath, quantifier);
+      if (empty) conditions.push(empty);
+      continue;
+    }
 
     if (quantifier === 'some') {
       conditions.push({ text: `${fieldPath}.any(|$v| ${innerCondition.text})`, vars: innerCondition.vars });
@@ -765,7 +799,7 @@ export function buildConditions(
     }
 
     // Handle operator object { eq: 5, gt: 3 }
-    if (isOperatorObject(value)) {
+    if (isOperatorShape(value, fieldMetadata)) {
       conditions.push(buildFieldCondition(ctx, key, value as Record<string, unknown>, fieldMetadata, model));
       continue;
     }
