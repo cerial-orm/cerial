@@ -23,7 +23,6 @@ const shapes: Record<string, unknown> = {
   'empty object field': { strictAddress: {} },
   'empty flexible field': { address: {} },
   'undefined value': { name: undefined },
-  'undefined operator value': { name: { eq: undefined } },
 };
 
 // NOT (shape OR t1): the OR is every row, so nothing matches
@@ -98,6 +97,35 @@ describe('Empty where branches — destructive and read paths', () => {
     });
 
     test('a bare OR with the shape matches every row', async () => {
+      expect(await client.db.FlexUser.count(hostile({ OR: [shape, { name: 't1' }] }))).toBe(3);
+    });
+  });
+
+  // An operator object with only undefined values is an empty operator object: a read gives it a meaning, a write refuses it
+  describe('undefined operator value', () => {
+    const shape = { name: { eq: undefined } };
+
+    test('deleteMany and updateMany refuse it in either branch position and change nothing', async () => {
+      for (const where of [notOr(shape), notAndOr(shape)]) {
+        await expect(
+          (async () => {
+            await client.db.FlexUser.deleteMany({ where });
+          })(),
+        ).rejects.toThrow(/ambiguous on a write/);
+        await expect(
+          (async () => {
+            await client.db.FlexUser.updateMany({ where, data: { name: 'changed' } });
+          })(),
+        ).rejects.toThrow(/ambiguous on a write/);
+      }
+
+      expect(await names()).toEqual(['t1', 't2', 't3']);
+    });
+
+    test('findMany and count keep their meaning', async () => {
+      expect(await client.db.FlexUser.findMany({ where: notOr(shape) })).toEqual([]);
+      expect(await client.db.FlexUser.count(notOr(shape))).toBe(0);
+      expect(await client.db.FlexUser.count(notAndOr(shape))).toBe(2);
       expect(await client.db.FlexUser.count(hostile({ OR: [shape, { name: 't1' }] }))).toBe(3);
     });
   });

@@ -134,11 +134,13 @@ describe('E2E nested relation filters: author and posts', () => {
       label: 'posts.some.author.{}: a post whose author exists',
       where: { posts: { some: { author: {} } } },
       expected: ['a-ann', 'a-bob'],
+      refusedOnWrite: true,
     },
     {
       label: 'NOT posts.some.author.{}',
       where: { NOT: { posts: { some: { author: {} } } } },
       expected: ['a-cat'],
+      refusedOnWrite: true,
     },
     {
       label: 'AND of a nested key and a field',

@@ -10,6 +10,7 @@ import type { FilterCompileContext } from '../compile/var-allocator';
 import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
 import { validateWhere, validationFailure } from '../validators';
+import { assertNoAmbiguousEmpty } from './ambiguous-empty';
 import { buildConditions } from './condition-builder';
 import { assertFilterResolved, transformWhere, transformWhereClause } from './transformer';
 
@@ -22,6 +23,7 @@ function assertValidWhere(
   const validation = validateWhere(where, model, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, operation);
   if (!registry) assertNoRelationKeys(where, model, operation);
+  assertNoAmbiguousEmpty(where, model, registry, operation);
 }
 
 /**

@@ -2,6 +2,7 @@
  * Filter transformer - transforms where clauses to SQL conditions
  */
 
+import { assertNoAmbiguousEmpty } from './ambiguous-empty';
 import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import { fragmentToQuery } from '../compile/fragment';
@@ -57,6 +58,7 @@ export function transformDestructiveWhere(
   operation: string,
   registry?: ModelRegistry,
 ): CompiledQuery {
+  assertNoAmbiguousEmpty(where, model, registry, operation);
   const clause = transformWhereClause(where, model, registry);
   assertFilterResolved(where, clause.text, model, operation);
 

@@ -20,7 +20,8 @@ const hostile = (value: unknown): never => value as never;
 interface Case {
   readonly label: string;
   readonly where: unknown;
-  readonly expected: readonly string[];
+  readonly expected: readonly string[] /** The shape is ambiguous on a write: updateMany and deleteMany refuse it and leave every row alone */;
+  readonly refusedOnWrite?: boolean;
 }
 
 const bodies: Record<string, Record<string, unknown>> = {
@@ -77,7 +78,7 @@ interface Rows {
 }
 
 function runCases(title: string, getRows: () => Rows, cases: readonly Case[]): void {
-  describe.each(cases)(`${title}: $label`, ({ where, expected }) => {
+  describe.each(cases)(`${title}: $label`, ({ where, expected, refusedOnWrite }) => {
     test('findMany and count match exactly the rows the filter means', async () => {
       const rows = getRows();
 
@@ -89,6 +90,12 @@ function runCases(title: string, getRows: () => Rows, cases: readonly Case[]): v
     // the sibling variants and every filter that selects by meaning go through.
     test('updateMany changes exactly those rows and no others', async () => {
       const rows = getRows();
+      if (refusedOnWrite) {
+        await expect(rows.update(where)).rejects.toThrow(/ambiguous on a write/);
+        expect(await rows.marked()).toEqual([]);
+
+        return;
+      }
       try {
         await rows.update(where);
       } catch (error) {
@@ -104,6 +111,12 @@ function runCases(title: string, getRows: () => Rows, cases: readonly Case[]): v
 
     test('deleteMany removes exactly those rows and keeps the others', async () => {
       const rows = getRows();
+      if (refusedOnWrite) {
+        await expect(rows.remove(where)).rejects.toThrow(/ambiguous on a write/);
+        expect((await rows.survivors()).sort()).toEqual([...rows.everything].sort());
+
+        return;
+      }
       try {
         await rows.remove(where);
       } catch (error) {
@@ -365,7 +378,12 @@ describe('Empty filter bodies', () => {
           where: posts({ some: { title: undefined }, isEmpty: true }),
           expected: [],
         },
-        { label: 'some with an empty operator object', where: posts({ some: { title: {} } }), expected: ['a2', 'a3'] },
+        {
+          label: 'some with an empty operator object',
+          where: posts({ some: { title: {} } }),
+          expected: ['a2', 'a3'],
+          refusedOnWrite: true,
+        },
         // positive
         { label: 'some y', where: posts({ some: { title: 'y' } }), expected: ['a3'] },
         { label: 'none y', where: posts({ none: { title: 'y' } }), expected: ['a1', 'a2'] },
@@ -404,22 +422,44 @@ describe('Empty filter bodies', () => {
     const sibling = { location: { 0: 0 } };
 
     runCases('name', () => rows, [
-      { label: 'NOT name {}', where: { NOT: { name: {} } }, expected: [] },
-      { label: 'NOT name {} with a sibling key', where: { ...sibling, NOT: { name: {} } }, expected: [] },
-      { label: 'NOT OR (name t1, name {})', where: { NOT: { OR: [{ name: 't1' }, { name: {} }] } }, expected: [] },
+      { label: 'NOT name {}', where: { NOT: { name: {} } }, expected: [], refusedOnWrite: true },
+      {
+        label: 'NOT name {} with a sibling key',
+        where: { ...sibling, NOT: { name: {} } },
+        expected: [],
+        refusedOnWrite: true,
+      },
+      {
+        label: 'NOT OR (name t1, name {})',
+        where: { NOT: { OR: [{ name: 't1' }, { name: {} }] } },
+        expected: [],
+        refusedOnWrite: true,
+      },
       {
         label: 'NOT OR (name t1, name {}) with a sibling key',
         where: { ...sibling, NOT: { OR: [{ name: 't1' }, { name: {} }] } },
         expected: [],
+        refusedOnWrite: true,
       },
-      { label: 'name {} with a sibling key', where: { ...sibling, name: {} }, expected: names },
-      { label: 'name {} beside name t1', where: { AND: [{ name: {} }, { name: 't1' }] }, expected: ['t1'] },
+      { label: 'name {} with a sibling key', where: { ...sibling, name: {} }, expected: names, refusedOnWrite: true },
+      {
+        label: 'name {} beside name t1',
+        where: { AND: [{ name: {} }, { name: 't1' }] },
+        expected: ['t1'],
+        refusedOnWrite: true,
+      },
       {
         label: 'NOT AND (name {}, name t1)',
         where: { NOT: { AND: [{ name: {} }, { name: 't1' }] } },
         expected: ['t2', 't3'],
+        refusedOnWrite: true,
       },
-      { label: 'name with only undefined operators', where: { ...sibling, name: { eq: undefined } }, expected: names },
+      {
+        label: 'name with only undefined operators',
+        where: { ...sibling, name: { eq: undefined } },
+        expected: names,
+        refusedOnWrite: true,
+      },
       // positive
       { label: 'name eq t1', where: { name: { eq: 't1' } }, expected: ['t1'] },
       { label: 'NOT name eq t1', where: { NOT: { name: { eq: 't1' } } }, expected: ['t2', 't3'] },
