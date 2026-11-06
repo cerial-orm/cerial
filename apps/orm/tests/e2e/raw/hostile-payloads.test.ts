@@ -11,19 +11,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialDatabaseError, CerialValidationError, sql } from 'cerial';
 import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
+import { A1, A2, A3, A4, E1, E2, E3, E4, N1, expectIntact, fails, seedVictims } from './hostile-helpers';
 
 const TABLES = [...tables.core];
-
-// Injection payloads with `user` as the queried table and `tag` as the victim
-const A1 = 'name FROM tag; DELETE tag; SELECT name';
-const A2 = 'user; DELETE tag';
-const A3 = 'name; DELETE tag';
-const A4 = "x' OR true; DELETE tag; --";
-const N1 = 'SELECT name FROM tag; DELETE tag; SELECT name FROM user';
-const E2 = 'x\\` FROM tag; DELETE tag; SELECT `y';
-const E3 = 'a` FROM tag; DELETE tag; SELECT `b';
-const E4 = 'user; DELETE tag';
-const E1 = 'x\\⟩ FROM tag; DELETE tag; SELECT ⟨y';
 
 describe('E2E hostile payloads', () => {
   let client: CerialClient;
@@ -40,24 +30,10 @@ describe('E2E hostile payloads', () => {
 
   beforeEach(async () => {
     await truncateTables(client, TABLES);
-    for (const name of ['Ann', 'Bob', 'Cy'])
-      await client.db.User.create({ data: { email: `${name.toLowerCase()}@x.test`, name, isActive: true, age: 20 } });
-    for (const name of ['t1', 't2', 't3']) await client.db.Tag.create({ data: { name } });
+    await seedVictims(client);
   });
 
-  // Read the victim back through a typed count, never through the path under test
-  const intact = async (): Promise<void> => {
-    expect(await client.db.Tag.count()).toBe(3);
-    expect(await client.db.User.count()).toBe(3);
-  };
-
-  const fails = async (run: () => PromiseLike<unknown>, error: new (...args: never[]) => Error): Promise<void> => {
-    await expect(
-      (async () => {
-        await run();
-      })(),
-    ).rejects.toThrow(error);
-  };
+  const intact = (): Promise<void> => expectIntact(client);
 
   describe('control: the harness sees a deletion', () => {
     test('an unchecked string through client.query empties the victim (N1, concatenated)', async () => {
