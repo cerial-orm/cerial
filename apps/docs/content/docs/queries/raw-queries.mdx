@@ -59,6 +59,8 @@ const adult = sql`age >= ${18}`;
 const where = { $raw: sql`${adult} AND isActive = ${true}` };
 ```
 
+Fragments nested more than 64 levels deep are refused with a `CerialValidationError` when they compile.
+
 Cerial wrappers (`CerialId`, `CerialUuid`, `CerialDecimal` and the others) are converted to driver values before binding, including inside arrays and plain objects. A bare id would otherwise match nothing.
 
 A hole inside a hand-written quote stays literal. In ``sql`name = 'abc${x}'` `` the text `$raw_param_0` is part of the string and `x` is never used. Keep holes outside quotes.

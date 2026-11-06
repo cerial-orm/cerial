@@ -145,17 +145,27 @@ function unwrap(value: unknown): unknown {
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, unwrap(item)]));
 }
 
+// Nested fragments compile recursively; past this a hostile chain would overflow the stack with a bare RangeError.
+export const MAX_FRAGMENT_DEPTH = 64;
+
 /** Compile a fragment at the position it lands in: every value is bound through `ctx`, nested fragments splice. */
 export function compileFragment(fragment: SqlFragment, ctx: FilterCompileContext): QueryFragment {
+  return compileAtDepth(fragment, ctx, 1);
+}
+
+function compileAtDepth(fragment: SqlFragment, ctx: FilterCompileContext, depth: number): QueryFragment {
   if (!isSqlFragment(fragment)) {
     throw new CerialValidationError('sql: expected a fragment built by the sql tag');
+  }
+  if (depth > MAX_FRAGMENT_DEPTH) {
+    throw new CerialValidationError(`sql: fragments are nested deeper than ${MAX_FRAGMENT_DEPTH} levels`);
   }
   const vars: Record<string, unknown> = {};
   let text = fragment.strings[0]!;
 
   fragment.values.forEach((value, i) => {
     if (isSqlFragment(value)) {
-      const inner = compileFragment(value, ctx);
+      const inner = compileAtDepth(value, ctx, depth + 1);
       Object.assign(vars, inner.vars);
       text += inner.text;
     } else {
