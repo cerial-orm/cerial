@@ -112,7 +112,7 @@ describe('what stays refused', () => {
 
     expect(text).toBe('SELECT * FROM owner');
     expect(() => compileDeleteMany(owner, { where: { places: { name: undefined } } }, placeRegistry)).toThrow(
-      'the where filter resolved to no conditions',
+      'ambiguous on a write',
     );
   });
 });

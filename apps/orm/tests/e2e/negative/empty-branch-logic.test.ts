@@ -1,7 +1,7 @@
 /**
  * E2E Tests: an empty where branch is true, so NOT around an OR that holds one matches nothing
  *
- * An empty branch (`{}`, `AND: []`, an empty object field, undefined values) means every row. An OR with one is
+ * An empty branch (`{}`, `AND: []`, an empty object field, undefined values) means every row on a read; a write refuses the object field forms. An OR with one is
  * therefore every row, and NOT of it is none. The OR used to drop the empty branch, which turned
  * `NOT: { OR: [{}, { name: 't1' }] }` into `NOT (name = 't1')` and deleted rows the written filter keeps.
  * Every destructive entry point asserts the exact surviving rows; reads and the ordinary filters pin the rest.
@@ -24,6 +24,8 @@ const shapes: Record<string, unknown> = {
   'empty flexible field': { address: {} },
   'undefined value': { name: undefined },
 };
+
+const refusedOnWrite = ['empty object field', 'empty flexible field'];
 
 // NOT (shape OR t1): the OR is every row, so nothing matches
 const notOr = (shape: unknown) => hostile({ NOT: { OR: [shape, { name: 't1' }] } });
@@ -59,26 +61,41 @@ describe('Empty where branches — destructive and read paths', () => {
     }
   });
 
-  describe.each(Object.entries(shapes))('%s', (_label, shape) => {
+  describe.each(Object.entries(shapes))('%s', (label, shape) => {
+    // An empty object field filter is ambiguous on a write: it is refused and nothing changes
+    const refused = refusedOnWrite.includes(label);
+    const refusal = async (run: () => Promise<unknown>) => {
+      await expect(run()).rejects.toThrow(/ambiguous on a write/);
+      expect(await names()).toEqual(['t1', 't2', 't3']);
+    };
+
     test('deleteMany with NOT (shape OR t1) deletes nothing', async () => {
+      if (refused) return refusal(async () => client.db.FlexUser.deleteMany({ where: notOr(shape) }));
       await client.db.FlexUser.deleteMany({ where: notOr(shape) });
 
       expect(await names()).toEqual(['t1', 't2', 't3']);
     });
 
     test('deleteMany with NOT (t1 AND (t2 OR shape)) deletes exactly t2 and t3', async () => {
+      if (refused) return refusal(async () => client.db.FlexUser.deleteMany({ where: notAndOr(shape) }));
       await client.db.FlexUser.deleteMany({ where: notAndOr(shape) });
 
       expect(await names()).toEqual(['t1']);
     });
 
     test('updateMany with NOT (shape OR t1) updates nothing', async () => {
+      if (refused)
+        return refusal(async () => client.db.FlexUser.updateMany({ where: notOr(shape), data: { name: 'changed' } }));
       await client.db.FlexUser.updateMany({ where: notOr(shape), data: { name: 'changed' } });
 
       expect(await names()).toEqual(['t1', 't2', 't3']);
     });
 
     test('updateMany with NOT (t1 AND (t2 OR shape)) updates exactly t2 and t3', async () => {
+      if (refused)
+        return refusal(async () =>
+          client.db.FlexUser.updateMany({ where: notAndOr(shape), data: { name: 'changed' } }),
+        );
       await client.db.FlexUser.updateMany({ where: notAndOr(shape), data: { name: 'changed' } });
 
       expect(await names()).toEqual(['changed', 'changed', 't1']);

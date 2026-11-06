@@ -226,11 +226,13 @@ describe('Empty filter bodies', () => {
           label: 'some with an empty operator object',
           where: items({ some: { productName: {} } }),
           expected: ['o2', 'o3'],
+          refusedOnWrite: true,
         },
         {
           label: 'none with an empty operator object',
           where: items({ none: { productName: {} } }),
           expected: ['o1'],
+          refusedOnWrite: true,
         },
         // positive: non-empty bodies keep their meaning
         { label: 'some pen', where: items({ some: { productName: 'pen' } }), expected: ['o3'] },

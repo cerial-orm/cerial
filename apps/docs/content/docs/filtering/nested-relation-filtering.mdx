@@ -50,7 +50,7 @@ Two forms ask only whether a related record exists:
 
 They are exact complements, at any depth and inside `include` and `$live` filters. A relation is not stored, so `author: null` does not tell how the key is stored. To ask about the key itself, filter the foreign key field: `authorId: null` matches only a key that holds `null`, `authorId: { isNone: true }` only a key that was never set, and `authorId: 'abc'` the key that points at that record, even when the record has been deleted.
 
-`deleteMany`, `updateMany`, `upsert`, the unique write methods and the exported where helpers refuse the empty shapes that a read gives a meaning: `author: {}`, a body equivalent to it (`{ AND: [] }`, `{ name: undefined }`, `{ name: {} }`), and an empty operator object such as `age: {}`. They throw a `CerialValidationError` that names the explicit forms above. `some: {}`, `every: {}`, `none: {}` and `isEmpty` stay allowed.
+`deleteMany`, `updateMany`, `upsert`, the unique write methods and the exported where helpers refuse the empty shapes that a read gives a meaning: `author: {}`, a body equivalent to it (`{ AND: [] }`, `{ name: undefined }`, `{ name: {} }`), an empty operator object such as `age: {}`, a reverse or many-to-many relation body that names no quantifier and no condition (`posts: {}`, `courses: { some: undefined }`), and an empty object or tuple field filter (`address: {}`, `address: { city: {} }`). They throw a `CerialValidationError` that names the explicit forms above. `some: {}`, `every: {}`, `none: {}` and `isEmpty` stay allowed.
 
 ## Reverse Relations
 
