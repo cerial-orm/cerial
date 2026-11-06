@@ -3,8 +3,9 @@
  * Supports nested includes for recursive relation fetching
  */
 
+import { isObject } from '../../utils/type-utils';
 import { CerialUnknownFieldError, CerialValidationError } from '../../errors';
-import type { FieldMetadata, ModelMetadata, ModelRegistry, OrderByClause } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, OrderByClause, WhereClause } from '../../types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 import { buildConditions } from '../filters/condition-builder';
 import { validationFailure } from '../validators/failure';
@@ -70,6 +71,11 @@ function activeWhere(options: IncludeOptions | undefined): Record<string, unknow
   return options?.where && Object.keys(options.where).length ? options.where : undefined;
 }
 
+/** An include `where` that is not a plain object; the subquery path refuses it instead of reading it as no filter. */
+function hasMalformedWhere(options: IncludeOptions | undefined): boolean {
+  return options?.where !== undefined && !isObject(options.where);
+}
+
 /**
  * Build nested include fields for a subquery
  * Returns the SELECT fields string for nested relations
@@ -118,7 +124,15 @@ function buildIncludeSubquery(
   }
 
   const checks = [
-    ['where', validateWhereClause(where ?? {}, targetModel, 'where', registry)],
+    [
+      'where',
+      validateWhereClause(
+        (options?.where === undefined ? {} : options.where) as WhereClause,
+        targetModel,
+        'where',
+        registry,
+      ),
+    ],
     ['orderBy', validateOrderBy(options?.orderBy, targetModel, registry)],
     ['limit/offset', validatePagination(options?.limit, options?.offset)],
   ] as const;
@@ -182,6 +196,7 @@ function buildForwardRelationSelectInternal(
   const needsSubquery =
     options?.include ||
     activeWhere(options) ||
+    hasMalformedWhere(options) ||
     options?.orderBy ||
     options?.limit !== undefined ||
     options?.offset !== undefined;

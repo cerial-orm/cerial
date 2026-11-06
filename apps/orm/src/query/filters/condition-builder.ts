@@ -708,8 +708,13 @@ export function buildConditions(
           continue;
         }
       }
-      // For reverse relations, filtering by null is not directly supported
-      continue;
+      // A reverse relation has no column to compare to null. Dropping the key would widen the filter,
+      // so fail closed; the validator refuses it first with a pointer to isEmpty.
+      if (!fieldMetadata.relationInfo?.isReverse) continue;
+      throw new CerialValidationError(
+        `Invalid where clause: '${key}' is a reverse relation on ${model.name} and cannot be compared to null; use { ${key}: { isEmpty: true } }`,
+        { model: model.name, field: key, operation: 'where' },
+      );
     }
 
     // Handle nested relation conditions (e.g., profile: { bio: { contains: 'x' } })

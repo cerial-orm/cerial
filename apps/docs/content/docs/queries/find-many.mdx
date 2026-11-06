@@ -42,6 +42,7 @@ const allUsers = await client.db.User.findMany();
 // allUsers: User[]
 ```
 
+A `where` must be an object; `[]`, `5`, `true` and `null` are refused rather than read as no filter. On a one-to-many relation, `null` is refused too: use `{ posts: { isEmpty: true } }` to match records with no related rows.
 
 ## With All Options
 

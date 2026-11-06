@@ -200,8 +200,8 @@ describe('malformed keys', () => {
   });
 
   test('a non-object where throws instead of compiling', () => {
-    expectUnknownField(() => posts('title'));
-    expectUnknownField(() => posts(['title']));
+    expect(() => posts('title')).toThrow('where must be an object');
+    expect(() => posts(['title'])).toThrow('where must be an object');
   });
 });
 

@@ -481,10 +481,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   /** Count records matching where clause using SELECT count() ... GROUP ALL */
   async count(where?: WhereClause): Promise<number> {
     // Validate where clause
-    if (where) {
-      const validation = validateWhere(where, this.model, this.registry);
-      if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'count');
-    }
+    const validation = validateWhere(where, this.model, this.registry);
+    if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'count');
 
     const query = buildCountQuery(this.model, where, this.registry);
     const result = await executeQuerySingle<{ count: number }>(this.db, query);
@@ -1044,10 +1042,8 @@ export function compileCount(
   where?: WhereClause,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  if (where) {
-    const validation = validateWhere(where, model, registry);
-    if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'count');
-  }
+  const validation = validateWhere(where, model, registry);
+  if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'count');
 
   return {
     query: buildCountQuery(model, where, registry),
@@ -1077,10 +1073,8 @@ export function compileExists(
   where?: WhereClause,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  if (where) {
-    const validation = validateWhere(where, model, registry);
-    if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'exists');
-  }
+  const validation = validateWhere(where, model, registry);
+  if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'exists');
 
   return {
     query: buildCountQuery(model, where, registry),

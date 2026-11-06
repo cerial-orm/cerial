@@ -8,6 +8,7 @@ import type { ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import type { CompiledQuery, QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 import { CerialValidationError } from '../../errors';
+import { isObject } from '../../utils/type-utils';
 import { validateWhere, validationFailure } from '../validators';
 import { buildConditions } from './condition-builder';
 import { assertFilterResolved, transformWhere, transformWhereClause } from './transformer';
@@ -29,7 +30,7 @@ function assertValidWhere(
  * pass the registry, so a relation key is refused at any depth. Runs after validation, which bounds the depth.
  */
 function assertNoRelationKeys(where: WhereClause | undefined, model: ModelMetadata, operation: string): void {
-  if (!where) return;
+  if (!isObject(where)) return;
 
   for (const [key, value] of Object.entries(where)) {
     if (key === 'AND' || key === 'OR') {

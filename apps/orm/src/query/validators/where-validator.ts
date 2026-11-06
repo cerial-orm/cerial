@@ -380,6 +380,16 @@ export function validateFieldFilter(
     return errors;
   }
 
+  // The builder has no condition for a reverse relation compared to null and would drop the key, widening the filter
+  if (field.type === 'relation' && filter === null && field.relationInfo?.isReverse) {
+    errors.push({
+      path,
+      message: `'${fieldName}' is a reverse relation on ${model.name} and cannot be compared to null; use { ${fieldName}: { isEmpty: true } } to match rows with no related records`,
+    });
+
+    return errors;
+  }
+
   // For record fields with typed IDs, validate direct values against expected types
   if (field.type === 'record' && field.recordIdTypes?.length) {
     if (!isObject(filter)) {
@@ -495,6 +505,14 @@ export function validateWhereClause(
   path: string = 'where',
   registry?: ModelRegistry,
 ): CerialValidationIssue[] {
+  if (!isObject(where))
+    return [
+      {
+        path,
+        message: `${path} must be an object, got ${where === null ? 'null' : Array.isArray(where) ? 'an array' : typeof where}; omit it to filter nothing`,
+      },
+    ];
+
   assertWhereDepth(where, path);
 
   return walkWhereClause(where, model, path, registry);
@@ -562,9 +580,7 @@ export function validateWhere(
   model: ModelMetadata,
   registry?: ModelRegistry,
 ): WhereValidationResult {
-  if (!where) {
-    return { valid: true, errors: [] };
-  }
+  if (where === undefined) return { valid: true, errors: [] };
 
   const errors = validateWhereClause(where, model, 'where', registry);
   return {
