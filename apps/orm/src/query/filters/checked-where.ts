@@ -7,6 +7,7 @@
 import type { ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import type { CompiledQuery, QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
+import { CerialValidationError } from '../../errors';
 import { validateWhere, validationFailure } from '../validators';
 import { buildConditions } from './condition-builder';
 import { assertFilterResolved, transformWhere, transformWhereClause } from './transformer';
@@ -19,6 +20,32 @@ function assertValidWhere(
 ): void {
   const validation = validateWhere(where, model, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, operation);
+  if (!registry) assertNoRelationKeys(where, model, operation);
+}
+
+/**
+ * Without a registry the target model of a relation is unknown, so a relation filter would compile against the
+ * virtual relation field, which is always NONE: `posts = NONE` matches every row without posts. The caller has to
+ * pass the registry, so a relation key is refused at any depth. Runs after validation, which bounds the depth.
+ */
+function assertNoRelationKeys(where: WhereClause | undefined, model: ModelMetadata, operation: string): void {
+  if (!where) return;
+
+  for (const [key, value] of Object.entries(where)) {
+    if (key === 'AND' || key === 'OR') {
+      for (const item of value as WhereClause[]) assertNoRelationKeys(item, model, operation);
+      continue;
+    }
+    if (key === 'NOT') {
+      assertNoRelationKeys(value as WhereClause, model, operation);
+      continue;
+    }
+    if (model.fields.some((f) => f.name === key && f.type === 'relation'))
+      throw new CerialValidationError(
+        `Invalid where clause: '${key}' is a relation on ${model.name}; a model registry is required to filter on a relation, pass it as the last argument`,
+        { model: model.name, operation, field: key },
+      );
+  }
 }
 
 export function buildConditionsChecked(

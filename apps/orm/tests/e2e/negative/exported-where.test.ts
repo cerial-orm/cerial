@@ -14,6 +14,7 @@ import { fragmentToQuery } from '../../../src/query/compile/fragment';
 import type { CompiledQuery } from '../../../src/query/compile/types';
 import type { WhereClause } from '../../../src/types';
 import { createCompileContext } from '../../../src/query/compile/var-allocator';
+import { CerialValidationError } from '../../../src/errors';
 import { modelRegistry } from '../generated/internal/model-registry';
 import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
@@ -99,6 +100,91 @@ describe('Exported where helpers — negative cases', () => {
         expect(await client.db.PnOwner.count()).toBe(2);
       });
     }
+  }
+});
+
+describe('Exported where helpers — relation filters need a registry', () => {
+  let client: CerialClient;
+  const owner = () => client.db.PnOwner.getMetadata();
+
+  // Relation names of this schema: items (reverse), tags0 (forward, optional), tags (array FK)
+  const RELATION_BODIES = [
+    '{"items":{"isNone":true}}',
+    '{"title":"a","items":{"isNone":true}}',
+    '{"NOT":{"items":{"some":{"title":"x"}}}}',
+    '{"NOT":{"items":{"some":{"ttle":"x"}}}}',
+    '{"NOT":{"items":{"some":{}}}}',
+    '{"NOT":{"items":{"none":{}}}}',
+    '{"NOT":{"items":{"title":"x"}}}',
+    '{"NOT":{"items":{"isEmpty":true}}}',
+    '{"OR":[{"items":{"some":{"title":"x"}}}]}',
+    '{"tags0":{"isNone":true}}',
+    '{"NOT":{"tags0":{"label":"x"}}}',
+    '{"NOT":{"tags":{"some":{"label":"x"}}}}',
+  ];
+
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanupTables(client, tables.placeholderNames);
+  });
+
+  afterAll(async () => {
+    await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.placeholderNames);
+    const a = await client.db.PnOwner.create({ data: { title: 'a', inc_title: 'pub' } });
+    await client.db.PnOwner.create({ data: { title: 'b', inc_title: 'priv' } });
+    await client.db.PnItem.create({ data: { title: 'x', ownerId: a.id } });
+  });
+
+  const deleteWith = async (compose: () => CompiledQuery) => {
+    try {
+      const { text, vars } = compose();
+      // transformWhere and buildConditions give the bare conditions, transformWhereClause the WHERE keyword too
+      const clause = !text || text.startsWith('WHERE') ? text : `WHERE ${text}`;
+      await client.query(`DELETE FROM ${owner().tableName} ${clause}`, vars);
+    } catch {
+      // refused by the helper, or by the database
+    }
+  };
+
+  const composers: Record<string, (where: WhereClause, reg?: typeof modelRegistry) => CompiledQuery> = {
+    transformWhere: (where, reg) => transformWhere(where, owner(), reg),
+    transformWhereClause: (where, reg) => transformWhereClause(where, owner(), reg),
+    buildConditions: (where, reg) => fragmentToQuery(buildConditions(createCompileContext(), where, owner(), reg)),
+  };
+
+  for (const [name, compose] of Object.entries(composers)) {
+    for (const body of RELATION_BODIES) {
+      test(`negative: ${name} without a registry refuses ${body} and the victim rows survive`, async () => {
+        expect(() => compose(JSON.parse(body))).toThrow(CerialValidationError);
+
+        await deleteWith(() => compose(JSON.parse(body)));
+
+        expect(await client.db.PnOwner.count()).toBe(2);
+      });
+    }
+
+    test(`positive: ${name} with a registry deletes exactly the owners without items`, async () => {
+      await deleteWith(() => compose({ NOT: { items: { some: { title: 'x' } } } } as WhereClause, modelRegistry));
+
+      expect((await client.db.PnOwner.findMany()).map((r) => r.title)).toEqual(['a']);
+    });
+
+    test(`positive: ${name} with a registry deletes exactly the owners with a matching item`, async () => {
+      await deleteWith(() => compose({ items: { some: { title: 'x' } } } as WhereClause, modelRegistry));
+
+      expect((await client.db.PnOwner.findMany()).map((r) => r.title)).toEqual(['b']);
+    });
+
+    test(`positive: ${name} without a registry still deletes by a plain field`, async () => {
+      await deleteWith(() => compose({ title: 'a' }));
+
+      expect((await client.db.PnOwner.findMany()).map((r) => r.title)).toEqual(['b']);
+    });
   }
 });
 

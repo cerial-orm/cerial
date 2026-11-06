@@ -145,3 +145,63 @@ describe.each(Object.entries(entries))(
     });
   },
 );
+
+// Without a registry the target model is unknown, so a relation key would compile against the virtual
+// relation field, which is always NONE. Every key that names a relation is refused, at any depth.
+const relationBodies: Record<string, { body: string; model: typeof post }> = {
+  isNone: { body: '{"posts":{"isNone":true}}', model: author },
+  isNoneWithField: { body: '{"name":"a","posts":{"isNone":true}}', model: author },
+  notSome: { body: '{"NOT":{"posts":{"some":{"title":"x"}}}}', model: author },
+  notSomeMisspelt: { body: '{"NOT":{"posts":{"some":{"ttle":"x"}}}}', model: author },
+  notSomeEmpty: { body: '{"NOT":{"posts":{"some":{}}}}', model: author },
+  notNoneEmpty: { body: '{"NOT":{"posts":{"none":{}}}}', model: author },
+  notDirectField: { body: '{"NOT":{"posts":{"title":"x"}}}', model: author },
+  notIsEmpty: { body: '{"NOT":{"posts":{"isEmpty":true}}}', model: author },
+  orSome: { body: '{"OR":[{"posts":{"some":{"title":"x"}}}]}', model: author },
+  andNested: { body: '{"AND":[{"OR":[{"NOT":{"posts":{"some":{"title":"x"}}}}]}]}', model: author },
+  forward: { body: '{"author":{"name":"bob"}}', model: post },
+  forwardNot: { body: '{"NOT":{"author":{"name":"bob"}}}', model: post },
+  forwardIsNone: { body: '{"author":{"isNone":true}}', model: post },
+};
+
+describe.each(Object.entries(entries))(
+  'exported where helpers (%s entry) refuse a relation filter without a registry',
+  (_n, api) => {
+    for (const [label, { body, model }] of Object.entries(relationBodies)) {
+      test(`transformWhere: ${label}`, () => {
+        expect(() => api.transformWhere(JSON.parse(body), model)).toThrow(CerialValidationError);
+      });
+      test(`transformWhereClause: ${label}`, () => {
+        expect(() => api.transformWhereClause(JSON.parse(body), model)).toThrow(CerialValidationError);
+      });
+      test(`buildConditions: ${label}`, () => {
+        expect(() => api.buildConditions(createCompileContext(), JSON.parse(body), model)).toThrow(
+          CerialValidationError,
+        );
+      });
+    }
+
+    test('the message says a model registry is required', () => {
+      expect(() => api.transformWhereClause({ posts: { isNone: true } } as never, author)).toThrow(
+        /model registry is required/,
+      );
+    });
+
+    test('positive: the same relation filters with a registry compile to a relation subquery', () => {
+      const out = api.transformWhereClause({ NOT: { posts: { some: { title: 'x' } } } } as never, author, registry);
+
+      expect(out.text).toContain('SELECT VALUE');
+      expect(out.text).not.toContain('posts =');
+      expect(Object.values(out.vars)).toEqual(['x']);
+    });
+
+    test('positive: wheres with no relation key still compile without a registry', () => {
+      expect(api.transformWhereClause({ name: 'a', OR: [{ NOT: { name: 'b' } }] } as never, author).text).toMatch(
+        /^WHERE /,
+      );
+      expect(api.transformWhere({ address: { city: 'Oslo' } } as never, post).text).toMatch(/^address\.city = /);
+      expect(api.buildConditions(createCompileContext(), { title: 'x' }, post).text).toMatch(/title = /);
+      expect(api.transformWhereClause({}, author)).toEqual({ text: '', vars: {} });
+    });
+  },
+);
