@@ -294,6 +294,48 @@ const rows = await client.$raw<{ n: number }>(sql`SELECT 'x' AS n`);
 
 Keep the claim next to the query so a reader can check them together.
 
+## Compiling a `where` yourself
+
+`transformWhere`, `transformWhereClause` and `buildConditions` compile a typed `where` into SurrealQL text and bound variables, for statements you write by hand. Import them from `cerial` or `cerial/query`.
+
+- `transformWhere(where, model, registry?)` returns `{ text, vars }`, with the conditions only.
+- `transformWhereClause(where, model, registry?)` returns the same with `WHERE ` in front of the text.
+- `buildConditions(ctx, where, model, registry?)` returns a fragment for a compile context you manage. Prefer the other two.
+
+An empty or absent `where` gives empty text and no vars. Everything else is validated the way the client validates it. An unknown key throws `CerialUnknownFieldError`. A `where` that has keys but resolves to no conditions, such as `{ AND: [] }`, throws `CerialValidationError`, so a misspelt field cannot turn into a statement that matches every row. A relation filter without the registry throws too: pass `modelRegistry` from your generated client as the last argument.
+
+```typescript
+import { transformWhereClause } from 'cerial';
+import { modelRegistry } from './db-client/internal';
+
+const { text, vars } = transformWhereClause(
+  { posts: { some: { title: 'Draft' } } },
+  client.db.Author.getMetadata(),
+  modelRegistry,
+);
+
+const table = client.db.Author.getTableName();
+const rows = await client.query(`SELECT * FROM ${table} ${text}`, vars);
+```
+
+### Deleting or updating in two steps
+
+Do not put a relation filter into a single `DELETE FROM t WHERE ...` or `UPDATE t SET ... WHERE ...`. SurrealDB evaluates a subquery in the `WHERE` again for each row while the write runs, so when the filter reads the table being written, later rows see earlier rows already removed or changed, and rows outside the filter can be removed. `deleteMany` and `updateMany` avoid this by selecting the ids first. Do the same: select the ids with the compiled filter, then write to those ids.
+
+```typescript
+const table = client.db.Author.getTableName();
+const { text, vars } = transformWhereClause(where, client.db.Author.getMetadata(), modelRegistry);
+
+// 1. Select the ids that match
+const [ids] = await client.query<unknown[]>(`SELECT VALUE id FROM ${table} ${text}`, vars);
+
+// 2. Write to exactly those ids
+await client.query('DELETE $ids', { ids });
+await client.query('UPDATE $ids SET isActive = false', { ids });
+```
+
+Both calls pass `ids` as a bound variable, never as text. Run the two steps in a [transaction](/transactions/overview) when other writers may change matching rows in between.
+
 ## Related
 
 - [Special Operators](/filtering/special-operators) for typed range and combination filters
