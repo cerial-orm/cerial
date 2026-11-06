@@ -203,28 +203,28 @@ describe('buildReverseNestedCondition — unusable metadata', () => {
 describe('buildForwardNestedCondition', () => {
   test('a direct value compiles to eq on the dotted foreign key path', () => {
     expect(forward({ name: 'Ada' })).toEqual({
-      text: 'ownerId.name = $ownerId_name_eq_0',
+      text: '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)',
       vars: { ownerId_name_eq_0: 'Ada' },
     });
   });
 
   test('an operator object compiles through its handler on the dotted path', () => {
     expect(forward({ name: { contains: 'A' } })).toEqual({
-      text: 'string::contains(ownerId.name, $ownerId_name_contains_0)',
+      text: '(ownerId.id != NONE AND string::contains(ownerId.name, $ownerId_name_contains_0))',
       vars: { ownerId_name_contains_0: 'A' },
     });
   });
 
   test('several operators on one field are ANDed in parentheses', () => {
     expect(forward({ name: { contains: 'A', startsWith: 'B' } })).toEqual({
-      text: '(string::contains(ownerId.name, $ownerId_name_contains_0) AND string::starts_with(ownerId.name, $ownerId_name_startsWith_1))',
+      text: '(ownerId.id != NONE AND (string::contains(ownerId.name, $ownerId_name_contains_0) AND string::starts_with(ownerId.name, $ownerId_name_startsWith_1)))',
       vars: { ownerId_name_contains_0: 'A', ownerId_name_startsWith_1: 'B' },
     });
   });
 
   test('several fields are ANDed without extra parentheses', () => {
     expect(forward({ name: 'A', id: 1 })).toEqual({
-      text: 'ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1',
+      text: '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1)',
       vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: 1 },
     });
   });
@@ -232,11 +232,13 @@ describe('buildForwardNestedCondition', () => {
   test('undefined values are skipped; a filter left with nothing raises', () => {
     expect(forward({ name: undefined })).toEqual(EMPTY);
     throwsNoConditions(() => forward({ nope: 'x' }), 'Place.owner', `'nope'`);
-    expect(forward({ nope: 'x', name: 'A' }).text).toBe('ownerId.name = $ownerId_name_eq_0');
+    expect(forward({ nope: 'x', name: 'A' }).text).toBe('(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)');
   });
 
   test('an unregistered operator is dropped while a registered sibling is kept', () => {
-    expect(forward({ name: { eq: 'A', bogus: 1 } }).text).toBe('ownerId.name = $ownerId_name_eq_0');
+    expect(forward({ name: { eq: 'A', bogus: 1 } }).text).toBe(
+      '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)',
+    );
   });
 
   test('an operator object with only undefined values adds no condition', () => {
@@ -247,9 +249,9 @@ describe('buildForwardNestedCondition', () => {
   // the three operators were skipped, so a filter naming only one of them produced an empty fragment
   // and the caller's whole WHERE vanished (`SELECT * FROM place`, every row, no error). Now inverted.
   test.each([
-    ['AND', { AND: [{ name: 'A' }] } as WhereClause, 'ownerId.name = $ownerId_name_eq_0'],
-    ['OR', { OR: [{ name: 'A' }] } as WhereClause, 'ownerId.name = $ownerId_name_eq_0'],
-    ['NOT', { NOT: { name: 'A' } } as WhereClause, 'NOT (ownerId.name = $ownerId_name_eq_0)'],
+    ['AND', { AND: [{ name: 'A' }] } as WhereClause, '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)'],
+    ['OR', { OR: [{ name: 'A' }] } as WhereClause, '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)'],
+    ['NOT', { NOT: { name: 'A' } } as WhereClause, '(ownerId.id != NONE AND NOT (ownerId.name = $ownerId_name_eq_0))'],
   ])('%s inside a forward relation filter compiles over the dotted path', (_key, where, text) => {
     // A single surviving branch needs no parentheses, which is what the top-level handlers do too
     expect(forward(where)).toEqual({ text, vars: { ownerId_name_eq_0: 'A' } });
@@ -257,42 +259,42 @@ describe('buildForwardNestedCondition', () => {
 
   test('AND over several branches is parenthesised and bound in order', () => {
     expect(forward({ AND: [{ name: 'A' }, { id: 1 }] })).toEqual({
-      text: '(ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1)',
+      text: '(ownerId.id != NONE AND (ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1))',
       vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: 1 },
     });
   });
 
   test('OR over several branches is parenthesised and bound in order', () => {
     expect(forward({ OR: [{ name: 'A' }, { name: 'B' }] })).toEqual({
-      text: '(ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1)',
+      text: '(ownerId.id != NONE AND (ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1))',
       vars: { ownerId_name_eq_0: 'A', ownerId_name_eq_1: 'B' },
     });
   });
 
   test('a branch may use operator objects, not only direct values', () => {
     expect(forward({ OR: [{ name: { contains: 'A' } }, { id: { gt: 2 } }] })).toEqual({
-      text: '(string::contains(ownerId.name, $ownerId_name_contains_0) OR ownerId.id > $ownerId_id_gt_1)',
+      text: '(ownerId.id != NONE AND (string::contains(ownerId.name, $ownerId_name_contains_0) OR ownerId.id > $ownerId_id_gt_1))',
       vars: { ownerId_name_contains_0: 'A', ownerId_id_gt_1: 2 },
     });
   });
 
   test('an OR containing an AND nests two levels deep', () => {
     expect(forward({ OR: [{ AND: [{ name: 'A' }, { id: 1 }] }, { name: 'B' }] })).toEqual({
-      text: '((ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1) OR ownerId.name = $ownerId_name_eq_2)',
+      text: '(ownerId.id != NONE AND ((ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1) OR ownerId.name = $ownerId_name_eq_2))',
       vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: 1, ownerId_name_eq_2: 'B' },
     });
   });
 
   test('NOT wrapping an OR negates the whole disjunction', () => {
     expect(forward({ NOT: { OR: [{ name: 'A' }, { name: 'B' }] } })).toEqual({
-      text: 'NOT ((ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1))',
+      text: '(ownerId.id != NONE AND NOT ((ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1)))',
       vars: { ownerId_name_eq_0: 'A', ownerId_name_eq_1: 'B' },
     });
   });
 
   test('a logical operator beside a plain field key composes with AND, as the top level does', () => {
     expect(forward({ name: 'Z', OR: [{ id: 1 }, { id: 2 }] })).toEqual({
-      text: 'ownerId.name = $ownerId_name_eq_0 AND (ownerId.id = $ownerId_id_eq_1 OR ownerId.id = $ownerId_id_eq_2)',
+      text: '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0 AND (ownerId.id = $ownerId_id_eq_1 OR ownerId.id = $ownerId_id_eq_2))',
       vars: { ownerId_name_eq_0: 'Z', ownerId_id_eq_1: 1, ownerId_id_eq_2: 2 },
     });
   });
@@ -300,20 +302,24 @@ describe('buildForwardNestedCondition', () => {
   test('no caller string reaches the query text — every branch value is bound', () => {
     const result = forward({ OR: [{ name: "x' OR 1=1 --" }, { name: 'b' }] });
 
-    expect(result.text).toBe('(ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1)');
+    expect(result.text).toBe(
+      '(ownerId.id != NONE AND (ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1))',
+    );
     expect(result.vars).toEqual({ ownerId_name_eq_0: "x' OR 1=1 --", ownerId_name_eq_1: 'b' });
   });
 
   test('empty and unusable logical branches follow the top-level handlers', () => {
     // handleAnd of nothing is empty; handleOr of nothing is false, which matches no row
     throwsNoConditions(() => forward({ AND: [] }), 'Place.owner', `'AND'`);
-    expect(forward({ OR: [] })).toEqual({ text: 'false', vars: {} });
-    expect(forward({ NOT: {} })).toEqual({ text: 'false', vars: {} });
+    expect(forward({ OR: [] })).toEqual({ text: '(ownerId.id != NONE AND false)', vars: {} });
+    expect(forward({ NOT: {} })).toEqual({ text: '(ownerId.id != NONE AND false)', vars: {} });
     // a branch naming only unknown fields is empty, an empty branch makes the OR every row, and a relation
     // filter that compiles to nothing is refused rather than run as no filter
     throwsNoConditions(() => forward({ OR: [{ nope: 'x' }, { name: 'A' }] }), 'Place.owner', `'OR'`);
     // as an AND branch it is dropped
-    expect(forward({ AND: [{ nope: 'x' }, { name: 'A' }] }).text).toBe('(ownerId.name = $ownerId_name_eq_0)');
+    expect(forward({ AND: [{ nope: 'x' }, { name: 'A' }] }).text).toBe(
+      '(ownerId.id != NONE AND (ownerId.name = $ownerId_name_eq_0))',
+    );
   });
 
   test('a logical operator given the wrong container is not taken as a field', () => {
@@ -375,7 +381,7 @@ describe('buildNestedCondition — empty versus unusable filters', () => {
   });
 
   test('a key that compiles keeps the filter, so a lone unknown sibling does not raise', () => {
-    expect(forward({ nope: 'x', name: 'A' }).text).toBe('ownerId.name = $ownerId_name_eq_0');
+    expect(forward({ nope: 'x', name: 'A' }).text).toBe('(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)');
   });
 });
 

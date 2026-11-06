@@ -162,9 +162,11 @@ describe('cascade delete removes the ids it captured', () => {
   test('deleteMany and updateMany compile a forward relation filter', () => {
     const filter = hostile({ owner: { name: 'Ada' } });
 
-    expect(buildDeleteQueryWithReturn(place, filter, placeRegistry).text).toContain('WHERE ownerId.name = ');
+    expect(buildDeleteQueryWithReturn(place, filter, placeRegistry).text).toContain(
+      'WHERE (ownerId.id != NONE AND ownerId.name = ',
+    );
     expect(buildUpdateManyQuery(place, filter, { name: 'x' }, undefined, undefined, placeRegistry).text).toContain(
-      'WHERE ownerId.name = ',
+      'WHERE (ownerId.id != NONE AND ownerId.name = ',
     );
     // Without the registry the relation key was compared as a literal column and matched nothing
     expect(buildDeleteQueryWithReturn(place, filter).text).toContain('WHERE owner = $owner_eq_0');

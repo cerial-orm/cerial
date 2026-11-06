@@ -189,8 +189,13 @@ function buildSubqueryConditions(
 /**
  * Build a nested condition for a forward relation field
  *
- * Forward relation uses dot notation: fieldRef.nestedField OPERATOR $value
- * Example: profileId.bio CONTAINS $bio_contains_0
+ * A filter on a to-one relation means "the relation is set, and the related record matches". The body
+ * uses dot notation (fieldRef.nestedField OPERATOR $value), but a missing record makes that path NONE,
+ * which satisfies every negative operator, so the whole body sits behind a guard that the record exists: `fk.id` is NONE
+ * for an unset key, a null key and a key whose record was deleted.
+ * Example: (profileId.id != NONE AND string::contains(profileId.bio, $bio_contains_0))
+ * The guard stays outside AND/OR/NOT inside the body, so a NOT around the relation key (not inside it)
+ * is what includes the rows with no relation.
  *
  * @param ctx - Compile context for variable binding
  * @param relationField - The Relation type field
@@ -222,6 +227,22 @@ function compileForwardNested(
 
   if (relationField.isArray) return compileForwardArrayNested(ctx, relationField, nestedWhere, model, registry);
 
+  const body = compileForwardBody(ctx, relationField, nestedWhere, model, registry);
+  if (!body.text) return body;
+
+  return { text: `(${fieldRef}.id != NONE AND ${body.text})`, vars: body.vars };
+}
+
+/** The conditions of a to-one forward filter over the dotted foreign key path, without the set guard */
+function compileForwardBody(
+  ctx: FilterCompileContext,
+  relationField: FieldMetadata,
+  nestedWhere: WhereClause,
+  model: ModelMetadata,
+  registry: ModelRegistry,
+): QueryFragment {
+  const fieldRef = relationField.relationInfo!.fieldRef!;
+  const targetModel = registry[relationField.relationInfo!.targetModel]!;
   const conditions: QueryFragment[] = [];
 
   // Build conditions for each nested field
@@ -234,20 +255,20 @@ function compileForwardNested(
     // Branch shapes match the top level (condition-builder.ts): AND/OR take an array, NOT an object.
     if (nestedField === 'AND' && Array.isArray(value)) {
       conditions.push(
-        handleAnd(value.map((w) => compileForwardNested(ctx, relationField, w as WhereClause, model, registry))),
+        handleAnd(value.map((w) => compileForwardBody(ctx, relationField, w as WhereClause, model, registry))),
       );
       continue;
     }
 
     if (nestedField === 'OR' && Array.isArray(value)) {
       conditions.push(
-        handleOr(value.map((w) => compileForwardNested(ctx, relationField, w as WhereClause, model, registry))),
+        handleOr(value.map((w) => compileForwardBody(ctx, relationField, w as WhereClause, model, registry))),
       );
       continue;
     }
 
     if (nestedField === 'NOT' && isObject(value)) {
-      conditions.push(handleNot(compileForwardNested(ctx, relationField, value, model, registry)));
+      conditions.push(handleNot(compileForwardBody(ctx, relationField, value, model, registry)));
       continue;
     }
 

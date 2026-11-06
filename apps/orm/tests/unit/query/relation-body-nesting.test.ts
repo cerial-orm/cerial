@@ -37,28 +37,28 @@ const shapes: Shape[] = [
     label: 'reverse -> forward: some',
     model: 'User',
     where: { posts: { some: { author: ann } } },
-    text: 'id IN (SELECT VALUE authorId FROM post WHERE authorId.name = $authorId_name_eq_0)',
+    text: 'id IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0))',
     vars: AUTHOR_ANN,
   },
   {
     label: 'reverse -> forward: every requires a related row',
     model: 'User',
     where: { posts: { every: { author: ann } } },
-    text: '(id NOT IN (SELECT VALUE authorId FROM post WHERE NOT (authorId.name = $authorId_name_eq_0)) AND id IN (SELECT VALUE authorId FROM post))',
+    text: '(id NOT IN (SELECT VALUE authorId FROM post WHERE NOT ((authorId.id != NONE AND authorId.name = $authorId_name_eq_0))) AND id IN (SELECT VALUE authorId FROM post))',
     vars: AUTHOR_ANN,
   },
   {
     label: 'reverse -> forward: none',
     model: 'User',
     where: { posts: { none: { author: ann } } },
-    text: 'id NOT IN (SELECT VALUE authorId FROM post WHERE authorId.name = $authorId_name_eq_0)',
+    text: 'id NOT IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0))',
     vars: AUTHOR_ANN,
   },
   {
     label: 'reverse -> forward: direct-object shorthand is some',
     model: 'User',
     where: { posts: { author: ann } },
-    text: 'id IN (SELECT VALUE authorId FROM post WHERE authorId.name = $authorId_name_eq_0)',
+    text: 'id IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0))',
     vars: AUTHOR_ANN,
   },
   // forward -> reverse, every quantifier and isEmpty
@@ -66,35 +66,35 @@ const shapes: Shape[] = [
     label: 'forward -> reverse: some',
     model: 'Post',
     where: { author: { posts: { some: { title: 'x' } } } },
-    text: 'authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0))',
+    text: '(authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)))',
     vars: { title_eq_0: 'x' },
   },
   {
     label: 'forward -> reverse: every',
     model: 'Post',
     where: { author: { posts: { every: { title: 'x' } } } },
-    text: 'authorId IN (SELECT VALUE id FROM user WHERE (id NOT IN (SELECT VALUE authorId FROM post WHERE NOT (title = $title_eq_0)) AND id IN (SELECT VALUE authorId FROM post)))',
+    text: '(authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE (id NOT IN (SELECT VALUE authorId FROM post WHERE NOT (title = $title_eq_0)) AND id IN (SELECT VALUE authorId FROM post))))',
     vars: { title_eq_0: 'x' },
   },
   {
     label: 'forward -> reverse: none',
     model: 'Post',
     where: { author: { posts: { none: { title: 'x' } } } },
-    text: 'authorId IN (SELECT VALUE id FROM user WHERE id NOT IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0))',
+    text: '(authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id NOT IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)))',
     vars: { title_eq_0: 'x' },
   },
   {
     label: 'forward -> reverse: isEmpty',
     model: 'Post',
     where: { author: { posts: { isEmpty: true } } },
-    text: 'authorId IN (SELECT VALUE id FROM user WHERE id NOT IN (SELECT VALUE authorId FROM post))',
+    text: '(authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id NOT IN (SELECT VALUE authorId FROM post)))',
     vars: {},
   },
   {
     label: 'forward -> reverse: direct-object shorthand is some',
     model: 'Post',
     where: { author: { posts: { title: 'x' } } },
-    text: 'authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0))',
+    text: '(authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)))',
     vars: { title_eq_0: 'x' },
   },
   // forward -> forward
@@ -102,7 +102,7 @@ const shapes: Shape[] = [
     label: 'forward -> forward',
     model: 'Comment',
     where: { post: { author: ann } },
-    text: 'postId IN (SELECT VALUE id FROM post WHERE authorId.name = $authorId_name_eq_0)',
+    text: '(postId.id != NONE AND postId IN (SELECT VALUE id FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0)))',
     vars: AUTHOR_ANN,
   },
   // reverse -> reverse
@@ -154,14 +154,14 @@ const shapes: Shape[] = [
     label: 'array-FK: every',
     model: 'Tag',
     where: { posts: { every: { author: ann } } },
-    text: '(postIds ANYINSIDE (SELECT VALUE id FROM post) AND NOT (postIds ANYINSIDE (SELECT VALUE id FROM post WHERE NOT (authorId.name = $authorId_name_eq_0))))',
+    text: '(postIds ANYINSIDE (SELECT VALUE id FROM post) AND NOT (postIds ANYINSIDE (SELECT VALUE id FROM post WHERE NOT ((authorId.id != NONE AND authorId.name = $authorId_name_eq_0)))))',
     vars: AUTHOR_ANN,
   },
   {
     label: 'array-FK: none',
     model: 'Tag',
     where: { posts: { none: { author: ann } } },
-    text: 'NOT (postIds ANYINSIDE (SELECT VALUE id FROM post WHERE authorId.name = $authorId_name_eq_0))',
+    text: 'NOT (postIds ANYINSIDE (SELECT VALUE id FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0)))',
     vars: AUTHOR_ANN,
   },
   {
@@ -175,7 +175,7 @@ const shapes: Shape[] = [
     label: 'forward -> array-FK',
     model: 'Comment',
     where: { post: { tags: { some: { label: 'a' } } } },
-    text: 'postId IN (SELECT VALUE id FROM post WHERE tagIds ANYINSIDE (SELECT VALUE id FROM tag WHERE label = $label_eq_0))',
+    text: '(postId.id != NONE AND postId IN (SELECT VALUE id FROM post WHERE tagIds ANYINSIDE (SELECT VALUE id FROM tag WHERE label = $label_eq_0)))',
     vars: { label_eq_0: 'a' },
   },
   // depth 3 and beyond
@@ -183,21 +183,21 @@ const shapes: Shape[] = [
     label: 'depth 3: reverse -> reverse -> forward',
     model: 'User',
     where: { posts: { some: { comments: { none: { post: { author: ann } } } } } },
-    text: 'id IN (SELECT VALUE authorId FROM post WHERE id NOT IN (SELECT VALUE postId FROM comment WHERE postId IN (SELECT VALUE id FROM post WHERE authorId.name = $authorId_name_eq_0)))',
+    text: 'id IN (SELECT VALUE authorId FROM post WHERE id NOT IN (SELECT VALUE postId FROM comment WHERE (postId.id != NONE AND postId IN (SELECT VALUE id FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0)))))',
     vars: AUTHOR_ANN,
   },
   {
     label: 'depth 3: forward -> forward -> reverse',
     model: 'Comment',
     where: { post: { author: { posts: { some: { title: 'x' } } } } },
-    text: 'postId IN (SELECT VALUE id FROM post WHERE authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)))',
+    text: '(postId.id != NONE AND postId IN (SELECT VALUE id FROM post WHERE (authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)))))',
     vars: { title_eq_0: 'x' },
   },
   {
     label: 'depth 4: forward -> array-FK -> array-FK -> forward',
     model: 'Comment',
     where: { post: { tags: { some: { posts: { some: { author: ann } } } } } },
-    text: 'postId IN (SELECT VALUE id FROM post WHERE tagIds ANYINSIDE (SELECT VALUE id FROM tag WHERE postIds ANYINSIDE (SELECT VALUE id FROM post WHERE authorId.name = $authorId_name_eq_0)))',
+    text: '(postId.id != NONE AND postId IN (SELECT VALUE id FROM post WHERE tagIds ANYINSIDE (SELECT VALUE id FROM tag WHERE postIds ANYINSIDE (SELECT VALUE id FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0)))))',
     vars: AUTHOR_ANN,
   },
   // logical operators around and inside
@@ -205,42 +205,42 @@ const shapes: Shape[] = [
     label: 'under NOT, reverse -> forward',
     model: 'User',
     where: { NOT: { posts: { some: { author: ann } } } },
-    text: 'NOT (id IN (SELECT VALUE authorId FROM post WHERE authorId.name = $authorId_name_eq_0))',
+    text: 'NOT (id IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0)))',
     vars: AUTHOR_ANN,
   },
   {
     label: 'under NOT, forward -> reverse',
     model: 'Post',
     where: { NOT: { author: { posts: { some: { title: 'x' } } } } },
-    text: 'NOT (authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)))',
+    text: 'NOT ((authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0))))',
     vars: { title_eq_0: 'x' },
   },
   {
     label: 'inside AND',
     model: 'User',
     where: { AND: [{ posts: { some: { author: ann } } }, { name: 'x' }] },
-    text: '(id IN (SELECT VALUE authorId FROM post WHERE authorId.name = $authorId_name_eq_0) AND name = $name_eq_1)',
+    text: '(id IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0)) AND name = $name_eq_1)',
     vars: { ...AUTHOR_ANN, name_eq_1: 'x' },
   },
   {
     label: 'inside OR',
     model: 'User',
     where: { OR: [{ posts: { some: { author: ann } } }, { name: 'x' }] },
-    text: '(id IN (SELECT VALUE authorId FROM post WHERE authorId.name = $authorId_name_eq_0) OR name = $name_eq_1)',
+    text: '(id IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0)) OR name = $name_eq_1)',
     vars: { ...AUTHOR_ANN, name_eq_1: 'x' },
   },
   {
     label: 'OR inside a forward body mixes a relation key and a field',
     model: 'Post',
     where: { author: { OR: [{ posts: { some: { title: 'x' } } }, { name: 'n' }] } },
-    text: '(authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)) OR authorId.name = $authorId_name_eq_1)',
+    text: '(authorId.id != NONE AND (authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)) OR authorId.name = $authorId_name_eq_1))',
     vars: { title_eq_0: 'x', authorId_name_eq_1: 'n' },
   },
   {
     label: 'NOT inside a reverse body around a relation key',
     model: 'User',
     where: { posts: { some: { NOT: { author: ann } } } },
-    text: 'id IN (SELECT VALUE authorId FROM post WHERE NOT (authorId.name = $authorId_name_eq_0))',
+    text: 'id IN (SELECT VALUE authorId FROM post WHERE NOT ((authorId.id != NONE AND authorId.name = $authorId_name_eq_0)))',
     vars: AUTHOR_ANN,
   },
   // an empty body at the inner level means what it says
@@ -255,14 +255,14 @@ const shapes: Shape[] = [
     label: 'empty inner quantifier: some { author: { posts: { some: {} } } }',
     model: 'User',
     where: { posts: { some: { author: { posts: { some: {} } } } } },
-    text: 'id IN (SELECT VALUE authorId FROM post WHERE authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post)))',
+    text: 'id IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post))))',
     vars: {},
   },
   {
     label: 'empty inner quantifier: none',
     model: 'Post',
     where: { author: { posts: { none: {} } } },
-    text: 'authorId IN (SELECT VALUE id FROM user WHERE id NOT IN (SELECT VALUE authorId FROM post))',
+    text: '(authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id NOT IN (SELECT VALUE authorId FROM post)))',
     vars: {},
   },
   {
@@ -361,7 +361,9 @@ describe('the destructive and read entry points compile the nested shape', () =>
       bodyRegistry,
     ).query;
 
-    expect(q.text).toContain('NOT (id IN (SELECT VALUE authorId FROM post WHERE authorId.name = $authorId_name_eq_0))');
+    expect(q.text).toContain(
+      'NOT (id IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE AND authorId.name = $authorId_name_eq_0)))',
+    );
     expect(q.text).not.toContain('author = $');
     expect(q.vars).toMatchObject(AUTHOR_ANN);
   });
@@ -374,7 +376,7 @@ describe('the destructive and read entry points compile the nested shape', () =>
     ).query;
 
     expect(q.text).toBe(
-      'SELECT * FROM post WHERE NOT (authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0)))',
+      'SELECT * FROM post WHERE NOT ((authorId.id != NONE AND authorId IN (SELECT VALUE id FROM user WHERE id IN (SELECT VALUE authorId FROM post WHERE title = $title_eq_0))))',
     );
   });
 });

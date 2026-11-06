@@ -39,6 +39,8 @@ const posts = await client.db.Post.findMany({
 });
 ```
 
+A filter on a single-record relation matches only rows where the relation is set to a record that exists and satisfies it, so `author: { name: { neq: 'Alice' } }` never matches a post without an author, or whose author was deleted. Wrap the filter in `NOT` to include those rows, or use `author: null` to find the rows without one.
+
 ## Reverse Relations
 
 Reverse relations are the inverse of forward relations. They represent the "has many" side. An array relation filter takes one of three quantifiers, each holding a filter on the related model:

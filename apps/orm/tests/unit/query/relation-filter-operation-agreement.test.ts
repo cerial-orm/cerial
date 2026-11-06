@@ -18,7 +18,7 @@ import {
 import type { WhereClause } from '../../../src/types';
 import { place, placeRegistry } from './where-validation-helpers';
 
-const condition = '(ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1)';
+const condition = '(ownerId.id != NONE AND (ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1))';
 const where: WhereClause = { owner: { OR: [{ name: 'a' }, { name: 'b' }] } };
 const vars = { ownerId_name_eq_0: 'a', ownerId_name_eq_1: 'b' };
 
@@ -77,6 +77,6 @@ describe('an empty OR inside a relation filter', () => {
   test('matches nothing rather than everything, so deleteMany cannot widen', () => {
     const { query } = compileDeleteMany(place, { where: { owner: { OR: [] } } }, placeRegistry);
 
-    expect(query.text).toContain('WHERE false');
+    expect(query.text).toContain('WHERE (ownerId.id != NONE AND false)');
   });
 });

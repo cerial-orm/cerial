@@ -132,7 +132,7 @@ describe('include where: operators and keys', () => {
 
   test('a relation key filters through the linked record', () => {
     expect(build(author, { posts: { where: { author: { name: 'z' } } } })).toEqual({
-      text: 'SELECT *, (SELECT * FROM post WHERE authorId = $parent.id AND (authorId.name = $authorId_name_eq_inc_0)) AS posts FROM author',
+      text: 'SELECT *, (SELECT * FROM post WHERE authorId = $parent.id AND ((authorId.id != NONE AND authorId.name = $authorId_name_eq_inc_0))) AS posts FROM author',
       vars: { authorId_name_eq_inc_0: 'z' },
     });
   });
@@ -141,7 +141,7 @@ describe('include where: operators and keys', () => {
     expect(
       build(author, { posts: { where: { author: { name: 'z' } }, orderBy: { author: { name: 'asc' } } } }),
     ).toEqual({
-      text: `SELECT *, (SELECT * OMIT ${A0} FROM (SELECT *, authorId.name AS ${A0} FROM post WHERE authorId = $parent.id AND (authorId.name = $authorId_name_eq_inc_0) ORDER BY ${A0} ASC)) AS posts FROM author`,
+      text: `SELECT *, (SELECT * OMIT ${A0} FROM (SELECT *, authorId.name AS ${A0} FROM post WHERE authorId = $parent.id AND ((authorId.id != NONE AND authorId.name = $authorId_name_eq_inc_0)) ORDER BY ${A0} ASC)) AS posts FROM author`,
       vars: { authorId_name_eq_inc_0: 'z' },
     });
   });
