@@ -1287,7 +1287,14 @@ development branch and is not available on npm.
 - A filter on a to-one relation matches only rows whose related record
   exists. Rows with no related record, or one that was deleted, no longer
   match a negative operator such as `neq` or `notIn`; `NOT` around the filter
-  includes them. Use `null` to find rows with no relation.
+  includes them. `relation: null` matches rows that have no related record
+  (unset, `null`, or a deleted record) and `NOT: { relation: null }` rows that
+  have one; on a read `relation: {}` means the same as the latter. For the
+  stored key use the foreign key field: `fkField: null` matches a stored `null`
+  and `isNone` an unset key. Writes (`deleteMany`, `updateMany`, `upsert`, the
+  unique write methods and the exported where helpers) refuse `relation: {}`,
+  bodies equivalent to it and an empty operator object such as `age: {}`, and
+  name the explicit forms; `some: {}` and `isEmpty` stay allowed.
 - The txn option of a model method must be a transaction from `$transaction`, or
   left out. Any other value, `null` included, is refused with a
   `CerialValidationError` naming `txn` before the query runs.
