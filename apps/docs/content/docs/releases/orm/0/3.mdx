@@ -247,7 +247,8 @@ development branch and is not available on npm.
   came back as empty text, so code that composed its own statement from it,
   such as a `DELETE`, ran on every row. The client methods were not affected:
   they refuse unknown keys. Present in 0.2.0. The helpers now validate the
-  `where` the way the client does.
+  `where` the way the client does, and refuse a filter that resolves to no
+  conditions, such as `{ AND: [] }` or an empty relation filter.
 
 - Nested write field names could collide in the bound values of a statement and
   make one nested value overwrite or drop another. Every bound value now gets a
@@ -1217,6 +1218,8 @@ development branch and is not available on npm.
 - The exported where helpers (`transformWhere`, `transformWhereClause` and
   `buildConditions`) refuse a `where` key that names no field, with `CerialUnknownFieldError`, instead of
   leaving it out of the filter.
+  A `where` that has keys but resolves to no conditions is refused with a
+  `CerialValidationError`; `{}` and `undefined` still give empty text.
 - The txn option of a model method must be a transaction from `$transaction`, or
   left out. Any other value, `null` included, is refused with a
   `CerialValidationError` naming `txn` before the query runs.
