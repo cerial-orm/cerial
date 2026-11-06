@@ -285,6 +285,13 @@ development branch and is not available on npm.
   post removed two. Present in 0.2.0. Bulk writes now select the matching
   records first and write exactly those.
 
+- A filter on a to-one relation, such as `manager: { name: { neq: 'x' } }`,
+  read the related record's fields through the foreign key, so a row with no
+  related record, or whose related record had been deleted, read them as empty
+  and matched a negative operator. `deleteMany` with that filter also removed
+  every employee with no manager. Present in 0.2.0. The filter now requires
+  the related record to exist.
+
 - Nested write field names could collide in the bound values of a statement and
   make one nested value overwrite or drop another. Every bound value now gets a
   unique name.
@@ -1277,6 +1284,10 @@ development branch and is not available on npm.
   non-unique `upsert`) select the matching records first and then write
   exactly those, in a transaction. Results are unchanged except where the
   old single statement saw its own writes.
+- A filter on a to-one relation matches only rows whose related record
+  exists. Rows with no related record, or one that was deleted, no longer
+  match a negative operator such as `neq` or `notIn`; `NOT` around the filter
+  includes them. Use `null` to find rows with no relation.
 - The txn option of a model method must be a transaction from `$transaction`, or
   left out. Any other value, `null` included, is refused with a
   `CerialValidationError` naming `txn` before the query runs.
