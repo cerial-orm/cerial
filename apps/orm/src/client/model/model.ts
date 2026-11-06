@@ -48,7 +48,8 @@ import type {
   UpsertReturnType,
   WhereClause,
 } from '../../types';
-import type { CerialTransaction } from '../cerial-transaction';
+import { CerialValidationError } from '../../errors';
+import { CerialTransaction } from '../cerial-transaction';
 import { type CerialLiveHandle, createModelLive, type EndableLive, type ModelLiveOptions } from '../live';
 import { resolveRouted } from '../transaction-context';
 import { wrapDatabaseError } from './wrap-database-error';
@@ -141,6 +142,13 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     operation: string,
     explicit?: CerialTransaction,
   ): { db: Surreal; bound: CerialTransaction | undefined } {
+    // A spread request body can carry any value under txn; only a real transaction is a connection to run on
+    if (explicit !== undefined && !(explicit instanceof CerialTransaction)) {
+      throw new CerialValidationError(
+        `${this.metadata.name}.${operation}: txn must be a Cerial transaction from client.$transaction(), got ${explicit === null ? 'null' : typeof explicit}`,
+        { operation, model: this.metadata.name, field: 'txn' },
+      );
+    }
     const bound = explicit ?? this.transaction ?? resolveRouted(this.routeOwner);
     if (!bound) return { db: this.db, bound };
     bound._assertOpen(operation, this.metadata.name);
