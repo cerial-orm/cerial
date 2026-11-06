@@ -19,6 +19,7 @@ import { bindWithInlineExpressions, isInlineExpression } from '../compile/inline
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
+import { captureMatchedIds, inTransaction } from './bulk-write';
 import { transformOrValidateRecordId, tupleElementUpdateRefresh } from '../transformers';
 import { buildArrayUpdateClause, isArrayField, isArrayUpdateOps } from './array-update-builder';
 import { getRecordIdFromWhere } from './delete-builder';
@@ -256,17 +257,27 @@ export function buildUpdateManyQuery(
   const includeCtx = createCompileContext('inc_');
   const fields = buildSelectFields(select, model, include, registry, includeCtx);
 
-  // Build query
-  const parts = [
-    `UPDATE ${model.tableName}`,
-    setParts.length > 0 ? `SET ${setParts.join(', ')}` : '',
+  const vars = { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() };
+  const setText = setParts.length > 0 ? `SET ${setParts.join(', ')}` : '';
+
+  // Without a filter every row is written, so there is nothing to evaluate twice
+  if (!whereClause.text)
+    return { text: [`UPDATE ${model.tableName}`, setText, `RETURN ${fields}`].filter((p) => p).join(' '), vars };
+
+  // Select the ids first and write exactly those: the filter is read once, against the starting state, even
+  // when the write changes a field it reads or the filter looks at rows of this table
+  const matched = captureMatchedIds(
+    createCompileContext('', new Set(Object.keys(vars))),
+    model.tableName,
     whereClause.text,
-    `RETURN ${fields}`,
-  ].filter((p) => p);
+  );
 
   return {
-    text: parts.join(' '),
-    vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
+    text: inTransaction([
+      matched.statement,
+      [`UPDATE ${matched.target}`, setText, `RETURN ${fields}`].filter((p) => p).join(' '),
+    ]),
+    vars,
   };
 }
 

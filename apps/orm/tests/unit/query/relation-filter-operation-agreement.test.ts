@@ -44,7 +44,7 @@ describe('relation filter with OR: all six operations agree', () => {
       const { query } = compile();
 
       return {
-        clause: query.text.slice(query.text.indexOf('WHERE')).split(/ (?:LIMIT|GROUP|RETURN)/)[0],
+        clause: query.text.slice(query.text.indexOf('WHERE')).split(/\)?;| (?:LIMIT|GROUP|RETURN)/)[0],
         vars: query.vars,
       };
     });

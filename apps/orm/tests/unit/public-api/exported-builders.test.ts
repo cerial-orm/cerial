@@ -137,7 +137,7 @@ describe('exported builders keep their output for valid calls', () => {
 
     expect(buildUpdateManyQuery(...args)).toEqual(buildUpdateManyQueryUnchecked(...args));
     expect(buildUpdateManyQuery(...args).text).toBe(
-      'UPDATE post SET title = $title_set_0 WHERE title = $title_eq_0 RETURN *',
+      'BEGIN TRANSACTION;\nLET $bulk_ids_n_0 = (SELECT VALUE id FROM post WHERE title = $title_eq_0);\nUPDATE $bulk_ids_n_0 SET title = $title_set_0 RETURN *;\nCOMMIT TRANSACTION;',
     );
   });
 

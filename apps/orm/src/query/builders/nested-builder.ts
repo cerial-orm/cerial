@@ -19,6 +19,7 @@ import { createCompileContext, type FilterCompileContext } from '../compile/var-
 import { transformDestructiveWhere } from '../filters/transformer';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
 import { validateKnownKeys, validateNoNestedWrites, validateRelationValue } from '../validators/data-validator';
+import { captureMatchedIds } from './bulk-write';
 import type { IncludeClause } from './relation-builder';
 import { buildSelectFields } from './select-builder';
 import { buildUpdateSetClauses } from './update-builder';
@@ -772,6 +773,8 @@ export function buildUpdateWithNestedTransaction(
   // the WHERE and id/Record values are coerced to RecordId in one place
   const whereClause = transformDestructiveWhere(where, model, 'update', registry);
   Object.assign(vars, whereClause.vars);
+  for (const name of Object.keys(whereClause.vars)) ctx.issued.add(name);
+  const matched = captureMatchedIds(ctx, model.tableName, whereClause.text);
 
   // Track the Record field updates we need to make
   const fieldUpdates: string[] = [];
@@ -801,11 +804,8 @@ export function buildUpdateWithNestedTransaction(
   // A forward create must run before the update, which stores the new id, so it cannot wait for
   // $result like the reverse create. It is gated on a pre-read of the where instead: a non-matching
   // where creates nothing, rather than leaving a row nothing links to
-  let hasForwardCreate = false;
   const guardedCreate = (varName: string, tableName: string, contentVarName: string): string => {
-    hasForwardCreate = true;
-
-    return `LET ${varName} = IF $nested_match[0] { CREATE ONLY ${tableName} CONTENT ${contentVarName} };`;
+    return `LET ${varName} = IF ${matched.target}[0] { CREATE ONLY ${tableName} CONTENT ${contentVarName} };`;
   };
   const matchInsertAt = statements.length;
 
@@ -1042,9 +1042,9 @@ export function buildUpdateWithNestedTransaction(
   fieldUpdates.push(...setParts);
   Object.assign(vars, setVars);
 
-  if (hasForwardCreate) {
-    statements.splice(matchInsertAt, 0, `LET $nested_match = (SELECT id FROM ${model.tableName} ${whereClause.text});`);
-  }
+  // The matched ids are read before anything is written, and the update writes exactly those: the where is
+  // not re-run against rows the update or a nested create has already changed
+  statements.splice(matchInsertAt, 0, `${matched.statement};`);
 
   // For bidirectional set sync, fetch old values first
   if (arraySets.length > 0) {
@@ -1060,9 +1060,7 @@ export function buildUpdateWithNestedTransaction(
 
   // Build the main update
   if (fieldUpdates.length > 0) {
-    statements.push(
-      `LET $result = (UPDATE ${model.tableName} SET ${fieldUpdates.join(', ')} ${whereClause.text} RETURN *);`,
-    );
+    statements.push(`LET $result = (UPDATE ${matched.target} SET ${fieldUpdates.join(', ')} RETURN *);`);
   } else {
     statements.push(`LET $result = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
   }

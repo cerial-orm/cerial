@@ -27,6 +27,7 @@ import type { PartsCompiledQuery } from '../executor';
 import type { CompiledQuery, TargetCheckMap } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere, transformWhereClause } from '../filters/transformer';
+import { captureMatchedIds } from './bulk-write';
 import { transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
 import { buildCreateSetClauses } from './insert-builder';
@@ -223,6 +224,7 @@ export function buildUpsertWhereQuery(
 
   // Build WHERE clause
   const whereClause = transformDestructiveWhere(where, model, 'upsert', registry);
+  for (const name of Object.keys(whereClause.vars)) ctx.issued.add(name);
 
   // Build RETURN clause
   const includeCtx = createCompileContext('inc_', ctx.issued);
@@ -233,9 +235,12 @@ export function buildUpsertWhereQuery(
 
   const onlyKeyword = useOnly ? ' ONLY' : '';
   const setText = setParts.length > 0 ? `SET ${setParts.join(', ')}` : '';
-  const upsert = [`UPSERT${onlyKeyword} ${model.tableName}`, setText, whereClause.text, returnClause]
-    .filter((p) => p)
-    .join(' ');
+  // A unique where names one row. Any other where can match many, and the write must reach exactly the rows
+  // the filter selected at the start, not the ones it still matches while rows are being changed
+  const matchedIds = useOnly ? undefined : captureMatchedIds(ctx, model.tableName, whereClause.text);
+  const upsert = matchedIds
+    ? [`UPDATE ${matchedIds.target}`, setText, returnClause].filter((p) => p).join(' ')
+    : [`UPSERT${onlyKeyword} ${model.tableName}`, setText, whereClause.text, returnClause].filter((p) => p).join(' ');
   // When nothing matches, UPSERT ... WHERE whose new row hits a unique index retries as an update of the
   // conflicting row, which the WHERE then filters out: no row, no write, no error. A CREATE raises the
   // violation. $this is NONE throughout a CREATE's SET, so the same clauses take their create values.
@@ -248,7 +253,9 @@ export function buildUpsertWhereQuery(
       snapshot
         ? buildBeforeSnapshot(model.tableName, whereClause.text, select, model, include, registry, includeCtx)
         : '',
-      `LET $up_matched = (SELECT id FROM ${model.tableName} ${whereClause.text} LIMIT 1)[0];`,
+      matchedIds
+        ? `${matchedIds.statement};\nLET $up_matched = ${matchedIds.target}[0];`
+        : `LET $up_matched = (SELECT id FROM ${model.tableName} ${whereClause.text} LIMIT 1)[0];`,
       `LET $up_result = IF $up_matched { ${upsert} } ELSE { ${create} };`,
       'COMMIT TRANSACTION;',
       snapshot ? 'RETURN $before;' : 'RETURN $up_result;',

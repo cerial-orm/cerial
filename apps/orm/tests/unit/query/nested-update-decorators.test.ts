@@ -37,10 +37,10 @@ const doc = registry.Doc!;
 const where = { id: 'doc:1' };
 const connect = new Map<string, NestedOperation>([['owner', { connect: 'owner:1' }]]);
 
-/** The clauses between SET and WHERE, which is where the decorators act. */
+/** The clauses between SET and RETURN, which is where the decorators act. */
 const setClause = (text: string): string => {
-  const match = text.match(/UPDATE doc SET (.*?) WHERE/s);
-  if (!match) throw new Error(`no UPDATE ... SET ... WHERE in: ${text}`);
+  const match = text.match(/UPDATE \$bulk_ids_n_0 SET (.*?) RETURN/s);
+  if (!match) throw new Error(`no UPDATE ... SET ... RETURN in: ${text}`);
 
   return match[1]!;
 };
@@ -55,7 +55,7 @@ describe('nested update: @defaultAlways', () => {
 
     expect(clause).toContain('note = NONE');
     expect(clause).toContain('flagged = NONE');
-    expect(clause).toContain('ownerId = $nested_connect_n_0[0]');
+    expect(clause).toContain('ownerId = $nested_connect_n_1[0]');
     for (const field of ['note', 'flagged']) expect(plain({ title: 't' })).toContain(`${field} = NONE`);
   });
 
@@ -108,6 +108,6 @@ describe('nested update: @now', () => {
     const clause = nested({ title: 't', seenAt: new Date('2020-01-01') });
 
     expect(clause).toMatch(/title = \$\w+/);
-    expect(clause).toContain('ownerId = $nested_connect_n_0[0]');
+    expect(clause).toContain('ownerId = $nested_connect_n_1[0]');
   });
 });

@@ -15,8 +15,41 @@ import { createCompileContext } from '../compile/var-allocator';
 import { CerialValidationError } from '../../errors';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
+import { captureMatchedIds, inTransaction } from './bulk-write';
 import { type CascadeEdge, type DependentRelation, findDependentRelations, walkCascade } from './cascade-graph';
 import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
+
+/**
+ * Delete the rows `where` matches. With a filter the ids are selected first and exactly those are deleted,
+ * so a filter that reads this table is not re-run against rows the statement already removed.
+ */
+function deleteMatching(
+  model: ModelMetadata,
+  where: WhereClause,
+  registry: ModelRegistry | undefined,
+  operation: string,
+  returnClause: string,
+): CompiledQuery {
+  const whereClause = transformDestructiveWhere(where, model, operation, registry);
+
+  if (!whereClause.text) {
+    return {
+      text: [`DELETE FROM ${model.tableName}`, returnClause].filter((p) => p).join(' '),
+      vars: whereClause.vars,
+    };
+  }
+
+  const matched = captureMatchedIds(
+    createCompileContext('', new Set(Object.keys(whereClause.vars))),
+    model.tableName,
+    whereClause.text,
+  );
+
+  return {
+    text: inTransaction([matched.statement, [`DELETE ${matched.target}`, returnClause].filter((p) => p).join(' ')]),
+    vars: whereClause.vars,
+  };
+}
 
 /** Build DELETE query */
 export function buildDeleteQuery(
@@ -25,16 +58,7 @@ export function buildDeleteQuery(
   registry?: ModelRegistry,
   operation = 'deleteMany',
 ): CompiledQuery {
-  // Build WHERE clause
-  const whereClause = transformDestructiveWhere(where, model, operation, registry);
-
-  // Build query
-  const parts = [`DELETE FROM ${model.tableName}`, whereClause.text].filter((p) => p);
-
-  return {
-    text: parts.join(' '),
-    vars: whereClause.vars,
-  };
+  return deleteMatching(model, where, registry, operation, '');
 }
 
 /** Build DELETE query with RETURN */
@@ -44,16 +68,8 @@ export function buildDeleteQueryWithReturn(
   registry?: ModelRegistry,
   operation = 'deleteMany',
 ): CompiledQuery {
-  // Build WHERE clause
-  const whereClause = transformDestructiveWhere(where, model, operation, registry);
-
-  // Build query with RETURN BEFORE to get deleted records
-  const parts = [`DELETE FROM ${model.tableName}`, whereClause.text, 'RETURN BEFORE'].filter((p) => p);
-
-  return {
-    text: parts.join(' '),
-    vars: whereClause.vars,
-  };
+  // RETURN BEFORE hands back the deleted records
+  return deleteMatching(model, where, registry, operation, 'RETURN BEFORE');
 }
 
 /** Deepest level of a cascade a delete follows; a cascade that reaches further is refused */

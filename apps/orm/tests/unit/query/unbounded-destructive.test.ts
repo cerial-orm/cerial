@@ -99,7 +99,9 @@ describe('the guard sits on every destructive builder', () => {
   });
 
   test('correct filters still build a WHERE on every builder', () => {
-    expect(buildDeleteQuery(place, { name: 'a' }).text).toBe('DELETE FROM place WHERE name = $name_eq_0');
+    expect(buildDeleteQuery(place, { name: 'a' }).text).toBe(
+      'BEGIN TRANSACTION;\nLET $bulk_ids_n_0 = (SELECT VALUE id FROM place WHERE name = $name_eq_0);\nDELETE $bulk_ids_n_0;\nCOMMIT TRANSACTION;',
+    );
     expect(buildUpdateManyQuery(place, { name: 'a' }, data).text).toContain('WHERE name = $name_eq_0');
     expect(buildUpsertQuery(place, { name: 'a' }, { name: 'n' }, data, true).text).toContain('WHERE name = $name_eq_0');
   });
@@ -112,7 +114,7 @@ describe('composite keys expand in the many-methods', () => {
     const query = buildDeleteQueryWithReturn(place, hostile(composite));
 
     expect(query.text).toBe(
-      'DELETE FROM place WHERE name = $name_eq_0 AND address.city = $address_city_eq_1 RETURN BEFORE',
+      'BEGIN TRANSACTION;\nLET $bulk_ids_n_0 = (SELECT VALUE id FROM place WHERE name = $name_eq_0 AND address.city = $address_city_eq_1);\nDELETE $bulk_ids_n_0 RETURN BEFORE;\nCOMMIT TRANSACTION;',
     );
     expect(Object.values(query.vars)).toEqual(['Hub', 'NYC']);
   });
@@ -196,8 +198,10 @@ describe('vacuous logical shapes', () => {
   });
 
   test('a destructive statement with OR: [] is bounded rather than refused', () => {
-    expect(buildDeleteQuery(place, { OR: [] }).text).toBe('DELETE FROM place WHERE false');
-    expect(buildDeleteQuery(place, { NOT: {} }).text).toBe('DELETE FROM place WHERE false');
+    const bounded =
+      'BEGIN TRANSACTION;\nLET $bulk_ids_n_0 = (SELECT VALUE id FROM place WHERE false);\nDELETE $bulk_ids_n_0;\nCOMMIT TRANSACTION;';
+    expect(buildDeleteQuery(place, { OR: [] }).text).toBe(bounded);
+    expect(buildDeleteQuery(place, { NOT: {} }).text).toBe(bounded);
   });
 });
 

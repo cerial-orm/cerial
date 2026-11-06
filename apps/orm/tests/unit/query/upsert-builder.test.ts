@@ -271,8 +271,10 @@ describe('upsert-builder', () => {
         undefined,
       );
 
-      expect(query.text).toContain('UPSERT post');
-      expect(query.text).not.toContain('UPSERT ONLY');
+      // Many rows can match, so the update half writes the ids selected at the start
+      expect(query.text).toContain('LET $bulk_ids_n_2 = (SELECT VALUE id FROM post WHERE title = $title_eq_0);');
+      expect(query.text).toContain('UPDATE $bulk_ids_n_2 SET');
+      expect(query.text).not.toContain('UPSERT');
     });
 
     test('generates RETURN BEFORE for non-unique where', () => {
@@ -285,7 +287,7 @@ describe('upsert-builder', () => {
         'before',
       );
 
-      expect(query.text).toContain('UPSERT post');
+      expect(query.text).toContain('UPDATE $bulk_ids_n_2 SET');
       expect(query.text).toContain('RETURN BEFORE');
     });
 
@@ -299,8 +301,8 @@ describe('upsert-builder', () => {
         true,
       );
 
-      expect(query.text).toContain('UPSERT post');
-      expect(query.text).not.toMatch(/(UPSERT|CREATE)[^{}]*RETURN/);
+      expect(query.text).toContain('UPDATE $bulk_ids_n_2 SET');
+      expect(query.text).not.toMatch(/(UPDATE|CREATE)[^{}]*RETURN/);
     });
 
     test('generates RETURN with select for non-unique', () => {
@@ -515,8 +517,8 @@ describe('upsert-builder', () => {
 
       const query = buildUpsertQuery(postModel, { title: 'Test' }, { title: 'Test' }, { title: 'Updated' }, undefined);
 
-      expect(query.text).toContain('UPSERT post');
-      expect(query.text).not.toContain('UPSERT ONLY');
+      expect(query.text).toContain('UPDATE $bulk_ids_n_2 SET');
+      expect(query.text).not.toContain('UPSERT');
     });
 
     test('passes through select/include/registry to sub-builders', () => {
@@ -747,7 +749,7 @@ describe('upsert-builder', () => {
       expect(query.text).toContain('LET $up_result = IF $up_exists {');
       expect(query.text).toContain('} ELSE {');
       expect(query.text).toContain('CREATE ONLY author');
-      expect(query.text).toContain('UPDATE author SET');
+      expect(query.text).toContain('UPDATE $bulk_ids_n_0 SET');
       expect(query.text.trim()).toEndWith('RETURN $up_result;');
     });
 
@@ -822,7 +824,7 @@ describe('upsert-builder', () => {
       const query = nested({ email: 'author@test.com' }, {});
 
       expect(query.text).toContain('FROM ONLY $up_exists.id');
-      expect(query.text).not.toContain('UPDATE author SET');
+      expect(query.text).not.toContain('UPDATE $bulk_ids');
     });
   });
 

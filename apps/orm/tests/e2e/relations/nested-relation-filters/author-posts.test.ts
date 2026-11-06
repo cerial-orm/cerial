@@ -159,9 +159,8 @@ describe('E2E nested relation filters: author and posts', () => {
       expected: ['p3'],
     },
     {
-      // Not `title: 'x'`: a delete removes p1 first and the filter then reads a table without it
-      label: 'author.posts.some.title in',
-      where: { author: { posts: { some: { title: { in: ['x', 'z'] } } } } },
+      label: 'author.posts.some.title',
+      where: { author: { posts: { some: { title: 'x' } } } },
       expected: ['p1', 'p2'],
     },
     {

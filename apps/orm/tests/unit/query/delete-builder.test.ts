@@ -95,8 +95,9 @@ describe('delete-builder', () => {
       const where = { id: 'user:123' };
       const query = buildDeleteQuery(userModel, where);
 
-      expect(query.text).toContain('DELETE FROM user WHERE');
-      expect(query.text).toContain('id =');
+      expect(query.text).toBe(
+        'BEGIN TRANSACTION;\nLET $bulk_ids_n_0 = (SELECT VALUE id FROM user WHERE id = $id_eq_0);\nDELETE $bulk_ids_n_0;\nCOMMIT TRANSACTION;',
+      );
       expect(query.vars).toBeDefined();
     });
 
@@ -104,9 +105,9 @@ describe('delete-builder', () => {
       const where = { email: 'test@example.com', name: 'Test' };
       const query = buildDeleteQuery(userModel, where);
 
-      expect(query.text).toContain('DELETE FROM user WHERE');
-      expect(query.text).toContain('email =');
-      expect(query.text).toContain('name =');
+      expect(query.text).toBe(
+        'BEGIN TRANSACTION;\nLET $bulk_ids_n_0 = (SELECT VALUE id FROM user WHERE email = $email_eq_0 AND name = $name_eq_1);\nDELETE $bulk_ids_n_0;\nCOMMIT TRANSACTION;',
+      );
     });
   });
 
@@ -119,8 +120,9 @@ describe('delete-builder', () => {
       const where = { id: 'user:123' };
       const query = buildDeleteQueryWithReturn(userModel, where);
 
-      expect(query.text).toContain('DELETE FROM user WHERE');
-      expect(query.text).toContain('RETURN BEFORE');
+      expect(query.text).toBe(
+        'BEGIN TRANSACTION;\nLET $bulk_ids_n_0 = (SELECT VALUE id FROM user WHERE id = $id_eq_0);\nDELETE $bulk_ids_n_0 RETURN BEFORE;\nCOMMIT TRANSACTION;',
+      );
     });
   });
 

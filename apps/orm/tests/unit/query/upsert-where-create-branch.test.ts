@@ -93,7 +93,7 @@ describe('WHERE-based upsert branches on a read of its WHERE', () => {
       buildUpsertQuery(post, { title: 'T' }, { title: 'T' }, { title: 'U' }, undefined).text,
     );
 
-    expect(matched.startsWith('UPSERT post SET ')).toBe(true);
+    expect(matched.startsWith('UPDATE $bulk_ids_n_2 SET ')).toBe(true);
     expect(created.startsWith('CREATE post SET ')).toBe(true);
   });
 

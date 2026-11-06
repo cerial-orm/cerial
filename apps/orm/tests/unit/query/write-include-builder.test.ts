@@ -69,7 +69,7 @@ describe('updateMany builder include', () => {
       posts: true,
     });
 
-    expect(text).toStartWith('UPDATE author SET');
+    expect(text).toContain('UPDATE $bulk_ids_n_0 SET');
     expect(text.indexOf('WHERE')).toBeLessThan(text.indexOf('RETURN'));
     expect(text).toMatch(/RETURN .*\(SELECT .* FROM post .*\) AS posts/);
   });
@@ -77,7 +77,9 @@ describe('updateMany builder include', () => {
   test('without include the RETURN has no subquery', () => {
     const { text } = buildUpdateManyQuery(author, where, { name: 'b' }, undefined, undefined, registry);
 
-    expect(text).not.toContain('SELECT');
+    // The only SELECT is the capture of the matched ids
+    expect(text.match(/SELECT/g)).toHaveLength(1);
+    expect(text).toContain('RETURN *;');
   });
 
   test('rejects an unknown relation', () => {
