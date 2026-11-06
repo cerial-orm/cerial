@@ -261,6 +261,30 @@ development branch and is not available on npm.
   caller's filter in `OR` or `NOT`. Present in 0.2.0. An empty OR branch now
   makes the OR match every row, so a `NOT` around it matches none.
 
+- An empty filter body was dropped instead of read for what it says:
+  `some: {}` or `none: {}` on an array of objects, an array of tuples or a
+  reverse relation, and an empty operator object such as `age: {}`. Beside
+  another key or under `NOT` the filter widened, in the client methods too:
+  `deleteMany` with `items: { none: {} }` beside a name filter removed every
+  row with that name, not only those with no items. Present in 0.2.0.
+
+- A relation inside a relation filter, such as
+  `posts: { some: { author: { name: 'Ann' } } }`, compared the relation field
+  to a value and never matched, so under `NOT` a `deleteMany` removed every row
+  and cascaded to its children. Present in 0.2.0. Nested relation filters now
+  follow the relation at every depth.
+
+- A null on a reverse relation, which the types do not allow but a JSON body
+  can carry, was ignored, so `{ isActive: true, posts: null }` removed every
+  row through `deleteMany`. Present in 0.2.0. It is now refused.
+
+- `deleteMany` and `updateMany` ran their filter inside the write, and the
+  database re-evaluates a subquery for each row as the write proceeds. A
+  relation filter that reads the table being written therefore saw earlier
+  rows already removed or changed: a `deleteMany` whose filter matched one
+  post removed two. Present in 0.2.0. Bulk writes now select the matching
+  records first and write exactly those.
+
 - Nested write field names could collide in the bound values of a statement and
   make one nested value overwrite or drop another. Every bound value now gets a
   unique name.
@@ -1237,6 +1261,22 @@ development branch and is not available on npm.
   so `NOT` around it matches none. Filters that relied on the branch being
   dropped return different rows. A relation filter whose only remaining OR
   branch named an unknown field is now refused rather than run.
+- An empty filter body is read for what it says: `some: {}` means at least one
+  element or related record, `none: {}` means none, `every: {}` holds for any
+  array and, on a relation, means at least one related record, as `every`
+  already requires there. An empty operator object such as `age: {}` adds no
+  condition.
+- A nested relation filter follows the relation at every depth, including
+  many-to-many relations, which had no working form before. `every` on a
+  many-to-many relation requires at least one linked record.
+- A reverse relation compared to `null` is refused; use `isEmpty: true`.
+- A where must be an object: `[]`, numbers, booleans and `null` are refused on
+  every method that takes a where, and on the exported where helpers.
+  Leaving where out still means every row.
+- Bulk writes (`deleteMany`, `updateMany`, and the matched half of a
+  non-unique `upsert`) select the matching records first and then write
+  exactly those, in a transaction. Results are unchanged except where the
+  old single statement saw its own writes.
 - The txn option of a model method must be a transaction from `$transaction`, or
   left out. Any other value, `null` included, is refused with a
   `CerialValidationError` naming `txn` before the query runs.
