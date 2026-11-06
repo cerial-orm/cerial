@@ -1,7 +1,7 @@
 import type { Expr } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import { compileFragment, createCompileContext, isSqlFragment, type SqlFragment } from '../../query/compile';
-import { buildConditions } from '../../query/filters';
+import { buildConditions } from '../../query/filters/condition-builder';
 import { validateWhere, validationFailure } from '../../query/validators';
 import type { ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 

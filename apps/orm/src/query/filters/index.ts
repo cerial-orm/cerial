@@ -5,7 +5,7 @@
 // Array operators
 // Comparison operators
 // Condition builder
-export { buildConditions, buildDirectCondition, buildFieldCondition, isOperatorObject } from './condition-builder';
+export { buildDirectCondition, buildFieldCondition, isOperatorObject } from './condition-builder';
 
 // Logical operators
 export { handleAnd, handleNot, handleOr } from './logical-operators';
@@ -22,7 +22,13 @@ export { getRegisteredOperators, isRegisteredOperator, registerOperator } from '
 // Special operators
 // String operators
 // Transformer
-export { transformDestructiveWhere, transformWhere, transformWhereClause } from './transformer';
+export { transformDestructiveWhere } from './transformer';
+// The public where helpers validate; the client imports the unchecked ones from their own files
+export {
+  buildConditionsChecked as buildConditions,
+  transformWhereChecked as transformWhere,
+  transformWhereClauseChecked as transformWhereClause,
+} from './checked-where';
 export {
   handleInChecked as handleIn,
   handleNotInChecked as handleNotIn,

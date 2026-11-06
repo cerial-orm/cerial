@@ -59,7 +59,7 @@ import type { QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { createCompileContext } from './compile/var-allocator';
 import { executeQuery, executeQuerySingle } from './executor';
-import { transformWhereClause } from './filters';
+import { transformWhereClause } from './filters/transformer';
 import { groupByRowShape, mapGroupByRows, mapResult, mapSingleResult } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import {
