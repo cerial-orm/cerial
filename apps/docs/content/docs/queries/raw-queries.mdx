@@ -50,14 +50,18 @@ A hostile `userInput` such as `x'; DELETE user; --` is a string to compare again
 Rules that throw a `CerialValidationError`:
 
 - A hole of `undefined` is refused, because it would silently filter on `NONE`. Resolve conditional values before the template.
-- An empty fragment is refused, so a filter cannot evaporate.
-- `sql` must be called as a tag, ``sql`...` ``, never as `sql('...')`.
+- An empty fragment is refused.
+- A string or a plain array passed to `sql` is refused. Call it as a tag, ``sql`...` ``.
 - A fragment inside an array or object hole is refused. Interpolate a fragment directly and it nests:
 
 ```typescript
 const adult = sql`age >= ${18}`;
 const where = { $raw: sql`${adult} AND isActive = ${true}` };
 ```
+
+These checks stop request data, not your own code. Data cannot produce a fragment: JSON, `structuredClone` and object spreads all lose it, so a request body never runs as query text. Code can, though: a frozen array carrying a `raw` array, or an object given the `Symbol.for('cerial.sql')` brand by hand, is treated as a template and its text runs. Never build either from input.
+
+A fragment that is only a hole, ``sql`${x}` ``, is not empty. Used as the whole `$raw` filter it tests whether `x` is truthy, so `true` or any non-empty string matches every row. Never let a caller's value stand as the whole predicate; compare it to a column instead (``sql`name = ${x}` ``).
 
 Fragments nested more than 64 levels deep are refused with a `CerialValidationError` when they compile.
 
