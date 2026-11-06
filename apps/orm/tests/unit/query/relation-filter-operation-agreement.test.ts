@@ -57,11 +57,11 @@ describe('relation filter with OR: all six operations agree', () => {
 });
 
 describe('the no-filter guard still refuses a where that resolves to nothing', () => {
-  const vanished: WhereClause = { owner: {} };
+  const unusable: WhereClause = { owner: { nope: 'x' } as WhereClause };
 
   test.each([
-    ['updateMany', () => compileUpdateMany(place, { where: vanished, data: { name: 'x' } }, placeRegistry)],
-    ['deleteMany', () => compileDeleteMany(place, { where: vanished }, placeRegistry)],
+    ['updateMany', () => compileUpdateMany(place, { where: unusable, data: { name: 'x' } }, placeRegistry)],
+    ['deleteMany', () => compileDeleteMany(place, { where: unusable }, placeRegistry)],
   ])('%s throws instead of touching every row', (_name, compile) => {
     expect(compile).toThrow();
   });

@@ -39,7 +39,16 @@ const posts = await client.db.Post.findMany({
 });
 ```
 
-A filter on a single-record relation matches only rows where the relation is set to a record that exists and satisfies it, so `author: { name: { neq: 'Alice' } }` never matches a post without an author, or whose author was deleted. Wrap the filter in `NOT` to include those rows, or use `author: null` to find the rows without one.
+A filter on a single-record relation matches only rows where the relation is set to a record that exists and satisfies it, so `author: { name: { neq: 'Alice' } }` never matches a post without an author, or whose author was deleted. Wrap the filter in `NOT` to include those rows.
+
+Two forms ask only whether a related record exists:
+
+| Filter | Matches |
+|---|---|
+| `NOT: { author: null }` | rows that have a related record (on a read, `author: {}` means the same) |
+| `author: null` | rows that have none: the relation is unset, `null`, or points at a deleted record |
+
+They are exact complements, at any depth and inside `include` and `$live` filters. A relation is not stored, so `author: null` does not tell how the key is stored. To ask about the key itself, filter the foreign key field: `authorId: null` matches only a key that holds `null`, `authorId: { isNone: true }` only a key that was never set, and `authorId: 'abc'` the key that points at that record, even when the record has been deleted.
 
 ## Reverse Relations
 

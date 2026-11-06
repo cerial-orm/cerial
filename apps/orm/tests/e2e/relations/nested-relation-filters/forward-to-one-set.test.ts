@@ -228,7 +228,7 @@ describe('E2E forward to-one relation filter requires the relation to be set', (
         where: { NOT: { manager: { manager: { name: { neq: 'zz' } } } } },
         expected: ['n1', 'n2', 'n3'],
       },
-      { label: 'manager: null does not reach a dangling key', where: { manager: null }, expected: [] },
+      { label: 'manager: null reaches a dangling key', where: { manager: null }, expected: ['n1', 'n2'] },
     ];
 
     beforeEach(async () => {

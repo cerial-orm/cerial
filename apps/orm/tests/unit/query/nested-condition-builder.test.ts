@@ -30,6 +30,7 @@ const fieldOf = (model: ModelMetadata, name: string): FieldMetadata => {
 const ownerField = fieldOf(place, 'owner');
 const placesField = fieldOf(owner, 'places');
 const EMPTY = { text: '', vars: {} };
+const HAS_OWNER = { text: '(ownerId.id != NONE)', vars: {} };
 
 // A non-empty filter that compiles to nothing must raise: an empty fragment makes the caller drop its WHERE
 const throwsNoConditions = (run: () => unknown, relation: string, keys: string) => {
@@ -230,7 +231,7 @@ describe('buildForwardNestedCondition', () => {
   });
 
   test('undefined values are skipped; a filter left with nothing raises', () => {
-    expect(forward({ name: undefined })).toEqual(EMPTY);
+    expect(forward({ name: undefined })).toEqual(HAS_OWNER);
     throwsNoConditions(() => forward({ nope: 'x' }), 'Place.owner', `'nope'`);
     expect(forward({ nope: 'x', name: 'A' }).text).toBe('(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)');
   });
@@ -241,8 +242,8 @@ describe('buildForwardNestedCondition', () => {
     );
   });
 
-  test('an operator object with only undefined values adds no condition', () => {
-    throwsNoConditions(() => forward({ name: { eq: undefined } }), 'Place.owner', `'name'`);
+  test('an operator object with only undefined values adds no condition beyond the record existing', () => {
+    expect(forward({ name: { eq: undefined } })).toEqual(HAS_OWNER);
   });
 
   // This case was pinned as current behavior when the file was written, and it was pinning a defect:
@@ -310,7 +311,7 @@ describe('buildForwardNestedCondition', () => {
 
   test('empty and unusable logical branches follow the top-level handlers', () => {
     // handleAnd of nothing is empty; handleOr of nothing is false, which matches no row
-    throwsNoConditions(() => forward({ AND: [] }), 'Place.owner', `'AND'`);
+    expect(forward({ AND: [] })).toEqual(HAS_OWNER);
     expect(forward({ OR: [] })).toEqual({ text: '(ownerId.id != NONE AND false)', vars: {} });
     expect(forward({ NOT: {} })).toEqual({ text: '(ownerId.id != NONE AND false)', vars: {} });
     // a branch naming only unknown fields is empty, an empty branch makes the OR every row, and a relation
@@ -360,15 +361,15 @@ describe('buildNestedCondition — empty versus unusable filters', () => {
   // Established before the guard: `{ owner: {} }` compiled to an empty fragment and the caller
   // (condition-builder.ts) skipped it, so the clause added no condition and the query was unfiltered.
   // That is unchanged: an empty filter asked for nothing, so nothing is added and nothing throws.
-  test('a genuinely empty relation filter still returns the empty fragment', () => {
-    expect(buildNestedCondition(createCompileContext(), ownerField, {}, place, placeRegistry)).toEqual(EMPTY);
+  test('an empty forward to-one filter means the record exists; an empty reverse filter stays empty', () => {
+    expect(buildNestedCondition(createCompileContext(), ownerField, {}, place, placeRegistry)).toEqual(HAS_OWNER);
     expect(buildNestedCondition(createCompileContext(), placesField, {}, owner, placeRegistry)).toEqual(EMPTY);
-    expect(forward({})).toEqual(EMPTY);
+    expect(forward({})).toEqual(HAS_OWNER);
     expect(reverse({})).toEqual(EMPTY);
   });
 
   test('a filter of only undefined values counts as empty', () => {
-    expect(forward({ name: undefined })).toEqual(EMPTY);
+    expect(forward({ name: undefined })).toEqual(HAS_OWNER);
     expect(reverse({ some: undefined })).toEqual(EMPTY);
   });
 

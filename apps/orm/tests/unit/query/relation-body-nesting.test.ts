@@ -248,7 +248,7 @@ const shapes: Shape[] = [
     label: 'empty inner body: some { author: {} } needs a related row',
     model: 'User',
     where: { posts: { some: { author: {} } } },
-    text: 'id IN (SELECT VALUE authorId FROM post)',
+    text: 'id IN (SELECT VALUE authorId FROM post WHERE (authorId.id != NONE))',
     vars: {},
   },
   {
@@ -280,10 +280,10 @@ const shapes: Shape[] = [
     vars: {},
   },
   {
-    label: 'null on a forward relation inside a body compares the foreign key',
+    label: 'null on a forward relation inside a body means no related record',
     model: 'User',
     where: { posts: { some: { author: null } } },
-    text: 'id IN (SELECT VALUE authorId FROM post WHERE authorId = NULL)',
+    text: 'id IN (SELECT VALUE authorId FROM post WHERE (authorId.id = NONE))',
     vars: {},
   },
 ];

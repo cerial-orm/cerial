@@ -27,7 +27,7 @@ import type { FilterCompileContext } from '../compile/var-allocator';
 import { toU64Param, transformOrValidateRecordId } from '../transformers';
 import { expandCompositeKeys } from './composite-key';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
-import { buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
+import { buildForwardNoRecord, buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
 import { getOperatorHandler, isRegisteredOperator } from './registry';
 
 /** Find target table for a Record field by looking at paired Relation field */
@@ -730,9 +730,15 @@ export function buildConditions(
       continue;
     }
 
-    // Handle relation fields with null value - translate to underlying record field
-    // e.g., { user: null } becomes { userId: null } for a forward relation with @field(userId)
+    // A forward to-one relation compared to null means no related record: (userId.id = NONE). Only an
+    // array foreign key still compares the stored key.
     if (fieldMetadata.type === 'relation' && value === null) {
+      const noRecord = buildForwardNoRecord(fieldMetadata);
+      if (noRecord) {
+        conditions.push(noRecord);
+        continue;
+      }
+
       const fieldRef = fieldMetadata.relationInfo?.fieldRef;
       if (fieldRef) {
         // Find the underlying record field and use it

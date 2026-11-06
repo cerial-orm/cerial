@@ -19,6 +19,7 @@ import { createObjectRegistry, createRegistry } from '../../../src/generators/me
 import { parse } from '../../../src/parser/parser';
 import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import { buildConditions } from '../../../src/query/filters/condition-builder';
+import { CerialValidationError } from '../../../src/errors';
 import type { WhereClause } from '../../../src/types';
 
 const schema = `
@@ -28,6 +29,7 @@ model Emp {
   age Int
   managerId Record? @nullable
   manager Relation? @field(managerId) @model(Emp)
+  reports Relation[] @model(Emp)
 }
 
 model Doc {
@@ -232,19 +234,115 @@ describe('a forward to-one filter requires the relation to be set', () => {
   });
 });
 
-describe('the explicit no-relation queries stay unguarded', () => {
-  test('manager: null compares the foreign key to NULL only', () => {
-    expect(compile('Emp', { manager: null })).toEqual({ text: 'managerId = NULL', vars: {} });
+const NO = (fk: string) => `(${fk}.id = NONE)`;
+const HAS = (fk: string) => `(${fk}.id != NONE)`;
+
+describe('an empty to-one body means the related record exists', () => {
+  const empties: Array<[string, WhereClause]> = [
+    ['{}', { manager: {} }],
+    ['{ AND: [] }', { manager: { AND: [] } }],
+    ['{ name: undefined }', { manager: { name: undefined } }],
+    ['{ name: {} }', { manager: { name: {} } }],
+    ['{ name: { eq: undefined } }', { manager: { name: { eq: undefined } } }],
+    ['{ AND: [{}] }', { manager: { AND: [{}] } }],
+  ];
+
+  test.each(empties)('manager: %s', (_label, where) => {
+    expect(compile('Emp', where)).toEqual({ text: HAS('managerId'), vars: {} });
+  });
+
+  test('required relation', () => {
+    expect(compile('Doc', { author: {} })).toEqual({ text: HAS('authorId'), vars: {} });
+  });
+
+  test('under NOT it is the rows with no related record', () => {
+    expect(compile('Emp', { NOT: { manager: {} } })).toEqual({ text: `NOT (${HAS('managerId')})`, vars: {} });
+  });
+
+  test('beside a sibling filter, ANDed with it', () => {
+    expect(compile('Emp', { name: { neq: 'zz' }, manager: {} })).toEqual({
+      text: `name != $name_neq_0 AND ${HAS('managerId')}`,
+      vars: { name_neq_0: 'zz' },
+    });
+  });
+
+  test('at depth 2 the inner key keeps its own existence check', () => {
+    expect(compile('Emp', { manager: { manager: {} } })).toEqual({
+      text: G('managerId', `managerId IN (SELECT VALUE id FROM emp WHERE ${HAS('managerId')})`),
+      vars: {},
+    });
+  });
+
+  test('nested through another model', () => {
+    expect(compile('Note', { doc: { author: {} } })).toEqual({
+      text: G('docId', `docId IN (SELECT VALUE id FROM doc WHERE ${HAS('authorId')})`),
+      vars: {},
+    });
+  });
+
+  test('in a reverse body', () => {
+    expect(compile('Emp', { reports: { some: { manager: {} } } }).text).toContain(HAS('managerId'));
+  });
+
+  test('a body with an unknown key still refuses', () => {
+    expect(() => compile('Emp', { manager: { nope: 1 } as WhereClause })).toThrow(CerialValidationError);
+    expect(() => compile('Emp', { manager: { AND: [{ nope: 1 } as WhereClause] } })).toThrow(CerialValidationError);
+  });
+});
+
+describe('a null to-one relation means no related record', () => {
+  test('manager: null is the complement of manager: {}', () => {
+    expect(compile('Emp', { manager: null })).toEqual({ text: NO('managerId'), vars: {} });
+  });
+
+  test('required relation', () => {
+    expect(compile('Doc', { author: null })).toEqual({ text: NO('authorId'), vars: {} });
+  });
+
+  test('NOT around it is the rows with a related record', () => {
+    expect(compile('Emp', { NOT: { manager: null } })).toEqual({ text: `NOT (${NO('managerId')})`, vars: {} });
+  });
+
+  test('beside a sibling filter', () => {
+    expect(compile('Emp', { name: 'a', manager: null })).toEqual({
+      text: `name = $name_eq_0 AND ${NO('managerId')}`,
+      vars: { name_eq_0: 'a' },
+    });
+  });
+
+  test('inside a relation body', () => {
+    expect(compile('Note', { doc: { reviewer: null } })).toEqual({
+      text: G('docId', `docId IN (SELECT VALUE id FROM doc WHERE ${NO('reviewerId')})`),
+      vars: {},
+    });
+  });
+
+  test('at depth 2', () => {
+    expect(compile('Emp', { manager: { manager: null } })).toEqual({
+      text: G('managerId', `managerId IN (SELECT VALUE id FROM emp WHERE ${NO('managerId')})`),
+      vars: {},
+    });
+  });
+
+  test('in a reverse body', () => {
+    expect(compile('Emp', { reports: { some: { manager: null } } }).text).toContain(NO('managerId'));
+  });
+
+  test('a reverse relation still refuses null', () => {
+    expect(() => compile('Emp', { reports: null })).toThrow(CerialValidationError);
+  });
+});
+
+describe('field-level comparisons keep their own meaning', () => {
+  test('managerId: null compares the stored NULL only', () => {
+    expect(compile('Emp', { managerId: null })).toEqual({ text: 'managerId = NULL', vars: {} });
   });
 
   test('managerId: { isNone: true } selects the unset rows', () => {
     expect(compile('Emp', { managerId: { isNone: true } })).toEqual({ text: 'managerId = NONE', vars: {} });
   });
 
-  test('a null relation inside a relation body compares that foreign key', () => {
-    expect(compile('Note', { doc: { reviewer: null } })).toEqual({
-      text: G('docId', `docId IN (SELECT VALUE id FROM doc WHERE reviewerId = NULL)`),
-      vars: {},
-    });
+  test('managerId: { isNull: true } selects the stored NULL', () => {
+    expect(compile('Emp', { managerId: { isNull: true } })).toEqual({ text: 'managerId = NULL', vars: {} });
   });
 });

@@ -82,6 +82,9 @@ function compileRelationKey(
   registry: ModelRegistry,
 ): QueryFragment {
   if (value === null) {
+    const noRecord = buildForwardNoRecord(relationField);
+    if (noRecord) return noRecord;
+
     const fieldRef = relationField.relationInfo?.fieldRef;
     const recordField = fieldRef ? owner.fields.find((f) => f.name === fieldRef) : undefined;
     if (!fieldRef || !recordField || relationField.relationInfo?.isReverse) {
@@ -228,9 +231,41 @@ function compileForwardNested(
   if (relationField.isArray) return compileForwardArrayNested(ctx, relationField, nestedWhere, model, registry);
 
   const body = compileForwardBody(ctx, relationField, nestedWhere, model, registry);
-  if (!body.text) return body;
+  // An empty body asks for no condition on the related record, which still has to exist
+  if (!body.text) return isEmptyBody(nestedWhere, targetModel) ? { text: `(${fieldRef}.id != NONE)`, vars: {} } : body;
 
   return { text: `(${fieldRef}.id != NONE AND ${body.text})`, vars: body.vars };
+}
+
+/** `relation: null` on a forward to-one: no related record (unset key, null key or a deleted record), the complement of `{}` */
+export function buildForwardNoRecord(relationField: FieldMetadata): QueryFragment | undefined {
+  const info = relationField.relationInfo;
+  if (!info?.fieldRef || info.isReverse || relationField.isArray) return undefined;
+
+  return { text: `(${info.fieldRef}.id = NONE)`, vars: {} };
+}
+
+/**
+ * True when every key of a to-one body is a recognised key that states no condition (`{}`, undefined
+ * values, `{ AND: [] }`, `{ name: {} }`). A body with an unknown key is not empty: it still refuses.
+ */
+export function isEmptyBody(where: WhereClause, targetModel: ModelMetadata): boolean {
+  for (const [key, value] of Object.entries(where)) {
+    if (value === undefined) continue;
+    if ((key === 'AND' || key === 'OR') && Array.isArray(value)) {
+      // An empty OR is the constant false, not an absent condition
+      if (key === 'OR' && !value.length) return false;
+      if (value.every((w) => isObject(w) && isEmptyBody(w as WhereClause, targetModel))) continue;
+      return false;
+    }
+    if (key === 'NOT' && isObject(value) && isEmptyBody(value as WhereClause, targetModel)) continue;
+
+    const field = targetModel.fields.find((f) => f.name === key);
+    if (!field || field.type === 'relation' || !isOperatorShape(value, field)) return false;
+    if (Object.values(value as Record<string, unknown>).some((v) => v !== undefined)) return false;
+  }
+
+  return true;
 }
 
 /** The conditions of a to-one forward filter over the dotted foreign key path, without the set guard */
