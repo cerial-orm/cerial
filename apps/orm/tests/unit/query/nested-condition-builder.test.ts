@@ -307,8 +307,11 @@ describe('buildForwardNestedCondition', () => {
     throwsNoConditions(() => forward({ AND: [] }), 'Place.owner', `'AND'`);
     expect(forward({ OR: [] })).toEqual({ text: 'false', vars: {} });
     expect(forward({ NOT: {} })).toEqual({ text: 'false', vars: {} });
-    // a branch naming only unknown fields contributes nothing, as it does at the top level
-    expect(forward({ OR: [{ nope: 'x' }, { name: 'A' }] }).text).toBe('(ownerId.name = $ownerId_name_eq_0)');
+    // a branch naming only unknown fields is empty, an empty branch makes the OR every row, and a relation
+    // filter that compiles to nothing is refused rather than run as no filter
+    throwsNoConditions(() => forward({ OR: [{ nope: 'x' }, { name: 'A' }] }), 'Place.owner', `'OR'`);
+    // as an AND branch it is dropped
+    expect(forward({ AND: [{ nope: 'x' }, { name: 'A' }] }).text).toBe('(ownerId.name = $ownerId_name_eq_0)');
   });
 
   test('a logical operator given the wrong container is not taken as a field', () => {
