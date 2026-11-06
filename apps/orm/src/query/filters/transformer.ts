@@ -57,9 +57,24 @@ export function transformDestructiveWhere(
   operation: string,
   registry?: ModelRegistry,
 ): CompiledQuery {
-  const suppliedNoFilter = where === undefined || Object.keys(where).length === 0;
   const clause = transformWhereClause(where, model, registry);
-  if (suppliedNoFilter || clause.text) return clause;
+  assertFilterResolved(where, clause.text, model, operation);
+
+  return clause;
+}
+
+/**
+ * Throw when a where that names keys compiled to no conditions. An empty or absent where is deliberate and
+ * passes; `text` is whatever the compile produced, with or without a leading WHERE.
+ */
+export function assertFilterResolved(
+  where: WhereClause | undefined,
+  text: string,
+  model: ModelMetadata,
+  operation: string,
+): void {
+  const suppliedNoFilter = where === undefined || Object.keys(where).length === 0;
+  if (suppliedNoFilter || text) return;
 
   throw new CerialValidationError(
     `${operation} on ${model.name}: the where filter resolved to no conditions, so the statement would affect every row. ` +

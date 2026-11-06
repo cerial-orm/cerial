@@ -9,7 +9,7 @@ import type { CompiledQuery, QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 import { validateWhere, validationFailure } from '../validators';
 import { buildConditions } from './condition-builder';
-import { transformWhere, transformWhereClause } from './transformer';
+import { assertFilterResolved, transformWhere, transformWhereClause } from './transformer';
 
 function assertValidWhere(
   where: WhereClause | undefined,
@@ -29,7 +29,10 @@ export function buildConditionsChecked(
 ): QueryFragment {
   assertValidWhere(where, model, registry, 'buildConditions');
 
-  return buildConditions(ctx, where, model, registry);
+  const fragment = buildConditions(ctx, where, model, registry);
+  assertFilterResolved(where, fragment.text, model, 'buildConditions');
+
+  return fragment;
 }
 
 export function transformWhereChecked(
@@ -39,7 +42,10 @@ export function transformWhereChecked(
 ): CompiledQuery {
   assertValidWhere(where, model, registry, 'transformWhere');
 
-  return transformWhere(where, model, registry);
+  const compiled = transformWhere(where, model, registry);
+  assertFilterResolved(where, compiled.text, model, 'transformWhere');
+
+  return compiled;
 }
 
 export function transformWhereClauseChecked(
@@ -49,5 +55,8 @@ export function transformWhereClauseChecked(
 ): CompiledQuery {
   assertValidWhere(where, model, registry, 'transformWhereClause');
 
-  return transformWhereClause(where, model, registry);
+  const compiled = transformWhereClause(where, model, registry);
+  assertFilterResolved(where, compiled.text, model, 'transformWhereClause');
+
+  return compiled;
 }

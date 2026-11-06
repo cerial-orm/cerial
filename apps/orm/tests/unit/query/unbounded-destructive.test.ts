@@ -16,7 +16,9 @@ import {
 import { buildCountQuery, buildFindManyQuery, validateUniqueField } from '../../../src/query/builders/select-builder';
 import { buildUpdateManyQuery, buildUpdateUniqueQuery } from '../../../src/query/builders/update-builder';
 import { buildUpsertQuery } from '../../../src/query/builders/upsert-builder';
-import { transformDestructiveWhere, transformWhereClause } from '../../../src/query/filters';
+import { transformDestructiveWhere } from '../../../src/query/filters';
+// Unchecked compile: the public helper refuses the vacuous filters these tests pin
+import { transformWhereClause } from '../../../src/query/filters/transformer';
 import type { WhereClause } from '../../../src/types';
 import { owner, place, placeRegistry } from './where-validation-helpers';
 

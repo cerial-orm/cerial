@@ -29,12 +29,22 @@ const BODIES = [
   '{"title":{"eqq":"a"}}',
   '{"items":{"some":{"nmae":"x"}}}',
   '{"items":{"nmae":"x"}}',
+  // valid keys that compile to no conditions: composed into a DELETE they would match every row
+  '{"AND":[]}',
+  '{"AND":[{}]}',
+  '{"OR":[{}]}',
+  '{"items":{}}',
+  '{"NOT":{"items":{"some":{"ttle":"x"}}}}',
 ];
 
 const FLEX_BODIES = [
   '{"strictAddress":{"cty":"NYC"}}',
   '{"strictAddress":{"city":"NYC","zzz":1}}',
   '{"AND":[{"strictAddress":{"cty":"NYC"}}]}',
+  '{"address":{}}',
+  '{"strictAddress":{}}',
+  '{"profile":{}}',
+  '{"AND":[{"address":{}}]}',
 ];
 
 describe('Exported where helpers — negative cases', () => {

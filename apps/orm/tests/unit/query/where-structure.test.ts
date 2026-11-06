@@ -8,7 +8,10 @@
 
 import { describe, expect, test } from 'bun:test';
 import { CerialValidationError } from '../../../src/errors';
-import { buildConditions, transformDestructiveWhere, transformWhere } from '../../../src/query/filters';
+import { transformDestructiveWhere } from '../../../src/query/filters';
+// The unchecked compilers: these tests pin what a read does with a vacuous filter, which the public helpers now refuse
+import { buildConditions } from '../../../src/query/filters/condition-builder';
+import { transformWhere } from '../../../src/query/filters/transformer';
 import { createCompileContext } from '../../../src/query';
 import { MAX_WHERE_DEPTH, validateWhere } from '../../../src/query/validators/where-validator';
 import type { WhereClause } from '../../../src/types';

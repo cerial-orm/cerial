@@ -9,11 +9,11 @@
 import { describe, expect, test } from 'bun:test';
 import { buildConditions, sql, transformWhere, transformWhereClause } from '../../../src';
 import * as queryEntry from '../../../src/query';
-import { CerialUnknownFieldError } from '../../../src/errors';
+import { CerialUnknownFieldError, CerialValidationError } from '../../../src/errors';
 import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import * as unchecked from '../../../src/query/filters/condition-builder';
 import * as uncheckedTransform from '../../../src/query/filters/transformer';
-import { post, registry } from '../query/relation-order-by-helpers';
+import { author, post, registry } from '../query/relation-order-by-helpers';
 
 const hostile: Record<string, string> = {
   typo: '{"nmae":"t1"}',
@@ -101,3 +101,47 @@ describe('exported where helpers keep their output for a valid where', () => {
     expect(transformWhereClause(undefined, post, registry)).toEqual({ text: '', vars: {} });
   });
 });
+
+// Bodies that pass validation but compile to no conditions: composed into a DELETE they would match every row.
+const evaporating: Record<string, { body: string; model: typeof post; withRegistry: boolean }> = {
+  emptyAnd: { body: '{"AND":[]}', model: post, withRegistry: true },
+  andOfEmpty: { body: '{"AND":[{}]}', model: post, withRegistry: true },
+  orOfEmpty: { body: '{"OR":[{}]}', model: post, withRegistry: true },
+  emptyObjectField: { body: '{"address":{}}', model: post, withRegistry: true },
+  emptyReverseRelation: { body: '{"posts":{}}', model: author, withRegistry: true },
+  undefinedValue: { body: '{"title":null}', model: post, withRegistry: true },
+  emptyObjectFieldNoRegistry: { body: '{"address":{}}', model: post, withRegistry: false },
+};
+
+describe.each(Object.entries(entries))(
+  'exported where helpers (%s entry) refuse a filter with no conditions',
+  (_n, api) => {
+    for (const [label, { body, model, withRegistry }] of Object.entries(evaporating)) {
+      const reg = withRegistry ? registry : undefined;
+      const where = () => {
+        const parsed = JSON.parse(body);
+        // JSON cannot carry undefined; a key set to undefined is the usual way a filter evaporates
+        if (label === 'undefinedValue') return { title: undefined };
+
+        return parsed;
+      };
+
+      test(`transformWhere: ${label}`, () => {
+        expect(() => api.transformWhere(where(), model, reg)).toThrow(CerialValidationError);
+      });
+      test(`transformWhereClause: ${label}`, () => {
+        expect(() => api.transformWhereClause(where(), model, reg)).toThrow(CerialValidationError);
+      });
+      test(`buildConditions: ${label}`, () => {
+        expect(() => api.buildConditions(createCompileContext(), where(), model, reg)).toThrow(CerialValidationError);
+      });
+    }
+
+    test('an empty where and an undefined where still give empty text', () => {
+      expect(api.transformWhere({}, post, registry)).toEqual({ text: '', vars: {} });
+      expect(api.transformWhereClause({}, post, registry)).toEqual({ text: '', vars: {} });
+      expect(api.transformWhereClause(undefined, post, registry)).toEqual({ text: '', vars: {} });
+      expect(api.buildConditions(createCompileContext(), {}, post, registry).text).toBe('');
+    });
+  },
+);
