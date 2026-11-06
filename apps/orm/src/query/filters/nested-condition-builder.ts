@@ -8,7 +8,7 @@ import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
-import { isOperatorShape } from './condition-builder';
+import { buildDirectCondition, isOperatorShape } from './condition-builder';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { getOperatorHandler } from './registry';
 
@@ -70,12 +70,46 @@ function findForeignKeyField(sourceModel: ModelMetadata, targetModel: ModelMetad
 }
 
 /**
+ * A relation key inside a relation filter body. The virtual relation field holds no value, so it never
+ * takes the eq shorthand: an object recurses through the builder the top level uses, `null` compares the
+ * foreign key, anything else is refused. The text is relative to `owner`, the row the body filters.
+ */
+function compileRelationKey(
+  ctx: FilterCompileContext,
+  relationField: FieldMetadata,
+  value: unknown,
+  owner: ModelMetadata,
+  registry: ModelRegistry,
+): QueryFragment {
+  if (value === null) {
+    const fieldRef = relationField.relationInfo?.fieldRef;
+    const recordField = fieldRef ? owner.fields.find((f) => f.name === fieldRef) : undefined;
+    if (!fieldRef || !recordField || relationField.relationInfo?.isReverse) {
+      throw new CerialValidationError(
+        `Relation filter on ${owner.name}.${relationField.name} cannot be compared to null; use { isEmpty: true } on a reverse relation`,
+      );
+    }
+
+    return buildDirectCondition(ctx, fieldRef, null, recordField, owner);
+  }
+
+  if (!isNestedRelationCondition(relationField, value)) {
+    throw new CerialValidationError(
+      `Relation filter on ${owner.name}.${relationField.name} must be an object, received ${typeof value}.`,
+    );
+  }
+
+  return buildNestedCondition(ctx, relationField, value, owner, registry);
+}
+
+/**
  * Build conditions from a nested where clause for use in subqueries
  */
 function buildSubqueryConditions(
   ctx: FilterCompileContext,
   nestedWhere: WhereClause,
   targetModel: ModelMetadata,
+  registry: ModelRegistry,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -87,23 +121,34 @@ function buildSubqueryConditions(
     // row, so each branch recurses here. Without this the key was skipped as an unknown field and
     // the quantifier silently matched more rows than asked for.
     if (fieldName === 'AND' && Array.isArray(value)) {
-      conditions.push(handleAnd(value.map((w) => buildSubqueryConditions(ctx, w as WhereClause, targetModel))));
+      conditions.push(
+        handleAnd(value.map((w) => buildSubqueryConditions(ctx, w as WhereClause, targetModel, registry))),
+      );
       continue;
     }
 
     if (fieldName === 'OR' && Array.isArray(value)) {
-      conditions.push(handleOr(value.map((w) => buildSubqueryConditions(ctx, w as WhereClause, targetModel))));
+      conditions.push(
+        handleOr(value.map((w) => buildSubqueryConditions(ctx, w as WhereClause, targetModel, registry))),
+      );
       continue;
     }
 
     if (fieldName === 'NOT' && isObject(value)) {
-      conditions.push(handleNot(buildSubqueryConditions(ctx, value, targetModel)));
+      conditions.push(handleNot(buildSubqueryConditions(ctx, value, targetModel, registry)));
       continue;
     }
 
     // Find field metadata
     const fieldMetadata = targetModel.fields.find((f) => f.name === fieldName);
     if (!fieldMetadata) continue;
+
+    // A relation key recurses through the same builder the top level uses; its text is relative to the target row
+    if (fieldMetadata.type === 'relation') {
+      const relationCondition = compileRelationKey(ctx, fieldMetadata, value, targetModel, registry);
+      if (relationCondition.text) conditions.push(relationCondition);
+      continue;
+    }
 
     // Handle operator object
     if (isOperatorShape(value, fieldMetadata)) {
@@ -175,6 +220,8 @@ function compileForwardNested(
     return { text: '', vars: {} };
   }
 
+  if (relationField.isArray) return compileForwardArrayNested(ctx, relationField, nestedWhere, model, registry);
+
   const conditions: QueryFragment[] = [];
 
   // Build conditions for each nested field
@@ -207,6 +254,18 @@ function compileForwardNested(
     // Find nested field metadata
     const nestedFieldMetadata = targetModel.fields.find((f) => f.name === nestedField);
     if (!nestedFieldMetadata) continue;
+
+    // A dotted path cannot cross a virtual relation field, so the target row is matched through the foreign key
+    if (nestedFieldMetadata.type === 'relation') {
+      const inner = compileRelationKey(ctx, nestedFieldMetadata, value, targetModel, registry);
+      if (inner.text) {
+        conditions.push({
+          text: `${fieldRef} IN (SELECT VALUE id FROM ${targetModel.tableName} WHERE ${inner.text})`,
+          vars: inner.vars,
+        });
+      }
+      continue;
+    }
 
     // Build the dot-notation field name
     const dotField = `${fieldRef}.${nestedField}`;
@@ -245,6 +304,54 @@ function compileForwardNested(
   }
 
   return joinFragments(conditions, ' AND ');
+}
+
+/**
+ * Build a nested condition for a forward array relation (many-to-many): the foreign key field holds the
+ * related ids, so each quantifier compares that array with the ids of the target rows the body matches.
+ * `every` needs a related row, as on a reverse relation.
+ */
+function compileForwardArrayNested(
+  ctx: FilterCompileContext,
+  relationField: FieldMetadata,
+  nestedWhere: WhereClause,
+  model: ModelMetadata,
+  registry: ModelRegistry,
+): QueryFragment {
+  const fieldRef = relationField.relationInfo?.fieldRef;
+  const targetModel = relationField.relationInfo ? registry[relationField.relationInfo.targetModel] : undefined;
+  if (!fieldRef || !targetModel) return { text: '', vars: {} };
+
+  const table = targetModel.tableName;
+  const linked = `${fieldRef} ANYINSIDE (SELECT VALUE id FROM ${table})`;
+  const conditions: QueryFragment[] = [];
+
+  for (const [key, value] of Object.entries(nestedWhere)) {
+    assertNoRaw(key);
+    if (value === undefined || !isRelationFilterOperator(key)) continue;
+
+    const innerWhere = value as WhereClause;
+    const inner = buildSubqueryConditions(ctx, innerWhere, targetModel, registry);
+
+    if (!inner.text) {
+      if (namesUnknownField(innerWhere, targetModel)) continue;
+      conditions.push({ text: key === 'none' ? `NOT (${linked})` : linked, vars: {} });
+      continue;
+    }
+
+    const matching = `${fieldRef} ANYINSIDE (SELECT VALUE id FROM ${table} WHERE ${inner.text})`;
+    const text =
+      key === 'some'
+        ? matching
+        : key === 'none'
+          ? `NOT (${matching})`
+          : `(${linked} AND NOT (${fieldRef} ANYINSIDE (SELECT VALUE id FROM ${table} WHERE NOT (${inner.text}))))`;
+    conditions.push({ text, vars: inner.vars });
+  }
+
+  if (!conditions.length) return { text: '', vars: {} };
+
+  return conditions.length === 1 ? conditions[0]! : joinFragments(conditions, ' AND ');
 }
 
 /**
@@ -326,7 +433,7 @@ function compileReverseNested(
 
     if (isRelationFilterOperator(key)) {
       const innerWhere = value as WhereClause;
-      const innerCondition = buildSubqueryConditions(ctx, innerWhere, targetModel);
+      const innerCondition = buildSubqueryConditions(ctx, innerWhere, targetModel, registry);
 
       // A body with no condition holds for every related record: some and every (which already requires
       // a related row) need one to exist, none needs there to be none

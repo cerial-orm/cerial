@@ -116,6 +116,27 @@ const categories = await client.db.Category.findMany({
 });
 ```
 
+A relation inside a relation filter takes the same filters as at the top level, in any direction, including array relations (`Relation[]` with a `Record[]` field) and under `NOT`, `AND` and `OR`:
+
+```typescript
+// Posts whose author has another post with this title (forward, then reverse)
+const posts = await client.db.Post.findMany({
+  where: { author: { posts: { some: { title: 'Release notes' } } } },
+});
+
+// Users who have no post written by Ann (reverse, then forward)
+const users = await client.db.User.findMany({
+  where: { NOT: { posts: { some: { author: { name: 'Ann' } } } } },
+});
+
+// Users with a post whose author has a tag named 'editor' (reverse, forward, then array relation)
+const editors = await client.db.User.findMany({
+  where: { posts: { some: { author: { tags: { some: { name: 'editor' } } } } } },
+});
+```
+
+On a reverse or array relation, `every` also requires at least one related record. An unknown field at any depth is rejected.
+
 ## Using All Filter Operators
 
 All standard filter operators work inside nested relation filters — [comparison](/filtering/comparison), [string](/filtering/string-operators), [array](/filtering/array-operators), [logical](/filtering/logical-operators), and [special](/filtering/special-operators) operators:
