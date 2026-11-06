@@ -1,0 +1,494 @@
+// ===== models/employeenoaction.ts =====
+/**
+ * Generated types for EmployeeNoAction
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+export interface EmployeeNoAction {
+  id: CerialId<string>;
+  name: string;
+  managerId?: CerialId<string> | null;
+}
+
+export interface EmployeeNoActionInput {
+  id?: string;
+  name: string;
+  managerId?: RecordIdInput<string> | null;
+}
+
+export interface EmployeeNoActionWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  managerId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  manager?: null | Omit<EmployeeNoActionWhere, '$raw'>;
+  directReports?:
+    | {
+        some?: Omit<EmployeeNoActionWhere, '$raw'>;
+        every?: Omit<EmployeeNoActionWhere, '$raw'>;
+        none?: Omit<EmployeeNoActionWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<EmployeeNoActionWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
+  AND?: EmployeeNoActionWhere[];
+  OR?: EmployeeNoActionWhere[];
+  NOT?: EmployeeNoActionWhere;
+}
+
+export type EmployeeNoActionWhereInput = EmployeeNoActionWhere;
+
+export type EmployeeNoActionFindUniqueWhere = { id: RecordIdInput<string> } & Omit<EmployeeNoActionWhere, 'id'>;
+
+export type EmployeeNoActionCreate = O.Optional<
+  O.Omit<EmployeeNoActionInput, 'manager' | 'directReports'>,
+  'id' | 'managerId'
+>;
+
+export type EmployeeNoActionNestedCreate = O.Optional<
+  O.Omit<EmployeeNoActionInput, 'manager' | 'directReports' | 'managerId'>,
+  'id'
+>;
+
+export type EmployeeNoActionCreateInput =
+  | EmployeeNoActionCreate
+  | (O.Omit<EmployeeNoActionCreate, 'managerId'> & {
+      manager?: { create: EmployeeNoActionNestedCreate } | { connect: RecordIdInput };
+      directReports?: {
+        create?: EmployeeNoActionNestedCreate | EmployeeNoActionNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type EmployeeNoActionUpdate = Partial<
+  O.Omit<EmployeeNoActionInput, 'id' | 'manager' | 'directReports' | 'managerId'>
+> & {
+  managerId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type EmployeeNoActionUpdateInput =
+  | EmployeeNoActionUpdate
+  | (O.Omit<EmployeeNoActionUpdate, 'managerId'> & {
+      manager?: { create: EmployeeNoActionNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      directReports?: {
+        create?: EmployeeNoActionNestedCreate | EmployeeNoActionNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type EmployeeNoActionUnset = {
+  managerId?: true;
+};
+
+export interface EmployeeNoActionSelectFields {
+  id?: boolean;
+  name?: boolean;
+  managerId?: boolean;
+}
+
+export type EmployeeNoActionSelect = AtLeastOne<EmployeeNoActionSelectFields>;
+
+export interface EmployeeNoActionOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  managerId?: 'asc' | 'desc';
+  manager?: EmployeeNoActionOrderBy;
+}
+
+export interface EmployeeNoActionGroupByKeys {
+  id?: true;
+  name?: true;
+  managerId?: true;
+}
+
+export interface EmployeeNoActionCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  managerId?: true;
+}
+
+export interface EmployeeNoActionMinMaxAggregate {
+  id?: true;
+  name?: true;
+  managerId?: true;
+}
+
+export interface EmployeeNoActionGroupAggregate {
+  id?: true;
+  name?: true;
+  managerId?: true;
+}
+
+export interface EmployeeNoActionGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  managerId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; managerId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; managerId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; managerId?: 'asc' | 'desc' };
+}
+
+export interface EmployeeNoActionGroupByArgs {
+  by: EmployeeNoActionGroupByKeys;
+  where?: EmployeeNoActionWhere;
+  _count?: true | EmployeeNoActionCountAggregate;
+  _min?: EmployeeNoActionMinMaxAggregate;
+  _max?: EmployeeNoActionMinMaxAggregate;
+  _group?: EmployeeNoActionGroupAggregate;
+  orderBy?: EmployeeNoActionGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface EmployeeNoActionGroupByAggregates {
+  _count: { _all: number; id: number; name: number; managerId: number };
+  _min: {
+    id: NonNullable<EmployeeNoAction['id']> | null;
+    name: NonNullable<EmployeeNoAction['name']> | null;
+    managerId: NonNullable<EmployeeNoAction['managerId']> | null;
+  };
+  _max: {
+    id: NonNullable<EmployeeNoAction['id']> | null;
+    name: NonNullable<EmployeeNoAction['name']> | null;
+    managerId: NonNullable<EmployeeNoAction['managerId']> | null;
+  };
+  _group: {
+    id: GroupMember<EmployeeNoAction['id']>[];
+    name: GroupMember<EmployeeNoAction['name']>[];
+    managerId: (GroupMember<EmployeeNoAction['managerId']> | null)[];
+  };
+}
+
+export type EmployeeNoActionGroupByResult<A extends EmployeeNoActionGroupByArgs> = GroupByRow<
+  EmployeeNoAction,
+  A,
+  EmployeeNoActionGroupByAggregates
+>;
+
+export interface EmployeeNoActionInclude {
+  manager?:
+    | boolean
+    | {
+        select?: EmployeeNoActionSelect;
+        where?: EmployeeNoActionWhere;
+        include?: EmployeeNoActionInclude;
+      };
+  directReports?:
+    | boolean
+    | {
+        select?: EmployeeNoActionSelect;
+        where?: EmployeeNoActionWhere;
+        orderBy?: EmployeeNoActionOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: EmployeeNoActionInclude;
+      };
+}
+
+export type EmployeeNoAction$Relations = {
+  manager: { type: EmployeeNoAction; include: EmployeeNoActionInclude };
+  directReports: { type: EmployeeNoAction[]; include: EmployeeNoActionInclude };
+};
+
+export type GetEmployeeNoActionIncludePayload<I extends EmployeeNoActionInclude | undefined> =
+  I extends EmployeeNoActionInclude
+    ? Pick<
+        {
+          manager: I['manager'] extends true
+            ? EmployeeNoAction
+            : I['manager'] extends {
+                  select: infer S extends EmployeeNoActionSelect;
+                  include: infer NI extends EmployeeNoActionInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeNoAction
+                    ? ResolveFieldSelect<EmployeeNoAction[P], S[P]>
+                    : never;
+                } & GetEmployeeNoActionIncludePayload<NI>
+              : I['manager'] extends { select: infer S extends EmployeeNoActionSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeNoAction
+                      ? ResolveFieldSelect<EmployeeNoAction[P], S[P]>
+                      : never;
+                  }
+                : I['manager'] extends { include: infer NI extends EmployeeNoActionInclude }
+                  ? EmployeeNoAction & GetEmployeeNoActionIncludePayload<NI>
+                  : EmployeeNoAction;
+          directReports: I['directReports'] extends true
+            ? EmployeeNoAction[]
+            : I['directReports'] extends {
+                  select: infer S extends EmployeeNoActionSelect;
+                  include: infer NI extends EmployeeNoActionInclude;
+                }
+              ? ({
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeNoAction
+                    ? ResolveFieldSelect<EmployeeNoAction[P], S[P]>
+                    : never;
+                } & GetEmployeeNoActionIncludePayload<NI>)[]
+              : I['directReports'] extends { select: infer S extends EmployeeNoActionSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeNoAction
+                      ? ResolveFieldSelect<EmployeeNoAction[P], S[P]>
+                      : never;
+                  }[]
+                : I['directReports'] extends { include: infer NI extends EmployeeNoActionInclude }
+                  ? (EmployeeNoAction & GetEmployeeNoActionIncludePayload<NI>)[]
+                  : EmployeeNoAction[];
+        },
+        Extract<keyof I, keyof EmployeeNoAction$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetEmployeeNoActionPayload<
+  S extends EmployeeNoActionSelect | undefined = undefined,
+  I extends EmployeeNoActionInclude | undefined = undefined,
+> = A.Compute<
+  S extends EmployeeNoActionSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EmployeeNoAction
+          ? ResolveFieldSelect<EmployeeNoAction[K], S[K]>
+          : never;
+      } & GetEmployeeNoActionIncludePayload<I>
+    : I extends EmployeeNoActionInclude
+      ? EmployeeNoAction & GetEmployeeNoActionIncludePayload<I>
+      : EmployeeNoAction,
+  'flat'
+>;
+
+export interface EmployeeNoActionModel {
+  findOne<
+    S extends EmployeeNoActionSelect | undefined = undefined,
+    I extends EmployeeNoActionInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: EmployeeNoActionWhere;
+    select?: SelectArg<S, EmployeeNoActionSelectFields>;
+    include?: IncludeArg<I, EmployeeNoActionInclude>;
+    compute?: C & { [K in keyof C & (keyof EmployeeNoAction | keyof EmployeeNoActionWhere)]?: never };
+    orderBy?: EmployeeNoActionOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetEmployeeNoActionPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends EmployeeNoActionSelect | undefined = undefined,
+    I extends EmployeeNoActionInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: EmployeeNoActionWhere;
+    select?: SelectArg<S, EmployeeNoActionSelectFields>;
+    compute?: C & { [K in keyof C & (keyof EmployeeNoAction | keyof EmployeeNoActionWhere)]?: never };
+    orderBy?: EmployeeNoActionOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, EmployeeNoActionInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetEmployeeNoActionPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends EmployeeNoActionSelect | undefined = undefined,
+    I extends EmployeeNoActionInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: EmployeeNoActionFindUniqueWhere;
+    select?: SelectArg<S, EmployeeNoActionSelectFields>;
+    include?: IncludeArg<I, EmployeeNoActionInclude>;
+    compute?: C & { [K in keyof C & (keyof EmployeeNoAction | keyof EmployeeNoActionWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetEmployeeNoActionPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<
+    S extends EmployeeNoActionSelect | undefined = undefined,
+    I extends EmployeeNoActionInclude | undefined = undefined,
+  >(options: {
+    data: EmployeeNoActionCreateInput;
+    select?: SelectArg<S, EmployeeNoActionSelectFields>;
+    include?: IncludeArg<I, EmployeeNoActionInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeNoActionPayload<S, I>>;
+
+  updateMany<
+    S extends EmployeeNoActionSelect | undefined = undefined,
+    I extends EmployeeNoActionInclude | undefined = undefined,
+    D extends EmployeeNoActionUpdateInput = EmployeeNoActionUpdateInput,
+  >(options: {
+    where: EmployeeNoActionWhere;
+    data: DataArg<D, EmployeeNoActionUpdateInput>;
+    unset?: SafeUnset<EmployeeNoActionUnset, D>;
+    select?: SelectArg<S, EmployeeNoActionSelectFields>;
+    include?: IncludeArg<I, EmployeeNoActionInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeNoActionPayload<S, I>[]>;
+
+  updateUnique<
+    S extends EmployeeNoActionSelect | undefined = undefined,
+    I extends EmployeeNoActionInclude | undefined = undefined,
+    D extends EmployeeNoActionUpdateInput = EmployeeNoActionUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EmployeeNoActionFindUniqueWhere;
+    data: DataArg<D, EmployeeNoActionUpdateInput>;
+    unset?: SafeUnset<EmployeeNoActionUnset, D>;
+    select?: SelectArg<S, EmployeeNoActionSelectFields>;
+    include?: IncludeArg<I, EmployeeNoActionInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EmployeeNoAction | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEmployeeNoActionPayload<S, I>, R>>;
+
+  upsert<
+    S extends EmployeeNoActionSelect | undefined = undefined,
+    I extends EmployeeNoActionInclude | undefined = undefined,
+    D extends EmployeeNoActionUpdateInput = EmployeeNoActionUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EmployeeNoActionFindUniqueWhere;
+    create: EmployeeNoActionCreateInput;
+    update?: DataArg<D, EmployeeNoActionUpdateInput>;
+    unset?: SafeUnset<EmployeeNoActionUnset, D>;
+    select?: SelectArg<S, EmployeeNoActionSelectFields>;
+    include?: IncludeArg<I, EmployeeNoActionInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEmployeeNoActionPayload<S, I>, R>>;
+
+  upsert<
+    S extends EmployeeNoActionSelect | undefined = undefined,
+    I extends EmployeeNoActionInclude | undefined = undefined,
+    D extends EmployeeNoActionUpdateInput = EmployeeNoActionUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EmployeeNoActionWhere;
+    create: EmployeeNoActionCreateInput;
+    update?: DataArg<D, EmployeeNoActionUpdateInput>;
+    unset?: SafeUnset<EmployeeNoActionUnset, D>;
+    select?: SelectArg<S, EmployeeNoActionSelectFields>;
+    include?: IncludeArg<I, EmployeeNoActionInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEmployeeNoActionPayload<S, I>, R>>;
+
+  deleteMany(options: { where: EmployeeNoActionWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EmployeeNoActionFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EmployeeNoAction | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EmployeeNoAction, R>>;
+
+  count(where?: EmployeeNoActionWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends EmployeeNoActionGroupByArgs>(
+    args: GroupByArg<A, EmployeeNoActionGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<EmployeeNoActionGroupByResult<A>[]>;
+
+  exists(where?: EmployeeNoActionWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: EmployeeNoActionWhere }): Promise<import('cerial').CerialLiveHandle<EmployeeNoAction>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

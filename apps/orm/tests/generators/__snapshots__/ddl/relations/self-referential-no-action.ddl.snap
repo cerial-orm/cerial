@@ -1,0 +1,4 @@
+-- EmployeeNoAction
+DEFINE TABLE OVERWRITE employee_no_action SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE employee_no_action TYPE string;
+DEFINE FIELD OVERWRITE managerId ON TABLE employee_no_action TYPE option<record<employee_no_action> | null>;

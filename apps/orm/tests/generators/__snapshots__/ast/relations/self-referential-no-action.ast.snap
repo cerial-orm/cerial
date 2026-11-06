@@ -1,0 +1,132 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "managerId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "managerId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "EmployeeNoAction"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "key",
+              "value": "noActionManages"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "onDelete",
+              "value": "NoAction"
+            }
+          ],
+          "isOptional": true,
+          "name": "manager",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "EmployeeNoAction"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "key",
+              "value": "noActionManages"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "directReports",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "EmployeeNoAction",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ]
+}

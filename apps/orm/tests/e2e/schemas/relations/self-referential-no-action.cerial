@@ -1,0 +1,9 @@
+# Employee with manager and direct reports where deleting a manager changes nothing about its reports.
+# NoAction leaves no dependent statement, so deleteMany takes the plain delete builder.
+model EmployeeNoAction {
+  id Record @id
+  name String
+  managerId Record? @nullable
+  manager Relation? @field(managerId) @model(EmployeeNoAction) @key(noActionManages) @onDelete(NoAction)
+  directReports Relation[] @model(EmployeeNoAction) @key(noActionManages)
+}

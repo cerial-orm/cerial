@@ -296,6 +296,7 @@ import type {
   ProfileSingleSided,
   RelObjCompany,
   RelObjEmployee,
+  EmployeeNoAction,
   Person,
   Assistant,
   EmployeeSingleSided,
@@ -540,6 +541,7 @@ import type {
   ProfileSingleSidedModel,
   RelObjCompanyModel,
   RelObjEmployeeModel,
+  EmployeeNoActionModel,
   PersonModel,
   AssistantModel,
   EmployeeSingleSidedModel,
@@ -792,6 +794,7 @@ export interface TypedDb {
   ProfileSingleSided: ProfileSingleSidedModel;
   RelObjCompany: RelObjCompanyModel;
   RelObjEmployee: RelObjEmployeeModel;
+  EmployeeNoAction: EmployeeNoActionModel;
   Person: PersonModel;
   Assistant: AssistantModel;
   EmployeeSingleSided: EmployeeSingleSidedModel;
@@ -1885,6 +1888,10 @@ export class CerialClient {
 
   get RelObjEmployee(): RelObjEmployeeModel {
     return this._ensureDb().RelObjEmployee;
+  }
+
+  get EmployeeNoAction(): EmployeeNoActionModel {
+    return this._ensureDb().EmployeeNoAction;
   }
 
   get Person(): PersonModel {

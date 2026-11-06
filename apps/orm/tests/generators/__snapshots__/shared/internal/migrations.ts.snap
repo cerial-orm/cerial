@@ -248,6 +248,7 @@ export type ModelName =
   | 'ProfileSingleSided'
   | 'RelObjCompany'
   | 'RelObjEmployee'
+  | 'EmployeeNoAction'
   | 'Person'
   | 'Assistant'
   | 'EmployeeSingleSided'
@@ -495,6 +496,7 @@ export const modelNames = [
   'ProfileSingleSided',
   'RelObjCompany',
   'RelObjEmployee',
+  'EmployeeNoAction',
   'Person',
   'Assistant',
   'EmployeeSingleSided',
@@ -752,6 +754,7 @@ export const modelFingerprints: Record<ModelName, string> = {
   ProfileSingleSided: '6f4816a8ba00cc7776128e8a1906ef13e0aa729994281c68ee605cf23e4ccac3',
   RelObjCompany: '5d512968602064676a7904c948c2fa20fa3f782c22602c0029526cb8c79e3086',
   RelObjEmployee: '3591402b0752be98d7479d58e6f464b9873a1eb3e4fe4713f552e76805e9631a',
+  EmployeeNoAction: '5836fb0818b00352a7499711e5b69637860e5c9e4cb03531e34d6a754c8c29ae',
   Person: 'c2ae01272ff373be9a487be40aad72b4a043f9759575332fc05526cd40177255',
   Assistant: '9f55d46269e9a225832cce9e8e78124b0342a6e039ee732d33c0cb1621dc69e4',
   EmployeeSingleSided: 'f56785ba6c187c2372db566c408da0b8d59419c90e2f16299f3f44fa580b5707',
@@ -762,7 +765,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = '959171f85a6d449c2806dc6ad719cc7a3b1f47fc3e9db0d3feaf408fda07a387';
+export const wholeSchemaFingerprint = '45b4b505dd9fbc6cbe8bab5783c2633a140f56af0e24ab59f7637fc223031bb2';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

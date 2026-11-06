@@ -2478,6 +2478,14 @@ export const manifest = deepFreeze({
       indexes: [],
     },
     {
+      name: 'employee_no_action',
+      fields: [
+        { path: ['name'], kind: 'string' },
+        { path: ['managerId'], kind: 'none | null | record<employee_no_action>' },
+      ],
+      indexes: [],
+    },
+    {
       name: 'person',
       fields: [
         { path: ['name'], kind: 'string' },

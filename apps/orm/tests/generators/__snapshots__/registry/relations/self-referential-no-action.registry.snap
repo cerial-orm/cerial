@@ -1,0 +1,67 @@
+{
+  "models": {
+    "EmployeeNoAction": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "managerId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "manager",
+          "relationInfo": {
+            "fieldRef": "managerId",
+            "isReverse": false,
+            "key": "noActionManages",
+            "onDelete": "NoAction",
+            "targetModel": "EmployeeNoAction",
+            "targetTable": "employee_no_action"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "directReports",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "noActionManages",
+            "targetModel": "EmployeeNoAction",
+            "targetTable": "employee_no_action"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "EmployeeNoAction",
+      "tableName": "employee_no_action"
+    }
+  }
+}

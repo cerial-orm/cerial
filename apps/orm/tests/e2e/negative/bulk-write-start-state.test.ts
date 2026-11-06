@@ -10,19 +10,23 @@
  * the write reached, through a direct call and all three `$transaction` modes. The positive cases keep the
  * ordinary results, counts, return shapes and cascades unchanged.
  *
- * Schemas: one-to-many (Author, PostRequired), self-referential (EmployeeWithReports)
+ * Schemas: one-to-many (Author, PostRequired), self-referential (EmployeeWithReports, EmployeeNoAction)
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import type { CerialQueryPromise } from 'cerial';
 import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
-const ALL_TABLES = [...tables.oneToManyRequired, ...tables.selfRefOneToManyWithReverse];
+const ALL_TABLES = [
+  ...tables.oneToManyRequired,
+  ...tables.selfRefOneToManyWithReverse,
+  ...tables.selfRefOneToManyNoAction,
+];
 
 type Mode = 'direct' | 'array' | 'callback' | 'manual';
 const MODES: readonly Mode[] = ['direct', 'array', 'callback', 'manual'];
 
-type Models = Pick<CerialClient['db'], 'Author' | 'PostRequired' | 'EmployeeWithReports'>;
+type Models = Pick<CerialClient['db'], 'Author' | 'PostRequired' | 'EmployeeWithReports' | 'EmployeeNoAction'>;
 
 /** The bare id of a row (`p1`), without the table prefix or the angle brackets of a complex id */
 const idOf = (id: { toString(): string }): string =>
@@ -181,17 +185,29 @@ describe('Bulk writes select their rows first — negative and positive cases', 
       expect(await postIds()).toEqual(['p3']);
     });
 
+    // Ids are scanned in sorted order, so the row the write changes the filter for (e-b, the only 'x') is
+    // reached before the row (e-c) that only the starting state selects. EmployeeNoAction has no dependent
+    // statements, so this goes through the plain delete builder rather than the cascade one
     test('a self relation deletes the rows the filter selects at the start', async () => {
+      const { a, b, c } = await seedNoActionEmployees();
+      const where = { manager: { directReports: { some: { name: 'x' } } } };
+      expect(sorted((await client.db.EmployeeNoAction.findMany({ where })).map((r) => idOf(r.id)))).toEqual([b, c]);
+
+      const count = await run(mode, (m) => m.EmployeeNoAction.deleteMany({ where }));
+
+      expect(count).toBe(2);
+      expect((await client.db.EmployeeNoAction.findMany()).map((r) => idOf(r.id))).toEqual([a]);
+    });
+
+    test('a self relation with dependents deletes the rows the filter selects at the start', async () => {
       const { a, b, c } = await seedEmployees();
       const where = { manager: { directReports: { some: { name: 'x' } } } };
-      expect(sorted((await client.db.EmployeeWithReports.findMany({ where })).map((r) => idOf(r.id)))).toEqual(
-        sorted([idOf(b), idOf(c)]),
-      );
+      expect(sorted((await client.db.EmployeeWithReports.findMany({ where })).map((r) => idOf(r.id)))).toEqual([b, c]);
 
       const count = await run(mode, (m) => m.EmployeeWithReports.deleteMany({ where }));
 
       expect(count).toBe(2);
-      expect((await client.db.EmployeeWithReports.findMany()).map((r) => idOf(r.id))).toEqual([idOf(a)]);
+      expect((await client.db.EmployeeWithReports.findMany()).map((r) => idOf(r.id))).toEqual([a]);
     });
   });
 
@@ -220,11 +236,11 @@ describe('Bulk writes select their rows first — negative and positive cases', 
 
       const rows = await run(mode, (m) => m.EmployeeWithReports.updateMany({ where, data: { name: 'z' } }));
 
-      expect(sorted(rows.map((r) => idOf(r.id)))).toEqual(sorted([idOf(b), idOf(c)]));
+      expect(sorted(rows.map((r) => idOf(r.id)))).toEqual([b, c]);
       const names = Object.fromEntries(
         (await client.db.EmployeeWithReports.findMany()).map((r) => [idOf(r.id), r.name]),
       );
-      expect(names).toEqual({ [idOf(a)]: 'boss', [idOf(b)]: 'z', [idOf(c)]: 'z' });
+      expect(names).toEqual({ [a]: 'boss', [b]: 'z', [c]: 'z' });
     });
 
     test('an ordinary filter returns the updated rows and leaves the others', async () => {
@@ -347,12 +363,28 @@ describe('Bulk writes select their rows first — negative and positive cases', 
     );
   });
 
-  /** a (boss) manages b ('x') and c ('w'); a has no manager */
+  /**
+   * a (boss) manages b ('x') and c ('w'); a has no manager. Explicit ids because rows are scanned in id order:
+   * b is written before c, and writing b is what changes the filter c was selected by.
+   */
   async function seedEmployees() {
-    const a = await client.db.EmployeeWithReports.create({ data: { name: 'boss' } });
-    const b = await client.db.EmployeeWithReports.create({ data: { name: 'x', manager: { connect: a.id } } });
-    const c = await client.db.EmployeeWithReports.create({ data: { name: 'w', manager: { connect: a.id } } });
+    const a = await client.db.EmployeeWithReports.create({ data: { id: 'e-a', name: 'boss' } });
+    const b = await client.db.EmployeeWithReports.create({
+      data: { id: 'e-b', name: 'x', manager: { connect: a.id } },
+    });
+    const c = await client.db.EmployeeWithReports.create({
+      data: { id: 'e-c', name: 'w', manager: { connect: a.id } },
+    });
 
-    return { a: a.id, b: b.id, c: c.id };
+    return { a: idOf(a.id), b: idOf(b.id), c: idOf(c.id) };
+  }
+
+  /** The same tree on the model whose self relation leaves no dependent statement */
+  async function seedNoActionEmployees() {
+    const a = await client.db.EmployeeNoAction.create({ data: { id: 'e-a', name: 'boss' } });
+    const b = await client.db.EmployeeNoAction.create({ data: { id: 'e-b', name: 'x', manager: { connect: a.id } } });
+    const c = await client.db.EmployeeNoAction.create({ data: { id: 'e-c', name: 'w', manager: { connect: a.id } } });
+
+    return { a: idOf(a.id), b: idOf(b.id), c: idOf(c.id) };
   }
 });

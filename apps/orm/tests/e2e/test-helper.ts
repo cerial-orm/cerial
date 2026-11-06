@@ -150,6 +150,7 @@ export const tables = {
   selfRefOneToOneWithReverse: ['assistant'],
   selfRefOneToMany: ['employee_single_sided'],
   selfRefOneToManyWithReverse: ['employee_with_reports'],
+  selfRefOneToManyNoAction: ['employee_no_action'],
   selfRefTree: ['category_tree'],
   selfRefManyToManySymmetric: ['friend'],
   selfRefSingleSidedArray: ['social_user'],

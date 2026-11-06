@@ -240,6 +240,7 @@ export type * from './usersinglesided.js';
 export type * from './profilesinglesided.js';
 export type * from './relobjcompany.js';
 export type * from './relobjemployee.js';
+export type * from './employeenoaction.js';
 export type * from './person.js';
 export type * from './assistant.js';
 export type * from './employeesinglesided.js';
