@@ -47,6 +47,34 @@ export interface Pattern extends Rule {
  * digit; the code prefix is then named on its own, and it is the only prefix
  * the scan lets past.
  */
+/**
+ * A decision (D) or finding (F) id used as a reference: parenthesised, in a
+ * list, before a colon, or next to a word that makes it a reference. A bare
+ * id stays legal, because `'D1'` is test data, `F16`, `F32` and `F64` are SDK classes
+ * and `F2` or `Shift+F12` are keys. The lookbehind skips an id glued to a word,
+ * a hyphen (an error code), a plus (a key chord), a slash or a quote; the
+ * lookahead skips a call, a quote and a longer word.
+ */
+const ID = String.raw`(?:D|F(?!(?:16|32|64)\b))\d{1,3}`;
+const START = String.raw`(?<![\w+/'"\x60-])`;
+const END = String.raw`(?![\w'"\x60(])`;
+const LEAD = String.raw`(?:enforces?|enforced|per|under|see|finding|decision|fix(?:es)?)`;
+const TRAIL = String.raw`(?:moved|shape|payload|finding|decision|fix|rule|case|supersedes|superseded)`;
+const DECISION_ID = new RegExp(
+  [
+    // Parenthesised, alone or listed; F2 and F12 alone in parentheses name keys.
+    String.raw`\((?!F(?:2|12)\))${ID}(?:,\s*${ID})*\)`,
+    // A comma list, with an optional `and` before the last.
+    String.raw`${START}${ID}(?:,\s*(?:and\s+)?${ID})+${END}`,
+    // Before a colon.
+    String.raw`${START}${ID}:(?=\s|$)`,
+    // After a word that cites it.
+    String.raw`\b${LEAD}\s+${ID}${END}`,
+    // Before a word that makes it a name for a decision or a finding.
+    String.raw`${START}${ID}\s+${TRAIL}\b`,
+  ].join('|'),
+);
+
 export const TRACKER_PATTERNS: readonly Pattern[] = [
   {
     rule: 'tracker.decision-record',
@@ -98,8 +126,8 @@ export const TRACKER_PATTERNS: readonly Pattern[] = [
   {
     rule: 'tracker.decision-id',
     gate: 'planning identifier',
-    regex: /\(D\d{1,3}(?:,\s*D\d{1,3})*\)|(?<![\w-])D\d{1,3}:(?=\s|$)/,
-    hint: 'A planning decision id. State the decision instead.',
+    regex: DECISION_ID,
+    hint: 'A planning decision or finding id. State the decision or the behaviour instead.',
   },
   {
     rule: 'tracker.feature-id',
