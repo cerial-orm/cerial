@@ -17,7 +17,7 @@ If both exist, the TypeScript config takes priority.
 :::warning
 `cerial.config.ts` loads under **Bun** and under **Node.js 22.12 or newer**, where Cerial brings its own TypeScript loader. On an older Node, use `cerial.config.json` or upgrade.
 
-This note covers more than the config. Every way of finding a TypeScript schema (the `*.schema.ts` suffix, an [entry module](#entry-modules), listed [`files`](#listed-files)) imports and runs your code during generation, just as `cerial.config.ts` does. An entry module widens that, because every module it imports runs too. Generate only from schemas you trust. This holds in a project that mixes TypeScript modules with `.cerial` files too. See [Finding Your Schemas](/schema/typescript/discovery).
+This note covers more than the config. Every way of finding a TypeScript schema (the `*.schema.ts` suffix, an [entry module](#entry-modules), listed [`files`](#listed-files)) imports and runs your code during generation, just as `cerial.config.ts` does. An entry module widens that, because every module it imports runs too. Generate only from schemas you trust. This holds in a project that mixes TypeScript modules with `.cerial` files too. `migrate` and `convert` run the same code, and `format` runs the config. See [what each command runs](/schema/typescript/discovery#what-each-command-runs).
 :::
 
 ### TypeScript Config
@@ -249,6 +249,8 @@ Without CLI flags, a root config, or folder configs, Cerial scans the current di
 - `index.cerial`
 
 A directory containing any of these files is treated as a schema root. All `.cerial` files in that directory are included.
+
+With no `.cerial` file in the project at all, every `*.schema.ts` under the project root is a schema module and is imported (see [what each command runs](/schema/typescript/discovery#what-each-command-runs)).
 
 If multiple schema roots are found, Cerial requires a config file to know how to handle them. It'll point you to `cerial init` to set one up.
 

@@ -279,7 +279,7 @@ A package-provided field set is refused rather than expanded. Convert does not l
 
 ## Conversion runs your code
 
-`--to cerial` imports your TypeScript modules and executes them, as `cerial generate` and `cerial.config.ts` do. Convert only schemas you trust. See [Finding Your Schemas](/schema/typescript/discovery#generation-runs-your-code) and the note on [the config loader](/cli/configuration#config-file-formats).
+Both directions run your `cerial.config.ts`, and both import every TypeScript schema module the project has: `--to cerial` to convert them, and `--to ts` because a project can hold `.cerial` files and modules side by side. A project of `.cerial` files alone has no module to import. Convert only projects you trust. See [what each command runs](/schema/typescript/discovery#what-each-command-runs) and the note on [the config loader](/cli/configuration#config-file-formats).
 
 ## Exit codes
 
