@@ -296,6 +296,22 @@ development branch and is not available on npm.
   make one nested value overwrite or drop another. Every bound value now gets a
   unique name.
 
+- Object fields in a relation filter were compared as one whole value instead
+  of by sub-field. That is the same value test a plain equality uses, so a
+  filter such as
+  `none: { addr: { city: 'Oslo' } }` or
+  `NOT: { manager: { addr: { city: 'Oslo' } } }` matched more rows than it
+  says, in the client methods too: `deleteMany` with the second form removed
+  rows the filter keeps. It covers object fields, arrays of objects and tuple
+  fields, at any depth. Present in 0.2.0. These fields now compile by
+  sub-field inside a relation filter, as they do at the top level of a `where`.
+
+- A tuple index key in a filter, such as `coords: { 1: 5 }`, was read with a
+  lenient number parse. A key like `'1 anything'` filtered on index 1, and a
+  key holding a newline reached the refusal message unchanged, so a request body
+  could write forged lines into a log that prints the message. Present in
+  0.2.0. A tuple index key must now be all digits with no leading zero.
+
 ### Added
 
 - A raw query hatch for SurrealQL the typed API has no position for: graph
@@ -1295,6 +1311,24 @@ development branch and is not available on npm.
   unique write methods and the exported where helpers) refuse `relation: {}`,
   bodies equivalent to it and an empty operator object such as `age: {}`, and
   name the explicit forms; `some: {}` and `isEmpty` stay allowed.
+- Object fields in a relation filter compile by sub-field: an object field, an
+  array of objects or a tuple field inside `some`, `every`, `none` or a to-one
+  relation filter matches on the sub-fields you name, at any depth and under
+  `AND`, `OR` and `NOT`. Filters that relied on the whole-value comparison return
+  different rows. To match a whole object, name each sub-field:
+  `posts: { some: { meta: { source: 'web', rank: 1 } } }`.
+- A tuple index key in a filter must be all digits with no leading zero.
+  `'1'` still works; `'01'`, `'1e0'`, `'1 anything'` and a key holding a newline
+  are refused as unknown fields. Use the element name or the plain index:
+  `coords: { 1: 5 }` or `coords: { lng: 5 }`.
+- An empty NOT beside a real condition is refused on writes (`deleteMany`,
+  `updateMany`, `deleteUnique`, `updateUnique`, the update half of `upsert`,
+  nested update and delete, and the exported where helpers when used for
+  writes), at every position in the `where`. That covers `NOT: {}` and a `NOT`
+  whose fields are all `undefined`, such as `NOT: { name: body.name }` when the
+  request left `name` out. Reads keep their meaning, where `NOT: {}` matches no
+  rows. Write the condition you mean, or drop the `NOT`. `NOT: { OR: [] }` is
+  still allowed and matches every row.
 - The txn option of a model method must be a transaction from `$transaction`, or
   left out. Any other value, `null` included, is refused with a
   `CerialValidationError` naming `txn` before the query runs.
