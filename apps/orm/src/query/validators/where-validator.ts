@@ -151,6 +151,53 @@ function sizedFilterIssues(
 const QUANTIFIERS = ['some', 'every', 'none'];
 const LOGICAL_KEYS = ['AND', 'OR', 'NOT'];
 
+/**
+ * The bodies under an AND, OR or NOT key, each with its path. A shape the compilers would skip (AND or OR that is not
+ * an array of objects, NOT that is not an object) is reported, so it cannot widen or invert a filter at any depth.
+ */
+function logicalBodies(
+  key: string,
+  value: unknown,
+  path: string,
+  errors: CerialValidationIssue[],
+): Array<[Record<string, unknown>, string]> {
+  if (key === 'NOT') {
+    if (isObject(value)) return [[value, `${path}.NOT`]];
+    errors.push({ path: `${path}.NOT`, message: 'NOT must be an object' });
+
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    errors.push({ path: `${path}.${key}`, message: `${key} must be an array` });
+
+    return [];
+  }
+
+  const bodies: Array<[Record<string, unknown>, string]> = [];
+  value.forEach((item, i) => {
+    if (isObject(item)) bodies.push([item, `${path}.${key}[${i}]`]);
+    else errors.push({ path: `${path}.${key}[${i}]`, message: `${key} items must be objects` });
+  });
+
+  return bodies;
+}
+
+/** A some, every or none body must be a filter object; the compilers skip anything else. */
+function quantifierBodyIssue(quantifier: string, value: unknown, path: string): CerialValidationIssue[] {
+  if (isObject(value)) return [];
+  const got = Array.isArray(value) ? 'an array' : value === null ? 'null' : typeof value;
+
+  return [{ path, message: `The ${quantifier} filter must be an object, got ${got}` }];
+}
+
+/** Every key of an operator object must be a registered operator; the compiler drops the others. */
+function operatorKeyIssues(filter: Record<string, unknown>, path: string): CerialValidationIssue[] {
+  return Object.keys(filter)
+    .filter((op) => !isRegisteredOperator(op))
+    .map((op) => ({ path: `${path}.${op}`, message: `Unknown operator: ${op}` }));
+}
+
 function unknownSubField(path: string, fieldPath: string, model: ModelMetadata): CerialValidationIssue {
   return {
     path,
@@ -176,6 +223,7 @@ function validateObjectFilter(
 
     if (isArray) {
       if (QUANTIFIERS.includes(key)) {
+        errors.push(...quantifierBodyIssue(key, value, `${path}.${key}`));
         if (isObject(value))
           errors.push(...validateObjectFilter(value, fields, isFlexible, false, model, `${path}.${key}`, fieldPath));
       } else {
@@ -185,10 +233,8 @@ function validateObjectFilter(
     }
 
     if (LOGICAL_KEYS.includes(key)) {
-      for (const item of key === 'NOT' ? [value] : Array.isArray(value) ? value : []) {
-        if (isObject(item))
-          errors.push(...validateObjectFilter(item, fields, isFlexible, false, model, `${path}.${key}`, fieldPath));
-      }
+      for (const [item, itemPath] of logicalBodies(key, value, path, errors))
+        errors.push(...validateObjectFilter(item, fields, isFlexible, false, model, itemPath, fieldPath));
       continue;
     }
 
@@ -198,10 +244,13 @@ function validateObjectFilter(
 
     if (!subField) {
       if (!isFlexible) errors.push(unknownSubField(subPath, subFieldPath, model));
+      // An undeclared key holds a value unless the object names an operator, and then every key must be one
+      else if (isObject(value) && !isDirectValue(value) && isOperatorObject(value))
+        errors.push(...operatorKeyIssues(value, subPath));
       continue;
     }
     errors.push(...sizedFilterIssues(subField.type, value, subPath, subFieldPath));
-    if (!isObject(value) || isDirectValue(value) || isOperatorObject(value)) continue;
+    if (!isObject(value) || isDirectValue(value)) continue;
 
     if (subField.type === 'object' && subField.objectInfo)
       errors.push(
@@ -215,6 +264,7 @@ function validateObjectFilter(
           subFieldPath,
         ),
       );
+    else errors.push(...operatorKeyIssues(value, subPath));
   }
 
   return errors;
@@ -236,6 +286,7 @@ function validateTupleFilter(
 
     if (isArray) {
       if (QUANTIFIERS.includes(key)) {
+        errors.push(...quantifierBodyIssue(key, value, `${path}.${key}`));
         if (isObject(value))
           errors.push(...validateTupleFilter(value, tupleInfo, false, model, `${path}.${key}`, fieldPath));
       } else {
@@ -253,7 +304,7 @@ function validateTupleFilter(
       continue;
     }
     errors.push(...sizedFilterIssues(element.type, value, subPath, subFieldPath));
-    if (!isObject(value) || isDirectValue(value) || isOperatorObject(value)) continue;
+    if (!isObject(value) || isDirectValue(value)) continue;
 
     if (element.type === 'object' && element.objectInfo)
       errors.push(
@@ -261,6 +312,7 @@ function validateTupleFilter(
       );
     else if (element.type === 'tuple' && element.tupleInfo)
       errors.push(...validateTupleFilter(value, element.tupleInfo, false, model, subPath, subFieldPath));
+    else errors.push(...operatorKeyIssues(value, subPath));
   }
 
   return errors;
@@ -309,6 +361,7 @@ function validateRelationFilter(
           message: `isEmpty on relation '${fieldPath}' of model ${model.name} must be a boolean`,
         });
     } else if (QUANTIFIERS.includes(key)) {
+      errors.push(...quantifierBodyIssue(key, value, `${path}.${key}`));
       if (isObject(value))
         errors.push(...validateTargetWhere(value, target, registry, `${path}.${key}`, `${fieldPath}.${key}`));
     } else if (!isReverse || LOGICAL_KEYS.includes(key)) {
@@ -345,9 +398,8 @@ function validateTargetWhere(
     if (value === undefined) continue;
 
     if (LOGICAL_KEYS.includes(key)) {
-      for (const item of key === 'NOT' ? [value] : Array.isArray(value) ? value : []) {
-        if (isObject(item)) errors.push(...validateTargetWhere(item, target, registry, `${path}.${key}`, fieldPath));
-      }
+      for (const [item, itemPath] of logicalBodies(key, value, path, errors))
+        errors.push(...validateTargetWhere(item, target, registry, itemPath, fieldPath));
     } else if (!target.fields.some((f) => f.name === key)) {
       errors.push(unknownSubField(`${path}.${key}`, `${fieldPath}.${key}`, target));
     } else {
@@ -385,6 +437,16 @@ export function validateFieldFilter(
     errors.push({
       path,
       message: `'${fieldName}' is a reverse relation on ${model.name} and cannot be compared to null; use { ${fieldName}: { isEmpty: true } } to match rows with no related records`,
+    });
+
+    return errors;
+  }
+
+  // A relation filter is a where on the target; any other value compiles to a comparison that never holds
+  if (field.type === 'relation' && filter !== null && filter !== undefined && !isObject(filter)) {
+    errors.push({
+      path,
+      message: `The filter on relation '${fieldName}' of model ${model.name} must be an object, got ${Array.isArray(filter) ? 'an array' : typeof filter}`,
     });
 
     return errors;
@@ -445,11 +507,7 @@ export function validateFieldFilter(
       return validateTupleFilter(filter, field.tupleInfo, field.isArray, model, path, fieldName);
     }
 
-    for (const [op, _value] of Object.entries(filter)) {
-      if (!isRegisteredOperator(op)) {
-        errors.push({ path: `${path}.${op}`, message: `Unknown operator: ${op}` });
-      }
-    }
+    errors.push(...operatorKeyIssues(filter, path));
   }
 
   errors.push(...sizedFilterIssues(field.type, filter, path, fieldName));
@@ -535,30 +593,9 @@ function walkWhereClause(
 
     if (value === undefined) continue;
 
-    // Handle logical operators
-    if (key === 'AND' || key === 'OR') {
-      if (!Array.isArray(value)) {
-        errors.push({ path: `${path}.${key}`, message: `${key} must be an array` });
-        continue;
-      }
-
-      for (let i = 0; i < value.length; i++) {
-        const item = value[i];
-        if (!isObject(item)) {
-          errors.push({ path: `${path}.${key}[${i}]`, message: `${key} items must be objects` });
-          continue;
-        }
-        errors.push(...walkWhereClause(item as WhereClause, model, `${path}.${key}[${i}]`, registry));
-      }
-      continue;
-    }
-
-    if (key === 'NOT') {
-      if (!isObject(value)) {
-        errors.push({ path: `${path}.NOT`, message: 'NOT must be an object' });
-        continue;
-      }
-      errors.push(...walkWhereClause(value as WhereClause, model, `${path}.NOT`, registry));
+    if (LOGICAL_KEYS.includes(key)) {
+      for (const [item, itemPath] of logicalBodies(key, value, path, errors))
+        errors.push(...walkWhereClause(item as WhereClause, model, itemPath, registry));
       continue;
     }
 

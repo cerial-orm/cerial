@@ -218,12 +218,9 @@ describe('an object pretending to be an operator', () => {
     expectValidationError(() => posts({ title: { eq: 'x', 'eq) OR (1=1': 'y' } }));
   });
 
-  test('an operator object on an object sub-key is bound whole as an equality operand', () => {
+  test('an unknown operator on an object sub-key throws', () => {
     for (const operator of ['$ne', 'eq) OR (1=1', 'eq; DROP']) {
-      const compiled = posts({ address: { city: { [operator]: 'x' } } });
-      expect(compiled.text).not.toContain(operator);
-      expect(compiled.text).not.toMatch(/['"`;]|\/\*|--/);
-      expect(compiled.vars).toEqual({ address_city_eq_inc_0: { [operator]: 'x' } });
+      expectValidationError(() => posts({ address: { city: { [operator]: 'x' } } }));
     }
   });
 

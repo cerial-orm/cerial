@@ -199,14 +199,15 @@ export function buildFieldCondition(
   const conditions: QueryFragment[] = [];
 
   for (const [op, value] of Object.entries(operators)) {
+    const handler = getOperatorHandler(op);
+    // Dropping an unknown operator would widen the filter, so fail closed; the where validator refuses it first
+    if (!handler)
+      throw new CerialValidationError(`Invalid where clause: Unknown operator: ${op}`, { field, operation: 'where' });
     if (value === undefined) continue;
 
-    const handler = getOperatorHandler(op);
-    if (handler) {
-      // Transform ID/Record field values to RecordId
-      const transformedValue = transformFieldValue(value, fieldMetadata, model);
-      conditions.push(handler(ctx, field, transformedValue, fieldMetadata));
-    }
+    // Transform ID/Record field values to RecordId
+    const transformedValue = transformFieldValue(value, fieldMetadata, model);
+    conditions.push(handler(ctx, field, transformedValue, fieldMetadata));
   }
 
   if (conditions.length === 0) {
