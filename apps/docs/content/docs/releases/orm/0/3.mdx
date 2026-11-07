@@ -395,6 +395,18 @@ development branch and is not available on npm.
   is outside the project root. See the Changed entry on writes outside the project
   root.
 
+- Control characters in an echoed key: validation errors repeated the key, operator or
+  path you passed exactly as given. A key holding a line feed, carriage return or
+  escape character wrote those bytes into whatever showed the error, such as a log
+  or a terminal, so a request body key could forge a log line or carry terminal
+  escape sequences. It is reachable wherever a key comes from request input, such
+  as a JSON filter or data body. Present in 0.2.0.
+
+  Those messages now show control characters as escapes: line feed, carriage
+  return, escape, bell, the other C0 and C1 control characters, and the Unicode line
+  and paragraph separators. Ordinary keys print as before. If you match on an error
+  message that echoes such a key, expect the escaped form.
+
 ### Added
 
 - A raw query hatch for SurrealQL the typed API has no position for: graph
@@ -910,6 +922,11 @@ development branch and is not available on npm.
   On an array relation (`Relation[]`) the operators go inside `some`, `every` or
   `none`, where they were also ignored before and now work. Directly under an
   array relation they are rejected like any other key that is not a quantifier.
+
+- `cerial migrate` (`apply`, `status`, `baseline` and plan-file runs) now escapes control
+  characters in the errors it prints, keeping its own line breaks. A server error
+  that quoted stored data could otherwise carry terminal escape sequences into
+  your shell. Ordinary text prints as before.
 
 ### Changed
 
