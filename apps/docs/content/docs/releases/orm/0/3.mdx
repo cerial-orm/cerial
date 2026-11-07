@@ -405,7 +405,18 @@ development branch and is not available on npm.
   Those messages now show control characters as escapes: line feed, carriage
   return, escape, bell, the other C0 and C1 control characters, and the Unicode line
   and paragraph separators. Ordinary keys print as before. If you match on an error
-  message that echoes such a key, expect the escaped form.
+  message that echoes such a key, expect the escaped form. The same holds for the
+  database text a failed call or `client.migrate()` repeats in its error, which can
+  hold a value you stored or sent.
+
+- Where operands of the wrong type: a where operand was passed to the database as
+  given, so `deleteMany({ where: { age: { lte: '5' } } })` on an `Int` field compared
+  the number to a string and removed or changed rows you did not mean, and a mistyped
+  `in`, `between`, `has` or `contains` operand did the same on reads. It is reachable
+  wherever a filter is built from request input, which never passed through
+  TypeScript. Present in 0.2.0. Every where operand is now checked against its field
+  with the rules `create` uses, and a mistake is refused before any query. See the
+  Changed entry on where operand types.
 
 ### Added
 
@@ -663,6 +674,10 @@ development branch and is not available on npm.
   nested write may run others.
 
 ### Fixed
+
+- `create`, `createMany` and nested creates now refuse an undeclared key in a strict
+  object field before any query, naming the field, as updates already did. Before,
+  the database refused it and its error repeated the key as given.
 
 - Regenerating now removes an output directory whose files were all stale, such
   as `internal/registry/objects/` after the last object is deleted from the
@@ -929,6 +944,19 @@ development branch and is not available on npm.
   your shell. Ordinary text prints as before.
 
 ### Changed
+
+- Where operand types are now checked against the field they filter, on reads and writes,
+  at every depth: plain fields, sized numbers, dates, ids, UUIDs, durations, bytes,
+  decimals, enum and literal members, object sub-fields and tuple elements. This covers
+  `eq`, `neq`, `not`, `gt`, `gte`, `lt`, `lte`, `in`, `notIn`, `between`, `has`, `hasAll`
+  and `hasAny` (each element), the `contains`, `startsWith` and `endsWith` strings, the
+  boolean `isNull`, `isNone`, `isDefined` and `isEmpty`, and the shorthand
+  `{ field: value }`. A wrong operand throws a validation error that names the field
+  path and the expected type. The generated types already reject these operands, so
+  only a call that bypasses them (a cast, plain JavaScript, a JSON body) is affected.
+  Pass a value of the field's type: a number for `Int`, a `Date` or a date string for
+  `Date`, an enum member for an enum, `null` only for a `@nullable` or optional field.
+  Undeclared keys of a `@flexible` object stay untyped.
 
 - Generated models, objects, tuples and literals are now `.d.ts` files by
   default, with `export type *` barrels (`enums/` stays `.ts`). With
