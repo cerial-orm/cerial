@@ -379,6 +379,13 @@ export function validateUnset(unset: Record<string, unknown>, model: ModelMetada
     // the same way: an undeclared sub-key on a strict object would otherwise emit a NONE write to a
     // path that does not exist and report success.
     if (typeof value === 'object' && value !== null) {
+      if (field.isArray && field.type === 'object') {
+        errors.push({
+          field: fieldName,
+          message: `unset on '${fieldName}' takes true only; unsetting a sub-field is not supported on an array of objects`,
+        });
+        continue;
+      }
       if (field.type === 'object' || field.type === 'tuple')
         errors.push(
           ...validateSubValue(
@@ -593,6 +600,14 @@ function validateSubValue(
     const errors: DataValidationError[] = [];
     for (const key of ['updateWhere', 'unset']) {
       if (value[key] === undefined) continue;
+      errors.push({
+        field: path,
+        message: `${path}.${key} is not supported on an array of ${field.type}s; replace the whole array with the array itself or { set }, or append with { push }`,
+      });
+    }
+    // Any other key (pop, remove, delete, ...) is not an array operation here and the builder would drop it
+    for (const key of Object.keys(value)) {
+      if (['set', 'push', 'updateWhere', 'unset'].includes(key) || value[key] === undefined) continue;
       errors.push({
         field: path,
         message: `${path}.${key} is not supported on an array of ${field.type}s; replace the whole array with the array itself or { set }, or append with { push }`,

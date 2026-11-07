@@ -232,4 +232,78 @@ describe('Unknown option keys and updateWhere on an object array — negative an
       expect(await locations()).toEqual([{ lat: 7, lng: 8 }]);
     });
   });
+  describe('array operators an array of objects does not take', () => {
+    const locations = async () => (await client.db.ObjectTestUser.findOne({ where: { name: 'Ada' } }))?.locations;
+    const original = [
+      { lat: 1, lng: 2 },
+      { lat: 3, lng: 4 },
+    ];
+    const forms: [string, Record<string, unknown>][] = [
+      ['pop', { pop: 1 }],
+      ['remove', { remove: { lat: 1 } }],
+      ['delete', { delete: { where: { lat: 1 } } }],
+      ['delete beside a push', { push: { lat: 5, lng: 6 }, delete: { where: { lat: 1 } } }],
+    ];
+
+    for (const [form, op] of forms) {
+      test(`${form} is refused on updateMany, updateUnique, upsert and in a transaction, and the array is unchanged`, async () => {
+        const ada = (await client.db.ObjectTestUser.findOne({ where: { name: 'Ada' } }))!;
+        const data = hostile({ locations: op });
+        const key = Object.keys(op).find((k) => k !== 'push')!;
+        const message = `locations.${key} is not supported on an array of objects`;
+
+        await rejects(() => client.db.ObjectTestUser.updateMany({ where: { name: 'Ada' }, data }), message);
+        await rejects(() => client.db.ObjectTestUser.updateUnique({ where: { id: ada.id }, data }), message);
+        await rejects(
+          () =>
+            client.db.ObjectTestUser.upsert({
+              where: { id: ada.id },
+              create: { name: 'N', address, locations: [] },
+              update: data,
+            }),
+          message,
+        );
+        await rejects(
+          () => client.$transaction([client.db.ObjectTestUser.updateMany({ where: { name: 'Ada' }, data })]),
+          message,
+        );
+        expect(await locations()).toEqual(original);
+      });
+    }
+
+    test('the object form of unset is refused naming the field, and the array is unchanged', async () => {
+      const ada = (await client.db.ObjectTestUser.findOne({ where: { name: 'Ada' } }))!;
+      const unset = hostile({ locations: { lat: true } });
+
+      await rejects(
+        () => client.db.ObjectTestUser.updateMany({ where: { name: 'Ada' }, data: {}, unset }),
+        "unset on 'locations' takes true only",
+      );
+      await rejects(
+        () => client.db.ObjectTestUser.updateUnique({ where: { id: ada.id }, data: {}, unset }),
+        "unset on 'locations' takes true only",
+      );
+      await rejects(
+        () =>
+          client.db.ObjectTestUser.upsert({
+            where: { id: ada.id },
+            create: { name: 'N', address, locations: [] },
+            update: {},
+            unset,
+          }),
+        "unset on 'locations' takes true only",
+      );
+      expect(await locations()).toEqual(original);
+    });
+
+    test('a single-key push or set object next to the refused forms is not affected', async () => {
+      await client.db.ObjectTestUser.updateMany({
+        where: { name: 'Ada' },
+        data: { locations: { push: [{ lat: 5, lng: 6 }] } },
+      });
+      expect(await locations()).toHaveLength(3);
+      await client.db.ObjectTestUser.updateMany({ where: { name: 'Ada' }, data: { locations: original } });
+      expect(await locations()).toEqual(original);
+    });
+  });
 });

@@ -35,6 +35,49 @@ const operations: [string, Record<string, unknown>][] = [
   ['updateWhere beside a push', { roles: { push: role, updateWhere: { where: {}, data: { level: 2 } } } }],
 ];
 
+const unsupported: [string, Record<string, unknown>, string][] = [
+  ['pop', { roles: { pop: 1 } }, 'roles.pop'],
+  ['remove', { roles: { remove: { name: 'admin' } } }, 'roles.remove'],
+  ['delete', { roles: { delete: { where: { name: 'admin' } } } }, 'roles.delete'],
+  ['delete beside a push', { roles: { push: role, delete: { where: { name: 'admin' } } } }, 'roles.delete'],
+];
+
+describe('operators an array of objects does not take', () => {
+  for (const [path, run] of paths) {
+    test.each(unsupported)(`${path} refuses %s naming the field and the supported forms`, (_label, data, field) => {
+      expect(() => run(data)).toThrow(
+        new RegExp(`${field} is not supported on an array of objects.*\\{ set \\}.*\\{ push \\}`),
+      );
+    });
+  }
+});
+
+describe('unset on an array of objects', () => {
+  const unsets: [string, Record<string, unknown>][] = [
+    ['updateMany', { roles: { level: true } }],
+    ['updateUnique', { roles: { level: true } }],
+  ];
+
+  test.each(unsets)('%s refuses the object form of unset naming the field', (name, unset) => {
+    const run = () =>
+      name === 'updateMany'
+        ? compileUpdateMany(account, { where, data: {}, unset } as never, registry)
+        : compileUpdateUnique(account, { where, data: {}, unset } as never, registry);
+
+    expect(run).toThrow(/unset on 'roles' takes true only/);
+  });
+
+  test('upsert refuses the object form of unset', () => {
+    expect(() =>
+      compileUpsert(
+        account,
+        { where, create: { roles: [] }, update: {}, unset: { roles: { level: true } } } as never,
+        registry,
+      ),
+    ).toThrow(/unset on 'roles' takes true only/);
+  });
+});
+
 describe('updateWhere and unset on an object array', () => {
   for (const [path, run] of paths) {
     test.each(operations)(`${path} refuses %s naming the field`, (_label, data) => {

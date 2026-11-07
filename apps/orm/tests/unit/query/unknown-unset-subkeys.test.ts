@@ -145,9 +145,12 @@ describe('validateUnset sub-keys on tuples', () => {
   });
 });
 
-describe('validateUnset leaves array-of-object fields alone', () => {
-  test('does not inspect an unset object on an array field', () => {
-    expect(errorsFor({ items: { anything: true } })).toEqual([]);
+describe('validateUnset on array-of-object fields', () => {
+  test('refuses an object-form unset on an array field, naming the field', () => {
+    const errors = errorsFor({ items: { anything: true } });
+
+    expect(errors.map((e) => e.field)).toEqual(['items']);
+    expect(errors[0]!.message).toContain("unset on 'items' takes true only");
   });
 });
 
