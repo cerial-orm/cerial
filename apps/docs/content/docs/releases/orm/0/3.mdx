@@ -312,6 +312,67 @@ development branch and is not available on npm.
   could write forged lines into a log that prints the message. Present in
   0.2.0. A tuple index key must now be all digits with no leading zero.
 
+- An unknown operator below the top level of a `where` was dropped instead of
+  refused. Under an object sub-field, an undeclared `@flexible` key, a tuple
+  element or a relation body, `address: { city: { startsWith2: 'O' } }` added no
+  condition, so the filter matched more rows than written. A malformed `AND`,
+  `OR` or `NOT` body at those depths (a `NOT` that is not an object, an `AND`
+  that is not an array, a `some` body that is not an object) compiled to no
+  condition in the same way. In a `deleteMany` that removed rows the filter was
+  meant to keep. It is reachable wherever a filter body comes from request
+  input. Present in 0.2.0. Unknown operators and malformed logical bodies are
+  now refused at every depth, and the query compiler throws on an operator it
+  does not know instead of skipping it.
+
+- A nested `create` inside a relation write skipped the validation a top-level
+  `create` runs, and the value transform then coerced what was left. A date
+  string written to an `Int` field of a nested record was stored as its year,
+  and other wrong-typed values were stored without a check. Present
+  in 0.2.0. Nested creates now run the same validation as a top-level `create`
+  and refuse the call, naming the field.
+
+- `push`, `set` and `unset` on an array of primitives accepted values of any
+  type. A string pushed to an `Int[]` was accepted, where a `create` would have
+  refused it. Present in 0.2.0. Each value is now checked
+  against the element type, the way a `create` checks an element.
+
+- A `Decimal` field accepted any string, `NaN` and `Infinity`. The SDK reads a
+  prefix of the string and returns `0` for what it cannot parse, so `'1,5'`,
+  `'12abc'` and `'NaN'` were stored as `0`, and a filter such as
+  `price: { gt: 'abc' }` compared against `0`. Present in 0.2.0. A decimal must
+  now be a finite number, a `CerialDecimal`, or a decimal string that reads in
+  full. See the Changed entry on decimal values.
+
+- The exported builders and `compile*` functions, and the `QueryBuilder`
+  class, accepted a relation filter or a nested write without a model registry
+  and dropped that part. A `NOT` around a relation filter then deleted every
+  row, and nested `connect`, `create` and the other nested operations reported
+  success without running. Cerial's own client always passes the registry and
+  was not affected; code that called these functions directly was. Present in
+  0.2.0. Both are now refused with a `CerialValidationError` that says the
+  registry is required.
+
+- `findUnique` by id read the rest of its `where` without the model registry,
+  so a relation filter next to the id was ignored: `findUnique({ where: { id,
+  posts: { none: {} } } })` returned the row whether or not it had posts. The
+  Present in 0.2.0. The relation filter is now applied.
+
+- A unique key passed as `undefined` still counted as the key that picks one
+  row. `upsert({ where: { email: body.email, active: true }, ... })` with
+  `email` missing from the request ran the update path on every row where
+  `active` was true. Present in 0.2.0. An `undefined` unique key is now refused
+  by name on `findUnique`, `updateUnique`, `deleteUnique` and `upsert`.
+
+- A misspelled option key on a model method was ignored. `deleteMany({ wehre:
+  { id } })` had no `where` and removed every row,. Present in 0.2.0. Every model method now
+  refuses an option key it does not take and names it.
+
+- `updateWhere`, and `unset` with a `where`, on an array of objects were
+  accepted and typed but did nothing, so a call such as
+  `update({ items: { updateWhere: { where: { sku: 'a' }, data: { qty: 2 } } } })`
+  reported success and changed no element. Present in 0.2.0. They now throw and
+  name the supported forms. See the Changed entry on object arrays.
+
 ### Added
 
 - A raw query hatch for SurrealQL the typed API has no position for: graph
@@ -1342,6 +1403,43 @@ development branch and is not available on npm.
 - Query placeholders, the internal bound-variable names, changed, and
   transaction items run without their text being rewritten. Query results are unchanged. Code that matched on
   generated variable names in compiled statements must stop doing so.
+- An unknown operator, or an `AND`, `OR`, `NOT`, `some`, `every` or `none` body
+  of the wrong shape, is refused at every depth of a `where` with a
+  `CerialValidationError` naming the path. `OR` and `AND` take an array of
+  objects, `NOT`, `some`, `every` and `none` take an object. A filter on a
+  relation takes an object as well. Filters that carried an unknown operator
+  and relied on its being dropped now throw: remove the operator, or correct
+  its name.
+- Nested creates are validated like a top-level `create`. Required fields,
+  types and unknown keys in the nested record are refused with the field named,
+  where 0.2.0 coerced them. The foreign key a reverse nested create receives
+  from its parent does not need to be passed.
+- `push`, `set` and `unset` on a primitive array refuse a value that is not the
+  element type, naming its position. Pass numbers to `Int[]` and `Float[]`,
+  strings to `String[]`, and so on, as you would to `create`.
+- Decimal values must be a finite number, a `CerialDecimal`, or a
+  decimal string read in full: digits with an optional `-`, a fraction and an exponent,
+  such as `'12.50'`, `'-3'` or `'1e3'`. A string with a space, a thousands
+  separator or comma, a trailing letter or a leading `+` is refused, and so are
+  `NaN` and `Infinity`, in data, in a filter and in `new CerialDecimal(...)`.
+  Strip the `+` and whitespace, and use `.` as the separator, before passing the
+  value.
+- The exported builders, `compile*` functions and `QueryBuilder` refuse a
+  relation filter or a nested relation operation when no model registry is
+  passed. Pass the registry as the last argument, as the client does.
+- `findUnique` by id applies relation filters in the same `where`, so a row the
+  filter excludes now returns `null`.
+- An `undefined` unique key is refused by name on `findUnique`, `updateUnique`,
+  `deleteUnique` and `upsert`. Leave the
+  key out of the `where`, or check the value first:
+  `where: body.email ? { email: body.email } : { id }`.
+- Model methods refuse an option key they do not take, with a
+  `CerialValidationError` naming the key and listing the accepted ones. `txn`
+  stays accepted everywhere. Code that passed an extra key and relied on its
+  being ignored must remove it.
+- `updateWhere` and `unset` on an array of objects throw instead of doing
+  nothing. Replace the whole array, with the array itself or `{ set }`, or add
+  elements with `{ push }`.
 
 ### Removed
 
