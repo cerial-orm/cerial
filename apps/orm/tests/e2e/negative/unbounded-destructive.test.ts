@@ -157,8 +157,12 @@ describe('Unbounded destructive statements — negative and positive cases', () 
       expect(await warehouses()).toEqual(allWarehouses);
     });
 
-    test('NOT: {} matches nothing: no throw, nothing deleted', async () => {
-      expect(await client.db.Warehouse.deleteMany({ where: { NOT: {} } })).toBe(0);
+    test('NOT: {} is refused as ambiguous: nothing deleted', async () => {
+      await expect(
+        (async () => {
+          await client.db.Warehouse.deleteMany({ where: { NOT: {} } });
+        })(),
+      ).rejects.toThrow(/ambiguous on a write/);
       expect(await warehouses()).toEqual(allWarehouses);
     });
 
@@ -330,9 +334,13 @@ describe('Unbounded destructive statements — negative and positive cases', () 
       expect(await staff()).toEqual(allStaff);
     });
 
-    test('OR: [] and NOT: {} match nothing and touch no row', async () => {
+    test('OR: [] matches nothing, and NOT: {} is refused; no row is touched', async () => {
       expect(await client.db.Warehouse.updateMany({ where: { OR: [] }, data: { capacity: 99 } })).toEqual([]);
-      expect(await client.db.Warehouse.updateMany({ where: { NOT: {} }, data: { capacity: 99 } })).toEqual([]);
+      await expect(
+        (async () => {
+          await client.db.Warehouse.updateMany({ where: { NOT: {} }, data: { capacity: 99 } });
+        })(),
+      ).rejects.toThrow(/ambiguous on a write/);
       expect(await warehouses()).toEqual(allWarehouses);
     });
 

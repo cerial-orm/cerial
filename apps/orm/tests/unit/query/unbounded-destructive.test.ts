@@ -203,7 +203,8 @@ describe('vacuous logical shapes', () => {
     const bounded =
       'BEGIN TRANSACTION;\nLET $bulk_ids_n_0 = (SELECT VALUE id FROM place WHERE false);\nDELETE $bulk_ids_n_0;\nCOMMIT TRANSACTION;';
     expect(buildDeleteQuery(place, { OR: [] }).text).toBe(bounded);
-    expect(buildDeleteQuery(place, { NOT: {} }).text).toBe(bounded);
+    // A bare NOT: {} is an empty-equivalent NOT, which a write refuses
+    expect(() => buildDeleteQuery(place, { NOT: {} })).toThrow(/ambiguous on a write/);
   });
 });
 

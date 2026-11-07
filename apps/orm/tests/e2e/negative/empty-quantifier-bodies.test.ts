@@ -59,7 +59,12 @@ function quantifierCases(
       },
       { label: `every ${label}`, where: wrap({ every: body }), expected: everyRows },
     ];
-    for (const c of base) cases.push(c, { ...c, label: `${c.label} with a sibling key`, where: withSibling(c.where) });
+    // A write refuses an empty-equivalent NOT in any position; reads keep its NOT(true) meaning
+    const refusedOnWrite = label === 'NOT of NOT of empty';
+    for (const c of base) {
+      const withFlag = { ...c, refusedOnWrite };
+      cases.push(withFlag, { ...withFlag, label: `${c.label} with a sibling key`, where: withSibling(c.where) });
+    }
   }
 
   return [...cases, ...extra];

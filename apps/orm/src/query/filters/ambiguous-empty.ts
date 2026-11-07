@@ -4,6 +4,9 @@
  * relation (`{}`, `{ AND: [] }`, `{ name: undefined }`, `{ name: {} }`), a reverse or array-FK relation body that names
  * no quantifier and no condition (`{}`, `{ some: undefined }`), an empty object or tuple field filter (`addr: {}`,
  * `addr: { city: {} }`) and an empty operator object on a field.
+ * A `NOT` whose body states no condition (`NOT: {}`, `NOT: { name: undefined }`, `NOT: { AND: [] }`, `NOT: { NOT: {} }`)
+ * is refused at every position, because beside a real condition it compiles to false and under an outer NOT it flips
+ * to true. An empty OR inside a NOT (`NOT: { OR: [] }`) is the constant false, not an absent condition, and passes.
  * Quantifier bodies (`some: {}`) and `isEmpty` keep their meaning and pass.
  */
 import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '../../types';
@@ -85,6 +88,8 @@ export function assertNoAmbiguousEmpty(
       continue;
     }
     if (key === 'NOT') {
+      if (isObject(value) && isEmptyBody(value as WhereClause, model))
+        refuse(operation, model, key, `${path}.NOT`, NOT_HINT);
       assertNoAmbiguousEmpty(value as WhereClause, model, registry, operation, `${path}.NOT`);
       continue;
     }
@@ -147,6 +152,8 @@ export function assertNoAmbiguousEmpty(
   }
 }
 
+const NOT_HINT = 'Drop the NOT, or write a real condition inside it.';
+
 const FIELD_HINT = (key: string): string =>
   `Name a condition on one of ${key}'s sub-fields, such as ${key}: { <field>: <value> }.`;
 
@@ -172,7 +179,9 @@ function assertFieldBody(
         continue;
       }
       if (key === 'NOT') {
-        if (isObject(v)) walk(v, fields, true, `${path}.NOT`);
+        if (!isObject(v)) continue;
+        if (isEmptyFieldBody(v, fields)) fail(`${path}.NOT`, NOT_HINT);
+        walk(v, fields, true, `${path}.NOT`);
         continue;
       }
 

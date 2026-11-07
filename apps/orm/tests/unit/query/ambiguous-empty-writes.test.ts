@@ -304,10 +304,9 @@ describe('the object messages name the explicit forms', () => {
 });
 
 describe('NOT: {}', () => {
-  // NOT of "no condition" is the constant false: a write that carries it selects no row, so there is nothing to refuse
-  test.each(entriesFor(place, placeRegistry))('%s over a top-level NOT: {} selects nothing', (_entry, run) => {
-    const result = run({ ...sibling, NOT: {} }) as { query?: { text: string } };
-    if (result?.query) expect(result.query.text).toContain('WHERE false');
+  // Beside a real condition the constant false flips to true under an outer NOT, so every position refuses it
+  test.each(entriesFor(place, placeRegistry))('%s refuses a top-level NOT: {}', (_entry, run) => {
+    expect(() => run({ ...sibling, NOT: {} })).toThrow(/ambiguous on a write/);
   });
 
   // Inside a relation body it is the empty-equivalent shape and is refused
@@ -319,5 +318,92 @@ describe('NOT: {}', () => {
   test('findMany accepts both', () => {
     expect(() => compileFindMany(place, { where: { NOT: {} } }, placeRegistry)).not.toThrow();
     expect(() => compileFindMany(place, { where: { owner: { NOT: {} } } }, placeRegistry)).not.toThrow();
+  });
+});
+
+const emptyNots: Array<[string, WhereClause]> = [
+  ['NOT: {}', { NOT: {} }],
+  ['NOT: { name: undefined }', { NOT: { name: undefined } }],
+  ['NOT: { AND: [] }', { NOT: { AND: [] } }],
+  ['NOT: { AND: [{}] }', { NOT: { AND: [{}] } }],
+  ['NOT: { NOT: {} }', { NOT: { NOT: {} } }],
+  ['NOT: { name: {} }', { NOT: { name: {} } }],
+  ['NOT: { OR: [{}] }', { NOT: { OR: [{}] } }],
+  ['NOT: { NOT: { name: undefined }, name: undefined }', { NOT: { NOT: { name: undefined }, name: undefined } }],
+];
+
+suite(
+  'a NOT with an empty-equivalent body, at every position',
+  user,
+  bodyRegistry,
+  [
+    ...emptyNots.map(([l, w]): [string, WhereClause] => [`${l} beside a condition`, { ...sibling, ...w }]),
+    ['under an outer NOT', { ...sibling, NOT: { name: 'ann', NOT: {} } }],
+    ['in an AND branch', { AND: [{ name: 'a' }, { NOT: {} }] }],
+    ['in an OR branch', { OR: [{ name: 'a' }, { NOT: { name: undefined } }] }],
+    ['in a NOT inside an OR branch', { OR: [{ name: 'a' }, { NOT: { NOT: {} } }] }],
+    ['in a reverse quantifier body', { posts: { some: { title: 'a', NOT: {} } } }],
+    ['in an every body', { posts: { every: { title: 'a', NOT: { title: undefined } } } }],
+    ['in a nested quantifier body', { posts: { some: { comments: { some: { NOT: {} } } } } }],
+    ['in an array-FK body', { name: 'a', posts: { some: { tags: { some: { label: 'a', NOT: {} } } } } }],
+  ],
+  [
+    ['NOT: { name: "x" }', { ...sibling, NOT: { name: 'x' } }],
+    ['NOT: { OR: [] } (the constant, not an absent condition)', { ...sibling, NOT: { OR: [] } }],
+    ['NOT: { posts: { some: {} } }', { ...sibling, NOT: { posts: { some: {} } } }],
+    ['NOT: { posts: { none: {} } }', { ...sibling, NOT: { posts: { none: {} } } }],
+    ['NOT: { posts: { isEmpty: true } }', { ...sibling, NOT: { posts: { isEmpty: true } } }],
+    ['NOT: { NOT: { name: "x" } }', { ...sibling, NOT: { NOT: { name: 'x' } } }],
+    ['a quantifier body with a real NOT', { posts: { some: { NOT: { title: 'a' } } } }],
+  ],
+  /ambiguous on a write/,
+);
+
+suite(
+  'a NOT with an empty-equivalent body inside a to-one relation body',
+  post,
+  bodyRegistry,
+  [
+    ['author: { name: "a", NOT: {} }', { author: { name: 'a', NOT: {} } }],
+    ['author: { name: "a", NOT: { name: undefined } }', { author: { name: 'a', NOT: { name: undefined } } }],
+    ['author: { NOT: { NOT: {} }, name: "a" }', { author: { NOT: { NOT: {} }, name: 'a' } }],
+    ['author: { NOT: { name: {} }, name: "a" }', { author: { NOT: { name: {} }, name: 'a' } }],
+    ['under an outer NOT', { title: 'x', NOT: { author: { name: 'a', NOT: {} } } }],
+  ],
+  [
+    ['author: { name: "a", NOT: { name: "b" } }', { author: { name: 'a', NOT: { name: 'b' } } }],
+    ['author: { NOT: { OR: [] } }', { author: { name: 'a', NOT: { OR: [] } } }],
+  ],
+  /ambiguous on a write/,
+  { title: 'x' },
+);
+
+suite(
+  'a NOT with an empty-equivalent body inside object and tuple field bodies',
+  place,
+  placeRegistry,
+  [
+    ['address: { city: "a", NOT: {} }', { address: { city: 'a', NOT: {} } }],
+    ['address: { city: "a", NOT: { city: undefined } }', { address: { city: 'a', NOT: { city: undefined } } }],
+    ['address: { city: "a", NOT: { NOT: {} } }', { address: { city: 'a', NOT: { NOT: {} } } }],
+    ['address: { city: "a", NOT: { city: {} } }', { address: { city: 'a', NOT: { city: {} } } }],
+    ['address: { geo: { lat: 1, NOT: {} } }', { address: { geo: { lat: 1, NOT: {} } } }],
+    ['address: { OR: [{ city: "a", NOT: {} }] }', { address: { OR: [{ city: 'a', NOT: {} }] } }],
+    ['stops: { some: { city: "a", NOT: {} } }', { stops: { some: { city: 'a', NOT: {} } } }],
+    ['under an outer NOT', { ...sibling, NOT: { address: { city: 'a', NOT: {} } } }],
+  ] as Array<[string, WhereClause]>,
+  [
+    ['address: { city: "a", NOT: { city: "b" } }', { address: { city: 'a', NOT: { city: 'b' } } }],
+    ['address: { city: "a", NOT: { OR: [] } }', { address: { city: 'a', NOT: { OR: [] } } }],
+    ['stops: { some: { NOT: { city: "b" } } }', { stops: { some: { NOT: { city: 'b' } } } }],
+  ],
+  /ambiguous on a write/,
+);
+
+describe('the NOT message names the explicit alternatives', () => {
+  test('drop the NOT or write a condition', () => {
+    expect(() => compileDeleteMany(place, { where: { ...sibling, NOT: {} } }, placeRegistry)).toThrow(
+      /where\.NOT.*Drop the NOT, or write a real condition/s,
+    );
   });
 });

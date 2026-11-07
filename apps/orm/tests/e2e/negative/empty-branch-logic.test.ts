@@ -147,6 +147,81 @@ describe('Empty where branches — destructive and read paths', () => {
     });
   });
 
+  // A NOT whose body states no condition is refused on a write beside a real one, because under an outer
+  // NOT the constant false flips to true and the write would widen
+  describe('NOT with an empty-equivalent body beside a real condition', () => {
+    const emptyNots: Record<string, unknown> = {
+      'NOT: {}': {},
+      'NOT: { name: undefined }': { name: undefined },
+      'NOT: { AND: [] }': { AND: [] },
+      'NOT: { NOT: {} }': { NOT: {} },
+      'NOT: { name: {} }': { name: {} },
+      'NOT: { strictAddress: {} }': { strictAddress: {} },
+    };
+    const wheres = (body: unknown): Record<string, unknown> => ({
+      'beside a condition': { name: { neq: 'zz' }, NOT: body },
+      'under an outer NOT': { name: { neq: 'zz' }, NOT: { name: 't1', NOT: body } },
+      'in an AND branch': { AND: [{ name: { neq: 'zz' } }, { NOT: body }] },
+      'in an OR branch': { OR: [{ name: 't1' }, { NOT: body }] },
+      'inside an object field': { strictAddress: { city: 'LA', NOT: body } },
+    });
+    // Model-field bodies name FlexUser fields, which are not sub-fields of strictAddress
+    const cases = Object.entries(emptyNots).flatMap(([label, body]) =>
+      Object.entries(wheres(body))
+        .filter(([position]) => position !== 'inside an object field' || !/name|strictAddress/.test(label))
+        .map(([position, where]): [string, unknown] => [`${label} ${position}`, where]),
+    );
+    const refuses = async (run: () => Promise<unknown>) => {
+      await expect(run()).rejects.toThrow(/ambiguous on a write/);
+      expect(await names()).toEqual(['t1', 't2', 't3']);
+    };
+
+    test.each(cases)('deleteMany refuses %s and deletes nothing', async (_label, where) => {
+      await refuses(async () => client.db.FlexUser.deleteMany({ where: hostile(where) }));
+    });
+
+    test.each(cases)('updateMany refuses %s and changes nothing', async (_label, where) => {
+      await refuses(async () => client.db.FlexUser.updateMany({ where: hostile(where), data: { name: 'changed' } }));
+    });
+
+    test.each(cases)('$transaction refuses %s and changes nothing', async (_label, where) => {
+      await refuses(async () => {
+        await client.$transaction([
+          client.db.FlexUser.deleteMany({ where: hostile(where) }),
+          client.db.FlexUser.updateMany({ where: hostile(where), data: { name: 'changed' } }),
+        ]);
+      });
+    });
+
+    test('the widening case: the outer NOT would have deleted t2 and t3, and is refused', async () => {
+      await refuses(async () => {
+        await client.db.FlexUser.deleteMany({
+          where: hostile({ name: { neq: 'zz' }, NOT: { name: 't1', NOT: { name: undefined } } }),
+        });
+      });
+    });
+
+    test('NOT: { OR: [] } is the constant and a real NOT stays allowed on writes', async () => {
+      await client.db.FlexUser.updateMany({ where: hostile({ name: 't3', NOT: { OR: [] } }), data: { name: 'x' } });
+      // NOT of an empty OR is true, so the update reaches t3
+      expect(await names()).toEqual(['t1', 't2', 'x']);
+
+      await client.db.FlexUser.deleteMany({ where: { NOT: { name: 't1' }, name: { neq: 't2' } } });
+      expect(await names()).toEqual(['t1', 't2']);
+    });
+
+    test.each(cases)('reads keep NOT(true) for %s', async (_label, where) => {
+      const rows = await client.db.FlexUser.findMany({ where: hostile(where) });
+      expect(Array.isArray(rows)).toBe(true);
+      expect(await client.db.FlexUser.count(hostile(where))).toBe(rows.length);
+    });
+
+    test('a read with NOT: {} beside a condition matches nothing, NOT(true)', async () => {
+      expect(await client.db.FlexUser.count(hostile({ name: { neq: 'zz' }, NOT: {} }))).toBe(0);
+      expect(await client.db.FlexUser.count(hostile({ name: { neq: 'zz' }, NOT: { NOT: {} } }))).toBe(3);
+    });
+  });
+
   describe('ordinary filters return the same rows as before', () => {
     test('OR of two names', async () => {
       const rows = await client.db.FlexUser.findMany({
