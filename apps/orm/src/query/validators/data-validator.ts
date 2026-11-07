@@ -320,9 +320,10 @@ export function validateCreateData(
       continue;
     }
 
-    // The top-level call above already covered literal fields
+    // The top-level call above already covered literal fields. A create is stored whole, so an undeclared
+    // key in a strict object is refused here rather than by the database, which would echo it raw.
     if (field.type === 'object' || field.type === 'tuple')
-      errors.push(...validateSubValue(value, field, model, field.name, false));
+      errors.push(...validateSubValue(value, field, model, field.name, false, true));
   }
 
   return {
@@ -666,7 +667,8 @@ function validateObjectData(
     const subPath = `${path}.${key}`;
 
     if (!subField) {
-      if ((partial || inline) && !isFlexible) errors.push(unknownSubKey(subPath, model));
+      // A self-referencing object is resolved one level deep, so its inner copies list no fields to check against
+      if ((partial || inline) && !isFlexible && fields.length) errors.push(unknownSubKey(subPath, model));
       continue;
     }
 

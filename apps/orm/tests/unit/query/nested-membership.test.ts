@@ -233,8 +233,10 @@ describe('nested membership: objects', () => {
     expect(errors[0]!.message).toBe('leaf must be of type object');
   });
 
-  test('create still tolerates an undeclared sub-key; only membership is added there', () => {
-    expect(create(objectDoc, { leaf: { grade: 'LOW', codes: [], extra: 1 } })).toEqual([]);
+  test('create refuses an undeclared sub-key of a strict object', () => {
+    expect(create(objectDoc, { leaf: { grade: 'LOW', codes: [], extra: 1 } }).map((e) => e.field)).toEqual([
+      'leaf.extra',
+    ]);
   });
 });
 

@@ -54,4 +54,13 @@ describe('wrapDatabaseError', () => {
     expect(wrapDatabaseError(bug, 'User', 'create')).toBe(bug);
     expect(wrapDatabaseError('a string', 'User', 'create')).toBe('a string');
   });
+
+  test('control characters in the server message are shown as escapes', () => {
+    const raw = new SurrealError('bad value \u001b[2J\u001b]52;c;cHduZWQ\u0007\r\nforged: line');
+    const message = (wrapDatabaseError(raw, 'User', 'create') as CerialDatabaseError).message;
+
+    // oxlint-disable-next-line no-control-regex -- the point is that none remain
+    expect(message).not.toMatch(/[\u0000-\u001f\u007f]/);
+    expect(message).toContain('bad value \\u{1b}[2J\\u{1b}]52;c;cHduZWQ\\u{7}\\r\\nforged: line');
+  });
 });

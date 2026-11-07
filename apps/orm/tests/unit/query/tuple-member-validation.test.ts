@@ -171,12 +171,13 @@ describe('object members of a tuple', () => {
     expect(errors({ profiled: ['a', { bio: 'b', extra: 1 }] })).toHaveLength(1);
   });
 
-  test('a strict object outside a tuple keeps dropping undeclared keys on create', () => {
+  test('a strict object outside a tuple refuses undeclared keys on create', () => {
     const plain: ModelMetadata = {
       ...model,
       fields: [sub({ name: 'where', type: 'object', objectInfo: place })],
     };
-    expect(validateCreateData({ where: { street: 's', floor: 1, extra: 1 } }, plain).valid).toBe(true);
+    const result = validateCreateData({ where: { street: 's', floor: 1, extra: 1 } }, plain);
+    expect(result.errors.map((e) => e.field)).toEqual(['where.extra']);
   });
 });
 

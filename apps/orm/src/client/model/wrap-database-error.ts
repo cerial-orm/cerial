@@ -19,6 +19,7 @@ import {
   CerialUniqueConstraintError,
 } from '../../errors';
 import type { CompiledQuery } from '../../query/compile/types';
+import { escapeControl } from '../../utils/safe-text';
 
 /**
  * SurrealDB reports a unique-index violation as prose with no structured field (kind `Internal`):
@@ -79,6 +80,8 @@ export function wrapDatabaseError(
 ): unknown {
   if (error instanceof CerialError || !(error instanceof SurrealError)) return error;
 
+  // The server echoes stored and caller-supplied values in its messages
+  const text = escapeControl(error.message);
   const call = model ? `${operation} on ${model}` : operation;
   const context = { model, operation, cause: error, statement };
 
@@ -90,18 +93,15 @@ export function wrapDatabaseError(
   }
 
   if (CONNECTION_LOSS.some((type) => error instanceof type)) {
-    return new CerialConnectionError(
-      `${call} failed, the database connection is unavailable: ${error.message}`,
-      context,
-    );
+    return new CerialConnectionError(`${call} failed, the database connection is unavailable: ${text}`, context);
   }
 
   if (READ_ONLY_WRITE.test(error.message)) {
-    return new CerialTransactionError(`${call} failed, the transaction is read-only: ${error.message}`, context);
+    return new CerialTransactionError(`${call} failed, the transaction is read-only: ${text}`, context);
   }
 
   if (ENDED_TRANSACTION.test(error.message)) {
-    return new CerialTransactionError(`${call} failed, its transaction had already ended: ${error.message}`, context);
+    return new CerialTransactionError(`${call} failed, its transaction had already ended: ${text}`, context);
   }
 
   const unique = error instanceof InternalError ? UNIQUE_VIOLATION.exec(error.message) : null;
@@ -109,19 +109,22 @@ export function wrapDatabaseError(
     const [, index, value, record] = unique;
 
     return new CerialUniqueConstraintError(
-      `${call} failed: unique index \`${index}\` already contains ${value} (record \`${record}\`)`,
+      `${call} failed: unique index \`${escapeControl(index!)}\` already contains ${escapeControl(value!)} (record \`${escapeControl(record!)}\`)`,
       { ...context, conflict: 'index', index, value, record },
     );
   }
 
   // Only a record that exists is a unique conflict; a table or namespace that exists is not.
   if (error instanceof AlreadyExistsError && error.recordId) {
-    return new CerialUniqueConstraintError(`${call} failed: record \`${error.recordId}\` already exists`, {
-      ...context,
-      conflict: 'record',
-      record: error.recordId,
-    });
+    return new CerialUniqueConstraintError(
+      `${call} failed: record \`${escapeControl(error.recordId)}\` already exists`,
+      {
+        ...context,
+        conflict: 'record',
+        record: error.recordId,
+      },
+    );
   }
 
-  return new CerialDatabaseError(`${call} failed: ${error.message}`, context);
+  return new CerialDatabaseError(`${call} failed: ${text}`, context);
 }
