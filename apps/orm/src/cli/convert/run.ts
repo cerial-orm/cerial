@@ -26,6 +26,7 @@ import { scanModules } from './scan-module';
 import type { ScanHit } from './scan-module';
 import { writeOutputs } from './write-output';
 import type { StagedTree } from './write-output';
+import { escapesRoot } from '../utils';
 import { buildResolvedSchemaAst } from '../resolvers/schema-ast';
 import type { SchemaAstResult } from '../resolvers/schema-ast';
 import { buildWatchTargets } from '../commands/generate';
@@ -244,6 +245,23 @@ export async function runConvert(options: ConvertOptions): Promise<ConvertResult
   }
 }
 
+/**
+ * Refuses a run that would write or delete where the real path is outside the project root, even when `-s` or a
+ * config names it. `-o` is the one explicit destination and stays the user's choice.
+ */
+function refuseSymlinkEscapes(root: string, plan: OutputPlan, inputs: readonly string[], output?: string): void {
+  // A file is replaced or unlinked in its folder, so the folder is what must stay inside; a link itself is only unlinked
+  const touched = [...(output === undefined ? plan.outputs.map((o) => o.target) : []), ...inputs];
+  const escaping = [
+    ...(escapesRoot(root, plan.entryRoot) ? [plan.entryRoot] : []),
+    ...new Set(touched.filter((path) => escapesRoot(root, dirname(path)))),
+  ];
+  if (escaping.length)
+    throw new CerialGenerationError(
+      `Nothing was written. These paths are outside the project root ${root}:\n${escaping.map((p) => `  ${p}`).join('\n')}`,
+    );
+}
+
 async function removeCreated(paths: readonly string[]): Promise<void> {
   for (const path of paths) {
     await rm(path, { force: true });
@@ -368,6 +386,13 @@ async function convertAll(options: ConvertOptions, created: string[]): Promise<C
     warnings.push(
       `${plan.outDir} is outside any project that installs cerial, so 'cerial/schema' does not resolve from there. The modules were verified in a stage under ${plan.entryRoot}.`,
     );
+
+  refuseSymlinkEscapes(
+    filterRoot,
+    plan,
+    options.removeSource ? groups.flatMap((g) => g.result.schemaFiles) : [],
+    options.output,
+  );
 
   const written = await writeOutputs(plan, {
     contents: new Map(modules.map((m) => [m.file, m.text])),
@@ -868,6 +893,13 @@ async function convertToCerial(
           if (!blocked.has(file)) blocked.set(file, reason);
     removal = { inputs, outputs: plan.outputs, blocked, imports, pure: await pureModules([...imports.keys()]) };
   }
+
+  refuseSymlinkEscapes(
+    options.config ? dirname(resolve(options.config)) : process.cwd(),
+    plan,
+    removal?.inputs ?? [],
+    options.output,
+  );
 
   const written = await writeOutputs(plan, {
     contents: new Map(files.map((file) => [file.from, file.text])),

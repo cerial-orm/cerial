@@ -15,6 +15,7 @@ let root: string;
 
 beforeEach(async () => {
   root = await realpath(await mkdtemp(join(tmpdir(), 'cerial-convert-cmd-')));
+  process.chdir(root);
 });
 
 afterEach(async () => {

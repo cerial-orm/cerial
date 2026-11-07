@@ -30,6 +30,7 @@ let root: string;
 
 beforeEach(async () => {
   root = await realpath(await mkdtemp(join(tmpdir(), 'cerial-remove-source-')));
+  process.chdir(root);
 });
 
 afterEach(async () => {
@@ -412,16 +413,18 @@ describe('a file the config names', () => {
     expect(result.lines.join('\n')).not.toContain('change ');
   });
 
-  it('a symlinked input removes the link and not its target', async () => {
+  it('does not follow a symlinked input that resolves outside the folder, and leaves its target alone', async () => {
     const elsewhere = await realpath(await mkdtemp(join(tmpdir(), 'cerial-remove-link-')));
     extras.push(elsewhere);
     await writeFile(join(elsewhere, 'real.cerial'), USER);
     await symlink(join(elsewhere, 'real.cerial'), join(root, 'user.cerial'));
+    await writeFile(join(root, 'post.cerial'), POST);
 
     await convert();
 
-    expect(existsSync(join(root, 'user.schema.ts'))).toBe(true);
-    expect((await lstat(join(root, 'user.cerial')).catch(() => undefined)) === undefined).toBe(true);
+    expect(existsSync(join(root, 'post.schema.ts'))).toBe(true);
+    expect(existsSync(join(root, 'user.schema.ts'))).toBe(false);
+    expect((await lstat(join(root, 'user.cerial'))).isSymbolicLink()).toBe(true);
     expect(await readFile(join(elsewhere, 'real.cerial'), 'utf8')).toBe(USER);
   });
 });

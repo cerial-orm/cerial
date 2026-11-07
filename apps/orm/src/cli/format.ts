@@ -10,6 +10,7 @@ import type { FormatConfig } from '../formatter/types';
 import { isExcludedFile } from './filters/path-utils';
 import type { PathFilter } from './filters/types';
 import { findSchemasInDir } from './resolvers/schema-resolver';
+import { escapesRoot } from './utils';
 
 /** Result from formatting a single file */
 export interface FormatFileResult {
@@ -40,6 +41,8 @@ export interface FormatSchemaOptions {
   files?: readonly string[];
   /** False for an entry-only schema: its folder holds code, so only `files` are formatted */
   directory?: boolean;
+  /** The project root; any file whose real path is outside it is refused, even one named by `-s` or a config. Default: the cwd. */
+  root?: string;
 }
 
 /**
@@ -104,13 +107,21 @@ export async function formatSingleFile(
 export async function formatSchema(options: FormatSchemaOptions): Promise<FormatSummary> {
   const config = resolveFormatConfig(options.formatConfig);
   const found = options.directory === false ? [] : await findSchemasInDir(options.schemaPath, ['**/*.cerial']);
-  const files = [...new Set([...found, ...(options.files ?? [])])];
+  const root = options.root ?? process.cwd();
+  const all = [...new Set([...found, ...(options.files ?? [])])];
+  const escaping = all.filter((file) => escapesRoot(root, file));
+  const files = all.filter((file) => !escaping.includes(file));
 
   const summary: FormatSummary = {
-    total: files.length,
+    total: files.length + escaping.length,
     formatted: 0,
     unchanged: 0,
-    errors: [],
+    errors: escaping.map((path) => ({
+      path,
+      message: `refused: it is outside the project root ${root}, so it was not touched`,
+      line: 0,
+      column: 0,
+    })),
   };
 
   const BATCH_SIZE = 16;

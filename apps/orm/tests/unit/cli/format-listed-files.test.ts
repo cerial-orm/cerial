@@ -64,7 +64,7 @@ describe('listedCerialFiles', () => {
 describe('formatSchema with listed files', () => {
   it('formats a listed file outside the directory as well as the directory', async () => {
     const dir = await tempProject({ 'in/a.cerial': MESSY, 'out/b.cerial': MESSY });
-    const summary = await formatSchema({ schemaPath: join(dir, 'in'), files: [join(dir, 'out/b.cerial')] });
+    const summary = await formatSchema({ schemaPath: join(dir, 'in'), files: [join(dir, 'out/b.cerial')], root: dir });
 
     expect(summary.formatted).toBe(2);
     expect(read(dir, 'in/a.cerial')).not.toBe(MESSY);
@@ -80,7 +80,7 @@ describe('formatSchema with listed files', () => {
 
   it('leaves the folder alone when directory is false', async () => {
     const dir = await tempProject({ 'in/a.cerial': MESSY, 'in/b.cerial': MESSY });
-    await formatSchema({ schemaPath: join(dir, 'in'), files: [join(dir, 'in/a.cerial')], directory: false });
+    await formatSchema({ schemaPath: join(dir, 'in'), files: [join(dir, 'in/a.cerial')], directory: false, root: dir });
 
     expect(read(dir, 'in/a.cerial')).not.toBe(MESSY);
     expect(read(dir, 'in/b.cerial')).toBe(MESSY);

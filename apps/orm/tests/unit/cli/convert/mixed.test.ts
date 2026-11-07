@@ -10,15 +10,18 @@ import { CerialError, CerialGenerationError } from '../../../../src/errors';
 const SCHEMA_MODULE = resolve(import.meta.dir, '../../../../src/schema');
 const MIXED = resolve(import.meta.dir, '../../../fixtures/mixed');
 
+const originalCwd = process.cwd();
 let root: string;
 
 beforeEach(async () => {
   root = await realpath(await mkdtemp(join(tmpdir(), 'cerial-mixed-')));
+  process.chdir(root);
   await mkdir(join(root, 'node_modules/cerial'), { recursive: true });
   await symlink(SCHEMA_MODULE, join(root, 'node_modules/cerial/schema'), 'dir');
 });
 
 afterEach(async () => {
+  process.chdir(originalCwd);
   await rm(root, { recursive: true, force: true });
 });
 

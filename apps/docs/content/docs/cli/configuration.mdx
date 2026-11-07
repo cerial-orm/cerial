@@ -254,7 +254,17 @@ If multiple schema roots are found, Cerial requires a config file to know how to
 
 ### 5. Legacy Fallback
 
-If none of the above match, Cerial falls back to looking for a `schemas/` or `schema/` directory in the current working directory.
+If none of the above match, Cerial falls back to looking for a `schemas/` or `schema/` directory in the current working directory and below it.
+
+If more than one such folder holds schema files, Cerial refuses to guess. It lists every match and asks you to add a `cerial.config.ts` or pass `-s`. A single match works as before.
+
+### Where discovery looks
+
+Every search above runs from the project root and below: the folder you run `cerial` from. Cerial never looks in a parent or sibling folder, and it skips every `node_modules` folder at any depth, so a dependency that ships its own `schemas/` folder or `.cerial` files never becomes part of your schema. A symlink that resolves outside the root is not followed; Cerial prints a warning naming the skipped path.
+
+Paths you name yourself are still read. With `-s`, or a `path` or `files` entry in the config, Cerial reads exactly what you pointed at, even outside the root. It still skips `node_modules` folders below that path, unless the path you named is itself inside `node_modules`.
+
+Writing is stricter. `cerial format` and `cerial convert` (including `--remove-source`, `--partial` and the files they stage) refuse to write or delete any file whose real path, with symlinks resolved, is outside the project root, even when `-s` or the config names it. They print the path. The `-o` output directory of `convert` is the one destination you choose, and `generate` keeps its own [output guard](/cli/generate#output-directory-safety).
 
 ## Folder-Level Config
 

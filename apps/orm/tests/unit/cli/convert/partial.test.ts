@@ -14,13 +14,16 @@ import { CerialError, CerialGenerationError } from '../../../../src/errors';
 const SCHEMA_MODULE = resolve(import.meta.dir, '../../../../src/schema');
 const extras: string[] = [];
 
+const originalCwd = process.cwd();
 let root: string;
 
 beforeEach(async () => {
   root = await realpath(await mkdtemp(join(tmpdir(), 'cerial-partial-')));
+  process.chdir(root);
 });
 
 afterEach(async () => {
+  process.chdir(originalCwd);
   await rm(root, { recursive: true, force: true });
   for (const dir of extras.splice(0)) await rm(dir, { recursive: true, force: true });
 });

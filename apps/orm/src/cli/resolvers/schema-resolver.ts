@@ -1,11 +1,12 @@
 import { existsSync, lstatSync } from 'node:fs';
-import { basename, dirname, resolve } from 'node:path';
+import { basename, dirname, relative, resolve } from 'node:path';
 import fg from 'fast-glob';
 import { CerialGenerationError } from '../../errors';
 import { findFolderConfigs } from '../config/loader';
 import type { FolderConfig } from '../config/types';
 import { toFilterPath } from '../filters/path-utils';
 import type { PathFilter } from '../filters/types';
+import { isInsideRealRoot, logger } from '../utils';
 
 const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];
 
@@ -52,15 +53,29 @@ export interface SchemaResolveOptions {
   filter?: PathFilter;
 }
 
-/** Find schema files in a directory */
-export async function findSchemasInDir(dir: string, patterns: string[]): Promise<string[]> {
+/** Never searched: a dependency's files are not the project's schema. An explicit path inside it still works. */
+const NODE_MODULES = ['**/node_modules/**'];
+
+/** Keeps the paths whose real path stays under `root`; a symlink that leaves it is skipped and reported. */
+function keepInsideRoot(root: string, paths: string[]): string[] {
+  return paths.filter((path) => {
+    if (isInsideRealRoot(root, path)) return true;
+    logger.warn(`Skipped ${path}: it is a symlink that resolves outside ${root}`);
+
+    return false;
+  });
+}
+
+/**
+ * Find schema files in a directory. `node_modules` is never entered below it, and a match whose real path is
+ * outside `root` (the directory itself unless the caller names the project root) is not followed.
+ */
+export async function findSchemasInDir(dir: string, patterns: string[], root: string = dir): Promise<string[]> {
   const files: string[] = [];
 
   for (const pattern of patterns) {
     try {
-      // Dependencies ship `.schema.ts` files of their own; `.cerial` matching stays as it was
-      const ignore = pattern.endsWith('.ts') ? ['**/node_modules/**'] : [];
-      const matches = await fg(pattern, { cwd: dir, onlyFiles: true, dot: false, ignore });
+      const matches = await fg(pattern, { cwd: dir, onlyFiles: true, dot: false, ignore: NODE_MODULES });
       for (const file of matches) {
         files.push(resolve(dir, file));
       }
@@ -70,12 +85,17 @@ export async function findSchemasInDir(dir: string, patterns: string[]): Promise
   }
 
   // fast-glob returns matches in traversal order, which varies between runs; output order follows it
-  return files.sort();
+  return keepInsideRoot(root, files).sort();
 }
 
 /** Find schema files in a directory, then apply a PathFilter */
-export async function findFilteredSchemasInDir(dir: string, patterns: string[], filter: PathFilter): Promise<string[]> {
-  const allFiles = await findSchemasInDir(dir, patterns);
+export async function findFilteredSchemasInDir(
+  dir: string,
+  patterns: string[],
+  filter: PathFilter,
+  root: string = dir,
+): Promise<string[]> {
+  const allFiles = await findSchemasInDir(dir, patterns, root);
 
   return allFiles.filter((file) => filter.shouldInclude(toFilterPath(file, dir)));
 }
@@ -86,7 +106,7 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
 
   try {
     // Use glob pattern to find all paths ending with folderName
-    const matches = await fg(`**/${folderName}`, { cwd, onlyDirectories: true, dot: false });
+    const matches = await fg(`**/${folderName}`, { cwd, onlyDirectories: true, dot: false, ignore: NODE_MODULES });
 
     for (const match of matches) {
       // Use resolve for cross-platform path handling
@@ -95,7 +115,7 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
       // Verify it's a directory using lstatSync
       try {
         const stat = lstatSync(fullPath);
-        if (stat.isDirectory()) matchingDirs.push(fullPath);
+        if (stat.isDirectory() && isInsideRealRoot(cwd, fullPath)) matchingDirs.push(fullPath);
       } catch {
         // Not accessible or doesn't exist
       }
@@ -111,9 +131,9 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
 export async function resolveSchemas(options: SchemaResolveOptions = {}): Promise<string[]> {
   const { paths = DEFAULT_SEARCH_PATHS, patterns = DEFAULT_PATTERNS, cwd = process.cwd(), filter } = options;
 
-  const findFiles = filter
-    ? (dir: string) => findFilteredSchemasInDir(dir, patterns, filter)
-    : (dir: string) => findSchemasInDir(dir, patterns);
+  // Explicit paths are the caller's choice and search from themselves; discovery stays under `cwd`
+  const findFiles = (dir: string, root: string = dir) =>
+    filter ? findFilteredSchemasInDir(dir, patterns, filter, root) : findSchemasInDir(dir, patterns, root);
 
   // If custom paths are provided, use the old behavior
   if (options.paths) {
@@ -127,21 +147,26 @@ export async function resolveSchemas(options: SchemaResolveOptions = {}): Promis
     return [...new Set(allFiles)];
   }
 
-  // Recursively search for folders with default search path names
+  // Without a config the project root is `cwd`: look for the default folders there and below, never above or beside
+  const found: { dir: string; files: string[] }[] = [];
   for (const searchPath of paths) {
-    const matchingDirs = await findDirectoriesByName(cwd, searchPath);
+    for (const dir of await findDirectoriesByName(cwd, searchPath)) {
+      // A folder inside another match is already read through its parent's recursive patterns
+      if (found.some((other) => dir.startsWith(`${other.dir}/`))) continue;
 
-    // For each matching directory, look for schema files
-    for (const dir of matchingDirs) {
-      const files = await findFiles(dir);
-
-      // If files are found, return them and stop searching
-      if (files.length) return files;
+      const files = await findFiles(dir, cwd);
+      if (files.length) found.push({ dir, files });
     }
   }
 
-  // No schema files found
-  return [];
+  if (found.length > 1) {
+    const list = found.map(({ dir }) => `  ${relative(cwd, dir) || '.'}`).join('\n');
+    throw new CerialGenerationError(
+      `Found ${found.length} schema folders and no config to choose between them:\n${list}\nAdd a cerial.config.ts (run 'cerial init') or pass -s <path>.`,
+    );
+  }
+
+  return found[0]?.files ?? [];
 }
 
 /** Resolve a single schema path (file or directory) */
@@ -174,12 +199,11 @@ export async function findSchemaRoots(cwd: string = process.cwd(), filter?: Path
     if (marker === TS_MARKER) continue;
 
     try {
-      const matches = await fg(`**/${marker}`, { cwd, dot: false });
+      const matches = await fg(`**/${marker}`, { cwd, dot: false, ignore: NODE_MODULES });
       for (const match of matches) {
-        if (match.includes('node_modules/')) continue;
-
         const fullPath = resolve(cwd, match);
         const dir = dirname(fullPath);
+        if (!isInsideRealRoot(cwd, fullPath)) continue;
 
         if (rootMap.has(dir)) continue;
 
@@ -188,7 +212,7 @@ export async function findSchemaRoots(cwd: string = process.cwd(), filter?: Path
         const dirRelative = toFilterPath(dir, cwd);
         if (filter && dirRelative && !filter.shouldInclude(`${dirRelative}/_`)) continue;
 
-        const files = await findSchemasInDir(dir, DEFAULT_PATTERNS);
+        const files = await findSchemasInDir(dir, DEFAULT_PATTERNS, cwd);
         rootMap.set(dir, { path: dir, marker: basename(match), files });
       }
     } catch {
@@ -209,13 +233,14 @@ const TS_MARKER = '*.schema.ts';
  */
 async function addTypescriptRoots(rootMap: Map<string, SchemaRoot>, cwd: string, filter?: PathFilter): Promise<void> {
   try {
-    const ignore = ['**/node_modules/**'];
+    const ignore = NODE_MODULES;
     const cerialFiles = await fg('**/*.cerial', { cwd, dot: false, ignore });
     if (cerialFiles.length) return;
 
     const matches = (await fg(`**/${TS_MARKER}`, { cwd, dot: false, ignore })).sort();
     const dirs = new Map<string, string>();
     for (const match of matches) {
+      if (!isInsideRealRoot(cwd, resolve(cwd, match))) continue;
       const dir = dirname(resolve(cwd, match));
       if (!dirs.has(dir)) dirs.set(dir, basename(match));
     }
@@ -227,7 +252,7 @@ async function addTypescriptRoots(rootMap: Map<string, SchemaRoot>, cwd: string,
       const dirRelative = toFilterPath(dir, cwd);
       if (filter && dirRelative && !filter.shouldInclude(`${dirRelative}/_`)) continue;
 
-      rootMap.set(dir, { path: dir, marker, files: await findSchemasInDir(dir, DEFAULT_PATTERNS) });
+      rootMap.set(dir, { path: dir, marker, files: await findSchemasInDir(dir, DEFAULT_PATTERNS, cwd) });
     }
   } catch {
     // Directory might not exist
@@ -240,7 +265,7 @@ export async function discoverSchemas(cwd: string = process.cwd()): Promise<Disc
   if (folderConfigs.length) {
     const schemas: DiscoveredSchema[] = [];
     for (const { dir, config } of folderConfigs) {
-      const files = await findSchemasInDir(dir, DEFAULT_PATTERNS);
+      const files = await findSchemasInDir(dir, DEFAULT_PATTERNS, cwd);
       if (files.length) {
         schemas.push({
           name: basename(dir),
