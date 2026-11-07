@@ -7,4 +7,4 @@ export type { WriteOptions } from './file-writer';
 export { writeFile, writeFiles } from './file-writer';
 export type { LoggerOptions, LogLevel } from './logger';
 export { formatDuration, Logger, logger } from './logger';
-export { escapesRoot, isInsideRealRoot, realPathLoose } from './path-guard';
+export { escapesRoot, isInsideRealRoot, isProjectOwned, realPathLoose } from './path-guard';

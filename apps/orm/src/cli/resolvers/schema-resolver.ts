@@ -6,7 +6,7 @@ import { findFolderConfigs } from '../config/loader';
 import type { FolderConfig } from '../config/types';
 import { toFilterPath } from '../filters/path-utils';
 import type { PathFilter } from '../filters/types';
-import { isInsideRealRoot, logger } from '../utils';
+import { isProjectOwned, logger } from '../utils';
 
 const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];
 
@@ -59,8 +59,8 @@ const NODE_MODULES = ['**/node_modules/**'];
 /** Keeps the paths whose real path stays under `root`; a symlink that leaves it is skipped and reported. */
 function keepInsideRoot(root: string, paths: string[]): string[] {
   return paths.filter((path) => {
-    if (isInsideRealRoot(root, path)) return true;
-    logger.warn(`Skipped ${path}: it is a symlink that resolves outside ${root}`);
+    if (isProjectOwned(root, path)) return true;
+    logger.warn(`Skipped ${path}: it is a symlink that resolves outside ${root} or into node_modules`);
 
     return false;
   });
@@ -115,7 +115,7 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
       // Verify it's a directory using lstatSync
       try {
         const stat = lstatSync(fullPath);
-        if (stat.isDirectory() && isInsideRealRoot(cwd, fullPath)) matchingDirs.push(fullPath);
+        if (stat.isDirectory() && isProjectOwned(cwd, fullPath)) matchingDirs.push(fullPath);
       } catch {
         // Not accessible or doesn't exist
       }
@@ -203,7 +203,7 @@ export async function findSchemaRoots(cwd: string = process.cwd(), filter?: Path
       for (const match of matches) {
         const fullPath = resolve(cwd, match);
         const dir = dirname(fullPath);
-        if (!isInsideRealRoot(cwd, fullPath)) continue;
+        if (!isProjectOwned(cwd, fullPath)) continue;
 
         if (rootMap.has(dir)) continue;
 
@@ -240,7 +240,7 @@ async function addTypescriptRoots(rootMap: Map<string, SchemaRoot>, cwd: string,
     const matches = (await fg(`**/${TS_MARKER}`, { cwd, dot: false, ignore })).sort();
     const dirs = new Map<string, string>();
     for (const match of matches) {
-      if (!isInsideRealRoot(cwd, resolve(cwd, match))) continue;
+      if (!isProjectOwned(cwd, resolve(cwd, match))) continue;
       const dir = dirname(resolve(cwd, match));
       if (!dirs.has(dir)) dirs.set(dir, basename(match));
     }

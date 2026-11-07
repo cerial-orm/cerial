@@ -9,6 +9,7 @@ import fg from 'fast-glob';
 import { importSchemaModule } from '../../parser/builder/load';
 import { CerialConfigNotFolderConfigError, CerialGenerationError } from '../../errors';
 import { toFilterPath } from '../filters/path-utils';
+import { isProjectOwned, logger } from '../utils';
 import type { PathFilter } from '../filters/types';
 import type { CerialConfig, FolderConfig } from './types';
 import { detectNestedConfigs, validateConfig, validateFolderConfig } from './validator';
@@ -147,7 +148,13 @@ export async function findFolderConfigs(
     { cwd, onlyFiles: true, ignore: ['**/node_modules/**'] },
   );
 
-  const uniqueDirs = [...new Set(matches.map((match) => dirname(resolve(cwd, match))))];
+  // A config is code that runs on load: a linked folder that leaves the project or enters node_modules is not read
+  const uniqueDirs = [...new Set(matches.map((match) => dirname(resolve(cwd, match))))].filter((dir) => {
+    if (isProjectOwned(cwd, dir)) return true;
+    logger.warn(`Skipped ${dir}: it is a symlink that resolves outside ${cwd} or into node_modules`);
+
+    return false;
+  });
   if (!uniqueDirs.length) return [];
 
   // Apply path filter to exclude directories

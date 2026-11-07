@@ -29,3 +29,15 @@ export function isInsideRealRoot(root: string, path: string): boolean {
 export function escapesRoot(root: string, path: string): boolean {
   return !isInsideRealRoot(root, path);
 }
+
+/**
+ * True when the real path of `path` stays under the real path of `root` without passing through a `node_modules`
+ * folder below it: a link that leads into a dependency or out of the project is not the project's own.
+ */
+export function isProjectOwned(root: string, path: string): boolean {
+  const realRoot = realPathLoose(root);
+  const real = realPathLoose(path);
+  if (!within(realRoot, real)) return false;
+
+  return !relative(realRoot, real).split(sep).includes('node_modules');
+}
