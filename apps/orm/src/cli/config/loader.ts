@@ -148,13 +148,18 @@ export async function findFolderConfigs(
     { cwd, onlyFiles: true, ignore: ['**/node_modules/**'] },
   );
 
-  // A config is code that runs on load: a linked folder that leaves the project or enters node_modules is not read
-  const uniqueDirs = [...new Set(matches.map((match) => dirname(resolve(cwd, match))))].filter((dir) => {
-    if (isProjectOwned(cwd, dir)) return true;
-    logger.warn(`Skipped ${dir}: it is a symlink that resolves outside ${cwd} or into node_modules`);
-
-    return false;
-  });
+  // A config is code that runs on load: a linked folder or config file that leaves the project or enters node_modules
+  // is not read, and its folder is dropped whole because the loader picks the config file itself
+  const linked = new Set<string>();
+  for (const match of matches) {
+    const file = resolve(cwd, match);
+    if (isProjectOwned(cwd, dirname(file)) && isProjectOwned(cwd, file)) continue;
+    linked.add(dirname(file));
+    logger.warn(`Skipped ${file}: it is a symlink that resolves outside ${cwd} or into node_modules`);
+  }
+  const uniqueDirs = [...new Set(matches.map((match) => dirname(resolve(cwd, match))))].filter(
+    (dir) => !linked.has(dir),
+  );
   if (!uniqueDirs.length) return [];
 
   // Apply path filter to exclude directories

@@ -53,6 +53,32 @@ describe('a linked folder config is not loaded', () => {
     expect(await discoverSchemas(root)).toEqual([]);
   });
 
+  it('skips a real folder whose config file links outside the project', async () => {
+    await put({ 'outside/cerial.config.ts': config() }, base);
+    await put({ 'child/a.cerial': USER }, root);
+    await symlink(join(base, 'outside/cerial.config.ts'), join(root, 'child/cerial.config.ts'), 'file');
+
+    expect(await findFolderConfigs(root)).toEqual([]);
+    expect(existsSync(marker)).toBe(false);
+  });
+
+  it('skips a real folder whose config file links into node_modules', async () => {
+    await put({ 'node_modules/x/cerial.config.ts': config(), 'schemas/a.cerial': USER }, root);
+    await symlink(join(root, 'node_modules/x/cerial.config.ts'), join(root, 'schemas/cerial.config.ts'), 'file');
+
+    expect(await findFolderConfigs(root)).toEqual([]);
+    expect(existsSync(marker)).toBe(false);
+  });
+
+  it('skips the whole folder when its ts config links out beside a real json config', async () => {
+    await put({ 'outside/cerial.config.ts': config() }, base);
+    await put({ 'child/cerial.config.json': '{ "output": "./gen" }', 'child/a.cerial': USER }, root);
+    await symlink(join(base, 'outside/cerial.config.ts'), join(root, 'child/cerial.config.ts'), 'file');
+
+    expect(await findFolderConfigs(root)).toEqual([]);
+    expect(existsSync(marker)).toBe(false);
+  });
+
   it('negative: a real folder with a config is still loaded', async () => {
     await put({ 'child/cerial.config.ts': config(), 'child/a.cerial': USER }, root);
 
