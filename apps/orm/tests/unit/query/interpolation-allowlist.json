@@ -516,7 +516,7 @@
   "src/query/filters/ambiguous-empty.ts::assertNoAmbiguousEmpty::template::k": 1,
   "src/query/filters/ambiguous-empty.ts::FIELD_HINT::template::key": 2,
   "src/query/filters/ambiguous-empty.ts::walk::template::path": 4,
-  "src/query/filters/ambiguous-empty.ts::walk::template::key": 3,
+  "src/query/filters/ambiguous-empty.ts::walk::template::key": 4,
   "src/query/filters/ambiguous-empty.ts::walk::template::i": 1,
   "src/query/filters/ambiguous-empty.ts::walk::template::here": 1,
   "src/query/filters/ambiguous-empty.ts::walk::template::q": 1,

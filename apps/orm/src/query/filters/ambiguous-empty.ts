@@ -12,7 +12,7 @@
 import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
-import { isOperatorShape, resolveTupleElementKey } from './condition-builder';
+import { isOperatorObject, isOperatorShape, resolveTupleElementKey } from './condition-builder';
 import { isEmptyBody } from './nested-condition-builder';
 
 const QUANTIFIERS = ['some', 'every', 'none', 'isEmpty'];
@@ -32,7 +32,9 @@ function subFieldsOf(field: FieldMetadata): SubFields | undefined {
 
 /**
  * True when a body inside an object or tuple field states no condition. A key the type does not declare is a value
- * comparison on a `@flexible` sub-key (`extra: {}` compares with the empty object), so it counts as a condition.
+ * comparison on a `@flexible` sub-key (`extra: {}` compares with the empty object), so it counts as a condition,
+ * unless it is an operator object whose operators are all undefined (`extra: { eq: undefined }`): that is a lost
+ * operator, as on a declared field.
  */
 function isEmptyFieldBody(where: Record<string, unknown>, sub: SubFields): boolean {
   for (const [key, value] of Object.entries(where)) {
@@ -46,7 +48,12 @@ function isEmptyFieldBody(where: Record<string, unknown>, sub: SubFields): boole
     if (key === 'NOT' && isObject(value) && isEmptyFieldBody(value, sub)) continue;
 
     const field = sub(key);
-    if (!field || !isObject(value)) return false;
+    if (!field) {
+      if (isOperatorObject(value) && allUndefined(value)) continue;
+
+      return false;
+    }
+    if (!isObject(value)) return false;
     const inner = subFieldsOf(field);
     if (inner && !field.isArray) {
       if (isEmptyFieldBody(value, inner)) continue;
@@ -186,8 +193,13 @@ function assertFieldBody(
       }
 
       const child = fields(key);
-      if (!child || !isObject(v)) continue;
       const here = `${path}.${key}`;
+      if (!child) {
+        if (isOperatorObject(v) && allUndefined(v))
+          fail(here, `Give ${key} a real operator such as { eq: ... }, or drop the key.`);
+        continue;
+      }
+      if (!isObject(v)) continue;
       const inner = subFieldsOf(child);
       if (!inner) {
         if (isOperatorShape(v, child) && allUndefined(v))

@@ -271,6 +271,21 @@ suite(
     ['under NOT', { ...sibling, NOT: { address: {} } }],
     ['under OR', { OR: [{ name: 'a' }, { address: {} }] }],
     ['inside an owner body', { owner: { places: { some: { address: {} } } } }],
+    ['open: { extra: { eq: undefined } }', { ...sibling, open: { extra: { eq: undefined } } }],
+    [
+      'open: { extra: { neq: undefined, gt: undefined } }',
+      { ...sibling, open: { extra: { neq: undefined, gt: undefined } } },
+    ],
+    ['open: { extra: { eq: undefined } } beside a declared key', { open: { city: 'a', extra: { eq: undefined } } }],
+    ['open: { AND: [{ extra: { eq: undefined } }] }', { ...sibling, open: { AND: [{ extra: { eq: undefined } }] } }],
+    ['open: { NOT: { extra: { eq: undefined } } }', { ...sibling, open: { NOT: { extra: { eq: undefined } } } }],
+    ['openStops: { some: { extra: { eq: undefined } } }', { openStops: { some: { extra: { eq: undefined } } } }],
+    ['a flexible lost operator under NOT', { ...sibling, NOT: { open: { extra: { eq: undefined } } } }],
+    ['a flexible lost operator under OR', { OR: [{ name: 'a' }, { open: { extra: { eq: undefined } } }] }],
+    [
+      'a flexible lost operator inside an owner body',
+      { owner: { places: { some: { open: { extra: { eq: undefined } } } } } },
+    ],
   ] as Array<[string, WhereClause]>,
   [
     ['address: { city: "a" }', { address: { city: 'a' } }],
@@ -285,6 +300,10 @@ suite(
     ['spot: { 0: "a" }', { spot: { 0: 'a' } }],
     ['a flexible sub-key compared with {}', { open: { extra: {} } } as WhereClause],
     ['a flexible sub-key compared with a value', { open: { extra: 'x' } } as WhereClause],
+    ['a flexible sub-key compared with an object', { open: { extra: { foo: 1 } } } as WhereClause],
+    ['a flexible sub-key with a real operator', { open: { extra: { eq: 'a' } } } as WhereClause],
+    ['a flexible sub-key with one defined operator', { open: { extra: { eq: undefined, gt: 1 } } } as WhereClause],
+    ['a flexible sub-key beside a declared key', { open: { city: 'a', extra: {} } } as WhereClause],
   ],
   /ambiguous on a write/,
 );
