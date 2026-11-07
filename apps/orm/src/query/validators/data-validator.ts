@@ -16,7 +16,7 @@ import { isObject } from '../../utils/type-utils';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
 import { convertUnsetToNoneValues } from '../builders/update-builder';
 import { isSingleTupleInput } from '../transformers/data-transformer';
-import { isSizedNumberFieldType, sizedNumberError } from './sized-number-validator';
+import { sizedNumberError } from './sized-number-validator';
 
 /** Validation error */
 export interface DataValidationError {
@@ -505,16 +505,15 @@ function unknownSubKey(path: string, model: ModelMetadata): DataValidationError 
 }
 
 /**
- * Range-check the values an array operation ({ push }, { set }, { unset }) carries on a sized number
- * array, so the server (or the SDK's U64 constructor) never has to refuse them. The index in the path
- * is the position within the operation's own values, not within the stored array.
+ * Check the values an array operation ({ push }, { set }, { unset }) carries on a primitive array
+ * against the element type, exactly as a create checks an element. The index in the path is the
+ * position within the operation's own values, not within the stored array.
  */
-function arrayOperationSizedErrors(
+function arrayOperationErrors(
   operation: Record<string, unknown>,
-  type: WalkField['type'],
+  field: WalkField,
   path: string,
 ): DataValidationError[] {
-  if (!isSizedNumberFieldType(type)) return [];
   const errors: DataValidationError[] = [];
 
   for (const key of ['push', 'set', 'unset']) {
@@ -522,8 +521,14 @@ function arrayOperationSizedErrors(
     if (input === undefined) continue;
     const items = Array.isArray(input) ? input : [input];
     items.forEach((item, i) => {
-      const message = sizedNumberError(type, `${path}[${i}]`, item);
-      if (message) errors.push({ field: path, message });
+      if (item === undefined || isNone(item)) return;
+      const label = `${path}[${i}]`;
+      const message = sizedNumberError(field.type, label, item);
+      if (message) return void errors.push({ field: path, message });
+      if (!validateFieldType(item, field.type))
+        return void errors.push({ field: path, message: `${label} must be of type ${field.type}` });
+      const literalMessage = field.literalInfo && literalError(label, item, field.literalInfo);
+      if (literalMessage) errors.push({ field: path, message: literalMessage });
     });
   }
 
@@ -561,14 +566,14 @@ function validateSubValue(
 
   if (field.type === 'literal' && field.literalInfo) {
     // An object on an array field is an operation ({ push }, { set }), not a value to check
-    if (field.isArray && isObject(value)) return [];
+    if (field.isArray && isObject(value)) return arrayOperationErrors(value, field, path);
     const error = validateFieldValue(path, value, { ...field, isRequired: false });
 
     return error ? [error] : [];
   }
 
   if (field.type !== 'object' && field.type !== 'tuple') {
-    if (field.isArray && isObject(value)) return arrayOperationSizedErrors(value, field.type, path);
+    if (field.isArray && isObject(value)) return arrayOperationErrors(value, field, path);
     // A relation is virtual
     if (field.type === 'relation') return [];
     // The database refuses a member of the wrong type; a whole float in an int member is an int in JS

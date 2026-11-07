@@ -7,6 +7,20 @@ function isDecimal(value: unknown): value is Decimal {
   return value instanceof Decimal;
 }
 
+/**
+ * The SDK's decimal parser reads a prefix and returns 0 for anything it cannot parse ('1,5', '12abc',
+ * 'NaN'), so a string is checked in full here before it reaches it.
+ */
+const DECIMAL_STRING = /^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/;
+
+/** True for a value a Decimal field accepts: a finite number, a decimal wrapper, or a fully parseable string. */
+export function isValidDecimalInput(value: unknown): boolean {
+  if (value instanceof CerialDecimal || value instanceof Decimal) return true;
+  if (typeof value === 'number') return Number.isFinite(value);
+
+  return typeof value === 'string' && DECIMAL_STRING.test(value);
+}
+
 export class CerialDecimal {
   private readonly _native: Decimal;
 
@@ -16,11 +30,13 @@ export class CerialDecimal {
     } else if (isDecimal(input)) {
       this._native = input;
     } else if (typeof input === 'number') {
+      if (!Number.isFinite(input)) throw new CerialValidationError(`Invalid decimal number: ${input}`);
       this._native = new Decimal(input);
     } else if (typeof input === 'string') {
       if (!input) {
         throw new CerialValidationError('Invalid decimal string: empty string');
       }
+      if (!isValidDecimalInput(input)) throw new CerialValidationError(`Invalid decimal string: '${input}'`);
       this._native = new Decimal(input);
     } else {
       throw new CerialValidationError(`Invalid input type for CerialDecimal: ${typeof input}`);

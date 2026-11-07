@@ -18,7 +18,8 @@ import { post, registry } from './select-validation-helpers';
 
 const author = registry.Author!;
 const authorData = { name: 'A' };
-const postData = { title: 't', address: { city: 'c', geo: { lat: 1, lng: 2 } } };
+const addr = { city: 'c', geo: { lat: 1, lng: 2 } };
+const postData = { title: 't', address: addr, loose: addr, spot: ['s', { lat: 1, lng: 2 }] };
 
 describe('nested reverse create keys', () => {
   test.each(['not_a_field', "it's", 'a;b', 'a b', 'ключ'])('refuses the undeclared key %j by name', (key) => {

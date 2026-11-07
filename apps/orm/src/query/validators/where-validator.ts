@@ -13,7 +13,7 @@ import type {
 } from '../../types';
 import { CerialValidationError } from '../../errors';
 import { CerialBytes } from '../../utils/cerial-bytes';
-import { CerialDecimal } from '../../utils/cerial-decimal';
+import { CerialDecimal, isValidDecimalInput } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId } from '../../utils/cerial-id';
@@ -123,11 +123,17 @@ function sizedFilterIssues(
   path: string,
   label: string,
 ): CerialValidationIssue[] {
-  if (!isSizedNumberFieldType(type)) return [];
+  if (type !== 'decimal' && !isSizedNumberFieldType(type)) return [];
 
   const issues: CerialValidationIssue[] = [];
   const check = (value: unknown, valuePath: string, valueLabel: string): void => {
-    const message = sizedNumberError(type, valueLabel, value);
+    // A decimal value the parser would read as 0 ('1,5', 'NaN') is refused rather than compared as 0
+    const message =
+      type === 'decimal'
+        ? value == null || isValidDecimalInput(value)
+          ? null
+          : `Field "${valueLabel}" is Decimal and expects a finite number, a CerialDecimal or a decimal string, got ${String(value)}`
+        : sizedNumberError(type, valueLabel, value);
     if (message) issues.push({ path: valuePath, message });
   };
   const checkList = (values: unknown, listPath: string): void => {

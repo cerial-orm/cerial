@@ -18,7 +18,8 @@ import type { PartsCompiledQuery, StatementParts } from '../executor';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
-import { validateKnownKeys, validateNoNestedWrites, validateRelationValue } from '../validators/data-validator';
+import { validateCreateData, validateNoNestedWrites, validateRelationValue } from '../validators/data-validator';
+import { validationFailure } from '../validators/failure';
 import { captureMatchedIds } from './bulk-write';
 import type { IncludeClause } from './relation-builder';
 import { buildSelectFields } from './select-builder';
@@ -33,14 +34,15 @@ function prepareNestedCreateData(
   data: Record<string, unknown>,
   targetModel: ModelMetadata,
   path: string,
+  deferredField?: string,
 ): Record<string, unknown> {
-  // A reverse create writes each key as a column name, so an undeclared key is refused before it can reach query text
-  const unknownKeys = validateKnownKeys(data, targetModel);
-  if (unknownKeys.length)
-    throw new CerialValidationError(`Invalid data: ${unknownKeys.map((e) => e.message).join('; ')}`, {
-      model: targetModel.name,
-      field: unknownKeys[0]!.field,
-    });
+  // Same validation as a top-level create, before any transform. An undeclared key is refused here too:
+  // a reverse create writes each key as a column name, so it must not reach query text
+  const withDefaults = applyFieldDefaults(data, targetModel);
+  const validation = validateCreateData(withDefaults, targetModel);
+  // A reverse create receives its foreign key from the parent row, after this runs
+  const problems = validation.errors.filter((e) => e.field !== deferredField);
+  if (problems.length) throw validationFailure('data', problems, targetModel, 'create');
 
   // A nested write inside a nested create has no emitted form; refuse it rather than drop it
   const deep = validateNoNestedWrites(data, targetModel, path);
@@ -50,7 +52,7 @@ function prepareNestedCreateData(
       field: deep[0]!.field,
     });
 
-  return transformData(applyFieldDefaults(data, targetModel), targetModel);
+  return transformData(withDefaults, targetModel);
 }
 
 /** Nested create input for a relation */
@@ -668,6 +670,7 @@ export function buildCreateWithNestedTransaction(
         rawItem,
         rc.targetModel,
         Array.isArray(rc.createData) ? `${rc.fieldName}[${itemIdx}]` : rc.fieldName,
+        rc.recordFieldName,
       );
 
       for (const [key, value] of Object.entries(item)) {
@@ -848,6 +851,7 @@ export function buildUpdateWithNestedTransaction(
             rawItem,
             targetModel,
             Array.isArray(createData) ? `${fieldName}[${idx}]` : fieldName,
+            reverseFieldName,
           );
           // Filter out undefined and null record fields
           const itemContent: Record<string, unknown> = {};

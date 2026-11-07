@@ -2,10 +2,10 @@
  * Validation utility functions
  */
 
-import { Decimal, Duration, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Duration, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type { SchemaFieldType } from '../types/common.types';
 import { CerialBytes } from './cerial-bytes';
-import { CerialDecimal } from './cerial-decimal';
+import { isValidDecimalInput } from './cerial-decimal';
 import { CerialDuration } from './cerial-duration';
 import { CerialGeometry } from './cerial-geometry';
 import { CerialId, isRecordIdInput } from './cerial-id';
@@ -102,9 +102,7 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
     case 'duration':
       return CerialDuration.is(value) || value instanceof Duration || typeof value === 'string';
     case 'decimal':
-      return (
-        CerialDecimal.is(value) || value instanceof Decimal || typeof value === 'number' || typeof value === 'string'
-      );
+      return isValidDecimalInput(value);
     case 'bytes':
       return CerialBytes.is(value) || value instanceof Uint8Array || typeof value === 'string';
     case 'geometry':

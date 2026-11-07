@@ -14,7 +14,7 @@ import type {
   TupleFieldMetadata,
 } from '../../types';
 import { CerialBytes } from '../../utils/cerial-bytes';
-import { CerialDecimal } from '../../utils/cerial-decimal';
+import { CerialDecimal, isValidDecimalInput } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
@@ -80,8 +80,12 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
     case 'decimal':
       if (value instanceof CerialDecimal) return value.toNative();
       if (value instanceof Decimal) return value;
-      if (typeof value === 'number') return new Decimal(value);
-      if (typeof value === 'string') return new Decimal(value);
+      // The SDK turns an unparseable value into 0, so a value validation missed is refused here
+      if (typeof value === 'number' || typeof value === 'string') {
+        if (!isValidDecimalInput(value)) throw new CerialValidationError(`Invalid decimal value: ${String(value)}`);
+
+        return typeof value === 'number' ? new Decimal(value) : new Decimal(value);
+      }
 
       return value;
 
