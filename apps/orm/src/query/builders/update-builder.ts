@@ -612,7 +612,7 @@ function buildObjectUpdateClauses(
         Object.assign(setVars, varBinding.vars);
       }
 
-      // updateWhere and unset are complex - will be implemented with E2E tests
+      // updateWhere and unset are refused by the data validator before this builder runs
 
       return;
     }

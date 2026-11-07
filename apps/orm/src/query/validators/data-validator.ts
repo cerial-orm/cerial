@@ -588,8 +588,16 @@ function validateSubValue(
       return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false, inline));
     if (!isObject(value)) return [];
 
-    // { push } and { set } carry whole elements; updateWhere and unset are not value-checked
+    // { push } and { set } carry whole elements. updateWhere and unset are typed but the builder never
+    // applies them, so a call that reports success would change nothing: refuse them by name.
     const errors: DataValidationError[] = [];
+    for (const key of ['updateWhere', 'unset']) {
+      if (value[key] === undefined) continue;
+      errors.push({
+        field: path,
+        message: `${path}.${key} is not supported on an array of ${field.type}s; replace the whole array with the array itself or { set }, or append with { push }`,
+      });
+    }
     if (value.set !== undefined && Array.isArray(value.set))
       errors.push(...validateSubValue(value.set, field, model, path, false, inline));
     if (value.push !== undefined) {

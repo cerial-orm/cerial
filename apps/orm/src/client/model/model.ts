@@ -52,6 +52,7 @@ import { CerialValidationError } from '../../errors';
 import { CerialTransaction } from '../cerial-transaction';
 import { type CerialLiveHandle, createModelLive, type EndableLive, type ModelLiveOptions } from '../live';
 import { resolveRouted } from '../transaction-context';
+import { assertKnownOptionKeys } from './option-keys';
 import { wrapDatabaseError } from './wrap-database-error';
 
 /** Extended find unique options with include support */
@@ -217,6 +218,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /** Find a single record */
   findOne(options: FindOneOptionsWithInclude & { txn?: CerialTransaction } = {}): CerialQueryPromise<T | null> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('findOne', queryOptions, this.metadata.name);
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, { include: queryOptions.include });
     const compiled = compileFindOne(this.metadata, queryOptions, this.registry);
 
@@ -241,6 +243,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /** Find a unique record by id */
   findUnique(options: FindUniqueOptionsWithInclude & { txn?: CerialTransaction }): CerialQueryPromise<T | null> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('findUnique', queryOptions, this.metadata.name);
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, { include: queryOptions.include });
     const compiled = compileFindUnique(this.metadata, queryOptions, this.registry);
 
@@ -265,6 +268,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /** Find multiple records */
   findMany(options: FindManyOptionsWithInclude & { txn?: CerialTransaction } = {}): CerialQueryPromise<T[]> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('findMany', queryOptions, this.metadata.name);
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, { include: queryOptions.include });
     const compiled = compileFindMany(this.metadata, queryOptions, this.registry);
 
@@ -289,6 +293,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /** Create a new record */
   create(options: CreateOptions<Partial<T>> & { txn?: CerialTransaction }): CerialQueryPromise<T | null> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('create', queryOptions, this.metadata.name);
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
       data: [queryOptions.data as Record<string, unknown>],
       include: queryOptions.include as IncludeClause,
@@ -322,6 +327,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     options: UpdateOptions<Partial<T>> & { unset?: Record<string, unknown>; txn?: CerialTransaction },
   ): CerialQueryPromise<T[]> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('updateMany', queryOptions, this.metadata.name);
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
       data: [queryOptions.data as Record<string, unknown>],
       include: queryOptions.include as IncludeClause,
@@ -368,6 +374,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     txn?: CerialTransaction;
   }): CerialQueryPromise<UpdateUniqueResult<T, R>> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('updateUnique', queryOptions, this.metadata.name);
     // The compile call below is handed a rebuilt options object, which would drop the key unseen
     refuseCompute(queryOptions, this.metadata, 'updateUnique');
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
@@ -408,6 +415,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /** Delete records matching where clause */
   deleteMany(options: DeleteManyOptions & { txn?: CerialTransaction }): CerialQueryPromise<number> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('deleteMany', queryOptions, this.metadata.name);
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, { isDelete: true });
     const compiled = compileDeleteMany(this.metadata, queryOptions, this.registry);
 
@@ -442,6 +450,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     txn?: CerialTransaction;
   }): CerialQueryPromise<DeleteUniqueResult<T, R>> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('deleteUnique', queryOptions, this.metadata.name);
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, { isDelete: true });
     const compiled = compileDeleteUnique(this.metadata, queryOptions, this.registry);
 
@@ -551,6 +560,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     txn?: CerialTransaction;
   }): CerialQueryPromise<UpsertReturnType<T, R> | UpsertArrayReturnType<T, R>> {
     const { txn, ...queryOptions } = options;
+    assertKnownOptionKeys('upsert', queryOptions, this.metadata.name);
     // The compile call below is handed a rebuilt options object, which would drop the key unseen
     refuseCompute(queryOptions, this.metadata, 'upsert');
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
