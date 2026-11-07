@@ -192,6 +192,8 @@ The two flags are separate because they authorise different things. `--allow-des
 
 **An index over a field a step is filling or converting** cannot be built in the same transaction. The plan refuses and says to apply twice: first without the index, then with it. An index over any other field is built before the data steps.
 
+**Removing `@flexible` from an object field on a table with rows cannot be applied yet.** The plan classes it as data loss, and even with both flags the apply fails and rolls back, leaving every row as it was. Keep `@flexible` on that field for now, or make the change while the table is empty: export the rows, apply, then import them again. A later release will plan this step.
+
 A table is proposed for removal only when Cerial created it. A live table the schema does not declare and that migration state does not list as managed is reported as unmanaged and never touched. Cerial does not detect renames: a renamed field is a removal plus an addition.
 
 ### Failure

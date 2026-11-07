@@ -1487,6 +1487,7 @@ development branch and is not available on npm.
   with no flags for such a change, add `--allow-data-loss` as well as
   `--allow-destructive`, or review the plan file and uncomment the step. Stored
   values that convert to the field type are kept.
+- Removing `@flexible` from an object field on a table with rows cannot be applied by `cerial migrate` yet: the plan classes it as data loss, and with both flags the apply fails and rolls back with every row unchanged. Keep `@flexible` on the field, or apply the change while the table is empty (export, apply, import).
 - **Breaking.** Several schema folders: with no config and no `-s`, discovery
   refuses when more than one `schemas/` or `schema/` folder holds schema files. It lists them. Add a
   `cerial.config.ts` (`cerial init` writes one) or pass `-s <path>`. Discovery
