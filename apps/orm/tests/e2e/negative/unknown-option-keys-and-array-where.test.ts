@@ -10,6 +10,8 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { compileDeleteMany, QueryBuilderStatic } from '../../../src';
+import { modelRegistry } from '../generated/internal/model-registry';
 import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
 // What a JavaScript or JSON caller can send; the generated types reject it
@@ -232,6 +234,30 @@ describe('Unknown option keys and updateWhere on an object array — negative an
       expect(await locations()).toEqual([{ lat: 7, lng: 8 }]);
     });
   });
+  describe('the builders take the same option keys', () => {
+    const meta = () => client.db.ObjectTestUser.getMetadata();
+
+    test('compileDeleteMany refuses a misspelled where and no statement is produced', async () => {
+      expect(() => compileDeleteMany(meta(), hostile({ wehre: { name: 'Ada' } }), modelRegistry)).toThrow(
+        "deleteMany does not take the option 'wehre'",
+      );
+      expect(await names()).toEqual(['Ada', 'Bob']);
+    });
+
+    test('QueryBuilderStatic.deleteMany and updateMany refuse it and change nothing', async () => {
+      const db = client.getSurreal()!;
+      await rejects(
+        () => QueryBuilderStatic.deleteMany(db, meta(), hostile({ wehre: { name: 'Ada' } }), modelRegistry),
+        "deleteMany does not take the option 'wehre'",
+      );
+      await rejects(
+        () => QueryBuilderStatic.updateMany(db, meta(), hostile({ data: { name: 'Z' }, whre: {} }), modelRegistry),
+        "updateMany does not take the option 'whre'",
+      );
+      expect(await names()).toEqual(['Ada', 'Bob']);
+    });
+  });
+
   describe('array operators an array of objects does not take', () => {
     const locations = async () => (await client.db.ObjectTestUser.findOne({ where: { name: 'Ada' } }))?.locations;
     const original = [

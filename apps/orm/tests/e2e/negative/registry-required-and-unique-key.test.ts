@@ -453,4 +453,29 @@ describe('Registry required, findUnique relation filters and unique key presence
       });
     }
   });
+  describe('include options take only the keys an include has', () => {
+    test('a misspelled include key is refused instead of including every related row', async () => {
+      const { ann } = await seed();
+
+      await expect(
+        (async () => {
+          await client.db.BasicsUser.findMany({
+            where: { id: ann.id },
+            include: { posts: { wehre: { title: 'nope' } } as never },
+          });
+        })(),
+      ).rejects.toThrow("'wehre' is not an option of include 'posts'");
+    });
+
+    test('every key an include takes still works', async () => {
+      const { ann } = await seed();
+
+      const [found] = await client.db.BasicsUser.findMany({
+        where: { id: ann.id },
+        include: { posts: { where: { title: 'p' }, orderBy: { title: 'asc' }, limit: 1, offset: 0 } },
+      });
+
+      expect(found!.posts.map((p) => p.title)).toEqual(['p']);
+    });
+  });
 });

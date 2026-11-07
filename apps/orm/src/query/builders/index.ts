@@ -60,6 +60,7 @@ export {
   buildRelationSelectFields,
   buildReverseRelationSelect,
   combineSelectWithIncludes,
+  INCLUDE_OPTION_KEYS,
   type IncludeClause,
   type IncludeOptions,
 } from './relation-builder';

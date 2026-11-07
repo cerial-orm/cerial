@@ -7,6 +7,7 @@
  */
 
 import type { RecordId, Surreal } from 'surrealdb';
+import { assertKnownOptionKeys } from '../client/model/option-keys';
 import { CerialValidationError } from '../errors';
 import { isObject } from '../utils/type-utils';
 import type {
@@ -124,6 +125,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Find a single record */
   async findOne(options: FindOneOptionsWithInclude = {}): Promise<T | null> {
+    assertKnownOptionKeys('findOne', options, this.model.name);
     assertValidReadOptions(this.model, 'findOne', options, this.registry);
 
     // Validate where clause
@@ -138,6 +140,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Find a unique record by id or unique field */
   async findUnique(options: FindUniqueOptionsWithInclude): Promise<T | null> {
+    assertKnownOptionKeys('findUnique', options, this.model.name);
     const { where } = options;
 
     assertValidReadOptions(this.model, 'findUnique', options, this.registry);
@@ -155,6 +158,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Find multiple records */
   async findMany(options: FindManyOptionsWithInclude = {}): Promise<T[]> {
+    assertKnownOptionKeys('findMany', options, this.model.name);
     assertValidReadOptions(this.model, 'findMany', options, this.registry);
 
     // Validate where clause
@@ -169,6 +173,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Create a new record */
   async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
+    assertKnownOptionKeys('create', options, this.model.name);
     const { data, select, include } = options;
     assertValidReadOptions(this.model, 'create', { select });
 
@@ -213,6 +218,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Update records matching where clause */
   async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
+    assertKnownOptionKeys('updateMany', options, this.model.name);
     const { where, data, select, include, unset } = options;
     assertValidReadOptions(this.model, 'updateMany', { select });
 
@@ -290,6 +296,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     include?: IncludeClause;
     return?: R;
   }): Promise<UpdateUniqueResult<T, R>> {
+    assertKnownOptionKeys('updateUnique', options, this.model.name);
     const { where, data, select, include, return: returnOption, unset } = options;
     assertValidReadOptions(this.model, 'updateUnique', { select });
 
@@ -392,6 +399,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Delete records matching where clause */
   async deleteMany(options: DeleteManyOptions): Promise<number> {
+    assertKnownOptionKeys('deleteMany', options, this.model.name);
     const { where } = options;
 
     // Validate where clause
@@ -425,6 +433,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     where: WhereClause;
     return?: R;
   }): Promise<DeleteUniqueResult<T, R>> {
+    assertKnownOptionKeys('deleteUnique', options, this.model.name);
     const { where, return: returnOption } = options;
 
     // Validate where clause
@@ -527,6 +536,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     include?: IncludeClause;
     return?: R;
   }): Promise<unknown> {
+    assertKnownOptionKeys('upsert', options, this.model.name);
     const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
     assertValidReadOptions(this.model, 'upsert', { select });
 
@@ -760,6 +770,7 @@ export function compileFindOne(
   options: FindOneOptionsWithInclude = {},
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('findOne', options, model.name);
   assertValidReadOptions(model, 'findOne', options, registry);
   const validation = validateWhere(options.where, model, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'findOne');
@@ -776,6 +787,7 @@ export function compileFindUnique(
   options: FindUniqueOptionsWithInclude,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('findUnique', options, model.name);
   assertValidReadOptions(model, 'findUnique', options, registry);
   const validation = validateWhere(options.where, model, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'findUnique');
@@ -792,6 +804,7 @@ export function compileFindMany(
   options: FindManyOptionsWithInclude = {},
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('findMany', options, model.name);
   assertValidReadOptions(model, 'findMany', options, registry);
   const validation = validateWhere(options.where, model, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'findMany');
@@ -808,6 +821,7 @@ export function compileCreate(
   options: CreateOptions<Record<string, unknown>>,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('create', options, model.name);
   const { data, select, include } = options;
   refuseCompute(options, model, 'create');
   assertValidReadOptions(model, 'create', { select });
@@ -840,6 +854,7 @@ export function compileUpdateMany(
   options: UpdateOptions<Record<string, unknown>>,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('updateMany', options, model.name);
   const { where, data, select, include, unset } = options;
   refuseCompute(options, model, 'updateMany');
   assertValidReadOptions(model, 'updateMany', { select });
@@ -906,6 +921,7 @@ export function compileUpdateUnique(
   },
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('updateUnique', options, model.name);
   const { where, data, select, include, return: returnOption, unset } = options;
   refuseCompute(options, model, 'updateUnique');
   assertValidReadOptions(model, 'updateUnique', { select });
@@ -974,6 +990,7 @@ export function compileDeleteMany(
   options: DeleteManyOptions,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('deleteMany', options, model.name);
   const { where } = options;
   refuseCompute(options, model, 'deleteMany');
 
@@ -999,6 +1016,7 @@ export function compileDeleteUnique(
   options: { where: WhereClause; return?: DeleteUniqueReturn },
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('deleteUnique', options, model.name);
   const { where, return: returnOption } = options;
   refuseCompute(options, model, 'deleteUnique');
 
@@ -1184,6 +1202,7 @@ export function compileUpsert(
   },
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertKnownOptionKeys('upsert', options, model.name);
   const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
   refuseCompute(options, model, 'upsert');
   assertValidReadOptions(model, 'upsert', { select });

@@ -23,6 +23,12 @@ export interface IncludeOptions {
   include?: Record<string, boolean | IncludeOptions>;
 }
 
+/**
+ * The keys an include accepts. Typed as the keys of IncludeOptions in both directions (see
+ * tests/unit/query/include-option-keys-drift.test.ts), so a key added to one and not the other fails to compile.
+ */
+export const INCLUDE_OPTION_KEYS = ['select', 'where', 'orderBy', 'limit', 'offset', 'include'] as const;
+
 /** Include clause type */
 export type IncludeClause = Record<string, boolean | IncludeOptions>;
 
@@ -320,6 +326,16 @@ function buildRelationSelectFieldsInternal(
     if (options && (options as { compute?: unknown }).compute !== undefined) {
       throw new CerialValidationError(
         `Invalid include: 'compute' is not an option of include '${relationName}' on model ${model.name}; put it on the find call`,
+        { model: model.name, field: relationName, operation: 'include' },
+      );
+    }
+
+    // A misspelled key (`wehre`) would otherwise drop the filter and include every related row
+    const unknownKey =
+      options && Object.keys(options).find((k) => !(INCLUDE_OPTION_KEYS as readonly string[]).includes(k));
+    if (unknownKey !== undefined) {
+      throw new CerialValidationError(
+        `Invalid include: '${unknownKey}' is not an option of include '${relationName}' on model ${model.name}; it takes ${INCLUDE_OPTION_KEYS.join(', ')}`,
         { model: model.name, field: relationName, operation: 'include' },
       );
     }
