@@ -1,5 +1,6 @@
 import type { Surreal } from 'surrealdb';
 import { CerialMigrationError } from '../errors';
+import { escapeControl, escapeForTerminal } from '../utils/safe-text';
 import { diffSchema } from './diff';
 import { fingerprint } from './fingerprint';
 import { type LeaseOptions, type MigrationLease, withLease } from './lease';
@@ -131,7 +132,8 @@ function reportFailure(
   // statement is COMMIT's own (a write conflict, say): the transaction is to blame, no statement, and the whole
   // batch is rolled back.
   const index = responses.findIndex((r) => !r.success && !GENERIC_FAILURE.test(r.error?.message ?? ''));
-  const message = responses[index]?.error?.message ?? 'the transaction failed and was rolled back';
+  // Server text can echo a stored value, so it is escaped before it reaches a log or a terminal
+  const message = escapeControl(responses[index]?.error?.message ?? 'the transaction failed and was rolled back');
   const ddl = statements[index - 1];
   if (ddl === undefined) {
     return new CerialMigrationError(`The migration was rolled back: ${message}`, {
@@ -139,10 +141,13 @@ function reportFailure(
     });
   }
 
-  return new CerialMigrationError(`The migration was rolled back; ${ddl} failed: ${message}${hint(message)}`, {
-    cause: responses[index]?.error,
-    statement: { text: ddl, vars: {} },
-  });
+  return new CerialMigrationError(
+    `The migration was rolled back; ${escapeForTerminal(ddl)} failed: ${message}${hint(message)}`,
+    {
+      cause: responses[index]?.error,
+      statement: { text: ddl, vars: {} },
+    },
+  );
 }
 
 interface PendingRow {
@@ -163,7 +168,7 @@ async function writePending(surreal: Surreal, cerialVersion: string, rows: reado
   );
   const [response] = await surreal.query(piece.query, piece.bindings).responses();
   if (response && !response.success) {
-    throw new CerialMigrationError(`Writing migration state failed: ${response.error.message}`, {
+    throw new CerialMigrationError(`Writing migration state failed: ${escapeControl(response.error.message)}`, {
       cause: response.error,
     });
   }
@@ -251,7 +256,7 @@ async function applyUnderLease(
   try {
     responses = await surreal.query(script, tail.bindings).responses();
   } catch (cause) {
-    throw new CerialMigrationError(`The migration was rolled back: ${describe(cause)}`, { cause });
+    throw new CerialMigrationError(`The migration was rolled back: ${escapeControl(describe(cause))}`, { cause });
   }
   if (responses.some((r) => !r.success)) throw reportFailure(responses, [...runnable, tail.query]);
 

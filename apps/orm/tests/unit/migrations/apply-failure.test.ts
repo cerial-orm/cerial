@@ -69,6 +69,31 @@ describe('applyPlan: which response is the cause', () => {
   });
 });
 
+describe('applyPlan: server text in the error', () => {
+  const hostile = 'boom \u001b[2J\u001b]52;c;cHduZWQ\u0007 line\r\nforged';
+
+  test('control characters in the server message are shown as escapes', async () => {
+    const error = await failureOf([ok, fail(hostile)]);
+
+    // oxlint-disable-next-line no-control-regex -- the point is that none remain
+    expect(error.message).not.toMatch(/[\u0000-\u0008\u000a-\u001f\u007f]/);
+    expect(error.message).toContain('boom \\u{1b}[2J\\u{1b}]52;c;cHduZWQ\\u{7} line\\r\\nforged');
+  });
+
+  test('a message without control characters is unchanged', async () => {
+    expect((await failureOf([ok, fail('An error occurred: boom')])).message).toContain(
+      'failed: An error occurred: boom',
+    );
+  });
+
+  test('the rolled-back message for a transaction-level failure is escaped too', async () => {
+    const error = await failureOf([ok, ok, ok, fail(hostile)]);
+
+    // oxlint-disable-next-line no-control-regex -- the point is that none remain
+    expect(error.message).not.toMatch(/[\u0000-\u0008\u000a-\u001f\u007f]/);
+  });
+});
+
 describe('applyPlan: the script it sends', () => {
   async function sent(statements: string[]): Promise<string> {
     let script = '';
