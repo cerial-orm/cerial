@@ -286,3 +286,77 @@ describe('index order around a data step', () => {
     expect(statements[1]).toContain('MIGRATE EXISTING ROWS');
   });
 });
+
+describe('a flexible object that stops being flexible in the same change', () => {
+  const dropped = (path: readonly (string | { element: true })[], ddl: string, parents: ReturnType<typeof field>[]) => {
+    const child = buildFieldModel({ path: [...path], kind: 'int', default: '0' });
+    const strict = parents.map((p) => buildFieldModel({ path: [...p.path], kind: p.kind }));
+
+    const redefined = strict.map(
+      (p) =>
+        `DEFINE FIELD OVERWRITE ${p.path.map((seg) => (typeof seg === 'string' ? seg : '*')).join('.')} ON TABLE note TYPE ${p.kind};`,
+    );
+    const items = plan(
+      [ID_STATEMENT, ...redefined, `DEFINE FIELD OVERWRITE ${ddl} ON TABLE note TYPE int DEFAULT 0;`],
+      schema([table('note', [ID, ...strict, child])]),
+      schema([populated('note', [ID, ...parents])]),
+    );
+
+    return items.filter((i) => i.statement?.includes(` ${ddl} `));
+  };
+  const flexMeta = field('meta', 'object', { flexible: true });
+
+  test('keeps stored values and is classed data-loss', () => {
+    const [item] = dropped(['meta', 'balance'], 'meta.balance', [flexMeta]);
+
+    expect(item!.statement).toEndWith('USING <int>$value FALLBACK 0;');
+    expect(item!.class).toBe('data-loss');
+  });
+
+  test('holds inside an object array', () => {
+    const [item] = dropped(['meta', 'items', { element: true }, 'qty'], 'meta.items.*.qty', [
+      field('meta', 'object'),
+      field('meta.items', 'array<object>', { flexible: true }),
+      field('meta.items.*', 'object'),
+    ]);
+
+    expect(item!.statement).toEndWith('USING <int>$value FALLBACK 0;');
+    expect(item!.class).toBe('data-loss');
+  });
+
+  test('negative: an object strict on both sides keeps the additive class', () => {
+    const [item] = dropped(['meta', 'balance'], 'meta.balance', [field('meta', 'object')]);
+
+    expect(item!.statement).toEndWith('USING 0;');
+    expect(item!.class).toBe('additive');
+  });
+});
+
+describe('a string key added under a flexible object', () => {
+  const stringKey = (kind: string, fallback: string) => {
+    const parents = [field('meta', 'object', { flexible: true })];
+    const child = buildFieldModel({ path: ['meta', 'tag'], kind, default: fallback });
+
+    return plan(
+      [ID_STATEMENT, `DEFINE FIELD OVERWRITE meta.tag ON TABLE note TYPE ${kind} DEFAULT ${fallback};`],
+      schema([table('note', [ID, ...parents, child])]),
+      schema([populated('note', [ID, ...parents])]),
+    )[0]!;
+  };
+
+  test('maps a missing or null value to the default before the cast', () => {
+    expect(stringKey('string', "'x'").statement).toEndWith(
+      "USING IF $value IS NONE OR $value IS NULL THEN 'x' ELSE <string>$value END FALLBACK 'x';",
+    );
+  });
+
+  test('a nullable string keeps a stored null', () => {
+    expect(stringKey('string | null', "'x'").statement).toEndWith(
+      "USING IF $value IS NONE THEN 'x' ELSE <null | string>$value END FALLBACK 'x';",
+    );
+  });
+
+  test('negative: an int key keeps the plain cast', () => {
+    expect(stringKey('int', '0').statement).toEndWith('USING <int>$value FALLBACK 0;');
+  });
+});

@@ -132,3 +132,74 @@ describe('a defaulted key declared under a flexible object over stored rows', ()
     expect(await balances(db)).toEqual([0, 0, 0]);
   });
 });
+
+describe('a flexible object that is made strict in the same change', () => {
+  const stricten = async (label: string) => {
+    const seed = await seeded(label, true);
+    await writeFile(join(seed.dir, 'app/schema.cerial'), AFTER(false));
+
+    return seed;
+  };
+
+  test('without flags the apply is refused and the stored values are intact', async () => {
+    const { dir, db, name } = await stricten('dropref');
+
+    const result = await run(dir, name, ['--from-schema']);
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain('--allow-destructive and --allow-data-loss');
+    expect(await balances(db)).toEqual([4200, undefined, 'junk']);
+  });
+
+  test('with both flags the server still refuses to narrow the object, and the rollback keeps every row', async () => {
+    const { dir, db, name } = await stricten('dropboth');
+
+    const result = await run(dir, name, ['--from-schema', '--allow-destructive', '--allow-data-loss']);
+
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain('rolled back');
+    expect(await balances(db)).toEqual([4200, undefined, 'junk']);
+  });
+});
+
+describe('a defaulted string key declared under a flexible object over stored rows', () => {
+  const SCHEMA = (key: string) =>
+    `object Meta {\n  label String?\n${key}}\n\nmodel Account {\n  id Record(int) @id\n  meta Meta @flexible\n}\n`;
+  const BASE = SCHEMA('');
+
+  const tagged = async (label: string, key: string) => {
+    const dir = await mixedProject({ 'app/schema.cerial': BASE });
+    const target = await scratch(label);
+    expect((await run(dir, target.name, ['--from-schema'])).exitCode).toBe(0);
+    await target.db
+      .query(
+        `CREATE account:1 SET meta = { label: 'a', tag: 'kept' }; CREATE account:2 SET meta = { label: 'b' }; CREATE account:3 SET meta = { label: 'c', tag: NULL }`,
+      )
+      .collect();
+    await writeFile(join(dir, 'app/schema.cerial'), SCHEMA(key));
+    const result = await run(dir, target.name, ['--from-schema', '--allow-destructive', '--allow-data-loss']);
+
+    return { ...target, result };
+  };
+
+  const tags = async (db: Surreal): Promise<unknown[]> =>
+    (await db.query('SELECT meta.tag AS t FROM account ORDER BY id').collect<[Array<{ t: unknown }>]>())[0].map(
+      (r) => r.t,
+    );
+
+  test('rows without the key or holding null get the default, never the text NONE or NULL', async () => {
+    const { db, result } = await tagged('strkey', "  tag String @default('x')\n");
+
+    expect(result.stderr).toBe('');
+    expect(result.exitCode).toBe(0);
+    expect(await tags(db)).toEqual(['kept', 'x', 'x']);
+  });
+
+  test('a nullable string key keeps a stored null and fills only the missing key', async () => {
+    const { db, result } = await tagged('nullkey', "  tag String @nullable @default('x')\n");
+
+    expect(result.stderr).toBe('');
+    expect(result.exitCode).toBe(0);
+    expect(await tags(db)).toEqual(['kept', 'x', null]);
+  });
+});

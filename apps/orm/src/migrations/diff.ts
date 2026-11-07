@@ -250,14 +250,15 @@ function diffTable(desired: TableModel, live: TableModel): SchemaDifference[] {
         desiredField: field,
       });
       // The plan fills existing rows with the default (a type that rejects NONE), which would overwrite a value
-      // stored under the same undeclared key, so the step is classed by what it can lose.
+      // stored under the same undeclared key, so the step is classed by what it can lose. An object that is flexible
+      // live but not in the new schema held undeclared keys until this change, so it counts the same.
       const fillsRows =
         added.kind === 'field-missing' &&
         live.populated &&
         field.default !== undefined &&
         field.computed === undefined &&
         !acceptsNone(field.kind) &&
-        hasFlexibleAncestor(field.path, desiredFields);
+        (hasFlexibleAncestor(field.path, desiredFields) || hasFlexibleAncestor(field.path, liveFields));
       result.push(
         fillsRows
           ? {

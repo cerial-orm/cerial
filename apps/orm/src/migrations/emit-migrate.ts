@@ -52,6 +52,21 @@ function migrationName(d: SchemaDifference, clause: string): string {
   return ['cerial_', hash.slice(0, 12)].join('');
 }
 
+/**
+ * The cast of the stored value. `<string>` turns NONE and NULL into the text "NONE" and "NULL", which then count as
+ * converted, so FALLBACK never fires; a string target tests for them first. A nullable target keeps a stored NULL.
+ * The other types reject NONE and NULL in the cast and reach FALLBACK (measured on 4.0.0).
+ */
+function castValue(field: FieldModel, fallback: string): string {
+  const cast = ['<', field.kind, '>$value'].join('');
+  const members = splitTopLevel(canonicalType(field.kind), '|');
+  if (!members.includes('string')) return cast;
+
+  const absent = members.includes('null') ? '$value IS NONE' : '$value IS NONE OR $value IS NULL';
+
+  return ['IF ', absent, ' THEN ', fallback, ' ELSE ', cast, ' END'].join('');
+}
+
 function withClause(d: SchemaDifference, statement: string, using: string, fallback?: string): string {
   const tail = [' USING ', using, fallback === undefined ? '' : [' FALLBACK ', fallback].join('')].join('');
 
@@ -84,7 +99,7 @@ export function emitMigrate(d: SchemaDifference, statement: string, populated: b
     // A flexible object may already hold a value at this key; USING <default> would reset it, a cast keeps it.
     if (d.underFlexible) {
       return {
-        statement: withClause(d, statement, ['<', field.kind, '>$value'].join(''), using),
+        statement: withClause(d, statement, castValue(field, using), using),
         overwrites: true,
         reason: [
           'values already stored at this key that convert to ',
@@ -116,7 +131,7 @@ export function emitMigrate(d: SchemaDifference, statement: string, populated: b
   }
 
   return {
-    statement: withClause(d, statement, ['<', field.kind, '>$value'].join(''), fallback),
+    statement: withClause(d, statement, castValue(field, fallback), fallback),
     overwrites: true,
     reason: [
       'values that convert to ',
