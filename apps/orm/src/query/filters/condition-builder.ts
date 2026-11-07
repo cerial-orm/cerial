@@ -522,9 +522,10 @@ export function resolveTupleElementKey(
     };
   }
 
-  // Try index key
-  const idx = parseInt(key, 10);
-  if (!Number.isNaN(idx)) {
+  // Index keys are canonical digits only: parseInt would read '1 anything' or '0\n...' as an index and
+  // let the raw key reach error messages. Leading zeros ('01') are refused like the data validator does.
+  if (/^\d+$/.test(key) && String(Number(key)) === key) {
+    const idx = Number(key);
     const element = tupleInfo.elements.find((e) => e.index === idx);
     if (element) {
       return {
