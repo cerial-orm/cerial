@@ -240,24 +240,30 @@ describe('an object pretending to be an operator', () => {
   });
 });
 
-describe('an operator with the wrong operand type', () => {
-  // The operand is bound, never interpolated, so SurrealDB rejects the type at run time.
-  test('a string where in takes an array is bound, not written into the text', () => {
-    const compiled = posts({ title: { in: "x' OR '1'='1" } });
+describe('an operator operand', () => {
+  // A hostile string is a valid operand for a string field: it is bound, never interpolated.
+  test('a string list for in is bound, not written into the text', () => {
+    const compiled = posts({ title: { in: ["x' OR '1'='1"] } });
     expect(compiled.text).toContain('title IN $title_in_inc_0');
     expectBoundOnly(compiled, "x' OR '1'='1");
   });
 
-  test('an object operand is bound as a variable', () => {
-    const compiled = posts({ title: { gt: { "a'; DROP": 1 } } });
+  test('a hostile string for gt is bound as a variable', () => {
+    const compiled = posts({ title: { gt: "a'; DROP" } });
     expect(compiled.text).not.toContain('DROP');
-    expect(compiled.vars).toEqual({ title_gt_inc_0: { "a'; DROP": 1 } });
+    expect(compiled.vars).toEqual({ title_gt_inc_0: "a'; DROP" });
   });
 
-  test('an array operand to a scalar operator is bound as a variable', () => {
-    const compiled = posts({ title: { contains: ["x'", '`'] } });
+  test('a hostile string for contains is bound as a variable', () => {
+    const compiled = posts({ title: { contains: "x'`" } });
     expect(compiled.text).not.toMatch(/['"`;]/);
-    expect(compiled.vars).toEqual({ title_contains_inc_0: ["x'", '`'] });
+    expect(compiled.vars).toEqual({ title_contains_inc_0: "x'`" });
+  });
+
+  test('a string where in takes an array, and an object or array where a string is, are refused', () => {
+    expectValidationError(() => posts({ title: { in: "x' OR '1'='1" } }));
+    expectValidationError(() => posts({ title: { gt: { "a'; DROP": 1 } } }));
+    expectValidationError(() => posts({ title: { contains: ["x'", '`'] } }));
   });
 });
 

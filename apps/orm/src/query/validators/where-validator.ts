@@ -13,7 +13,7 @@ import type {
 } from '../../types';
 import { CerialValidationError } from '../../errors';
 import { CerialBytes } from '../../utils/cerial-bytes';
-import { CerialDecimal, isValidDecimalInput } from '../../utils/cerial-decimal';
+import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId } from '../../utils/cerial-id';
@@ -26,7 +26,7 @@ import { splitArrayRelationFilter } from '../filters/nested-condition-builder';
 import { isRegisteredOperator } from '../filters/registry';
 import { isSqlFragment } from '../compile/sql-fragment';
 import { refuseFragmentInValue } from './fragment-value';
-import { isSizedNumberFieldType, sizedNumberError } from './sized-number-validator';
+import { operandIssues } from './where-operand-validator';
 
 function isDirectValue(value: unknown): boolean {
   return (
@@ -111,48 +111,6 @@ function validateCompositeValue(
   if (missing.length) problems.unshift(`missing ${missing.map((f) => `'${f}'`).join(', ')}`);
 
   return problems.length ? fail(problems.join('; ')) : [];
-}
-
-/** Operators whose value is one number, and those whose value is a list of them. */
-const SINGLE_VALUE_OPERATORS = ['eq', 'neq', 'not', 'gt', 'gte', 'lt', 'lte', 'has'];
-const LIST_VALUE_OPERATORS = ['in', 'notIn', 'hasAll', 'hasAny', 'between'];
-
-/** Range-check the numbers a filter on a sized number field compares against, so the server never has to refuse them. */
-function sizedFilterIssues(
-  type: FieldMetadata['type'],
-  filter: unknown,
-  path: string,
-  label: string,
-): CerialValidationIssue[] {
-  if (type !== 'decimal' && !isSizedNumberFieldType(type)) return [];
-
-  const issues: CerialValidationIssue[] = [];
-  const check = (value: unknown, valuePath: string, valueLabel: string): void => {
-    // A decimal value the parser would read as 0 ('1,5', 'NaN') is refused rather than compared as 0
-    const message =
-      type === 'decimal'
-        ? value == null || isValidDecimalInput(value)
-          ? null
-          : `Field "${valueLabel}" is Decimal and expects a finite number, a CerialDecimal or a decimal string, got ${String(value)}`
-        : sizedNumberError(type, valueLabel, value);
-    if (message) issues.push({ path: valuePath, message });
-  };
-  const checkList = (values: unknown, listPath: string): void => {
-    if (Array.isArray(values)) values.forEach((v, i) => check(v, `${listPath}[${i}]`, `${label}[${i}]`));
-  };
-
-  if (Array.isArray(filter)) {
-    checkList(filter, path);
-  } else if (isOperatorObject(filter)) {
-    for (const [op, value] of Object.entries(filter)) {
-      if (SINGLE_VALUE_OPERATORS.includes(op)) check(value, `${path}.${op}`, label);
-      else if (LIST_VALUE_OPERATORS.includes(op)) checkList(value, `${path}.${op}`);
-    }
-  } else {
-    check(filter, path, label);
-  }
-
-  return issues;
 }
 
 const QUANTIFIERS = ['some', 'every', 'none'];
@@ -256,7 +214,7 @@ function validateObjectFilter(
         errors.push(...operatorKeyIssues(value, subPath));
       continue;
     }
-    errors.push(...sizedFilterIssues(subField.type, value, subPath, subFieldPath));
+    errors.push(...operandIssues(subField, value, subPath, subFieldPath));
     if (!isObject(value) || isDirectValue(value)) continue;
 
     if (subField.type === 'object' && subField.objectInfo)
@@ -304,13 +262,23 @@ function validateTupleFilter(
 
     const subPath = `${path}.${key}`;
     const subFieldPath = `${fieldPath}.${key}`;
-    const element = resolveTupleElementKey(key, tupleInfo)?.syntheticField;
+    const resolved = resolveTupleElementKey(key, tupleInfo);
+    const element = resolved?.syntheticField;
 
     if (!element) {
       errors.push(unknownSubField(subPath, subFieldPath, model));
       continue;
     }
-    errors.push(...sizedFilterIssues(element.type, value, subPath, subFieldPath));
+    // The synthetic element drops what only the tuple's own element carries
+    const declared = tupleInfo.elements.find((e) => e.index === resolved.index)!;
+    errors.push(
+      ...operandIssues(
+        { ...element, isNullable: declared.isNullable, literalInfo: declared.literalInfo },
+        value,
+        subPath,
+        subFieldPath,
+      ),
+    );
     if (!isObject(value) || isDirectValue(value)) continue;
 
     if (element.type === 'object' && element.objectInfo)
@@ -473,7 +441,7 @@ export function validateFieldFilter(
   // For record fields with typed IDs, validate direct values against expected types
   if (field.type === 'record' && field.recordIdTypes?.length) {
     if (!isObject(filter)) {
-      if (!validateTypedRecordId(filter, field.recordIdTypes)) {
+      if (!(filter === null && field.isNullable) && !validateTypedRecordId(filter, field.recordIdTypes)) {
         errors.push({
           path,
           message: `${fieldName} must be a valid ${field.recordIdTypes.join(' | ')} record ID`,
@@ -528,7 +496,7 @@ export function validateFieldFilter(
     errors.push(...operatorKeyIssues(filter, path));
   }
 
-  errors.push(...sizedFilterIssues(field.type, filter, path, fieldName));
+  errors.push(...operandIssues(field, filter, path, fieldName));
 
   return errors;
 }
