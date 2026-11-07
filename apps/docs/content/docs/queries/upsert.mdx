@@ -43,10 +43,10 @@ The return type depends on whether the `where` clause targets a unique field (ID
 
 | `return` Value | Return Type | Description |
 | --- | --- | --- |
-| `undefined` (default) | `Model[]` | All upserted records (updated matches + created) |
+| `undefined` (default) | `Model[]` | The updated record (the first match) or the created one, in an array |
 | `'after'` | `Model[]` | Same as default |
 | `true` | `boolean` | `true` if any records were affected |
-| `'before'` | `Model[]` | Previous states of matched records |
+| `'before'` | `Model[]` | The previous state of the first match |
 
 ## Basic Usage
 
@@ -148,15 +148,15 @@ const previous = await client.db.User.upsert({
 
 ## Non-Unique Where
 
-When the `where` clause does not target an ID or `@unique` field, the upsert matches all records satisfying the condition. Matched records are updated, and if no records match, a new record is created. The result is always an array:
+When the `where` clause does not target an ID or `@unique` field, the upsert updates the first record satisfying the condition and no other, and if no record matches, it creates one. `upsert` is single-row: to change every match, use `updateMany`. The result is always an array, holding that one record:
 
 ```typescript
 const users = await client.db.User.upsert({
   where: { isActive: true },
   create: { name: 'Default User', email: 'default@example.com', isActive: true },
-  update: { name: 'Bulk Updated' },
+  update: { name: 'Updated' },
 });
-// users: User[]
+// users: User[] with one element
 ```
 
 ## Field Behavior

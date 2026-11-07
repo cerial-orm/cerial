@@ -359,9 +359,13 @@ development branch and is not available on npm.
 
 - A unique key passed as `undefined` still counted as the key that picks one
   row. `upsert({ where: { email: body.email, active: true }, ... })` with
-  `email` missing from the request ran the update path on every row where
-  `active` was true. Present in 0.2.0. An `undefined` unique key is now refused
-  by name on `findUnique`, `updateUnique`, `deleteUnique` and `upsert`.
+  `email` missing from the request was treated as naming one row. It failed
+  with a database error when several rows matched, created a new row instead
+  of updating when `update` held a relation operation, and wrote to the matched
+  row when exactly one matched. Present in 0.2.0. An `undefined` unique key, or
+  an `undefined` part of an object `@unique` key, is now refused by name on
+  `findUnique`, `updateUnique`, `deleteUnique` and `upsert`, before any query.
+  `upsert` also writes at most one row now; see the Changed entry on `upsert`.
 
 - A misspelled option key on a model method was ignored. `deleteMany({ wehre:
   { id } })` had no `where` and removed every row,. Present in 0.2.0. Every model method now
@@ -1357,9 +1361,8 @@ development branch and is not available on npm.
 - A where must be an object: `[]`, numbers, booleans and `null` are refused on
   every method that takes a where, and on the exported where helpers.
   Leaving where out still means every row.
-- Bulk writes (`deleteMany`, `updateMany`, and the matched half of a
-  non-unique `upsert`) select the matching records first and then write
-  exactly those, in a transaction. Results are unchanged except where the
+- Bulk writes (`deleteMany` and `updateMany`) select the matching records first
+  and then write exactly those, in a transaction. Results are unchanged except where the
   old single statement saw its own writes.
 - A filter on a to-one relation matches only rows whose related record
   exists. Rows with no related record, or one that was deleted, no longer
@@ -1440,6 +1443,26 @@ development branch and is not available on npm.
 - `updateWhere` and `unset` on an array of objects throw instead of doing
   nothing. Replace the whole array, with the array itself or `{ set }`, or add
   elements with `{ push }`.
+- Object array operators: on an array of objects only the whole array, `{ set }`
+  and `{ push }` are accepted. `pop`, `remove`, `delete` and the object form of `unset`
+  (`unset: { items: { qty: true } }`) used to be accepted and changed nothing;
+  they now throw a `CerialValidationError` naming the field and the supported
+  forms, before any query.
+- **Breaking.** upsert is single-row. Whatever its `where` matches, such as a
+  null on a nullable unique key, non-unique keys such as `{ name: 'shared' }`
+  or an object `@unique` key beside other keys, it updates the first matching
+  row and no other, with or without relation operations, and in every
+  `$transaction` mode. A non-unique `upsert` in 0.2.0 updated every matching
+  row and returned them all; it now returns an array holding the one updated
+  row. A `null` on a `nullsNotDistinct` unique key names at most one row, so
+  it updates that row when it exists and creates one otherwise. To change
+  several rows, use `updateMany`.
+- The option keys on the builders are checked too: the check also runs on the exported `compile*` functions and on
+  every `QueryBuilder` and `QueryBuilderStatic` method that takes options, so
+  `compileDeleteMany(model, { wehre })` throws. The options of an `include`
+  accept `select`, `where`, `orderBy`, `limit`, `offset` and `include`; any
+  other key throws a `CerialValidationError` naming it instead of including
+  every related row.
 
 ### Removed
 
