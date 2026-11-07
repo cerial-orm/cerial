@@ -8,7 +8,14 @@ import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
-import { buildDirectCondition, isOperatorShape } from './condition-builder';
+import {
+  buildArrayObjectCondition,
+  buildArrayTupleCondition,
+  buildDirectCondition,
+  buildObjectCondition,
+  buildTupleCondition,
+  isOperatorShape,
+} from './condition-builder';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { getOperatorHandler } from './registry';
 
@@ -18,6 +25,36 @@ function assertNoRaw(key: string): void {
     throw new CerialValidationError(
       '$raw is not allowed in a relation filter; put the fragment in the where of the model that owns the field',
     );
+}
+
+/**
+ * An object or tuple field compiles by sub-field through the builders the top level uses, with `path`
+ * as its prefix. Compared as a value instead, the sub-filter is bound as a whole-object equality that
+ * no stored object matches, which a NOT or `none` then turns into every row. Undefined means the field
+ * is neither, or the value is not a filter object, and the caller handles it as a plain field.
+ */
+function compileStructuredField(
+  ctx: FilterCompileContext,
+  path: string,
+  value: unknown,
+  field: FieldMetadata,
+): QueryFragment | undefined {
+  if (!isObject(value)) return undefined;
+  const body = value as Record<string, unknown>;
+
+  if (field.type === 'object' && field.objectInfo) {
+    return field.isArray
+      ? buildArrayObjectCondition(ctx, path, body, field.objectInfo)
+      : buildObjectCondition(ctx, path, body, field.objectInfo);
+  }
+
+  if (field.type === 'tuple' && field.tupleInfo) {
+    return field.isArray
+      ? buildArrayTupleCondition(ctx, path, body, field.tupleInfo)
+      : buildTupleCondition(ctx, path, body, field.tupleInfo);
+  }
+
+  return undefined;
 }
 
 /** Relation filter operators for array relations */
@@ -150,6 +187,12 @@ function buildSubqueryConditions(
     if (fieldMetadata.type === 'relation') {
       const relationCondition = compileRelationKey(ctx, fieldMetadata, value, targetModel, registry);
       if (relationCondition.text) conditions.push(relationCondition);
+      continue;
+    }
+
+    const structured = compileStructuredField(ctx, fieldName, value, fieldMetadata);
+    if (structured) {
+      if (structured.text) conditions.push(structured);
       continue;
     }
 
@@ -325,6 +368,12 @@ function compileForwardBody(
 
     // Build the dot-notation field name
     const dotField = `${fieldRef}.${nestedField}`;
+
+    const structured = compileStructuredField(ctx, dotField, value, nestedFieldMetadata);
+    if (structured) {
+      if (structured.text) conditions.push(structured);
+      continue;
+    }
 
     // Handle operator object
     if (isOperatorShape(value, nestedFieldMetadata)) {
