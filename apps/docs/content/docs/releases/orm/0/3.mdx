@@ -1329,6 +1329,13 @@ development branch and is not available on npm.
   request left `name` out. Reads keep their meaning, where `NOT: {}` matches no
   rows. Write the condition you mean, or drop the `NOT`. `NOT: { OR: [] }` is
   still allowed and matches every row.
+- A lost operator under an undeclared `@flexible` sub-key is refused on writes,
+  the same as on a declared field. `address: { extra: { eq: body.extra } }` with
+  `extra` left out of the request used to be dropped, so
+  `deleteMany({ where: { name: { neq: 'zz' }, address: { extra: { eq: body.extra } } } })`
+  removed every row not named `zz`. It now throws and changes nothing. A value
+  comparison on such a key still runs: `extra: 'x'`, `extra: {}` and
+  `extra: { foo: 1 }`. Reads are unchanged.
 - The txn option of a model method must be a transaction from `$transaction`, or
   left out. Any other value, `null` included, is refused with a
   `CerialValidationError` naming `txn` before the query runs.
