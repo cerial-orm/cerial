@@ -12,6 +12,7 @@ import type {
 } from '../../types';
 import { isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
+import { escapeControl } from '../../utils/safe-text';
 import { isObject } from '../../utils/type-utils';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
 import { convertUnsetToNoneValues } from '../builders/update-builder';
@@ -507,7 +508,7 @@ function unknownSubKey(path: string, model: ModelMetadata): DataValidationError 
   return {
     field: path,
     kind: 'unknownField',
-    message: `Unknown field '${path}' on model ${model.name} — check the field name against the schema`,
+    message: `Unknown field '${escapeControl(path)}' on model ${model.name} — check the field name against the schema`,
   };
 }
 

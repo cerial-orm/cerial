@@ -4,6 +4,7 @@
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry, TupleFieldMetadata } from '../../types';
 import { isObject } from '../../utils/type-utils';
+import { escapeControl } from '../../utils/safe-text';
 import { isSqlFragment } from '../compile/sql-fragment';
 import { resolveElementBySelectKey } from '../builders/select-builder';
 
@@ -18,7 +19,7 @@ function unknownField(path: string, model: ModelMetadata): SelectValidationError
   return {
     path,
     kind: 'unknownField',
-    message: `Unknown field '${path}' on model ${model.name} — check the field name against the schema`,
+    message: `Unknown field '${escapeControl(path)}' on model ${model.name} — check the field name against the schema`,
   };
 }
 

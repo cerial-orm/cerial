@@ -1,5 +1,6 @@
 import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
+import { escapeControl } from '../../utils/safe-text';
 
 /**
  * The option keys each model method takes, mirroring the generated signatures. `txn` is stripped by the
@@ -29,7 +30,7 @@ export function assertKnownOptionKeys(method: OptionedMethod, options: unknown, 
   if (unknown === undefined) return;
 
   throw new CerialValidationError(
-    `${method} does not take the option '${unknown}'; it takes ${accepted.join(', ')}, txn`,
+    `${method} does not take the option '${escapeControl(unknown)}'; it takes ${accepted.join(', ')}, txn`,
     { model: modelName, operation: method, field: unknown },
   );
 }

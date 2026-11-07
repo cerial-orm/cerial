@@ -12,6 +12,7 @@
 import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
+import { escapeControl } from '../../utils/safe-text';
 import { isOperatorObject, isOperatorShape, resolveTupleElementKey } from './condition-builder';
 import { isEmptyBody } from './nested-condition-builder';
 
@@ -71,7 +72,7 @@ function isEmptyFieldBody(where: Record<string, unknown>, sub: SubFields): boole
 
 function refuse(operation: string, model: ModelMetadata, field: string, path: string, hint: string): never {
   throw new CerialValidationError(
-    `${operation} on ${model.name}: the filter '${path}' is empty, so it is ambiguous on a write. ${hint}`,
+    `${operation} on ${model.name}: the filter '${escapeControl(path)}' is empty, so it is ambiguous on a write. ${hint}`,
     { model: model.name, operation, field },
   );
 }
@@ -155,7 +156,13 @@ export function assertNoAmbiguousEmpty(
       continue;
     }
     if (isOperatorShape(value, field) && Object.values(value).every((v) => v === undefined))
-      refuse(operation, model, key, here, `Give ${key} a real operator such as { eq: ... }, or drop the key.`);
+      refuse(
+        operation,
+        model,
+        key,
+        here,
+        `Give ${escapeControl(key)} a real operator such as { eq: ... }, or drop the key.`,
+      );
   }
 }
 
@@ -196,14 +203,14 @@ function assertFieldBody(
       const here = `${path}.${key}`;
       if (!child) {
         if (isOperatorObject(v) && allUndefined(v))
-          fail(here, `Give ${key} a real operator such as { eq: ... }, or drop the key.`);
+          fail(here, `Give ${escapeControl(key)} a real operator such as { eq: ... }, or drop the key.`);
         continue;
       }
       if (!isObject(v)) continue;
       const inner = subFieldsOf(child);
       if (!inner) {
         if (isOperatorShape(v, child) && allUndefined(v))
-          fail(here, `Give ${key} a real operator such as { eq: ... }, or drop the key.`);
+          fail(here, `Give ${escapeControl(key)} a real operator such as { eq: ... }, or drop the key.`);
         continue;
       }
       if (!child.isArray) {

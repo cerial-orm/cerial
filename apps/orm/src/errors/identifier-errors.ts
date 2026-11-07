@@ -1,4 +1,5 @@
 import { CerialError, type CerialErrorOptions } from './cerial-error';
+import { escapeControl } from '../utils/safe-text';
 import { CERIAL_ERROR_CODES } from './codes';
 
 /** A model name that is not in the schema was used, for example `client.db.Uesr`. */
@@ -15,7 +16,7 @@ export class CerialUnknownModelError extends CerialError {
   static forModel(name: string, validModels: readonly string[]): CerialUnknownModelError {
     const valid = validModels.length ? `Valid models: ${validModels.join(', ')}.` : 'No models are registered.';
 
-    return new CerialUnknownModelError(`Unknown model "${name}". ${valid}`, { model: name });
+    return new CerialUnknownModelError(`Unknown model "${escapeControl(name)}". ${valid}`, { model: name });
   }
 }
 

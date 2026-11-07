@@ -20,6 +20,7 @@ import { CerialUuid } from '../../utils/cerial-uuid';
 import { quoteSubKey } from '../../utils/string-utils';
 import { isObject } from '../../utils/type-utils';
 import { CerialValidationError } from '../../errors';
+import { escapeControl } from '../../utils/safe-text';
 import { joinFragments, wrapParens } from '../compile/fragment';
 import { compileFragment, isSqlFragment } from '../compile/sql-fragment';
 import type { QueryFragment } from '../compile/types';
@@ -202,7 +203,10 @@ export function buildFieldCondition(
     const handler = getOperatorHandler(op);
     // Dropping an unknown operator would widen the filter, so fail closed; the where validator refuses it first
     if (!handler)
-      throw new CerialValidationError(`Invalid where clause: Unknown operator: ${op}`, { field, operation: 'where' });
+      throw new CerialValidationError(`Invalid where clause: Unknown operator: ${escapeControl(op)}`, {
+        field,
+        operation: 'where',
+      });
     if (value === undefined) continue;
 
     // Transform ID/Record field values to RecordId
@@ -754,7 +758,7 @@ export function buildConditions(
       // so fail closed; the validator refuses it first with a pointer to isEmpty.
       if (!fieldMetadata.relationInfo?.isReverse) continue;
       throw new CerialValidationError(
-        `Invalid where clause: '${key}' is a reverse relation on ${model.name} and cannot be compared to null; use { ${key}: { isEmpty: true } }`,
+        `Invalid where clause: '${escapeControl(key)}' is a reverse relation on ${model.name} and cannot be compared to null; use { ${key}: { isEmpty: true } }`,
         { model: model.name, field: key, operation: 'where' },
       );
     }

@@ -4,6 +4,7 @@
  */
 
 import { isObject } from '../../utils/type-utils';
+import { escapeControl } from '../../utils/safe-text';
 import { CerialUnknownFieldError, CerialValidationError } from '../../errors';
 import type { FieldMetadata, ModelMetadata, ModelRegistry, OrderByClause, WhereClause } from '../../types';
 import type { FilterCompileContext } from '../compile/var-allocator';
@@ -124,7 +125,7 @@ function buildIncludeSubquery(
 
   if (where && !ctx) {
     throw new CerialValidationError(
-      `Invalid include: 'where' in include '${relationName}' needs a filter compile context, and none was supplied`,
+      `Invalid include: 'where' in include '${escapeControl(relationName)}' needs a filter compile context, and none was supplied`,
       { model: targetModel.name, field: relationName, operation: 'include' },
     );
   }
@@ -307,13 +308,13 @@ function buildRelationSelectFieldsInternal(
       const known = model.fields.find((f) => f.name === relationName);
       if (!known) {
         throw new CerialUnknownFieldError(
-          `Invalid include: Unknown field '${relationName}' on model ${model.name} — check the field name against the schema`,
+          `Invalid include: Unknown field '${escapeControl(relationName)}' on model ${model.name} — check the field name against the schema`,
           { model: model.name, field: relationName, operation: 'include' },
         );
       }
 
       throw new CerialValidationError(
-        `Invalid include: '${relationName}' on model ${model.name} is a ${known.type} field, not a relation — only relation fields can be included`,
+        `Invalid include: '${escapeControl(relationName)}' on model ${model.name} is a ${known.type} field, not a relation — only relation fields can be included`,
         { model: model.name, field: relationName, operation: 'include' },
       );
     }
@@ -325,7 +326,7 @@ function buildRelationSelectFieldsInternal(
     // A JavaScript caller can still pass it: the projection belongs to the queried model, not to an include
     if (options && (options as { compute?: unknown }).compute !== undefined) {
       throw new CerialValidationError(
-        `Invalid include: 'compute' is not an option of include '${relationName}' on model ${model.name}; put it on the find call`,
+        `Invalid include: 'compute' is not an option of include '${escapeControl(relationName)}' on model ${model.name}; put it on the find call`,
         { model: model.name, field: relationName, operation: 'include' },
       );
     }
@@ -335,7 +336,7 @@ function buildRelationSelectFieldsInternal(
       options && Object.keys(options).find((k) => !(INCLUDE_OPTION_KEYS as readonly string[]).includes(k));
     if (unknownKey !== undefined) {
       throw new CerialValidationError(
-        `Invalid include: '${unknownKey}' is not an option of include '${relationName}' on model ${model.name}; it takes ${INCLUDE_OPTION_KEYS.join(', ')}`,
+        `Invalid include: '${escapeControl(unknownKey)}' is not an option of include '${escapeControl(relationName)}' on model ${model.name}; it takes ${INCLUDE_OPTION_KEYS.join(', ')}`,
         { model: model.name, field: relationName, operation: 'include' },
       );
     }

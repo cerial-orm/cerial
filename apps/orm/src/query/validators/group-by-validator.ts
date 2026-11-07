@@ -9,6 +9,7 @@
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry, SchemaFieldType, WhereClause } from '../../types';
 import { isObject } from '../../utils/type-utils';
+import { escapeControl } from '../../utils/safe-text';
 import type { ValidationProblem } from './failure';
 import { validatePagination } from './select-validator';
 import { validateWhere } from './where-validator';
@@ -85,7 +86,7 @@ function unknownField(path: string, model: ModelMetadata): ValidationProblem {
   return {
     path,
     kind: 'unknownField',
-    message: `Unknown field '${path}' on model ${model.name} — check the field name against the schema`,
+    message: `Unknown field '${escapeControl(path)}' on model ${model.name} — check the field name against the schema`,
   };
 }
 
@@ -334,10 +335,10 @@ export function validateGroupBy(args: unknown, model: ModelMetadata, registry?: 
     problems.push({
       path: key,
       message: UNSUPPORTED_OPTIONS.includes(key)
-        ? `groupBy does not take '${key}' — it returns one row per group, not records`
+        ? `groupBy does not take '${escapeControl(key)}' — it returns one row per group, not records`
         : key === 'having'
           ? "groupBy has no 'having' — filter the groups in code, or use where to filter the rows before grouping"
-          : `Unknown groupBy option '${key}'`,
+          : `Unknown groupBy option '${escapeControl(key)}'`,
     });
   }
 

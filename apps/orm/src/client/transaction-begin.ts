@@ -9,6 +9,7 @@ import { createRemoteEngines, type Engines, RpcEngine, Surreal, type SurrealTran
 import { CerialTransactionError, CerialValidationError } from '../errors';
 import type { TransactionBeginOptions } from '../types';
 import { CERIAL_CODECS } from './u64-codec';
+import { escapeControl } from '../utils/safe-text';
 
 /** The `begin` RPC params. */
 interface BeginParams {
@@ -94,7 +95,7 @@ export function validateBeginOptions(options: unknown, strict = false): void {
   for (const key of Object.keys(options)) {
     if (key === 'isolation' || key === 'readOnly') continue;
     throw new CerialValidationError(
-      `Unknown $transaction option "${key}": a manual transaction accepts "isolation" and "readOnly"`,
+      `Unknown $transaction option "${escapeControl(key)}": a manual transaction accepts "isolation" and "readOnly"`,
       { operation: '$transaction' },
     );
   }

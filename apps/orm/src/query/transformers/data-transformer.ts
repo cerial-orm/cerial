@@ -16,6 +16,7 @@ import type {
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal, isValidDecimalInput } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
+import { escapeControl } from '../../utils/safe-text';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
@@ -142,7 +143,9 @@ export function transformOrValidateRecordId(tableName: string, value: RecordIdIn
   // Handle CerialId - use its built-in validation
   if (CerialId.is(value)) {
     if (value.hasTable && value.table !== tableName) {
-      throw new CerialValidationError(`CerialId table "${value.table}" does not match expected table "${tableName}"`);
+      throw new CerialValidationError(
+        `CerialId table "${escapeControl(String(value.table))}" does not match expected table "${escapeControl(tableName)}"`,
+      );
     }
     // If no table, set it
     if (!value.hasTable) {
@@ -156,7 +159,7 @@ export function transformOrValidateRecordId(tableName: string, value: RecordIdIn
   if (value instanceof RecordId) {
     if (value.table.name !== tableName) {
       throw new CerialValidationError(
-        `RecordId table "${value.table.name}" does not match expected table "${tableName}"`,
+        `RecordId table "${escapeControl(value.table.name)}" does not match expected table "${escapeControl(tableName)}"`,
       );
     }
 

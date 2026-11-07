@@ -18,6 +18,7 @@ import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
+import { escapeControl } from '../../utils/safe-text';
 import { isObject } from '../../utils/type-utils';
 import { validateTypedRecordId } from '../../utils/validation-utils';
 import { isOperatorObject, resolveTupleElementKey } from '../filters/condition-builder';
@@ -201,14 +202,14 @@ function quantifierBodyIssue(quantifier: string, value: unknown, path: string): 
 function operatorKeyIssues(filter: Record<string, unknown>, path: string): CerialValidationIssue[] {
   return Object.keys(filter)
     .filter((op) => !isRegisteredOperator(op))
-    .map((op) => ({ path: `${path}.${op}`, message: `Unknown operator: ${op}` }));
+    .map((op) => ({ path: `${path}.${op}`, message: `Unknown operator: ${escapeControl(op)}` }));
 }
 
 function unknownSubField(path: string, fieldPath: string, model: ModelMetadata): CerialValidationIssue {
   return {
     path,
     kind: 'unknownField',
-    message: `Unknown field '${fieldPath}' on model ${model.name} — check the field name against the schema`,
+    message: `Unknown field '${escapeControl(fieldPath)}' on model ${model.name} — check the field name against the schema`,
   };
 }
 
@@ -373,7 +374,7 @@ function validateRelationFilter(
     } else if (!isReverse || LOGICAL_KEYS.includes(key)) {
       errors.push({
         path: `${path}.${key}`,
-        message: `Unknown key '${key}' in the filter on relation '${fieldPath}' of model ${model.name} — use ${isReverse ? 'some, every, none or isEmpty' : 'some, every or none'}`,
+        message: `Unknown key '${escapeControl(key)}' in the filter on relation '${escapeControl(fieldPath)}' of model ${model.name} — use ${isReverse ? 'some, every, none or isEmpty' : 'some, every or none'}`,
       });
     }
   }

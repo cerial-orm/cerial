@@ -12,6 +12,7 @@
 import type { RecordIdValue } from 'surrealdb';
 import { RecordId, StringRecordId } from 'surrealdb';
 import { CerialValidationError } from '../errors';
+import { escapeControl } from './safe-text';
 
 /**
  * Union type for all acceptable record ID input formats (generic)
@@ -241,7 +242,9 @@ export class CerialId<T = RecordIdValue> {
 
     if (expectedTable !== undefined) {
       if (cerialId.hasTable && cerialId.table !== expectedTable) {
-        throw new CerialValidationError(`Table "${cerialId.table}" does not match expected table "${expectedTable}"`);
+        throw new CerialValidationError(
+          `Table "${escapeControl(String(cerialId.table))}" does not match expected table "${escapeControl(expectedTable)}"`,
+        );
       }
       if (!cerialId.hasTable) {
         cerialId.table = expectedTable;
