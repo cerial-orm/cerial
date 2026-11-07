@@ -17,6 +17,7 @@ import type { MigrateEnv } from './connection';
 import { loadDesired } from './load';
 import type { MigrateTarget } from './load';
 import { connect, join, readLiveTarget, scrub, withLogsOnStderr } from './shared';
+import { escapeForTerminal } from '../../utils/safe-text';
 
 export const PLAN_OK = 0;
 export const PLAN_FAILED = 2;
@@ -184,7 +185,7 @@ export async function migratePlan(options: PlanOptions): Promise<PlanResult> {
     return {
       exitCode: PLAN_FAILED,
       stdout: '',
-      stderr: join('cerial migrate plan: ', scrub(message, options.env.CERIAL_DB_PASSWORD), '\n'),
+      stderr: join('cerial migrate plan: ', escapeForTerminal(scrub(message, options.env.CERIAL_DB_PASSWORD)), '\n'),
       files: [],
     };
   }

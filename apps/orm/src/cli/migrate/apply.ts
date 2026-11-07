@@ -27,6 +27,7 @@ import type { MigrateEntryDesired, MigrateTarget } from './load';
 import { parsePlanFile } from './plan-file';
 import type { FileStatement } from './plan-file';
 import { connect, createDatabase, databaseExists, join, readLiveTarget, scrub, withLogsOnStderr } from './shared';
+import { escapeForTerminal } from '../../utils/safe-text';
 
 /** Exit codes: 0 applied or nothing to do, 1 refused (a flag is missing, or the operator said no), 2 failed */
 export const APPLY_OK = 0;
@@ -418,7 +419,7 @@ export async function migrateApply(options: ApplyOptions): Promise<ApplyResult> 
   const fail = (exitCode: number, message: string): ApplyResult => ({
     exitCode,
     stdout: '',
-    stderr: join('cerial migrate apply: ', scrub(message, options.env.CERIAL_DB_PASSWORD), '\n'),
+    stderr: join('cerial migrate apply: ', escapeForTerminal(scrub(message, options.env.CERIAL_DB_PASSWORD)), '\n'),
   });
 
   try {

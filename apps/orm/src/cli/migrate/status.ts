@@ -5,6 +5,7 @@ import type { MigrateEnv } from './connection';
 import { loadDesired } from './load';
 import type { MigrateTarget } from './load';
 import { connect, join, readLiveTarget, scrub, withLogsOnStderr } from './shared';
+import { escapeForTerminal } from '../../utils/safe-text';
 
 /** Exit codes: 0 in sync, 1 drift or pending changes, 2 the check itself could not run */
 export const STATUS_IN_SYNC = 0;
@@ -144,7 +145,7 @@ export async function migrateStatus(options: StatusOptions): Promise<StatusResul
     return {
       exitCode: STATUS_FAILED,
       stdout: '',
-      stderr: join('cerial migrate status: ', scrub(message, options.env.CERIAL_DB_PASSWORD), '\n'),
+      stderr: join('cerial migrate status: ', escapeForTerminal(scrub(message, options.env.CERIAL_DB_PASSWORD)), '\n'),
     };
   }
 }

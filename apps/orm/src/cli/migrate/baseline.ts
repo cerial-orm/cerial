@@ -18,6 +18,7 @@ import type { MigrateEnv } from './connection';
 import { loadDesired } from './load';
 import type { MigrateTarget } from './load';
 import { connect, join, readLiveTarget, scrub, suffixed, withLogsOnStderr } from './shared';
+import { escapeForTerminal } from '../../utils/safe-text';
 
 /** Exit codes: 0 recorded, 1 refused because the live schema differs, 2 failed */
 export const BASELINE_OK = 0;
@@ -143,7 +144,7 @@ export async function migrateBaseline(options: BaselineOptions): Promise<Baselin
   const fail = (exitCode: number, message: string): BaselineResult => ({
     exitCode,
     stdout: '',
-    stderr: join('cerial migrate baseline: ', scrub(message, options.env.CERIAL_DB_PASSWORD), '\n'),
+    stderr: join('cerial migrate baseline: ', escapeForTerminal(scrub(message, options.env.CERIAL_DB_PASSWORD)), '\n'),
   });
 
   try {
