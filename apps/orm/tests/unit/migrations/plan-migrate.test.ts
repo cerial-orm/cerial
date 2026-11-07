@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { CerialMigrationError } from '../../../src/errors';
-import { buildMigrationPlan, diffSchema, indexDesiredStatements, type SchemaModel } from '../../../src/migrations';
+import {
+  buildFieldModel,
+  buildMigrationPlan,
+  diffSchema,
+  indexDesiredStatements,
+  type SchemaModel,
+} from '../../../src/migrations';
 import { field, index, schema, table } from './diff-helpers';
 
 const ID = field('id', 'record<note>');
@@ -136,6 +142,90 @@ describe('a new required field over stored rows', () => {
 
     expect(optional[0]!.statement).not.toContain('MIGRATE');
     expect(empty[0]!.statement).not.toContain('MIGRATE');
+  });
+});
+
+describe('a new defaulted field under a flexible object over stored rows', () => {
+  const META = (flexible: boolean) => field('meta', 'object', flexible ? { flexible: true } : {});
+  const ITEMS = (flexible: boolean) => field('meta.items', 'array<object>', flexible ? { flexible: true } : {});
+  const ELEMENT = field('meta.items.*', 'object');
+  const NEXT = {
+    flat: { path: ['meta', 'balance'], ddl: 'meta.balance' },
+    array: { path: ['meta', 'items', { element: true }, 'balance'], ddl: 'meta.items.*.balance' },
+  } as const;
+  const add = (where: keyof typeof NEXT, flexible: boolean, extra = {}, kind = 'int') => {
+    const target = NEXT[where];
+    const child = buildFieldModel({ path: [...target.path], kind, default: '0', ...extra });
+    const parents = where === 'flat' ? [META(flexible)] : [META(false), ITEMS(flexible), ELEMENT];
+    const definitions = [ID_STATEMENT, `DEFINE FIELD OVERWRITE ${target.ddl} ON TABLE note TYPE ${kind} DEFAULT 0;`];
+
+    return plan(
+      definitions,
+      schema([table('note', [ID, ...parents, child])]),
+      schema([populated('note', [ID, ...parents])]),
+    );
+  };
+
+  test('casts the stored value and falls back to the default, as data-loss', () => {
+    const [item] = add('flat', true);
+
+    expect(item!.statement).toMatch(MIGRATE);
+    expect(item!.statement).toEndWith('USING <int>$value FALLBACK 0;');
+    expect(item!.class).toBe('data-loss');
+    expect(item!.reason).toContain('are kept');
+  });
+
+  test('the difference is classed data-loss too, so status shows it before an apply', () => {
+    const parents = [META(true)];
+    const child = buildFieldModel({ path: ['meta', 'balance'], kind: 'int', default: '0' });
+    const [d] = diffSchema(
+      schema([table('note', [ID, ...parents, child])]),
+      schema([populated('note', [ID, ...parents])]),
+      { managedTables: [] },
+    );
+
+    expect(d!.kind).toBe('field-missing');
+    expect(d!.class).toBe('data-loss');
+  });
+
+  test('holds at any depth, inside an object array', () => {
+    const [item] = add('array', true);
+
+    expect(item!.statement).toEndWith('USING <int>$value FALLBACK 0;');
+    expect(item!.class).toBe('data-loss');
+  });
+
+  test('negative: a strict ancestor keeps the plain default fill and the additive class', () => {
+    for (const where of ['flat', 'array'] as const) {
+      const [item] = add(where, false);
+
+      expect(item!.statement).toEndWith('USING 0;');
+      expect(item!.class).toBe('additive');
+    }
+  });
+
+  test('negative: an optional field with a default carries no clause under a flexible object', () => {
+    const [item] = add('flat', true, {}, 'option<int>');
+
+    expect(item!.statement).not.toContain('MIGRATE');
+    expect(item!.class).toBe('additive');
+  });
+
+  test('negative: a computed default is still refused by name', () => {
+    expect(() => add('flat', true, { default: 'time::now()' }, 'datetime')).toThrow(/computed at write time/);
+  });
+
+  test('negative: a table with no rows keeps the bare definition and the additive class', () => {
+    const parents = [META(true)];
+    const child = buildFieldModel({ path: ['meta', 'balance'], kind: 'int', default: '0' });
+    const [item] = plan(
+      [ID_STATEMENT, 'DEFINE FIELD OVERWRITE meta.balance ON TABLE note TYPE int DEFAULT 0;'],
+      schema([table('note', [ID, ...parents, child])]),
+      schema([table('note', [ID, ...parents])]),
+    );
+
+    expect(item!.statement).not.toContain('MIGRATE');
+    expect(item!.class).toBe('additive');
   });
 });
 

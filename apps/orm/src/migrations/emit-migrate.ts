@@ -81,6 +81,20 @@ export function emitMigrate(d: SchemaDifference, statement: string, populated: b
       );
     }
 
+    // A flexible object may already hold a value at this key; USING <default> would reset it, a cast keeps it.
+    if (d.underFlexible) {
+      return {
+        statement: withClause(d, statement, ['<', field.kind, '>$value'].join(''), using),
+        overwrites: true,
+        reason: [
+          'values already stored at this key that convert to ',
+          field.kind,
+          ' are kept; rows without one, or with one that does not convert, get ',
+          using,
+        ].join(''),
+      };
+    }
+
     return {
       statement: withClause(d, statement, using),
       overwrites: false,

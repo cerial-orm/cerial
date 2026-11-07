@@ -38,6 +38,8 @@ export interface SchemaDifference {
   readonly desiredIndex?: IndexModel;
   /** Additive in effect, but applying it can be refused by data already stored. */
   readonly mayFailAtApply?: true;
+  /** A new field with a default sits under a `@flexible` object, so a row may already hold a value at its key. */
+  readonly underFlexible?: true;
   readonly reason: string;
 }
 
@@ -143,6 +145,7 @@ interface Subject {
   readonly liveField?: FieldModel;
   readonly desiredIndex?: IndexModel;
   readonly mayFailAtApply?: true;
+  readonly underFlexible?: true;
 }
 
 function difference(kind: string, subject: Subject): SchemaDifference {
@@ -195,6 +198,15 @@ function isRequired(field: FieldModel): boolean {
   );
 }
 
+/** Whether any object above the field accepts undeclared keys, so stored rows may already hold a value at its path. */
+function hasFlexibleAncestor(path: FieldPath, fields: ReadonlyMap<string, FieldModel>): boolean {
+  for (let end = 1; end < path.length; end++) {
+    if (fields.get(pathKey(path.slice(0, end)))?.flexible) return true;
+  }
+
+  return false;
+}
+
 const KNOWN_INDEX_CLAUSES: ReadonlySet<string> = new Set(['', 'UNIQUE', 'UNIQUE NULLS NOT DISTINCT']);
 
 function diffIndex(table: string, desired: IndexModel, live: IndexModel): SchemaDifference | undefined {
@@ -232,12 +244,30 @@ function diffTable(desired: TableModel, live: TableModel): SchemaDifference[] {
   for (const [key, field] of desiredFields) {
     const found = liveFields.get(key);
     if (!found) {
+      const added = difference(isRequired(field) ? 'field-missing-required' : 'field-missing', {
+        table,
+        field: field.path,
+        desiredField: field,
+      });
+      // The plan fills existing rows with the default (a type that rejects NONE), which would overwrite a value
+      // stored under the same undeclared key, so the step is classed by what it can lose.
+      const fillsRows =
+        added.kind === 'field-missing' &&
+        live.populated &&
+        field.default !== undefined &&
+        field.computed === undefined &&
+        !acceptsNone(field.kind) &&
+        hasFlexibleAncestor(field.path, desiredFields);
       result.push(
-        difference(isRequired(field) ? 'field-missing-required' : 'field-missing', {
-          table,
-          field: field.path,
-          desiredField: field,
-        }),
+        fillsRows
+          ? {
+              ...added,
+              class: 'data-loss',
+              underFlexible: true,
+              reason:
+                'the field sits under a flexible object, so a stored row may already hold a value at this key; the value is kept when it converts to the field type and replaced by the default otherwise',
+            }
+          : added,
       );
       continue;
     }
