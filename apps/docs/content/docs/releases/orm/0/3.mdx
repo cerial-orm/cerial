@@ -377,6 +377,24 @@ development branch and is not available on npm.
   reported success and changed no element. Present in 0.2.0. They now throw and
   name the supported forms. See the Changed entry on object arrays.
 
+- node_modules schemas: with no config, schema discovery searched every `schemas/` and `schema/` folder
+  under the working directory, `node_modules` included, and used the first match.
+  A dependency that shipped a `schemas/` folder replaced your schema: `generate`
+  built a client from the package's models, and `migrate apply` with
+  `--allow-destructive --allow-data-loss` dropped the tables your own schema
+  declared. A TypeScript module in that folder also ran. The `.cerial` half is
+  present in 0.2.0. Discovery now stays inside the project root, never enters
+  `node_modules` and never follows a symlink that leaves the root. See the Changed
+  entry on several schema folders.
+
+- Format and convert writes: `cerial format` rewrote `.cerial` files inside `node_modules`, and inside a linked
+  package that lives outside the project, whenever discovery reached them through
+  the `schemas/` fallback or a root marker file. `cerial convert --remove-source`
+  could write into and delete from those folders too. The `format` half is present
+  in 0.2.0. Both commands now refuse to write or delete any path whose real path
+  is outside the project root. See the Changed entry on writes outside the project
+  root.
+
 ### Added
 
 - A raw query hatch for SurrealQL the typed API has no position for: graph
@@ -1463,6 +1481,27 @@ development branch and is not available on npm.
   accept `select`, `where`, `orderBy`, `limit`, `offset` and `include`; any
   other key throws a `CerialValidationError` naming it instead of including
   every related row.
+
+- **Breaking.** Flexible key default: migrating a new key with a `@default` under a
+  `@flexible` object field is now a data-loss step. If you ran `cerial migrate apply --from-schema`
+  with no flags for such a change, add `--allow-data-loss` as well as
+  `--allow-destructive`, or review the plan file and uncomment the step. Stored
+  values that convert to the field type are kept.
+- **Breaking.** Several schema folders: with no config and no `-s`, discovery
+  refuses when more than one `schemas/` or `schema/` folder holds schema files. It lists them. Add a
+  `cerial.config.ts` (`cerial init` writes one) or pass `-s <path>`. Discovery
+  starts at the folder you run `cerial` from and never reads `node_modules`, a
+  parent folder or a sibling folder. A schema you kept in one of those, or in a
+  symlink that leaves the project, needs `-s` or a config `path`.
+- **Breaking.** Writes outside the project root: `cerial format` and `cerial convert` (with `--remove-source`,
+  `--partial` and the files they stage) refuse to write or delete a file whose
+  real path is outside the project root, even one `-s` or the config names. The
+  refusal prints the path. Run the command from a folder that contains the files.
+- The CLI pages now say what each command imports and runs. `generate`, `migrate`
+  and `convert` import the project's TypeScript schema modules and its
+  `cerial.config.ts`, `format` runs only the config, and `init` runs none of it.
+  With no config, every `*.schema.ts` under the project root is a schema module.
+  Read a checkout before you run `cerial` in it.
 
 ### Removed
 
