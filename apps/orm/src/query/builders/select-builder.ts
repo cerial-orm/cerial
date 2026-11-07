@@ -624,6 +624,20 @@ export function assertNoUndefinedUniqueKey(where: WhereClause, model: ModelMetad
       { model: model.name, operation, field: f.name },
     );
   }
+
+  // The same lost value inside an object @unique key: the condition builder skips the part, so the key
+  // would match on the parts left
+  const objectKey = findObjectUniqueKey(where, model);
+  if (!objectKey) return;
+  for (const [path, value] of Object.entries(objectKey.dotPaths)) {
+    if (value !== undefined) continue;
+
+    throw new CerialValidationError(`${operation} on ${model.name}: unique key '${path}' has no value`, {
+      model: model.name,
+      operation,
+      field: path,
+    });
+  }
 }
 
 /**
@@ -644,12 +658,6 @@ export function validateUniqueField(where: WhereClause, model: ModelMetadata, me
   const objectKey = findObjectUniqueKey(where, model);
   if (objectKey) {
     for (const [path, value] of Object.entries(objectKey.dotPaths)) {
-      if (value === undefined)
-        throw new CerialValidationError(`${methodName} on ${model.name}: unique key '${path}' has no value`, {
-          model: model.name,
-          operation: methodName,
-          field: path,
-        });
       assertPlainUniqueValue(methodName, model, path, value);
     }
 

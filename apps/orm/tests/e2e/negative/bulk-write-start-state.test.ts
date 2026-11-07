@@ -339,7 +339,7 @@ describe('Bulk writes select their rows first — negative and positive cases', 
 
   describe('upsert with a non-unique where', () => {
     test.each(['direct', 'callback'] as const)(
-      'updates every row the filter selected at the start even when the data changes the filtered field, %s',
+      'updates only the first row the filter selected at the start even when the data changes the filtered field, %s',
       async (mode) => {
         await seedPosts(
           [
@@ -358,7 +358,7 @@ describe('Bulk writes select their rows first — negative and positive cases', 
           }),
         );
 
-        expect(await titles()).toEqual({ p1: 'z', p2: 'z', p3: 'w' });
+        expect(await titles()).toEqual({ p1: 'z', p2: 'w', p3: 'w' });
       },
     );
   });

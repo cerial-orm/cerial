@@ -736,6 +736,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
         select,
         include,
         operation: 'upsert',
+        firstOnly: true,
       },
     );
     const result = await executeQuery(this.db, query);

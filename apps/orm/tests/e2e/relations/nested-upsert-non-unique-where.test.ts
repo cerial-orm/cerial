@@ -192,7 +192,7 @@ describe('E2E Nested upsert on a non-unique where', () => {
       expect((await client.db.BasicsUser.findMany()).length).toBe(1);
     });
 
-    test('the same non-unique where without a relation op still updates every match', async () => {
+    test('the same non-unique where without a relation op updates the first match only', async () => {
       await client.db.BasicsUser.create({ data: { ...createData, email: 'a@x.io' } });
       await client.db.BasicsUser.create({ data: { ...createData, email: 'b@x.io' } });
 
@@ -202,8 +202,8 @@ describe('E2E Nested upsert on a non-unique where', () => {
         update: { age: 7 },
       });
 
-      expect(returned.length).toBe(2);
-      expect((await client.db.BasicsUser.findMany()).every((u) => u.age === 7)).toBe(true);
+      expect(returned.length).toBe(1);
+      expect((await client.db.BasicsUser.findMany()).filter((u) => u.age === 7)).toHaveLength(1);
     });
 
     test('a unique field in where takes the relation op', async () => {

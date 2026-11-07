@@ -45,7 +45,7 @@ function setClause(statement: string): string {
 }
 
 describe('WHERE-based upsert branches on a read of its WHERE', () => {
-  test('a unique-field where reads one match, upserts it, and otherwise creates', () => {
+  test('a unique-field where reads its first match, updates it, and otherwise creates', () => {
     const query = buildUpsertQuery(
       user,
       { email: 'a@b.co' },
@@ -56,9 +56,10 @@ describe('WHERE-based upsert branches on a read of its WHERE', () => {
     const { matched, created } = branches(query.text);
 
     expect(query.text.startsWith('BEGIN TRANSACTION;\n')).toBe(true);
-    expect(query.text).toContain('LET $up_matched = (SELECT id FROM user WHERE email = $email_eq_0 LIMIT 1)[0];');
-    expect(matched.startsWith('UPSERT ONLY user SET ')).toBe(true);
-    expect(matched).toContain(' WHERE email = $email_eq_0 RETURN *');
+    expect(query.text).toContain('LET $bulk_ids_n_4 = (SELECT VALUE id FROM user WHERE email = $email_eq_0 LIMIT 1);');
+    expect(query.text).toContain('LET $up_matched = $bulk_ids_n_4[0];');
+    expect(matched.startsWith('UPDATE ONLY $bulk_ids_n_4[0] SET ')).toBe(true);
+    expect(matched.endsWith(' RETURN *')).toBe(true);
     expect(created.startsWith('CREATE ONLY user SET ')).toBe(true);
     expect(created.endsWith(' RETURN *')).toBe(true);
     expect(created).not.toContain('WHERE');
@@ -83,8 +84,8 @@ describe('WHERE-based upsert branches on a read of its WHERE', () => {
     );
     const { matched, created } = branches(query.text);
 
-    expect(query.text).toMatch(/LET \$up_matched = \(SELECT id FROM user WHERE .*first.*last.* LIMIT 1\)\[0\];/);
-    expect(matched.startsWith('UPSERT ONLY user SET ')).toBe(true);
+    expect(query.text).toMatch(/LET \$bulk_ids_n_5 = \(SELECT VALUE id FROM user WHERE .*first.*last.* LIMIT 1\);/);
+    expect(matched.startsWith('UPDATE ONLY $bulk_ids_n_5[0] SET ')).toBe(true);
     expect(created.startsWith('CREATE ONLY user SET ')).toBe(true);
   });
 

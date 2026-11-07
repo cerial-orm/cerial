@@ -85,7 +85,7 @@ describe('upsert-builder', () => {
     const registry = registryFor(schemaBasic);
     const userModel = registry.User!;
 
-    test('generates UPSERT ONLY with unique field where clause', () => {
+    test('updates the first match of a unique field where, one row', () => {
       const query = buildUpsertWhereQuery(
         userModel,
         { email: 'john@test.com' },
@@ -95,9 +95,9 @@ describe('upsert-builder', () => {
         undefined,
       );
 
-      expect(query.text).toContain('UPSERT ONLY user');
-      expect(query.text).toContain('WHERE');
-      expect(query.text).toContain('email');
+      expect(query.text).toContain('(SELECT VALUE id FROM user WHERE email = $email_eq_0 LIMIT 1)');
+      expect(query.text).toContain('UPDATE ONLY $bulk_ids_n_3[0] SET');
+      expect(query.text).not.toContain('UPSERT');
       expect(query.text).toContain('RETURN *');
     });
 
@@ -271,8 +271,10 @@ describe('upsert-builder', () => {
         undefined,
       );
 
-      // Many rows can match, so the update half writes the ids selected at the start
-      expect(query.text).toContain('LET $bulk_ids_n_2 = (SELECT VALUE id FROM post WHERE title = $title_eq_0);');
+      // Many rows can match, so the update half writes the first id selected at the start
+      expect(query.text).toContain(
+        'LET $bulk_ids_n_2 = (SELECT VALUE id FROM post WHERE title = $title_eq_0 LIMIT 1);',
+      );
       expect(query.text).toContain('UPDATE $bulk_ids_n_2 SET');
       expect(query.text).not.toContain('UPSERT');
     });
@@ -507,7 +509,7 @@ describe('upsert-builder', () => {
         undefined,
       );
 
-      expect(query.text).toContain('UPSERT ONLY user');
+      expect(query.text).toContain('UPDATE ONLY $bulk_ids_n_3[0] SET');
       expect(query.text).not.toContain('$exists');
     });
 
@@ -610,7 +612,7 @@ describe('upsert-builder', () => {
       expect(query.text).toMatch(/email = IF \$this == NONE THEN .+ ELSE email END/);
     });
 
-    test('WHERE-based: still produces UPSERT, not UPDATE', () => {
+    test('WHERE-based: updates the chosen row with UPDATE ONLY', () => {
       const query = buildUpsertWhereQuery(
         userModel,
         { email: 'john@test.com' },
@@ -620,7 +622,7 @@ describe('upsert-builder', () => {
         undefined,
       );
 
-      expect(query.text).toContain('UPSERT');
+      expect(query.text).toContain('UPDATE ONLY $bulk_ids_n_2[0]');
     });
 
     test('ID-based: uses SELECT for update branch when no update data', () => {

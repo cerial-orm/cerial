@@ -275,6 +275,8 @@ export interface NestedWriteOptions {
   returnBefore?: boolean;
   select?: SelectClause;
   include?: IncludeClause;
+  /** Update only: write the first row the where matches, not every match (upsert is single-row) */
+  firstOnly?: boolean;
   /** Names already issued in the statement this call is a half of, so two halves never reuse a variable */
   issued?: Set<string>;
 }
@@ -777,7 +779,8 @@ export function buildUpdateWithNestedTransaction(
   const whereClause = transformDestructiveWhere(where, model, 'update', registry);
   Object.assign(vars, whereClause.vars);
   for (const name of Object.keys(whereClause.vars)) ctx.issued.add(name);
-  const matched = captureMatchedIds(ctx, model.tableName, whereClause.text);
+  const scope = options.firstOnly ? `${whereClause.text} LIMIT 1` : whereClause.text;
+  const matched = captureMatchedIds(ctx, model.tableName, scope);
 
   // Track the Record field updates we need to make
   const fieldUpdates: string[] = [];
@@ -1052,21 +1055,21 @@ export function buildUpdateWithNestedTransaction(
 
   // For bidirectional set sync, fetch old values first
   if (arraySets.length > 0) {
-    statements.push(`LET $old = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
+    statements.push(`LET $old = (SELECT * FROM ${model.tableName} ${scope});`);
   }
 
   // `return: 'before'` needs the row as it was, so it is read before the update and the relation
   // statements that follow; the transaction stays one round trip
   if (returnBefore) {
     const fields = buildSelectFields(options.select, model, options.include, registry, includeCtx);
-    statements.push(`LET $prior = (SELECT ${fields} FROM ${model.tableName} ${whereClause.text});`);
+    statements.push(`LET $prior = (SELECT ${fields} FROM ${model.tableName} ${scope});`);
   }
 
   // Build the main update
   if (fieldUpdates.length > 0) {
     statements.push(`LET $result = (UPDATE ${matched.target} SET ${fieldUpdates.join(', ')} RETURN *);`);
   } else {
-    statements.push(`LET $result = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
+    statements.push(`LET $result = (SELECT * FROM ${model.tableName} ${scope});`);
   }
 
   // Statements that act on the matched row only run when the where matched something, so a

@@ -235,12 +235,13 @@ export function buildUpsertWhereQuery(
 
   const onlyKeyword = useOnly ? ' ONLY' : '';
   const setText = setParts.length > 0 ? `SET ${setParts.join(', ')}` : '';
-  // A unique where names one row. Any other where can match many, and the write must reach exactly the rows
-  // the filter selected at the start, not the ones it still matches while rows are being changed
-  const matchedIds = useOnly ? undefined : captureMatchedIds(ctx, model.tableName, whereClause.text);
-  const upsert = matchedIds
-    ? [`UPDATE ${matchedIds.target}`, setText, returnClause].filter((p) => p).join(' ')
-    : [`UPSERT${onlyKeyword} ${model.tableName}`, setText, whereClause.text, returnClause].filter((p) => p).join(' ');
+  // Upsert writes one row: the first the where matches, whether or not the where is a unique key (a null on a
+  // nullable unique key or an extra non-unique key can match several). The id is read first and the write
+  // targets it, so the row written is the row chosen
+  const matchedIds = captureMatchedIds(ctx, model.tableName, `${whereClause.text} LIMIT 1`);
+  const upsert = [`UPDATE${onlyKeyword} ${matchedIds.target}${useOnly ? '[0]' : ''}`, setText, returnClause]
+    .filter((p) => p)
+    .join(' ');
   // When nothing matches, UPSERT ... WHERE whose new row hits a unique index retries as an update of the
   // conflicting row, which the WHERE then filters out: no row, no write, no error. A CREATE raises the
   // violation. $this is NONE throughout a CREATE's SET, so the same clauses take their create values.
@@ -251,11 +252,17 @@ export function buildUpsertWhereQuery(
       'BEGIN TRANSACTION;',
       // The matched rows are read through the projection first; the write itself returns nothing
       snapshot
-        ? buildBeforeSnapshot(model.tableName, whereClause.text, select, model, include, registry, includeCtx)
+        ? buildBeforeSnapshot(
+            model.tableName,
+            `${whereClause.text} LIMIT 1`,
+            select,
+            model,
+            include,
+            registry,
+            includeCtx,
+          )
         : '',
-      matchedIds
-        ? `${matchedIds.statement};\nLET $up_matched = ${matchedIds.target}[0];`
-        : `LET $up_matched = (SELECT id FROM ${model.tableName} ${whereClause.text} LIMIT 1)[0];`,
+      `${matchedIds.statement};\nLET $up_matched = ${matchedIds.target}[0];`,
       `LET $up_result = IF $up_matched { ${upsert} } ELSE { ${create} };`,
       'COMMIT TRANSACTION;',
       snapshot ? 'RETURN $before;' : 'RETURN $up_result;',
@@ -575,6 +582,7 @@ export function buildUpsertWithNestedTransaction(
   const updateQuery = hasUpdate
     ? buildUpdateWithNestedTransaction(model, where, updateData, updateNestedOps, registry, {
         transactionMode: true,
+        firstOnly: true,
         returnBefore: isBefore,
         select,
         include,

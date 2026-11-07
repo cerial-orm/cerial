@@ -17,6 +17,7 @@ import { CerialValidationError as ClientValidationError } from 'cerial';
 import { CerialValidationError } from '../../../src/errors';
 import { modelRegistry } from '../generated/internal/model-registry';
 import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
+import { NN_TABLES, uniqueEmail } from '../decorators/unique-nulls/helpers';
 
 type Models = CerialClient['db'];
 
@@ -28,6 +29,7 @@ describe('Registry required, findUnique relation filters and unique key presence
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.basics);
+    await cleanupTables(client, NN_TABLES);
   });
 
   afterAll(async () => {
@@ -36,6 +38,7 @@ describe('Registry required, findUnique relation filters and unique key presence
 
   beforeEach(async () => {
     await truncateTables(client, tables.basics);
+    await truncateTables(client, NN_TABLES);
   });
 
   const seed = async () => {
@@ -299,6 +302,154 @@ describe('Registry required, findUnique relation filters and unique key presence
 
         expect(users.map((u) => u.age ?? null)).toEqual(committed ? [7, null] : [null, null]);
         expect(users.map((u) => u.tagIds.length)).toEqual(committed ? [1, 0] : [0, 0]);
+      });
+    }
+  });
+  describe('upsert is single-row', () => {
+    // the transaction modes that cancel keep nothing; the direct, array and callback modes commit
+    const commits = (mode: string) => mode !== 'manual transaction';
+    const nnNicknames = async () =>
+      (await client.db.NnUser.findMany({ orderBy: { email: 'asc' } })).map((u) => u.nickname ?? null);
+
+    for (const [mode, run] of Object.entries(MODES)) {
+      test(`${mode}: a where of non-unique keys updates the first match only`, async () => {
+        await client.db.BasicsUser.create({ data: { email: 'a@x.io', name: 'shared', isActive: true } });
+        await client.db.BasicsUser.create({ data: { email: 'b@x.io', name: 'shared', isActive: true } });
+        await client.db.BasicsUser.create({ data: { email: 'c@x.io', name: 'other', isActive: true } });
+
+        const result = (await run((m) =>
+          m.BasicsUser.upsert({
+            where: { name: 'shared' },
+            create: { email: 'n@x.io', name: 'shared', isActive: true },
+            update: { age: 7 },
+          }),
+        )) as unknown[];
+
+        expect(result).toHaveLength(1);
+        const users = await client.db.BasicsUser.findMany({ orderBy: { email: 'asc' } });
+        expect(users.filter((u) => u.age === 7)).toHaveLength(commits(mode) ? 1 : 0);
+        expect(users.find((u) => u.email === 'c@x.io')?.age ?? null).toBeNull();
+        expect(users).toHaveLength(3);
+      });
+
+      test(`${mode}: a null on a nullable unique key updates one of the rows holding null`, async () => {
+        for (const plainNick of [null, null, 'k'])
+          await client.db.NnUser.create({ data: { email: uniqueEmail(), plainNick } });
+
+        const result = (await run((m) =>
+          m.NnUser.upsert({
+            where: { plainNick: null },
+            create: { email: uniqueEmail(), plainNick: null },
+            update: { nickname: 'x' },
+          }),
+        )) as { nickname: string | null };
+
+        expect(result.nickname).toBe('x');
+        const nicknames = (await nnNicknames()).filter((n) => n === 'x');
+        expect(nicknames).toHaveLength(commits(mode) ? 1 : 0);
+        expect(await client.db.NnUser.count()).toBe(3);
+      });
+
+      test(`${mode}: a null on a nullable unique key with return before gives one row`, async () => {
+        for (const plainNick of [null, null])
+          await client.db.NnUser.create({ data: { email: uniqueEmail(), plainNick } });
+
+        const before = (await run((m) =>
+          m.NnUser.upsert({
+            where: { plainNick: null },
+            create: { email: uniqueEmail(), plainNick: null },
+            update: { nickname: 'x' },
+            return: 'before',
+          }),
+        )) as { nickname: string | null } | null;
+
+        expect(Array.isArray(before)).toBe(false);
+        expect(before?.nickname ?? null).toBeNull();
+        expect(await client.db.NnUser.count()).toBe(2);
+      });
+
+      test(`${mode}: a null on a nullsNotDistinct field is a real key, updated when held and created when free`, async () => {
+        const held = await client.db.NnUser.create({ data: { email: uniqueEmail(), nickname: null } });
+
+        const updated = (await run((m) =>
+          m.NnUser.upsert({
+            where: { nickname: null },
+            create: { email: uniqueEmail(), nickname: null },
+            update: { plainNick: 'p' },
+          }),
+        )) as { id: unknown; plainNick: string | null };
+
+        expect(String(updated.id)).toBe(String(held.id));
+        expect(updated.plainNick).toBe('p');
+        expect(await client.db.NnUser.count()).toBe(1);
+
+        await client.db.NnUser.updateMany({ where: {}, data: { nickname: 'taken' } });
+        const created = (await run((m) =>
+          m.NnUser.upsert({
+            where: { nickname: null },
+            create: { email: uniqueEmail(), nickname: null },
+            update: { plainNick: 'q' },
+          }),
+        )) as { nickname: string | null };
+
+        expect(created.nickname ?? null).toBeNull();
+        expect(await client.db.NnUser.count()).toBe(commits(mode) ? 2 : 1);
+      });
+
+      test(`${mode}: a null tuple on a nullsNotDistinct composite is updated when held and created when free`, async () => {
+        await client.db.NnSlot.create({ data: { tenantId: null, slug: null } });
+        const where = { tenantSlug: { tenantId: null, slug: null } };
+
+        const updated = (await run((m) =>
+          m.NnSlot.upsert({ where, create: { tenantId: null, slug: null }, update: { slug: 's' } }),
+        )) as { slug: string | null };
+
+        expect(updated.slug).toBe('s');
+        expect(await client.db.NnSlot.count()).toBe(1);
+
+        const created = (await run((m) =>
+          m.NnSlot.upsert({ where, create: { tenantId: null, slug: null }, update: { slug: 't' } }),
+        )) as { slug: string | null };
+
+        // the first upsert moved the row off [null, null] where it committed, so the second finds none
+        expect(created.slug ?? null).toBe(commits(mode) ? null : 't');
+        expect(await client.db.NnSlot.count()).toBe(commits(mode) ? 2 : 1);
+      });
+
+      test(`${mode}: an undefined part of an object unique key is refused and no row changes`, async () => {
+        await client.db.NnUser.create({ data: { email: 'a@x.io', plainNick: null, profile: { handle: 'h1' } } });
+        await client.db.NnUser.create({ data: { email: 'b@x.io', plainNick: null, profile: { handle: 'h2' } } });
+
+        const error = await caught(
+          () =>
+            run((m) =>
+              m.NnUser.upsert({
+                where: { profile: { handle: undefined }, plainNick: null } as never,
+                create: { email: 'n@x.io' },
+                update: { nickname: 'x' },
+              }),
+            ) as Promise<unknown>,
+        );
+
+        expect(error).toBeInstanceOf(ClientValidationError);
+        expect((error as Error).message).toContain("unique key 'profile.handle' has no value");
+        expect(await nnNicknames()).toEqual([null, null]);
+        expect(await client.db.NnUser.count()).toBe(2);
+      });
+
+      test(`${mode}: a defined part of an object unique key updates that row only`, async () => {
+        await client.db.NnUser.create({ data: { email: 'a@x.io', plainNick: null, profile: { handle: 'h1' } } });
+        await client.db.NnUser.create({ data: { email: 'b@x.io', plainNick: null, profile: { handle: 'h2' } } });
+
+        await run((m) =>
+          m.NnUser.upsert({
+            where: { profile: { handle: 'h2' }, plainNick: null },
+            create: { email: 'n@x.io' },
+            update: { nickname: 'x' },
+          }),
+        );
+
+        expect(await nnNicknames()).toEqual(commits(mode) ? [null, 'x'] : [null, null]);
       });
     }
   });
