@@ -130,10 +130,10 @@ Cerial runs project code to read a TypeScript schema, and `cerial.config.ts` is 
 
 What gets imported:
 
-- **Suffix files.** With no config, every `*.schema.ts` under the folder you run `cerial` from is a schema module and is imported, in whatever folder it sits. A `src/validation/user.schema.ts` written for another library is imported too. Dot folders, `node_modules` and `*.schema.d.ts` files are skipped. A `.cerial` marker file (`schema.cerial`, `main.cerial` or `index.cerial`) in the project root makes the whole project one schema root, so every `*.schema.ts` below it is imported as well. Name your own non-schema files something else, or put the schemas in a config and list them.
+- **Suffix files.** In a project with no `.cerial` file, every `*.schema.ts` under the folder you run `cerial` from is a schema module and is imported, in whatever folder it sits. A `src/validation/user.schema.ts` written for another library is imported too. Once the project has any `.cerial` file, a `*.schema.ts` is imported only inside a schema folder (`schemas`, `schema`, or a folder holding `schema.cerial`, `main.cerial` or `index.cerial`); one elsewhere is ignored. Inside such a folder every `*.schema.ts` below it is imported. Dot folders, `node_modules` and `*.schema.d.ts` files are skipped. Name your own non-schema files something else, or put the schemas in a config and list them.
 - **Entry modules.** The entry and every module it imports with a value import, at any depth and outside the project, packages included. `import type` and dynamic `import()` are not followed.
 - **Listed `files`.** Imported wherever the path points, including a folder above the project.
-- **Symlinks.** A linked schema module or folder is followed, and its target is imported.
+- **Symlinks.** Discovery follows a link only while its target stays inside the project root. A link to a folder or file outside the root, or into `node_modules`, is skipped with a warning, and a `cerial.config.ts` behind such a link is not loaded.
 
 :::warning
 Running `generate`, `migrate` or `convert` in a checkout you have not read runs that checkout's TypeScript with your permissions. `format` runs its `cerial.config.ts`. Read a project before you run `cerial` in it, or run it in a container or a CI job with no secrets. `cerial init` is the one command that runs none of it.
