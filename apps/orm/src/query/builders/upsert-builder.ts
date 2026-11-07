@@ -442,20 +442,14 @@ function checkForIdInWhere(where: WhereClause, model: ModelMetadata): { hasId: b
 }
 
 /**
- * Check if where clause contains at least one unique field (excluding id)
- * or a composite unique key.
+ * Whether the where names a unique key other than the id: a composite or object key, or a unique field with a
+ * value. An undefined key is refused before this runs.
  */
-function checkForUniqueFieldInWhere(where: WhereClause, model: ModelMetadata): boolean {
-  // Check for composite unique keys
+export function hasUniqueKeyInWhere(where: WhereClause, model: ModelMetadata): boolean {
   if (findCompositeUniqueKey(where, model)) return true;
-
-  // Check for object @unique keys
   if (findObjectUniqueKey(where, model)) return true;
 
-  const uniqueFields = model.fields.filter((f) => f.isUnique && !f.isId);
-  const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
-
-  return whereKeys.some((key) => uniqueFields.some((f) => f.name === key));
+  return model.fields.some((f) => f.isUnique && !f.isId && where[f.name] !== undefined);
 }
 
 /**
@@ -496,7 +490,7 @@ export function buildUpsertQuery(
   expandedWhere = expandObjectUniqueKey(expandedWhere, model);
 
   // Check for unique fields in where clause to determine ONLY usage
-  const hasUniqueField = checkForUniqueFieldInWhere(where, model);
+  const hasUniqueField = hasUniqueKeyInWhere(where, model);
 
   return buildUpsertWhereQuery(
     model,

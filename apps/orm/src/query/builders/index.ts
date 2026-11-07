@@ -77,6 +77,7 @@ export {
   type FindUniqueOptionsWithInclude,
   findCompositeUniqueKey,
   findObjectUniqueKey,
+  assertNoUndefinedUniqueKey,
   validateUniqueField,
 } from './select-builder';
 export {
@@ -89,4 +90,5 @@ export {
   buildUpsertQuery,
   buildUpsertWhereQuery,
   buildUpsertWithNestedTransaction,
+  hasUniqueKeyInWhere,
 } from './upsert-builder';

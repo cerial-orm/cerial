@@ -48,9 +48,9 @@ import {
   extractNestedOperations,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
-  findCompositeUniqueKey,
-  findObjectUniqueKey,
   getRecordIdFromWhere,
+  assertNoUndefinedUniqueKey,
+  hasUniqueKeyInWhere,
   type IncludeClause,
   mergeUnsetIntoData,
   type NestedOperation,
@@ -187,6 +187,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const transformedData = transformData(dataWithDefaults, this.model);
 
     // If there are nested operations, use the transaction builder
+    assertRegistryForNested(nestedOps, this.registry, this.model, 'create');
     if (nestedOps.size > 0 && this.registry) {
       const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry, {
         select,
@@ -243,6 +244,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // If there are nested operations, use the transaction builder
+    assertRegistryForNested(nestedOps, this.registry, this.model, 'updateMany');
     if (nestedOps.size > 0 && this.registry) {
       const query = buildUpdateWithNestedTransaction(
         this.model,
@@ -324,6 +326,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // If there are nested operations, use the transaction builder
     // TOMBSTONE: updateUnique has no nested-operation path of its own, so it falls back
     // to updateMany on the same where clause and takes the first result.
+    assertRegistryForNested(nestedOps, this.registry, this.model, 'updateUnique');
     if (nestedOps.size > 0 && this.registry) {
       // For now, use updateMany with the same where clause and return first result
       const query = buildUpdateWithNestedTransaction(
@@ -531,6 +534,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, this.model, 'upsert');
     assertUpsertNotRawOnly(where, this.model);
+    assertNoUndefinedUniqueKey(where, this.model, 'upsert');
 
     refuseFragmentInValue(createData, 'create', { model: this.model.name, operation: 'upsert' });
     refuseFragmentInValue(updateData, 'update', { model: this.model.name, operation: 'upsert' });
@@ -569,17 +573,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Determine if this is ID-based or WHERE-based (without requiring unique fields)
     const idField = this.model.fields.find((f) => f.isId);
     const hasId = !!(idField && where[idField.name] !== undefined && where[idField.name] !== null);
-    const uniqueFields = this.model.fields.filter((f) => f.isUnique && !f.isId);
-    const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
-    const hasUniqueField =
-      whereKeys.some((key) => uniqueFields.some((f) => f.name === key)) ||
-      !!findCompositeUniqueKey(where, this.model) ||
-      !!findObjectUniqueKey(where, this.model);
-    const isSingle = hasId || hasUniqueField;
+    const isSingle = hasId || hasUniqueKeyInWhere(where, this.model);
 
     // Check for nested operations that need transaction handling
     const hasNestedOps = createNestedOps.size > 0 || updateNestedOps.size > 0;
     if (hasNestedOps) assertNestedUpsertNamesOneRow(this.model, isSingle);
+    assertRegistryForNested(new Map([...createNestedOps, ...updateNestedOps]), this.registry, this.model, 'upsert');
 
     if (hasNestedOps && this.registry) {
       return this.executeUpsertWithNested(
@@ -820,6 +819,7 @@ export function compileCreate(
 
   const transformedData = transformData(dataWithDefaults, model);
 
+  assertRegistryForNested(nestedOps, registry, model, 'create');
   if (nestedOps.size > 0 && registry) {
     return {
       query: buildCreateWithNestedTransaction(model, transformedData, nestedOps, registry, { select, include }),
@@ -863,6 +863,7 @@ export function compileUpdateMany(
     if (!overlapValidation.valid) throw validationFailure('unset', overlapValidation.errors, model, 'updateMany');
   }
 
+  assertRegistryForNested(nestedOps, registry, model, 'updateMany');
   if (nestedOps.size > 0 && registry) {
     return {
       query: buildUpdateWithNestedTransaction(
@@ -930,6 +931,7 @@ export function compileUpdateUnique(
     if (!overlapValidation.valid) throw validationFailure('unset', overlapValidation.errors, model, 'updateUnique');
   }
 
+  assertRegistryForNested(nestedOps, registry, model, 'updateUnique');
   if (nestedOps.size > 0 && registry) {
     return {
       query: buildUpdateWithNestedTransaction(
@@ -1135,6 +1137,22 @@ function assertUpsertNotRawOnly(where: WhereClause, model: ModelMetadata): void 
   );
 }
 
+/** Without the registry a nested relation op has no target model, and the plain builders would drop it while the write reports success. */
+function assertRegistryForNested(
+  nestedOps: ReadonlyMap<string, unknown>,
+  registry: ModelRegistry | undefined,
+  model: ModelMetadata,
+  operation: string,
+): void {
+  if (!nestedOps.size || registry) return;
+
+  const fields = [...nestedOps.keys()].join(', ');
+  throw new CerialValidationError(
+    `${operation} on ${model.name}: a nested relation operation on '${fields}' needs a model registry, pass it as the last argument`,
+    { model: model.name, operation, field: [...nestedOps.keys()][0] },
+  );
+}
+
 /**
  * A relation op in an upsert needs one row to attach to. A where that is not an id or a @unique field can
  * match none (the upsert creates one row) or several (no row to pick), so there is no defined target and
@@ -1172,6 +1190,7 @@ export function compileUpsert(
   const whereValidation = validateWhere(where, model, registry);
   if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, model, 'upsert');
   assertUpsertNotRawOnly(where, model);
+  assertNoUndefinedUniqueKey(where, model, 'upsert');
 
   refuseFragmentInValue(createData, 'create', { model: model.name, operation: 'upsert' });
   refuseFragmentInValue(updateData, 'update', { model: model.name, operation: 'upsert' });
@@ -1207,17 +1226,12 @@ export function compileUpsert(
   // Check for id and unique fields without requiring them
   const idField = model.fields.find((f) => f.isId);
   const hasId = !!(idField && where[idField.name] !== undefined && where[idField.name] !== null);
-  const uniqueFields = model.fields.filter((f) => f.isUnique && !f.isId);
-  const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
-  const hasUniqueField =
-    whereKeys.some((key) => uniqueFields.some((f) => f.name === key)) ||
-    !!findCompositeUniqueKey(where, model) ||
-    !!findObjectUniqueKey(where, model);
-  const isSingle = hasId || hasUniqueField;
+  const isSingle = hasId || hasUniqueKeyInWhere(where, model);
 
   // Array mode runs this compiled query, so a nested op has to be in it: the plain upsert would drop it
   const hasNestedOps = createNestedOps.size > 0 || updateNestedOps.size > 0;
   if (hasNestedOps) assertNestedUpsertNamesOneRow(model, isSingle);
+  assertRegistryForNested(new Map([...createNestedOps, ...updateNestedOps]), registry, model, 'upsert');
 
   const query =
     hasNestedOps && registry

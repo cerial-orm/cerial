@@ -106,7 +106,14 @@ describe('validateWhere — relation filters', () => {
     expect(message).not.toContain('model Place');
   });
 
-  test('without a registry the relation filter is accepted as before', () => {
-    expect(validateWhere({ owner: { nmae: 'A' } }, place).errors).toEqual([]);
+  test('without a registry the relation filter is refused, since its target model is unknown', () => {
+    const { errors } = validateWhere({ owner: { nmae: 'A' } }, place);
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.message).toContain('a model registry is required to filter on a relation');
+  });
+
+  test('without a registry a plain field filter is still accepted', () => {
+    expect(validateWhere({ name: 'A' }, place).errors).toEqual([]);
   });
 });

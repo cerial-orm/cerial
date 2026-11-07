@@ -610,6 +610,23 @@ function assertPlainUniqueValue(methodName: string, model: ModelMetadata, path: 
 }
 
 /**
+ * A unique key present with the value undefined (`email: req.body.email` with the field absent) is skipped by the
+ * condition builder, so the call would run on whatever the rest of the where matches. It is a lost value, not an
+ * absent key, and is refused wherever a unique key picks the row.
+ */
+export function assertNoUndefinedUniqueKey(where: WhereClause, model: ModelMetadata, operation: string): void {
+  for (const f of model.fields) {
+    if (!f.isId && !f.isUnique) continue;
+    if (!(f.name in where) || where[f.name] !== undefined) continue;
+
+    throw new CerialValidationError(
+      `${operation} on ${model.name}: where.${f.name} is undefined; pass a value or leave the key out`,
+      { model: model.name, operation, field: f.name },
+    );
+  }
+}
+
+/**
  * Validate at least one unique field or composite unique key is present in where clause
  * @param where - The where clause to validate
  * @param model - The model metadata
@@ -617,6 +634,8 @@ function assertPlainUniqueValue(methodName: string, model: ModelMetadata, path: 
  * @throws Error if no unique field is present
  */
 export function validateUniqueField(where: WhereClause, model: ModelMetadata, methodName = 'findUnique'): void {
+  assertNoUndefinedUniqueKey(where, model, methodName);
+
   // Check for composite unique key first
   if (findCompositeUniqueKey(where, model)) return;
 
@@ -685,7 +704,11 @@ function buildFindUniqueByIdQuery(
 
   const includeCtx = createCompileContext('inc_');
   const fields = buildSelectFields(select, model, include, registry, includeCtx, compute);
-  const whereClause = transformWhereClause(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, model);
+  const whereClause = transformWhereClause(
+    Object.keys(whereWithoutId).length ? whereWithoutId : undefined,
+    model,
+    registry,
+  );
   const limitClause = buildLimit(1);
 
   // Bound, never interpolated: the id part is caller text and the driver's escaper leaves a backslash alone

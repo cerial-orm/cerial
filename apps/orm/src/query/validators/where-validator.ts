@@ -438,6 +438,17 @@ export function validateFieldFilter(
     return errors;
   }
 
+  // Without a registry the target model of a relation is unknown, so the filter would compile against the
+  // virtual relation field, which is always NONE
+  if (field.type === 'relation' && !registry) {
+    errors.push({
+      path,
+      message: `'${fieldName}' is a relation on ${model.name}; a model registry is required to filter on a relation, pass it as the last argument`,
+    });
+
+    return errors;
+  }
+
   // The builder has no condition for a reverse relation compared to null and would drop the key, widening the filter
   if (field.type === 'relation' && filter === null && field.relationInfo?.isReverse) {
     errors.push({
