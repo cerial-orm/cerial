@@ -555,6 +555,10 @@ type WalkField = Pick<
   'type' | 'isArray' | 'isFlexible' | 'isNullable' | 'literalInfo' | 'objectInfo' | 'tupleInfo'
 >;
 
+/** Field lists of the objects enclosing the value being checked, by object name */
+type ObjectDefs = ReadonlyMap<string, FieldMetadata[]>;
+const NO_DEFS: ObjectDefs = new Map();
+
 /**
  * Validate a value nested inside an object or tuple, to any depth.
  * `inline` is true inside a tuple element or a literal variant, whose members the database checks
@@ -570,6 +574,7 @@ function validateSubValue(
   path: string,
   partial: boolean,
   inline = false,
+  defs: ObjectDefs = NO_DEFS,
 ): DataValidationError[] {
   if (value === undefined || isNone(value)) return [];
 
@@ -594,7 +599,7 @@ function validateSubValue(
   if (field.isArray) {
     const element = { ...field, isArray: false };
     if (Array.isArray(value))
-      return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false, inline));
+      return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false, inline, defs));
     if (!isObject(value)) return [];
 
     // { push } and { set } carry whole elements. updateWhere and unset are typed but the builder never
@@ -616,32 +621,35 @@ function validateSubValue(
       });
     }
     if (value.set !== undefined && Array.isArray(value.set))
-      errors.push(...validateSubValue(value.set, field, model, path, false, inline));
+      errors.push(...validateSubValue(value.set, field, model, path, false, inline, defs));
     if (value.push !== undefined) {
       const items =
         Array.isArray(value.push) && !(field.tupleInfo && isSingleTupleInput(value.push, field.tupleInfo))
           ? value.push
           : [value.push];
       items.forEach((item, i) => {
-        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false, inline));
+        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false, inline, defs));
       });
     }
 
     return errors;
   }
 
-  if (isObject(value) && isSetWrapper(value)) return validateSubValue(value.set, field, model, path, false, inline);
+  if (isObject(value) && isSetWrapper(value))
+    return validateSubValue(value.set, field, model, path, false, inline, defs);
 
   if (field.type === 'tuple') {
     if (!field.tupleInfo) return [];
-    if (Array.isArray(value)) return validateTupleArray(value, field.tupleInfo, model, path);
+    if (Array.isArray(value)) return validateTupleArray(value, field.tupleInfo, model, path, defs);
 
-    return isObject(value) ? validateTupleData(value, field.tupleInfo, model, path, partial, inline) : [];
+    return isObject(value) ? validateTupleData(value, field.tupleInfo, model, path, partial, inline, defs) : [];
   }
 
   if (!field.objectInfo || !isObject(value)) return [];
 
-  return validateObjectData(value, field.objectInfo.fields, field.isFlexible, model, path, partial, inline);
+  const { objectName, fields } = field.objectInfo;
+
+  return validateObjectData(value, objectName, fields, field.isFlexible, model, path, partial, inline, defs);
 }
 
 /**
@@ -651,14 +659,20 @@ function validateSubValue(
  */
 function validateObjectData(
   data: Record<string, unknown>,
-  fields: FieldMetadata[],
+  objectName: string,
+  declared: FieldMetadata[],
   isFlexible: boolean | undefined,
   model: ModelMetadata,
   path: string,
   partial: boolean,
   inline: boolean,
+  outer: ObjectDefs,
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
+  // A self-referencing object lists its fields one level deep and an empty list below; the copy that
+  // encloses it, seen on the way down, holds the real list
+  const fields = declared.length ? declared : (outer.get(objectName) ?? declared);
+  const defs = new Map(outer).set(objectName, fields);
 
   for (const [key, value] of Object.entries(data)) {
     if (value === undefined) continue;
@@ -667,12 +681,16 @@ function validateObjectData(
     const subPath = `${path}.${key}`;
 
     if (!subField) {
-      // A self-referencing object is resolved one level deep, so its inner copies list no fields to check against
-      if ((partial || inline) && !isFlexible && fields.length) errors.push(unknownSubKey(subPath, model));
+      if ((partial || inline) && !isFlexible) errors.push(unknownSubKey(subPath, model));
       continue;
     }
 
-    errors.push(...validateSubValue(value, subField, model, subPath, partial, inline));
+    // The database types a self-referencing object FLEXIBLE, so it checks nothing below the first level:
+    // a reference back to an enclosing object is checked here even in a value the builder binds whole, and
+    // it is flexible exactly when the field it hangs under is
+    const cyclic = !!subField.objectInfo && defs.has(subField.objectInfo.objectName);
+    const next = cyclic && isFlexible ? { ...subField, isFlexible } : subField;
+    errors.push(...validateSubValue(value, next, model, subPath, partial, inline || cyclic, defs));
   }
 
   return errors;
@@ -684,9 +702,10 @@ function validateTupleArray(
   tupleInfo: TupleFieldMetadata,
   model: ModelMetadata,
   path: string,
+  defs: ObjectDefs,
 ): DataValidationError[] {
   return tupleInfo.elements.flatMap((element) =>
-    validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false, true),
+    validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false, true, defs),
   );
 }
 
@@ -698,6 +717,7 @@ function validateTupleData(
   path: string,
   partial: boolean,
   inline: boolean,
+  defs: ObjectDefs,
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
 
@@ -713,7 +733,7 @@ function validateTupleData(
     }
 
     // Tuple elements are never flexible
-    errors.push(...validateSubValue(value, element, model, subPath, partial, true));
+    errors.push(...validateSubValue(value, element, model, subPath, partial, true, defs));
   }
 
   return errors;
