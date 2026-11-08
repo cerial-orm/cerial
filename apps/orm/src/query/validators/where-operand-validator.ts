@@ -6,8 +6,9 @@
 
 import type { FieldMetadata } from '../../types';
 import { CerialDecimal, isValidDecimalInput } from '../../utils/cerial-decimal';
+import { escapeControl } from '../../utils/safe-text';
 import { isObject } from '../../utils/type-utils';
-import { isOperatorObject } from '../filters/condition-builder';
+import { isOperatorObject, transformDurationValue, transformGeometryValue } from '../filters/condition-builder';
 import { validateFieldValue } from './data-validator';
 import { isSizedNumberFieldType, sizedNumberError } from './sized-number-validator';
 
@@ -74,6 +75,18 @@ function valueMessage(field: OperandField, value: unknown, label: string, elemen
   if (isSizedNumberFieldType(type)) {
     const sized = sizedNumberError(type, label, value);
     if (sized) return sized;
+  }
+
+  // The conversion the query applies would throw the SDK's own error, which names no field
+  const convert = type === 'duration' ? transformDurationValue : type === 'geometry' ? transformGeometryValue : null;
+  if (convert) {
+    try {
+      convert(value);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+
+      return `Field "${label}" is ${type} and the operand is not a valid ${type}: ${escapeControl(reason)}`;
+    }
   }
 
   const issue = validateFieldValue(label, value, {

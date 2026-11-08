@@ -47,7 +47,7 @@ function transformUuidValue(value: unknown): unknown {
   return value;
 }
 
-function transformDurationValue(value: unknown): unknown {
+export function transformDurationValue(value: unknown): unknown {
   if (value instanceof Duration) return value;
   if (value instanceof CerialDuration) return value.toNative();
   if (typeof value === 'string') return new Duration(value);
@@ -87,7 +87,7 @@ function transformBytesValue(value: unknown): unknown {
   return value;
 }
 
-function transformGeometryValue(value: unknown): unknown {
+export function transformGeometryValue(value: unknown): unknown {
   if (value instanceof Geometry) return value;
   if (CerialGeometry.is(value)) return value.toNative();
   if (Array.isArray(value) && value.length === 2 && typeof value[0] === 'number') {
@@ -189,7 +189,8 @@ export function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata
   }
 
   if (fieldMetadata.type === 'geometry') {
-    if (Array.isArray(value) && value.length > 0 && Array.isArray(value[0])) {
+    // A bare point is [x, y]; any other array is a list, whatever form its members take
+    if (Array.isArray(value) && typeof value[0] !== 'number') {
       return value.map((v) => transformGeometryValue(v));
     }
 

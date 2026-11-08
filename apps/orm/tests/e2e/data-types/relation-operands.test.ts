@@ -202,8 +202,29 @@ describe('E2E: typed operands in a relation sub-filter', () => {
         (async () => {
           await client.db.RoKit.deleteMany({ where: loose({ owner: { du: { gt: 'not-a-duration' } } }) });
         })(),
-      ).rejects.toThrow();
+      ).rejects.toThrow('Field "du" is duration');
       expect(await kits({})).toEqual(['k0', 'k1', 'k2']);
+    });
+
+    test('an unparseable duration at the top level is refused naming the field, rows untouched', async () => {
+      await expect(
+        (async () => {
+          await client.db.RoOwner.deleteMany({ where: loose({ du: { gt: 'abc' } }) });
+        })(),
+      ).rejects.toThrow('Field "du" is duration');
+      expect(await owners({})).toEqual(['o0', 'o1', 'o2']);
+    });
+
+    test('an unparseable duration through a reverse sub-filter is refused naming the field', async () => {
+      await expect(
+        (async () => {
+          await client.db.RoOwner.updateMany({
+            where: loose({ kits: { some: { owner: { du: { in: ['abc'] } } } } }),
+            data: { label: 'hit' },
+          });
+        })(),
+      ).rejects.toThrow('Field "du[0]" is duration');
+      expect(await owners({})).toEqual(['o0', 'o1', 'o2']);
     });
 
     test('an unparseable uuid is refused and no row is touched', async () => {
