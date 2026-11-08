@@ -4,6 +4,7 @@
  * - a tuple in object form or an object bound whole is held to every position and required sub-field,
  *   on create and in a filter, because the database refuses a short one and nothing else would
  * - a Record inside an object is compared as create stores it
+ * - a self-referencing object is walked by name at every depth
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -21,6 +22,7 @@ import { createObjectRegistry, createRegistry } from '../../../src/generators/me
 import { parse } from '../../../src/parser/parser';
 import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import { buildConditions } from '../../../src/query/filters/condition-builder';
+import { assertNoAmbiguousEmpty } from '../../../src/query/filters/ambiguous-empty';
 import { transformData } from '../../../src/query/transformers';
 import { validateCreateData, validateUpdateData } from '../../../src/query/validators/data-validator';
 import { validateWhere } from '../../../src/query/validators';
@@ -36,6 +38,12 @@ object Rec {
 object Arr {
   n Int?
   tags Int[]
+}
+
+object Node {
+  n Int?
+  when Date?
+  child Node?
 }
 
 tuple Duo {
@@ -56,6 +64,8 @@ model Item {
   duo Duo?
   duos Duo[]
   withObj WithObj?
+  node Node?
+  nodes Node[]
   meta Arr @flexible
 }
 `;
@@ -179,5 +189,53 @@ describe('a Record inside an object is compared as create stores it', () => {
   test('a value that names no table is refused, naming the field', () => {
     expect(() => compile({ rec: { ref: 'v' } })).toThrow(/rec\.ref/);
     expect(() => compile({ NOT: { rec: { ref: 5 } } })).toThrow(/rec\.ref/);
+  });
+});
+
+describe('a self-referencing object is walked by name at every depth', () => {
+  test.each([1, 2, 3, 4])('a leaf %i levels down is compared on its own path', (depth) => {
+    let filter: unknown = { n: 3 };
+    for (let i = 0; i < depth; i++) filter = { child: filter };
+    const { text, vars } = compile({ node: filter });
+    const path = `node${'.child'.repeat(depth)}.n`;
+    expect(text).toContain(`${path} = `);
+    expect(text).not.toMatch(/node(\.child)+ = \$/);
+    expect(Object.values(vars)).toEqual([3]);
+  });
+
+  test('an operator object below the cut is applied, not bound as a value', () => {
+    const { text, vars } = compile({ node: { child: { child: { child: { n: { gt: 1 } } } } } });
+    expect(text).toContain('node.child.child.child.n > ');
+    expect(Object.values(vars)).toEqual([1]);
+  });
+
+  test('NOT, OR and AND below the cut keep the structure', () => {
+    const { text } = compile({ NOT: { node: { child: { child: { OR: [{ n: 1 }, { n: 2 }] } } } } });
+    expect(text).toContain('node.child.child.n = ');
+    expect(text).toMatch(/OR/);
+  });
+
+  test('a leaf below the cut is held as create stores it, a string for a date', () => {
+    const iso = '2021-01-01T00:00:00.000Z';
+    const storedValue = (
+      transformData({ node: { child: { child: { when: iso } } } }, item).node as {
+        child: { child: { when: unknown } };
+      }
+    ).child.child.when;
+    expect(Object.values(compile({ node: { child: { child: { when: iso } } } }).vars)).toEqual([storedValue]);
+  });
+
+  test('inside an array of objects the closure walks it the same way', () => {
+    const { text } = compile({ nodes: { some: { child: { child: { n: 3 } } } } });
+    expect(text).toContain('$v.child.child.n = ');
+    expect(text).not.toMatch(/\$v\.child\.child = /);
+  });
+
+  test('an empty body below the cut is ambiguous on a write, as it is above it', () => {
+    for (const where of [{ node: { child: { child: {} } } }, { node: { child: { child: { n: undefined } } } }])
+      expect(() => assertNoAmbiguousEmpty(w(where), item, registry, 'deleteMany')).toThrow(/ambiguous/);
+    expect(() =>
+      assertNoAmbiguousEmpty(w({ node: { child: { child: { n: 1 } } } }), item, registry, 'deleteMany'),
+    ).not.toThrow();
   });
 });

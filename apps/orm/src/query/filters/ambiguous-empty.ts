@@ -13,6 +13,7 @@ import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '.
 import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
 import { escapeControl } from '../../utils/safe-text';
+import { enclosedFields, NO_DEFS, type ObjectDefs } from '../validators/data-validator';
 import { isOperatorObject, isOperatorShape, resolveTupleElementKey } from './condition-builder';
 import { isEmptyBody } from './nested-condition-builder';
 
@@ -21,12 +22,21 @@ const QUANTIFIERS = ['some', 'every', 'none', 'isEmpty'];
 const allUndefined = (value: object): boolean => Object.values(value).every((v) => v === undefined);
 
 /** Finds the field a key names inside an object or tuple field; undefined for a key the type does not declare */
-type SubFields = (key: string) => FieldMetadata | undefined;
+interface SubFields {
+  readonly find: (key: string) => FieldMetadata | undefined;
+  /** Field lists of the enclosing objects, for a self-referencing object whose nested copy lists none */
+  readonly defs: ObjectDefs;
+}
 
-function subFieldsOf(field: FieldMetadata): SubFields | undefined {
+function subFieldsOf(field: FieldMetadata, outer: ObjectDefs = NO_DEFS): SubFields | undefined {
   const { objectInfo, tupleInfo } = field;
-  if (field.type === 'object' && objectInfo) return (key) => objectInfo.fields.find((f) => f.name === key);
-  if (field.type === 'tuple' && tupleInfo) return (key) => resolveTupleElementKey(key, tupleInfo)?.syntheticField;
+  if (field.type === 'object' && objectInfo) {
+    const { fields, defs } = enclosedFields(objectInfo.objectName, objectInfo.fields, outer);
+
+    return { find: (key) => fields.find((f) => f.name === key), defs };
+  }
+  if (field.type === 'tuple' && tupleInfo)
+    return { find: (key) => resolveTupleElementKey(key, tupleInfo)?.syntheticField, defs: outer };
 
   return undefined;
 }
@@ -48,14 +58,14 @@ function isEmptyFieldBody(where: Record<string, unknown>, sub: SubFields): boole
     }
     if (key === 'NOT' && isObject(value) && isEmptyFieldBody(value, sub)) continue;
 
-    const field = sub(key);
+    const field = sub.find(key);
     if (!field) {
       if (isOperatorObject(value) && allUndefined(value)) continue;
 
       return false;
     }
     if (!isObject(value)) return false;
-    const inner = subFieldsOf(field);
+    const inner = subFieldsOf(field, sub.defs);
     if (inner && !field.isArray) {
       if (isEmptyFieldBody(value, inner)) continue;
       return false;
@@ -199,7 +209,7 @@ function assertFieldBody(
         continue;
       }
 
-      const child = fields(key);
+      const child = fields.find(key);
       const here = `${path}.${key}`;
       if (!child) {
         if (isOperatorObject(v) && allUndefined(v))
@@ -207,7 +217,7 @@ function assertFieldBody(
         continue;
       }
       if (!isObject(v)) continue;
-      const inner = subFieldsOf(child);
+      const inner = subFieldsOf(child, fields.defs);
       if (!inner) {
         if (isOperatorShape(v, child) && allUndefined(v))
           fail(here, `Give ${escapeControl(key)} a real operator such as { eq: ... }, or drop the key.`);

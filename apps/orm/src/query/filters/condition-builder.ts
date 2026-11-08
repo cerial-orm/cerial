@@ -21,6 +21,7 @@ import type { FilterCompileContext } from '../compile/var-allocator';
 import { expandCompositeKeys } from './composite-key';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { buildForwardNoRecord, buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
+import { enclosedFields, NO_DEFS, type ObjectDefs } from '../validators/data-validator';
 import { prepareOperand, type OperandIssue } from './operand';
 import { getOperatorHandler, isRegisteredOperator } from './registry';
 import { asStoredArray } from './set-operand';
@@ -119,6 +120,23 @@ function flexibleSubField(name: string): FieldMetadata {
   return { name, type: 'any', isId: false, isUnique: false, isRequired: false };
 }
 
+/**
+ * The sub-field a key names. Below the cut of a self-referencing object the declared list is empty and the
+ * database holds no types, so create keeps leaf values as given: only an object or tuple is read from the
+ * enclosing copy (to keep walking its structure), and a leaf stays an untyped key like a @flexible one.
+ */
+function subFieldOf(
+  objectInfo: ObjectFieldMetadata,
+  resolved: FieldMetadata[],
+  key: string,
+): FieldMetadata | undefined {
+  const declared = objectInfo.fields.find((f) => f.name === key);
+  if (declared || objectInfo.fields.length) return declared;
+  const found = resolved.find((f) => f.name === key);
+
+  return found && (found.type === 'object' || found.type === 'tuple') ? found : undefined;
+}
+
 /** Build conditions for a single/optional object field using dot notation */
 export function buildObjectCondition(
   ctx: FilterCompileContext,
@@ -126,8 +144,11 @@ export function buildObjectCondition(
   whereValue: Record<string, unknown>,
   objectInfo: ObjectFieldMetadata,
   model: ModelMetadata = NO_MODEL,
+  outer: ObjectDefs = NO_DEFS,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
+  // A self-referencing object lists its fields one level deep; below that the enclosing copy holds them
+  const { fields, defs } = enclosedFields(objectInfo.objectName, objectInfo.fields, outer);
 
   for (const [key, value] of Object.entries(whereValue)) {
     if (value === undefined) continue;
@@ -135,26 +156,33 @@ export function buildObjectCondition(
     // Handle logical operators within object where
     if (key === 'AND' && Array.isArray(value)) {
       const andConditions = value.map((w) =>
-        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo, model),
+        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo, model, defs),
       );
       conditions.push(handleAnd(andConditions));
       continue;
     }
     if (key === 'OR' && Array.isArray(value)) {
       const orConditions = value.map((w) =>
-        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo, model),
+        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo, model, defs),
       );
       conditions.push(handleOr(orConditions));
       continue;
     }
     if (key === 'NOT' && isObject(value)) {
-      const notCondition = buildObjectCondition(ctx, fieldPath, value as Record<string, unknown>, objectInfo, model);
+      const notCondition = buildObjectCondition(
+        ctx,
+        fieldPath,
+        value as Record<string, unknown>,
+        objectInfo,
+        model,
+        defs,
+      );
       conditions.push(handleNot(notCondition));
       continue;
     }
 
     // Find sub-field metadata
-    const subField = objectInfo.fields.find((f) => f.name === key);
+    const subField = subFieldOf(objectInfo, fields, key);
 
     const subPath = `${fieldPath}.${subField ? key : quoteSubKey(key)}`;
 
@@ -174,12 +202,12 @@ export function buildObjectCondition(
       if (subField.isArray) {
         // Array of nested objects: some/every/none
         conditions.push(
-          buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
+          buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model, defs),
         );
       } else {
         // Single nested object: recursive dot notation
         conditions.push(
-          buildObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
+          buildObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model, defs),
         );
       }
       continue;
@@ -194,6 +222,7 @@ export function buildObjectCondition(
           value as Record<string, unknown>,
           subField.tupleInfo,
           model,
+          defs,
         ),
       );
       continue;
@@ -235,6 +264,7 @@ export function buildArrayObjectCondition(
   whereValue: Record<string, unknown>,
   objectInfo: ObjectFieldMetadata,
   model: ModelMetadata = NO_MODEL,
+  defs: ObjectDefs = NO_DEFS,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -248,6 +278,7 @@ export function buildArrayObjectCondition(
       subWhere as Record<string, unknown>,
       objectInfo,
       model,
+      defs,
     );
     if (!innerCondition.text) {
       const empty = emptyBodyQuantifier(fieldPath, quantifier);
@@ -277,8 +308,10 @@ function buildObjectConditionForClosure(
   whereValue: Record<string, unknown>,
   objectInfo: ObjectFieldMetadata,
   model: ModelMetadata,
+  outer: ObjectDefs,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
+  const { fields, defs } = enclosedFields(objectInfo.objectName, objectInfo.fields, outer);
 
   for (const [key, value] of Object.entries(whereValue)) {
     if (value === undefined) continue;
@@ -286,14 +319,14 @@ function buildObjectConditionForClosure(
     // Handle logical operators
     if (key === 'AND' && Array.isArray(value)) {
       const andConditions = value.map((w) =>
-        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo, model),
+        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo, model, defs),
       );
       conditions.push(handleAnd(andConditions));
       continue;
     }
     if (key === 'OR' && Array.isArray(value)) {
       const orConditions = value.map((w) =>
-        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo, model),
+        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo, model, defs),
       );
       conditions.push(handleOr(orConditions));
       continue;
@@ -305,12 +338,13 @@ function buildObjectConditionForClosure(
         value as Record<string, unknown>,
         objectInfo,
         model,
+        defs,
       );
       conditions.push(handleNot(notCondition));
       continue;
     }
 
-    const subField = objectInfo.fields.find((f) => f.name === key);
+    const subField = subFieldOf(objectInfo, fields, key);
 
     const subPath = `${closureVar}.${subField ? key : quoteSubKey(key)}`;
 
@@ -329,11 +363,18 @@ function buildObjectConditionForClosure(
     if (subField.type === 'object' && subField.objectInfo && isObject(value)) {
       if (subField.isArray) {
         conditions.push(
-          buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
+          buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model, defs),
         );
       } else {
         conditions.push(
-          buildObjectConditionForClosure(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
+          buildObjectConditionForClosure(
+            ctx,
+            subPath,
+            value as Record<string, unknown>,
+            subField.objectInfo,
+            model,
+            defs,
+          ),
         );
       }
       continue;
@@ -348,6 +389,7 @@ function buildObjectConditionForClosure(
           value as Record<string, unknown>,
           subField.tupleInfo,
           model,
+          defs,
         ),
       );
       continue;
@@ -429,6 +471,7 @@ export function buildTupleCondition(
   whereValue: Record<string, unknown>,
   tupleInfo: TupleFieldMetadata,
   model: ModelMetadata = NO_MODEL,
+  defs: ObjectDefs = NO_DEFS,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -444,7 +487,7 @@ export function buildTupleCondition(
     // Nested object element
     if (syntheticField.type === 'object' && syntheticField.objectInfo && isObject(value)) {
       conditions.push(
-        buildObjectCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.objectInfo, model),
+        buildObjectCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.objectInfo, model, defs),
       );
       continue;
     }
@@ -452,7 +495,7 @@ export function buildTupleCondition(
     // Nested tuple element
     if (syntheticField.type === 'tuple' && syntheticField.tupleInfo && isObject(value)) {
       conditions.push(
-        buildTupleCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.tupleInfo, model),
+        buildTupleCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.tupleInfo, model, defs),
       );
       continue;
     }
@@ -480,6 +523,7 @@ export function buildArrayTupleCondition(
   whereValue: Record<string, unknown>,
   tupleInfo: TupleFieldMetadata,
   model: ModelMetadata = NO_MODEL,
+  defs: ObjectDefs = NO_DEFS,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -487,7 +531,7 @@ export function buildArrayTupleCondition(
     if (!isObject(subWhere)) continue;
 
     // Build inner conditions using closure variable $v
-    const innerCondition = buildTupleCondition(ctx, '$v', subWhere as Record<string, unknown>, tupleInfo, model);
+    const innerCondition = buildTupleCondition(ctx, '$v', subWhere as Record<string, unknown>, tupleInfo, model, defs);
     if (!innerCondition.text) {
       const empty = emptyBodyQuantifier(fieldPath, quantifier);
       if (empty) conditions.push(empty);

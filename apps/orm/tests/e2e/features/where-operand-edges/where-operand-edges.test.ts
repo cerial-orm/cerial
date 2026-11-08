@@ -4,6 +4,7 @@
  * - a tuple in object form or an object bound whole is refused when it leaves out a position or a required
  *   array, on create and in a negated filter, before any row is touched
  * - a Record inside an object is compared as create stored it, so a negated delete spares the row holding it
+ * - a self-referencing object is filtered by name at every depth
  *
  * Destructive calls come first in each group: the refused ones must leave every row, the accepted ones must
  * remove exactly the rows the typed equivalent selects.
@@ -168,6 +169,63 @@ describe('E2E: where operand edges', () => {
         /box\.ref/,
       );
       expect(await names()).toEqual(['h1', 'h2', 'h3']);
+    });
+  });
+
+  describe('a self-referencing object', () => {
+    const D1 = '2021-01-01T00:00:00.000Z';
+    const D2 = '2022-02-02T00:00:00.000Z';
+
+    const seed = async (): Promise<void> => {
+      const { db } = getClient();
+      const node = (data: unknown): never => loose({ lists: [], duos: [], ...(data as object) });
+      await db.WoHolder.create({
+        data: node({ name: 'n1', node: { child: { child: { child: { n: 3, when: D1 } } } } }),
+      });
+      await db.WoHolder.create({
+        data: node({ name: 'n2', node: { child: { child: { child: { n: 4, when: D2 } } } } }),
+      });
+      await db.WoHolder.create({ data: node({ name: 'n3', node: { n: 3 } }) });
+    };
+
+    test('a negated deleteMany below the cut deletes the rows that do not match and spares the one that does', async () => {
+      await seed();
+      const where = { NOT: { node: { child: { child: { child: { n: 3 } } } } } };
+      expect(await getClient().db.WoHolder.deleteMany({ where: loose(where) })).toBe(2);
+      expect(await names()).toEqual(['n1']);
+    });
+
+    test('a negated deleteMany by a date below the cut spares the row holding it', async () => {
+      await seed();
+      const where = { NOT: { node: { child: { child: { child: { when: D1 } } } } } };
+      expect(await getClient().db.WoHolder.deleteMany({ where: loose(where) })).toBe(2);
+      expect(await names()).toEqual(['n1']);
+    });
+
+    test('updateMany below the cut changes only the matching row', async () => {
+      await seed();
+      await getClient().db.WoHolder.updateMany({
+        where: loose({ node: { child: { child: { child: { n: 4 } } } } }),
+        data: { name: 'changed' },
+      });
+      expect(await names()).toEqual(['changed', 'n1', 'n3']);
+    });
+
+    test('count and operators agree with the row layout at every depth', async () => {
+      await seed();
+      expect(await names({ node: { n: 3 } })).toEqual(['n3']);
+      expect(await names({ node: { child: { child: { child: { n: 3 } } } } })).toEqual(['n1']);
+      expect(await names({ node: { child: { child: { child: { n: { gt: 3 } } } } } })).toEqual(['n2']);
+      expect(await names({ node: { child: { child: { child: { n: { in: [3, 4] } } } } } })).toEqual(['n1', 'n2']);
+    });
+
+    test('an empty body below the cut is refused on a write', async () => {
+      await seed();
+      await refuses(
+        () => getClient().db.WoHolder.deleteMany({ where: loose({ node: { child: { child: {} } } }) }),
+        /ambiguous/,
+      );
+      expect(await names()).toEqual(['n1', 'n2', 'n3']);
     });
   });
 });
