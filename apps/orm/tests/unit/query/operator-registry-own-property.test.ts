@@ -48,11 +48,9 @@ describe('prototype-chain names as operators in a top-level where', () => {
       expect(result.errors.map((e) => e.message)).toContain(`Unknown operator: ${name}`);
     });
 
-    test(`${name} no longer drops the filter in the builder`, () => {
-      const compiled = find({ title: { [name]: 1 } });
-      expect(compiled.text).toBe(find({ title: { nonsense: 1 } }).text);
-      expect(compiled.text).toContain('WHERE');
-      expect(Object.values(compiled.vars)).toContainEqual({ [name]: 1 });
+    test(`${name} does not drop the filter in the builder: the object is a value the string field refuses`, () => {
+      expect(() => find({ title: { [name]: 1 } })).toThrow(/title/);
+      expect(() => find({ title: { nonsense: 1 } })).toThrow(/title/);
     });
   }
 });
@@ -72,8 +70,7 @@ describe('unchanged behaviour', () => {
     expect(compiled.text).not.toMatch(/\$[a-z_0-9]*toString/);
   });
 
-  test('an object value with an operator-like key is bound whole as an equality operand', () => {
-    const compiled = find({ address: { city: { $ne: 'x' } } });
-    expect(Object.values(compiled.vars)).toContainEqual({ $ne: 'x' });
+  test('an object value with an operator-like key is a value, which a string sub-field refuses', () => {
+    expect(() => find({ address: { city: { $ne: 'x' } } })).toThrow(/city/);
   });
 });

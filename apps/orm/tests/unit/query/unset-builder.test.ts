@@ -189,7 +189,7 @@ describe('buildUpdateManyQuery with unset', () => {
   const userModel = registry.User!;
 
   test('emits NONE for unset flat field', () => {
-    const query = buildUpdateManyQuery(userModel, { name: { equals: 'Alice' } }, { name: 'Bob' }, undefined, {
+    const query = buildUpdateManyQuery(userModel, { name: 'Alice' }, { name: 'Bob' }, undefined, {
       bio: true,
     });
 
@@ -199,7 +199,7 @@ describe('buildUpdateManyQuery with unset', () => {
   });
 
   test('emits NONE for multiple unset fields', () => {
-    const query = buildUpdateManyQuery(userModel, { name: { equals: 'Alice' } }, { name: 'Bob' }, undefined, {
+    const query = buildUpdateManyQuery(userModel, { name: 'Alice' }, { name: 'Bob' }, undefined, {
       bio: true,
       age: true,
     });
@@ -209,7 +209,7 @@ describe('buildUpdateManyQuery with unset', () => {
   });
 
   test('data field takes priority — unset ignored for overlapping field', () => {
-    const query = buildUpdateManyQuery(userModel, { name: { equals: 'Alice' } }, { bio: 'Updated bio' }, undefined, {
+    const query = buildUpdateManyQuery(userModel, { name: 'Alice' }, { bio: 'Updated bio' }, undefined, {
       bio: true,
     });
 
@@ -218,13 +218,13 @@ describe('buildUpdateManyQuery with unset', () => {
   });
 
   test('works with empty data and only unset', () => {
-    const query = buildUpdateManyQuery(userModel, { name: { equals: 'Alice' } }, {}, undefined, { bio: true });
+    const query = buildUpdateManyQuery(userModel, { name: 'Alice' }, {}, undefined, { bio: true });
 
     expect(query.text).toContain('bio = NONE');
   });
 
   test('no unset produces standard query', () => {
-    const query = buildUpdateManyQuery(userModel, { name: { equals: 'Alice' } }, { name: 'Bob' });
+    const query = buildUpdateManyQuery(userModel, { name: 'Alice' }, { name: 'Bob' });
 
     expect(query.text).toContain('name = $name_set_0');
     expect(query.text).not.toContain('NONE');
@@ -237,7 +237,7 @@ describe('buildUpdateManyQuery with unset', () => {
 
 describe('buildUpdateManyQuery with unset + objects', () => {
   test('emits NONE for optional object field (unset entire object)', () => {
-    const query = buildUpdateManyQuery(profileModel, { name: { equals: 'Alice' } }, { name: 'Bob' }, undefined, {
+    const query = buildUpdateManyQuery(profileModel, { name: 'Alice' }, { name: 'Bob' }, undefined, {
       shipping: true,
     });
 
@@ -245,7 +245,7 @@ describe('buildUpdateManyQuery with unset + objects', () => {
   });
 
   test('emits dot-notation NONE for object sub-field unset', () => {
-    const query = buildUpdateManyQuery(profileModel, { name: { equals: 'Alice' } }, { name: 'Bob' }, undefined, {
+    const query = buildUpdateManyQuery(profileModel, { name: 'Alice' }, { name: 'Bob' }, undefined, {
       address: { zip: true },
     });
 
@@ -253,26 +253,18 @@ describe('buildUpdateManyQuery with unset + objects', () => {
   });
 
   test('combines data and unset on same object (different sub-fields)', () => {
-    const query = buildUpdateManyQuery(
-      profileModel,
-      { name: { equals: 'Alice' } },
-      { address: { city: 'NYC' } },
-      undefined,
-      { address: { zip: true } },
-    );
+    const query = buildUpdateManyQuery(profileModel, { name: 'Alice' }, { address: { city: 'NYC' } }, undefined, {
+      address: { zip: true },
+    });
 
     expect(query.text).toContain('address.city = $');
     expect(query.text).toContain('address.zip = NONE');
   });
 
   test('data sub-field takes priority over unset sub-field', () => {
-    const query = buildUpdateManyQuery(
-      profileModel,
-      { name: { equals: 'Alice' } },
-      { address: { zip: '10001' } },
-      undefined,
-      { address: { zip: true } },
-    );
+    const query = buildUpdateManyQuery(profileModel, { name: 'Alice' }, { address: { zip: '10001' } }, undefined, {
+      address: { zip: true },
+    });
 
     // zip is in data, so it should NOT be NONE
     expect(query.text).toContain('address.zip = $');
@@ -286,7 +278,7 @@ describe('buildUpdateManyQuery with unset + objects', () => {
 
 describe('buildUpdateManyQuery with unset + tuples', () => {
   test('emits NONE for optional tuple field (unset entire tuple)', () => {
-    const query = buildUpdateManyQuery(locationModel, { name: { equals: 'HQ' } }, { name: 'Office' }, undefined, {
+    const query = buildUpdateManyQuery(locationModel, { name: 'HQ' }, { name: 'Office' }, undefined, {
       backup: true,
     });
 
@@ -296,7 +288,7 @@ describe('buildUpdateManyQuery with unset + tuples', () => {
   test('emits $this reconstruction with NULL for @nullable tuple element unset', () => {
     // WithOptional has: [String, Float @nullable]
     // Unsetting the @nullable Float element (index 1)
-    const query = buildUpdateManyQuery(locationModel, { name: { equals: 'HQ' } }, {}, undefined, { opt: { 1: true } });
+    const query = buildUpdateManyQuery(locationModel, { name: 'HQ' }, {}, undefined, { opt: { 1: true } });
 
     // Should use $this reconstruction: opt = [$this.opt[0], NULL]
     expect(query.text).toContain('opt = [$this.opt[0], NULL]');
@@ -305,7 +297,7 @@ describe('buildUpdateManyQuery with unset + tuples', () => {
   test('emits $this reconstruction with NONE for object-in-tuple sub-field', () => {
     // ObjTuple has: [String, InnerObj]
     // Unsetting the optional sub-field of the object element
-    const query = buildUpdateManyQuery(locationModel, { name: { equals: 'HQ' } }, {}, undefined, {
+    const query = buildUpdateManyQuery(locationModel, { name: 'HQ' }, {}, undefined, {
       tagged: { 1: { extra: true } },
     });
 
@@ -317,13 +309,9 @@ describe('buildUpdateManyQuery with unset + tuples', () => {
 
   test('combines tuple element unset with data on different element', () => {
     // WithOptional: [String, Float @nullable] — update text (index 0) and unset Float (index 1)
-    const query = buildUpdateManyQuery(
-      locationModel,
-      { name: { equals: 'HQ' } },
-      { opt: { 0: 'new-label' } },
-      undefined,
-      { opt: { 1: true } },
-    );
+    const query = buildUpdateManyQuery(locationModel, { name: 'HQ' }, { opt: { 0: 'new-label' } }, undefined, {
+      opt: { 1: true },
+    });
 
     // The merged data should have both: text = 'new-label', 1 = NONE → NULL for @nullable
     // Reconstruction: opt = [$opt_0_set_X, NULL]
@@ -403,7 +391,7 @@ describe('buildUpdateManyQuery with unset + @updatedAt', () => {
   const trackedModel = registry.Tracked!;
 
   test('@updatedAt NONE injection still happens alongside unset', () => {
-    const query = buildUpdateManyQuery(trackedModel, { name: { equals: 'Alice' } }, { name: 'Bob' }, undefined, {
+    const query = buildUpdateManyQuery(trackedModel, { name: 'Alice' }, { name: 'Bob' }, undefined, {
       bio: true,
     });
 

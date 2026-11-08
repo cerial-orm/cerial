@@ -117,8 +117,20 @@ describe('where operands — refused', () => {
   test('string operators need a string; flag operators need a boolean', () => {
     for (const op of ['contains', 'startsWith', 'endsWith'])
       refused(w({ name: { [op]: 5 } }), `${op} expects a string`);
-    for (const op of ['isNull', 'isNone', 'isDefined', 'isEmpty'])
+    for (const op of ['isNull', 'isNone', 'isDefined'])
       refused(w({ note: { [op]: 'true' } }), `${op} expects a boolean`);
+    refused(w({ tags: { isEmpty: 'true' } }), 'isEmpty expects a boolean');
+  });
+
+  test('an operator the field kind does not take is refused naming the field', () => {
+    refused(w({ name: { gt: 'a' } }), 'Field "name" is string and does not take the gt operator');
+    refused(w({ name: { between: ['a', 'b'] } }), 'name" is string and does not take the between operator');
+    refused(w({ uid: { between: ['a', 'b'] } }), 'uid" is uuid and does not take the between operator');
+    refused(w({ active: { in: [true] } }), 'active" is bool and does not take the in operator');
+    refused(w({ age: { contains: '1' } }), 'age" is int and does not take the contains operator');
+    refused(w({ age: { has: 1 } }), 'age" is int and does not take the has operator');
+    refused(w({ note: { isEmpty: true } }), 'note" is string and does not take the isEmpty operator');
+    refused(w({ box: { count: { startsWith: 'a' } } }), 'box.count" is int and does not take the startsWith operator');
   });
 
   test('the other scalar types', () => {
@@ -130,7 +142,7 @@ describe('where operands — refused', () => {
     refused(w({ uid: 'nope' }), 'uid must be of type uuid');
     refused(w({ span: 5 }), 'span must be of type duration');
     refused(w({ blob: 5 }), 'blob must be of type bytes');
-    refused(w({ price: { gt: 'abc' } }), 'Decimal');
+    refused(w({ price: { gt: 'abc' } }), 'price must be of type decimal');
     refused(w({ refId: 'x' }), 'refId must be a valid int record ID');
     refused(w({ refId: { in: ['x'] } }), 'refId[0] must be a valid int record ID');
   });
@@ -155,7 +167,7 @@ describe('where operands — refused', () => {
     refused(w({ pair: { first: '1' } }), 'pair.first must be of type int');
     refused(w({ pair: { 1: { in: [1] } } }), 'pair.1[0] must be of type string');
     refused(w({ loose: { count: '1' } }), 'loose.count must be of type int');
-    refused(w({ box: { count: { contains: 1 } } }), 'contains expects a string');
+    refused(w({ box: { inner: { tag: { contains: 1 } } } }), 'contains expects a string');
   });
 
   test('each refusal names the path', () => {

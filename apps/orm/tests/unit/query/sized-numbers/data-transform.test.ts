@@ -2,11 +2,12 @@
  * Unit Tests: write values for sized number fields
  *
  * Uint64 goes as a bigint up to the signed 64-bit maximum and as the SDK U64 above it. Float16 and Float32
- * go unchanged so the server does the rounding, and the other integer kinds go as plain numbers.
+ * go as F16 and F32, so a write and a filter on the same number round it alike, and the other integer kinds
+ * go as plain numbers.
  */
 
 import { describe, expect, test } from 'bun:test';
-import { U64 } from 'surrealdb';
+import { F16, F32, U64 } from 'surrealdb';
 import { transformData, transformValue } from '../../../../src/query/transformers/data-transformer';
 import { SIZED_CASES, sizedModel } from './helpers';
 
@@ -29,8 +30,19 @@ describe('sized number write transform', () => {
     expect(transformValue(max, type)).toBe(max);
   });
 
-  test.each(['float16', 'float32'] as const)('%s passes the caller number unchanged', (type) => {
-    expect(transformValue(0.1, type)).toBe(0.1);
+  test.each([
+    ['float16', F16],
+    ['float32', F32],
+  ] as const)('%s goes as the SDK class holding the rounded number', (type, Klass) => {
+    const out = transformValue(0.1, type);
+
+    expect(out).toBeInstanceOf(Klass);
+    expect((out as F16).value).toBe(new Klass(0.1).value);
+  });
+
+  test.each(['float16', 'float32'] as const)('%s leaves a non-number as it is', (type) => {
+    expect(transformValue(null, type)).toBeNull();
+    expect(transformValue('x', type)).toBe('x');
   });
 
   test('Uint64 sends a bigint as is up to the signed maximum, wraps one above it, and converts a number to a bigint', () => {
@@ -96,7 +108,7 @@ describe('sized number write transform', () => {
       }
     });
 
-    test.each([...SIZED_CASES.map((c) => c.type), 'float16', 'float32'] as const)('%s data is not wrapped', (type) => {
+    test.each(SIZED_CASES.map((c) => c.type))('%s data is not wrapped', (type) => {
       const out = transformData(
         { value: 5, list: [1, 2], calib: { gain: 3 }, pair: [4, 5] },
         sizedModel(type),
@@ -104,6 +116,22 @@ describe('sized number write transform', () => {
       );
 
       expect(out).toEqual({ value: 5, list: [1, 2], calib: { gain: 3 }, pair: [4, 5] });
+    });
+
+    test.each([
+      ['float16', F16],
+      ['float32', F32],
+    ] as const)('%s wraps required, optional, array, object and tuple values', (type, Klass) => {
+      const out = transformData(
+        { value: 5, list: [1, 2], calib: { gain: 3 }, pair: [4, 5] },
+        sizedModel(type),
+        'create',
+      ) as Record<string, unknown>;
+
+      expect(out.value).toBeInstanceOf(Klass);
+      for (const item of out.list as unknown[]) expect(item).toBeInstanceOf(Klass);
+      expect((out.calib as { gain: unknown }).gain).toBeInstanceOf(Klass);
+      for (const item of out.pair as unknown[]) expect(item).toBeInstanceOf(Klass);
     });
   });
 });

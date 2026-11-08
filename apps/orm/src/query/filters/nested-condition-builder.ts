@@ -12,13 +12,12 @@ import {
   buildArrayObjectCondition,
   buildArrayTupleCondition,
   buildDirectCondition,
-  transformFieldValue,
+  buildFieldCondition,
   buildObjectCondition,
   buildTupleCondition,
   isOperatorShape,
 } from './condition-builder';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
-import { getOperatorHandler } from './registry';
 
 /** A fragment's bare names would resolve against the wrong row inside a relation filter, so it never compiles there */
 function assertNoRaw(key: string): void {
@@ -39,20 +38,21 @@ function compileStructuredField(
   path: string,
   value: unknown,
   field: FieldMetadata,
+  model: ModelMetadata,
 ): QueryFragment | undefined {
   if (!isObject(value)) return undefined;
   const body = value as Record<string, unknown>;
 
   if (field.type === 'object' && field.objectInfo) {
     return field.isArray
-      ? buildArrayObjectCondition(ctx, path, body, field.objectInfo)
-      : buildObjectCondition(ctx, path, body, field.objectInfo);
+      ? buildArrayObjectCondition(ctx, path, body, field.objectInfo, model)
+      : buildObjectCondition(ctx, path, body, field.objectInfo, model);
   }
 
   if (field.type === 'tuple' && field.tupleInfo) {
     return field.isArray
-      ? buildArrayTupleCondition(ctx, path, body, field.tupleInfo)
-      : buildTupleCondition(ctx, path, body, field.tupleInfo);
+      ? buildArrayTupleCondition(ctx, path, body, field.tupleInfo, model)
+      : buildTupleCondition(ctx, path, body, field.tupleInfo, model);
   }
 
   return undefined;
@@ -191,37 +191,17 @@ function buildSubqueryConditions(
       continue;
     }
 
-    const structured = compileStructuredField(ctx, fieldName, value, fieldMetadata);
+    const structured = compileStructuredField(ctx, fieldName, value, fieldMetadata, targetModel);
     if (structured) {
       if (structured.text) conditions.push(structured);
       continue;
     }
 
-    // Handle operator object
-    if (isOperatorShape(value, fieldMetadata)) {
-      const operatorConditions: QueryFragment[] = [];
-
-      for (const [op, opValue] of Object.entries(value as Record<string, unknown>)) {
-        if (opValue === undefined) continue;
-
-        const handler = getOperatorHandler(op);
-        if (handler) {
-          operatorConditions.push(
-            handler(ctx, fieldName, transformFieldValue(opValue, fieldMetadata, targetModel, op), fieldMetadata),
-          );
-        }
-      }
-
-      if (operatorConditions.length > 0) {
-        conditions.push(operatorConditions.length === 1 ? operatorConditions[0]! : handleAnd(operatorConditions));
-      }
-    } else {
-      // Direct value (shorthand for eq)
-      const handler = getOperatorHandler('eq');
-      if (handler) {
-        conditions.push(handler(ctx, fieldName, transformFieldValue(value, fieldMetadata, targetModel), fieldMetadata));
-      }
-    }
+    // Operator object, or a direct value (shorthand for eq)
+    const condition = isOperatorShape(value, fieldMetadata)
+      ? buildFieldCondition(ctx, fieldName, value, fieldMetadata, targetModel)
+      : buildDirectCondition(ctx, fieldName, value, fieldMetadata, targetModel);
+    if (condition.text) conditions.push(condition);
   }
 
   if (conditions.length === 0) {
@@ -372,44 +352,17 @@ function compileForwardBody(
     // Build the dot-notation field name
     const dotField = `${fieldRef}.${nestedField}`;
 
-    const structured = compileStructuredField(ctx, dotField, value, nestedFieldMetadata);
+    const structured = compileStructuredField(ctx, dotField, value, nestedFieldMetadata, targetModel);
     if (structured) {
       if (structured.text) conditions.push(structured);
       continue;
     }
 
-    // Handle operator object
-    if (isOperatorShape(value, nestedFieldMetadata)) {
-      const operatorConditions: QueryFragment[] = [];
-
-      for (const [op, opValue] of Object.entries(value as Record<string, unknown>)) {
-        if (opValue === undefined) continue;
-
-        const handler = getOperatorHandler(op);
-        if (handler) {
-          operatorConditions.push(
-            handler(
-              ctx,
-              dotField,
-              transformFieldValue(opValue, nestedFieldMetadata, targetModel, op),
-              nestedFieldMetadata,
-            ),
-          );
-        }
-      }
-
-      if (operatorConditions.length > 0) {
-        conditions.push(operatorConditions.length === 1 ? operatorConditions[0]! : handleAnd(operatorConditions));
-      }
-    } else {
-      // Direct value (shorthand for eq)
-      const handler = getOperatorHandler('eq');
-      if (handler) {
-        conditions.push(
-          handler(ctx, dotField, transformFieldValue(value, nestedFieldMetadata, targetModel), nestedFieldMetadata),
-        );
-      }
-    }
+    // Operator object, or a direct value (shorthand for eq)
+    const condition = isOperatorShape(value, nestedFieldMetadata)
+      ? buildFieldCondition(ctx, dotField, value, nestedFieldMetadata, targetModel)
+      : buildDirectCondition(ctx, dotField, value, nestedFieldMetadata, targetModel);
+    if (condition.text) conditions.push(condition);
   }
 
   if (conditions.length === 0) {

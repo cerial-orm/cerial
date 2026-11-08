@@ -46,9 +46,9 @@ describe('sized number filter values', () => {
       expectU64(compileWhere('uint64', { value: 5 }).values[0], 5n);
     });
 
-    test('binds exactly 2^53 as a bigint, whether it arrives as a bigint or a number', () => {
+    test('binds exactly 2^53 as a bigint, and refuses the number that may already be rounded', () => {
       expect(compileWhere('uint64', { value: 2n ** 53n }).values[0]).toBe(2n ** 53n);
-      expect(compileWhere('uint64', { value: 2 ** 53 }).values[0]).toBe(2n ** 53n);
+      expect(() => compileWhere('uint64', { value: 2 ** 53 })).toThrow(/value.*bigint/);
     });
 
     test('the signed maximum binds as a bigint and one above it as U64', () => {

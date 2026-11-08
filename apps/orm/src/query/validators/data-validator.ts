@@ -10,13 +10,15 @@ import type {
   SchemaFieldType,
   TupleFieldMetadata,
 } from '../../types';
+import { Geometry } from 'surrealdb';
+import { CerialGeometry, type CerialGeometryType } from '../../utils/cerial-geometry';
 import { isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
 import { escapeControl } from '../../utils/safe-text';
 import { isObject } from '../../utils/type-utils';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
 import { convertUnsetToNoneValues } from '../builders/update-builder';
-import { isSingleTupleInput } from '../transformers/data-transformer';
+import { isSingleTupleInput, transformValue, tupleElementDefault } from '../transformers/data-transformer';
 import { sizedNumberError } from './sized-number-validator';
 
 /** Validation error */
@@ -96,13 +98,42 @@ export interface FieldValueRules {
   isNullable?: boolean;
   recordIdTypes?: string[];
   literalInfo?: LiteralFieldMetadata;
+  geometrySubtypes?: FieldMetadata['geometrySubtypes'];
+}
+
+const GEOMETRY_SUBTYPE: Record<CerialGeometryType, NonNullable<FieldMetadata['geometrySubtypes']>[number]> = {
+  Point: 'point',
+  LineString: 'line',
+  Polygon: 'polygon',
+  MultiPoint: 'multipoint',
+  MultiLineString: 'multiline',
+  MultiPolygon: 'multipolygon',
+  GeometryCollection: 'collection',
+};
+
+/** Why a geometry value is not valid for the field (not a geometry, or not one of its declared subtypes), or null */
+function geometryError(label: string, value: unknown, subtypes: FieldValueRules['geometrySubtypes']): string | null {
+  try {
+    const converted = transformValue(value, 'geometry');
+    if (!(converted instanceof Geometry))
+      throw new Error('expected a GeoJSON geometry, a Cerial geometry or a [x, y] point');
+    const actual = GEOMETRY_SUBTYPE[CerialGeometry.fromNative(converted).type];
+    if (subtypes?.length && !subtypes.includes(actual))
+      throw new Error(`a ${actual} is not one of ${subtypes.join(', ')}`);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+
+    return `Field "${label}" is geometry and the value is not a valid geometry: ${escapeControl(reason)}`;
+  }
+
+  return null;
 }
 
 /** Validate a single field value */
 export function validateFieldValue(
   fieldName: string,
   value: unknown,
-  { type: fieldType, isRequired, isArray, isNullable, recordIdTypes, literalInfo }: FieldValueRules,
+  { type: fieldType, isRequired, isArray, isNullable, recordIdTypes, literalInfo, geometrySubtypes }: FieldValueRules,
 ): DataValidationError | null {
   // NONE sentinel is always valid for optional fields (clear the field)
   if (isNone(value)) {
@@ -154,6 +185,16 @@ export function validateFieldValue(
       }
       const literalMessage = literalInfo && literalError(`${fieldName}[${i}]`, element, literalInfo);
       if (literalMessage) return { field: fieldName, message: literalMessage };
+      const geometryMessage =
+        fieldType === 'geometry' && geometryError(`${fieldName}[${i}]`, element, geometrySubtypes);
+      if (geometryMessage) return { field: fieldName, message: geometryMessage };
+      if (fieldType === 'record' && recordIdTypes?.length && !validateTypedRecordId(element, recordIdTypes))
+        return {
+          field: fieldName,
+          message: `${fieldName}[${i}] must be a valid ${recordIdTypes.join(' | ')} record ID`,
+        };
+      if (fieldType === 'email' && typeof element === 'string' && !isValidEmail(element))
+        return { field: fieldName, message: `${fieldName}[${i}] must be a valid email` };
     }
     return null;
   }
@@ -168,6 +209,9 @@ export function validateFieldValue(
 
   const literalMessage = literalInfo && literalError(fieldName, value, literalInfo);
   if (literalMessage) return { field: fieldName, message: literalMessage };
+
+  const geometryMessage = fieldType === 'geometry' && geometryError(fieldName, value, geometrySubtypes);
+  if (geometryMessage) return { field: fieldName, message: geometryMessage };
 
   // For record fields with recordIdTypes, validate against expected ID types
   if (fieldType === 'record' && recordIdTypes?.length) {
@@ -568,22 +612,6 @@ type WalkField = Pick<
   'type' | 'isArray' | 'isFlexible' | 'isNullable' | 'literalInfo' | 'objectInfo' | 'tupleInfo'
 >;
 
-/**
- * Check one whole object or tuple value the way a create checks it: its type, then its shape, declared
- * keys and element types. A where operand that compares a field to a whole value is held to the same rules.
- */
-export function validateWholeValue(
-  field: WalkField & Pick<FieldMetadata, 'recordIdTypes'>,
-  value: unknown,
-  model: ModelMetadata,
-  path: string,
-): DataValidationError[] {
-  const error = validateFieldValue(path, value, { ...field, isRequired: false });
-  if (error) return [error];
-
-  return validateSubValue(value, field, model, path, false, true);
-}
-
 /** Field lists of the objects enclosing the value being checked, by object name */
 type ObjectDefs = ReadonlyMap<string, FieldMetadata[]>;
 const NO_DEFS: ObjectDefs = new Map();
@@ -756,9 +784,18 @@ function validateTupleArray(
       },
     ];
 
-  return tupleInfo.elements.flatMap((element) =>
-    validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false, true, defs),
-  );
+  return tupleInfo.elements.flatMap((element) => {
+    // A position left out must be one the schema fills; the database would otherwise refuse a short tuple
+    if (
+      data[element.index] === undefined &&
+      !element.isNullable &&
+      !element.isOptional &&
+      tupleElementDefault(element) === undefined
+    )
+      return [{ field: path, message: `${path} is missing the tuple element at position ${element.index}` }];
+
+    return validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false, true, defs);
+  });
 }
 
 /** Validate the element keys (by name or index) of a tuple in object form. */

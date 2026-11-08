@@ -130,8 +130,13 @@ export function unlistedSites(
 export function inScope(path: string): boolean {
   if (!path.endsWith('.ts') || path.endsWith('.d.ts')) return false;
 
-  // Validators and the data transformer interpolate only into error messages
-  if (path.startsWith('src/query/validators/') || path === 'src/query/transformers/data-transformer.ts') return false;
+  // Validators, the data transformer and the operand preparer interpolate only into error messages
+  if (
+    path.startsWith('src/query/validators/') ||
+    path === 'src/query/transformers/data-transformer.ts' ||
+    path === 'src/query/filters/operand.ts'
+  )
+    return false;
 
   return (
     path.startsWith('src/query/') ||

@@ -290,7 +290,8 @@ describe('where converts what create accepts, the way create converts it', () =>
         if (!field.includes('.') && value !== null && !CONVERTED_BY_WHERE.includes(type))
           same(varsOf(wrap(field, { [op]: value }))[0]);
       }
-      for (const op of ['in', 'notIn']) {
+      // A bool takes no list operator, as its generated Where type shows
+      for (const op of type === 'bool' ? [] : ['in', 'notIn']) {
         expect(errorsAt(owner, wrap(field, { [op]: [value] }))).toEqual([]);
         if (!field.includes('.') && value !== null && !CONVERTED_BY_WHERE.includes(type))
           same((varsOf(wrap(field, { [op]: [value] }))[0] as unknown[])[0]);
@@ -521,8 +522,8 @@ describe('a set field compares as the set create stores', () => {
     expect(textFor(owner, { sets: { hasAll: [1, 2] } })).not.toContain('<set>');
   });
 
-  test('a null operand is not cast', () => {
-    expect(textFor(owner, { sets: { eq: null } })).not.toContain('<set>');
+  test('a null operand on the required set is refused naming the field, not cast', () => {
+    expect(() => textFor(owner, { sets: { eq: null } })).toThrow(/sets/);
   });
 });
 
@@ -606,12 +607,24 @@ describe('id operands are converted the way create builds the id', () => {
   });
 });
 
+describe('between is refused on a string, as its generated Where type omits it', () => {
+  test.each([
+    ['direct', { str: { between: ['a', 'b'] } }],
+    ['in NOT', { NOT: { str: { between: ['a', 'b'] } } }],
+  ])('%s', (_label, where) => {
+    const msgs = errorsAt(owner, where);
+
+    expect(msgs.length).toBe(1);
+    expect(msgs[0]).toContain('str');
+    expect(msgs[0]).toContain('between');
+  });
+});
+
 describe('between takes exactly two valid bounds', () => {
   const fields: Array<[string, unknown, unknown]> = [
     ['int', 1, 2],
     ['date', '2024-01-01T00:00:00Z', '2024-12-01T00:00:00Z'],
     ['du', '1h', '2h'],
-    ['str', 'a', 'b'],
   ];
 
   describe.each(fields)('%s', (field, lo, hi) => {

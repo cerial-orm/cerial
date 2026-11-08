@@ -98,7 +98,7 @@ describe.each(PAYLOADS)('payload %j', (payload) => {
       expectBoundOnly(posts({ title: payload }), payload);
     });
 
-    test.each(['not', 'contains', 'startsWith', 'endsWith', 'gt', 'lt'])('%s operand is bound', (operator) => {
+    test.each(['not', 'neq', 'contains', 'startsWith', 'endsWith'])('%s operand is bound', (operator) => {
       expectBoundOnly(posts({ title: { [operator]: payload } }), payload);
     });
 
@@ -248,10 +248,10 @@ describe('an operator operand', () => {
     expectBoundOnly(compiled, "x' OR '1'='1");
   });
 
-  test('a hostile string for gt is bound as a variable', () => {
-    const compiled = posts({ title: { gt: "a'; DROP" } });
+  test('a hostile string for neq is bound as a variable', () => {
+    const compiled = posts({ title: { neq: "a'; DROP" } });
     expect(compiled.text).not.toContain('DROP');
-    expect(compiled.vars).toEqual({ title_gt_inc_0: "a'; DROP" });
+    expect(compiled.vars).toEqual({ title_neq_inc_0: "a'; DROP" });
   });
 
   test('a hostile string for contains is bound as a variable', () => {
@@ -262,7 +262,7 @@ describe('an operator operand', () => {
 
   test('a string where in takes an array, and an object or array where a string is, are refused', () => {
     expectValidationError(() => posts({ title: { in: "x' OR '1'='1" } }));
-    expectValidationError(() => posts({ title: { gt: { "a'; DROP": 1 } } }));
+    expectValidationError(() => posts({ title: { neq: { "a'; DROP": 1 } } }));
     expectValidationError(() => posts({ title: { contains: ["x'", '`'] } }));
   });
 });

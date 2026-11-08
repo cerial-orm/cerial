@@ -2,7 +2,7 @@
  * Data transformer - transforms data for queries
  */
 
-import { Decimal, Duration, Geometry, RecordId, StringRecordId, U64, Uuid } from 'surrealdb';
+import { Decimal, Duration, F16, F32, Geometry, RecordId, StringRecordId, U64, Uuid } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type {
   FieldMetadata,
@@ -52,7 +52,14 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
       if (typeof value === 'string') return parseFloat(value);
       return value;
 
-    // Floats go unchanged and the server rounds them; the other sized integers cross kinds by value.
+    // The server rounds a float16 or float32 on write; the same class on a filter rounds the operand alike.
+    // The other sized integers cross kinds by value.
+    case 'float16':
+      return typeof value === 'number' ? new F16(value) : value;
+
+    case 'float32':
+      return typeof value === 'number' ? new F32(value) : value;
+
     case 'uint64':
       return toU64Param(value);
 

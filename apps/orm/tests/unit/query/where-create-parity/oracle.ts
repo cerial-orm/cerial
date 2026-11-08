@@ -51,6 +51,8 @@ export function applies(op: string, slot: Slot): boolean {
   if (op === 'eq' || op === 'neq' || op === BARE) return true;
   if (op === 'not') return slot.absentOrNull;
   if (op === 'in' || op === 'notIn') return slot.type !== 'bool';
+  // The generated type gives a uuid the ordering operators but no between
+  if (op === 'between' && slot.type === 'uuid') return false;
   if (ORDERING.includes(op)) return slot.ordered;
 
   return false;

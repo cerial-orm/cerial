@@ -103,7 +103,8 @@ describe('E2E: typed operands in a relation sub-filter', () => {
       ['lte', (v) => ({ lte: v(b) }), [0, 1]],
       ['in', (v) => ({ in: [v(a), v(c)] }), [0, 2]],
       ['notIn', (v) => ({ notIn: [v(a), v(c)] }), [1]],
-      ['between', (v) => ({ between: [v(a), v(b)] }), [0, 1]],
+      // The generated type gives a uuid the ordering operators but no between
+      ...(_name === 'uuid' ? [] : [['between', (v) => ({ between: [v(a), v(b)] }), [0, 1]] as (typeof cases)[number]]),
     ];
     const names = (prefix: string, ranks: number[]) => ranks.map((r) => `${prefix}${r}`);
 

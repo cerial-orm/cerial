@@ -2,7 +2,6 @@
  * WHERE clause validator
  */
 
-import { RecordId, StringRecordId } from 'surrealdb';
 import type {
   CompositeIndex,
   FieldMetadata,
@@ -12,12 +11,6 @@ import type {
   WhereClause,
 } from '../../types';
 import { CerialValidationError } from '../../errors';
-import { CerialBytes } from '../../utils/cerial-bytes';
-import { CerialDecimal } from '../../utils/cerial-decimal';
-import { CerialDuration } from '../../utils/cerial-duration';
-import { CerialGeometry } from '../../utils/cerial-geometry';
-import { CerialId } from '../../utils/cerial-id';
-import { CerialUuid } from '../../utils/cerial-uuid';
 import { escapeControl } from '../../utils/safe-text';
 import { isObject } from '../../utils/type-utils';
 import { validateTypedRecordId } from '../../utils/validation-utils';
@@ -28,18 +21,12 @@ import { isSqlFragment } from '../compile/sql-fragment';
 import { refuseFragmentInValue } from './fragment-value';
 import { operandIssues } from './where-operand-validator';
 
+/** A class instance (an SDK value, a Cerial wrapper, a Date, bytes) is a value; only a plain object holds keys */
 function isDirectValue(value: unknown): boolean {
-  return (
-    CerialId.is(value) ||
-    value instanceof RecordId ||
-    value instanceof StringRecordId ||
-    CerialUuid.is(value) ||
-    CerialDuration.is(value) ||
-    CerialDecimal.is(value) ||
-    CerialBytes.is(value) ||
-    value instanceof Uint8Array ||
-    CerialGeometry.is(value)
-  );
+  if (!isObject(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+
+  return proto !== Object.prototype && proto !== null;
 }
 
 /** One problem found by the where validator */
@@ -440,7 +427,7 @@ export function validateFieldFilter(
   }
 
   // For record fields with typed IDs, validate direct values against expected types
-  if (field.type === 'record' && field.recordIdTypes?.length) {
+  if (field.type === 'record' && field.recordIdTypes?.length && !field.isArray) {
     if (!isObject(filter)) {
       if (!(filter === null && field.isNullable) && !validateTypedRecordId(filter, field.recordIdTypes)) {
         errors.push({

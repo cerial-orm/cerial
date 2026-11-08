@@ -2,7 +2,6 @@
  * Condition builder - builds WHERE clause conditions
  */
 
-import { Decimal, Duration, F16, F32, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   FieldMetadata,
   ModelMetadata,
@@ -11,12 +10,6 @@ import type {
   TupleFieldMetadata,
   WhereClause,
 } from '../../types';
-import { CerialBytes } from '../../utils/cerial-bytes';
-import { CerialDecimal } from '../../utils/cerial-decimal';
-import { CerialDuration } from '../../utils/cerial-duration';
-import { CerialGeometry } from '../../utils/cerial-geometry';
-import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
-import { CerialUuid } from '../../utils/cerial-uuid';
 import { quoteSubKey } from '../../utils/string-utils';
 import { isObject } from '../../utils/type-utils';
 import { CerialValidationError } from '../../errors';
@@ -25,171 +18,16 @@ import { joinFragments, wrapParens } from '../compile/fragment';
 import { compileFragment, isSqlFragment } from '../compile/sql-fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
-import { toU64Param, transformData, transformOrValidateRecordId, transformValue } from '../transformers';
 import { expandCompositeKeys } from './composite-key';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { buildForwardNoRecord, buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
+import { prepareOperand, type OperandIssue } from './operand';
 import { getOperatorHandler, isRegisteredOperator } from './registry';
 import { asStoredArray } from './set-operand';
 
-/** Find target table for a Record field by looking at paired Relation field */
-function findRecordTargetTable(fieldName: string, model: ModelMetadata): string | undefined {
-  const pairedRelation = model.fields.find((f) => f.type === 'relation' && f.relationInfo?.fieldRef === fieldName);
-
-  return pairedRelation?.relationInfo?.targetTable;
-}
-
-/**
- * Apply `convert` to every non-array member however deeply the lists nest: the members of an array field's
- * in/notIn are lists themselves, and each element still has to be converted as create converts it.
- */
-function mapLeaves(value: unknown, convert: (v: unknown) => unknown): unknown {
-  return Array.isArray(value) ? value.map((v) => mapLeaves(v, convert)) : convert(value);
-}
-
-/** Transform a UUID value to SDK Uuid */
-function transformUuidValue(value: unknown): unknown {
-  if (value instanceof Uuid) return value;
-  if (value instanceof CerialUuid) return value.toNative();
-  if (typeof value === 'string') return new Uuid(value);
-
-  return value;
-}
-
-export function transformDurationValue(value: unknown): unknown {
-  if (value instanceof Duration) return value;
-  if (value instanceof CerialDuration) return value.toNative();
-  if (typeof value === 'string') return new Duration(value);
-
-  return value;
-}
-
-function transformDecimalValue(value: unknown): unknown {
-  if (value instanceof Decimal) return value;
-  if (value instanceof CerialDecimal) return value.toNative();
-  if (typeof value === 'number') return new Decimal(value);
-  if (typeof value === 'string') return new Decimal(value);
-
-  return value;
-}
-
-/**
- * A number compared against a sized field goes as the matching SDK class: a plain 0.1 misses a row written
- * to a Float16 or Float32 because the server stored the rounded value. The class rounds the filter the same
- * way. Other sized integers compare by value across kinds, and anything that is not a number passes through.
- */
-function transformSizedValue(value: unknown, type: FieldMetadata['type']): unknown {
-  if (typeof value !== 'number' && typeof value !== 'bigint') return value;
-  if (type === 'uint64') return toU64Param(value);
-  if (typeof value === 'bigint') return value;
-  if (type === 'float16') return new F16(value);
-  if (type === 'float32') return new F32(value);
-
-  return value;
-}
-
-function transformBytesValue(value: unknown): unknown {
-  if (value instanceof Uint8Array) return value;
-  if (value instanceof CerialBytes) return value.toNative();
-  if (typeof value === 'string') return CerialBytes.fromBase64(value).toNative();
-
-  return value;
-}
-
-export function transformGeometryValue(value: unknown): unknown {
-  if (value instanceof Geometry) return value;
-  if (CerialGeometry.is(value)) return value.toNative();
-  if (Array.isArray(value) && value.length === 2 && typeof value[0] === 'number') {
-    return CerialGeometry.from(value as [number, number]).toNative();
-  }
-  if (typeof value === 'object' && value !== null && 'type' in value) {
-    return CerialGeometry.from(value as Parameters<typeof CerialGeometry.from>[0]).toNative();
-  }
-
-  return value;
-}
-
-/** A bare point is [x, y]; any other array is a list, however deeply nested, whatever form its members take */
-function transformGeometryOperand(value: unknown): unknown {
-  if (Array.isArray(value) && typeof value[0] !== 'number') return value.map(transformGeometryOperand);
-
-  return transformGeometryValue(value);
-}
-
-/** A date string becomes a Date as it does on create; a string compared as-is would match against the wrong type. */
-function transformDateOperand(value: unknown, field: Pick<FieldMetadata, 'type'>): unknown {
-  if (field.type !== 'date') return value;
-
-  return mapLeaves(value, (v) => transformValue(v, 'date'));
-}
-
-/** How many list levels wrap the ids an operator takes: none for one id, one for a list of ids, two for a list of lists. */
-function idListDepth(op: string, isArray: boolean | undefined): number {
-  if (isArray) return op === 'has' ? 0 : op === 'in' || op === 'notIn' ? 2 : 1;
-
-  return ['in', 'notIn', 'hasAll', 'hasAny'].includes(op) ? 1 : 0;
-}
-
-/** One id operand as the record create builds for the id of that table */
-function transformIdOperand(table: string, value: unknown, recordIdTypes: string[] | undefined): unknown {
-  if (!isRecordIdInput(value)) return value;
-
-  return transformOrValidateRecordId(table, value, recordIdTypes);
-}
-
-function mapIdOperand(value: unknown, depth: number, table: string, recordIdTypes: string[] | undefined): unknown {
-  if (depth && Array.isArray(value)) return value.map((v) => mapIdOperand(v, depth - 1, table, recordIdTypes));
-
-  return transformIdOperand(table, value, recordIdTypes);
-}
-
-/** Transform value for ID, Record, or UUID fields - handles all input types */
-export function transformFieldValue(
-  value: unknown,
-  fieldMetadata: FieldMetadata,
-  model: ModelMetadata,
-  op: string = 'eq',
-): unknown {
-  // A whole tuple or object array compared to the field converts as create converts it, element by element
-  if ((fieldMetadata.type === 'object' || fieldMetadata.type === 'tuple') && Array.isArray(value)) {
-    const own = { ...model, fields: [fieldMetadata] };
-
-    return transformData({ [fieldMetadata.name]: value }, own)[fieldMetadata.name];
-  }
-
-  // An id or record operand is one id, or a list of them where the operator takes a list. An array
-  // where one id is wanted is a single array-typed id, as it is on create, not a list of ids.
-  const idTable = fieldMetadata.isId
-    ? model.tableName
-    : fieldMetadata.type === 'record'
-      ? findRecordTargetTable(fieldMetadata.name, model)
-      : undefined;
-  if (idTable) {
-    return mapIdOperand(value, idListDepth(op, fieldMetadata.isArray), idTable, fieldMetadata.recordIdTypes);
-  }
-
-  // Transform UUID field values to SDK Uuid
-  if (fieldMetadata.type === 'uuid') return mapLeaves(value, transformUuidValue);
-
-  // Transform Duration field values to SDK Duration
-  if (fieldMetadata.type === 'duration') return mapLeaves(value, transformDurationValue);
-
-  // Transform Decimal field values to SDK Decimal
-  if (fieldMetadata.type === 'decimal') return mapLeaves(value, transformDecimalValue);
-
-  if (fieldMetadata.type === 'date') return transformDateOperand(value, fieldMetadata);
-
-  if (fieldMetadata.type === 'uint64' || fieldMetadata.type === 'float16' || fieldMetadata.type === 'float32') {
-    return mapLeaves(value, (v) => transformSizedValue(v, fieldMetadata.type));
-  }
-
-  if (fieldMetadata.type === 'bytes') return mapLeaves(value, transformBytesValue);
-
-  if (fieldMetadata.type === 'geometry') {
-    return transformGeometryOperand(value);
-  }
-
-  return value;
+/** The refusal a builder throws when an operand fails the checks the where validator makes first */
+function operandError(field: string, issue: OperandIssue): CerialValidationError {
+  return new CerialValidationError(`Invalid where clause: ${issue.message}`, { field, operation: 'where' });
 }
 
 /** Build a condition for a single field with operators */
@@ -212,9 +50,9 @@ export function buildFieldCondition(
       });
     if (value === undefined) continue;
 
-    // Transform ID/Record field values to RecordId
-    const transformedValue = transformFieldValue(value, fieldMetadata, model, op);
-    conditions.push(handler(ctx, field, transformedValue, fieldMetadata));
+    const prepared = prepareOperand(fieldMetadata, op, value, model, field, field);
+    if (prepared.issues) throw operandError(field, prepared.issues[0]!);
+    conditions.push(handler(ctx, field, prepared.value, fieldMetadata));
   }
 
   if (conditions.length === 0) {
@@ -239,25 +77,20 @@ export function buildDirectCondition(
 ): QueryFragment {
   const handler = getOperatorHandler('eq');
   if (!handler) return { text: '', vars: {} };
-  // Transform ID/Record field values to RecordId
-  const transformedValue = transformFieldValue(value, fieldMetadata, model);
-  return handler(ctx, field, transformedValue, fieldMetadata);
+  const prepared = prepareOperand(fieldMetadata, 'eq', value, model, field, field);
+  if (prepared.issues) throw operandError(field, prepared.issues[0]!);
+
+  return handler(ctx, field, prepared.value, fieldMetadata);
 }
 
-/** Check if a value is an operator object */
+/**
+ * Check if a value is an operator object. Only a plain object can be one: a class instance (an SDK Uuid,
+ * Duration or Decimal, a Date, a Cerial wrapper) is a value, whatever keys it carries.
+ */
 export function isOperatorObject(value: unknown): value is Record<string, unknown> {
-  // Check for non-object types first
-  if (value instanceof Uint8Array) return false;
   if (!isObject(value)) return false;
-  // Known wrapper types are direct values, not operator objects
-  if (CerialId.is(value)) return false;
-  if (value instanceof RecordId) return false;
-  if (value instanceof StringRecordId) return false;
-  if (CerialUuid.is(value)) return false;
-  if (CerialDuration.is(value)) return false;
-  if (CerialDecimal.is(value)) return false;
-  if (CerialBytes.is(value)) return false;
-  if (CerialGeometry.is(value)) return false;
+  const proto = Object.getPrototypeOf(value);
+  if (proto !== Object.prototype && proto !== null) return false;
   // Operator keys distinguish operator objects ({eq: 42}) from typed ID objects ({service: 'api', ts: 123})
   const keys = Object.keys(value);
 
@@ -279,12 +112,20 @@ export function isOperatorShape(value: unknown, field: FieldMetadata): value is 
   return Object.values(value).every((v) => v === undefined);
 }
 
+const NO_MODEL: ModelMetadata = { name: '', tableName: '', fields: [] };
+
+/** An undeclared key of a @flexible object holds whatever was written, so it is compared as an any field */
+function flexibleSubField(name: string): FieldMetadata {
+  return { name, type: 'any', isId: false, isUnique: false, isRequired: false };
+}
+
 /** Build conditions for a single/optional object field using dot notation */
 export function buildObjectCondition(
   ctx: FilterCompileContext,
   fieldPath: string,
   whereValue: Record<string, unknown>,
   objectInfo: ObjectFieldMetadata,
+  model: ModelMetadata = NO_MODEL,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -294,20 +135,20 @@ export function buildObjectCondition(
     // Handle logical operators within object where
     if (key === 'AND' && Array.isArray(value)) {
       const andConditions = value.map((w) =>
-        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo),
+        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo, model),
       );
       conditions.push(handleAnd(andConditions));
       continue;
     }
     if (key === 'OR' && Array.isArray(value)) {
       const orConditions = value.map((w) =>
-        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo),
+        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo, model),
       );
       conditions.push(handleOr(orConditions));
       continue;
     }
     if (key === 'NOT' && isObject(value)) {
-      const notCondition = buildObjectCondition(ctx, fieldPath, value as Record<string, unknown>, objectInfo);
+      const notCondition = buildObjectCondition(ctx, fieldPath, value as Record<string, unknown>, objectInfo, model);
       conditions.push(handleNot(notCondition));
       continue;
     }
@@ -317,25 +158,14 @@ export function buildObjectCondition(
 
     const subPath = `${fieldPath}.${subField ? key : quoteSubKey(key)}`;
 
-    // Unknown field (not in metadata) — pass through for @flexible objects
+    // Unknown field (not in metadata) — pass through for @flexible objects, held untyped like create keeps it
     if (!subField) {
-      if (isOperatorObject(value)) {
-        // Build operator conditions with a synthetic field (type 'string' as fallback)
-        const syntheticField: FieldMetadata = {
-          name: key,
-          type: 'string',
-          isId: false,
-          isUnique: false,
-          isRequired: false,
-        };
-        conditions.push(
-          buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, {} as ModelMetadata),
-        );
-      } else {
-        // Direct value (shorthand for eq)
-        const binding = ctx.bind(subPath, 'eq', value, 'string');
-        conditions.push({ text: `${subPath} = ${binding.placeholder}`, vars: binding.vars });
-      }
+      const flexible = flexibleSubField(key);
+      conditions.push(
+        isOperatorObject(value)
+          ? buildFieldCondition(ctx, subPath, value, flexible, model)
+          : buildDirectCondition(ctx, subPath, value, flexible, model),
+      );
       continue;
     }
 
@@ -343,10 +173,14 @@ export function buildObjectCondition(
     if (subField.type === 'object' && subField.objectInfo && isObject(value)) {
       if (subField.isArray) {
         // Array of nested objects: some/every/none
-        conditions.push(buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo));
+        conditions.push(
+          buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
+        );
       } else {
         // Single nested object: recursive dot notation
-        conditions.push(buildObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo));
+        conditions.push(
+          buildObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
+        );
       }
       continue;
     }
@@ -354,19 +188,13 @@ export function buildObjectCondition(
     // Primitive sub-field with operators
     if (isOperatorShape(value, subField)) {
       conditions.push(
-        buildFieldCondition(
-          ctx,
-          subPath,
-          value as Record<string, unknown>,
-          asStoredArray(subField),
-          {} as ModelMetadata,
-        ),
+        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, asStoredArray(subField), model),
       );
       continue;
     }
 
     // Direct value (shorthand for eq)
-    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), {} as ModelMetadata));
+    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), model));
   }
 
   if (!conditions.length) return { text: '', vars: {} };
@@ -392,6 +220,7 @@ export function buildArrayObjectCondition(
   fieldPath: string,
   whereValue: Record<string, unknown>,
   objectInfo: ObjectFieldMetadata,
+  model: ModelMetadata = NO_MODEL,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -399,7 +228,13 @@ export function buildArrayObjectCondition(
     if (!isObject(subWhere)) continue;
 
     // Build inner conditions using closure variable $v
-    const innerCondition = buildObjectConditionForClosure(ctx, '$v', subWhere as Record<string, unknown>, objectInfo);
+    const innerCondition = buildObjectConditionForClosure(
+      ctx,
+      '$v',
+      subWhere as Record<string, unknown>,
+      objectInfo,
+      model,
+    );
     if (!innerCondition.text) {
       const empty = emptyBodyQuantifier(fieldPath, quantifier);
       if (empty) conditions.push(empty);
@@ -427,6 +262,7 @@ function buildObjectConditionForClosure(
   closureVar: string,
   whereValue: Record<string, unknown>,
   objectInfo: ObjectFieldMetadata,
+  model: ModelMetadata,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -436,14 +272,14 @@ function buildObjectConditionForClosure(
     // Handle logical operators
     if (key === 'AND' && Array.isArray(value)) {
       const andConditions = value.map((w) =>
-        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo),
+        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo, model),
       );
       conditions.push(handleAnd(andConditions));
       continue;
     }
     if (key === 'OR' && Array.isArray(value)) {
       const orConditions = value.map((w) =>
-        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo),
+        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo, model),
       );
       conditions.push(handleOr(orConditions));
       continue;
@@ -454,6 +290,7 @@ function buildObjectConditionForClosure(
         closureVar,
         value as Record<string, unknown>,
         objectInfo,
+        model,
       );
       conditions.push(handleNot(notCondition));
       continue;
@@ -463,33 +300,26 @@ function buildObjectConditionForClosure(
 
     const subPath = `${closureVar}.${subField ? key : quoteSubKey(key)}`;
 
-    // Unknown field (not in metadata) — pass through for @flexible objects
+    // Unknown field (not in metadata) — pass through for @flexible objects, held untyped like create keeps it
     if (!subField) {
-      if (isOperatorObject(value)) {
-        const syntheticField: FieldMetadata = {
-          name: key,
-          type: 'string',
-          isId: false,
-          isUnique: false,
-          isRequired: false,
-        };
-        conditions.push(
-          buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, {} as ModelMetadata),
-        );
-      } else {
-        const binding = ctx.bind(subPath, 'eq', value, 'string');
-        conditions.push({ text: `${subPath} = ${binding.placeholder}`, vars: binding.vars });
-      }
+      const flexible = flexibleSubField(key);
+      conditions.push(
+        isOperatorObject(value)
+          ? buildFieldCondition(ctx, subPath, value, flexible, model)
+          : buildDirectCondition(ctx, subPath, value, flexible, model),
+      );
       continue;
     }
 
     // Nested object
     if (subField.type === 'object' && subField.objectInfo && isObject(value)) {
       if (subField.isArray) {
-        conditions.push(buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo));
+        conditions.push(
+          buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
+        );
       } else {
         conditions.push(
-          buildObjectConditionForClosure(ctx, subPath, value as Record<string, unknown>, subField.objectInfo),
+          buildObjectConditionForClosure(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
         );
       }
       continue;
@@ -497,18 +327,12 @@ function buildObjectConditionForClosure(
 
     if (isOperatorShape(value, subField)) {
       conditions.push(
-        buildFieldCondition(
-          ctx,
-          subPath,
-          value as Record<string, unknown>,
-          asStoredArray(subField),
-          {} as ModelMetadata,
-        ),
+        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, asStoredArray(subField), model),
       );
       continue;
     }
 
-    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), {} as ModelMetadata));
+    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), model));
   }
 
   if (!conditions.length) return { text: '', vars: {} };
@@ -536,8 +360,10 @@ export function resolveTupleElementKey(
         isId: false,
         isUnique: false,
         isRequired: !namedElement.isOptional,
+        isNullable: namedElement.isNullable,
         objectInfo: namedElement.objectInfo,
         tupleInfo: namedElement.tupleInfo,
+        literalInfo: namedElement.literalInfo,
       },
     };
   }
@@ -556,8 +382,10 @@ export function resolveTupleElementKey(
           isId: false,
           isUnique: false,
           isRequired: !element.isOptional,
+          isNullable: element.isNullable,
           objectInfo: element.objectInfo,
           tupleInfo: element.tupleInfo,
+          literalInfo: element.literalInfo,
         },
       };
     }
@@ -572,6 +400,7 @@ export function buildTupleCondition(
   fieldPath: string,
   whereValue: Record<string, unknown>,
   tupleInfo: TupleFieldMetadata,
+  model: ModelMetadata = NO_MODEL,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -586,26 +415,28 @@ export function buildTupleCondition(
 
     // Nested object element
     if (syntheticField.type === 'object' && syntheticField.objectInfo && isObject(value)) {
-      conditions.push(buildObjectCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.objectInfo));
+      conditions.push(
+        buildObjectCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.objectInfo, model),
+      );
       continue;
     }
 
     // Nested tuple element
     if (syntheticField.type === 'tuple' && syntheticField.tupleInfo && isObject(value)) {
-      conditions.push(buildTupleCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.tupleInfo));
+      conditions.push(
+        buildTupleCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.tupleInfo, model),
+      );
       continue;
     }
 
     // Operator object
     if (isOperatorShape(value, syntheticField)) {
-      conditions.push(
-        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, {} as ModelMetadata),
-      );
+      conditions.push(buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, model));
       continue;
     }
 
     // Direct value (shorthand for eq)
-    conditions.push(buildDirectCondition(ctx, subPath, value, syntheticField, {} as ModelMetadata));
+    conditions.push(buildDirectCondition(ctx, subPath, value, syntheticField, model));
   }
 
   if (!conditions.length) return { text: '', vars: {} };
@@ -620,6 +451,7 @@ export function buildArrayTupleCondition(
   fieldPath: string,
   whereValue: Record<string, unknown>,
   tupleInfo: TupleFieldMetadata,
+  model: ModelMetadata = NO_MODEL,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -627,7 +459,7 @@ export function buildArrayTupleCondition(
     if (!isObject(subWhere)) continue;
 
     // Build inner conditions using closure variable $v
-    const innerCondition = buildTupleCondition(ctx, '$v', subWhere as Record<string, unknown>, tupleInfo);
+    const innerCondition = buildTupleCondition(ctx, '$v', subWhere as Record<string, unknown>, tupleInfo, model);
     if (!innerCondition.text) {
       const empty = emptyBodyQuantifier(fieldPath, quantifier);
       if (empty) conditions.push(empty);
@@ -796,11 +628,18 @@ export function buildConditions(
           key,
           value as Record<string, unknown>,
           fieldMetadata.objectInfo,
+          model,
         );
         if (objCondition.text) conditions.push(objCondition);
       } else {
         // Single/optional object: dot notation
-        const objCondition = buildObjectCondition(ctx, key, value as Record<string, unknown>, fieldMetadata.objectInfo);
+        const objCondition = buildObjectCondition(
+          ctx,
+          key,
+          value as Record<string, unknown>,
+          fieldMetadata.objectInfo,
+          model,
+        );
         if (objCondition.text) conditions.push(objCondition);
       }
       continue;
@@ -815,11 +654,18 @@ export function buildConditions(
           key,
           value as Record<string, unknown>,
           fieldMetadata.tupleInfo,
+          model,
         );
         if (tupCondition.text) conditions.push(tupCondition);
       } else {
         // Single/optional tuple: index access
-        const tupCondition = buildTupleCondition(ctx, key, value as Record<string, unknown>, fieldMetadata.tupleInfo);
+        const tupCondition = buildTupleCondition(
+          ctx,
+          key,
+          value as Record<string, unknown>,
+          fieldMetadata.tupleInfo,
+          model,
+        );
         if (tupCondition.text) conditions.push(tupCondition);
       }
       continue;

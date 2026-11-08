@@ -133,11 +133,8 @@ describe('buildReverseNestedCondition — quantifiers', () => {
     expect(reverse({ some: { nope: 'x', name: 'y' } }).text).toBe(`id IN (${SUB} WHERE name = $name_eq_0)`);
   });
 
-  test('an unregistered operator is dropped while a registered sibling is kept', () => {
-    expect(reverse({ some: { name: { eq: 'x', bogus: 1 } } })).toEqual({
-      text: `id IN (${SUB} WHERE name = $name_eq_0)`,
-      vars: { name_eq_0: 'x' },
-    });
+  test('an unregistered operator is refused, not dropped beside a registered sibling', () => {
+    expect(() => reverse({ some: { name: { eq: 'x', bogus: 1 } } })).toThrow('Unknown operator: bogus');
   });
 
   test('an operator object with only undefined values constrains nothing', () => {
@@ -240,10 +237,8 @@ describe('buildForwardNestedCondition', () => {
     expect(forward({ nope: 'x', name: 'A' }).text).toBe('(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)');
   });
 
-  test('an unregistered operator is dropped while a registered sibling is kept', () => {
-    expect(forward({ name: { eq: 'A', bogus: 1 } }).text).toBe(
-      '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0)',
-    );
+  test('an unregistered operator is refused, not dropped beside a registered sibling', () => {
+    expect(() => forward({ name: { eq: 'A', bogus: 1 } })).toThrow('Unknown operator: bogus');
   });
 
   test('an operator object with only undefined values adds no condition beyond the record existing', () => {
@@ -277,9 +272,9 @@ describe('buildForwardNestedCondition', () => {
   });
 
   test('a branch may use operator objects, not only direct values', () => {
-    expect(forward({ OR: [{ name: { contains: 'A' } }, { id: { gt: 2 } }] })).toEqual({
-      text: '(ownerId.id != NONE AND (string::contains(ownerId.name, $ownerId_name_contains_0) OR ownerId.id > $ownerId_id_gt_1))',
-      vars: { ownerId_name_contains_0: 'A', ownerId_id_gt_1: owned(2) },
+    expect(forward({ OR: [{ name: { contains: 'A' } }, { id: { neq: 2 } }] })).toEqual({
+      text: '(ownerId.id != NONE AND (string::contains(ownerId.name, $ownerId_name_contains_0) OR ownerId.id != $ownerId_id_neq_1))',
+      vars: { ownerId_name_contains_0: 'A', ownerId_id_neq_1: owned(2) },
     });
   });
 

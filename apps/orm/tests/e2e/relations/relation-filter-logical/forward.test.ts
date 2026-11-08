@@ -84,7 +84,7 @@ describe('E2E relation filter logical operators: forward path', () => {
     const posts = await client.db.PostRequired.findMany({
       where: {
         author: {
-          OR: [{ AND: [{ name: 'Zed' }, { OR: [{ email: 'z@x.test' }, { email: 'nope' }] }] }, { name: 'Bob' }],
+          OR: [{ AND: [{ name: 'Zed' }, { OR: [{ email: 'z@x.test' }, { email: 'nope@x.test' }] }] }, { name: 'Bob' }],
         },
       },
     });
