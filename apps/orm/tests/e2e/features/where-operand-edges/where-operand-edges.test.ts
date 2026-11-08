@@ -6,6 +6,7 @@
  * - a Record inside an object is compared as create stored it, so a negated delete spares the row holding it
  * - a self-referencing object is filtered by name at every depth
  * - a reverse relation over a Record[] on the other side matches per key
+ * - a single id disconnects that id from an array relation
  *
  * Destructive calls come first in each group: the refused ones must leave every row, the accepted ones must
  * remove exactly the rows the typed equivalent selects.
@@ -267,6 +268,55 @@ describe('E2E: where operand edges', () => {
       await seed();
       expect(await tagNames({ posts: { name: 'qb' } })).toEqual(['y']);
       expect(await tagNames({ NOT: { posts: { some: { name: 'qa' } } } })).toEqual(['z']);
+    });
+  });
+
+  describe('a single id disconnects that id from an array relation', () => {
+    const seed = async (): Promise<string> => {
+      const { db } = getClient();
+      for (const id of ['t1', 't2', 't3']) await db.WoTag.create({ data: { id, name: id } as never });
+      const post = await db.WoPost.create({
+        data: { name: 'p', tagIds: [] as never, tags: { connect: ['t1', 't2', 't3'] } } as never,
+      });
+
+      return String(post.id);
+    };
+
+    const linked = async (): Promise<string[]> => {
+      const post = await getClient().db.WoPost.findOne({ where: { name: 'p' }, include: { tags: true } });
+
+      return (post?.tags ?? []).map((t) => t.name).sort();
+    };
+
+    test('updateMany with one id removes that id and keeps the others', async () => {
+      await seed();
+      await getClient().db.WoPost.updateMany({ where: { name: 'p' }, data: loose({ tags: { disconnect: 't2' } }) });
+      expect(await linked()).toEqual(['t1', 't3']);
+    });
+
+    test('updateUnique with one id removes that id', async () => {
+      const id = await seed();
+      await getClient().db.WoPost.updateUnique({ where: { id }, data: loose({ tags: { disconnect: 't1' } }) });
+      expect(await linked()).toEqual(['t2', 't3']);
+    });
+
+    test('a list still removes each id, and a single id equals a one-element list', async () => {
+      await seed();
+      await getClient().db.WoPost.updateMany({
+        where: { name: 'p' },
+        data: loose({ tags: { disconnect: ['t1', 't2'] } }),
+      });
+      expect(await linked()).toEqual(['t3']);
+    });
+
+    test('an id that is not a valid id is refused and nothing is disconnected', async () => {
+      await seed();
+      await refuses(
+        () =>
+          getClient().db.WoPost.updateMany({ where: { name: 'p' }, data: loose({ tags: { disconnect: 'other:1' } }) }),
+        /./,
+      );
+      expect(await linked()).toEqual(['t1', 't2', 't3']);
     });
   });
 });

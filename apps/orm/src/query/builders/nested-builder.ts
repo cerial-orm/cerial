@@ -989,7 +989,9 @@ export function buildUpdateWithNestedTransaction(
       if (isNestedDisconnect(op)) {
         if (isArrayField) {
           // Array disconnect - remove from array
-          const disconnectIds = Array.isArray(op.disconnect) ? op.disconnect : [];
+          // A single id disconnects that id, as connect takes one; `true` and `false` name no id
+          const disconnectIds =
+            typeof op.disconnect === 'boolean' ? [] : Array.isArray(op.disconnect) ? op.disconnect : [op.disconnect];
           if (disconnectIds.length) {
             const disconnectName = ctx.name('nested_disconnect');
             const varName = `$${disconnectName}`;

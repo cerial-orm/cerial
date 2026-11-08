@@ -287,6 +287,52 @@ describe('nested-builder', () => {
       expect(query.text).toContain('COMMIT TRANSACTION');
     });
 
+    test('a single id disconnects that id, as connect takes one', () => {
+      const where = { id: 'user:1' };
+      const single = buildUpdateWithNestedTransaction(
+        userModel,
+        where,
+        {},
+        new Map([['tags', { disconnect: 'tag:old' }]]),
+        registry,
+      );
+      const listed = buildUpdateWithNestedTransaction(
+        userModel,
+        where,
+        {},
+        new Map([['tags', { disconnect: ['tag:old'] }]]),
+        registry,
+      );
+
+      expect(single.text).toContain('tagIds -= $nested_disconnect_n_1');
+      expect(single.text).toBe(listed.text);
+      expect(single.vars).toEqual(listed.vars);
+    });
+
+    test('a single id that is not a valid id is refused, not skipped', () => {
+      expect(() =>
+        buildUpdateWithNestedTransaction(
+          userModel,
+          { id: 'user:1' },
+          {},
+          new Map([['tags', { disconnect: 'other:1' }]]),
+          registry,
+        ),
+      ).toThrow();
+    });
+
+    test('a boolean names no id on an array relation and changes nothing', () => {
+      const query = buildUpdateWithNestedTransaction(
+        userModel,
+        { id: 'user:1' },
+        {},
+        new Map([['tags', { disconnect: true }]]),
+        registry,
+      );
+
+      expect(query.text).not.toContain('tagIds -=');
+    });
+
     test('throws error when where clause is empty', () => {
       const where = {};
       const data = {};
