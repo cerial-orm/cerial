@@ -5,10 +5,13 @@
  */
 
 import type { FieldMetadata } from '../../types';
+import { Geometry } from 'surrealdb';
 import { CerialDecimal, isValidDecimalInput } from '../../utils/cerial-decimal';
+import { CerialGeometry, type CerialGeometryType } from '../../utils/cerial-geometry';
 import { escapeControl } from '../../utils/safe-text';
 import { isObject } from '../../utils/type-utils';
-import { isOperatorObject, transformDurationValue, transformGeometryValue } from '../filters/condition-builder';
+import { isOperatorObject, transformGeometryValue } from '../filters/condition-builder';
+import { transformValue } from '../transformers';
 import { validateFieldValue } from './data-validator';
 import { isSizedNumberFieldType, sizedNumberError } from './sized-number-validator';
 
@@ -20,8 +23,26 @@ interface OperandIssue {
 /** What an operand is checked against: a model field, an object sub-field or a tuple element. */
 export type OperandField = Pick<
   FieldMetadata,
-  'type' | 'isArray' | 'isNullable' | 'isRequired' | 'recordIdTypes' | 'literalInfo' | 'objectInfo' | 'tupleInfo'
+  | 'type'
+  | 'isArray'
+  | 'isNullable'
+  | 'isRequired'
+  | 'recordIdTypes'
+  | 'literalInfo'
+  | 'objectInfo'
+  | 'tupleInfo'
+  | 'geometrySubtypes'
 >;
+
+const GEOMETRY_SUBTYPE: Record<CerialGeometryType, NonNullable<FieldMetadata['geometrySubtypes']>[number]> = {
+  Point: 'point',
+  LineString: 'line',
+  Polygon: 'polygon',
+  MultiPoint: 'multipoint',
+  MultiLineString: 'multiline',
+  MultiPolygon: 'multipolygon',
+  GeometryCollection: 'collection',
+};
 
 /** Operators whose operand is one value, and those whose operand is a list of them. */
 const VALUE_OPERATORS = ['eq', 'neq', 'not', 'gt', 'gte', 'lt', 'lte'];
@@ -77,18 +98,6 @@ function valueMessage(field: OperandField, value: unknown, label: string, elemen
     if (sized) return sized;
   }
 
-  // The conversion the query applies would throw the SDK's own error, which names no field
-  const convert = type === 'duration' ? transformDurationValue : type === 'geometry' ? transformGeometryValue : null;
-  if (convert) {
-    try {
-      convert(value);
-    } catch (error) {
-      const reason = error instanceof Error ? error.message : String(error);
-
-      return `Field "${label}" is ${type} and the operand is not a valid ${type}: ${escapeControl(reason)}`;
-    }
-  }
-
   const issue = validateFieldValue(label, value, {
     type,
     isRequired: false,
@@ -98,7 +107,26 @@ function valueMessage(field: OperandField, value: unknown, label: string, elemen
     literalInfo: field.literalInfo,
   });
 
-  return issue?.message ?? null;
+  if (issue) return issue.message;
+
+  // The conversion create applies; a value it cannot convert is refused naming the field, not by the SDK
+  try {
+    if (type === 'geometry') {
+      const converted = transformGeometryValue(value);
+      if (!(converted instanceof Geometry))
+        throw new Error('expected a GeoJSON geometry, a Cerial geometry or a [x, y] point');
+      const subtypes = field.geometrySubtypes;
+      const actual = GEOMETRY_SUBTYPE[CerialGeometry.fromNative(converted).type];
+      if (subtypes?.length && !subtypes.includes(actual))
+        throw new Error(`a ${actual} is not one of ${subtypes.join(', ')}`);
+    } else transformValue(value, type);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+
+    return `Field "${label}" is ${type} and the operand is not a valid ${type}: ${escapeControl(reason)}`;
+  }
+
+  return null;
 }
 
 /** Check a list operand: it must be an array, and each member is held to the field's type. */

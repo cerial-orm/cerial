@@ -1,0 +1,339 @@
+/**
+ * Unit Tests: a where operand is held to the rules create applies to the same field
+ *
+ * For every field kind, the values create refuses are refused by where too, naming the field, at the top
+ * level and inside a relation sub-filter; the values create accepts bind exactly as create converts them.
+ */
+
+import { describe, expect, test } from 'bun:test';
+import { Geometry } from 'surrealdb';
+import {
+  convertEnums,
+  convertLiterals,
+  convertModels,
+  createLiteralRegistry,
+  convertObjects,
+  convertTuples,
+  createTupleRegistry,
+  resolveObjectFields,
+} from '../../../src/generators/metadata';
+import { createObjectRegistry, createRegistry } from '../../../src/generators/metadata/registry-generator';
+import { parse } from '../../../src/parser/parser';
+import { createCompileContext } from '../../../src/query/compile/var-allocator';
+import { buildConditions } from '../../../src/query/filters/condition-builder';
+import { transformValue } from '../../../src/query/transformers';
+import { validateWhere } from '../../../src/query/validators';
+import type { SchemaFieldType, WhereClause } from '../../../src/types';
+import { CerialGeometry, CerialPoint } from '../../../src/utils/cerial-geometry';
+
+const schema = `
+enum Tier { LOW, HIGH }
+
+literal Mixed { 'a', 1, true }
+
+object Inner {
+  n Int
+  when Date
+  du Duration
+  pt Geometry @point
+}
+
+tuple Pair {
+  Int,
+  Date
+}
+
+model Owner {
+  id Record @id
+  str String
+  mail Email
+  int Int
+  flt Float
+  num Number
+  bool Bool
+  date Date
+  uuid Uuid
+  du Duration
+  dec Decimal
+  i8 Int8
+  u8 Uint8
+  i16 Int16
+  u16 Uint16
+  i32 Int32
+  u32 Uint32
+  u64 Uint64
+  f16 Float16
+  f32 Float32
+  bytes Bytes
+  pt Geometry @point
+  poly Geometry @polygon
+  anyGeo Geometry
+  multi Geometry @point @line
+  tier Tier
+  mixed Mixed
+  inner Inner
+  pair Pair
+  nInt Int? @nullable
+  nDate Date? @nullable
+  nGeo Geometry? @point @nullable
+  ints Int[]
+  dates Date[]
+  strs String[]
+  dus Duration[]
+  uuids Uuid[]
+  decs Decimal[]
+  bytess Bytes[]
+  pts Geometry[] @point
+  places Relation[] @model(Place)
+}
+
+model Place {
+  id Record @id
+  ownerId Record
+  owner Relation @field(ownerId) @model(Owner)
+}
+`;
+
+const { ast } = parse(schema);
+const models = convertModels(ast.models);
+const objects = convertObjects(ast.objects);
+const tuples = convertTuples(ast.tuples);
+const literals = createLiteralRegistry([...convertLiterals(ast.literals), ...convertEnums(ast.enums)]);
+resolveObjectFields(models, objects, createObjectRegistry(objects), createTupleRegistry(tuples), literals);
+const registry = createRegistry(models);
+const owner = registry.Owner!;
+const place = registry.Place!;
+
+const w = (value: unknown): WhereClause => value as WhereClause;
+const errorsAt = (model: typeof owner, where: unknown): string[] =>
+  validateWhere(w(where), model, registry).errors.map((e) => e.message);
+const varsOf = (where: unknown): unknown[] =>
+  Object.values(buildConditions(createCompileContext(), w(where), owner, registry).vars);
+
+const point = (x: number, y: number) => ({ type: 'Point', coordinates: [x, y] });
+const line = {
+  type: 'LineString',
+  coordinates: [
+    [0, 0],
+    [1, 1],
+  ],
+};
+const polygon = {
+  type: 'Polygon',
+  coordinates: [
+    [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, 0],
+    ],
+  ],
+};
+
+interface Kind {
+  field: string;
+  type: SchemaFieldType;
+  bad: unknown[];
+  good: unknown[];
+}
+
+const scalars: Kind[] = [
+  { field: 'str', type: 'string', bad: [1, true, {}, ['a']], good: ['a'] },
+  { field: 'int', type: 'int', bad: ['1', 1.5, true, {}], good: [1] },
+  { field: 'flt', type: 'float', bad: ['1', true, {}], good: [1.5] },
+  { field: 'num', type: 'number', bad: ['1', true, {}], good: [2] },
+  { field: 'bool', type: 'bool', bad: ['true', 1, {}], good: [true] },
+  { field: 'date', type: 'date', bad: ['not a date', 5, true], good: [new Date(0), '2024-01-02T00:00:00Z'] },
+  { field: 'uuid', type: 'uuid', bad: ['nope', 5, {}], good: ['0190c3f8-6c5d-7a3a-9d3a-1e1f2a3b4c5d'] },
+  { field: 'du', type: 'duration', bad: ['nope', 5, {}], good: ['1h'] },
+  { field: 'dec', type: 'decimal', bad: ['abc', true, {}], good: ['1.5', 2] },
+  { field: 'i8', type: 'int8', bad: [200, '1', 1.5], good: [5] },
+  { field: 'u8', type: 'uint8', bad: [-1, 256, '1'], good: [5] },
+  { field: 'i16', type: 'int16', bad: [40000, '1'], good: [5] },
+  { field: 'u16', type: 'uint16', bad: [-1, 70000], good: [5] },
+  { field: 'i32', type: 'int32', bad: [2 ** 31, '1'], good: [5] },
+  { field: 'u32', type: 'uint32', bad: [-1, 2 ** 32], good: [5] },
+  { field: 'u64', type: 'uint64', bad: [-1, '1'], good: [5] },
+  { field: 'f16', type: 'float16', bad: [70000, '1'], good: [0.1] },
+  { field: 'f32', type: 'float32', bad: [1e39, '1'], good: [0.1] },
+  { field: 'bytes', type: 'bytes', bad: [5, {}], good: [new Uint8Array([1]), 'AQI='] },
+  { field: 'nInt', type: 'int', bad: ['1'], good: [1, null] },
+  { field: 'nDate', type: 'date', bad: ['nope'], good: [new Date(0), null] },
+  { field: 'mixed', type: 'literal', bad: ['b', 2, {}], good: ['a', 1, true] },
+  { field: 'tier', type: 'literal', bad: ['MID', 3], good: ['LOW'] },
+  { field: 'inner.n', type: 'int', bad: ['1'], good: [1] },
+  { field: 'inner.when', type: 'date', bad: ['nope'], good: ['2024-01-02T00:00:00Z'] },
+  { field: 'inner.du', type: 'duration', bad: ['nope'], good: ['1h'] },
+  { field: 'inner.pt', type: 'geometry', bad: [{ foo: 1 }, [], [1, 2, 3], line], good: [[1, 1], point(1, 1)] },
+];
+
+const geometries: Kind[] = [
+  {
+    field: 'pt',
+    type: 'geometry',
+    bad: [{ foo: 1 }, [], [1, 2, 3], [point(1, 1)], line, polygon, 'x', 5, true],
+    good: [[1, 1], point(1, 1), new CerialPoint([1, 1])],
+  },
+  { field: 'poly', type: 'geometry', bad: [[1, 1], point(1, 1), line, { foo: 1 }], good: [polygon] },
+  { field: 'anyGeo', type: 'geometry', bad: [{ foo: 1 }, [], [1, 2, 3], 'x'], good: [[1, 1], line, polygon] },
+  { field: 'multi', type: 'geometry', bad: [polygon, { foo: 1 }], good: [point(1, 1), line, [1, 1]] },
+  { field: 'nGeo', type: 'geometry', bad: [{ foo: 1 }, line], good: [[1, 1], null] },
+];
+
+// Where rounds floats the way the server stores them and binds a u64 as the SDK class, which create leaves to the server
+const CONVERTED_BY_WHERE: SchemaFieldType[] = ['float16', 'float32', 'uint64'];
+
+const nameOf = (field: string): string => field;
+const wrap = (field: string, filter: unknown): Record<string, unknown> => {
+  const [head, sub] = field.split('.');
+
+  return sub ? { [head!]: { [sub]: filter } } : { [head!]: filter };
+};
+const viaRelation = (field: string, filter: unknown): Record<string, unknown> => ({ owner: wrap(field, filter) });
+
+const create = (value: unknown, type: SchemaFieldType): unknown =>
+  type === 'geometry'
+    ? CerialGeometry.is(value)
+      ? value.toNative()
+      : value instanceof Geometry
+        ? value
+        : CerialGeometry.from(value as [number, number]).toNative()
+    : transformValue(value, type);
+
+describe('where refuses what create refuses, naming the field', () => {
+  describe.each([...scalars, ...geometries])('$field', ({ field, bad }) => {
+    const values = bad.map((v) => [typeof v === 'object' ? JSON.stringify(v) : String(v), v] as const);
+
+    test.each(values)('eq/neq refuse %s', (_label, value) => {
+      for (const op of ['eq', 'neq']) {
+        const msgs = errorsAt(owner, wrap(field, { [op]: value }));
+        expect(msgs.length).toBe(1);
+        expect(msgs[0]).toContain(nameOf(field));
+      }
+    });
+
+    test.each(values)('in/notIn refuse a list holding %s', (_label, value) => {
+      for (const op of ['in', 'notIn']) {
+        const msgs = errorsAt(owner, wrap(field, { [op]: [value] }));
+        expect(msgs.length).toBe(1);
+        expect(msgs[0]).toContain(nameOf(field));
+      }
+    });
+
+    test.each(values)('a relation sub-filter refuses %s', (_label, value) => {
+      for (const filter of [{ eq: value }, { neq: value }, { in: [value] }, { notIn: [value] }]) {
+        const msgs = errorsAt(place, viaRelation(field, filter));
+        expect(msgs.length).toBe(1);
+        expect(msgs[0]).toContain(nameOf(field));
+      }
+    });
+  });
+});
+
+describe('where converts what create accepts, the way create converts it', () => {
+  describe.each([...scalars, ...geometries])('$field', ({ field, type, good }) => {
+    test.each(good.map((v, i) => [i, v] as const))('operand %#', (_i, value) => {
+      const same = (bound: unknown): void => {
+        expect(JSON.stringify(bound)).toEqual(JSON.stringify(create(value, type)));
+      };
+
+      for (const op of ['eq', 'neq']) {
+        expect(errorsAt(owner, wrap(field, { [op]: value }))).toEqual([]);
+        if (!field.includes('.') && value !== null && !CONVERTED_BY_WHERE.includes(type))
+          same(varsOf(wrap(field, { [op]: value }))[0]);
+      }
+      for (const op of ['in', 'notIn']) {
+        expect(errorsAt(owner, wrap(field, { [op]: [value] }))).toEqual([]);
+        if (!field.includes('.') && value !== null && !CONVERTED_BY_WHERE.includes(type))
+          same((varsOf(wrap(field, { [op]: [value] }))[0] as unknown[])[0]);
+      }
+      expect(errorsAt(place, viaRelation(field, { eq: value }))).toEqual([]);
+    });
+  });
+});
+
+const arrays: Kind[] = [
+  { field: 'ints', type: 'int', bad: ['1', 1.5], good: [1] },
+  { field: 'dates', type: 'date', bad: ['nope', 5], good: ['2024-01-02T00:00:00Z'] },
+  { field: 'strs', type: 'string', bad: [1], good: ['a'] },
+  { field: 'dus', type: 'duration', bad: ['nope'], good: ['1h'] },
+  { field: 'uuids', type: 'uuid', bad: ['nope'], good: ['0190c3f8-6c5d-7a3a-9d3a-1e1f2a3b4c5d'] },
+  { field: 'decs', type: 'decimal', bad: ['abc'], good: ['1.5'] },
+  { field: 'bytess', type: 'bytes', bad: [5], good: ['AQI='] },
+  { field: 'pts', type: 'geometry', bad: [{ foo: 1 }, [], [1, 2, 3], line], good: [[1, 1], point(1, 1)] },
+];
+
+describe('array fields hold each element to the element rules', () => {
+  describe.each(arrays)('$field', ({ field, type, bad, good }) => {
+    test.each(bad.map((v, i) => [i, v] as const))('refuses bad element %#', (_i, value) => {
+      for (const filter of [
+        { has: value },
+        { hasAll: [value] },
+        { hasAny: [value] },
+        { eq: [value] },
+        { neq: [value] },
+      ]) {
+        const msgs = errorsAt(owner, { [field]: filter });
+        expect(msgs.length).toBe(1);
+        expect(msgs[0]).toContain(field);
+        expect(errorsAt(place, viaRelation(field, filter)).length).toBe(1);
+      }
+    });
+
+    test.each(good.map((v, i) => [i, v] as const))('accepts and converts good element %#', (_i, value) => {
+      for (const filter of [
+        { has: value },
+        { hasAll: [value] },
+        { hasAny: [value] },
+        { eq: [value] },
+        { neq: [value] },
+      ]) {
+        expect(errorsAt(owner, { [field]: filter })).toEqual([]);
+        expect(errorsAt(place, viaRelation(field, filter))).toEqual([]);
+      }
+      const bound = varsOf({ [field]: { has: value } })[0];
+      expect(JSON.stringify(bound)).toEqual(JSON.stringify(create(value, type)));
+    });
+
+    test('refuses a non-array eq', () => {
+      expect(errorsAt(owner, { [field]: { eq: good[0] } }).length).toBe(1);
+    });
+  });
+});
+
+describe('tuple elements', () => {
+  test('refuse a mistyped element and accept a valid one', () => {
+    expect(errorsAt(owner, { pair: { 0: 'x' } }).join()).toContain('pair');
+    expect(errorsAt(owner, { pair: { 1: 'nope' } }).join()).toContain('pair');
+    expect(errorsAt(owner, { pair: { 0: 1, 1: '2024-01-02T00:00:00Z' } })).toEqual([]);
+  });
+});
+
+describe('geometry list operators take a list of valid geometries only', () => {
+  test('a valid list passes and a list with one bad member is refused', () => {
+    expect(errorsAt(owner, { pt: { in: [[1, 1], point(2, 2)] } })).toEqual([]);
+    expect(errorsAt(owner, { pt: { notIn: [[1, 1], { foo: 1 }] } }).length).toBe(1);
+    expect(
+      errorsAt(owner, {
+        pt: {
+          notIn: [
+            [
+              [1, 1],
+              [2, 2],
+            ],
+          ],
+        },
+      }).length,
+    ).toBe(1);
+    expect(
+      errorsAt(owner, {
+        pt: {
+          neq: [
+            [1, 1],
+            [2, 2],
+          ],
+        },
+      }).length,
+    ).toBe(1);
+  });
+});
