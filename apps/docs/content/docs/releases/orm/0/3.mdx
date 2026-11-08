@@ -576,6 +576,52 @@ development branch and is not available on npm.
   you did not pass may be missing, and an object array may hold a stray
   `{ push }` entry.
 
+- Wrong-kind elements inside object and tuple values: an element nested in an object
+  or a tuple was checked only at the top level, so a nested tuple or object given a
+  number, a string or the wrong shape was stored by `create`, and the same value in a
+  `where` was bound as given. `P.deleteMany({ where: { NOT: { tn: [1, 5] } } })`, with a
+  nested tuple in the second position, removed all three rows, and so did the same
+  filter through a relation. It is reachable wherever the data or filter is built from
+  request input. Present in 0.1.0 and 0.2.0, whose data validator did not look inside
+  an object or tuple and which did not check where operands.
+
+  A nested element is now held to its declared kind at every depth, on `create` and in
+  a `where`: a tuple must have the right length and member types and an object only its
+  declared keys. A value that is not valid is refused before any query, naming the
+  field path. If you write nested tuples or objects from request data, upgrade, and
+  check rows written before for an element of the wrong kind.
+
+- `StringRecordId` operands in a `where`: a `StringRecordId` such as `int_id:1` was
+  parsed in JavaScript into a record id whose key is the string `'1'`, while the
+  database reads it as the integer 1. `deleteMany({ where: { NOT: { id: new
+  StringRecordId('int_id:1') } } })` therefore removed every row, the one named
+  included. Present in 0.1.0 and 0.2.0. A `StringRecordId` is now checked for its table
+  and sent to the database as given. If you filter by a `StringRecordId`, upgrade.
+
+- Ordering array and `@set` fields in a `where`: `gt`, `gte`, `lt`, `lte` and
+  `between` on an array or `@set` field compared the stored value with the operand by
+  type, not by content. On SurrealDB 4.0.0 a set sorts above every array, so
+  `deleteMany({ where: { numbers: { gt: [3] } } })` on a `@set` field removed every
+  row. A filter built from a JSON body reaches it with no cast. Present in 0.1.0
+  and 0.2.0, which bound the operand as given. These operators are now refused on an
+  array or `@set` field, naming the field. Use `has`, `hasAll`, `hasAny` or a whole-value
+  `eq`. See the Changed entry on ordering array fields.
+
+- Null bounds in `between`: `between: [1, null]` bound the null as given, so the range
+  matched nothing and its negation matched every row.
+  `deleteMany({ where: { NOT: { age: { between: [1, null] } } } })` removed all rows.
+  Present in 0.1.0 and 0.2.0. Both bounds must now be present and not null on every
+  field, a `@nullable` field included, or the filter is refused naming the field.
+
+- Date strings in a literal with a Date variant: a literal such as `Date | Bool`
+  accepted an ISO string on `create` and a `where`, but passed it on as text. The
+  database refused the write, and a filter compared the text with the stored
+  datetimes, so `deleteMany({ where: { NOT: { moment: '2022-01-01T00:00:00.000Z' } } })`
+  removed every row. Present in 0.1.0 and 0.2.0, which did not convert the string.
+  An ISO string is now converted to a date, as a `Date` field converts it, on `create`
+  and in a `where`, unless a string variant of the literal takes it. A string that is
+  neither a date nor a variant is refused naming the field.
+
 ### Added
 
 - A raw query hatch for SurrealQL the typed API has no position for: graph
@@ -1124,6 +1170,28 @@ development branch and is not available on npm.
   `Date`, an enum member for an enum, `null` only for a `@nullable` or optional field.
   Undeclared keys of a `@flexible` object stay untyped.
   `between` takes exactly two bounds; a list of any other length is refused.
+
+- Where operators a field does not take are now refused, naming the field, instead of
+  reaching the database: a string operator such as `contains` on an `Int`, `gt` on a
+  `Bool` or `String`, `between` on a `String` or `Uuid`, and `in` on a `Bool`. The
+  generated types already omit these operators, so only a call that bypasses them is
+  affected. The page on special operators no longer shows `between` on a `String`.
+
+- Ordering operators on array and `@set` fields: `gt`, `gte`, `lt`, `lte` and `between`
+  are refused on an array or `@set` field, naming the field. 0.2.0 accepted them and
+  compared by type, which matched the wrong rows. Use `has`, `hasAll` and `hasAny`,
+  or compare the whole value with `eq`.
+
+- Null operands on fields that cannot hold null: a `where` that compares a field to
+  `null` is refused, naming the field, when the field is not `@nullable`. A required
+  field says it is required and not `@nullable`. An optional field never holds null,
+  it is absent, so use `isNone: true` to find rows without it. 0.2.0 accepted the
+  comparison and it matched nothing, so its negation matched every row. `isNull`
+  and a `@nullable` field are unchanged. A `between` bound can never be null.
+
+- Invalid emails in `eq`, `neq`, `not`, `in` and `notIn` on an `Email` field are refused,
+  as `create` refuses them. `contains`, `startsWith` and `endsWith` keep accepting a
+  partial value.
 
 - Generated models, objects, tuples and literals are now `.d.ts` files by
   default, with `export type *` barrels (`enums/` stays `.ts`). With
