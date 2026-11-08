@@ -80,6 +80,11 @@ function generateFieldMetadata(field: FieldMetadata): string {
     parts.push(`recordIdTypes: [${field.recordIdTypes.map((t) => `'${escapeTsString(t)}'`).join(', ')}]`);
   }
 
+  // Where operands are checked against the subtypes the field accepts, as the database checks a write
+  if (field.geometrySubtypes?.length) {
+    parts.push(`geometrySubtypes: [${field.geometrySubtypes.map((t) => `'${escapeTsString(t)}'`).join(', ')}]`);
+  }
+
   // Include objectInfo when present (with inline fields for runtime query building)
   if (field.objectInfo) {
     if (field.objectInfo.fields.length) {

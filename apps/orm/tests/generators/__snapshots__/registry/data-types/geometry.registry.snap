@@ -20,6 +20,9 @@
           "type": "string"
         },
         {
+          "geometrySubtypes": [
+            "point"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
@@ -28,6 +31,9 @@
           "type": "geometry"
         },
         {
+          "geometrySubtypes": [
+            "polygon"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
@@ -44,6 +50,9 @@
           "type": "geometry"
         },
         {
+          "geometrySubtypes": [
+            "line"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
@@ -52,6 +61,10 @@
           "type": "geometry"
         },
         {
+          "geometrySubtypes": [
+            "point",
+            "polygon"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
@@ -60,6 +73,9 @@
           "type": "geometry"
         },
         {
+          "geometrySubtypes": [
+            "point"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": false,
@@ -68,6 +84,9 @@
           "type": "geometry"
         },
         {
+          "geometrySubtypes": [
+            "point"
+          ],
           "isArray": true,
           "isId": false,
           "isIndexed": false,
@@ -100,6 +119,9 @@
           "type": "string"
         },
         {
+          "geometrySubtypes": [
+            "multipoint"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
@@ -108,6 +130,9 @@
           "type": "geometry"
         },
         {
+          "geometrySubtypes": [
+            "multiline"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
@@ -116,6 +141,9 @@
           "type": "geometry"
         },
         {
+          "geometrySubtypes": [
+            "multipolygon"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
@@ -124,6 +152,9 @@
           "type": "geometry"
         },
         {
+          "geometrySubtypes": [
+            "collection"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
@@ -163,6 +194,9 @@
           "objectInfo": {
             "fields": [
               {
+                "geometrySubtypes": [
+                  "point"
+                ],
                 "isId": false,
                 "isIndexed": false,
                 "isRequired": true,
@@ -239,6 +273,9 @@
     "GeoInfo": {
       "fields": [
         {
+          "geometrySubtypes": [
+            "point"
+          ],
           "isId": false,
           "isIndexed": false,
           "isRequired": true,
