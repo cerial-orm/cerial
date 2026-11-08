@@ -478,6 +478,57 @@ development branch and is not available on npm.
   is valid. Anything else is refused before any query, naming the field. If you
   build a Geometry filter from request data, upgrade.
 
+- Whole values on object and tuple fields in a `where`: an object or tuple field
+  accepted any value as a whole-value operand, and a negated filter then matched
+  every row. `P.deleteMany({ where: { NOT: { address: 5 } } })` removed all three
+  rows, as did `{ NOT: { location: [] } }` and a tuple that was too long or held a
+  member of the wrong type, and the same filter through a relation. A valid tuple in
+  array form was also bound without converting its members, so a date, uuid or
+  duration member never matched and `NOT` removed rows it should have kept. It is
+  reachable wherever a filter is built from request input. Present in 0.1.0 and
+  0.2.0, which did not check where operands.
+
+  A whole-value operand on an object or tuple field is now held to what `create`
+  accepts for it: a tuple must have the right length and member types, an object its
+  declared keys. Anything else is refused before any query, naming the field. A valid
+  tuple is converted the way `create` converts it. If you filter an object or tuple
+  field by its whole value, upgrade.
+
+- List operands on array fields in a `where`: `in` and `notIn` on an array field take
+  a list of arrays, and the members of those arrays were not converted on a Uuid,
+  Duration, Decimal, Date, Bytes or Geometry array. `deleteMany({ where: { tokens:
+  { notIn: [[uuid]] } } })` removed all three rows when two of them held a different
+  array. It covered `updateMany`, `$transaction`, `include` and relation filters, and
+  a filter built from a JSON body hit it with no cast. Present in 0.1.0 and 0.2.0.
+
+  Every element of every list is now converted the way `create` converts it, at any
+  nesting, on every array operator. If you filter an array of these types with `in`
+  or `notIn`, upgrade.
+
+- Set fields in a `where`: a `@set` field never compared equal to an array operand,
+  so `{ NOT: { numbers: [1, 2] } }`, a typed call, removed every row, and an equality
+  on the same field matched none. `neq`, `not`, `in`, `notIn` and the shorthand behaved
+  the same, through a relation too. The operand is now cast to a set the way `create`
+  stores it, so order and duplicates in it do not matter. Measured on SurrealDB 4.0.0,
+  which compares a set to an array as unequal; 0.1.0 and 0.2.0 also defined the field
+  as a set and bound the operand as an array, but the comparison was not measured on
+  the database versions they targeted. If you filter a `@set` field by its whole
+  value, upgrade.
+
+- Id operands in a `where`: a `Record(uuid)` id given as a string, the form the API
+  returns it in, was bound as a string key and never equalled the stored uuid key, so
+  `neq`, `notIn` and `NOT` on it removed every row, including the one named, and `eq`
+  matched none. An array given where one id is required was read as a list of ids
+  instead of a single array-typed id, so `{ id: { neq: ['k'] } }` removed rows it
+  should have kept. It covered `updateMany`, `$transaction` and foreign keys to those
+  ids, and the array form is reachable from a JSON body. Present in 0.1.0 and 0.2.0.
+
+  An id operand is now converted the way `create` builds the id for that model's id
+  type: a uuid string becomes a uuid key on a `Record(uuid)` or `Record(int, uuid)` id,
+  and a union that admits a string keeps it a string. An array where one id is
+  required is refused naming the field, except where the id type is itself an array
+  or tuple. If you filter by a uuid id or a foreign key to one, upgrade.
+
 - Object array sub-fields dropped in an object update: an update that merges an
   object field wrote its sub-fields one by one and treated an array of objects
   inside it as another nested object, so nothing matched and the array was
@@ -1056,6 +1107,7 @@ development branch and is not available on npm.
   Pass a value of the field's type: a number for `Int`, a `Date` or a date string for
   `Date`, an enum member for an enum, `null` only for a `@nullable` or optional field.
   Undeclared keys of a `@flexible` object stay untyped.
+  `between` takes exactly two bounds; a list of any other length is refused.
 
 - Generated models, objects, tuples and literals are now `.d.ts` files by
   default, with `export type *` barrels (`enums/` stays `.ts`). With
