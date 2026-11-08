@@ -467,6 +467,17 @@ development branch and is not available on npm.
   refused before any query, naming the field. If you filter a Geometry field with
   `in` or `notIn`, upgrade.
 
+  A `where` operand that is not a geometry the field accepts matched every row
+  instead of none. `Shape.deleteMany({ where: { geo: { neq: { foo: 1 } } } })`
+  deleted all seven rows, and so did `neq` with `[]`, `[1, 2, 3]` or a pair of
+  pairs, `notIn` with a list of those, and the same filter through a relation.
+  Present in 0.1.0 and 0.2.0. Every geometry operand, on every operator and
+  through a relation filter, is now valid exactly when a create would accept it for
+  that field: a GeoJSON object, a Cerial geometry or a coordinate pair, of one of
+  the subtypes the field declares. A list operator takes a list whose every member
+  is valid. Anything else is refused before any query, naming the field. If you
+  build a Geometry filter from request data, upgrade.
+
 - Object array sub-fields dropped in an object update: an update that merges an
   object field wrote its sub-fields one by one and treated an array of objects
   inside it as another nested object, so nothing matched and the array was
