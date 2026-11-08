@@ -7,6 +7,7 @@ import type {
   FieldMetadata,
   ModelMetadata,
   ModelRegistry,
+  ObjectFieldMetadata,
   TupleFieldMetadata,
   WhereClause,
 } from '../../types';
@@ -19,6 +20,7 @@ import { splitArrayRelationFilter } from '../filters/nested-condition-builder';
 import { isRegisteredOperator } from '../filters/registry';
 import { isSqlFragment } from '../compile/sql-fragment';
 import { refuseFragmentInValue } from './fragment-value';
+import { enclosedFields, NO_DEFS, type ObjectDefs } from './data-validator';
 import { operandIssues } from './where-operand-validator';
 
 /** A class instance (an SDK value, a Cerial wrapper, a Date, bytes) is a value; only a plain object holds keys */
@@ -161,14 +163,16 @@ function unknownSubField(path: string, fieldPath: string, model: ModelMetadata):
 /** Validate the keys of an object field's filter. @flexible objects accept any undeclared sub-key. */
 function validateObjectFilter(
   filter: Record<string, unknown>,
-  fields: FieldMetadata[],
+  objectInfo: ObjectFieldMetadata,
   isFlexible: boolean | undefined,
   isArray: boolean | undefined,
   model: ModelMetadata,
   path: string,
   fieldPath: string,
+  outer: ObjectDefs,
 ): CerialValidationIssue[] {
   const errors: CerialValidationIssue[] = [];
+  const { fields, defs } = enclosedFields(objectInfo.objectName, objectInfo.fields, outer);
 
   for (const [key, value] of Object.entries(filter)) {
     if (value === undefined) continue;
@@ -177,7 +181,9 @@ function validateObjectFilter(
       if (QUANTIFIERS.includes(key)) {
         errors.push(...quantifierBodyIssue(key, value, `${path}.${key}`));
         if (isObject(value))
-          errors.push(...validateObjectFilter(value, fields, isFlexible, false, model, `${path}.${key}`, fieldPath));
+          errors.push(
+            ...validateObjectFilter(value, objectInfo, isFlexible, false, model, `${path}.${key}`, fieldPath, outer),
+          );
       } else {
         errors.push(unknownSubField(`${path}.${key}`, `${fieldPath}.${key}`, model));
       }
@@ -186,7 +192,7 @@ function validateObjectFilter(
 
     if (LOGICAL_KEYS.includes(key)) {
       for (const [item, itemPath] of logicalBodies(key, value, path, errors))
-        errors.push(...validateObjectFilter(item, fields, isFlexible, false, model, itemPath, fieldPath));
+        errors.push(...validateObjectFilter(item, objectInfo, isFlexible, false, model, itemPath, fieldPath, outer));
       continue;
     }
 
@@ -208,13 +214,18 @@ function validateObjectFilter(
       errors.push(
         ...validateObjectFilter(
           value,
-          subField.objectInfo.fields,
+          subField.objectInfo,
           subField.isFlexible,
           subField.isArray,
           model,
           subPath,
           subFieldPath,
+          defs,
         ),
+      );
+    else if (subField.type === 'tuple' && subField.tupleInfo)
+      errors.push(
+        ...validateTupleFilter(value, subField.tupleInfo, subField.isArray, model, subPath, subFieldPath, defs),
       );
     else errors.push(...operatorKeyIssues(value, subPath));
   }
@@ -230,6 +241,7 @@ function validateTupleFilter(
   model: ModelMetadata,
   path: string,
   fieldPath: string,
+  defs: ObjectDefs,
 ): CerialValidationIssue[] {
   const errors: CerialValidationIssue[] = [];
 
@@ -240,7 +252,7 @@ function validateTupleFilter(
       if (QUANTIFIERS.includes(key)) {
         errors.push(...quantifierBodyIssue(key, value, `${path}.${key}`));
         if (isObject(value))
-          errors.push(...validateTupleFilter(value, tupleInfo, false, model, `${path}.${key}`, fieldPath));
+          errors.push(...validateTupleFilter(value, tupleInfo, false, model, `${path}.${key}`, fieldPath, defs));
       } else {
         errors.push(unknownSubField(`${path}.${key}`, `${fieldPath}.${key}`, model));
       }
@@ -270,11 +282,9 @@ function validateTupleFilter(
     if (!isObject(value) || isDirectValue(value)) continue;
 
     if (element.type === 'object' && element.objectInfo)
-      errors.push(
-        ...validateObjectFilter(value, element.objectInfo.fields, false, false, model, subPath, subFieldPath),
-      );
+      errors.push(...validateObjectFilter(value, element.objectInfo, false, false, model, subPath, subFieldPath, defs));
     else if (element.type === 'tuple' && element.tupleInfo)
-      errors.push(...validateTupleFilter(value, element.tupleInfo, false, model, subPath, subFieldPath));
+      errors.push(...validateTupleFilter(value, element.tupleInfo, false, model, subPath, subFieldPath, defs));
     else errors.push(...operatorKeyIssues(value, subPath));
   }
 
@@ -466,19 +476,20 @@ export function validateFieldFilter(
     if (field.type === 'object' && field.objectInfo) {
       return validateObjectFilter(
         filter,
-        field.objectInfo.fields,
+        field.objectInfo,
         field.isFlexible,
         field.isArray,
         model,
         path,
         fieldName,
+        NO_DEFS,
       );
     }
 
     // For tuple fields, the filter object contains element conditions by name/index
     // e.g., location: { lat: { gt: 1.0 } } or location: { 0: { gt: 1.0 } }
     if (field.type === 'tuple' && field.tupleInfo) {
-      return validateTupleFilter(filter, field.tupleInfo, field.isArray, model, path, fieldName);
+      return validateTupleFilter(filter, field.tupleInfo, field.isArray, model, path, fieldName, NO_DEFS);
     }
 
     errors.push(...operatorKeyIssues(filter, path));

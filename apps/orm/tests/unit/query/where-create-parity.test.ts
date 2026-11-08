@@ -47,6 +47,17 @@ object Inner {
   pt Geometry @point
 }
 
+object SelfNode {
+  n Int
+  when Date
+  child SelfNode?
+}
+
+object WithPair {
+  p Pair
+  ps Pair[]
+}
+
 object SetBag {
   tags Int[] @set
 }
@@ -86,6 +97,8 @@ model Owner {
   mixed Mixed
   inner Inner
   bag SetBag
+  chain SelfNode
+  holder WithPair
   ld DateOrFlag
   ldText DateOrText
   ldTag DateOrTag
@@ -827,5 +840,46 @@ describe('between bounds are never null', () => {
 
   test('the builder refuses it alone', () => {
     expect(() => textFor(owner, { NOT: { int: { between: [1, null] } } })).toThrow(/int/);
+  });
+});
+
+describe('key paths through self-referencing objects and nested tuples are resolved as create resolves them', () => {
+  const DATE = '2021-01-01T00:00:00.000Z';
+
+  test.each([1, 2, 5])('a self-referencing object is walked %i levels down', (depth) => {
+    const nest = (leaf: unknown): unknown => {
+      let node: unknown = leaf;
+      for (let i = 0; i < depth; i++) node = { child: node };
+
+      return node;
+    };
+    expect(errorsAt(owner, { chain: nest({ n: 1 }) })).toEqual([]);
+    expect(errorsAt(owner, { chain: nest({ n: { gt: 1 } }) })).toEqual([]);
+    expect(errorsAt(owner, { NOT: { chain: nest({ n: 1 }) } })).toEqual([]);
+    expect(errorsAt(owner, { chain: nest({ nope: 1 }) }).join()).toContain('nope');
+    expect(errorsAt(owner, { chain: nest({ n: 'x' }) }).join()).toContain('n');
+  });
+
+  test('below the first level the filter holds what create stores there', () => {
+    // The database checks nothing under a self-referencing object, so create keeps the string it was given
+    const stored = (transformData({ chain: { child: { when: DATE } } }, owner).chain as { child: { when: unknown } })
+      .child.when;
+    expect(varsOf({ chain: { child: { when: DATE } } })[0]).toEqual(stored);
+    expect(errorsAt(owner, { chain: { child: { child: { n: 'x' } } } }).join()).toContain('n');
+  });
+
+  test('a tuple held by an object is walked by element', () => {
+    expect(errorsAt(owner, { holder: { p: { 0: 1, 1: DATE } } })).toEqual([]);
+    expect(errorsAt(owner, { holder: { p: { 0: 'x' } } }).join()).toContain('holder.p.0');
+    expect(errorsAt(owner, { holder: { p: { 9: 1 } } }).join()).toContain('holder.p.9');
+    expect(errorsAt(owner, { holder: { ps: { some: { 1: DATE } } } })).toEqual([]);
+    expect(errorsAt(owner, { holder: { ps: { some: { 0: 'x' } } } }).join()).toContain('holder.ps');
+  });
+
+  test('a tuple element inside an object is bound as create converts it', () => {
+    const bound = varsOf({ holder: { p: { 1: DATE } } })[0];
+    expect(bound).toBeInstanceOf(Date);
+    expect(textFor(owner, { holder: { p: { 1: DATE } } })).toContain('holder.p[1]');
+    expect(textFor(owner, { holder: { ps: { some: { 1: DATE } } } })).toContain('.any(|$v|');
   });
 });

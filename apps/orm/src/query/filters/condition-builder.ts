@@ -185,6 +185,20 @@ export function buildObjectCondition(
       continue;
     }
 
+    // Tuple sub-field: element conditions by name or index
+    if (subField.type === 'tuple' && subField.tupleInfo && isObject(value)) {
+      conditions.push(
+        (subField.isArray ? buildArrayTupleCondition : buildTupleCondition)(
+          ctx,
+          subPath,
+          value as Record<string, unknown>,
+          subField.tupleInfo,
+          model,
+        ),
+      );
+      continue;
+    }
+
     // Primitive sub-field with operators
     if (isOperatorShape(value, subField)) {
       conditions.push(
@@ -322,6 +336,20 @@ function buildObjectConditionForClosure(
           buildObjectConditionForClosure(ctx, subPath, value as Record<string, unknown>, subField.objectInfo, model),
         );
       }
+      continue;
+    }
+
+    // Tuple sub-field: element conditions by name or index
+    if (subField.type === 'tuple' && subField.tupleInfo && isObject(value)) {
+      conditions.push(
+        (subField.isArray ? buildArrayTupleCondition : buildTupleCondition)(
+          ctx,
+          subPath,
+          value as Record<string, unknown>,
+          subField.tupleInfo,
+          model,
+        ),
+      );
       continue;
     }
 

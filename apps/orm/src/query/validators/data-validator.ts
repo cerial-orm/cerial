@@ -613,8 +613,22 @@ type WalkField = Pick<
 >;
 
 /** Field lists of the objects enclosing the value being checked, by object name */
-type ObjectDefs = ReadonlyMap<string, FieldMetadata[]>;
-const NO_DEFS: ObjectDefs = new Map();
+export type ObjectDefs = ReadonlyMap<string, FieldMetadata[]>;
+export const NO_DEFS: ObjectDefs = new Map();
+
+/**
+ * The field list of an object met on the way down. A self-referencing object lists its fields one level deep
+ * and an empty list below; the copy that encloses it, seen on the way down, holds the real list.
+ */
+export function enclosedFields(
+  objectName: string,
+  declared: FieldMetadata[],
+  outer: ObjectDefs,
+): { fields: FieldMetadata[]; defs: ObjectDefs } {
+  const fields = declared.length ? declared : (outer.get(objectName) ?? declared);
+
+  return { fields, defs: new Map(outer).set(objectName, fields) };
+}
 
 /**
  * Validate a value nested inside an object or tuple, to any depth.
@@ -740,10 +754,7 @@ function validateObjectData(
   outer: ObjectDefs,
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
-  // A self-referencing object lists its fields one level deep and an empty list below; the copy that
-  // encloses it, seen on the way down, holds the real list
-  const fields = declared.length ? declared : (outer.get(objectName) ?? declared);
-  const defs = new Map(outer).set(objectName, fields);
+  const { fields, defs } = enclosedFields(objectName, declared, outer);
 
   for (const [key, value] of Object.entries(data)) {
     if (value === undefined) continue;

@@ -3,7 +3,7 @@
  *
  * Create decides what a value is. For each place a value can sit in the schema, each operator that place
  * takes and each path that reaches it, where must accept exactly what create accepts, bind the value create
- * converted, and name the field when it refuses. What does not hold yet is listed in known-gaps.ts.
+ * converted, and name the field when it refuses. Any disagreement would be listed in known-gaps.ts, which is empty.
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -36,6 +36,10 @@ describe('operators that take a flag, text or a list of a given shape', () => {
 });
 
 describe('the known gap list', () => {
+  test('is empty: where and create agree everywhere the oracle looks', () => {
+    expect(KNOWN_GAPS).toEqual({});
+  });
+
   test('names only places the oracle visits', () => {
     const ids = new Set(SLOTS.map((s) => s.id));
     const stale = Object.keys(KNOWN_GAPS).filter((key) => !ids.has(slotIdOfKey(key)));
