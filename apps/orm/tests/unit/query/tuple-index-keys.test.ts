@@ -16,6 +16,9 @@ import { place, placeRegistry } from './where-validation-helpers';
 const tupleInfo = place.fields.find((f) => f.name === 'spot')!.tupleInfo!;
 const messages = (where: WhereClause): string[] => validateWhere(where, place).errors.map((e) => e.message);
 
+// A key is accepted with a value valid for the element it names: a String at 0, a Geo at 1
+const operandFor = (key: string): unknown => (key === '1' ? { lat: 1, lng: 2 } : 'a');
+
 const ACCEPTED: Array<[string, number]> = [
   ['0', 0],
   ['1', 1],
@@ -35,7 +38,7 @@ describe('resolveTupleElementKey', () => {
 
 describe('where validation on a tuple field', () => {
   test.each(ACCEPTED)('%j is accepted', (key) => {
-    expect(messages({ spot: { [key]: 'a' } })).toEqual([]);
+    expect(messages({ spot: { [key]: operandFor(key) } })).toEqual([]);
   });
 
   test.each(REFUSED)('%j is refused as an unknown field', (key) => {

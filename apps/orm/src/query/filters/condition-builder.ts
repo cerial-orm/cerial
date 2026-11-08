@@ -25,7 +25,7 @@ import { joinFragments, wrapParens } from '../compile/fragment';
 import { compileFragment, isSqlFragment } from '../compile/sql-fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
-import { toU64Param, transformOrValidateRecordId, transformValue } from '../transformers';
+import { toU64Param, transformData, transformOrValidateRecordId, transformValue } from '../transformers';
 import { expandCompositeKeys } from './composite-key';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { buildForwardNoRecord, buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
@@ -110,6 +110,13 @@ function transformDateOperand(value: unknown, field: Pick<FieldMetadata, 'type'>
 
 /** Transform value for ID, Record, or UUID fields - handles all input types */
 export function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
+  // A whole tuple or object array compared to the field converts as create converts it, element by element
+  if ((fieldMetadata.type === 'object' || fieldMetadata.type === 'tuple') && Array.isArray(value)) {
+    const own = { ...model, fields: [fieldMetadata] };
+
+    return transformData({ [fieldMetadata.name]: value }, own)[fieldMetadata.name];
+  }
+
   // Transform ID field values to RecordId
   if (fieldMetadata.isId) {
     // Check arrays first — isRecordIdInput matches arrays (valid RecordIdValue),

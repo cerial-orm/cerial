@@ -4,15 +4,15 @@
  * a string would be cast against a number and match or miss rows the caller never meant.
  */
 
-import type { FieldMetadata } from '../../types';
+import type { FieldMetadata, ModelMetadata, TupleFieldMetadata } from '../../types';
 import { Geometry } from 'surrealdb';
 import { CerialDecimal, isValidDecimalInput } from '../../utils/cerial-decimal';
 import { CerialGeometry, type CerialGeometryType } from '../../utils/cerial-geometry';
 import { escapeControl } from '../../utils/safe-text';
 import { isObject } from '../../utils/type-utils';
 import { isOperatorObject, transformGeometryValue } from '../filters/condition-builder';
-import { transformValue } from '../transformers';
-import { validateFieldValue } from './data-validator';
+import { transformValue, tupleElementDefault } from '../transformers';
+import { validateFieldValue, validateWholeValue } from './data-validator';
 import { isSizedNumberFieldType, sizedNumberError } from './sized-number-validator';
 
 interface OperandIssue {
@@ -32,6 +32,7 @@ export type OperandField = Pick<
   | 'objectInfo'
   | 'tupleInfo'
   | 'geometrySubtypes'
+  | 'isFlexible'
 >;
 
 const GEOMETRY_SUBTYPE: Record<CerialGeometryType, NonNullable<FieldMetadata['geometrySubtypes']>[number]> = {
@@ -147,14 +148,61 @@ function listIssues(
   });
 }
 
+/** A tuple in array form that is longer than the tuple, or leaves a position out that nothing fills. */
+function tupleShapeMessage(tuple: TupleFieldMetadata, value: unknown, label: string): string | null {
+  if (!Array.isArray(value)) return null;
+  if (value.length > tuple.elements.length)
+    return `Field "${label}" holds ${value.length} elements and its tuple has ${tuple.elements.length}`;
+
+  for (const element of tuple.elements) {
+    if (value[element.index] !== undefined || element.isNullable || element.isOptional) continue;
+    if (tupleElementDefault(element) === undefined)
+      return `Field "${label}" is missing the tuple element at position ${element.index}`;
+  }
+
+  return null;
+}
+
+/**
+ * A whole value compared to an object or tuple field (a number, a string, a tuple in array form) is checked
+ * as create checks that object or tuple. A plain object holds sub-field or element conditions, which the
+ * caller walks.
+ */
+function wholeValueIssues(
+  field: OperandField,
+  filter: unknown,
+  path: string,
+  label: string,
+  model: ModelMetadata,
+): OperandIssue[] {
+  if (filter === undefined || filter === null || isPlainObject(filter)) return [];
+
+  const [first] = validateWholeValue(field, filter, model, label);
+  if (first) return [{ path, message: first.message }];
+  if (field.type !== 'tuple' || !field.tupleInfo) return [];
+
+  const message = (field.isArray ? (filter as unknown[]) : [filter])
+    .map((tuple) => tupleShapeMessage(field.tupleInfo!, tuple, label))
+    .find(Boolean);
+
+  return message ? [{ path, message }] : [];
+}
+
 /**
  * Check every operand of one field's filter (an operator object, an array or a shorthand value) against
  * the field's type with the rules create uses. Fields that are objects, tuples or relations are checked
  * structurally by the caller; their leaves come back through here. Key problems of a non-operator object
  * are reported by the caller, so such an object is skipped.
  */
-export function operandIssues(field: OperandField, filter: unknown, path: string, label: string): OperandIssue[] {
-  if (field.type === 'object' || field.type === 'tuple' || field.type === 'relation' || field.type === 'any') return [];
+export function operandIssues(
+  field: OperandField,
+  filter: unknown,
+  path: string,
+  label: string,
+  model: ModelMetadata,
+): OperandIssue[] {
+  if (field.type === 'object' || field.type === 'tuple') return wholeValueIssues(field, filter, path, label, model);
+  if (field.type === 'relation' || field.type === 'any') return [];
   if (filter === undefined) return [];
 
   if (isOperatorObject(filter)) {

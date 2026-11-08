@@ -214,7 +214,7 @@ function validateObjectFilter(
         errors.push(...operatorKeyIssues(value, subPath));
       continue;
     }
-    errors.push(...operandIssues(subField, value, subPath, subFieldPath));
+    errors.push(...operandIssues(subField, value, subPath, subFieldPath, model));
     if (!isObject(value) || isDirectValue(value)) continue;
 
     if (subField.type === 'object' && subField.objectInfo)
@@ -277,6 +277,7 @@ function validateTupleFilter(
         value,
         subPath,
         subFieldPath,
+        model,
       ),
     );
     if (!isObject(value) || isDirectValue(value)) continue;
@@ -496,7 +497,7 @@ export function validateFieldFilter(
     errors.push(...operatorKeyIssues(filter, path));
   }
 
-  errors.push(...operandIssues(field, filter, path, fieldName));
+  errors.push(...operandIssues(field, filter, path, fieldName, model));
 
   return errors;
 }

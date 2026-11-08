@@ -84,6 +84,7 @@ model Owner {
   decs Decimal[]
   bytess Bytes[]
   pts Geometry[] @point
+  pairs Pair[]
   places Relation[] @model(Place)
 }
 
@@ -335,5 +336,65 @@ describe('geometry list operators take a list of valid geometries only', () => {
         },
       }).length,
     ).toBe(1);
+  });
+});
+
+describe('a whole value compared to an object or tuple field is checked like create checks it', () => {
+  const badInner = [5, 'x', true, [1], []];
+  const badPair = [
+    5,
+    'x',
+    true,
+    [],
+    [1],
+    [{ foo: 1 }, 'garbage', 5],
+    ['1', '2024-01-02T00:00:00Z'],
+    [1, 'nope'],
+    [1, '2024-01-02T00:00:00Z', 3],
+  ];
+  const label = (v: unknown): string => JSON.stringify(v);
+
+  test.each(badInner.map((v) => [label(v), v] as const))('object field refuses %s', (_l, value) => {
+    for (const where of [{ inner: value }, { NOT: { inner: value } }]) {
+      const msgs = errorsAt(owner, where);
+      expect(msgs.length).toBe(1);
+      expect(msgs[0]).toContain('inner');
+    }
+    expect(errorsAt(place, viaRelation('inner', value)).length).toBe(1);
+  });
+
+  test.each(badPair.map((v) => [label(v), v] as const))('tuple field refuses %s', (_l, value) => {
+    for (const where of [{ pair: value }, { NOT: { pair: value } }, { OR: [{ pair: value }] }]) {
+      const msgs = errorsAt(owner, where);
+      expect(msgs.length).toBe(1);
+      expect(msgs[0]).toContain('pair');
+    }
+    expect(errorsAt(place, viaRelation('pair', value)).length).toBe(1);
+    expect(errorsAt(place, { owner: { NOT: { pair: value } } }).length).toBe(1);
+  });
+
+  test('an array of tuples refuses a bad member and a non-array', () => {
+    expect(errorsAt(owner, { pairs: [[1, '2024-01-02T00:00:00Z'], [1]] }).length).toBe(1);
+    expect(errorsAt(owner, { pairs: 5 }).length).toBe(1);
+    expect(errorsAt(owner, { pairs: [[1, '2024-01-02T00:00:00Z']] })).toEqual([]);
+  });
+
+  test('a valid tuple in array form is accepted and bound the way create converts it', () => {
+    const where = { pair: [1, '2024-01-02T00:00:00Z'] };
+    expect(errorsAt(owner, where)).toEqual([]);
+    expect(errorsAt(owner, { NOT: where })).toEqual([]);
+    expect(errorsAt(place, viaRelation('pair', where.pair))).toEqual([]);
+    expect(JSON.stringify(varsOf(where)[0])).toEqual(JSON.stringify([1, new Date('2024-01-02T00:00:00Z')]));
+  });
+
+  test('an array of tuples is converted member by member', () => {
+    const bound = varsOf({ pairs: [[1, '2024-01-02T00:00:00Z']] })[0] as unknown[][];
+    expect(bound[0]![1]).toBeInstanceOf(Date);
+  });
+
+  test('null and the structural forms are untouched', () => {
+    expect(errorsAt(owner, { pair: { 0: 1 } })).toEqual([]);
+    expect(errorsAt(owner, { inner: { n: 1 } })).toEqual([]);
+    expect(errorsAt(owner, { inner: { isNone: true } }).join()).not.toContain('must be of type');
   });
 });

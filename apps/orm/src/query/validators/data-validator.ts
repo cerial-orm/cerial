@@ -555,6 +555,22 @@ type WalkField = Pick<
   'type' | 'isArray' | 'isFlexible' | 'isNullable' | 'literalInfo' | 'objectInfo' | 'tupleInfo'
 >;
 
+/**
+ * Check one whole object or tuple value the way a create checks it: its type, then its shape, declared
+ * keys and element types. A where operand that compares a field to a whole value is held to the same rules.
+ */
+export function validateWholeValue(
+  field: WalkField & Pick<FieldMetadata, 'recordIdTypes'>,
+  value: unknown,
+  model: ModelMetadata,
+  path: string,
+): DataValidationError[] {
+  const error = validateFieldValue(path, value, { ...field, isRequired: false });
+  if (error) return [error];
+
+  return validateSubValue(value, field, model, path, false, true);
+}
+
 /** Field lists of the objects enclosing the value being checked, by object name */
 type ObjectDefs = ReadonlyMap<string, FieldMetadata[]>;
 const NO_DEFS: ObjectDefs = new Map();
