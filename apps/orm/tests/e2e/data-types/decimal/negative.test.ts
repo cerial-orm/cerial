@@ -1,53 +1,56 @@
 import { describe, expect, test } from 'bun:test';
-import { CerialDecimal } from 'cerial';
 import { tables } from '../../test-helper';
 import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Decimal: Negative / Edge Cases', () => {
   const { getClient } = setupDataTypeTests(tables.decimal);
 
-  test('non-numeric string is coerced to zero by SurrealDB', async () => {
+  test('rejects non-numeric string as decimal value', async () => {
     const client = getClient();
 
-    const result = await client.db.DecimalBasic.create({
-      data: { name: 'bad-dec', price: 'abc', tax: null },
-    });
-
-    expect(CerialDecimal.is(result.price)).toBe(true);
-    expect(result.price.toString()).toBe('0');
+    await expect(
+      (async () => {
+        await client.db.DecimalBasic.create({
+          data: { name: 'bad-dec', price: 'abc', tax: null },
+        });
+      })(),
+    ).rejects.toThrow(/price must be of type decimal/);
   });
 
-  test('empty string is coerced to zero by SurrealDB', async () => {
+  test('rejects empty string as decimal value', async () => {
     const client = getClient();
 
-    const result = await client.db.DecimalBasic.create({
-      data: { name: 'empty-dec', price: '', tax: null },
-    });
-
-    expect(CerialDecimal.is(result.price)).toBe(true);
-    expect(result.price.toString()).toBe('0');
+    await expect(
+      (async () => {
+        await client.db.DecimalBasic.create({
+          data: { name: 'empty-dec', price: '', tax: null },
+        });
+      })(),
+    ).rejects.toThrow(/price must be of type decimal/);
   });
 
-  test('NaN is coerced to zero by SurrealDB', async () => {
+  test('rejects NaN as decimal value', async () => {
     const client = getClient();
 
-    const result = await client.db.DecimalBasic.create({
-      data: { name: 'nan-dec', price: NaN, tax: null },
-    });
-
-    expect(CerialDecimal.is(result.price)).toBe(true);
-    expect(result.price.toString()).toBe('0');
+    await expect(
+      (async () => {
+        await client.db.DecimalBasic.create({
+          data: { name: 'nan-dec', price: NaN, tax: null },
+        });
+      })(),
+    ).rejects.toThrow(/price must be of type decimal/);
   });
 
-  test('Infinity is coerced to zero by SurrealDB', async () => {
+  test('rejects Infinity as decimal value', async () => {
     const client = getClient();
 
-    const result = await client.db.DecimalBasic.create({
-      data: { name: 'inf-dec', price: Infinity, tax: null },
-    });
-
-    expect(CerialDecimal.is(result.price)).toBe(true);
-    expect(result.price.toString()).toBe('0');
+    await expect(
+      (async () => {
+        await client.db.DecimalBasic.create({
+          data: { name: 'inf-dec', price: Infinity, tax: null },
+        });
+      })(),
+    ).rejects.toThrow(/price must be of type decimal/);
   });
 
   test('rejects boolean as decimal value', async () => {
