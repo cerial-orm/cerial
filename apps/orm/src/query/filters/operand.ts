@@ -46,13 +46,14 @@ function prepareUnit(
       issues: [{ path, message: `Field "${label}": a NONE operand matches nothing, use isNone: true instead` }],
     };
 
-  // An optional field never holds null, but comparing it to null is a harmless no-match, as it always was
+  // Only a @nullable (or any) field can hold null; on any other field null matches nothing, so it is a mistake
   if (value === null) {
-    if (field.isNullable || !field.isRequired || field.type === 'any') return { value };
+    if (field.isNullable || field.type === 'any') return { value };
+    const message = field.isRequired
+      ? `Field "${label}" is required and not @nullable, so it cannot be compared to null`
+      : `Field "${label}" is optional and not @nullable, so it is never null: use isNone: true to find rows without it`;
 
-    return {
-      issues: [{ path, message: `Field "${label}" is required and not @nullable, so it cannot be compared to null` }],
-    };
+    return { issues: [{ path, message }] };
   }
 
   const unit = { ...field, isRequired: false };
@@ -153,6 +154,13 @@ export function prepareOperand(
         return {
           issues: [{ path, message: `Field "${label}": between expects exactly two bounds, got ${value.length}` }],
         };
+
+      const issues: OperandIssue[] = [];
+      if (Array.isArray(value))
+        for (const [i, bound] of value.entries())
+          if (bound === null)
+            issues.push({ path: `${path}[${i}]`, message: `Field "${label}": a between bound cannot be null` });
+      if (issues.length) return { issues };
 
       return prepareList(field, value, model, path, label);
     }

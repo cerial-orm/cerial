@@ -33,6 +33,8 @@ model Acct {
 }
 `);
 const acct = registry.Acct!;
+// astToRegistry does not carry @nullable over
+for (const name of ['nick', 'nickNn']) acct.fields.find((f) => f.name === name)!.isNullable = true;
 // astToRegistry does not fill objectInfo, so the object field is described by hand
 acct.fields.find((f) => f.name === 'prof')!.objectInfo = {
   objectName: 'Prof',

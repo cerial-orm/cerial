@@ -79,6 +79,8 @@ model Owner {
   mixed Mixed
   inner Inner
   bag SetBag
+  oInt Int?
+  oStr String?
   pair Pair
   nInt Int? @nullable
   nDate Date? @nullable
@@ -710,5 +712,60 @@ describe('ordering is refused on array and @set fields', () => {
 
   test('a scalar keeps its ordering', () => {
     expect(errorsAt(owner, { int: { gt: 1, between: [1, 2] }, date: { lte: new Date(0) } })).toEqual([]);
+  });
+});
+
+describe('a null operand on an optional field that is not @nullable is refused', () => {
+  test.each([
+    ['shorthand', { oInt: null }],
+    ['eq', { oInt: { eq: null } }],
+    ['neq', { oInt: { neq: null } }],
+    ['not', { oInt: { not: null } }],
+    ['in', { oInt: { in: [1, null] } }],
+    ['notIn', { oStr: { notIn: ['a', null] } }],
+    ['NOT', { NOT: { oInt: null } }],
+    ['sub-filter', { inner: { n: { eq: null } } }],
+  ])('%s', (_label, where) => {
+    const msgs = errorsAt(owner, where);
+    expect(msgs.length).toBeGreaterThan(0);
+    expect(msgs[0]).toMatch(/oInt|oStr|inner\.n/);
+    expect(msgs[0]).toContain('null');
+  });
+
+  test('through a relation', () => {
+    expect(errorsAt(place, viaRelation('oInt', { eq: null })).length).toBe(1);
+  });
+
+  test('the builder refuses it alone', () => {
+    expect(() => textFor(owner, { oInt: { eq: null } })).toThrow(/oInt/);
+  });
+
+  test('a required field keeps its own message', () => {
+    expect(errorsAt(owner, { int: { eq: null } })[0]).toContain('is required and not @nullable');
+  });
+
+  test('a @nullable field and isNull / isNone are unaffected', () => {
+    expect(errorsAt(owner, { nInt: null })).toEqual([]);
+    expect(errorsAt(owner, { nInt: { eq: null, in: [1, null] } })).toEqual([]);
+    expect(errorsAt(owner, { oInt: { isNull: true, isNone: true, isDefined: true } })).toEqual([]);
+  });
+});
+
+describe('between bounds are never null', () => {
+  test.each([
+    ['int', { between: [1, null] }],
+    ['int', { between: [null, 2] }],
+    ['nInt', { between: [1, null] }],
+    ['nDate', { between: [new Date(0), null] }],
+  ])('%s %j is refused, even on a @nullable field', (field, filter) => {
+    for (const where of [{ [field]: filter }, { NOT: { [field]: filter } }]) {
+      const msgs = errorsAt(owner, where);
+      expect(msgs.length).toBeGreaterThan(0);
+      expect(msgs.join()).toContain(field);
+    }
+  });
+
+  test('the builder refuses it alone', () => {
+    expect(() => textFor(owner, { NOT: { int: { between: [1, null] } } })).toThrow(/int/);
   });
 });

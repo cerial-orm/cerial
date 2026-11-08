@@ -31,7 +31,7 @@ export function sizedModel(type: SchemaFieldType) {
   return model('Reading', [
     field({ name: 'id', type: 'record', isId: true }),
     field({ name: 'value', type, isRequired: true }),
-    field({ name: 'maybe', type, isRequired: false }),
+    field({ name: 'maybe', type, isRequired: false, isNullable: true }),
     field({ name: 'list', type, isRequired: true, isArray: true }),
     field({
       name: 'calib',

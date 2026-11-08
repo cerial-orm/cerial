@@ -227,8 +227,11 @@ describe('where operands — accepted', () => {
   test('null on a nullable field', () => {
     expect(messages(w({ note: null }))).toEqual([]);
     expect(messages(w({ note: { eq: null, not: null, in: ['a', null] } }))).toEqual([]);
-    // An optional field never stores null, so the comparison is accepted and matches nothing
-    expect(messages(w({ maybe: { eq: null, not: null } }))).toEqual([]);
+    // An optional field that is not @nullable never stores null, so comparing it to null is refused
+    expect(messages(w({ maybe: { eq: null, not: null } }))).toHaveLength(2);
+    expect(messages(w({ maybe: { eq: null } }))[0]).toContain('maybe');
+    expect(messages(w({ maybe: null }))).toHaveLength(1);
+    expect(messages(w({ maybe: { isNone: true } }))).toEqual([]);
   });
 
   test('sub-fields with valid operands, and undeclared keys of a flexible object stay untyped', () => {

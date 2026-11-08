@@ -191,15 +191,25 @@ describe('E2E forward to-one relation: {} is "has one"', () => {
     },
     { label: 'NOT doc: null', where: fromJson({ NOT: { doc: null } }), expected: ['hs'] },
     { label: 'docId isNone: true is the unset key only', where: { docId: { isNone: true } }, expected: ['h0'] },
-    {
-      label: 'docId: null finds nothing on a key that cannot hold NULL',
-      where: fromJson({ docId: null }),
-      expected: [],
-    },
   ];
 
   runCases('EmployeeSingleSided', empRows, employees);
   runCases('NcHolder', holderRows, holders);
+
+  test('docId: null on a key that cannot hold NULL is refused, and a write touches no row', async () => {
+    const where = fromJson({ docId: null });
+    const run = async (call: () => unknown): Promise<void> => {
+      await expect(
+        (async () => {
+          await call();
+        })(),
+      ).rejects.toThrow(/docId/);
+    };
+    await run(() => client.db.NcHolder.findMany({ where }));
+    await run(() => client.db.NcHolder.deleteMany({ where: fromJson({ NOT: { docId: null } }) }));
+    await run(() => client.db.NcHolder.updateMany({ where, data: { name: 'MARKED' } }));
+    expect(await client.db.NcHolder.count()).toBe(HOLDER_IDS.length);
+  });
 
   // The builders throw while the call is made, so the refusal is awaited through an async wrapper
   const refuses = (run: () => unknown) =>

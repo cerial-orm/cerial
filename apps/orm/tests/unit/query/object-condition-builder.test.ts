@@ -65,11 +65,10 @@ describe('Object Condition Builder', () => {
       expect(result.text).toContain('address.state =');
     });
 
-    test('should build null check for optional sub-field', () => {
+    test('should refuse null on an optional sub-field that is not @nullable', () => {
       const ctx = createCompileContext();
-      const result = buildObjectCondition(ctx, 'address', { zipCode: null }, addressInfo);
 
-      expect(result.text).toContain('address.zipCode = NULL');
+      expect(() => buildObjectCondition(ctx, 'address', { zipCode: null }, addressInfo)).toThrow(/address\.zipCode/);
     });
   });
 
@@ -228,12 +227,10 @@ describe('Object Condition Builder', () => {
       expect(result.text).toContain('address.city =');
     });
 
-    test('should handle optional object with null value (runtime fallback)', () => {
+    test('should refuse null on an optional object, which is never null', () => {
       const ctx = createCompileContext();
-      // Object fields don't support null at type level, but runtime should handle gracefully
-      const result = buildConditions(ctx, { shipping: null }, userModel);
 
-      expect(result.text).toContain('shipping = NULL');
+      expect(() => buildConditions(ctx, { shipping: null }, userModel)).toThrow(/shipping/);
     });
 
     test('should handle optional object sub-field query', () => {

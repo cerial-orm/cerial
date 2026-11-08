@@ -316,6 +316,8 @@ export function findings(slot: Slot): Finding[] {
         slot.corpus.forEach((unit, i) => {
           // A plain object in the shorthand position is a sub-filter, not a value
           if (op === BARE && isPlain(unit)) return;
+          // A between bound is never null, however the field itself is declared, so create is no guide
+          if (op === 'between' && unit === null) return;
           const c = created[i]!;
           const w = runWhere(slot, path, filterFor(op, operandFor(op, slot, unit)), quantifier);
           const at = `${path}${slot.hasQuantifier ? `/${quantifier}` : ''}:${op}`;
