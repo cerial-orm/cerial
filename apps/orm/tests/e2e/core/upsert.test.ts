@@ -628,7 +628,7 @@ describe('E2E Upsert Operations', () => {
   // ==========================================================================
 
   describe('non-unique where (array return)', () => {
-    test('returns array for non-unique where with matching records', async () => {
+    test('updates only the first match of a non-unique where and returns it in an array', async () => {
       await client.db.User.create({
         data: { name: 'Alice', email: 'alice@test.com', isActive: true },
       });
@@ -643,9 +643,10 @@ describe('E2E Upsert Operations', () => {
       });
 
       expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(2);
+      expect(result.length).toBe(1);
       expect(result[0]!.name).toBe('Bulk Updated');
-      expect(result[1]!.name).toBe('Bulk Updated');
+      expect(await client.db.User.count()).toBe(2);
+      expect(await client.db.User.count({ name: 'Bulk Updated' })).toBe(1);
     });
 
     test('creates new record for non-unique where with no matches', async () => {

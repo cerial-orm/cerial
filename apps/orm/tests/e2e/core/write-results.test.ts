@@ -104,7 +104,7 @@ describe('E2E write path results', () => {
       expect(await client.db.User.count()).toBe(1);
     });
 
-    test('a non-unique where with two matches updates both and creates none', async () => {
+    test('a non-unique where with two matches updates exactly one and creates none', async () => {
       await client.db.User.create({ data: { name: 'A', email: 'a@test.com', isActive: true } });
       await client.db.User.create({ data: { name: 'B', email: 'b@test.com', isActive: true } });
 
@@ -114,9 +114,9 @@ describe('E2E write path results', () => {
         update: { name: 'Both' },
       });
 
-      expect(result.length).toBe(2);
+      expect(result.length).toBe(1);
       expect(await client.db.User.count()).toBe(2);
-      expect(await client.db.User.count({ name: 'Both' })).toBe(2);
+      expect(await client.db.User.count({ name: 'Both' })).toBe(1);
     });
 
     test('a where no row can match creates one row', async () => {
