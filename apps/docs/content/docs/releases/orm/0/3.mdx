@@ -529,6 +529,22 @@ development branch and is not available on npm.
   required is refused naming the field, except where the id type is itself an array
   or tuple. If you filter by a uuid id or a foreign key to one, upgrade.
 
+- Uuid keys written as strings: a foreign key to a `Record(uuid)` model given as a
+  uuid string was stored as a string key, a reference to a record that cannot exist,
+  so a `where` on it, a relation traversal or a delete cascade never reached the
+  target row. `connect`, `disconnect`, `set` and the many-to-many sync built their
+  keys the same way, and `findUnique`, `updateUnique`, `deleteUnique` and `upsert` by
+  a uuid string looked for a string key and found nothing. A `StringRecordId` such as
+  `int_id:1` was parsed in JavaScript into the string key `'1'` instead of the int the
+  database reads. Present in 0.1.0 and 0.2.0.
+
+  Every place that builds a record id from caller input now converts it with the id
+  type of the table it points at: a uuid string becomes a uuid key on a `Record(uuid)`
+  or `Record(int, uuid)` id, and an id type that admits a string keeps it a string. A
+  `StringRecordId` is checked for its table and sent as given. Foreign keys written
+  string-keyed by 0.2.0 do not match their target until they are rewritten: update
+  them through the relation or with the uuid string after upgrading.
+
 - Object array sub-fields dropped in an object update: an update that merges an
   object field wrote its sub-fields one by one and treated an array of objects
   inside it as another nested object, so nothing matched and the array was
