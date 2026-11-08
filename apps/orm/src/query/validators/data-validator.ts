@@ -563,6 +563,9 @@ const NO_DEFS: ObjectDefs = new Map();
  * Validate a value nested inside an object or tuple, to any depth.
  * `inline` is true inside a tuple element or a literal variant, whose members the database checks
  * against an inline type: an undeclared key in a strict object is refused there rather than dropped.
+ * A value the builder binds whole (`{ set }` contents, array element, push item) is always checked as
+ * inline: the database types a self-referencing field FLEXIBLE, so it would store an undeclared key
+ * at the first level that only this check can refuse.
  * `partial` is true while the builder merges the value key by key (an update's object or object-form
  * tuple), where an undeclared key would be dropped. A value it binds whole (array element, `{ set }`
  * contents, push item) is not partial. Enum fields carry `type: 'literal'`, so one branch covers both.
@@ -599,7 +602,7 @@ function validateSubValue(
   if (field.isArray) {
     const element = { ...field, isArray: false };
     if (Array.isArray(value))
-      return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false, inline, defs));
+      return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false, true, defs));
     if (!isObject(value)) return [];
 
     // { push } and { set } carry whole elements. updateWhere and unset are typed but the builder never
@@ -621,22 +624,21 @@ function validateSubValue(
       });
     }
     if (value.set !== undefined && Array.isArray(value.set))
-      errors.push(...validateSubValue(value.set, field, model, path, false, inline, defs));
+      errors.push(...validateSubValue(value.set, field, model, path, false, true, defs));
     if (value.push !== undefined) {
       const items =
         Array.isArray(value.push) && !(field.tupleInfo && isSingleTupleInput(value.push, field.tupleInfo))
           ? value.push
           : [value.push];
       items.forEach((item, i) => {
-        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false, inline, defs));
+        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false, true, defs));
       });
     }
 
     return errors;
   }
 
-  if (isObject(value) && isSetWrapper(value))
-    return validateSubValue(value.set, field, model, path, false, inline, defs);
+  if (isObject(value) && isSetWrapper(value)) return validateSubValue(value.set, field, model, path, false, true, defs);
 
   if (field.type === 'tuple') {
     if (!field.tupleInfo) return [];

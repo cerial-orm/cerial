@@ -115,9 +115,22 @@ describe('validateUpdateData strict object sub-keys', () => {
     expect(errorsFor({ strict: { title: 'a', mid: { note: 'b', inner: { label: 'c' } } } })).toEqual([]);
   });
 
-  test('accepts a { set } full replace and NONE/null clearing without inspecting the contents', () => {
-    expect(errorsFor({ strict: { set: { title: 'a', anything: 1 } } })).toEqual([]);
-    expect(errorsFor({ strict: { mid: { set: { whatever: 1 } } } })).toEqual([]);
+  test('accepts a { set } full replace whose keys are declared', () => {
+    expect(errorsFor({ strict: { set: { title: 'a', mid: { note: 'b', inner: { label: 'c' } } } } })).toEqual([]);
+    expect(errorsFor({ strict: { mid: { set: { note: 'b', inner: { label: 'c' } } } } })).toEqual([]);
+  });
+
+  test('refuses an undeclared key inside a { set } full replace, naming the path', () => {
+    expect(errorsFor({ strict: { set: { title: 'a', anything: 1 } } }).map((e) => e.field)).toEqual([
+      'strict.anything',
+    ]);
+    expect(errorsFor({ strict: { mid: { set: { whatever: 1 } } } }).map((e) => e.field)).toEqual([
+      'strict.mid.whatever',
+    ]);
+  });
+
+  test('a { set } on a @flexible field keeps accepting undeclared keys', () => {
+    expect(errorsFor({ loose: { set: { title: 'a', anything: 1 } } })).toEqual([]);
   });
 
   test('does not inspect array-of-object fields, whose values are bound whole', () => {

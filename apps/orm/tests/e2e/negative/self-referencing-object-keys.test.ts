@@ -156,4 +156,83 @@ describe('Self-referencing object keys — negative cases', () => {
       expect(await stored(row.id)).toEqual(deeper);
     });
   });
+
+  describe('{ set } contents', () => {
+    const setCases = [
+      ['depth 1', node([], { extra: 1 }), 'metadata.extra'],
+      ['depth 2', node([node([], { extra: 1 })]), 'metadata.children[0].extra'],
+    ] as const;
+
+    describe.each(setCases)('undeclared key at %s', (_label, tree, path) => {
+      test('updateUnique refuses it and leaves the row untouched', async () => {
+        const row = await seed();
+
+        await rejects(
+          () =>
+            client.db.ObjectTestOrder.updateUnique({
+              where: { id: row.id },
+              data: { metadata: { set: tree } as never },
+            }),
+          path,
+        );
+        expect(await stored(row.id)).toEqual(goodTree);
+      });
+
+      test('updateMany refuses it and leaves the row untouched', async () => {
+        const row = await seed();
+
+        await rejects(
+          () =>
+            client.db.ObjectTestOrder.updateMany({
+              where: { id: row.id },
+              data: { metadata: { set: tree } as never },
+            }),
+          path,
+        );
+        expect(await stored(row.id)).toEqual(goodTree);
+      });
+
+      test('upsert refuses it in the update half and leaves the row untouched', async () => {
+        const row = await seed();
+
+        await rejects(
+          () =>
+            client.db.ObjectTestOrder.upsert({
+              where: { id: row.id },
+              create: { billingAddress, items: [], metadata: goodTree },
+              update: { metadata: { set: tree } as never },
+            }),
+          path,
+        );
+        expect(await stored(row.id)).toEqual(goodTree);
+      });
+    });
+
+    test('a strict object refuses an undeclared key in { set } and the row is untouched', async () => {
+      const row = await seed();
+
+      await rejects(
+        () =>
+          client.db.ObjectTestOrder.updateUnique({
+            where: { id: row.id },
+            data: { billingAddress: { set: { ...billingAddress, extra: 1 } } as never },
+          }),
+        'billingAddress.extra',
+      );
+      expect((await client.db.ObjectTestOrder.findOne({ where: { id: row.id } }))?.billingAddress).toEqual(
+        billingAddress,
+      );
+    });
+
+    test('a valid { set } is stored and round-trips', async () => {
+      const row = await seed();
+      const next = { ...node([node([node()])]), payload: 3 };
+
+      await client.db.ObjectTestOrder.updateUnique({ where: { id: row.id }, data: { metadata: { set: next } } });
+      expect(await stored(row.id)).toEqual(next);
+
+      await client.db.ObjectTestOrder.updateMany({ where: { id: row.id }, data: { metadata: { set: goodTree } } });
+      expect(await stored(row.id)).toEqual(goodTree);
+    });
+  });
 });

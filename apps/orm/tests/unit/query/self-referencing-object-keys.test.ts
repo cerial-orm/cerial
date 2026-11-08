@@ -35,6 +35,13 @@ const model: ModelMetadata = {
     { ...base, name: 'title', type: 'string' },
     treeField('tree'),
     { ...treeField('loose', true), isRequired: false },
+    {
+      ...base,
+      name: 'addr',
+      type: 'object',
+      isRequired: false,
+      objectInfo: { objectName: 'Addr', fields: [{ ...base, name: 'city', type: 'string' }] },
+    },
   ],
 };
 
@@ -90,5 +97,28 @@ describe('self-referencing object — undeclared keys', () => {
 
     expect(create({ loose: { ...loose, extra: 1 } })).toEqual([]);
     expect(update({ loose })).toEqual([]);
+  });
+
+  describe('{ set } contents', () => {
+    test.each([
+      ['depth 1', node({ extra: 1 }), 'tree.extra'],
+      ['depth 2', node({}, [node({ extra: 1 })]), 'tree.children[0].extra'],
+      ['depth 3', node({}, [node({}, [node({ extra: 1 })])]), 'tree.children[0].children[0].extra'],
+    ])('update refuses an undeclared key at %s', (_label, tree, field) => {
+      expect(update({ tree: { set: tree } })).toEqual([field]);
+    });
+
+    test('a strict object that does not reference itself refuses it too', () => {
+      expect(update({ addr: { set: { city: 'x', extra: 1 } } })).toEqual(['addr.extra']);
+      expect(update({ addr: { set: { city: 'x' } } })).toEqual([]);
+    });
+
+    test('a valid value passes', () => {
+      expect(update({ tree: { set: deep({ payload: 2, children: [] }) } })).toEqual([]);
+    });
+
+    test('a flexible field keeps accepting undeclared keys', () => {
+      expect(update({ loose: { set: { ...deep({ payload: 1, children: [] }), extra: 1 } } })).toEqual([]);
+    });
   });
 });
