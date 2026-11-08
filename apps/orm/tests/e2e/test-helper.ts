@@ -258,6 +258,7 @@ export const tables = {
     'sz_reading',
     'sz_raw_holder',
   ],
+  relationOperands: ['ro_owner', 'ro_kit', 'ro_tag', 'ro_item'],
   duration: ['duration_basic', 'duration_decorated', 'duration_with_object', 'duration_with_tuple'],
   decimal: ['decimal_basic', 'decimal_decorated', 'decimal_with_object', 'decimal_with_tuple'],
   bytes: ['bytes_basic', 'bytes_with_object', 'bytes_with_tuple'],

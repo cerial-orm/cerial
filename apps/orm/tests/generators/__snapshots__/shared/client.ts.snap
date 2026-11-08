@@ -126,6 +126,10 @@ import type {
   NumberDecorated,
   NumberWithObject,
   NumberWithTuple,
+  RoOwner,
+  RoKit,
+  RoTag,
+  RoItem,
   SzInt8,
   SzUint8,
   SzInt16,
@@ -371,6 +375,10 @@ import type {
   NumberDecoratedModel,
   NumberWithObjectModel,
   NumberWithTupleModel,
+  RoOwnerModel,
+  RoKitModel,
+  RoTagModel,
+  RoItemModel,
   SzInt8Model,
   SzUint8Model,
   SzInt16Model,
@@ -624,6 +632,10 @@ export interface TypedDb {
   NumberDecorated: NumberDecoratedModel;
   NumberWithObject: NumberWithObjectModel;
   NumberWithTuple: NumberWithTupleModel;
+  RoOwner: RoOwnerModel;
+  RoKit: RoKitModel;
+  RoTag: RoTagModel;
+  RoItem: RoItemModel;
   SzInt8: SzInt8Model;
   SzUint8: SzUint8Model;
   SzInt16: SzInt16Model;
@@ -1208,6 +1220,22 @@ export class CerialClient {
 
   get NumberWithTuple(): NumberWithTupleModel {
     return this._ensureDb().NumberWithTuple;
+  }
+
+  get RoOwner(): RoOwnerModel {
+    return this._ensureDb().RoOwner;
+  }
+
+  get RoKit(): RoKitModel {
+    return this._ensureDb().RoKit;
+  }
+
+  get RoTag(): RoTagModel {
+    return this._ensureDb().RoTag;
+  }
+
+  get RoItem(): RoItemModel {
+    return this._ensureDb().RoItem;
   }
 
   get SzInt8(): SzInt8Model {

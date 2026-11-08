@@ -1,0 +1,34 @@
+model RoOwner {
+  id Record @id
+  label String
+  dt Date?
+  du Duration?
+  uu Uuid?
+  de Decimal?
+  kits Relation[] @model(RoKit)
+}
+
+model RoKit {
+  id Record @id
+  name String
+  ownerId Record?
+  owner Relation? @field(ownerId) @model(RoOwner)
+}
+
+model RoTag {
+  id Record @id
+  label String
+  dt Date?
+  du Duration?
+  uu Uuid?
+  de Decimal?
+  itemIds Record[]
+  items Relation[] @field(itemIds) @model(RoItem)
+}
+
+model RoItem {
+  id Record @id
+  name String
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(RoTag)
+}

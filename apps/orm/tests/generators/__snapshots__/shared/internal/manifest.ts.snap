@@ -752,6 +752,45 @@ export const manifest = deepFreeze({
       indexes: [],
     },
     {
+      name: 'ro_owner',
+      fields: [
+        { path: ['label'], kind: 'string' },
+        { path: ['dt'], kind: 'datetime | none' },
+        { path: ['du'], kind: 'duration | none' },
+        { path: ['uu'], kind: 'none | uuid' },
+        { path: ['de'], kind: 'decimal | none' },
+      ],
+      indexes: [],
+    },
+    {
+      name: 'ro_kit',
+      fields: [
+        { path: ['name'], kind: 'string' },
+        { path: ['ownerId'], kind: 'none | record<ro_owner>' },
+      ],
+      indexes: [],
+    },
+    {
+      name: 'ro_tag',
+      fields: [
+        { path: ['label'], kind: 'string' },
+        { path: ['dt'], kind: 'datetime | none' },
+        { path: ['du'], kind: 'duration | none' },
+        { path: ['uu'], kind: 'none | uuid' },
+        { path: ['de'], kind: 'decimal | none' },
+        { path: ['itemIds'], kind: 'array<record<ro_item>>', value: 'IF $value THEN $value.distinct() ELSE [] END' },
+      ],
+      indexes: [],
+    },
+    {
+      name: 'ro_item',
+      fields: [
+        { path: ['name'], kind: 'string' },
+        { path: ['tagIds'], kind: 'array<record<ro_tag>>', value: 'IF $value THEN $value.distinct() ELSE [] END' },
+      ],
+      indexes: [],
+    },
+    {
       name: 'sz_int8',
       fields: [
         { path: ['reqVal'], kind: 'i8' },

@@ -1,0 +1,2036 @@
+// ===== models/roitem.ts =====
+/**
+ * Generated types for RoItem
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  RoTag,
+  RoTagWhere,
+  RoTagSelect,
+  RoTagOrderBy,
+  RoTagNestedCreate,
+  RoTagInclude,
+  GetRoTagIncludePayload,
+} from './rotag.js';
+export interface RoItem {
+  id: CerialId<string>;
+  name: string;
+  tagIds: CerialId<string>[];
+}
+
+export interface RoItemInput {
+  id?: string;
+  name: string;
+  tagIds: RecordIdInput<string>[];
+}
+
+export interface RoItemWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  tags?: { some?: Omit<RoTagWhere, '$raw'>; every?: Omit<RoTagWhere, '$raw'>; none?: Omit<RoTagWhere, '$raw'> };
+  $raw?: SqlFragment;
+  AND?: RoItemWhere[];
+  OR?: RoItemWhere[];
+  NOT?: RoItemWhere;
+}
+
+export type RoItemWhereInput = RoItemWhere;
+
+export type RoItemFindUniqueWhere = { id: RecordIdInput<string> } & Omit<RoItemWhere, 'id'>;
+
+export type RoItemCreate = O.Optional<O.Omit<RoItemInput, 'tags'>, 'id' | 'tagIds'>;
+
+export type RoItemNestedCreate = O.Optional<O.Omit<RoItemInput, 'tags' | 'tagIds'>, 'id'>;
+
+export type RoItemCreateInput =
+  | RoItemCreate
+  | (O.Omit<RoItemCreate, 'tagIds'> & {
+      tags?: {
+        create?: RoTagNestedCreate | RoTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type RoItemUpdate = Partial<O.Omit<RoItemInput, 'id' | 'tags' | 'tagIds'>> & {
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type RoItemUpdateInput =
+  | RoItemUpdate
+  | (O.Omit<RoItemUpdate, 'tagIds'> & {
+      tags?: {
+        create?: RoTagNestedCreate | RoTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type RoItemUnset = {};
+
+export interface RoItemSelectFields {
+  id?: boolean;
+  name?: boolean;
+  tagIds?: boolean;
+}
+
+export type RoItemSelect = AtLeastOne<RoItemSelectFields>;
+
+export interface RoItemOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  tagIds?: 'asc' | 'desc';
+}
+
+export interface RoItemGroupByKeys {
+  id?: true;
+  name?: true;
+  tagIds?: true;
+}
+
+export interface RoItemCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  tagIds?: true;
+}
+
+export interface RoItemMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface RoItemGroupAggregate {
+  id?: true;
+  name?: true;
+  tagIds?: true;
+}
+
+export interface RoItemGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  tagIds?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; tagIds?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface RoItemGroupByArgs {
+  by: RoItemGroupByKeys;
+  where?: RoItemWhere;
+  _count?: true | RoItemCountAggregate;
+  _min?: RoItemMinMaxAggregate;
+  _max?: RoItemMinMaxAggregate;
+  _group?: RoItemGroupAggregate;
+  orderBy?: RoItemGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RoItemGroupByAggregates {
+  _count: { _all: number; id: number; name: number; tagIds: number };
+  _min: { id: NonNullable<RoItem['id']> | null; name: NonNullable<RoItem['name']> | null };
+  _max: { id: NonNullable<RoItem['id']> | null; name: NonNullable<RoItem['name']> | null };
+  _group: {
+    id: GroupMember<RoItem['id']>[];
+    name: GroupMember<RoItem['name']>[];
+    tagIds: GroupMember<RoItem['tagIds']>[];
+  };
+}
+
+export type RoItemGroupByResult<A extends RoItemGroupByArgs> = GroupByRow<RoItem, A, RoItemGroupByAggregates>;
+
+export interface RoItemInclude {
+  tags?:
+    | boolean
+    | {
+        select?: RoTagSelect;
+        where?: RoTagWhere;
+        orderBy?: RoTagOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: RoTagInclude;
+      };
+}
+
+export type RoItem$Relations = {
+  tags: { type: RoTag[]; include: RoTagInclude };
+};
+
+export type GetRoItemIncludePayload<I extends RoItemInclude | undefined> = I extends RoItemInclude
+  ? Pick<
+      {
+        tags: I['tags'] extends true
+          ? RoTag[]
+          : I['tags'] extends { select: infer S extends RoTagSelect; include: infer NI extends RoTagInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RoTag
+                  ? ResolveFieldSelect<RoTag[P], S[P]>
+                  : never;
+              } & GetRoTagIncludePayload<NI>)[]
+            : I['tags'] extends { select: infer S extends RoTagSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RoTag
+                    ? ResolveFieldSelect<RoTag[P], S[P]>
+                    : never;
+                }[]
+              : I['tags'] extends { include: infer NI extends RoTagInclude }
+                ? (RoTag & GetRoTagIncludePayload<NI>)[]
+                : RoTag[];
+      },
+      Extract<keyof I, keyof RoItem$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetRoItemPayload<
+  S extends RoItemSelect | undefined = undefined,
+  I extends RoItemInclude | undefined = undefined,
+> = A.Compute<
+  S extends RoItemSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof RoItem
+          ? ResolveFieldSelect<RoItem[K], S[K]>
+          : never;
+      } & GetRoItemIncludePayload<I>
+    : I extends RoItemInclude
+      ? RoItem & GetRoItemIncludePayload<I>
+      : RoItem,
+  'flat'
+>;
+
+export interface RoItemModel {
+  findOne<
+    S extends RoItemSelect | undefined = undefined,
+    I extends RoItemInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: RoItemWhere;
+    select?: SelectArg<S, RoItemSelectFields>;
+    include?: IncludeArg<I, RoItemInclude>;
+    compute?: C & { [K in keyof C & (keyof RoItem | keyof RoItemWhere)]?: never };
+    orderBy?: RoItemOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoItemPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends RoItemSelect | undefined = undefined,
+    I extends RoItemInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: RoItemWhere;
+    select?: SelectArg<S, RoItemSelectFields>;
+    compute?: C & { [K in keyof C & (keyof RoItem | keyof RoItemWhere)]?: never };
+    orderBy?: RoItemOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, RoItemInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoItemPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends RoItemSelect | undefined = undefined,
+    I extends RoItemInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: RoItemFindUniqueWhere;
+    select?: SelectArg<S, RoItemSelectFields>;
+    include?: IncludeArg<I, RoItemInclude>;
+    compute?: C & { [K in keyof C & (keyof RoItem | keyof RoItemWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoItemPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends RoItemSelect | undefined = undefined, I extends RoItemInclude | undefined = undefined>(options: {
+    data: RoItemCreateInput;
+    select?: SelectArg<S, RoItemSelectFields>;
+    include?: IncludeArg<I, RoItemInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRoItemPayload<S, I>>;
+
+  updateMany<
+    S extends RoItemSelect | undefined = undefined,
+    I extends RoItemInclude | undefined = undefined,
+    D extends RoItemUpdateInput = RoItemUpdateInput,
+  >(options: {
+    where: RoItemWhere;
+    data: DataArg<D, RoItemUpdateInput>;
+    unset?: SafeUnset<RoItemUnset, D>;
+    select?: SelectArg<S, RoItemSelectFields>;
+    include?: IncludeArg<I, RoItemInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRoItemPayload<S, I>[]>;
+
+  updateUnique<
+    S extends RoItemSelect | undefined = undefined,
+    I extends RoItemInclude | undefined = undefined,
+    D extends RoItemUpdateInput = RoItemUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: RoItemFindUniqueWhere;
+    data: DataArg<D, RoItemUpdateInput>;
+    unset?: SafeUnset<RoItemUnset, D>;
+    select?: SelectArg<S, RoItemSelectFields>;
+    include?: IncludeArg<I, RoItemInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns RoItem | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetRoItemPayload<S, I>, R>>;
+
+  upsert<
+    S extends RoItemSelect | undefined = undefined,
+    I extends RoItemInclude | undefined = undefined,
+    D extends RoItemUpdateInput = RoItemUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RoItemFindUniqueWhere;
+    create: RoItemCreateInput;
+    update?: DataArg<D, RoItemUpdateInput>;
+    unset?: SafeUnset<RoItemUnset, D>;
+    select?: SelectArg<S, RoItemSelectFields>;
+    include?: IncludeArg<I, RoItemInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetRoItemPayload<S, I>, R>>;
+
+  upsert<
+    S extends RoItemSelect | undefined = undefined,
+    I extends RoItemInclude | undefined = undefined,
+    D extends RoItemUpdateInput = RoItemUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RoItemWhere;
+    create: RoItemCreateInput;
+    update?: DataArg<D, RoItemUpdateInput>;
+    unset?: SafeUnset<RoItemUnset, D>;
+    select?: SelectArg<S, RoItemSelectFields>;
+    include?: IncludeArg<I, RoItemInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetRoItemPayload<S, I>, R>>;
+
+  deleteMany(options: { where: RoItemWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: RoItemFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns RoItem | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<RoItem, R>>;
+
+  count(where?: RoItemWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends RoItemGroupByArgs>(
+    args: GroupByArg<A, RoItemGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<RoItemGroupByResult<A>[]>;
+
+  exists(where?: RoItemWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: RoItemWhere }): Promise<import('cerial').CerialLiveHandle<RoItem>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/rokit.ts =====
+/**
+ * Generated types for RoKit
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  RoOwner,
+  RoOwnerWhere,
+  RoOwnerSelect,
+  RoOwnerOrderBy,
+  RoOwnerNestedCreate,
+  RoOwnerInclude,
+  GetRoOwnerIncludePayload,
+} from './roowner.js';
+export interface RoKit {
+  id: CerialId<string>;
+  name: string;
+  ownerId?: CerialId<string>;
+}
+
+export interface RoKitInput {
+  id?: string;
+  name: string;
+  ownerId?: RecordIdInput<string>;
+}
+
+export interface RoKitWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  ownerId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  owner?: Omit<RoOwnerWhere, '$raw'>;
+  $raw?: SqlFragment;
+  AND?: RoKitWhere[];
+  OR?: RoKitWhere[];
+  NOT?: RoKitWhere;
+}
+
+export type RoKitWhereInput = RoKitWhere;
+
+export type RoKitFindUniqueWhere = { id: RecordIdInput<string> } & Omit<RoKitWhere, 'id'>;
+
+export type RoKitCreate = O.Optional<O.Omit<RoKitInput, 'owner'>, 'id' | 'ownerId'>;
+
+export type RoKitNestedCreate = O.Optional<O.Omit<RoKitInput, 'owner' | 'ownerId'>, 'id'>;
+
+export type RoKitCreateInput =
+  | RoKitCreate
+  | (O.Omit<RoKitCreate, 'ownerId'> & {
+      owner?: { create: RoOwnerNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type RoKitUpdate = Partial<O.Omit<RoKitInput, 'id' | 'owner' | 'ownerId'>> & {
+  ownerId?: RecordIdInput<string> | CerialNone;
+};
+
+export type RoKitUpdateInput =
+  | RoKitUpdate
+  | (O.Omit<RoKitUpdate, 'ownerId'> & {
+      owner?: { create: RoOwnerNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type RoKitUnset = {
+  ownerId?: true;
+};
+
+export interface RoKitSelectFields {
+  id?: boolean;
+  name?: boolean;
+  ownerId?: boolean;
+}
+
+export type RoKitSelect = AtLeastOne<RoKitSelectFields>;
+
+export interface RoKitOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  owner?: RoOwnerOrderBy;
+}
+
+export interface RoKitGroupByKeys {
+  id?: true;
+  name?: true;
+  ownerId?: true;
+}
+
+export interface RoKitCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  ownerId?: true;
+}
+
+export interface RoKitMinMaxAggregate {
+  id?: true;
+  name?: true;
+  ownerId?: true;
+}
+
+export interface RoKitGroupAggregate {
+  id?: true;
+  name?: true;
+  ownerId?: true;
+}
+
+export interface RoKitGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; ownerId?: 'asc' | 'desc' };
+}
+
+export interface RoKitGroupByArgs {
+  by: RoKitGroupByKeys;
+  where?: RoKitWhere;
+  _count?: true | RoKitCountAggregate;
+  _min?: RoKitMinMaxAggregate;
+  _max?: RoKitMinMaxAggregate;
+  _group?: RoKitGroupAggregate;
+  orderBy?: RoKitGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RoKitGroupByAggregates {
+  _count: { _all: number; id: number; name: number; ownerId: number };
+  _min: {
+    id: NonNullable<RoKit['id']> | null;
+    name: NonNullable<RoKit['name']> | null;
+    ownerId: NonNullable<RoKit['ownerId']> | null;
+  };
+  _max: {
+    id: NonNullable<RoKit['id']> | null;
+    name: NonNullable<RoKit['name']> | null;
+    ownerId: NonNullable<RoKit['ownerId']> | null;
+  };
+  _group: {
+    id: GroupMember<RoKit['id']>[];
+    name: GroupMember<RoKit['name']>[];
+    ownerId: GroupMember<RoKit['ownerId']>[];
+  };
+}
+
+export type RoKitGroupByResult<A extends RoKitGroupByArgs> = GroupByRow<RoKit, A, RoKitGroupByAggregates>;
+
+export interface RoKitInclude {
+  owner?:
+    | boolean
+    | {
+        select?: RoOwnerSelect;
+        where?: RoOwnerWhere;
+        include?: RoOwnerInclude;
+      };
+}
+
+export type RoKit$Relations = {
+  owner: { type: RoOwner; include: RoOwnerInclude };
+};
+
+export type GetRoKitIncludePayload<I extends RoKitInclude | undefined> = I extends RoKitInclude
+  ? Pick<
+      {
+        owner: I['owner'] extends true
+          ? RoOwner
+          : I['owner'] extends { select: infer S extends RoOwnerSelect; include: infer NI extends RoOwnerInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RoOwner
+                  ? ResolveFieldSelect<RoOwner[P], S[P]>
+                  : never;
+              } & GetRoOwnerIncludePayload<NI>
+            : I['owner'] extends { select: infer S extends RoOwnerSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RoOwner
+                    ? ResolveFieldSelect<RoOwner[P], S[P]>
+                    : never;
+                }
+              : I['owner'] extends { include: infer NI extends RoOwnerInclude }
+                ? RoOwner & GetRoOwnerIncludePayload<NI>
+                : RoOwner;
+      },
+      Extract<keyof I, keyof RoKit$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetRoKitPayload<
+  S extends RoKitSelect | undefined = undefined,
+  I extends RoKitInclude | undefined = undefined,
+> = A.Compute<
+  S extends RoKitSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof RoKit
+          ? ResolveFieldSelect<RoKit[K], S[K]>
+          : never;
+      } & GetRoKitIncludePayload<I>
+    : I extends RoKitInclude
+      ? RoKit & GetRoKitIncludePayload<I>
+      : RoKit,
+  'flat'
+>;
+
+export interface RoKitModel {
+  findOne<
+    S extends RoKitSelect | undefined = undefined,
+    I extends RoKitInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: RoKitWhere;
+    select?: SelectArg<S, RoKitSelectFields>;
+    include?: IncludeArg<I, RoKitInclude>;
+    compute?: C & { [K in keyof C & (keyof RoKit | keyof RoKitWhere)]?: never };
+    orderBy?: RoKitOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoKitPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends RoKitSelect | undefined = undefined,
+    I extends RoKitInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: RoKitWhere;
+    select?: SelectArg<S, RoKitSelectFields>;
+    compute?: C & { [K in keyof C & (keyof RoKit | keyof RoKitWhere)]?: never };
+    orderBy?: RoKitOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, RoKitInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoKitPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends RoKitSelect | undefined = undefined,
+    I extends RoKitInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: RoKitFindUniqueWhere;
+    select?: SelectArg<S, RoKitSelectFields>;
+    include?: IncludeArg<I, RoKitInclude>;
+    compute?: C & { [K in keyof C & (keyof RoKit | keyof RoKitWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoKitPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends RoKitSelect | undefined = undefined, I extends RoKitInclude | undefined = undefined>(options: {
+    data: RoKitCreateInput;
+    select?: SelectArg<S, RoKitSelectFields>;
+    include?: IncludeArg<I, RoKitInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRoKitPayload<S, I>>;
+
+  updateMany<
+    S extends RoKitSelect | undefined = undefined,
+    I extends RoKitInclude | undefined = undefined,
+    D extends RoKitUpdateInput = RoKitUpdateInput,
+  >(options: {
+    where: RoKitWhere;
+    data: DataArg<D, RoKitUpdateInput>;
+    unset?: SafeUnset<RoKitUnset, D>;
+    select?: SelectArg<S, RoKitSelectFields>;
+    include?: IncludeArg<I, RoKitInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRoKitPayload<S, I>[]>;
+
+  updateUnique<
+    S extends RoKitSelect | undefined = undefined,
+    I extends RoKitInclude | undefined = undefined,
+    D extends RoKitUpdateInput = RoKitUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: RoKitFindUniqueWhere;
+    data: DataArg<D, RoKitUpdateInput>;
+    unset?: SafeUnset<RoKitUnset, D>;
+    select?: SelectArg<S, RoKitSelectFields>;
+    include?: IncludeArg<I, RoKitInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns RoKit | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetRoKitPayload<S, I>, R>>;
+
+  upsert<
+    S extends RoKitSelect | undefined = undefined,
+    I extends RoKitInclude | undefined = undefined,
+    D extends RoKitUpdateInput = RoKitUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RoKitFindUniqueWhere;
+    create: RoKitCreateInput;
+    update?: DataArg<D, RoKitUpdateInput>;
+    unset?: SafeUnset<RoKitUnset, D>;
+    select?: SelectArg<S, RoKitSelectFields>;
+    include?: IncludeArg<I, RoKitInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetRoKitPayload<S, I>, R>>;
+
+  upsert<
+    S extends RoKitSelect | undefined = undefined,
+    I extends RoKitInclude | undefined = undefined,
+    D extends RoKitUpdateInput = RoKitUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RoKitWhere;
+    create: RoKitCreateInput;
+    update?: DataArg<D, RoKitUpdateInput>;
+    unset?: SafeUnset<RoKitUnset, D>;
+    select?: SelectArg<S, RoKitSelectFields>;
+    include?: IncludeArg<I, RoKitInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetRoKitPayload<S, I>, R>>;
+
+  deleteMany(options: { where: RoKitWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: RoKitFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns RoKit | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<RoKit, R>>;
+
+  count(where?: RoKitWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends RoKitGroupByArgs>(
+    args: GroupByArg<A, RoKitGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<RoKitGroupByResult<A>[]>;
+
+  exists(where?: RoKitWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: RoKitWhere }): Promise<import('cerial').CerialLiveHandle<RoKit>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/roowner.ts =====
+/**
+ * Generated types for RoOwner
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import { CerialUuid } from 'cerial';
+import type { CerialUuidInput } from 'cerial';
+import { CerialDuration } from 'cerial';
+import type { CerialDurationInput } from 'cerial';
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  RoKit,
+  RoKitWhere,
+  RoKitSelect,
+  RoKitOrderBy,
+  RoKitNestedCreate,
+  RoKitInclude,
+  GetRoKitIncludePayload,
+} from './rokit.js';
+export interface RoOwner {
+  id: CerialId<string>;
+  label: string;
+  dt?: Date;
+  du?: CerialDuration;
+  uu?: CerialUuid;
+  de?: CerialDecimal;
+}
+
+export interface RoOwnerInput {
+  id?: string;
+  label: string;
+  dt?: Date;
+  du?: CerialDurationInput;
+  uu?: CerialUuidInput;
+  de?: CerialDecimalInput;
+}
+
+export interface RoOwnerWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  dt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  du?:
+    | CerialDurationInput
+    | ({
+        eq?: CerialDurationInput;
+        neq?: CerialDurationInput;
+        gt?: CerialDurationInput;
+        gte?: CerialDurationInput;
+        lt?: CerialDurationInput;
+        lte?: CerialDurationInput;
+      } & {
+        in?: CerialDurationInput[];
+        notIn?: CerialDurationInput[];
+      } & {
+        not?: CerialDurationInput;
+        isNone?: boolean;
+        between?: [CerialDurationInput, CerialDurationInput];
+      });
+  uu?:
+    | CerialUuidInput
+    | ({
+        eq?: CerialUuidInput;
+        neq?: CerialUuidInput;
+        gt?: CerialUuidInput;
+        gte?: CerialUuidInput;
+        lt?: CerialUuidInput;
+        lte?: CerialUuidInput;
+      } & {
+        in?: CerialUuidInput[];
+        notIn?: CerialUuidInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  de?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        not?: CerialDecimalInput;
+        isNone?: boolean;
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  kits?:
+    | {
+        some?: Omit<RoKitWhere, '$raw'>;
+        every?: Omit<RoKitWhere, '$raw'>;
+        none?: Omit<RoKitWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<RoKitWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
+  AND?: RoOwnerWhere[];
+  OR?: RoOwnerWhere[];
+  NOT?: RoOwnerWhere;
+}
+
+export type RoOwnerWhereInput = RoOwnerWhere;
+
+export type RoOwnerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<RoOwnerWhere, 'id'>;
+
+export type RoOwnerCreate = O.Optional<O.Omit<RoOwnerInput, 'kits'>, 'id' | 'dt' | 'du' | 'uu' | 'de'>;
+
+export type RoOwnerNestedCreate = O.Optional<O.Omit<RoOwnerInput, 'kits'>, 'id' | 'dt' | 'du' | 'uu' | 'de'>;
+
+export type RoOwnerCreateInput = RoOwnerCreate & {
+  kits?: {
+    create?: RoKitNestedCreate | RoKitNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type RoOwnerUpdate = Partial<O.Omit<RoOwnerInput, 'id' | 'kits' | 'dt' | 'du' | 'uu' | 'de'>> & {
+  dt?: Date | CerialNone;
+  du?: CerialDurationInput | CerialNone;
+  uu?: CerialUuidInput | CerialNone;
+  de?: CerialDecimalInput | CerialNone;
+};
+
+export type RoOwnerUpdateInput = RoOwnerUpdate & {
+  kits?: {
+    create?: RoKitNestedCreate | RoKitNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type RoOwnerUnset = {
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+};
+
+export interface RoOwnerSelectFields {
+  id?: boolean;
+  label?: boolean;
+  dt?: boolean;
+  du?: boolean;
+  uu?: boolean;
+  de?: boolean;
+}
+
+export type RoOwnerSelect = AtLeastOne<RoOwnerSelectFields>;
+
+export interface RoOwnerOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  dt?: 'asc' | 'desc';
+  du?: 'asc' | 'desc';
+  uu?: 'asc' | 'desc';
+  de?: 'asc' | 'desc';
+}
+
+export interface RoOwnerGroupByKeys {
+  id?: true;
+  label?: true;
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+}
+
+export interface RoOwnerCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+}
+
+export interface RoOwnerNumericAggregate {
+  de?: true;
+}
+
+export interface RoOwnerMinMaxAggregate {
+  id?: true;
+  label?: true;
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+}
+
+export interface RoOwnerGroupAggregate {
+  id?: true;
+  label?: true;
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+}
+
+export interface RoOwnerGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  dt?: 'asc' | 'desc';
+  du?: 'asc' | 'desc';
+  uu?: 'asc' | 'desc';
+  de?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    dt?: 'asc' | 'desc';
+    du?: 'asc' | 'desc';
+    uu?: 'asc' | 'desc';
+    de?: 'asc' | 'desc';
+  };
+  _sum?: { de?: 'asc' | 'desc' };
+  _avg?: { de?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    dt?: 'asc' | 'desc';
+    du?: 'asc' | 'desc';
+    uu?: 'asc' | 'desc';
+    de?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    dt?: 'asc' | 'desc';
+    du?: 'asc' | 'desc';
+    uu?: 'asc' | 'desc';
+    de?: 'asc' | 'desc';
+  };
+}
+
+export interface RoOwnerGroupByArgs {
+  by: RoOwnerGroupByKeys;
+  where?: RoOwnerWhere;
+  _count?: true | RoOwnerCountAggregate;
+  _sum?: RoOwnerNumericAggregate;
+  _avg?: RoOwnerNumericAggregate;
+  _min?: RoOwnerMinMaxAggregate;
+  _max?: RoOwnerMinMaxAggregate;
+  _group?: RoOwnerGroupAggregate;
+  orderBy?: RoOwnerGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RoOwnerGroupByAggregates {
+  _count: { _all: number; id: number; label: number; dt: number; du: number; uu: number; de: number };
+  _sum: { de: CerialDecimal };
+  _avg: { de: CerialDecimal | null };
+  _min: {
+    id: NonNullable<RoOwner['id']> | null;
+    label: NonNullable<RoOwner['label']> | null;
+    dt: NonNullable<RoOwner['dt']> | null;
+    du: NonNullable<RoOwner['du']> | null;
+    uu: NonNullable<RoOwner['uu']> | null;
+    de: NonNullable<RoOwner['de']> | null;
+  };
+  _max: {
+    id: NonNullable<RoOwner['id']> | null;
+    label: NonNullable<RoOwner['label']> | null;
+    dt: NonNullable<RoOwner['dt']> | null;
+    du: NonNullable<RoOwner['du']> | null;
+    uu: NonNullable<RoOwner['uu']> | null;
+    de: NonNullable<RoOwner['de']> | null;
+  };
+  _group: {
+    id: GroupMember<RoOwner['id']>[];
+    label: GroupMember<RoOwner['label']>[];
+    dt: GroupMember<RoOwner['dt']>[];
+    du: GroupMember<RoOwner['du']>[];
+    uu: GroupMember<RoOwner['uu']>[];
+    de: GroupMember<RoOwner['de']>[];
+  };
+}
+
+export type RoOwnerGroupByResult<A extends RoOwnerGroupByArgs> = GroupByRow<RoOwner, A, RoOwnerGroupByAggregates>;
+
+export interface RoOwnerInclude {
+  kits?:
+    | boolean
+    | {
+        select?: RoKitSelect;
+        where?: RoKitWhere;
+        orderBy?: RoKitOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: RoKitInclude;
+      };
+}
+
+export type RoOwner$Relations = {
+  kits: { type: RoKit[]; include: RoKitInclude };
+};
+
+export type GetRoOwnerIncludePayload<I extends RoOwnerInclude | undefined> = I extends RoOwnerInclude
+  ? Pick<
+      {
+        kits: I['kits'] extends true
+          ? RoKit[]
+          : I['kits'] extends { select: infer S extends RoKitSelect; include: infer NI extends RoKitInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RoKit
+                  ? ResolveFieldSelect<RoKit[P], S[P]>
+                  : never;
+              } & GetRoKitIncludePayload<NI>)[]
+            : I['kits'] extends { select: infer S extends RoKitSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RoKit
+                    ? ResolveFieldSelect<RoKit[P], S[P]>
+                    : never;
+                }[]
+              : I['kits'] extends { include: infer NI extends RoKitInclude }
+                ? (RoKit & GetRoKitIncludePayload<NI>)[]
+                : RoKit[];
+      },
+      Extract<keyof I, keyof RoOwner$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetRoOwnerPayload<
+  S extends RoOwnerSelect | undefined = undefined,
+  I extends RoOwnerInclude | undefined = undefined,
+> = A.Compute<
+  S extends RoOwnerSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof RoOwner
+          ? ResolveFieldSelect<RoOwner[K], S[K]>
+          : never;
+      } & GetRoOwnerIncludePayload<I>
+    : I extends RoOwnerInclude
+      ? RoOwner & GetRoOwnerIncludePayload<I>
+      : RoOwner,
+  'flat'
+>;
+
+export interface RoOwnerModel {
+  findOne<
+    S extends RoOwnerSelect | undefined = undefined,
+    I extends RoOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: RoOwnerWhere;
+    select?: SelectArg<S, RoOwnerSelectFields>;
+    include?: IncludeArg<I, RoOwnerInclude>;
+    compute?: C & { [K in keyof C & (keyof RoOwner | keyof RoOwnerWhere)]?: never };
+    orderBy?: RoOwnerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends RoOwnerSelect | undefined = undefined,
+    I extends RoOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: RoOwnerWhere;
+    select?: SelectArg<S, RoOwnerSelectFields>;
+    compute?: C & { [K in keyof C & (keyof RoOwner | keyof RoOwnerWhere)]?: never };
+    orderBy?: RoOwnerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, RoOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends RoOwnerSelect | undefined = undefined,
+    I extends RoOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: RoOwnerFindUniqueWhere;
+    select?: SelectArg<S, RoOwnerSelectFields>;
+    include?: IncludeArg<I, RoOwnerInclude>;
+    compute?: C & { [K in keyof C & (keyof RoOwner | keyof RoOwnerWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends RoOwnerSelect | undefined = undefined, I extends RoOwnerInclude | undefined = undefined>(options: {
+    data: RoOwnerCreateInput;
+    select?: SelectArg<S, RoOwnerSelectFields>;
+    include?: IncludeArg<I, RoOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRoOwnerPayload<S, I>>;
+
+  updateMany<
+    S extends RoOwnerSelect | undefined = undefined,
+    I extends RoOwnerInclude | undefined = undefined,
+    D extends RoOwnerUpdateInput = RoOwnerUpdateInput,
+  >(options: {
+    where: RoOwnerWhere;
+    data: DataArg<D, RoOwnerUpdateInput>;
+    unset?: SafeUnset<RoOwnerUnset, D>;
+    select?: SelectArg<S, RoOwnerSelectFields>;
+    include?: IncludeArg<I, RoOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRoOwnerPayload<S, I>[]>;
+
+  updateUnique<
+    S extends RoOwnerSelect | undefined = undefined,
+    I extends RoOwnerInclude | undefined = undefined,
+    D extends RoOwnerUpdateInput = RoOwnerUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: RoOwnerFindUniqueWhere;
+    data: DataArg<D, RoOwnerUpdateInput>;
+    unset?: SafeUnset<RoOwnerUnset, D>;
+    select?: SelectArg<S, RoOwnerSelectFields>;
+    include?: IncludeArg<I, RoOwnerInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns RoOwner | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetRoOwnerPayload<S, I>, R>>;
+
+  upsert<
+    S extends RoOwnerSelect | undefined = undefined,
+    I extends RoOwnerInclude | undefined = undefined,
+    D extends RoOwnerUpdateInput = RoOwnerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RoOwnerFindUniqueWhere;
+    create: RoOwnerCreateInput;
+    update?: DataArg<D, RoOwnerUpdateInput>;
+    unset?: SafeUnset<RoOwnerUnset, D>;
+    select?: SelectArg<S, RoOwnerSelectFields>;
+    include?: IncludeArg<I, RoOwnerInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetRoOwnerPayload<S, I>, R>>;
+
+  upsert<
+    S extends RoOwnerSelect | undefined = undefined,
+    I extends RoOwnerInclude | undefined = undefined,
+    D extends RoOwnerUpdateInput = RoOwnerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RoOwnerWhere;
+    create: RoOwnerCreateInput;
+    update?: DataArg<D, RoOwnerUpdateInput>;
+    unset?: SafeUnset<RoOwnerUnset, D>;
+    select?: SelectArg<S, RoOwnerSelectFields>;
+    include?: IncludeArg<I, RoOwnerInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetRoOwnerPayload<S, I>, R>>;
+
+  deleteMany(options: { where: RoOwnerWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: RoOwnerFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns RoOwner | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<RoOwner, R>>;
+
+  count(where?: RoOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends RoOwnerGroupByArgs>(
+    args: GroupByArg<A, RoOwnerGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<RoOwnerGroupByResult<A>[]>;
+
+  exists(where?: RoOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: RoOwnerWhere }): Promise<import('cerial').CerialLiveHandle<RoOwner>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/rotag.ts =====
+/**
+ * Generated types for RoTag
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import { CerialUuid } from 'cerial';
+import type { CerialUuidInput } from 'cerial';
+import { CerialDuration } from 'cerial';
+import type { CerialDurationInput } from 'cerial';
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  RoItem,
+  RoItemWhere,
+  RoItemSelect,
+  RoItemOrderBy,
+  RoItemNestedCreate,
+  RoItemInclude,
+  GetRoItemIncludePayload,
+} from './roitem.js';
+export interface RoTag {
+  id: CerialId<string>;
+  label: string;
+  dt?: Date;
+  du?: CerialDuration;
+  uu?: CerialUuid;
+  de?: CerialDecimal;
+  itemIds: CerialId<string>[];
+}
+
+export interface RoTagInput {
+  id?: string;
+  label: string;
+  dt?: Date;
+  du?: CerialDurationInput;
+  uu?: CerialUuidInput;
+  de?: CerialDecimalInput;
+  itemIds: RecordIdInput<string>[];
+}
+
+export interface RoTagWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  dt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  du?:
+    | CerialDurationInput
+    | ({
+        eq?: CerialDurationInput;
+        neq?: CerialDurationInput;
+        gt?: CerialDurationInput;
+        gte?: CerialDurationInput;
+        lt?: CerialDurationInput;
+        lte?: CerialDurationInput;
+      } & {
+        in?: CerialDurationInput[];
+        notIn?: CerialDurationInput[];
+      } & {
+        not?: CerialDurationInput;
+        isNone?: boolean;
+        between?: [CerialDurationInput, CerialDurationInput];
+      });
+  uu?:
+    | CerialUuidInput
+    | ({
+        eq?: CerialUuidInput;
+        neq?: CerialUuidInput;
+        gt?: CerialUuidInput;
+        gte?: CerialUuidInput;
+        lt?: CerialUuidInput;
+        lte?: CerialUuidInput;
+      } & {
+        in?: CerialUuidInput[];
+        notIn?: CerialUuidInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  de?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        not?: CerialDecimalInput;
+        isNone?: boolean;
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  itemIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  items?: { some?: Omit<RoItemWhere, '$raw'>; every?: Omit<RoItemWhere, '$raw'>; none?: Omit<RoItemWhere, '$raw'> };
+  $raw?: SqlFragment;
+  AND?: RoTagWhere[];
+  OR?: RoTagWhere[];
+  NOT?: RoTagWhere;
+}
+
+export type RoTagWhereInput = RoTagWhere;
+
+export type RoTagFindUniqueWhere = { id: RecordIdInput<string> } & Omit<RoTagWhere, 'id'>;
+
+export type RoTagCreate = O.Optional<O.Omit<RoTagInput, 'items'>, 'id' | 'dt' | 'du' | 'uu' | 'de' | 'itemIds'>;
+
+export type RoTagNestedCreate = O.Optional<O.Omit<RoTagInput, 'items' | 'itemIds'>, 'id' | 'dt' | 'du' | 'uu' | 'de'>;
+
+export type RoTagCreateInput =
+  | RoTagCreate
+  | (O.Omit<RoTagCreate, 'itemIds'> & {
+      items?: {
+        create?: RoItemNestedCreate | RoItemNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type RoTagUpdate = Partial<O.Omit<RoTagInput, 'id' | 'items' | 'itemIds' | 'dt' | 'du' | 'uu' | 'de'>> & {
+  itemIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+  dt?: Date | CerialNone;
+  du?: CerialDurationInput | CerialNone;
+  uu?: CerialUuidInput | CerialNone;
+  de?: CerialDecimalInput | CerialNone;
+};
+
+export type RoTagUpdateInput =
+  | RoTagUpdate
+  | (O.Omit<RoTagUpdate, 'itemIds'> & {
+      items?: {
+        create?: RoItemNestedCreate | RoItemNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type RoTagUnset = {
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+};
+
+export interface RoTagSelectFields {
+  id?: boolean;
+  label?: boolean;
+  dt?: boolean;
+  du?: boolean;
+  uu?: boolean;
+  de?: boolean;
+  itemIds?: boolean;
+}
+
+export type RoTagSelect = AtLeastOne<RoTagSelectFields>;
+
+export interface RoTagOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  dt?: 'asc' | 'desc';
+  du?: 'asc' | 'desc';
+  uu?: 'asc' | 'desc';
+  de?: 'asc' | 'desc';
+  itemIds?: 'asc' | 'desc';
+}
+
+export interface RoTagGroupByKeys {
+  id?: true;
+  label?: true;
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+  itemIds?: true;
+}
+
+export interface RoTagCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+  itemIds?: true;
+}
+
+export interface RoTagNumericAggregate {
+  de?: true;
+}
+
+export interface RoTagMinMaxAggregate {
+  id?: true;
+  label?: true;
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+}
+
+export interface RoTagGroupAggregate {
+  id?: true;
+  label?: true;
+  dt?: true;
+  du?: true;
+  uu?: true;
+  de?: true;
+  itemIds?: true;
+}
+
+export interface RoTagGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  dt?: 'asc' | 'desc';
+  du?: 'asc' | 'desc';
+  uu?: 'asc' | 'desc';
+  de?: 'asc' | 'desc';
+  itemIds?: 'asc' | 'desc';
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    dt?: 'asc' | 'desc';
+    du?: 'asc' | 'desc';
+    uu?: 'asc' | 'desc';
+    de?: 'asc' | 'desc';
+    itemIds?: 'asc' | 'desc';
+  };
+  _sum?: { de?: 'asc' | 'desc' };
+  _avg?: { de?: 'asc' | 'desc' };
+  _min?: {
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    dt?: 'asc' | 'desc';
+    du?: 'asc' | 'desc';
+    uu?: 'asc' | 'desc';
+    de?: 'asc' | 'desc';
+  };
+  _max?: {
+    id?: 'asc' | 'desc';
+    label?: 'asc' | 'desc';
+    dt?: 'asc' | 'desc';
+    du?: 'asc' | 'desc';
+    uu?: 'asc' | 'desc';
+    de?: 'asc' | 'desc';
+  };
+}
+
+export interface RoTagGroupByArgs {
+  by: RoTagGroupByKeys;
+  where?: RoTagWhere;
+  _count?: true | RoTagCountAggregate;
+  _sum?: RoTagNumericAggregate;
+  _avg?: RoTagNumericAggregate;
+  _min?: RoTagMinMaxAggregate;
+  _max?: RoTagMinMaxAggregate;
+  _group?: RoTagGroupAggregate;
+  orderBy?: RoTagGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface RoTagGroupByAggregates {
+  _count: { _all: number; id: number; label: number; dt: number; du: number; uu: number; de: number; itemIds: number };
+  _sum: { de: CerialDecimal };
+  _avg: { de: CerialDecimal | null };
+  _min: {
+    id: NonNullable<RoTag['id']> | null;
+    label: NonNullable<RoTag['label']> | null;
+    dt: NonNullable<RoTag['dt']> | null;
+    du: NonNullable<RoTag['du']> | null;
+    uu: NonNullable<RoTag['uu']> | null;
+    de: NonNullable<RoTag['de']> | null;
+  };
+  _max: {
+    id: NonNullable<RoTag['id']> | null;
+    label: NonNullable<RoTag['label']> | null;
+    dt: NonNullable<RoTag['dt']> | null;
+    du: NonNullable<RoTag['du']> | null;
+    uu: NonNullable<RoTag['uu']> | null;
+    de: NonNullable<RoTag['de']> | null;
+  };
+  _group: {
+    id: GroupMember<RoTag['id']>[];
+    label: GroupMember<RoTag['label']>[];
+    dt: GroupMember<RoTag['dt']>[];
+    du: GroupMember<RoTag['du']>[];
+    uu: GroupMember<RoTag['uu']>[];
+    de: GroupMember<RoTag['de']>[];
+    itemIds: GroupMember<RoTag['itemIds']>[];
+  };
+}
+
+export type RoTagGroupByResult<A extends RoTagGroupByArgs> = GroupByRow<RoTag, A, RoTagGroupByAggregates>;
+
+export interface RoTagInclude {
+  items?:
+    | boolean
+    | {
+        select?: RoItemSelect;
+        where?: RoItemWhere;
+        orderBy?: RoItemOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: RoItemInclude;
+      };
+}
+
+export type RoTag$Relations = {
+  items: { type: RoItem[]; include: RoItemInclude };
+};
+
+export type GetRoTagIncludePayload<I extends RoTagInclude | undefined> = I extends RoTagInclude
+  ? Pick<
+      {
+        items: I['items'] extends true
+          ? RoItem[]
+          : I['items'] extends { select: infer S extends RoItemSelect; include: infer NI extends RoItemInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RoItem
+                  ? ResolveFieldSelect<RoItem[P], S[P]>
+                  : never;
+              } & GetRoItemIncludePayload<NI>)[]
+            : I['items'] extends { select: infer S extends RoItemSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RoItem
+                    ? ResolveFieldSelect<RoItem[P], S[P]>
+                    : never;
+                }[]
+              : I['items'] extends { include: infer NI extends RoItemInclude }
+                ? (RoItem & GetRoItemIncludePayload<NI>)[]
+                : RoItem[];
+      },
+      Extract<keyof I, keyof RoTag$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetRoTagPayload<
+  S extends RoTagSelect | undefined = undefined,
+  I extends RoTagInclude | undefined = undefined,
+> = A.Compute<
+  S extends RoTagSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof RoTag
+          ? ResolveFieldSelect<RoTag[K], S[K]>
+          : never;
+      } & GetRoTagIncludePayload<I>
+    : I extends RoTagInclude
+      ? RoTag & GetRoTagIncludePayload<I>
+      : RoTag,
+  'flat'
+>;
+
+export interface RoTagModel {
+  findOne<
+    S extends RoTagSelect | undefined = undefined,
+    I extends RoTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: RoTagWhere;
+    select?: SelectArg<S, RoTagSelectFields>;
+    include?: IncludeArg<I, RoTagInclude>;
+    compute?: C & { [K in keyof C & (keyof RoTag | keyof RoTagWhere)]?: never };
+    orderBy?: RoTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends RoTagSelect | undefined = undefined,
+    I extends RoTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: RoTagWhere;
+    select?: SelectArg<S, RoTagSelectFields>;
+    compute?: C & { [K in keyof C & (keyof RoTag | keyof RoTagWhere)]?: never };
+    orderBy?: RoTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, RoTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends RoTagSelect | undefined = undefined,
+    I extends RoTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: RoTagFindUniqueWhere;
+    select?: SelectArg<S, RoTagSelectFields>;
+    include?: IncludeArg<I, RoTagInclude>;
+    compute?: C & { [K in keyof C & (keyof RoTag | keyof RoTagWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetRoTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends RoTagSelect | undefined = undefined, I extends RoTagInclude | undefined = undefined>(options: {
+    data: RoTagCreateInput;
+    select?: SelectArg<S, RoTagSelectFields>;
+    include?: IncludeArg<I, RoTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRoTagPayload<S, I>>;
+
+  updateMany<
+    S extends RoTagSelect | undefined = undefined,
+    I extends RoTagInclude | undefined = undefined,
+    D extends RoTagUpdateInput = RoTagUpdateInput,
+  >(options: {
+    where: RoTagWhere;
+    data: DataArg<D, RoTagUpdateInput>;
+    unset?: SafeUnset<RoTagUnset, D>;
+    select?: SelectArg<S, RoTagSelectFields>;
+    include?: IncludeArg<I, RoTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRoTagPayload<S, I>[]>;
+
+  updateUnique<
+    S extends RoTagSelect | undefined = undefined,
+    I extends RoTagInclude | undefined = undefined,
+    D extends RoTagUpdateInput = RoTagUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: RoTagFindUniqueWhere;
+    data: DataArg<D, RoTagUpdateInput>;
+    unset?: SafeUnset<RoTagUnset, D>;
+    select?: SelectArg<S, RoTagSelectFields>;
+    include?: IncludeArg<I, RoTagInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns RoTag | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetRoTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends RoTagSelect | undefined = undefined,
+    I extends RoTagInclude | undefined = undefined,
+    D extends RoTagUpdateInput = RoTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RoTagFindUniqueWhere;
+    create: RoTagCreateInput;
+    update?: DataArg<D, RoTagUpdateInput>;
+    unset?: SafeUnset<RoTagUnset, D>;
+    select?: SelectArg<S, RoTagSelectFields>;
+    include?: IncludeArg<I, RoTagInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetRoTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends RoTagSelect | undefined = undefined,
+    I extends RoTagInclude | undefined = undefined,
+    D extends RoTagUpdateInput = RoTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RoTagWhere;
+    create: RoTagCreateInput;
+    update?: DataArg<D, RoTagUpdateInput>;
+    unset?: SafeUnset<RoTagUnset, D>;
+    select?: SelectArg<S, RoTagSelectFields>;
+    include?: IncludeArg<I, RoTagInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetRoTagPayload<S, I>, R>>;
+
+  deleteMany(options: { where: RoTagWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: RoTagFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns RoTag | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<RoTag, R>>;
+
+  count(where?: RoTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends RoTagGroupByArgs>(
+    args: GroupByArg<A, RoTagGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<RoTagGroupByResult<A>[]>;
+
+  exists(where?: RoTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: RoTagWhere }): Promise<import('cerial').CerialLiveHandle<RoTag>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

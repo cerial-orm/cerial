@@ -1,0 +1,26 @@
+-- RoItem
+DEFINE TABLE OVERWRITE ro_item SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE ro_item TYPE string;
+DEFINE FIELD OVERWRITE tagIds ON TABLE ro_item TYPE array<record<ro_tag>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+
+-- RoKit
+DEFINE TABLE OVERWRITE ro_kit SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE ro_kit TYPE string;
+DEFINE FIELD OVERWRITE ownerId ON TABLE ro_kit TYPE option<record<ro_owner>>;
+
+-- RoOwner
+DEFINE TABLE OVERWRITE ro_owner SCHEMAFULL;
+DEFINE FIELD OVERWRITE label ON TABLE ro_owner TYPE string;
+DEFINE FIELD OVERWRITE dt ON TABLE ro_owner TYPE option<datetime>;
+DEFINE FIELD OVERWRITE du ON TABLE ro_owner TYPE option<duration>;
+DEFINE FIELD OVERWRITE uu ON TABLE ro_owner TYPE option<uuid>;
+DEFINE FIELD OVERWRITE de ON TABLE ro_owner TYPE option<decimal>;
+
+-- RoTag
+DEFINE TABLE OVERWRITE ro_tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE label ON TABLE ro_tag TYPE string;
+DEFINE FIELD OVERWRITE dt ON TABLE ro_tag TYPE option<datetime>;
+DEFINE FIELD OVERWRITE du ON TABLE ro_tag TYPE option<duration>;
+DEFINE FIELD OVERWRITE uu ON TABLE ro_tag TYPE option<uuid>;
+DEFINE FIELD OVERWRITE de ON TABLE ro_tag TYPE option<decimal>;
+DEFINE FIELD OVERWRITE itemIds ON TABLE ro_tag TYPE array<record<ro_item>> VALUE IF $value THEN $value.distinct() ELSE [] END;
