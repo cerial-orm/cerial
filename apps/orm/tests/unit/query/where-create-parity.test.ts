@@ -605,3 +605,41 @@ describe('id operands are converted the way create builds the id', () => {
     expect(plain.id).toEqual(['k']);
   });
 });
+
+describe('between takes exactly two valid bounds', () => {
+  const fields: Array<[string, unknown, unknown]> = [
+    ['int', 1, 2],
+    ['date', '2024-01-01T00:00:00Z', '2024-12-01T00:00:00Z'],
+    ['du', '1h', '2h'],
+    ['str', 'a', 'b'],
+  ];
+
+  describe.each(fields)('%s', (field, lo, hi) => {
+    test.each([[[]], [[lo]], [[lo, hi, hi]]])('refuses %j bounds', (bounds) => {
+      for (const where of [
+        { [field]: { between: bounds } },
+        { NOT: { [field]: { between: bounds } } },
+        { OR: [{ [field]: { between: bounds } }] },
+      ]) {
+        const msgs = errorsAt(owner, where);
+        expect(msgs.length).toBe(1);
+        expect(msgs[0]).toContain(field);
+        expect(msgs[0]).toContain('two bounds');
+      }
+      expect(errorsAt(place, viaRelation(field, { between: bounds })).length).toBe(1);
+    });
+
+    test('accepts two valid bounds', () => {
+      expect(errorsAt(owner, { [field]: { between: [lo, hi] } })).toEqual([]);
+      expect(errorsAt(place, viaRelation(field, { between: [lo, hi] }))).toEqual([]);
+    });
+
+    test('still refuses a bad bound among two', () => {
+      expect(errorsAt(owner, { [field]: { between: [lo, { foo: 1 }] } }).length).toBe(1);
+    });
+  });
+
+  test('a non-array between is refused', () => {
+    expect(errorsAt(owner, { int: { between: 1 } }).length).toBe(1);
+  });
+});

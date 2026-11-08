@@ -220,8 +220,15 @@ export function operandIssues(
       else if (op === 'has') {
         const message = valueMessage(field, value, label, true);
         if (message) issues.push({ path: opPath, message });
-      } else if (op === 'in' || op === 'notIn' || op === 'between')
-        issues.push(...listIssues(field, value, opPath, label, false));
+      } else if (op === 'between') {
+        // The handler reads exactly a minimum and a maximum; a missing bound would compare to NONE
+        if (Array.isArray(value) && value.length !== 2)
+          issues.push({
+            path: opPath,
+            message: `Field "${label}": between expects exactly two bounds, got ${value.length}`,
+          });
+        else issues.push(...listIssues(field, value, opPath, label, false));
+      } else if (op === 'in' || op === 'notIn') issues.push(...listIssues(field, value, opPath, label, false));
       else if (ELEMENT_LIST_OPERATORS.includes(op)) issues.push(...listIssues(field, value, opPath, label, true));
       else if (STRING_OPERATORS.includes(op)) {
         if (typeof value !== 'string')
