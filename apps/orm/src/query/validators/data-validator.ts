@@ -640,6 +640,8 @@ export function enclosedFields(
  * `partial` is true while the builder merges the value key by key (an update's object or object-form
  * tuple), where an undeclared key would be dropped. A value it binds whole (array element, `{ set }`
  * contents, push item) is not partial. Enum fields carry `type: 'literal'`, so one branch covers both.
+ * `bare` is true inside an array element or a tuple element, where no `DEFINE FIELD` sits under the value
+ * to fill what it leaves out, so a required sub-field must be written.
  */
 function validateSubValue(
   value: unknown,
@@ -649,6 +651,7 @@ function validateSubValue(
   partial: boolean,
   inline = false,
   defs: ObjectDefs = NO_DEFS,
+  bare = false,
 ): DataValidationError[] {
   if (value === undefined || isNone(value)) return [];
 
@@ -673,7 +676,9 @@ function validateSubValue(
   if (field.isArray) {
     const element = { ...field, isArray: false };
     if (Array.isArray(value))
-      return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false, true, defs));
+      return value.flatMap((item, i) =>
+        validateSubValue(item, element, model, `${path}[${i}]`, false, true, defs, true),
+      );
     if (!isObject(value)) return typeErrors(path, value, field);
 
     // { push } and { set } carry whole elements. updateWhere and unset are typed but the builder never
@@ -695,21 +700,22 @@ function validateSubValue(
       });
     }
     if (value.set !== undefined && Array.isArray(value.set))
-      errors.push(...validateSubValue(value.set, field, model, path, false, true, defs));
+      errors.push(...validateSubValue(value.set, field, model, path, false, true, defs, bare));
     if (value.push !== undefined) {
       const items =
         Array.isArray(value.push) && !(field.tupleInfo && isSingleTupleInput(value.push, field.tupleInfo))
           ? value.push
           : [value.push];
       items.forEach((item, i) => {
-        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false, true, defs));
+        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false, true, defs, true));
       });
     }
 
     return errors;
   }
 
-  if (isObject(value) && isSetWrapper(value)) return validateSubValue(value.set, field, model, path, false, true, defs);
+  if (isObject(value) && isSetWrapper(value))
+    return validateSubValue(value.set, field, model, path, false, true, defs, bare);
 
   // A nested object or tuple holds an object or a tuple, however deep it sits: the database checks nothing
   // below a self-referencing object, and a tuple element's type is only as strict as this check
@@ -727,7 +733,7 @@ function validateSubValue(
 
   const { objectName, fields } = field.objectInfo;
 
-  return validateObjectData(value, objectName, fields, field.isFlexible, model, path, partial, inline, defs);
+  return validateObjectData(value, objectName, fields, field.isFlexible, model, path, partial, inline, defs, bare);
 }
 
 /** The refusal when a value is not the kind of thing the field holds (an object, a tuple, an array of them) */
@@ -752,6 +758,7 @@ function validateObjectData(
   partial: boolean,
   inline: boolean,
   outer: ObjectDefs,
+  bare: boolean,
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
   const { fields, defs } = enclosedFields(objectName, declared, outer);
@@ -772,10 +779,29 @@ function validateObjectData(
     // it is flexible exactly when the field it hangs under is
     const cyclic = !!subField.objectInfo && defs.has(subField.objectInfo.objectName);
     const next = cyclic && isFlexible ? { ...subField, isFlexible } : subField;
-    errors.push(...validateSubValue(value, next, model, subPath, partial, inline || cyclic, defs));
+    errors.push(...validateSubValue(value, next, model, subPath, partial, inline || cyclic, defs, bare));
   }
 
+  // A model field defaults a required array to []; nothing does under a bare value, so the database
+  // refuses the object when one is left out
+  if (bare && !partial)
+    for (const f of fields)
+      if (data[f.name] === undefined && isRequiredArray(f))
+        errors.push({ field: `${path}.${f.name}`, message: `${path}.${f.name} is required` });
+
   return errors;
+}
+
+/** True when an array sub-field must be written and no decorator supplies it when left out */
+function isRequiredArray(field: FieldMetadata): boolean {
+  return (
+    field.isRequired &&
+    field.isArray === true &&
+    field.defaultValue === undefined &&
+    field.defaultAlwaysValue === undefined &&
+    field.timestampDecorator === undefined &&
+    field.uuidDecorator === undefined
+  );
 }
 
 /** Validate the elements of a tuple in array form, which is a whole value. */
@@ -796,17 +822,23 @@ function validateTupleArray(
     ];
 
   return tupleInfo.elements.flatMap((element) => {
-    // A position left out must be one the schema fills; the database would otherwise refuse a short tuple
-    if (
-      data[element.index] === undefined &&
-      !element.isNullable &&
-      !element.isOptional &&
-      tupleElementDefault(element) === undefined
-    )
-      return [{ field: path, message: `${path} is missing the tuple element at position ${element.index}` }];
+    const missing = missingPosition(element, data[element.index], path);
+    if (missing) return [missing];
 
-    return validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false, true, defs);
+    return validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false, true, defs, true);
   });
+}
+
+/** A position left out must be one the schema fills; the database would otherwise refuse a short tuple */
+function missingPosition(
+  element: TupleFieldMetadata['elements'][number],
+  value: unknown,
+  path: string,
+): DataValidationError | undefined {
+  if (value !== undefined || element.isNullable || element.isOptional || tupleElementDefault(element) !== undefined)
+    return undefined;
+
+  return { field: path, message: `${path} is missing the tuple element at position ${element.index}` };
 }
 
 /** Validate the element keys (by name or index) of a tuple in object form. */
@@ -821,6 +853,14 @@ function validateTupleData(
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
 
+  // A whole value in object form is stored as the array form, so every position must be there
+  if (!partial)
+    for (const element of tupleInfo.elements) {
+      const given = (element.name !== undefined ? data[element.name] : undefined) ?? data[String(element.index)];
+      const missing = missingPosition(element, given, path);
+      if (missing) errors.push(missing);
+    }
+
   for (const [key, value] of Object.entries(data)) {
     if (value === undefined) continue;
 
@@ -833,7 +873,7 @@ function validateTupleData(
     }
 
     // Tuple elements are never flexible
-    errors.push(...validateSubValue(value, element, model, subPath, partial, true, defs));
+    errors.push(...validateSubValue(value, element, model, subPath, partial, true, defs, true));
   }
 
   return errors;

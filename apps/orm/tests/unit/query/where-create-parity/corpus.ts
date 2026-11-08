@@ -169,6 +169,9 @@ export const LITERAL_CORPUS: Record<string, unknown[]> = {
 
 /** Whole tuple values for a tuple field, in the array form a filter can compare */
 export const WHOLE_TUPLE: unknown[] = [
+  { 0: 1 },
+  { 1: '2021-01-01T00:00:00.000Z' },
+  {},
   [1, [2]],
   [1, 5],
   [1, '2021-01-01T00:00:00.000Z'],

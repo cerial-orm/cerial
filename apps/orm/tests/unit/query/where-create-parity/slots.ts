@@ -4,11 +4,12 @@
  */
 
 import type { FieldMetadata, ModelMetadata, SchemaFieldType } from '../../../../src/types';
+import { validateFieldValue } from '../../../../src/query/validators/data-validator';
 import { CORPUS, idCorpus, LITERAL_CORPUS, NESTED_WHOLE, WHOLE_OBJECT, WHOLE_TUPLE } from './corpus';
 import { FK_ARRAY_KEYS, ID_MODELS, LITERALS, model, SCALARS, SET_KEYS } from './schema';
 
 export type Step =
-  | { readonly t: 'key'; readonly k: string }
+  | { readonly t: 'key'; readonly k: string; readonly fill?: Readonly<Record<string, unknown>> }
   | { readonly t: 'idx'; readonly i: number; readonly fill: readonly unknown[] }
   | { readonly t: 'arr' };
 
@@ -39,22 +40,33 @@ export interface Slot {
   readonly hasQuantifier: boolean;
 }
 
-const FILL: Partial<Record<SchemaFieldType, unknown>> = {
-  int: 1,
-  date: '2021-01-01T00:00:00.000Z',
-  duration: '1h',
-  decimal: '1.5',
-  uuid: '0190c3f8-6c5d-7a3a-9d3a-1e1f2a3b4c5d',
-  string: 'a',
-};
+/**
+ * A value create accepts for a field, so the slot under test is the only thing that varies. A value bound
+ * whole (a tuple element, an array element) needs every required sub-field written, as the database
+ * fills nothing there.
+ */
+function fillValue(
+  field: Pick<FieldMetadata, 'type' | 'isArray' | 'objectInfo' | 'tupleInfo'> & Partial<FieldMetadata>,
+): unknown {
+  if (field.isArray) return [];
+  if (field.type === 'object' && field.objectInfo) return fillObject(field.objectInfo.fields);
+  if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.elements.map((e) => fillValue(e));
 
-const fillFor = (type: SchemaFieldType, hasObject: boolean): unknown => (hasObject ? {} : FILL[type]);
+  return (CORPUS[field.type] ?? []).find(
+    (v) => !validateFieldValue('x', v, { ...(field as FieldMetadata), isRequired: false }),
+  );
+}
+
+/** Every required sub-field of an object, filled */
+function fillObject(fields: readonly FieldMetadata[]): Record<string, unknown> {
+  return Object.fromEntries(fields.filter((f) => f.isRequired).map((f) => [f.name, fillValue(f)]));
+}
 
 export function createData(slot: Slot, unit: unknown): Record<string, unknown> {
   let inner: unknown = slot.scalarArray ? [unit] : unit;
   for (let n = slot.steps.length - 1; n >= 0; n--) {
     const step = slot.steps[n]!;
-    if (step.t === 'key') inner = { [step.k]: inner };
+    if (step.t === 'key') inner = { ...step.fill, [step.k]: inner };
     else if (step.t === 'idx') {
       const tuple = [...step.fill];
       tuple[step.i] = inner;
@@ -147,7 +159,10 @@ function walk(meta: Meta, steps: Step[], top: string, depth: number, defs: Map<s
     const fields = meta.objectInfo.fields.length ? meta.objectInfo.fields : (defs.get(objectName) ?? []);
     const known = new Map(defs).set(objectName, fields);
     for (const f of fields) {
-      const next: Step[] = [...withArr, { t: 'key', k: f.name }];
+      const next: Step[] = [
+        ...withArr,
+        { t: 'key', k: f.name, fill: fillObject(fields.filter((sibling) => sibling.name !== f.name)) },
+      ];
       if (f.objectInfo || f.tupleInfo) {
         pushWhole(f, next, top);
         if (depth < MAX_OBJECT_DEPTH) walk(f, next, top, depth + 1, known);
@@ -169,7 +184,7 @@ function walk(meta: Meta, steps: Step[], top: string, depth: number, defs: Map<s
 
   if (meta.tupleInfo) {
     const { elements } = meta.tupleInfo;
-    const fill = elements.map((e) => fillFor(e.type as SchemaFieldType, !!e.objectInfo || !!e.tupleInfo));
+    const fill = elements.map((e) => fillValue(e));
     for (const e of elements) {
       const next: Step[] = [...withArr, { t: 'idx', i: e.index, fill }];
       if (e.objectInfo || e.tupleInfo) {
