@@ -12,6 +12,7 @@ import {
   buildArrayObjectCondition,
   buildArrayTupleCondition,
   buildDirectCondition,
+  transformDateOperand,
   buildObjectCondition,
   buildTupleCondition,
   isOperatorShape,
@@ -205,7 +206,7 @@ function buildSubqueryConditions(
 
         const handler = getOperatorHandler(op);
         if (handler) {
-          operatorConditions.push(handler(ctx, fieldName, opValue, fieldMetadata));
+          operatorConditions.push(handler(ctx, fieldName, transformDateOperand(opValue, fieldMetadata), fieldMetadata));
         }
       }
 
@@ -216,7 +217,7 @@ function buildSubqueryConditions(
       // Direct value (shorthand for eq)
       const handler = getOperatorHandler('eq');
       if (handler) {
-        conditions.push(handler(ctx, fieldName, value, fieldMetadata));
+        conditions.push(handler(ctx, fieldName, transformDateOperand(value, fieldMetadata), fieldMetadata));
       }
     }
   }
@@ -384,7 +385,9 @@ function compileForwardBody(
 
         const handler = getOperatorHandler(op);
         if (handler) {
-          operatorConditions.push(handler(ctx, dotField, opValue, nestedFieldMetadata));
+          operatorConditions.push(
+            handler(ctx, dotField, transformDateOperand(opValue, nestedFieldMetadata), nestedFieldMetadata),
+          );
         }
       }
 
@@ -395,7 +398,7 @@ function compileForwardBody(
       // Direct value (shorthand for eq)
       const handler = getOperatorHandler('eq');
       if (handler) {
-        conditions.push(handler(ctx, dotField, value, nestedFieldMetadata));
+        conditions.push(handler(ctx, dotField, transformDateOperand(value, nestedFieldMetadata), nestedFieldMetadata));
       }
     }
   }

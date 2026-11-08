@@ -25,7 +25,7 @@ import { joinFragments, wrapParens } from '../compile/fragment';
 import { compileFragment, isSqlFragment } from '../compile/sql-fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
-import { toU64Param, transformOrValidateRecordId } from '../transformers';
+import { toU64Param, transformOrValidateRecordId, transformValue } from '../transformers';
 import { expandCompositeKeys } from './composite-key';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { buildForwardNoRecord, buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
@@ -100,6 +100,14 @@ function transformGeometryValue(value: unknown): unknown {
   return value;
 }
 
+/** A date string becomes a Date as it does on create; a string compared as-is would match against the wrong type. */
+export function transformDateOperand(value: unknown, field: Pick<FieldMetadata, 'type'>): unknown {
+  if (field.type !== 'date') return value;
+  if (Array.isArray(value)) return value.map((v) => transformValue(v, 'date'));
+
+  return transformValue(value, 'date');
+}
+
 /** Transform value for ID, Record, or UUID fields - handles all input types */
 function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
   // Transform ID field values to RecordId
@@ -163,6 +171,8 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
 
     return transformDecimalValue(value);
   }
+
+  if (fieldMetadata.type === 'date') return transformDateOperand(value, fieldMetadata);
 
   if (fieldMetadata.type === 'uint64' || fieldMetadata.type === 'float16' || fieldMetadata.type === 'float32') {
     if (Array.isArray(value)) return value.map((v) => transformSizedValue(v, fieldMetadata.type));
