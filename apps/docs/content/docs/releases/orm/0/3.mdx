@@ -434,6 +434,24 @@ development branch and is not available on npm.
   pass a `Date` built with `new Date(value)` and check it with
   `Number.isNaN(date.getTime())`. See the Changed entry on where operand types.
 
+- Typed operands inside a relation filter: a `where` on a related model passed
+  its operands to the database unconverted, so a Duration, Uuid, Decimal or id
+  was compared as text or as a plain object against the typed stored value,
+  while the same filter on the model itself converted it. A range operator then
+  matched the wrong rows and an equality matched none:
+  `Kit.deleteMany({ where: { owner: { duration: { gt: '90m' } } } })` removed
+  every kit when two of three owners matched, and `neq` on an id or a foreign key
+  did the same. It covered a to-one relation, `some`, `every` and `none` on a
+  reverse relation, and an array of foreign keys, and a filter built from a JSON
+  body hit it with no cast. Present in 0.1.0 and 0.2.0, whose relation filters
+  did not convert operands.
+
+  Relation filters now convert every operand the way a filter on the model itself
+  does, on every operator. A `CerialDuration`, `CerialUuid` or `CerialDecimal`
+  works as well as a string, and a value that is not valid for the field is
+  refused before any query, as before. If you filter through a relation by one
+  of these types, upgrade.
+
 - Object array sub-fields dropped in an object update: an update that merges an
   object field wrote its sub-fields one by one and treated an array of objects
   inside it as another nested object, so nothing matched and the array was
