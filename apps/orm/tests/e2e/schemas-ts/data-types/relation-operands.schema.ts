@@ -7,6 +7,7 @@ export const RoOwner = model('RoOwner', {
   du: f.duration().optional(),
   uu: f.uuid().optional(),
   de: f.decimal().optional(),
+  geo: f.geometry().point().optional(),
   kits: f.reverse('RoKit').array(),
 });
 

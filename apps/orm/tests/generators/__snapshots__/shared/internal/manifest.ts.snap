@@ -759,6 +759,7 @@ export const manifest = deepFreeze({
         { path: ['du'], kind: 'duration | none' },
         { path: ['uu'], kind: 'none | uuid' },
         { path: ['de'], kind: 'decimal | none' },
+        { path: ['geo'], kind: 'geometry<point> | none' },
       ],
       indexes: [],
     },

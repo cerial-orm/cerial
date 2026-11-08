@@ -78,6 +78,24 @@
                 "file": "<input>",
                 "kind": "dsl"
               },
+              "type": "point"
+            }
+          ],
+          "isOptional": true,
+          "name": "geo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "RoKit"
             }

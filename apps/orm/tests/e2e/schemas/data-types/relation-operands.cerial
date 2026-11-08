@@ -5,6 +5,7 @@ model RoOwner {
   du Duration?
   uu Uuid?
   de Decimal?
+  geo Geometry? @point
   kits Relation[] @model(RoKit)
 }
 

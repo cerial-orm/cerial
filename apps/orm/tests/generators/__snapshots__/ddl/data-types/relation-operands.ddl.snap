@@ -15,6 +15,7 @@ DEFINE FIELD OVERWRITE dt ON TABLE ro_owner TYPE option<datetime>;
 DEFINE FIELD OVERWRITE du ON TABLE ro_owner TYPE option<duration>;
 DEFINE FIELD OVERWRITE uu ON TABLE ro_owner TYPE option<uuid>;
 DEFINE FIELD OVERWRITE de ON TABLE ro_owner TYPE option<decimal>;
+DEFINE FIELD OVERWRITE geo ON TABLE ro_owner TYPE option<geometry<point>>;
 
 -- RoTag
 DEFINE TABLE OVERWRITE ro_tag SCHEMAFULL;

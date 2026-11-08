@@ -876,6 +876,26 @@ import { CerialDuration } from 'cerial';
 import type { CerialDurationInput } from 'cerial';
 import { CerialDecimal } from 'cerial';
 import type { CerialDecimalInput } from 'cerial';
+import {
+  CerialGeometry,
+  CerialPoint,
+  CerialLineString,
+  CerialPolygon,
+  CerialMultiPoint,
+  CerialMultiLineString,
+  CerialMultiPolygon,
+  CerialGeometryCollection,
+} from 'cerial';
+import type {
+  CerialGeometryInput,
+  CerialPointInput,
+  CerialLineStringInput,
+  CerialPolygonInput,
+  CerialMultiPointInput,
+  CerialMultiLineStringInput,
+  CerialMultiPolygonInput,
+  CerialGeometryCollectionInput,
+} from 'cerial';
 import type {
   DeleteUniqueReturn,
   DeleteUniqueReturnType,
@@ -912,6 +932,7 @@ export interface RoOwner {
   du?: CerialDuration;
   uu?: CerialUuid;
   de?: CerialDecimal;
+  geo?: CerialPoint;
 }
 
 export interface RoOwnerInput {
@@ -921,6 +942,7 @@ export interface RoOwnerInput {
   du?: CerialDurationInput;
   uu?: CerialUuidInput;
   de?: CerialDecimalInput;
+  geo?: CerialPointInput;
 }
 
 export interface RoOwnerWhere {
@@ -1017,6 +1039,18 @@ export interface RoOwnerWhere {
         isNone?: boolean;
         between?: [CerialDecimalInput, CerialDecimalInput];
       });
+  geo?:
+    | CerialPointInput
+    | ({
+        eq?: CerialPointInput;
+        neq?: CerialPointInput;
+      } & {
+        in?: CerialPointInput[];
+        notIn?: CerialPointInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
   kits?:
     | {
         some?: Omit<RoKitWhere, '$raw'>;
@@ -1035,9 +1069,9 @@ export type RoOwnerWhereInput = RoOwnerWhere;
 
 export type RoOwnerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<RoOwnerWhere, 'id'>;
 
-export type RoOwnerCreate = O.Optional<O.Omit<RoOwnerInput, 'kits'>, 'id' | 'dt' | 'du' | 'uu' | 'de'>;
+export type RoOwnerCreate = O.Optional<O.Omit<RoOwnerInput, 'kits'>, 'id' | 'dt' | 'du' | 'uu' | 'de' | 'geo'>;
 
-export type RoOwnerNestedCreate = O.Optional<O.Omit<RoOwnerInput, 'kits'>, 'id' | 'dt' | 'du' | 'uu' | 'de'>;
+export type RoOwnerNestedCreate = O.Optional<O.Omit<RoOwnerInput, 'kits'>, 'id' | 'dt' | 'du' | 'uu' | 'de' | 'geo'>;
 
 export type RoOwnerCreateInput = RoOwnerCreate & {
   kits?: {
@@ -1046,11 +1080,12 @@ export type RoOwnerCreateInput = RoOwnerCreate & {
   };
 };
 
-export type RoOwnerUpdate = Partial<O.Omit<RoOwnerInput, 'id' | 'kits' | 'dt' | 'du' | 'uu' | 'de'>> & {
+export type RoOwnerUpdate = Partial<O.Omit<RoOwnerInput, 'id' | 'kits' | 'dt' | 'du' | 'uu' | 'de' | 'geo'>> & {
   dt?: Date | CerialNone;
   du?: CerialDurationInput | CerialNone;
   uu?: CerialUuidInput | CerialNone;
   de?: CerialDecimalInput | CerialNone;
+  geo?: CerialPointInput | CerialNone;
 };
 
 export type RoOwnerUpdateInput = RoOwnerUpdate & {
@@ -1067,6 +1102,7 @@ export type RoOwnerUnset = {
   du?: true;
   uu?: true;
   de?: true;
+  geo?: true;
 };
 
 export interface RoOwnerSelectFields {
@@ -1076,6 +1112,7 @@ export interface RoOwnerSelectFields {
   du?: boolean;
   uu?: boolean;
   de?: boolean;
+  geo?: boolean;
 }
 
 export type RoOwnerSelect = AtLeastOne<RoOwnerSelectFields>;
@@ -1106,6 +1143,7 @@ export interface RoOwnerCountAggregate {
   du?: true;
   uu?: true;
   de?: true;
+  geo?: true;
 }
 
 export interface RoOwnerNumericAggregate {
@@ -1145,6 +1183,7 @@ export interface RoOwnerGroupByOrderBy {
     du?: 'asc' | 'desc';
     uu?: 'asc' | 'desc';
     de?: 'asc' | 'desc';
+    geo?: 'asc' | 'desc';
   };
   _sum?: { de?: 'asc' | 'desc' };
   _avg?: { de?: 'asc' | 'desc' };
@@ -1181,7 +1220,7 @@ export interface RoOwnerGroupByArgs {
 }
 
 export interface RoOwnerGroupByAggregates {
-  _count: { _all: number; id: number; label: number; dt: number; du: number; uu: number; de: number };
+  _count: { _all: number; id: number; label: number; dt: number; du: number; uu: number; de: number; geo: number };
   _sum: { de: CerialDecimal };
   _avg: { de: CerialDecimal | null };
   _min: {

@@ -592,7 +592,7 @@ export const modelFingerprints: Record<ModelName, string> = {
   NumberDecorated: 'be28187a77fbe1224e2b08f91b729ff5aa7330721ea0088fd64b2b640c61dac5',
   NumberWithObject: '1ea5d29c38d82c0e6b215dc7c10ad0d81b03220099328a54815cf00696e71e57',
   NumberWithTuple: '76964caecadfac40e42dcd000e089d841df604d9180fd0fcf05c1edf0fb291d7',
-  RoOwner: 'ec14283d7af32e0ed8ccfb3b38c48fde67d187d6efc886bdac590ba288dd11b4',
+  RoOwner: 'f776f47fb5c3e01984570931f738a1aaed8871776561a3515431e3a416f3ca43',
   RoKit: '1b46e6722ee6e2495dec4e243cf7d4189638a4134586150d8349b2a3fe4abe0e',
   RoTag: '3756536ab230ae562b66dbd95990e1a0addfa47844c60b8ca179b4a36dde51f6',
   RoItem: '9169e0605e733e84b9cd7a13d79c58ce8cc643d140449f55692b0bf7b417cd72',
@@ -777,7 +777,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = '4cd59f274e23d35cab4653f420f17abf2d11e82c0d126ecb9391822f1d1ba298';
+export const wholeSchemaFingerprint = '1dd4bdde18d1bf632167c4866d7481bb3219c247080acf7624b29c235fa12118';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {
