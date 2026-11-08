@@ -3,9 +3,11 @@
  *
  * - a tuple in object form or an object bound whole is held to every position and required sub-field,
  *   on create and in a filter, because the database refuses a short one and nothing else would
+ * - a Record inside an object is compared as create stores it
  */
 
 import { describe, expect, test } from 'bun:test';
+import { RecordId } from 'surrealdb';
 import {
   convertModels,
   convertObjects,
@@ -19,11 +21,18 @@ import { createObjectRegistry, createRegistry } from '../../../src/generators/me
 import { parse } from '../../../src/parser/parser';
 import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import { buildConditions } from '../../../src/query/filters/condition-builder';
+import { transformData } from '../../../src/query/transformers';
 import { validateCreateData, validateUpdateData } from '../../../src/query/validators/data-validator';
 import { validateWhere } from '../../../src/query/validators';
 import type { ModelMetadata, WhereClause } from '../../../src/types';
+import { CerialId } from '../../../src/utils/cerial-id';
 
 const schema = `
+object Rec {
+  ref Record?
+  refs Record[]
+}
+
 object Arr {
   n Int?
   tags Int[]
@@ -41,6 +50,7 @@ tuple WithObj {
 
 model Item {
   id Record @id
+  rec Rec?
   top Arr?
   arrs Arr[]
   duo Duo?
@@ -137,5 +147,37 @@ describe('a tuple in object form or an object bound whole is held to every posit
   test('a filter by element is not held to the other positions', () => {
     expect(whereErrors({ duo: { 0: 1 } })).toEqual([]);
     expect(whereErrors({ withObj: { 1: { n: 1 } } })).toEqual([]);
+  });
+});
+
+describe('a Record inside an object is compared as create stores it', () => {
+  const stored = (value: unknown): unknown =>
+    (transformData({ rec: { ref: value } }, item).rec as { ref: unknown }).ref;
+
+  test.each([
+    ['a table:id string', 'victim:v'],
+    ['a CerialId', CerialId.parse('victim:v')],
+    ['a RecordId', new RecordId('victim', 'v')],
+  ])('%s is bound as the RecordId create stores', (_name, value) => {
+    const bound = Object.values(compile({ rec: { ref: value } }).vars);
+    expect(bound).toEqual([stored(value)]);
+    expect(bound[0]).toBeInstanceOf(RecordId);
+  });
+
+  test('NOT binds the same value, so it excludes the row holding it', () => {
+    const bound = Object.values(compile({ NOT: { rec: { ref: 'victim:v' } } }).vars);
+    expect(bound).toEqual([stored('victim:v')]);
+  });
+
+  test('has and in convert each member of a Record[] in an object', () => {
+    expect(Object.values(compile({ rec: { refs: { has: 'victim:v' } } }).vars)).toEqual([new RecordId('victim', 'v')]);
+    expect(Object.values(compile({ rec: { refs: { hasAny: ['victim:v', 'victim:w'] } } }).vars)).toEqual([
+      [new RecordId('victim', 'v'), new RecordId('victim', 'w')],
+    ]);
+  });
+
+  test('a value that names no table is refused, naming the field', () => {
+    expect(() => compile({ rec: { ref: 'v' } })).toThrow(/rec\.ref/);
+    expect(() => compile({ NOT: { rec: { ref: 5 } } })).toThrow(/rec\.ref/);
   });
 });

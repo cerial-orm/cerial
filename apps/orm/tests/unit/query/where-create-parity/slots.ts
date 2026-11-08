@@ -173,6 +173,7 @@ function walk(meta: Meta, steps: Step[], top: string, depth: number, defs: Map<s
         id: `${here(next)}`.replace(/^\./, ''),
         type: f.type,
         corpus: CORPUS[f.type] ?? [],
+        scalarArray: !!f.isArray,
         steps: next,
         absentOrNull: false,
         ordered: SCALARS.find((s) => s.type === f.type)?.ordered ?? false,
@@ -249,7 +250,7 @@ function build(): void {
   }
 
   // Objects and tuples: leaves to depth 3, then the value compared whole
-  for (const name of ['oneLeaf', 'optLeaf', 'leaves', 'flexLeaf', 'deep', 'selfRef']) {
+  for (const name of ['oneLeaf', 'optLeaf', 'leaves', 'flexLeaf', 'deep', 'selfRef', 'recBox']) {
     const f = field(name);
     walk(f, [{ t: 'key', k: name }], name, 1, new Map());
     scalar(name, f.type, WHOLE_OBJECT, { id: `${name}=whole`, whole: true, scalarArray: !!f.isArray });

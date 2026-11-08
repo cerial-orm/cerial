@@ -132,6 +132,7 @@ const kindFields = (): string => {
   lines.push('  boxT Boxed');
   lines.push('  deepT TupleDeep');
   lines.push('  objTup ObjInTuple');
+  lines.push('  recBox RecBox');
 
   return lines.join('\n');
 };
@@ -256,6 +257,11 @@ tuple TupleDeep {
 tuple ObjInTuple {
   Date,
   Leaf
+}
+
+object RecBox {
+  ref Record?
+  refs Record[]
 }
 
 object IdKey {

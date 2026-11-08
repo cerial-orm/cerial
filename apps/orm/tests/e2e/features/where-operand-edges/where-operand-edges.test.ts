@@ -3,12 +3,14 @@
  *
  * - a tuple in object form or an object bound whole is refused when it leaves out a position or a required
  *   array, on create and in a negated filter, before any row is touched
+ * - a Record inside an object is compared as create stored it, so a negated delete spares the row holding it
  *
  * Destructive calls come first in each group: the refused ones must leave every row, the accepted ones must
  * remove exactly the rows the typed equivalent selects.
  */
 
 import { describe, expect, test } from 'bun:test';
+import { CerialId } from 'cerial';
 import { tables } from '../../test-helper';
 import { setupDataTypeTests } from '../../data-types/test-factory';
 
@@ -109,6 +111,63 @@ describe('E2E: where operand edges', () => {
       const row = await db.WoHolder.findOne({ where: { name: 'ok' } });
       expect(row?.duo).toEqual([1, 'a']);
       expect(row?.withList).toEqual([1, { tags: [2] }]);
+    });
+  });
+
+  describe('a Record inside an object', () => {
+    const seed = async (): Promise<void> => {
+      const { db } = getClient();
+      await db.WoHolder.create({
+        data: loose({ name: 'h1', lists: [], duos: [], box: { ref: 'wo_tag:v1', refs: ['wo_tag:v1', 'wo_tag:v2'] } }),
+      });
+      await db.WoHolder.create({
+        data: loose({ name: 'h2', lists: [], duos: [], box: { ref: 'wo_tag:v2', refs: ['wo_tag:v2'] } }),
+      });
+      await db.WoHolder.create({ data: { name: 'h3', lists: [], duos: [] } });
+    };
+
+    test('a negated deleteMany by a string spares the row holding it', async () => {
+      await seed();
+      expect(await getClient().db.WoHolder.deleteMany({ where: loose({ NOT: { box: { ref: 'wo_tag:v1' } } }) })).toBe(
+        2,
+      );
+      expect(await names()).toEqual(['h1']);
+    });
+
+    test('a negated deleteMany by a CerialId spares the row holding it', async () => {
+      await seed();
+      const where = { NOT: { box: { ref: CerialId.parse('wo_tag:v2') } } };
+      expect(await getClient().db.WoHolder.deleteMany({ where: loose(where) })).toBe(2);
+      expect(await names()).toEqual(['h2']);
+    });
+
+    test('updateMany by a string changes exactly the rows holding it', async () => {
+      await seed();
+      const changed = await getClient().db.WoHolder.updateMany({
+        where: loose({ box: { ref: 'wo_tag:v1' } }),
+        data: { name: 'changed' },
+      });
+      expect(changed.map((r) => r.id.toString()).length).toBe(1);
+      expect(await names()).toEqual(['changed', 'h2', 'h3']);
+    });
+
+    test('eq, neq, has and in match by key', async () => {
+      await seed();
+      expect(await names({ box: { ref: 'wo_tag:v1' } })).toEqual(['h1']);
+      // A row with no box has no ref, which is not v1
+      expect(await names({ box: { ref: { neq: 'wo_tag:v1' } } })).toEqual(['h2', 'h3']);
+      expect(await names({ box: { ref: { in: ['wo_tag:v1', 'wo_tag:v2'] } } })).toEqual(['h1', 'h2']);
+      expect(await names({ box: { refs: { has: 'wo_tag:v1' } } })).toEqual(['h1']);
+      expect(await names({ box: { refs: { has: CerialId.parse('wo_tag:v2') } } })).toEqual(['h1', 'h2']);
+    });
+
+    test('a value that names no table is refused and deletes nothing', async () => {
+      await seed();
+      await refuses(
+        () => getClient().db.WoHolder.deleteMany({ where: loose({ NOT: { box: { ref: 'v1' } } }) }),
+        /box\.ref/,
+      );
+      expect(await names()).toEqual(['h1', 'h2', 'h3']);
     });
   });
 });

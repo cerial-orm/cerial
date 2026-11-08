@@ -260,6 +260,19 @@ export function parseRecordIdInput(value: RecordIdInput): RecordId {
 }
 
 /**
+ * A Record sub-field of an object, as create stores it. The sub-field has no paired relation to name its
+ * table, so the table comes from the value itself.
+ */
+export function transformSubRecord(field: Pick<FieldMetadata, 'isArray'>, value: unknown): unknown {
+  if (field.isArray && Array.isArray(value))
+    return value.map((element) =>
+      element === null || element === undefined ? element : parseRecordIdInput(toRecordIdInput(element)),
+    );
+
+  return parseRecordIdInput(toRecordIdInput(value));
+}
+
+/**
  * Recursively transform object data based on objectInfo field definitions.
  * Handles Record fields within objects (convert to RecordId), nested objects, and arrays of objects.
  */
@@ -314,15 +327,7 @@ function transformObjectData(
 
     // Record fields in objects — convert RecordIdInput → RecordId
     if (field.type === 'record') {
-      if (field.isArray && Array.isArray(value)) {
-        result[key] = value.map((element) => {
-          if (element === null || element === undefined) return element;
-
-          return parseRecordIdInput(toRecordIdInput(element));
-        });
-      } else {
-        result[key] = parseRecordIdInput(toRecordIdInput(value));
-      }
+      result[key] = transformSubRecord(field, value);
       continue;
     }
 

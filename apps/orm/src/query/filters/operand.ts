@@ -7,7 +7,7 @@
 import type { FieldMetadata, ModelMetadata } from '../../types';
 import { escapeControl } from '../../utils/safe-text';
 import { isNone } from '../../utils/none';
-import { OMIT_FIELD, transformFieldInput } from '../transformers/data-transformer';
+import { OMIT_FIELD, transformFieldInput, transformSubRecord } from '../transformers/data-transformer';
 import { validateFieldInput } from '../validators/data-validator';
 import { getOperatorEntry } from './registry';
 
@@ -39,6 +39,7 @@ function prepareUnit(
   model: ModelMetadata,
   path: string,
   label: string,
+  nested: boolean,
 ): PreparedOperand {
   if (value === undefined) return { value };
   if (isNone(value))
@@ -61,7 +62,11 @@ function prepareUnit(
   if (first) return { issues: [{ path, message: first.message }] };
 
   try {
-    const converted = transformFieldInput(unit, value, model, 'create');
+    // A Record inside an object has no paired relation on the model, so create reads its table off the value
+    const converted =
+      nested && unit.type === 'record' && !unit.isId
+        ? transformSubRecord(unit, value)
+        : transformFieldInput(unit, value, model, 'create');
 
     return { value: converted === OMIT_FIELD ? undefined : converted };
   } catch (error) {
@@ -84,6 +89,7 @@ function prepareList(
   model: ModelMetadata,
   path: string,
   label: string,
+  nested: boolean,
 ): PreparedOperand {
   if (!Array.isArray(value))
     return {
@@ -93,7 +99,7 @@ function prepareList(
   const issues: OperandIssue[] = [];
   const converted: unknown[] = [];
   for (const [i, item] of value.entries()) {
-    const prepared = prepareUnit(field, item, model, `${path}[${i}]`, `${label}[${i}]`);
+    const prepared = prepareUnit(field, item, model, `${path}[${i}]`, `${label}[${i}]`, nested);
     if (prepared.issues) issues.push(...prepared.issues);
     else converted.push(prepared.value);
   }
@@ -113,6 +119,8 @@ export function prepareOperand(
   path: string,
   label: string,
 ): PreparedOperand {
+  // The label is the field's own name only on a model's top level; a path into an object or tuple differs
+  const nested = label !== field.name;
   const entry = getOperatorEntry(op);
   if (!entry) return { issues: [{ path, message: `Unknown operator: ${escapeControl(op)}` }] };
 
@@ -137,16 +145,16 @@ export function prepareOperand(
         : { issues: [{ path, message: `Field "${label}": ${op} expects a string, got ${describe(value)}` }] };
 
     case 'value':
-      return prepareUnit(field, value, model, path, label);
+      return prepareUnit(field, value, model, path, label, nested);
 
     case 'element':
-      return prepareUnit(elementOf(field), value, model, path, label);
+      return prepareUnit(elementOf(field), value, model, path, label, nested);
 
     case 'valueList':
-      return prepareList(field, value, model, path, label);
+      return prepareList(field, value, model, path, label, nested);
 
     case 'elementList':
-      return prepareList(elementOf(field), value, model, path, label);
+      return prepareList(elementOf(field), value, model, path, label, nested);
 
     case 'pair': {
       // The handler reads exactly a minimum and a maximum; a missing bound would compare to NONE
@@ -162,7 +170,7 @@ export function prepareOperand(
             issues.push({ path: `${path}[${i}]`, message: `Field "${label}": a between bound cannot be null` });
       if (issues.length) return { issues };
 
-      return prepareList(field, value, model, path, label);
+      return prepareList(field, value, model, path, label, nested);
     }
   }
 }

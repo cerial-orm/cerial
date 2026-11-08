@@ -152,6 +152,17 @@ export const CORPUS: Record<string, unknown[]> = {
     CerialBytes.fromBase64('AQI='),
   ],
   geometry,
+  // A Record inside an object: no relation names its table, so the value carries it
+  record: [
+    'victim:v',
+    'victim:w',
+    'v',
+    5,
+    {},
+    new RecordId('victim', 'v'),
+    new StringRecordId('victim:v'),
+    CerialId.parse('victim:v'),
+  ],
   any: [1, '1', '2021-01-01T00:00:00.000Z', { a: 1 }, [1, 2], true, 'x'],
 };
 
