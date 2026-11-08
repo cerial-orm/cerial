@@ -452,6 +452,21 @@ development branch and is not available on npm.
   refused before any query, as before. If you filter through a relation by one
   of these types, upgrade.
 
+- Geometry lists in a `where`: `in` and `notIn` on a Geometry field converted their
+  operand only when its first member was a coordinate pair, so a list of GeoJSON
+  objects or `CerialPoint` values reached the database unconverted and matched
+  nothing. `Place.deleteMany({ where: { location: { notIn: [{ type: 'Point',
+  coordinates: [2, 2] }] } } })` removed all three rows when two of them were
+  outside the list, and the typed form `notIn: [new CerialPoint([2, 2])]` did the
+  same. It covered `updateMany`, `$transaction` and relation filters, and a filter
+  built from a JSON body hit it with no cast. Present in 0.1.0 and 0.2.0.
+
+  A geometry list now converts member by member, whatever form each takes: a
+  coordinate pair, a GeoJSON object, a Cerial geometry or a mix. One bare pair on
+  `eq` or `neq` is still a single point. A member that is not a valid geometry is
+  refused before any query, naming the field. If you filter a Geometry field with
+  `in` or `notIn`, upgrade.
+
 - Object array sub-fields dropped in an object update: an update that merges an
   object field wrote its sub-fields one by one and treated an array of objects
   inside it as another nested object, so nothing matched and the array was
