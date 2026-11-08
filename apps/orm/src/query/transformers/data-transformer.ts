@@ -17,7 +17,7 @@ import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal, isValidDecimalInput } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { escapeControl } from '../../utils/safe-text';
-import { isValidUuidString } from '../../utils/validation-utils';
+import { isValidUuidString, validateFieldType } from '../../utils/validation-utils';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
@@ -606,6 +606,19 @@ function transformTupleElementUpdate(
   return result;
 }
 
+/** True when a Date variant takes the string and none of the string-typed variants do */
+function isDateOnlyString(value: string, literalInfo: LiteralFieldMetadata): boolean {
+  const takesString = literalInfo.variants.some(
+    (v) => (v.kind === 'string' && v.value === value) || (v.kind === 'broadType' && v.typeName === 'String'),
+  );
+  if (takesString) return false;
+
+  return (
+    literalInfo.variants.some((v) => v.kind === 'broadType' && v.typeName === 'Date') &&
+    validateFieldType(value, 'date')
+  );
+}
+
 /**
  * Transform a literal field value.
  * Primitives (string, number, boolean, Date) pass through unchanged.
@@ -614,6 +627,10 @@ function transformTupleElementUpdate(
  */
 function transformLiteralValue(value: unknown, literalInfo: LiteralFieldMetadata): unknown {
   if (value === null || value === undefined) return value;
+
+  // A string a Date variant accepts and no string variant does is the date: the database refuses a string
+  // for a Date member, so it is converted as a Date field converts it
+  if (typeof value === 'string' && isDateOnlyString(value, literalInfo)) return transformValue(value, 'date');
 
   // Primitive values — pass through unchanged
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;

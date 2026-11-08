@@ -22,7 +22,8 @@ import { createObjectRegistry, createRegistry } from '../../../src/generators/me
 import { parse } from '../../../src/parser/parser';
 import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import { buildConditions } from '../../../src/query/filters/condition-builder';
-import { transformValue } from '../../../src/query/transformers';
+import { transformData, transformValue } from '../../../src/query/transformers';
+import { validateCreateData } from '../../../src/query/validators/data-validator';
 import { validateWhere } from '../../../src/query/validators';
 import type { SchemaFieldType, WhereClause } from '../../../src/types';
 import { CerialGeometry, CerialPoint } from '../../../src/utils/cerial-geometry';
@@ -32,6 +33,12 @@ const schema = `
 enum Tier { LOW, HIGH }
 
 literal Mixed { 'a', 1, true }
+
+literal DateOrFlag { Date, Bool }
+
+literal DateOrText { Date, String }
+
+literal DateOrTag { Date, 'tag' }
 
 object Inner {
   n Int
@@ -79,6 +86,9 @@ model Owner {
   mixed Mixed
   inner Inner
   bag SetBag
+  ld DateOrFlag
+  ldText DateOrText
+  ldTag DateOrTag
   oInt Int?
   oStr String?
   pair Pair
@@ -748,6 +758,56 @@ describe('a null operand on an optional field that is not @nullable is refused',
     expect(errorsAt(owner, { nInt: null })).toEqual([]);
     expect(errorsAt(owner, { nInt: { eq: null, in: [1, null] } })).toEqual([]);
     expect(errorsAt(owner, { oInt: { isNull: true, isNone: true, isDefined: true } })).toEqual([]);
+  });
+});
+
+describe('a literal with a Date variant converts an ISO string as create does', () => {
+  const ISO = '2022-01-01T00:00:00.000Z';
+  const createOf = (field: string, value: unknown): unknown => {
+    const data = { [field]: value };
+    const stored = transformData(data, owner)[field];
+    // A value create stores is one it accepted
+    expect(validateCreateData({ ...minimalCreate, ...data }, owner).errors.filter((e) => e.field === field)).toEqual(
+      [],
+    );
+
+    return stored;
+  };
+  const minimalCreate = {};
+
+  test.each(['ld', 'ldText', 'ldTag'])(
+    '%s: create stores a Date for the ISO string unless a String variant takes it',
+    (field) => {
+      const stored = createOf(field, ISO);
+      if (field === 'ldText') expect(stored).toBe(ISO);
+      else expect(stored).toEqual(new Date(ISO));
+    },
+  );
+
+  test('a string variant that equals the value keeps the string', () => {
+    expect(createOf('ldTag', 'tag')).toBe('tag');
+  });
+
+  test('a Date and a boolean are stored as given', () => {
+    expect(createOf('ld', new Date(0))).toEqual(new Date(0));
+    expect(createOf('ld', true)).toBe(true);
+  });
+
+  test.each(['eq', 'neq', 'not'])('where %s binds the same Date create stores', (op) => {
+    const bound = varsOf({ ld: { [op]: ISO } })[0];
+    expect(bound).toBeInstanceOf(Date);
+    expect((bound as Date).toISOString()).toBe(ISO);
+  });
+
+  test('NOT and a list convert too, and a String variant leaves the string alone', () => {
+    expect(varsOf({ NOT: { ld: ISO } })[0]).toBeInstanceOf(Date);
+    expect((varsOf({ ld: { in: [ISO] } })[0] as unknown[])[0]).toBeInstanceOf(Date);
+    expect(varsOf({ ldText: ISO })[0]).toBe(ISO);
+  });
+
+  test('a string that is neither a date nor a variant is refused by create and where', () => {
+    expect(errorsAt(owner, { ld: 'nope' }).length).toBe(1);
+    expect(validateCreateData({ ld: 'nope' }, owner).errors.filter((e) => e.field === 'ld').length).toBe(1);
   });
 });
 
