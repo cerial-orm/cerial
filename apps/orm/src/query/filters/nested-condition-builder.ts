@@ -12,7 +12,7 @@ import {
   buildArrayObjectCondition,
   buildArrayTupleCondition,
   buildDirectCondition,
-  transformDateOperand,
+  transformFieldValue,
   buildObjectCondition,
   buildTupleCondition,
   isOperatorShape,
@@ -206,7 +206,9 @@ function buildSubqueryConditions(
 
         const handler = getOperatorHandler(op);
         if (handler) {
-          operatorConditions.push(handler(ctx, fieldName, transformDateOperand(opValue, fieldMetadata), fieldMetadata));
+          operatorConditions.push(
+            handler(ctx, fieldName, transformFieldValue(opValue, fieldMetadata, targetModel), fieldMetadata),
+          );
         }
       }
 
@@ -217,7 +219,7 @@ function buildSubqueryConditions(
       // Direct value (shorthand for eq)
       const handler = getOperatorHandler('eq');
       if (handler) {
-        conditions.push(handler(ctx, fieldName, transformDateOperand(value, fieldMetadata), fieldMetadata));
+        conditions.push(handler(ctx, fieldName, transformFieldValue(value, fieldMetadata, targetModel), fieldMetadata));
       }
     }
   }
@@ -386,7 +388,7 @@ function compileForwardBody(
         const handler = getOperatorHandler(op);
         if (handler) {
           operatorConditions.push(
-            handler(ctx, dotField, transformDateOperand(opValue, nestedFieldMetadata), nestedFieldMetadata),
+            handler(ctx, dotField, transformFieldValue(opValue, nestedFieldMetadata, targetModel), nestedFieldMetadata),
           );
         }
       }
@@ -398,7 +400,9 @@ function compileForwardBody(
       // Direct value (shorthand for eq)
       const handler = getOperatorHandler('eq');
       if (handler) {
-        conditions.push(handler(ctx, dotField, transformDateOperand(value, nestedFieldMetadata), nestedFieldMetadata));
+        conditions.push(
+          handler(ctx, dotField, transformFieldValue(value, nestedFieldMetadata, targetModel), nestedFieldMetadata),
+        );
       }
     }
   }

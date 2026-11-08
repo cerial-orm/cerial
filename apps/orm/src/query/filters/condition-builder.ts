@@ -101,7 +101,7 @@ function transformGeometryValue(value: unknown): unknown {
 }
 
 /** A date string becomes a Date as it does on create; a string compared as-is would match against the wrong type. */
-export function transformDateOperand(value: unknown, field: Pick<FieldMetadata, 'type'>): unknown {
+function transformDateOperand(value: unknown, field: Pick<FieldMetadata, 'type'>): unknown {
   if (field.type !== 'date') return value;
   if (Array.isArray(value)) return value.map((v) => transformValue(v, 'date'));
 
@@ -109,7 +109,7 @@ export function transformDateOperand(value: unknown, field: Pick<FieldMetadata, 
 }
 
 /** Transform value for ID, Record, or UUID fields - handles all input types */
-function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
+export function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
   // Transform ID field values to RecordId
   if (fieldMetadata.isId) {
     // Check arrays first — isRecordIdInput matches arrays (valid RecordIdValue),

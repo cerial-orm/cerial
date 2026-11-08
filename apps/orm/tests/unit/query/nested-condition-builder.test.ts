@@ -9,6 +9,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { RecordId } from 'surrealdb';
 import { CerialValidationError } from '../../../src/errors';
 import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import {
@@ -26,6 +27,9 @@ const fieldOf = (model: ModelMetadata, name: string): FieldMetadata => {
 
   return found;
 };
+
+// An id operand binds as a RecordId on the target table, as at the top level
+const owned = (id: number): RecordId => new RecordId('owner', id);
 
 const ownerField = fieldOf(place, 'owner');
 const placesField = fieldOf(owner, 'places');
@@ -80,7 +84,7 @@ describe('buildReverseNestedCondition — quantifiers', () => {
   test('several fields in one quantifier are ANDed in key order', () => {
     expect(reverse({ none: { name: 'x', ownerId: 1 } })).toEqual({
       text: `id NOT IN (${SUB} WHERE name = $name_eq_0 AND ownerId = $ownerId_eq_1)`,
-      vars: { name_eq_0: 'x', ownerId_eq_1: 1 },
+      vars: { name_eq_0: 'x', ownerId_eq_1: owned(1) },
     });
   });
 
@@ -226,7 +230,7 @@ describe('buildForwardNestedCondition', () => {
   test('several fields are ANDed without extra parentheses', () => {
     expect(forward({ name: 'A', id: 1 })).toEqual({
       text: '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1)',
-      vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: 1 },
+      vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: owned(1) },
     });
   });
 
@@ -261,7 +265,7 @@ describe('buildForwardNestedCondition', () => {
   test('AND over several branches is parenthesised and bound in order', () => {
     expect(forward({ AND: [{ name: 'A' }, { id: 1 }] })).toEqual({
       text: '(ownerId.id != NONE AND (ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1))',
-      vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: 1 },
+      vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: owned(1) },
     });
   });
 
@@ -275,14 +279,14 @@ describe('buildForwardNestedCondition', () => {
   test('a branch may use operator objects, not only direct values', () => {
     expect(forward({ OR: [{ name: { contains: 'A' } }, { id: { gt: 2 } }] })).toEqual({
       text: '(ownerId.id != NONE AND (string::contains(ownerId.name, $ownerId_name_contains_0) OR ownerId.id > $ownerId_id_gt_1))',
-      vars: { ownerId_name_contains_0: 'A', ownerId_id_gt_1: 2 },
+      vars: { ownerId_name_contains_0: 'A', ownerId_id_gt_1: owned(2) },
     });
   });
 
   test('an OR containing an AND nests two levels deep', () => {
     expect(forward({ OR: [{ AND: [{ name: 'A' }, { id: 1 }] }, { name: 'B' }] })).toEqual({
       text: '(ownerId.id != NONE AND ((ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1) OR ownerId.name = $ownerId_name_eq_2))',
-      vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: 1, ownerId_name_eq_2: 'B' },
+      vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: owned(1), ownerId_name_eq_2: 'B' },
     });
   });
 
@@ -296,7 +300,7 @@ describe('buildForwardNestedCondition', () => {
   test('a logical operator beside a plain field key composes with AND, as the top level does', () => {
     expect(forward({ name: 'Z', OR: [{ id: 1 }, { id: 2 }] })).toEqual({
       text: '(ownerId.id != NONE AND ownerId.name = $ownerId_name_eq_0 AND (ownerId.id = $ownerId_id_eq_1 OR ownerId.id = $ownerId_id_eq_2))',
-      vars: { ownerId_name_eq_0: 'Z', ownerId_id_eq_1: 1, ownerId_id_eq_2: 2 },
+      vars: { ownerId_name_eq_0: 'Z', ownerId_id_eq_1: owned(1), ownerId_id_eq_2: owned(2) },
     });
   });
 
