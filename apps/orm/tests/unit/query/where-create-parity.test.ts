@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { Geometry } from 'surrealdb';
+import { Geometry, Uuid } from 'surrealdb';
 import {
   convertEnums,
   convertLiterals,
@@ -14,6 +14,7 @@ import {
   createLiteralRegistry,
   convertObjects,
   convertTuples,
+  inferFKTypes,
   createTupleRegistry,
   resolveObjectFields,
 } from '../../../src/generators/metadata';
@@ -25,6 +26,7 @@ import { transformValue } from '../../../src/query/transformers';
 import { validateWhere } from '../../../src/query/validators';
 import type { SchemaFieldType, WhereClause } from '../../../src/types';
 import { CerialGeometry, CerialPoint } from '../../../src/utils/cerial-geometry';
+import { CerialUuid } from '../../../src/utils/cerial-uuid';
 
 const schema = `
 enum Tier { LOW, HIGH }
@@ -95,6 +97,43 @@ model Place {
   ownerId Record
   owner Relation @field(ownerId) @model(Owner)
 }
+
+model UuidOwner {
+  id Record(uuid) @id
+  n Int
+  kids Relation[] @model(UuidKid)
+}
+
+model UuidKid {
+  id Record @id
+  parentId Record
+  parent Relation @field(parentId) @model(UuidOwner)
+}
+
+model IntOwner {
+  id Record(int) @id
+  n Int
+}
+
+model StringOwner {
+  id Record(string) @id
+  n Int
+}
+
+model UnionOwner {
+  id Record(string, int) @id
+  n Int
+}
+
+model UuidIntOwner {
+  id Record(int, uuid) @id
+  n Int
+}
+
+model TupleIdOwner {
+  id Record(Pair) @id
+  n Int
+}
 `;
 
 const { ast } = parse(schema);
@@ -104,16 +143,20 @@ const tuples = convertTuples(ast.tuples);
 const literals = createLiteralRegistry([...convertLiterals(ast.literals), ...convertEnums(ast.enums)]);
 resolveObjectFields(models, objects, createObjectRegistry(objects), createTupleRegistry(tuples), literals);
 const registry = createRegistry(models);
+inferFKTypes(models, registry);
 const owner = registry.Owner!;
 const place = registry.Place!;
+const uuidOwner = registry.UuidOwner!;
+const uuidKid = registry.UuidKid!;
 
 const w = (value: unknown): WhereClause => value as WhereClause;
 const errorsAt = (model: typeof owner, where: unknown): string[] =>
   validateWhere(w(where), model, registry).errors.map((e) => e.message);
+const varsFor = (model: typeof owner, where: unknown): unknown[] =>
+  Object.values(buildConditions(createCompileContext(), w(where), model, registry).vars);
 const textFor = (model: typeof owner, where: unknown): string =>
   buildConditions(createCompileContext(), w(where), model, registry).text;
-const varsOf = (where: unknown): unknown[] =>
-  Object.values(buildConditions(createCompileContext(), w(where), owner, registry).vars);
+const varsOf = (where: unknown): unknown[] => varsFor(owner, where);
 
 const point = (x: number, y: number) => ({ type: 'Point', coordinates: [x, y] });
 const line = {
@@ -480,5 +523,85 @@ describe('a set field compares as the set create stores', () => {
 
   test('a null operand is not cast', () => {
     expect(textFor(owner, { sets: { eq: null } })).not.toContain('<set>');
+  });
+});
+
+describe('id operands are converted the way create builds the id', () => {
+  const U = '0190c3f8-6c5d-7a3a-9d3a-1e1f2a3b4c5d';
+  const idOf = (model: typeof owner, where: unknown): unknown => varsFor(model, where)[0];
+  const keyOf = (v: unknown): unknown => (v as { id: unknown }).id;
+
+  test.each([
+    ['shorthand', U],
+    ['eq', { eq: U }],
+    ['neq', { neq: U }],
+    ['not', { not: U }],
+  ])('a uuid string on a Record(uuid) id binds a Uuid key (%s)', (_op, filter) => {
+    expect(keyOf(idOf(uuidOwner, { id: filter }))).toBeInstanceOf(Uuid);
+  });
+
+  test('in and notIn bind a Uuid key per member, and NOT does too', () => {
+    for (const where of [{ id: { in: [U] } }, { id: { notIn: [U] } }, { NOT: { id: { in: [U] } } }]) {
+      const bound = idOf(uuidOwner, where) as unknown[];
+      expect(keyOf(bound[0])).toBeInstanceOf(Uuid);
+    }
+  });
+
+  test('a CerialUuid and an SDK Uuid bind the same key', () => {
+    expect(keyOf(idOf(uuidOwner, { id: { neq: new CerialUuid(U) } }))).toBeInstanceOf(Uuid);
+    expect(keyOf(idOf(uuidOwner, { id: { neq: new Uuid(U) } }))).toBeInstanceOf(Uuid);
+  });
+
+  test('a foreign key to a Record(uuid) id binds a Uuid key too', () => {
+    expect(keyOf(idOf(uuidKid, { parentId: { neq: U } }))).toBeInstanceOf(Uuid);
+    expect(keyOf(idOf(uuidKid, { parentId: U }))).toBeInstanceOf(Uuid);
+    expect(keyOf(idOf(uuidOwner, { kids: { some: { parentId: { neq: U } } } }))).toBeInstanceOf(Uuid);
+    expect(keyOf(idOf(uuidKid, { parent: { id: { neq: U } } }))).toBeInstanceOf(Uuid);
+  });
+
+  test('a string id stays a string, an int stays an int', () => {
+    expect(keyOf(idOf(registry.StringOwner!, { id: { neq: 'k' } }))).toBe('k');
+    expect(keyOf(idOf(registry.IntOwner!, { id: { neq: 5 } }))).toBe(5);
+    expect(keyOf(idOf(registry.UnionOwner!, { id: { neq: '5' } }))).toBe('5');
+    expect(keyOf(idOf(registry.UnionOwner!, { id: { neq: 5 } }))).toBe(5);
+  });
+
+  test('a union of int and uuid binds a uuid string as a Uuid and an int as an int', () => {
+    expect(keyOf(idOf(registry.UuidIntOwner!, { id: { neq: U } }))).toBeInstanceOf(Uuid);
+    expect(keyOf(idOf(registry.UuidIntOwner!, { id: { neq: 5 } }))).toBe(5);
+  });
+
+  test('an array where one id is required is refused naming the field', () => {
+    for (const model of [uuidOwner, registry.IntOwner!, registry.StringOwner!, registry.UnionOwner!]) {
+      for (const where of [
+        { id: { neq: ['k'] } },
+        { id: ['k'] },
+        { id: { eq: [1] } },
+        { NOT: { id: { not: ['k'] } } },
+      ]) {
+        const msgs = errorsAt(model, where);
+        expect(msgs.length).toBe(1);
+        expect(msgs[0]).toContain('id');
+      }
+    }
+    expect(errorsAt(uuidKid, { parentId: { neq: ['k'] } }).join()).toContain('parentId');
+    expect(errorsAt(uuidOwner, { kids: { some: { parentId: ['k'] } } }).join()).toContain('parentId');
+  });
+
+  test('an id operand that is not a uuid is refused on a Record(uuid) id', () => {
+    expect(errorsAt(uuidOwner, { id: { neq: 'nope' } }).join()).toContain('id');
+    expect(errorsAt(uuidOwner, { id: { notIn: ['nope'] } }).join()).toContain('id');
+  });
+
+  test('on a plain or tuple id an array is one array-typed id, and a list is only for in and notIn', () => {
+    const single = idOf(registry.TupleIdOwner!, { id: { neq: [1, '2024-01-02T00:00:00Z'] } }) as {
+      id: unknown;
+    };
+    expect(Array.isArray(single.id)).toBe(true);
+    const listed = idOf(registry.TupleIdOwner!, { id: { in: [[1, 'a']] } }) as Array<{ id: unknown }>;
+    expect(Array.isArray(listed)).toBe(true);
+    expect(Array.isArray(listed[0]!.id)).toBe(true);
+    const plain = idOf(owner, { id: { neq: ['k'] } }) as { id: unknown };
+    expect(plain.id).toEqual(['k']);
   });
 });

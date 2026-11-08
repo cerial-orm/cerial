@@ -207,7 +207,7 @@ function buildSubqueryConditions(
         const handler = getOperatorHandler(op);
         if (handler) {
           operatorConditions.push(
-            handler(ctx, fieldName, transformFieldValue(opValue, fieldMetadata, targetModel), fieldMetadata),
+            handler(ctx, fieldName, transformFieldValue(opValue, fieldMetadata, targetModel, op), fieldMetadata),
           );
         }
       }
@@ -388,7 +388,12 @@ function compileForwardBody(
         const handler = getOperatorHandler(op);
         if (handler) {
           operatorConditions.push(
-            handler(ctx, dotField, transformFieldValue(opValue, nestedFieldMetadata, targetModel), nestedFieldMetadata),
+            handler(
+              ctx,
+              dotField,
+              transformFieldValue(opValue, nestedFieldMetadata, targetModel, op),
+              nestedFieldMetadata,
+            ),
           );
         }
       }

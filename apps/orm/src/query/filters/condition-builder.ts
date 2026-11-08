@@ -17,6 +17,7 @@ import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
+import { isValidUuidString } from '../../utils/validation-utils';
 import { quoteSubKey } from '../../utils/string-utils';
 import { isObject } from '../../utils/type-utils';
 import { CerialValidationError } from '../../errors';
@@ -123,8 +124,41 @@ function transformDateOperand(value: unknown, field: Pick<FieldMetadata, 'type'>
   return mapLeaves(value, (v) => transformValue(v, 'date'));
 }
 
+/** How many list levels wrap the ids an operator takes: none for one id, one for a list of ids, two for a list of lists. */
+function idListDepth(op: string, isArray: boolean | undefined): number {
+  if (isArray) return op === 'has' ? 0 : op === 'in' || op === 'notIn' ? 2 : 1;
+
+  return ['in', 'notIn', 'hasAll', 'hasAny'].includes(op) ? 1 : 0;
+}
+
+/**
+ * One id operand as a RecordId, the way create builds the id of that table. A Uuid key is a Uuid, not the
+ * string the API hands back, unless the id type also admits a plain string.
+ */
+function transformIdOperand(table: string, value: unknown, recordIdTypes: string[] | undefined): unknown {
+  if (!isRecordIdInput(value)) return value;
+  const input = CerialUuid.is(value) ? value.toNative() : value;
+  const id = transformOrValidateRecordId(table, input as Parameters<typeof transformOrValidateRecordId>[1]);
+  const types = recordIdTypes?.map((t) => t.toLowerCase());
+  if (!types?.includes('uuid') || types.includes('string')) return id;
+  if (typeof id.id !== 'string' || !isValidUuidString(id.id)) return id;
+
+  return new RecordId(id.table.name, new Uuid(id.id));
+}
+
+function mapIdOperand(value: unknown, depth: number, table: string, recordIdTypes: string[] | undefined): unknown {
+  if (depth && Array.isArray(value)) return value.map((v) => mapIdOperand(v, depth - 1, table, recordIdTypes));
+
+  return transformIdOperand(table, value, recordIdTypes);
+}
+
 /** Transform value for ID, Record, or UUID fields - handles all input types */
-export function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
+export function transformFieldValue(
+  value: unknown,
+  fieldMetadata: FieldMetadata,
+  model: ModelMetadata,
+  op: string = 'eq',
+): unknown {
   // A whole tuple or object array compared to the field converts as create converts it, element by element
   if ((fieldMetadata.type === 'object' || fieldMetadata.type === 'tuple') && Array.isArray(value)) {
     const own = { ...model, fields: [fieldMetadata] };
@@ -132,39 +166,15 @@ export function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata
     return transformData({ [fieldMetadata.name]: value }, own)[fieldMetadata.name];
   }
 
-  // Transform ID field values to RecordId
-  if (fieldMetadata.isId) {
-    // Check arrays first — isRecordIdInput matches arrays (valid RecordIdValue),
-    // but in WHERE context arrays mean "list of IDs" not "single array-typed ID"
-    if (Array.isArray(value)) {
-      return value.map((v) => {
-        if (isRecordIdInput(v)) return transformOrValidateRecordId(model.tableName, v);
-
-        return v;
-      });
-    }
-    if (isRecordIdInput(value)) {
-      return transformOrValidateRecordId(model.tableName, value);
-    }
-  }
-
-  // Transform Record field values to RecordId
-  if (fieldMetadata.type === 'record') {
-    const targetTable = findRecordTargetTable(fieldMetadata.name, model);
-    if (targetTable) {
-      // Check arrays first — isRecordIdInput matches arrays (valid RecordIdValue),
-      // but in WHERE context arrays mean "list of IDs" not "single array-typed ID"
-      if (Array.isArray(value)) {
-        return value.map((v) => {
-          if (isRecordIdInput(v)) return transformOrValidateRecordId(targetTable, v);
-
-          return v;
-        });
-      }
-      if (isRecordIdInput(value)) {
-        return transformOrValidateRecordId(targetTable, value);
-      }
-    }
+  // An id or record operand is one id, or a list of them where the operator takes a list. An array
+  // where one id is wanted is a single array-typed id, as it is on create, not a list of ids.
+  const idTable = fieldMetadata.isId
+    ? model.tableName
+    : fieldMetadata.type === 'record'
+      ? findRecordTargetTable(fieldMetadata.name, model)
+      : undefined;
+  if (idTable) {
+    return mapIdOperand(value, idListDepth(op, fieldMetadata.isArray), idTable, fieldMetadata.recordIdTypes);
   }
 
   // Transform UUID field values to SDK Uuid
@@ -212,7 +222,7 @@ export function buildFieldCondition(
     if (value === undefined) continue;
 
     // Transform ID/Record field values to RecordId
-    const transformedValue = transformFieldValue(value, fieldMetadata, model);
+    const transformedValue = transformFieldValue(value, fieldMetadata, model, op);
     conditions.push(handler(ctx, field, transformedValue, fieldMetadata));
   }
 
