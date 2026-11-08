@@ -1,0 +1,301 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "recordIdTypes": [
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "UuidFkOwner"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "owners",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UuidFkTarget",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "targetId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "targetId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "UuidFkTarget"
+            }
+          ],
+          "isOptional": false,
+          "name": "target",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "note",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "UuidFkOwner",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "targetId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "targetId"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "UuidFkTarget"
+            }
+          ],
+          "isOptional": true,
+          "name": "target",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "note",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "UuidFkOptional",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "targetIds",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "targetIds"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "UuidFkTarget"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "targets",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "note",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "UuidFkMulti",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ]
+}

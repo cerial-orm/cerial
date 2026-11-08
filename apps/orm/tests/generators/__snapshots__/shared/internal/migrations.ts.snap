@@ -8,6 +8,7 @@ import { chunk as chunk1 } from './migrations/chunk-1.js';
 import { chunk as chunk2 } from './migrations/chunk-2.js';
 import { chunk as chunk3 } from './migrations/chunk-3.js';
 import { chunk as chunk4 } from './migrations/chunk-4.js';
+import { chunk as chunk5 } from './migrations/chunk-5.js';
 
 /** Union type of all model names */
 export type ModelName =
@@ -220,6 +221,10 @@ export type ModelName =
   | 'FkChildModel'
   | 'StandaloneRefModel'
   | 'UnsetTest'
+  | 'UuidFkTarget'
+  | 'UuidFkOwner'
+  | 'UuidFkOptional'
+  | 'UuidFkMulti'
   | 'KitchenSinkUser'
   | 'KitchenSinkProfile'
   | 'KitchenSinkPost'
@@ -472,6 +477,10 @@ export const modelNames = [
   'FkChildModel',
   'StandaloneRefModel',
   'UnsetTest',
+  'UuidFkTarget',
+  'UuidFkOwner',
+  'UuidFkOptional',
+  'UuidFkMulti',
   'KitchenSinkUser',
   'KitchenSinkProfile',
   'KitchenSinkPost',
@@ -521,6 +530,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   ...chunk2,
   ...chunk3,
   ...chunk4,
+  ...chunk5,
 };
 
 /** Fingerprint of each model's desired table, for comparing against the stored state without a schema */
@@ -734,6 +744,10 @@ export const modelFingerprints: Record<ModelName, string> = {
   FkChildModel: '739e337893eb3ba650c7852a56568ab0bee319913aa314aa7f722745bcd7ea11',
   StandaloneRefModel: 'dd70a95b99ca9178a0c4b3edd74e7d910422979ad802e55908036172b3bc81d5',
   UnsetTest: '307b6413b7e0f48d3a57cc601746119458808ca314e73d286f1b4a82524961fe',
+  UuidFkTarget: '651c2fd58dc07aef3d6194e0e91f2356034426c4f92b2e8bbf7b32d5e73457c1',
+  UuidFkOwner: 'fbff809290ee3384f4908976f24a1a4a4b340b74c800fd31a387a9ece5dd049d',
+  UuidFkOptional: '783937ca9120ba984d23c2ea11d76e483db5935e9df93c845d8d22d2df8219ba',
+  UuidFkMulti: '991c36abb648b813887e9e1e50434daf3349b1273f415c251745e0ae9c264c8a',
   KitchenSinkUser: '3baa369c05b490eee859d31a4c91b629f7837203721fd407e8287c82ee3670ac',
   KitchenSinkProfile: '169aded5ae5871b30953fd93043a3040182c84942c3785d132bd51ed8e77485c',
   KitchenSinkPost: '58041bbce5211bdd438d1861c2174672c9cbf5a965ecec1a7d1a3513d632098c',
@@ -777,7 +791,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = '1dd4bdde18d1bf632167c4866d7481bb3219c247080acf7624b29c235fa12118';
+export const wholeSchemaFingerprint = '86786ec9bc5a4aec2307a2dc15980287e68c23b88003110c4fd0380daf761d6c';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

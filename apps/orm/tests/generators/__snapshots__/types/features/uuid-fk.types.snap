@@ -1,0 +1,1740 @@
+// ===== models/uuidfkmulti.ts =====
+/**
+ * Generated types for UuidFkMulti
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  UuidFkTarget,
+  UuidFkTargetWhere,
+  UuidFkTargetSelect,
+  UuidFkTargetOrderBy,
+  UuidFkTargetNestedCreate,
+  UuidFkTargetInclude,
+  GetUuidFkTargetIncludePayload,
+} from './uuidfktarget.js';
+export interface UuidFkMulti {
+  id: CerialId<string>;
+  targetIds: CerialId<string>[];
+  note: string;
+}
+
+export interface UuidFkMultiInput {
+  id?: string;
+  targetIds: RecordIdInput<string>[];
+  note: string;
+}
+
+export interface UuidFkMultiWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  targetIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  targets?: {
+    some?: Omit<UuidFkTargetWhere, '$raw'>;
+    every?: Omit<UuidFkTargetWhere, '$raw'>;
+    none?: Omit<UuidFkTargetWhere, '$raw'>;
+  };
+  note?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  $raw?: SqlFragment;
+  AND?: UuidFkMultiWhere[];
+  OR?: UuidFkMultiWhere[];
+  NOT?: UuidFkMultiWhere;
+}
+
+export type UuidFkMultiWhereInput = UuidFkMultiWhere;
+
+export type UuidFkMultiFindUniqueWhere = { id: RecordIdInput<string> } & Omit<UuidFkMultiWhere, 'id'>;
+
+export type UuidFkMultiCreate = O.Optional<O.Omit<UuidFkMultiInput, 'targets'>, 'id' | 'targetIds'>;
+
+export type UuidFkMultiNestedCreate = O.Optional<O.Omit<UuidFkMultiInput, 'targets' | 'targetIds'>, 'id'>;
+
+export type UuidFkMultiCreateInput =
+  | UuidFkMultiCreate
+  | (O.Omit<UuidFkMultiCreate, 'targetIds'> & {
+      targets?: {
+        create?: UuidFkTargetNestedCreate | UuidFkTargetNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type UuidFkMultiUpdate = Partial<O.Omit<UuidFkMultiInput, 'id' | 'targets' | 'targetIds'>> & {
+  targetIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type UuidFkMultiUpdateInput =
+  | UuidFkMultiUpdate
+  | (O.Omit<UuidFkMultiUpdate, 'targetIds'> & {
+      targets?: {
+        create?: UuidFkTargetNestedCreate | UuidFkTargetNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type UuidFkMultiUnset = {};
+
+export interface UuidFkMultiSelectFields {
+  id?: boolean;
+  targetIds?: boolean;
+  note?: boolean;
+}
+
+export type UuidFkMultiSelect = AtLeastOne<UuidFkMultiSelectFields>;
+
+export interface UuidFkMultiOrderBy {
+  id?: 'asc' | 'desc';
+  targetIds?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+}
+
+export interface UuidFkMultiGroupByKeys {
+  id?: true;
+  targetIds?: true;
+  note?: true;
+}
+
+export interface UuidFkMultiCountAggregate {
+  _all?: true;
+  id?: true;
+  targetIds?: true;
+  note?: true;
+}
+
+export interface UuidFkMultiMinMaxAggregate {
+  id?: true;
+  note?: true;
+}
+
+export interface UuidFkMultiGroupAggregate {
+  id?: true;
+  targetIds?: true;
+  note?: true;
+}
+
+export interface UuidFkMultiGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  targetIds?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; targetIds?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+}
+
+export interface UuidFkMultiGroupByArgs {
+  by: UuidFkMultiGroupByKeys;
+  where?: UuidFkMultiWhere;
+  _count?: true | UuidFkMultiCountAggregate;
+  _min?: UuidFkMultiMinMaxAggregate;
+  _max?: UuidFkMultiMinMaxAggregate;
+  _group?: UuidFkMultiGroupAggregate;
+  orderBy?: UuidFkMultiGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UuidFkMultiGroupByAggregates {
+  _count: { _all: number; id: number; targetIds: number; note: number };
+  _min: { id: NonNullable<UuidFkMulti['id']> | null; note: NonNullable<UuidFkMulti['note']> | null };
+  _max: { id: NonNullable<UuidFkMulti['id']> | null; note: NonNullable<UuidFkMulti['note']> | null };
+  _group: {
+    id: GroupMember<UuidFkMulti['id']>[];
+    targetIds: GroupMember<UuidFkMulti['targetIds']>[];
+    note: GroupMember<UuidFkMulti['note']>[];
+  };
+}
+
+export type UuidFkMultiGroupByResult<A extends UuidFkMultiGroupByArgs> = GroupByRow<
+  UuidFkMulti,
+  A,
+  UuidFkMultiGroupByAggregates
+>;
+
+export interface UuidFkMultiInclude {
+  targets?:
+    | boolean
+    | {
+        select?: UuidFkTargetSelect;
+        where?: UuidFkTargetWhere;
+        orderBy?: UuidFkTargetOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: UuidFkTargetInclude;
+      };
+}
+
+export type UuidFkMulti$Relations = {
+  targets: { type: UuidFkTarget[]; include: UuidFkTargetInclude };
+};
+
+export type GetUuidFkMultiIncludePayload<I extends UuidFkMultiInclude | undefined> = I extends UuidFkMultiInclude
+  ? Pick<
+      {
+        targets: I['targets'] extends true
+          ? UuidFkTarget[]
+          : I['targets'] extends {
+                select: infer S extends UuidFkTargetSelect;
+                include: infer NI extends UuidFkTargetInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UuidFkTarget
+                  ? ResolveFieldSelect<UuidFkTarget[P], S[P]>
+                  : never;
+              } & GetUuidFkTargetIncludePayload<NI>)[]
+            : I['targets'] extends { select: infer S extends UuidFkTargetSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UuidFkTarget
+                    ? ResolveFieldSelect<UuidFkTarget[P], S[P]>
+                    : never;
+                }[]
+              : I['targets'] extends { include: infer NI extends UuidFkTargetInclude }
+                ? (UuidFkTarget & GetUuidFkTargetIncludePayload<NI>)[]
+                : UuidFkTarget[];
+      },
+      Extract<keyof I, keyof UuidFkMulti$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetUuidFkMultiPayload<
+  S extends UuidFkMultiSelect | undefined = undefined,
+  I extends UuidFkMultiInclude | undefined = undefined,
+> = A.Compute<
+  S extends UuidFkMultiSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UuidFkMulti
+          ? ResolveFieldSelect<UuidFkMulti[K], S[K]>
+          : never;
+      } & GetUuidFkMultiIncludePayload<I>
+    : I extends UuidFkMultiInclude
+      ? UuidFkMulti & GetUuidFkMultiIncludePayload<I>
+      : UuidFkMulti,
+  'flat'
+>;
+
+export interface UuidFkMultiModel {
+  findOne<
+    S extends UuidFkMultiSelect | undefined = undefined,
+    I extends UuidFkMultiInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: UuidFkMultiWhere;
+    select?: SelectArg<S, UuidFkMultiSelectFields>;
+    include?: IncludeArg<I, UuidFkMultiInclude>;
+    compute?: C & { [K in keyof C & (keyof UuidFkMulti | keyof UuidFkMultiWhere)]?: never };
+    orderBy?: UuidFkMultiOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkMultiPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends UuidFkMultiSelect | undefined = undefined,
+    I extends UuidFkMultiInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: UuidFkMultiWhere;
+    select?: SelectArg<S, UuidFkMultiSelectFields>;
+    compute?: C & { [K in keyof C & (keyof UuidFkMulti | keyof UuidFkMultiWhere)]?: never };
+    orderBy?: UuidFkMultiOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, UuidFkMultiInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkMultiPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends UuidFkMultiSelect | undefined = undefined,
+    I extends UuidFkMultiInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: UuidFkMultiFindUniqueWhere;
+    select?: SelectArg<S, UuidFkMultiSelectFields>;
+    include?: IncludeArg<I, UuidFkMultiInclude>;
+    compute?: C & { [K in keyof C & (keyof UuidFkMulti | keyof UuidFkMultiWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkMultiPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<
+    S extends UuidFkMultiSelect | undefined = undefined,
+    I extends UuidFkMultiInclude | undefined = undefined,
+  >(options: {
+    data: UuidFkMultiCreateInput;
+    select?: SelectArg<S, UuidFkMultiSelectFields>;
+    include?: IncludeArg<I, UuidFkMultiInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidFkMultiPayload<S, I>>;
+
+  updateMany<
+    S extends UuidFkMultiSelect | undefined = undefined,
+    I extends UuidFkMultiInclude | undefined = undefined,
+    D extends UuidFkMultiUpdateInput = UuidFkMultiUpdateInput,
+  >(options: {
+    where: UuidFkMultiWhere;
+    data: DataArg<D, UuidFkMultiUpdateInput>;
+    unset?: SafeUnset<UuidFkMultiUnset, D>;
+    select?: SelectArg<S, UuidFkMultiSelectFields>;
+    include?: IncludeArg<I, UuidFkMultiInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidFkMultiPayload<S, I>[]>;
+
+  updateUnique<
+    S extends UuidFkMultiSelect | undefined = undefined,
+    I extends UuidFkMultiInclude | undefined = undefined,
+    D extends UuidFkMultiUpdateInput = UuidFkMultiUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UuidFkMultiFindUniqueWhere;
+    data: DataArg<D, UuidFkMultiUpdateInput>;
+    unset?: SafeUnset<UuidFkMultiUnset, D>;
+    select?: SelectArg<S, UuidFkMultiSelectFields>;
+    include?: IncludeArg<I, UuidFkMultiInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UuidFkMulti | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUuidFkMultiPayload<S, I>, R>>;
+
+  upsert<
+    S extends UuidFkMultiSelect | undefined = undefined,
+    I extends UuidFkMultiInclude | undefined = undefined,
+    D extends UuidFkMultiUpdateInput = UuidFkMultiUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidFkMultiFindUniqueWhere;
+    create: UuidFkMultiCreateInput;
+    update?: DataArg<D, UuidFkMultiUpdateInput>;
+    unset?: SafeUnset<UuidFkMultiUnset, D>;
+    select?: SelectArg<S, UuidFkMultiSelectFields>;
+    include?: IncludeArg<I, UuidFkMultiInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUuidFkMultiPayload<S, I>, R>>;
+
+  upsert<
+    S extends UuidFkMultiSelect | undefined = undefined,
+    I extends UuidFkMultiInclude | undefined = undefined,
+    D extends UuidFkMultiUpdateInput = UuidFkMultiUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidFkMultiWhere;
+    create: UuidFkMultiCreateInput;
+    update?: DataArg<D, UuidFkMultiUpdateInput>;
+    unset?: SafeUnset<UuidFkMultiUnset, D>;
+    select?: SelectArg<S, UuidFkMultiSelectFields>;
+    include?: IncludeArg<I, UuidFkMultiInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUuidFkMultiPayload<S, I>, R>>;
+
+  deleteMany(options: { where: UuidFkMultiWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UuidFkMultiFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UuidFkMulti | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UuidFkMulti, R>>;
+
+  count(where?: UuidFkMultiWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends UuidFkMultiGroupByArgs>(
+    args: GroupByArg<A, UuidFkMultiGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UuidFkMultiGroupByResult<A>[]>;
+
+  exists(where?: UuidFkMultiWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UuidFkMultiWhere }): Promise<import('cerial').CerialLiveHandle<UuidFkMulti>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/uuidfkoptional.ts =====
+/**
+ * Generated types for UuidFkOptional
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  UuidFkTarget,
+  UuidFkTargetWhere,
+  UuidFkTargetSelect,
+  UuidFkTargetOrderBy,
+  UuidFkTargetNestedCreate,
+  UuidFkTargetInclude,
+  GetUuidFkTargetIncludePayload,
+} from './uuidfktarget.js';
+export interface UuidFkOptional {
+  id: CerialId<string>;
+  targetId?: CerialId<string> | null;
+  note: string;
+}
+
+export interface UuidFkOptionalInput {
+  id?: string;
+  targetId?: RecordIdInput<string> | null;
+  note: string;
+}
+
+export interface UuidFkOptionalWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  targetId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  target?: null | Omit<UuidFkTargetWhere, '$raw'>;
+  note?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  $raw?: SqlFragment;
+  AND?: UuidFkOptionalWhere[];
+  OR?: UuidFkOptionalWhere[];
+  NOT?: UuidFkOptionalWhere;
+}
+
+export type UuidFkOptionalWhereInput = UuidFkOptionalWhere;
+
+export type UuidFkOptionalFindUniqueWhere = { id: RecordIdInput<string> } & Omit<UuidFkOptionalWhere, 'id'>;
+
+export type UuidFkOptionalCreate = O.Optional<O.Omit<UuidFkOptionalInput, 'target'>, 'id' | 'targetId'>;
+
+export type UuidFkOptionalNestedCreate = O.Optional<O.Omit<UuidFkOptionalInput, 'target' | 'targetId'>, 'id'>;
+
+export type UuidFkOptionalCreateInput =
+  | UuidFkOptionalCreate
+  | (O.Omit<UuidFkOptionalCreate, 'targetId'> & {
+      target?: { create: UuidFkTargetNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type UuidFkOptionalUpdate = Partial<O.Omit<UuidFkOptionalInput, 'id' | 'target' | 'targetId'>> & {
+  targetId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type UuidFkOptionalUpdateInput =
+  | UuidFkOptionalUpdate
+  | (O.Omit<UuidFkOptionalUpdate, 'targetId'> & {
+      target?: { create: UuidFkTargetNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type UuidFkOptionalUnset = {
+  targetId?: true;
+};
+
+export interface UuidFkOptionalSelectFields {
+  id?: boolean;
+  targetId?: boolean;
+  note?: boolean;
+}
+
+export type UuidFkOptionalSelect = AtLeastOne<UuidFkOptionalSelectFields>;
+
+export interface UuidFkOptionalOrderBy {
+  id?: 'asc' | 'desc';
+  targetId?: 'asc' | 'desc';
+  target?: UuidFkTargetOrderBy;
+  note?: 'asc' | 'desc';
+}
+
+export interface UuidFkOptionalGroupByKeys {
+  id?: true;
+  targetId?: true;
+  note?: true;
+}
+
+export interface UuidFkOptionalCountAggregate {
+  _all?: true;
+  id?: true;
+  targetId?: true;
+  note?: true;
+}
+
+export interface UuidFkOptionalMinMaxAggregate {
+  id?: true;
+  targetId?: true;
+  note?: true;
+}
+
+export interface UuidFkOptionalGroupAggregate {
+  id?: true;
+  targetId?: true;
+  note?: true;
+}
+
+export interface UuidFkOptionalGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  targetId?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; targetId?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; targetId?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; targetId?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+}
+
+export interface UuidFkOptionalGroupByArgs {
+  by: UuidFkOptionalGroupByKeys;
+  where?: UuidFkOptionalWhere;
+  _count?: true | UuidFkOptionalCountAggregate;
+  _min?: UuidFkOptionalMinMaxAggregate;
+  _max?: UuidFkOptionalMinMaxAggregate;
+  _group?: UuidFkOptionalGroupAggregate;
+  orderBy?: UuidFkOptionalGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UuidFkOptionalGroupByAggregates {
+  _count: { _all: number; id: number; targetId: number; note: number };
+  _min: {
+    id: NonNullable<UuidFkOptional['id']> | null;
+    targetId: NonNullable<UuidFkOptional['targetId']> | null;
+    note: NonNullable<UuidFkOptional['note']> | null;
+  };
+  _max: {
+    id: NonNullable<UuidFkOptional['id']> | null;
+    targetId: NonNullable<UuidFkOptional['targetId']> | null;
+    note: NonNullable<UuidFkOptional['note']> | null;
+  };
+  _group: {
+    id: GroupMember<UuidFkOptional['id']>[];
+    targetId: (GroupMember<UuidFkOptional['targetId']> | null)[];
+    note: GroupMember<UuidFkOptional['note']>[];
+  };
+}
+
+export type UuidFkOptionalGroupByResult<A extends UuidFkOptionalGroupByArgs> = GroupByRow<
+  UuidFkOptional,
+  A,
+  UuidFkOptionalGroupByAggregates
+>;
+
+export interface UuidFkOptionalInclude {
+  target?:
+    | boolean
+    | {
+        select?: UuidFkTargetSelect;
+        where?: UuidFkTargetWhere;
+        include?: UuidFkTargetInclude;
+      };
+}
+
+export type UuidFkOptional$Relations = {
+  target: { type: UuidFkTarget; include: UuidFkTargetInclude };
+};
+
+export type GetUuidFkOptionalIncludePayload<I extends UuidFkOptionalInclude | undefined> =
+  I extends UuidFkOptionalInclude
+    ? Pick<
+        {
+          target: I['target'] extends true
+            ? UuidFkTarget
+            : I['target'] extends {
+                  select: infer S extends UuidFkTargetSelect;
+                  include: infer NI extends UuidFkTargetInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UuidFkTarget
+                    ? ResolveFieldSelect<UuidFkTarget[P], S[P]>
+                    : never;
+                } & GetUuidFkTargetIncludePayload<NI>
+              : I['target'] extends { select: infer S extends UuidFkTargetSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UuidFkTarget
+                      ? ResolveFieldSelect<UuidFkTarget[P], S[P]>
+                      : never;
+                  }
+                : I['target'] extends { include: infer NI extends UuidFkTargetInclude }
+                  ? UuidFkTarget & GetUuidFkTargetIncludePayload<NI>
+                  : UuidFkTarget;
+        },
+        Extract<keyof I, keyof UuidFkOptional$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetUuidFkOptionalPayload<
+  S extends UuidFkOptionalSelect | undefined = undefined,
+  I extends UuidFkOptionalInclude | undefined = undefined,
+> = A.Compute<
+  S extends UuidFkOptionalSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UuidFkOptional
+          ? ResolveFieldSelect<UuidFkOptional[K], S[K]>
+          : never;
+      } & GetUuidFkOptionalIncludePayload<I>
+    : I extends UuidFkOptionalInclude
+      ? UuidFkOptional & GetUuidFkOptionalIncludePayload<I>
+      : UuidFkOptional,
+  'flat'
+>;
+
+export interface UuidFkOptionalModel {
+  findOne<
+    S extends UuidFkOptionalSelect | undefined = undefined,
+    I extends UuidFkOptionalInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: UuidFkOptionalWhere;
+    select?: SelectArg<S, UuidFkOptionalSelectFields>;
+    include?: IncludeArg<I, UuidFkOptionalInclude>;
+    compute?: C & { [K in keyof C & (keyof UuidFkOptional | keyof UuidFkOptionalWhere)]?: never };
+    orderBy?: UuidFkOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkOptionalPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends UuidFkOptionalSelect | undefined = undefined,
+    I extends UuidFkOptionalInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: UuidFkOptionalWhere;
+    select?: SelectArg<S, UuidFkOptionalSelectFields>;
+    compute?: C & { [K in keyof C & (keyof UuidFkOptional | keyof UuidFkOptionalWhere)]?: never };
+    orderBy?: UuidFkOptionalOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, UuidFkOptionalInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkOptionalPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends UuidFkOptionalSelect | undefined = undefined,
+    I extends UuidFkOptionalInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: UuidFkOptionalFindUniqueWhere;
+    select?: SelectArg<S, UuidFkOptionalSelectFields>;
+    include?: IncludeArg<I, UuidFkOptionalInclude>;
+    compute?: C & { [K in keyof C & (keyof UuidFkOptional | keyof UuidFkOptionalWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkOptionalPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<
+    S extends UuidFkOptionalSelect | undefined = undefined,
+    I extends UuidFkOptionalInclude | undefined = undefined,
+  >(options: {
+    data: UuidFkOptionalCreateInput;
+    select?: SelectArg<S, UuidFkOptionalSelectFields>;
+    include?: IncludeArg<I, UuidFkOptionalInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidFkOptionalPayload<S, I>>;
+
+  updateMany<
+    S extends UuidFkOptionalSelect | undefined = undefined,
+    I extends UuidFkOptionalInclude | undefined = undefined,
+    D extends UuidFkOptionalUpdateInput = UuidFkOptionalUpdateInput,
+  >(options: {
+    where: UuidFkOptionalWhere;
+    data: DataArg<D, UuidFkOptionalUpdateInput>;
+    unset?: SafeUnset<UuidFkOptionalUnset, D>;
+    select?: SelectArg<S, UuidFkOptionalSelectFields>;
+    include?: IncludeArg<I, UuidFkOptionalInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidFkOptionalPayload<S, I>[]>;
+
+  updateUnique<
+    S extends UuidFkOptionalSelect | undefined = undefined,
+    I extends UuidFkOptionalInclude | undefined = undefined,
+    D extends UuidFkOptionalUpdateInput = UuidFkOptionalUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UuidFkOptionalFindUniqueWhere;
+    data: DataArg<D, UuidFkOptionalUpdateInput>;
+    unset?: SafeUnset<UuidFkOptionalUnset, D>;
+    select?: SelectArg<S, UuidFkOptionalSelectFields>;
+    include?: IncludeArg<I, UuidFkOptionalInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UuidFkOptional | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUuidFkOptionalPayload<S, I>, R>>;
+
+  upsert<
+    S extends UuidFkOptionalSelect | undefined = undefined,
+    I extends UuidFkOptionalInclude | undefined = undefined,
+    D extends UuidFkOptionalUpdateInput = UuidFkOptionalUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidFkOptionalFindUniqueWhere;
+    create: UuidFkOptionalCreateInput;
+    update?: DataArg<D, UuidFkOptionalUpdateInput>;
+    unset?: SafeUnset<UuidFkOptionalUnset, D>;
+    select?: SelectArg<S, UuidFkOptionalSelectFields>;
+    include?: IncludeArg<I, UuidFkOptionalInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUuidFkOptionalPayload<S, I>, R>>;
+
+  upsert<
+    S extends UuidFkOptionalSelect | undefined = undefined,
+    I extends UuidFkOptionalInclude | undefined = undefined,
+    D extends UuidFkOptionalUpdateInput = UuidFkOptionalUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidFkOptionalWhere;
+    create: UuidFkOptionalCreateInput;
+    update?: DataArg<D, UuidFkOptionalUpdateInput>;
+    unset?: SafeUnset<UuidFkOptionalUnset, D>;
+    select?: SelectArg<S, UuidFkOptionalSelectFields>;
+    include?: IncludeArg<I, UuidFkOptionalInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUuidFkOptionalPayload<S, I>, R>>;
+
+  deleteMany(options: { where: UuidFkOptionalWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UuidFkOptionalFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UuidFkOptional | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UuidFkOptional, R>>;
+
+  count(where?: UuidFkOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends UuidFkOptionalGroupByArgs>(
+    args: GroupByArg<A, UuidFkOptionalGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UuidFkOptionalGroupByResult<A>[]>;
+
+  exists(where?: UuidFkOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UuidFkOptionalWhere }): Promise<import('cerial').CerialLiveHandle<UuidFkOptional>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/uuidfkowner.ts =====
+/**
+ * Generated types for UuidFkOwner
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  UuidFkTarget,
+  UuidFkTargetWhere,
+  UuidFkTargetSelect,
+  UuidFkTargetOrderBy,
+  UuidFkTargetNestedCreate,
+  UuidFkTargetInclude,
+  GetUuidFkTargetIncludePayload,
+} from './uuidfktarget.js';
+export interface UuidFkOwner {
+  id: CerialId<string>;
+  targetId: CerialId<string>;
+  note: string;
+}
+
+export interface UuidFkOwnerInput {
+  id?: string;
+  targetId: RecordIdInput<string>;
+  note: string;
+}
+
+export interface UuidFkOwnerWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  targetId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  target?: Omit<UuidFkTargetWhere, '$raw'>;
+  note?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  $raw?: SqlFragment;
+  AND?: UuidFkOwnerWhere[];
+  OR?: UuidFkOwnerWhere[];
+  NOT?: UuidFkOwnerWhere;
+}
+
+export type UuidFkOwnerWhereInput = UuidFkOwnerWhere;
+
+export type UuidFkOwnerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<UuidFkOwnerWhere, 'id'>;
+
+export type UuidFkOwnerCreate = O.Optional<O.Omit<UuidFkOwnerInput, 'target'>, 'id'>;
+
+export type UuidFkOwnerNestedCreate = O.Optional<O.Omit<UuidFkOwnerInput, 'target' | 'targetId'>, 'id'>;
+
+export type UuidFkOwnerCreateInput =
+  | UuidFkOwnerCreate
+  | (O.Omit<UuidFkOwnerCreate, 'targetId'> & {
+      target: { create: UuidFkTargetNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type UuidFkOwnerUpdate = Partial<O.Omit<UuidFkOwnerInput, 'id' | 'target'>>;
+
+export type UuidFkOwnerUpdateInput =
+  | UuidFkOwnerUpdate
+  | (O.Omit<UuidFkOwnerUpdate, 'targetId'> & {
+      target?: { create: UuidFkTargetNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type UuidFkOwnerUnset = {};
+
+export interface UuidFkOwnerSelectFields {
+  id?: boolean;
+  targetId?: boolean;
+  note?: boolean;
+}
+
+export type UuidFkOwnerSelect = AtLeastOne<UuidFkOwnerSelectFields>;
+
+export interface UuidFkOwnerOrderBy {
+  id?: 'asc' | 'desc';
+  targetId?: 'asc' | 'desc';
+  target?: UuidFkTargetOrderBy;
+  note?: 'asc' | 'desc';
+}
+
+export interface UuidFkOwnerGroupByKeys {
+  id?: true;
+  targetId?: true;
+  note?: true;
+}
+
+export interface UuidFkOwnerCountAggregate {
+  _all?: true;
+  id?: true;
+  targetId?: true;
+  note?: true;
+}
+
+export interface UuidFkOwnerMinMaxAggregate {
+  id?: true;
+  targetId?: true;
+  note?: true;
+}
+
+export interface UuidFkOwnerGroupAggregate {
+  id?: true;
+  targetId?: true;
+  note?: true;
+}
+
+export interface UuidFkOwnerGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  targetId?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; targetId?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; targetId?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; targetId?: 'asc' | 'desc'; note?: 'asc' | 'desc' };
+}
+
+export interface UuidFkOwnerGroupByArgs {
+  by: UuidFkOwnerGroupByKeys;
+  where?: UuidFkOwnerWhere;
+  _count?: true | UuidFkOwnerCountAggregate;
+  _min?: UuidFkOwnerMinMaxAggregate;
+  _max?: UuidFkOwnerMinMaxAggregate;
+  _group?: UuidFkOwnerGroupAggregate;
+  orderBy?: UuidFkOwnerGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UuidFkOwnerGroupByAggregates {
+  _count: { _all: number; id: number; targetId: number; note: number };
+  _min: {
+    id: NonNullable<UuidFkOwner['id']> | null;
+    targetId: NonNullable<UuidFkOwner['targetId']> | null;
+    note: NonNullable<UuidFkOwner['note']> | null;
+  };
+  _max: {
+    id: NonNullable<UuidFkOwner['id']> | null;
+    targetId: NonNullable<UuidFkOwner['targetId']> | null;
+    note: NonNullable<UuidFkOwner['note']> | null;
+  };
+  _group: {
+    id: GroupMember<UuidFkOwner['id']>[];
+    targetId: GroupMember<UuidFkOwner['targetId']>[];
+    note: GroupMember<UuidFkOwner['note']>[];
+  };
+}
+
+export type UuidFkOwnerGroupByResult<A extends UuidFkOwnerGroupByArgs> = GroupByRow<
+  UuidFkOwner,
+  A,
+  UuidFkOwnerGroupByAggregates
+>;
+
+export interface UuidFkOwnerInclude {
+  target?:
+    | boolean
+    | {
+        select?: UuidFkTargetSelect;
+        where?: UuidFkTargetWhere;
+        include?: UuidFkTargetInclude;
+      };
+}
+
+export type UuidFkOwner$Relations = {
+  target: { type: UuidFkTarget; include: UuidFkTargetInclude };
+};
+
+export type GetUuidFkOwnerIncludePayload<I extends UuidFkOwnerInclude | undefined> = I extends UuidFkOwnerInclude
+  ? Pick<
+      {
+        target: I['target'] extends true
+          ? UuidFkTarget
+          : I['target'] extends {
+                select: infer S extends UuidFkTargetSelect;
+                include: infer NI extends UuidFkTargetInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UuidFkTarget
+                  ? ResolveFieldSelect<UuidFkTarget[P], S[P]>
+                  : never;
+              } & GetUuidFkTargetIncludePayload<NI>
+            : I['target'] extends { select: infer S extends UuidFkTargetSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UuidFkTarget
+                    ? ResolveFieldSelect<UuidFkTarget[P], S[P]>
+                    : never;
+                }
+              : I['target'] extends { include: infer NI extends UuidFkTargetInclude }
+                ? UuidFkTarget & GetUuidFkTargetIncludePayload<NI>
+                : UuidFkTarget;
+      },
+      Extract<keyof I, keyof UuidFkOwner$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetUuidFkOwnerPayload<
+  S extends UuidFkOwnerSelect | undefined = undefined,
+  I extends UuidFkOwnerInclude | undefined = undefined,
+> = A.Compute<
+  S extends UuidFkOwnerSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UuidFkOwner
+          ? ResolveFieldSelect<UuidFkOwner[K], S[K]>
+          : never;
+      } & GetUuidFkOwnerIncludePayload<I>
+    : I extends UuidFkOwnerInclude
+      ? UuidFkOwner & GetUuidFkOwnerIncludePayload<I>
+      : UuidFkOwner,
+  'flat'
+>;
+
+export interface UuidFkOwnerModel {
+  findOne<
+    S extends UuidFkOwnerSelect | undefined = undefined,
+    I extends UuidFkOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: UuidFkOwnerWhere;
+    select?: SelectArg<S, UuidFkOwnerSelectFields>;
+    include?: IncludeArg<I, UuidFkOwnerInclude>;
+    compute?: C & { [K in keyof C & (keyof UuidFkOwner | keyof UuidFkOwnerWhere)]?: never };
+    orderBy?: UuidFkOwnerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends UuidFkOwnerSelect | undefined = undefined,
+    I extends UuidFkOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: UuidFkOwnerWhere;
+    select?: SelectArg<S, UuidFkOwnerSelectFields>;
+    compute?: C & { [K in keyof C & (keyof UuidFkOwner | keyof UuidFkOwnerWhere)]?: never };
+    orderBy?: UuidFkOwnerOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, UuidFkOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends UuidFkOwnerSelect | undefined = undefined,
+    I extends UuidFkOwnerInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: UuidFkOwnerFindUniqueWhere;
+    select?: SelectArg<S, UuidFkOwnerSelectFields>;
+    include?: IncludeArg<I, UuidFkOwnerInclude>;
+    compute?: C & { [K in keyof C & (keyof UuidFkOwner | keyof UuidFkOwnerWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkOwnerPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<
+    S extends UuidFkOwnerSelect | undefined = undefined,
+    I extends UuidFkOwnerInclude | undefined = undefined,
+  >(options: {
+    data: UuidFkOwnerCreateInput;
+    select?: SelectArg<S, UuidFkOwnerSelectFields>;
+    include?: IncludeArg<I, UuidFkOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidFkOwnerPayload<S, I>>;
+
+  updateMany<
+    S extends UuidFkOwnerSelect | undefined = undefined,
+    I extends UuidFkOwnerInclude | undefined = undefined,
+    D extends UuidFkOwnerUpdateInput = UuidFkOwnerUpdateInput,
+  >(options: {
+    where: UuidFkOwnerWhere;
+    data: DataArg<D, UuidFkOwnerUpdateInput>;
+    unset?: SafeUnset<UuidFkOwnerUnset, D>;
+    select?: SelectArg<S, UuidFkOwnerSelectFields>;
+    include?: IncludeArg<I, UuidFkOwnerInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidFkOwnerPayload<S, I>[]>;
+
+  updateUnique<
+    S extends UuidFkOwnerSelect | undefined = undefined,
+    I extends UuidFkOwnerInclude | undefined = undefined,
+    D extends UuidFkOwnerUpdateInput = UuidFkOwnerUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UuidFkOwnerFindUniqueWhere;
+    data: DataArg<D, UuidFkOwnerUpdateInput>;
+    unset?: SafeUnset<UuidFkOwnerUnset, D>;
+    select?: SelectArg<S, UuidFkOwnerSelectFields>;
+    include?: IncludeArg<I, UuidFkOwnerInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UuidFkOwner | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUuidFkOwnerPayload<S, I>, R>>;
+
+  upsert<
+    S extends UuidFkOwnerSelect | undefined = undefined,
+    I extends UuidFkOwnerInclude | undefined = undefined,
+    D extends UuidFkOwnerUpdateInput = UuidFkOwnerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidFkOwnerFindUniqueWhere;
+    create: UuidFkOwnerCreateInput;
+    update?: DataArg<D, UuidFkOwnerUpdateInput>;
+    unset?: SafeUnset<UuidFkOwnerUnset, D>;
+    select?: SelectArg<S, UuidFkOwnerSelectFields>;
+    include?: IncludeArg<I, UuidFkOwnerInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUuidFkOwnerPayload<S, I>, R>>;
+
+  upsert<
+    S extends UuidFkOwnerSelect | undefined = undefined,
+    I extends UuidFkOwnerInclude | undefined = undefined,
+    D extends UuidFkOwnerUpdateInput = UuidFkOwnerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidFkOwnerWhere;
+    create: UuidFkOwnerCreateInput;
+    update?: DataArg<D, UuidFkOwnerUpdateInput>;
+    unset?: SafeUnset<UuidFkOwnerUnset, D>;
+    select?: SelectArg<S, UuidFkOwnerSelectFields>;
+    include?: IncludeArg<I, UuidFkOwnerInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUuidFkOwnerPayload<S, I>, R>>;
+
+  deleteMany(options: { where: UuidFkOwnerWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UuidFkOwnerFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UuidFkOwner | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UuidFkOwner, R>>;
+
+  count(where?: UuidFkOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends UuidFkOwnerGroupByArgs>(
+    args: GroupByArg<A, UuidFkOwnerGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UuidFkOwnerGroupByResult<A>[]>;
+
+  exists(where?: UuidFkOwnerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UuidFkOwnerWhere }): Promise<import('cerial').CerialLiveHandle<UuidFkOwner>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/uuidfktarget.ts =====
+/**
+ * Generated types for UuidFkTarget
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  UuidFkOwner,
+  UuidFkOwnerWhere,
+  UuidFkOwnerSelect,
+  UuidFkOwnerOrderBy,
+  UuidFkOwnerNestedCreate,
+  UuidFkOwnerInclude,
+  GetUuidFkOwnerIncludePayload,
+} from './uuidfkowner.js';
+export interface UuidFkTarget {
+  id: CerialId<string>;
+  label: string;
+}
+
+export interface UuidFkTargetInput {
+  id?: string;
+  label: string;
+}
+
+export interface UuidFkTargetWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  owners?:
+    | {
+        some?: Omit<UuidFkOwnerWhere, '$raw'>;
+        every?: Omit<UuidFkOwnerWhere, '$raw'>;
+        none?: Omit<UuidFkOwnerWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<UuidFkOwnerWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
+  AND?: UuidFkTargetWhere[];
+  OR?: UuidFkTargetWhere[];
+  NOT?: UuidFkTargetWhere;
+}
+
+export type UuidFkTargetWhereInput = UuidFkTargetWhere;
+
+export type UuidFkTargetFindUniqueWhere = { id: RecordIdInput<string> } & Omit<UuidFkTargetWhere, 'id'>;
+
+export type UuidFkTargetCreate = O.Optional<O.Omit<UuidFkTargetInput, 'owners'>, 'id'>;
+
+export type UuidFkTargetNestedCreate = O.Optional<O.Omit<UuidFkTargetInput, 'owners'>, 'id'>;
+
+export type UuidFkTargetCreateInput = UuidFkTargetCreate & {
+  owners?: {
+    create?: UuidFkOwnerNestedCreate | UuidFkOwnerNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type UuidFkTargetUpdate = Partial<O.Omit<UuidFkTargetInput, 'id' | 'owners'>>;
+
+export type UuidFkTargetUpdateInput = UuidFkTargetUpdate & {
+  owners?: {
+    create?: UuidFkOwnerNestedCreate | UuidFkOwnerNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type UuidFkTargetUnset = {};
+
+export interface UuidFkTargetSelectFields {
+  id?: boolean;
+  label?: boolean;
+}
+
+export type UuidFkTargetSelect = AtLeastOne<UuidFkTargetSelectFields>;
+
+export interface UuidFkTargetOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+}
+
+export interface UuidFkTargetGroupByKeys {
+  id?: true;
+  label?: true;
+}
+
+export interface UuidFkTargetCountAggregate {
+  _all?: true;
+  id?: true;
+  label?: true;
+}
+
+export interface UuidFkTargetMinMaxAggregate {
+  id?: true;
+  label?: true;
+}
+
+export interface UuidFkTargetGroupAggregate {
+  id?: true;
+  label?: true;
+}
+
+export interface UuidFkTargetGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; label?: 'asc' | 'desc' };
+}
+
+export interface UuidFkTargetGroupByArgs {
+  by: UuidFkTargetGroupByKeys;
+  where?: UuidFkTargetWhere;
+  _count?: true | UuidFkTargetCountAggregate;
+  _min?: UuidFkTargetMinMaxAggregate;
+  _max?: UuidFkTargetMinMaxAggregate;
+  _group?: UuidFkTargetGroupAggregate;
+  orderBy?: UuidFkTargetGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface UuidFkTargetGroupByAggregates {
+  _count: { _all: number; id: number; label: number };
+  _min: { id: NonNullable<UuidFkTarget['id']> | null; label: NonNullable<UuidFkTarget['label']> | null };
+  _max: { id: NonNullable<UuidFkTarget['id']> | null; label: NonNullable<UuidFkTarget['label']> | null };
+  _group: { id: GroupMember<UuidFkTarget['id']>[]; label: GroupMember<UuidFkTarget['label']>[] };
+}
+
+export type UuidFkTargetGroupByResult<A extends UuidFkTargetGroupByArgs> = GroupByRow<
+  UuidFkTarget,
+  A,
+  UuidFkTargetGroupByAggregates
+>;
+
+export interface UuidFkTargetInclude {
+  owners?:
+    | boolean
+    | {
+        select?: UuidFkOwnerSelect;
+        where?: UuidFkOwnerWhere;
+        orderBy?: UuidFkOwnerOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: UuidFkOwnerInclude;
+      };
+}
+
+export type UuidFkTarget$Relations = {
+  owners: { type: UuidFkOwner[]; include: UuidFkOwnerInclude };
+};
+
+export type GetUuidFkTargetIncludePayload<I extends UuidFkTargetInclude | undefined> = I extends UuidFkTargetInclude
+  ? Pick<
+      {
+        owners: I['owners'] extends true
+          ? UuidFkOwner[]
+          : I['owners'] extends {
+                select: infer S extends UuidFkOwnerSelect;
+                include: infer NI extends UuidFkOwnerInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UuidFkOwner
+                  ? ResolveFieldSelect<UuidFkOwner[P], S[P]>
+                  : never;
+              } & GetUuidFkOwnerIncludePayload<NI>)[]
+            : I['owners'] extends { select: infer S extends UuidFkOwnerSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UuidFkOwner
+                    ? ResolveFieldSelect<UuidFkOwner[P], S[P]>
+                    : never;
+                }[]
+              : I['owners'] extends { include: infer NI extends UuidFkOwnerInclude }
+                ? (UuidFkOwner & GetUuidFkOwnerIncludePayload<NI>)[]
+                : UuidFkOwner[];
+      },
+      Extract<keyof I, keyof UuidFkTarget$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetUuidFkTargetPayload<
+  S extends UuidFkTargetSelect | undefined = undefined,
+  I extends UuidFkTargetInclude | undefined = undefined,
+> = A.Compute<
+  S extends UuidFkTargetSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UuidFkTarget
+          ? ResolveFieldSelect<UuidFkTarget[K], S[K]>
+          : never;
+      } & GetUuidFkTargetIncludePayload<I>
+    : I extends UuidFkTargetInclude
+      ? UuidFkTarget & GetUuidFkTargetIncludePayload<I>
+      : UuidFkTarget,
+  'flat'
+>;
+
+export interface UuidFkTargetModel {
+  findOne<
+    S extends UuidFkTargetSelect | undefined = undefined,
+    I extends UuidFkTargetInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: UuidFkTargetWhere;
+    select?: SelectArg<S, UuidFkTargetSelectFields>;
+    include?: IncludeArg<I, UuidFkTargetInclude>;
+    compute?: C & { [K in keyof C & (keyof UuidFkTarget | keyof UuidFkTargetWhere)]?: never };
+    orderBy?: UuidFkTargetOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkTargetPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends UuidFkTargetSelect | undefined = undefined,
+    I extends UuidFkTargetInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: UuidFkTargetWhere;
+    select?: SelectArg<S, UuidFkTargetSelectFields>;
+    compute?: C & { [K in keyof C & (keyof UuidFkTarget | keyof UuidFkTargetWhere)]?: never };
+    orderBy?: UuidFkTargetOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, UuidFkTargetInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkTargetPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends UuidFkTargetSelect | undefined = undefined,
+    I extends UuidFkTargetInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: UuidFkTargetFindUniqueWhere;
+    select?: SelectArg<S, UuidFkTargetSelectFields>;
+    include?: IncludeArg<I, UuidFkTargetInclude>;
+    compute?: C & { [K in keyof C & (keyof UuidFkTarget | keyof UuidFkTargetWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetUuidFkTargetPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<
+    S extends UuidFkTargetSelect | undefined = undefined,
+    I extends UuidFkTargetInclude | undefined = undefined,
+  >(options: {
+    data: UuidFkTargetCreateInput;
+    select?: SelectArg<S, UuidFkTargetSelectFields>;
+    include?: IncludeArg<I, UuidFkTargetInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidFkTargetPayload<S, I>>;
+
+  updateMany<
+    S extends UuidFkTargetSelect | undefined = undefined,
+    I extends UuidFkTargetInclude | undefined = undefined,
+    D extends UuidFkTargetUpdateInput = UuidFkTargetUpdateInput,
+  >(options: {
+    where: UuidFkTargetWhere;
+    data: DataArg<D, UuidFkTargetUpdateInput>;
+    unset?: SafeUnset<UuidFkTargetUnset, D>;
+    select?: SelectArg<S, UuidFkTargetSelectFields>;
+    include?: IncludeArg<I, UuidFkTargetInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidFkTargetPayload<S, I>[]>;
+
+  updateUnique<
+    S extends UuidFkTargetSelect | undefined = undefined,
+    I extends UuidFkTargetInclude | undefined = undefined,
+    D extends UuidFkTargetUpdateInput = UuidFkTargetUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UuidFkTargetFindUniqueWhere;
+    data: DataArg<D, UuidFkTargetUpdateInput>;
+    unset?: SafeUnset<UuidFkTargetUnset, D>;
+    select?: SelectArg<S, UuidFkTargetSelectFields>;
+    include?: IncludeArg<I, UuidFkTargetInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UuidFkTarget | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUuidFkTargetPayload<S, I>, R>>;
+
+  upsert<
+    S extends UuidFkTargetSelect | undefined = undefined,
+    I extends UuidFkTargetInclude | undefined = undefined,
+    D extends UuidFkTargetUpdateInput = UuidFkTargetUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidFkTargetFindUniqueWhere;
+    create: UuidFkTargetCreateInput;
+    update?: DataArg<D, UuidFkTargetUpdateInput>;
+    unset?: SafeUnset<UuidFkTargetUnset, D>;
+    select?: SelectArg<S, UuidFkTargetSelectFields>;
+    include?: IncludeArg<I, UuidFkTargetInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUuidFkTargetPayload<S, I>, R>>;
+
+  upsert<
+    S extends UuidFkTargetSelect | undefined = undefined,
+    I extends UuidFkTargetInclude | undefined = undefined,
+    D extends UuidFkTargetUpdateInput = UuidFkTargetUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidFkTargetWhere;
+    create: UuidFkTargetCreateInput;
+    update?: DataArg<D, UuidFkTargetUpdateInput>;
+    unset?: SafeUnset<UuidFkTargetUnset, D>;
+    select?: SelectArg<S, UuidFkTargetSelectFields>;
+    include?: IncludeArg<I, UuidFkTargetInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUuidFkTargetPayload<S, I>, R>>;
+
+  deleteMany(options: { where: UuidFkTargetWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UuidFkTargetFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UuidFkTarget | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UuidFkTarget, R>>;
+
+  count(where?: UuidFkTargetWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends UuidFkTargetGroupByArgs>(
+    args: GroupByArg<A, UuidFkTargetGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<UuidFkTargetGroupByResult<A>[]>;
+
+  exists(where?: UuidFkTargetWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: UuidFkTargetWhere }): Promise<import('cerial').CerialLiveHandle<UuidFkTarget>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

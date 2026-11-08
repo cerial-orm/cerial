@@ -268,6 +268,10 @@ import type {
   FkChildModel,
   StandaloneRefModel,
   UnsetTest,
+  UuidFkTarget,
+  UuidFkOwner,
+  UuidFkOptional,
+  UuidFkMulti,
   KitchenSinkUser,
   KitchenSinkProfile,
   KitchenSinkPost,
@@ -517,6 +521,10 @@ import type {
   FkChildModelModel,
   StandaloneRefModelModel,
   UnsetTestModel,
+  UuidFkTargetModel,
+  UuidFkOwnerModel,
+  UuidFkOptionalModel,
+  UuidFkMultiModel,
   KitchenSinkUserModel,
   KitchenSinkProfileModel,
   KitchenSinkPostModel,
@@ -774,6 +782,10 @@ export interface TypedDb {
   FkChildModel: FkChildModelModel;
   StandaloneRefModel: StandaloneRefModelModel;
   UnsetTest: UnsetTestModel;
+  UuidFkTarget: UuidFkTargetModel;
+  UuidFkOwner: UuidFkOwnerModel;
+  UuidFkOptional: UuidFkOptionalModel;
+  UuidFkMulti: UuidFkMultiModel;
   KitchenSinkUser: KitchenSinkUserModel;
   KitchenSinkProfile: KitchenSinkProfileModel;
   KitchenSinkPost: KitchenSinkPostModel;
@@ -1788,6 +1800,22 @@ export class CerialClient {
 
   get UnsetTest(): UnsetTestModel {
     return this._ensureDb().UnsetTest;
+  }
+
+  get UuidFkTarget(): UuidFkTargetModel {
+    return this._ensureDb().UuidFkTarget;
+  }
+
+  get UuidFkOwner(): UuidFkOwnerModel {
+    return this._ensureDb().UuidFkOwner;
+  }
+
+  get UuidFkOptional(): UuidFkOptionalModel {
+    return this._ensureDb().UuidFkOptional;
+  }
+
+  get UuidFkMulti(): UuidFkMultiModel {
+    return this._ensureDb().UuidFkMulti;
   }
 
   get KitchenSinkUser(): KitchenSinkUserModel {

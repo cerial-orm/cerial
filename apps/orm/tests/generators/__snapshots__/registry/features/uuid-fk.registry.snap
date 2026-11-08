@@ -1,0 +1,191 @@
+{
+  "models": {
+    "UuidFkMulti": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "targetIds",
+          "recordIdTypes": [
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "targets",
+          "relationInfo": {
+            "fieldRef": "targetIds",
+            "isReverse": false,
+            "targetModel": "UuidFkTarget",
+            "targetTable": "uuid_fk_target"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "note",
+          "type": "string"
+        }
+      ],
+      "name": "UuidFkMulti",
+      "tableName": "uuid_fk_multi"
+    },
+    "UuidFkOptional": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "targetId",
+          "recordIdTypes": [
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "target",
+          "relationInfo": {
+            "fieldRef": "targetId",
+            "isReverse": false,
+            "targetModel": "UuidFkTarget",
+            "targetTable": "uuid_fk_target"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "note",
+          "type": "string"
+        }
+      ],
+      "name": "UuidFkOptional",
+      "tableName": "uuid_fk_optional"
+    },
+    "UuidFkOwner": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "targetId",
+          "recordIdTypes": [
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "target",
+          "relationInfo": {
+            "fieldRef": "targetId",
+            "isReverse": false,
+            "targetModel": "UuidFkTarget",
+            "targetTable": "uuid_fk_target"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "note",
+          "type": "string"
+        }
+      ],
+      "name": "UuidFkOwner",
+      "tableName": "uuid_fk_owner"
+    },
+    "UuidFkTarget": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "owners",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "UuidFkOwner",
+            "targetTable": "uuid_fk_owner"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UuidFkTarget",
+      "tableName": "uuid_fk_target"
+    }
+  }
+}

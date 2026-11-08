@@ -1,0 +1,19 @@
+-- UuidFkMulti
+DEFINE TABLE OVERWRITE uuid_fk_multi SCHEMAFULL;
+DEFINE FIELD OVERWRITE targetIds ON TABLE uuid_fk_multi TYPE array<record<uuid_fk_target>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE FIELD OVERWRITE note ON TABLE uuid_fk_multi TYPE string;
+
+-- UuidFkOptional
+DEFINE TABLE OVERWRITE uuid_fk_optional SCHEMAFULL;
+DEFINE FIELD OVERWRITE targetId ON TABLE uuid_fk_optional TYPE option<record<uuid_fk_target> | null>;
+DEFINE FIELD OVERWRITE note ON TABLE uuid_fk_optional TYPE string;
+
+-- UuidFkOwner
+DEFINE TABLE OVERWRITE uuid_fk_owner SCHEMAFULL;
+DEFINE FIELD OVERWRITE targetId ON TABLE uuid_fk_owner TYPE record<uuid_fk_target>;
+DEFINE FIELD OVERWRITE note ON TABLE uuid_fk_owner TYPE string;
+
+-- UuidFkTarget
+DEFINE TABLE OVERWRITE uuid_fk_target SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE uuid_fk_target TYPE uuid;
+DEFINE FIELD OVERWRITE label ON TABLE uuid_fk_target TYPE string;

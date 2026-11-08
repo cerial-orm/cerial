@@ -2263,6 +2263,42 @@ export const manifest = deepFreeze({
       indexes: [],
     },
     {
+      name: 'uuid_fk_target',
+      fields: [
+        { path: ['id'], kind: 'uuid' },
+        { path: ['label'], kind: 'string' },
+      ],
+      indexes: [],
+    },
+    {
+      name: 'uuid_fk_owner',
+      fields: [
+        { path: ['targetId'], kind: 'record<uuid_fk_target>' },
+        { path: ['note'], kind: 'string' },
+      ],
+      indexes: [],
+    },
+    {
+      name: 'uuid_fk_optional',
+      fields: [
+        { path: ['targetId'], kind: 'none | null | record<uuid_fk_target>' },
+        { path: ['note'], kind: 'string' },
+      ],
+      indexes: [],
+    },
+    {
+      name: 'uuid_fk_multi',
+      fields: [
+        {
+          path: ['targetIds'],
+          kind: 'array<record<uuid_fk_target>>',
+          value: 'IF $value THEN $value.distinct() ELSE [] END',
+        },
+        { path: ['note'], kind: 'string' },
+      ],
+      indexes: [],
+    },
+    {
       name: 'kitchen_sink_user',
       fields: [
         { path: ['email'], kind: 'string', assert: 'string::is_email($value)' },

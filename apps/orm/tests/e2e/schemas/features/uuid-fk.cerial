@@ -1,0 +1,27 @@
+# Foreign keys (single, optional, array) to a Record(uuid) model
+model UuidFkTarget {
+  id Record(uuid) @id
+  label String
+  owners Relation[] @model(UuidFkOwner)
+}
+
+model UuidFkOwner {
+  id Record @id
+  targetId Record
+  target Relation @field(targetId) @model(UuidFkTarget)
+  note String
+}
+
+model UuidFkOptional {
+  id Record @id
+  targetId Record? @nullable
+  target Relation? @field(targetId) @model(UuidFkTarget)
+  note String
+}
+
+model UuidFkMulti {
+  id Record @id
+  targetIds Record[]
+  targets Relation[] @field(targetIds) @model(UuidFkTarget)
+  note String
+}
