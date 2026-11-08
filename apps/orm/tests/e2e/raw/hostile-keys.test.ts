@@ -88,12 +88,23 @@ describe('E2E hostile keys and tables', () => {
         },
       });
 
-    test.each([['true'], ['NONE'], ['AND'], ['SELECT']])('the keyword %s is a field path: zero rows', async (key) => {
+    test.each([['true'], ['NONE'], ['SELECT']])('the keyword %s is a field path: zero rows', async (key) => {
       await seed();
       const where = { address: JSON.parse(`{"${key}":"zzz"}`) };
 
       expect(await get().db.FlexUser.findMany({ where })).toEqual([]);
       expect(await get().db.FlexUser.count()).toBe(1);
+      await expectIntact(get());
+    });
+
+    test('AND stays the logical combinator inside a sub-object where, so a non-array value is refused', async () => {
+      await seed();
+
+      await fails(
+        () => get().db.FlexUser.findMany({ where: { address: { AND: 'zzz' } } as never }),
+        CerialValidationError,
+        /AND must be an array/,
+      );
       await expectIntact(get());
     });
 
