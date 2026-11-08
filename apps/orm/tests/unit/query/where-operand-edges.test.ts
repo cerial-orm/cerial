@@ -6,6 +6,7 @@
  * - a Record inside an object is compared as create stores it
  * - a self-referencing object is walked by name at every depth
  * - a reverse relation over a Record[] on the other side matches per key
+ * - an undeclared @flexible key is escaped in every refusal
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -288,5 +289,29 @@ describe('a reverse relation over a Record[] on the other side matches per key',
   test('a single foreign key is compiled as before, with no split', () => {
     expect(compile({ pets: { some: { name: 'a' } } }, owner).text).not.toContain('SPLIT');
     expect(compile({ pets: { isEmpty: true } }, owner).text).toBe('id NOT IN (SELECT VALUE ownerId FROM pet)');
+  });
+});
+
+describe('an undeclared @flexible key is escaped in every refusal', () => {
+  const KEY = 'k\u001b[2J\u0007\nforged';
+  const forms: Array<[string, unknown]> = [
+    ['flag', { in: 5 }],
+    ['text', { contains: 5 }],
+    ['value list', { in: 'x' }],
+    ['pair', { between: [1] }],
+  ];
+
+  const hasControl = (text: string): boolean => /(?!\t)[\p{Cc}\p{Zl}\p{Zp}]/u.test(text);
+
+  test.each(forms)('the refusal for %s names the key with its control characters escaped', (_name, operand) => {
+    let message = '';
+    try {
+      compile({ meta: { [KEY]: operand } });
+    } catch (error) {
+      message = (error as Error).message;
+    }
+    expect(message).not.toBe('');
+    expect(hasControl(message)).toBe(false);
+    expect(message).toContain('\\u{1b}');
   });
 });

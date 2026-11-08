@@ -121,6 +121,8 @@ export function prepareOperand(
 ): PreparedOperand {
   // The label is the field's own name only on a model's top level; a path into an object or tuple differs
   const nested = label !== field.name;
+  // It can hold an undeclared @flexible key, which reaches every message below as written
+  label = escapeControl(label);
   const entry = getOperatorEntry(op);
   if (!entry) return { issues: [{ path, message: `Unknown operator: ${escapeControl(op)}` }] };
 
