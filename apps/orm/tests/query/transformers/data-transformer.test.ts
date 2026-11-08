@@ -4,7 +4,11 @@
 
 import { describe, expect, test } from 'bun:test';
 import { RecordId } from 'surrealdb';
-import { transformData, transformRecordId, transformValue } from '../../../src/query/transformers/data-transformer';
+import {
+  transformData,
+  transformOrValidateRecordId,
+  transformValue,
+} from '../../../src/query/transformers/data-transformer';
 import type { ModelMetadata } from '../../../src/types';
 
 describe('data-transformer', () => {
@@ -78,7 +82,7 @@ describe('data-transformer', () => {
 
   describe('transformRecordId', () => {
     test('creates RecordId with table name and string id', () => {
-      const result = transformRecordId('user', 'john-doe');
+      const result = transformOrValidateRecordId('user', 'john-doe', undefined);
 
       expect(result).toBeInstanceOf(RecordId);
       // .table returns a Table object, use toString() for comparison
@@ -87,7 +91,7 @@ describe('data-transformer', () => {
     });
 
     test('creates RecordId with numeric id as string', () => {
-      const result = transformRecordId('post', '123');
+      const result = transformOrValidateRecordId('post', '123', undefined);
 
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.toString()).toBe('post');
@@ -95,7 +99,7 @@ describe('data-transformer', () => {
     });
 
     test('RecordId can be converted to string', () => {
-      const result = transformRecordId('user', 'john');
+      const result = transformOrValidateRecordId('user', 'john', undefined);
       expect(result.toString()).toBe('user:john');
     });
   });

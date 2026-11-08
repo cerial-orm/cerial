@@ -17,7 +17,7 @@ import type { TargetCheckMap } from '../compile/types';
 import type { PartsCompiledQuery, StatementParts } from '../executor';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
-import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
+import { applyFieldDefaults, modelIdTypes, transformData, transformOrValidateRecordId } from '../transformers';
 import { validateCreateData, validateNoNestedWrites, validateRelationValue } from '../validators/data-validator';
 import { validationFailure } from '../validators/failure';
 import { captureMatchedIds } from './bulk-write';
@@ -377,7 +377,11 @@ export function buildTargetReads(
   checks.forEach((check, idx) => {
     check.targetIds.forEach((targetId, idIdx) => {
       const varName = `${varPrefix}validate_${idx}_${idIdx}`;
-      const recordId = transformOrValidateRecordId(check.targetModel.tableName, targetId);
+      const recordId = transformOrValidateRecordId(
+        check.targetModel.tableName,
+        targetId,
+        modelIdTypes(check.targetModel),
+      );
       vars[varName] = recordId;
       reads.push(`(SELECT VALUE id FROM ONLY $${varName})`);
       entries.push({
@@ -523,7 +527,9 @@ export function buildCreateWithNestedTransaction(
         } else if (Array.isArray(op.connect)) {
           connectName = ctx.name('nested_connect');
           connectVarName = `$${connectName}`;
-          const transformedIds = connectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
+          const transformedIds = connectIds.map((id) =>
+            transformOrValidateRecordId(targetModel.tableName, id, modelIdTypes(targetModel)),
+          );
           vars[connectName] = transformedIds;
         }
       }
@@ -610,7 +616,9 @@ export function buildCreateWithNestedTransaction(
           });
         }
       } else if (field.relationInfo.fieldRef) {
-        const transformedIds = connectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
+        const transformedIds = connectIds.map((id) =>
+          transformOrValidateRecordId(targetModel.tableName, id, modelIdTypes(targetModel)),
+        );
         data[field.relationInfo.fieldRef] = transformedIds[0];
       }
     }
@@ -707,7 +715,7 @@ export function buildCreateWithNestedTransaction(
       // For existing records, transform IDs
       rc.targetIds.forEach((targetId, idx) => {
         const varName = `revcon_${syncIdx}_${idx}`;
-        vars[varName] = transformOrValidateRecordId(rc.targetModel.tableName, targetId);
+        vars[varName] = transformOrValidateRecordId(rc.targetModel.tableName, targetId, modelIdTypes(rc.targetModel));
         statements.push(`UPDATE $${varName} SET ${rc.recordFieldName} = $resultId;`);
       });
     }
@@ -725,7 +733,11 @@ export function buildCreateWithNestedTransaction(
       // For connects, update each target individually
       sync.targetIds.forEach((targetId, idx) => {
         const varName = `sync_${syncIdx}_${idx}`;
-        vars[varName] = transformOrValidateRecordId(sync.targetModel.tableName, targetId);
+        vars[varName] = transformOrValidateRecordId(
+          sync.targetModel.tableName,
+          targetId,
+          modelIdTypes(sync.targetModel),
+        );
         statements.push(`UPDATE $${varName} SET ${sync.targetRecordField} += $resultId;`);
       });
     }
@@ -950,7 +962,9 @@ export function buildUpdateWithNestedTransaction(
         const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
         const connectName = ctx.name('nested_connect');
         const varName = `$${connectName}`;
-        const transformedIds = connectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
+        const transformedIds = connectIds.map((id) =>
+          transformOrValidateRecordId(targetModel.tableName, id, modelIdTypes(targetModel)),
+        );
         vars[connectName] = transformedIds;
 
         if (isArrayField) {
@@ -981,7 +995,7 @@ export function buildUpdateWithNestedTransaction(
             const varName = `$${disconnectName}`;
             // Transform disconnect IDs to RecordId objects
             const transformedIds = disconnectIds.map((id) =>
-              transformOrValidateRecordId(targetModel.tableName, id as string),
+              transformOrValidateRecordId(targetModel.tableName, id as string, modelIdTypes(targetModel)),
             );
             vars[disconnectName] = transformedIds;
             fieldUpdates.push(`${recordFieldName} -= ${varName}`);
@@ -1019,7 +1033,9 @@ export function buildUpdateWithNestedTransaction(
             fieldUpdates.push(`${recordFieldName} = []`);
           } else {
             // Transform set IDs to RecordId objects
-            const transformedIds = setIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
+            const transformedIds = setIds.map((id) =>
+              transformOrValidateRecordId(targetModel.tableName, id, modelIdTypes(targetModel)),
+            );
             vars[setName] = transformedIds;
             fieldUpdates.push(`${recordFieldName} = ${varName}`);
           }
@@ -1086,7 +1102,9 @@ export function buildUpdateWithNestedTransaction(
     } else {
       // For connected records, use WHERE id INSIDE $array to batch update
       const varName = `sync_connect_ids_${syncIdx}`;
-      vars[varName] = sync.targetIds.map((id) => transformOrValidateRecordId(sync.targetModel.tableName, id));
+      vars[varName] = sync.targetIds.map((id) =>
+        transformOrValidateRecordId(sync.targetModel.tableName, id, modelIdTypes(sync.targetModel)),
+      );
       postStatements.push(
         `UPDATE ${sync.targetModel.tableName} SET ${sync.targetRecordField} += $result[0].id WHERE id INSIDE $${varName};`,
       );
@@ -1096,7 +1114,9 @@ export function buildUpdateWithNestedTransaction(
   // Add bidirectional sync for n-n disconnects using WHERE id IN
   arrayDisconnects.forEach((sync, syncIdx) => {
     const varName = `sync_disconnect_ids_${syncIdx}`;
-    vars[varName] = sync.targetIds.map((id) => transformOrValidateRecordId(sync.targetModel.tableName, id));
+    vars[varName] = sync.targetIds.map((id) =>
+      transformOrValidateRecordId(sync.targetModel.tableName, id, modelIdTypes(sync.targetModel)),
+    );
     postStatements.push(
       `UPDATE ${sync.targetModel.tableName} SET ${sync.targetRecordField} -= $result[0].id WHERE id INSIDE $${varName};`,
     );
@@ -1115,7 +1135,9 @@ export function buildUpdateWithNestedTransaction(
   // Handle reverse connects (update target records to point to us)
   reverseConnects.forEach((rc, idx) => {
     const varName = `rev_connect_${idx}`;
-    vars[varName] = rc.targetIds.map((id) => transformOrValidateRecordId(rc.targetModel.tableName, id));
+    vars[varName] = rc.targetIds.map((id) =>
+      transformOrValidateRecordId(rc.targetModel.tableName, id, modelIdTypes(rc.targetModel)),
+    );
     postStatements.push(
       `UPDATE ${rc.targetModel.tableName} SET ${rc.targetRecordField} = $result[0].id WHERE id INSIDE $${varName};`,
     );
@@ -1124,7 +1146,9 @@ export function buildUpdateWithNestedTransaction(
   // Handle bidirectional set sync - remove from old, add to new
   arraySets.forEach((setOp, idx) => {
     const newIdsVar = `set_new_${idx}`;
-    vars[newIdsVar] = setOp.newIds.map((id) => transformOrValidateRecordId(setOp.targetModel.tableName, id));
+    vars[newIdsVar] = setOp.newIds.map((id) =>
+      transformOrValidateRecordId(setOp.targetModel.tableName, id, modelIdTypes(setOp.targetModel)),
+    );
 
     // Remove current record from all old items' arrays
     // $old[0].{sourceRecordField} contains the old array values

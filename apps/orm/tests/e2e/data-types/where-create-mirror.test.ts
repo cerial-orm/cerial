@@ -119,7 +119,7 @@ const KINDS: Kind[] = [
  * Kinds whose count by create's own value is not one today. The cause is each one's gap in the unit oracle's
  * known-gaps list; delete the name here when its count is right.
  */
-const KNOWN_FAILING: ReadonlySet<string> = new Set<string>(['Uuid id']);
+const KNOWN_FAILING: ReadonlySet<string> = new Set<string>();
 
 describe('E2E: where finds the rows create wrote', () => {
   const { getClient } = setupDataTypeTests([

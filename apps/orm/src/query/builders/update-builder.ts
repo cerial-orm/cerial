@@ -20,7 +20,7 @@ import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { captureMatchedIds, inTransaction } from './bulk-write';
-import { transformOrValidateRecordId, tupleElementUpdateRefresh } from '../transformers';
+import { modelIdTypes, transformOrValidateRecordId, tupleElementUpdateRefresh } from '../transformers';
 import { buildArrayUpdateClause, isArrayField, isArrayUpdateOps } from './array-update-builder';
 import { getRecordIdFromWhere } from './delete-builder';
 import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
@@ -749,7 +749,7 @@ export function buildUpdateUniqueQuery(
 
   if (hasId) {
     // ID-based: UPDATE ONLY table:id SET ... [WHERE other fields] [RETURN ...]
-    const recordId = transformOrValidateRecordId(model.tableName, id!);
+    const recordId = transformOrValidateRecordId(model.tableName, id!, modelIdTypes(model));
     const whereClause = buildWhereClauseWithoutId(expandedWhere, model, registry);
     // Bound, never interpolated: the id part is caller text and the driver's escaper leaves a backslash alone
     const idBinding = createCompileContext('rid_').bind('record', 'id', recordId, 'string');

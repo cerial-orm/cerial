@@ -2,7 +2,7 @@
  * Unit Tests: Typed ID Transformer
  *
  * Tests data transformation for typed Record IDs (number, bigint, array, object).
- * Verifies that toRecordIdInput, transformRecordId, transformOrValidateRecordId,
+ * Verifies that toRecordIdInput, transformOrValidateRecordId,
  * and transformData all preserve native ID types without string coercion.
  */
 
@@ -12,7 +12,6 @@ import {
   toRecordIdInput,
   transformData,
   transformOrValidateRecordId,
-  transformRecordId,
 } from '../../../src/query/transformers/data-transformer';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
 import { CerialId } from '../../../src/utils/cerial-id';
@@ -173,14 +172,14 @@ describe('toRecordIdInput', () => {
 describe('transformRecordId', () => {
   describe('string IDs (backward compat)', () => {
     it('should handle table:id string', () => {
-      const result = transformRecordId('user', 'user:abc');
+      const result = transformOrValidateRecordId('user', 'user:abc', undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe('abc');
     });
 
     it('should handle bare id string', () => {
-      const result = transformRecordId('user', 'abc');
+      const result = transformOrValidateRecordId('user', 'abc', undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe('abc');
@@ -189,28 +188,28 @@ describe('transformRecordId', () => {
 
   describe('CerialId inputs', () => {
     it('should handle CerialId with string id', () => {
-      const result = transformRecordId('user', new CerialId('user:abc'));
+      const result = transformOrValidateRecordId('user', new CerialId('user:abc'), undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe('abc');
     });
 
     it('should handle CerialId wrapping number', () => {
-      const result = transformRecordId('user', new CerialId(42));
+      const result = transformOrValidateRecordId('user', new CerialId(42), undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe(42);
     });
 
     it('should handle CerialId wrapping object', () => {
-      const result = transformRecordId('metric', new CerialId({ service: 'api', ts: 123 }));
+      const result = transformOrValidateRecordId('metric', new CerialId({ service: 'api', ts: 123 }), undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('metric');
       expect(result.id).toEqual({ service: 'api', ts: 123 });
     });
 
     it('should handle CerialId wrapping array', () => {
-      const result = transformRecordId('loc', new CerialId([1.5, 2.5]));
+      const result = transformOrValidateRecordId('loc', new CerialId([1.5, 2.5]), undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('loc');
       expect(result.id).toEqual([1.5, 2.5]);
@@ -220,7 +219,7 @@ describe('transformRecordId', () => {
   describe('RecordId passthrough', () => {
     it('should accept RecordId with typed id', () => {
       const input = new RecordId('user', 42);
-      const result = transformRecordId('user', input);
+      const result = transformOrValidateRecordId('user', input, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe(42);
@@ -229,7 +228,7 @@ describe('transformRecordId', () => {
 
   describe('table validation', () => {
     it('should throw for CerialId with mismatched table', () => {
-      expect(() => transformRecordId('user', new CerialId('post:abc'))).toThrow('does not match');
+      expect(() => transformOrValidateRecordId('user', new CerialId('post:abc'), undefined)).toThrow('does not match');
     });
   });
 });
@@ -241,26 +240,26 @@ describe('transformRecordId', () => {
 describe('transformOrValidateRecordId', () => {
   describe('number IDs', () => {
     it('should create RecordId with number id', () => {
-      const result = transformOrValidateRecordId('user', 42);
+      const result = transformOrValidateRecordId('user', 42, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe(42);
     });
 
     it('should handle zero', () => {
-      const result = transformOrValidateRecordId('user', 0);
+      const result = transformOrValidateRecordId('user', 0, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toBe(0);
     });
 
     it('should handle negative number', () => {
-      const result = transformOrValidateRecordId('user', -1);
+      const result = transformOrValidateRecordId('user', -1, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toBe(-1);
     });
 
     it('should handle float', () => {
-      const result = transformOrValidateRecordId('metric', 3.14);
+      const result = transformOrValidateRecordId('metric', 3.14, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toBe(3.14);
     });
@@ -268,7 +267,7 @@ describe('transformOrValidateRecordId', () => {
 
   describe('bigint IDs', () => {
     it('should create RecordId with bigint id', () => {
-      const result = transformOrValidateRecordId('user', BigInt(999));
+      const result = transformOrValidateRecordId('user', BigInt(999), undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toBe(BigInt(999));
     });
@@ -276,20 +275,20 @@ describe('transformOrValidateRecordId', () => {
 
   describe('array IDs', () => {
     it('should create RecordId with array id', () => {
-      const result = transformOrValidateRecordId('loc', [1.5, 2.5]);
+      const result = transformOrValidateRecordId('loc', [1.5, 2.5], undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('loc');
       expect(result.id).toEqual([1.5, 2.5]);
     });
 
     it('should handle string-number array', () => {
-      const result = transformOrValidateRecordId('loc', ['London', 42]);
+      const result = transformOrValidateRecordId('loc', ['London', 42], undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toEqual(['London', 42]);
     });
 
     it('should handle empty array', () => {
-      const result = transformOrValidateRecordId('loc', []);
+      const result = transformOrValidateRecordId('loc', [], undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toEqual([]);
     });
@@ -297,14 +296,14 @@ describe('transformOrValidateRecordId', () => {
 
   describe('object IDs', () => {
     it('should create RecordId with object id', () => {
-      const result = transformOrValidateRecordId('metric', { service: 'api', ts: 123 });
+      const result = transformOrValidateRecordId('metric', { service: 'api', ts: 123 }, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('metric');
       expect(result.id).toEqual({ service: 'api', ts: 123 });
     });
 
     it('should handle empty object', () => {
-      const result = transformOrValidateRecordId('metric', {});
+      const result = transformOrValidateRecordId('metric', {}, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toEqual({});
     });
@@ -313,7 +312,7 @@ describe('transformOrValidateRecordId', () => {
   describe('Uuid IDs', () => {
     it('should create RecordId with Uuid id', () => {
       const uuid = new Uuid('01938efc-0732-7e62-b534-954060377809');
-      const result = transformOrValidateRecordId('user', uuid);
+      const result = transformOrValidateRecordId('user', uuid, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       // Uuid is handled via the object branch
@@ -323,7 +322,7 @@ describe('transformOrValidateRecordId', () => {
 
   describe('CerialId with typed IDs', () => {
     it('should handle CerialId wrapping number (no table)', () => {
-      const result = transformOrValidateRecordId('user', new CerialId(42));
+      const result = transformOrValidateRecordId('user', new CerialId(42), undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe(42);
@@ -332,7 +331,7 @@ describe('transformOrValidateRecordId', () => {
     it('should handle CerialId wrapping number (with matching table)', () => {
       const id = new CerialId(42);
       id.table = 'user';
-      const result = transformOrValidateRecordId('user', id);
+      const result = transformOrValidateRecordId('user', id, undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe(42);
@@ -341,17 +340,17 @@ describe('transformOrValidateRecordId', () => {
     it('should throw for CerialId wrapping number with wrong table', () => {
       const id = new CerialId(42);
       id.table = 'post';
-      expect(() => transformOrValidateRecordId('user', id)).toThrow('does not match');
+      expect(() => transformOrValidateRecordId('user', id, undefined)).toThrow('does not match');
     });
 
     it('should handle CerialId wrapping array', () => {
-      const result = transformOrValidateRecordId('loc', new CerialId([1.5, 2.5]));
+      const result = transformOrValidateRecordId('loc', new CerialId([1.5, 2.5]), undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toEqual([1.5, 2.5]);
     });
 
     it('should handle CerialId wrapping object', () => {
-      const result = transformOrValidateRecordId('metric', new CerialId({ service: 'api', ts: 123 }));
+      const result = transformOrValidateRecordId('metric', new CerialId({ service: 'api', ts: 123 }), undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toEqual({ service: 'api', ts: 123 });
     });
@@ -360,33 +359,33 @@ describe('transformOrValidateRecordId', () => {
   describe('RecordId passthrough with validation', () => {
     it('should pass through RecordId with matching table', () => {
       const input = new RecordId('user', 42);
-      const result = transformOrValidateRecordId('user', input);
+      const result = transformOrValidateRecordId('user', input, undefined);
       expect(result).toBe(input); // Same instance
       expect(result.id).toBe(42);
     });
 
     it('should throw for RecordId with wrong table', () => {
       const input = new RecordId('post', 42);
-      expect(() => transformOrValidateRecordId('user', input)).toThrow('does not match');
+      expect(() => transformOrValidateRecordId('user', input, undefined)).toThrow('does not match');
     });
   });
 
   describe('string IDs (backward compat)', () => {
     it('should parse table:id string', () => {
-      const result = transformOrValidateRecordId('user', 'user:abc');
+      const result = transformOrValidateRecordId('user', 'user:abc', undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.table.name).toBe('user');
       expect(result.id).toBe('abc');
     });
 
     it('should parse bare string id', () => {
-      const result = transformOrValidateRecordId('user', 'abc');
+      const result = transformOrValidateRecordId('user', 'abc', undefined);
       expect(result).toBeInstanceOf(RecordId);
       expect(result.id).toBe('abc');
     });
 
     it('should throw for string with wrong table', () => {
-      expect(() => transformOrValidateRecordId('user', 'post:abc')).toThrow('does not match');
+      expect(() => transformOrValidateRecordId('user', 'post:abc', undefined)).toThrow('does not match');
     });
   });
 });

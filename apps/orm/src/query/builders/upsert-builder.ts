@@ -27,7 +27,7 @@ import type { CompiledQuery, TargetCheckMap } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere, transformWhereClause } from '../filters/transformer';
 import { captureMatchedIds } from './bulk-write';
-import { transformOrValidateRecordId } from '../transformers';
+import { modelIdTypes, transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
 import { buildCreateSetClauses } from './insert-builder';
 import {
@@ -326,7 +326,7 @@ export function buildUpsertIdQuery(
 
   // Extract ID from where (and expand composite keys)
   const { id, expandedWhere } = getRecordIdFromWhere(where, model, 'upsert');
-  const recordId = transformOrValidateRecordId(model.tableName, id!);
+  const recordId = transformOrValidateRecordId(model.tableName, id!, modelIdTypes(model));
   // Bound, never interpolated: the id part is caller text and the driver's escaper leaves a backslash alone
   const idBinding = ctx.bind('record', 'id', recordId, 'string');
   Object.assign(vars, idBinding.vars);

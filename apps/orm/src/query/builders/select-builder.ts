@@ -24,7 +24,7 @@ import { createCompileContext, type FilterCompileContext } from '../compile/var-
 import { expandCompositeKey, findCompositeUniqueKey } from '../filters/composite-key';
 import { isOperatorObject } from '../filters/condition-builder';
 import { transformWhereClause } from '../filters/transformer';
-import { transformOrValidateRecordId } from '../transformers';
+import { modelIdTypes, transformOrValidateRecordId } from '../transformers';
 import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
 
 export { expandCompositeKey, findCompositeUniqueKey };
@@ -704,7 +704,7 @@ function buildFindUniqueByIdQuery(
   compute?: ComputeClause,
 ): CompiledQuery {
   const idValue = where[idField.name] as string;
-  const recordId = transformOrValidateRecordId(model.tableName, idValue);
+  const recordId = transformOrValidateRecordId(model.tableName, idValue, modelIdTypes(model));
 
   // Remove ONLY id from where clause (keep other unique fields + non-unique fields)
   const whereWithoutId = { ...where };

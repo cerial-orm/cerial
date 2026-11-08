@@ -62,7 +62,7 @@ import { createCompileContext } from './compile/var-allocator';
 import { executeQuery, executeQuerySingle } from './executor';
 import { transformWhereClause } from './filters/transformer';
 import { groupByRowShape, mapGroupByRows, mapResult, mapSingleResult } from './mappers';
-import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
+import { applyFieldDefaults, modelIdTypes, transformData, transformOrValidateRecordId } from './transformers';
 import {
   assertValidReadOptions,
   validateCreateData,
@@ -1110,7 +1110,7 @@ function recordIdFromWhere(model: ModelMetadata, where: WhereClause): RecordId |
   const id = where[idField.name];
   if (id === undefined || id === null) return undefined;
 
-  return transformOrValidateRecordId(model.tableName, id as string);
+  return transformOrValidateRecordId(model.tableName, id as string, modelIdTypes(model));
 }
 
 /** A field filter that matches every row: only `notIn` with an empty list, which narrows nothing */

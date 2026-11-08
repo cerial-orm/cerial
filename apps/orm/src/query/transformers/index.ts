@@ -5,9 +5,9 @@
 export {
   applyFieldDefaults,
   applyNowDefaults,
+  modelIdTypes,
   transformData,
   transformOrValidateRecordId,
-  transformRecordId,
   toU64Param,
   transformValue,
   tupleElementDefault,

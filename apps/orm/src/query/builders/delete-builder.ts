@@ -14,7 +14,7 @@ import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
 import { CerialValidationError } from '../../errors';
 import { transformDestructiveWhere } from '../filters/transformer';
-import { transformOrValidateRecordId } from '../transformers';
+import { modelIdTypes, transformOrValidateRecordId } from '../transformers';
 import { captureMatchedIds, inTransaction } from './bulk-write';
 import { type CascadeEdge, type DependentRelation, findDependentRelations, walkCascade } from './cascade-graph';
 import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
@@ -404,7 +404,7 @@ export function getRecordIdFromWhere(
  * @param returnBefore - Whether to return the deleted record (RETURN BEFORE vs RETURN NONE)
  */
 export function buildDeleteUniqueQuery(model: ModelMetadata, id: string, returnBefore: boolean): CompiledQuery {
-  const recordId = transformOrValidateRecordId(model.tableName, id);
+  const recordId = transformOrValidateRecordId(model.tableName, id, modelIdTypes(model));
   const returnClause = returnBefore ? 'RETURN BEFORE' : 'RETURN NONE';
 
   // Bound, never interpolated: the id part is caller text and the driver's escaper leaves a backslash alone
@@ -468,7 +468,7 @@ export function buildDeleteUniqueWithCascade(
 
   // If ID is provided, use it directly; otherwise look up by unique field
   if (idAlone) {
-    const recordId = transformOrValidateRecordId(model.tableName, id!);
+    const recordId = transformOrValidateRecordId(model.tableName, id!, modelIdTypes(model));
     vars.deleteId = recordId;
     statements.push('LET $deleteId = $deleteId');
   } else {

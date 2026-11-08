@@ -17,7 +17,6 @@ import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
-import { isValidUuidString } from '../../utils/validation-utils';
 import { quoteSubKey } from '../../utils/string-utils';
 import { isObject } from '../../utils/type-utils';
 import { CerialValidationError } from '../../errors';
@@ -131,19 +130,11 @@ function idListDepth(op: string, isArray: boolean | undefined): number {
   return ['in', 'notIn', 'hasAll', 'hasAny'].includes(op) ? 1 : 0;
 }
 
-/**
- * One id operand as a RecordId, the way create builds the id of that table. A Uuid key is a Uuid, not the
- * string the API hands back, unless the id type also admits a plain string.
- */
+/** One id operand as the record create builds for the id of that table */
 function transformIdOperand(table: string, value: unknown, recordIdTypes: string[] | undefined): unknown {
   if (!isRecordIdInput(value)) return value;
-  const input = CerialUuid.is(value) ? value.toNative() : value;
-  const id = transformOrValidateRecordId(table, input as Parameters<typeof transformOrValidateRecordId>[1]);
-  const types = recordIdTypes?.map((t) => t.toLowerCase());
-  if (!types?.includes('uuid') || types.includes('string')) return id;
-  if (typeof id.id !== 'string' || !isValidUuidString(id.id)) return id;
 
-  return new RecordId(id.table.name, new Uuid(id.id));
+  return transformOrValidateRecordId(table, value, recordIdTypes);
 }
 
 function mapIdOperand(value: unknown, depth: number, table: string, recordIdTypes: string[] | undefined): unknown {
