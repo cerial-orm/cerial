@@ -5,6 +5,7 @@
  *   array, on create and in a negated filter, before any row is touched
  * - a Record inside an object is compared as create stored it, so a negated delete spares the row holding it
  * - a self-referencing object is filtered by name at every depth
+ * - a reverse relation over a Record[] on the other side matches per key
  *
  * Destructive calls come first in each group: the refused ones must leave every row, the accepted ones must
  * remove exactly the rows the typed equivalent selects.
@@ -226,6 +227,46 @@ describe('E2E: where operand edges', () => {
         /ambiguous/,
       );
       expect(await names()).toEqual(['n1', 'n2', 'n3']);
+    });
+  });
+
+  describe('a reverse relation over a Record[] on the other side', () => {
+    const seed = async (): Promise<void> => {
+      const { db } = getClient();
+      await db.WoTag.create({ data: { id: 't1', name: 'x' } as never });
+      await db.WoTag.create({ data: { id: 't2', name: 'y' } as never });
+      await db.WoTag.create({ data: { id: 't3', name: 'z' } as never });
+      await db.WoPost.create({ data: { name: 'qa', tagIds: [] as never, tags: { connect: ['t1', 't2'] } } as never });
+      await db.WoPost.create({ data: { name: 'qb', tagIds: [] as never, tags: { connect: ['t2'] } } as never });
+    };
+
+    const tagNames = async (where: unknown): Promise<string[]> =>
+      (await getClient().db.WoTag.findMany({ where: loose(where), orderBy: { name: 'asc' } })).map((r) => r.name);
+
+    test('deleteMany none deletes the tags no matching post links', async () => {
+      await seed();
+      // t1 is linked by qa only, t2 by qa and qb, t3 by none: none of "qa" leaves t3
+      expect(await getClient().db.WoTag.deleteMany({ where: loose({ posts: { none: { name: 'qa' } } }) })).toBe(1);
+      expect(await tagNames({})).toEqual(['x', 'y']);
+    });
+
+    test('some, every, none and isEmpty select by key', async () => {
+      await seed();
+      expect(await tagNames({ posts: { some: { name: 'qa' } } })).toEqual(['x', 'y']);
+      expect(await tagNames({ posts: { some: { name: 'qb' } } })).toEqual(['y']);
+      expect(await tagNames({ posts: { every: { name: 'qa' } } })).toEqual(['x']);
+      expect(await tagNames({ posts: { none: { name: 'qa' } } })).toEqual(['z']);
+      expect(await tagNames({ posts: { none: { name: 'qb' } } })).toEqual(['x', 'z']);
+      expect(await tagNames({ posts: { isEmpty: true } })).toEqual(['z']);
+      expect(await tagNames({ posts: { isEmpty: false } })).toEqual(['x', 'y']);
+      expect(await tagNames({ posts: { some: {} } })).toEqual(['x', 'y']);
+      expect(await tagNames({ posts: { none: {} } })).toEqual(['z']);
+    });
+
+    test('the shorthand and NOT agree', async () => {
+      await seed();
+      expect(await tagNames({ posts: { name: 'qb' } })).toEqual(['y']);
+      expect(await tagNames({ NOT: { posts: { some: { name: 'qa' } } } })).toEqual(['z']);
     });
   });
 });

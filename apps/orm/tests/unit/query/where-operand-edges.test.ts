@@ -5,6 +5,7 @@
  *   on create and in a filter, because the database refuses a short one and nothing else would
  * - a Record inside an object is compared as create stores it
  * - a self-referencing object is walked by name at every depth
+ * - a reverse relation over a Record[] on the other side matches per key
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -68,6 +69,31 @@ model Item {
   nodes Node[]
   meta Arr @flexible
 }
+
+model Post {
+  id Record @id
+  name String
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(Tag)
+}
+
+model Tag {
+  id Record @id
+  name String
+  posts Relation[] @model(Post)
+}
+
+model Owner {
+  id Record @id
+  pets Relation[] @model(Pet)
+}
+
+model Pet {
+  id Record @id
+  name String
+  ownerId Record
+  owner Relation @field(ownerId) @model(Owner)
+}
 `;
 
 const { ast } = parse(schema);
@@ -84,6 +110,8 @@ resolveObjectFields(
 const registry = createRegistry(models);
 inferFKTypes(models, registry);
 const item = registry.Item!;
+const tag = registry.Tag!;
+const owner = registry.Owner!;
 
 const w = (value: unknown): WhereClause => value as WhereClause;
 const createErrors = (data: Record<string, unknown>): string[] =>
@@ -237,5 +265,28 @@ describe('a self-referencing object is walked by name at every depth', () => {
     expect(() =>
       assertNoAmbiguousEmpty(w({ node: { child: { child: { n: 1 } } } }), item, registry, 'deleteMany'),
     ).not.toThrow();
+  });
+});
+
+describe('a reverse relation over a Record[] on the other side matches per key', () => {
+  const SPLIT = ' SPLIT tagIds';
+
+  test('some, every, none and isEmpty split the list into one key per row', () => {
+    const some = compile({ posts: { some: { name: 'a' } } }, tag).text;
+    expect(some).toBe(`id IN (SELECT VALUE tagIds FROM post WHERE name = $${some.match(/\$(\w+)/)![1]!}${SPLIT})`);
+
+    const every = compile({ posts: { every: { name: 'a' } } }, tag).text;
+    expect(every.match(/SPLIT tagIds/g)).toHaveLength(2);
+    expect(every).toContain('NOT IN (SELECT VALUE tagIds FROM post WHERE NOT (');
+
+    expect(compile({ posts: { none: { name: 'a' } } }, tag).text).toMatch(/^id NOT IN \(.* SPLIT tagIds\)$/);
+    expect(compile({ posts: { isEmpty: true } }, tag).text).toBe(`id NOT IN (SELECT VALUE tagIds FROM post${SPLIT})`);
+    expect(compile({ posts: { isEmpty: false } }, tag).text).toBe(`id IN (SELECT VALUE tagIds FROM post${SPLIT})`);
+    expect(compile({ posts: { some: {} } }, tag).text).toBe(`id IN (SELECT VALUE tagIds FROM post${SPLIT})`);
+  });
+
+  test('a single foreign key is compiled as before, with no split', () => {
+    expect(compile({ pets: { some: { name: 'a' } } }, owner).text).not.toContain('SPLIT');
+    expect(compile({ pets: { isEmpty: true } }, owner).text).toBe('id NOT IN (SELECT VALUE ownerId FROM pet)');
   });
 });

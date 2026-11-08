@@ -461,6 +461,10 @@ function compileReverseNested(
     return { text: '', vars: {} };
   }
 
+  // A one-directional Record[] on the target holds a list per row; SPLIT yields one key per row, so the
+  // keys compare to `id` as they do for a single foreign key
+  const split = targetModel.fields.find((f) => f.name === foreignKeyField)?.isArray ? ` SPLIT ${foreignKeyField}` : '';
+
   // Plain target-field keys are shorthand for `some`. Mixing them with an explicit key is refused:
   // whether they join that key's body or stand as a second `some` is a guess, and on deleteMany a
   // wrong guess deletes the wrong parents.
@@ -495,7 +499,7 @@ function compileReverseNested(
 
       const membership = value ? 'NOT IN' : 'IN';
       conditions.push({
-        text: `id ${membership} (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName})`,
+        text: `id ${membership} (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName}${split})`,
         vars: {},
       });
       continue;
@@ -512,10 +516,13 @@ function compileReverseNested(
         if (namesUnknownField(innerWhere, targetModel)) continue;
 
         if (key === 'some' || key === 'every') {
-          conditions.push({ text: `id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName})`, vars: {} });
+          conditions.push({
+            text: `id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName}${split})`,
+            vars: {},
+          });
         } else if (key === 'none') {
           conditions.push({
-            text: `id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName})`,
+            text: `id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName}${split})`,
             vars: {},
           });
         }
@@ -529,7 +536,7 @@ function compileReverseNested(
         case 'some':
           // At least one related record matches
           // id IN (SELECT VALUE fkField FROM targetTable WHERE <condition>)
-          subqueryText = `id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE ${innerCondition.text})`;
+          subqueryText = `id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE ${innerCondition.text}${split})`;
           break;
 
         case 'every':
@@ -538,14 +545,14 @@ function compileReverseNested(
           // 1. No related record that DOESN'T match: id NOT IN (SELECT VALUE fk FROM target WHERE NOT(<condition>))
           // 2. At least one related record exists: id IN (SELECT VALUE fk FROM target)
           subqueryText =
-            `(id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE NOT (${innerCondition.text})) ` +
-            `AND id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName}))`;
+            `(id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE NOT (${innerCondition.text})${split}) ` +
+            `AND id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName}${split}))`;
           break;
 
         case 'none':
           // No related records match
           // id NOT IN (SELECT VALUE fkField FROM targetTable WHERE <condition>)
-          subqueryText = `id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE ${innerCondition.text})`;
+          subqueryText = `id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE ${innerCondition.text}${split})`;
           break;
 
         default:
