@@ -132,7 +132,7 @@ describe('upsert-builder', () => {
       expect(query.text).toMatch(/age = IF \$this == NONE THEN .+ ELSE age END/);
     });
 
-    test('generates update-only field with ELSE NONE on create path', () => {
+    test('an update-only field is set by the update half and absent from the create half', () => {
       const query = buildUpsertWhereQuery(
         userModel,
         { email: 'john@test.com' },
@@ -142,8 +142,9 @@ describe('upsert-builder', () => {
         undefined,
       );
 
-      // name is only in update: IF $this == NONE THEN NONE ELSE $name_update END
-      expect(query.text).toMatch(/name = IF \$this == NONE THEN NONE ELSE .+ END/);
+      const [updateHalf, createHalf] = query.text.split('ELSE {');
+      expect(updateHalf).toMatch(/SET name = \$name_update_\d+/);
+      expect(createHalf).not.toContain('name');
     });
 
     test('binds create and update values as separate variables', () => {

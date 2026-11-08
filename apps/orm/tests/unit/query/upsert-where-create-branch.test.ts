@@ -66,12 +66,12 @@ describe('WHERE-based upsert branches on a read of its WHERE', () => {
     expect(query.text.endsWith('COMMIT TRANSACTION;\nRETURN $up_result;')).toBe(true);
   });
 
-  test('both branches carry the same SET clauses, so $this == NONE picks the create values in the CREATE', () => {
+  test('the CREATE takes the create values through $this == NONE; the update branch sets the update values', () => {
     const query = buildUpsertQuery(user, { email: 'a@b.co' }, { email: 'a@b.co', name: 'A' }, { name: 'B' }, undefined);
     const { matched, created } = branches(query.text);
 
-    expect(setClause(created)).toBe(setClause(matched));
     expect(setClause(created)).toContain('name = IF $this == NONE THEN $name_create_');
+    expect(setClause(matched)).toMatch(/^name = \$name_update_\d+$/);
   });
 
   test('a composite unique where reads by its expanded fields and keeps ONLY on both branches', () => {

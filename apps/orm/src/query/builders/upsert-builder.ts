@@ -4,9 +4,8 @@
  * Builds SurrealDB UPSERT statements with conditional create/update logic.
  *
  * Two strategies based on where clause:
- * 1. WHERE-based (unique field or non-unique): UPSERT SET when the WHERE matches, CREATE otherwise, with
- *    IF $this == NONE THEN <create_value> ELSE <update_value> END
- *    ($this is NONE when the record doesn't exist yet)
+ * 1. WHERE-based (unique field or non-unique): UPDATE the first match, CREATE otherwise. The update half is
+ *    built like updateUnique's (objects merge, array operators apply); the create half takes the create values
  *
  * 2. ID-based: Uses a transaction with explicit existence check because
  *    $this == NONE always evaluates to true in UPSERT table:id context.
@@ -219,8 +218,10 @@ export function buildUpsertWhereQuery(
 ): CompiledQuery {
   const ctx = createCompileContext();
 
-  // Build SET clauses with conditional logic
-  const { setParts, setVars } = buildUpsertSetClauses(ctx, createData, updateData, model);
+  // The create half takes the create values; the update half is built like updateUnique's, so object fields
+  // merge and array operators apply instead of the value being bound whole
+  const { setParts: createParts, setVars: createVars } = buildUpsertSetClauses(ctx, createData, {}, model);
+  const { setParts: updateParts, setVars: updateVars } = buildUpdateSetClauses(ctx, updateData, model, 'update');
 
   // Build WHERE clause
   const whereClause = transformDestructiveWhere(where, model, 'upsert', registry);
@@ -234,18 +235,19 @@ export function buildUpsertWhereQuery(
     : buildUpsertReturnClause(returnOption, select, include, model, registry, includeCtx);
 
   const onlyKeyword = useOnly ? ' ONLY' : '';
-  const setText = setParts.length > 0 ? `SET ${setParts.join(', ')}` : '';
+  const createText = createParts.length > 0 ? `SET ${createParts.join(', ')}` : '';
+  const updateText = updateParts.length > 0 ? `SET ${updateParts.join(', ')}` : '';
   // Upsert writes one row: the first the where matches, whether or not the where is a unique key (a null on a
   // nullable unique key or an extra non-unique key can match several). The id is read first and the write
   // targets it, so the row written is the row chosen
   const matchedIds = captureMatchedIds(ctx, model.tableName, `${whereClause.text} LIMIT 1`);
-  const upsert = [`UPDATE${onlyKeyword} ${matchedIds.target}${useOnly ? '[0]' : ''}`, setText, returnClause]
+  const upsert = [`UPDATE${onlyKeyword} ${matchedIds.target}${useOnly ? '[0]' : ''}`, updateText, returnClause]
     .filter((p) => p)
     .join(' ');
   // When nothing matches, UPSERT ... WHERE whose new row hits a unique index retries as an update of the
   // conflicting row, which the WHERE then filters out: no row, no write, no error. A CREATE raises the
   // violation. $this is NONE throughout a CREATE's SET, so the same clauses take their create values.
-  const create = [`CREATE${onlyKeyword} ${model.tableName}`, setText, returnClause].filter((p) => p).join(' ');
+  const create = [`CREATE${onlyKeyword} ${model.tableName}`, createText, returnClause].filter((p) => p).join(' ');
 
   return {
     text: [
@@ -269,7 +271,7 @@ export function buildUpsertWhereQuery(
     ]
       .filter((p) => p)
       .join('\n'),
-    vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
+    vars: { ...createVars, ...updateVars, ...whereClause.vars, ...includeCtx.getCollected() },
   };
 }
 
