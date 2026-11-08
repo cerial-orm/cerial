@@ -20,7 +20,7 @@ export function handleEq(
     return { text: `${field} = NULL`, vars: {} };
   }
 
-  const v = bindOperand(ctx, field, 'eq', value, fieldMetadata);
+  const v = bindOperand(ctx, field, 'eq', value, fieldMetadata, 'value');
 
   return { text: `${field} = ${v.placeholder}`, vars: v.vars };
 }

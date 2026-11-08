@@ -14,6 +14,6 @@ export function handleIn(
   values: unknown[],
   fieldMetadata: FieldMetadata,
 ): QueryFragment {
-  const v = bindOperand(ctx, field, 'in', values, fieldMetadata);
+  const v = bindOperand(ctx, field, 'in', values, fieldMetadata, 'valueList');
   return { text: `${field} IN ${v.placeholder}`, vars: v.vars };
 }

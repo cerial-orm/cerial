@@ -8,8 +8,8 @@ import type { VarBinding } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 
 /**
- * Bind a comparison operand. For a set field an array operand is cast to a set, and a list operand
- * (in, notIn) has each array member cast, anything else left for the database to compare.
+ * Bind a comparison operand by its shape (see `OperandShape`): a whole-value operand is cast to a set, and a
+ * value list has each member cast, so the database compares a set with a set.
  */
 export function bindOperand(
   ctx: FilterCompileContext,
@@ -17,11 +17,12 @@ export function bindOperand(
   operator: string,
   value: unknown,
   fieldMetadata: FieldMetadata,
+  shape: 'value' | 'valueList',
 ): VarBinding {
   const bound = ctx.bind(field, operator, value, fieldMetadata.type);
   if (!fieldMetadata.isSet) return bound;
 
-  if (operator === 'in' || operator === 'notIn')
+  if (shape === 'valueList')
     return { ...bound, placeholder: `${bound.placeholder}.map(|$m| IF type::is_array($m) { <set>$m } ELSE { $m })` };
 
   return Array.isArray(value) ? { ...bound, placeholder: `<set>${bound.placeholder}` } : bound;

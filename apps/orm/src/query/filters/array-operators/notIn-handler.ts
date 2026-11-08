@@ -14,6 +14,6 @@ export function handleNotIn(
   values: unknown[],
   fieldMetadata: FieldMetadata,
 ): QueryFragment {
-  const v = bindOperand(ctx, field, 'notIn', values, fieldMetadata);
+  const v = bindOperand(ctx, field, 'notIn', values, fieldMetadata, 'valueList');
   return { text: `${field} NOT IN ${v.placeholder}`, vars: v.vars };
 }

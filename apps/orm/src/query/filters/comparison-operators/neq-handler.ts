@@ -14,6 +14,6 @@ export function handleNeq(
   value: unknown,
   fieldMetadata: FieldMetadata,
 ): QueryFragment {
-  const v = bindOperand(ctx, field, 'neq', value, fieldMetadata);
+  const v = bindOperand(ctx, field, 'neq', value, fieldMetadata, 'value');
   return { text: `${field} != ${v.placeholder}`, vars: v.vars };
 }

@@ -40,6 +40,10 @@ object Inner {
   pt Geometry @point
 }
 
+object SetBag {
+  tags Int[] @set
+}
+
 tuple Pair {
   Int,
   Date
@@ -74,6 +78,7 @@ model Owner {
   tier Tier
   mixed Mixed
   inner Inner
+  bag SetBag
   pair Pair
   nInt Int? @nullable
   nDate Date? @nullable
@@ -522,6 +527,16 @@ describe('a set field compares as the set create stores', () => {
     expect(textFor(owner, { sets: { hasAll: [1, 2] } })).not.toContain('<set>');
   });
 
+  test('a set sub-field of an object is compared as the plain array it is stored as', () => {
+    expect(textFor(owner, { bag: { tags: { eq: [1, 2] } } })).not.toContain('<set>');
+    expect(textFor(owner, { bag: { tags: { in: [[1, 2]] } } })).not.toContain('<set>');
+  });
+
+  test('only the whole value and each list member are cast, never a lone element', () => {
+    expect(textFor(owner, { sets: { eq: [1] } })).toContain('<set>$');
+    expect(textFor(owner, { sets: { hasAny: [1] } })).not.toContain('<set>');
+  });
+
   test('a null operand on the required set is refused naming the field, not cast', () => {
     expect(() => textFor(owner, { sets: { eq: null } })).toThrow(/sets/);
   });
@@ -654,5 +669,46 @@ describe('between takes exactly two valid bounds', () => {
 
   test('a non-array between is refused', () => {
     expect(errorsAt(owner, { int: { between: 1 } }).length).toBe(1);
+  });
+});
+
+describe('ordering is refused on array and @set fields', () => {
+  const ops = ['gt', 'gte', 'lt', 'lte'];
+
+  describe.each([
+    ['ints', [3]],
+    ['sets', [3]],
+    ['strSets', ['a']],
+    ['dates', ['2024-01-01T00:00:00Z']],
+  ] as const)('%s', (field, operand) => {
+    test.each(ops)('%s is refused naming the field, on every path', (op) => {
+      for (const where of [
+        { [field]: { [op]: operand } },
+        { NOT: { [field]: { [op]: operand } } },
+        { OR: [{ [field]: { [op]: operand } }] },
+      ]) {
+        const msgs = errorsAt(owner, where);
+        expect(msgs.length).toBe(1);
+        expect(msgs[0]).toContain(field);
+        expect(msgs[0]).toContain(op);
+      }
+      expect(errorsAt(place, viaRelation(field, { [op]: operand })).length).toBe(1);
+      expect(() => textFor(owner, { [field]: { [op]: operand } })).toThrow(new RegExp(field));
+    });
+
+    test('between is refused', () => {
+      expect(errorsAt(owner, { [field]: { between: [operand, operand] } }).join()).toContain('between');
+    });
+  });
+
+  test('the operators an array field does take stay accepted', () => {
+    expect(
+      errorsAt(owner, { sets: { eq: [1], neq: [2], in: [[1]], has: 1, hasAll: [1], hasAny: [1], isEmpty: true } }),
+    ).toEqual([]);
+    expect(errorsAt(owner, { ints: { eq: [1], has: 1 } })).toEqual([]);
+  });
+
+  test('a scalar keeps its ordering', () => {
+    expect(errorsAt(owner, { int: { gt: 1, between: [1, 2] }, date: { lte: new Date(0) } })).toEqual([]);
   });
 });

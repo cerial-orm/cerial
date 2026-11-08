@@ -21,7 +21,7 @@ export function handleNot(
   }
 
   // Handle { not: someValue } - means field != value
-  const v = bindOperand(ctx, field, 'not', value, fieldMetadata);
+  const v = bindOperand(ctx, field, 'not', value, fieldMetadata, 'value');
 
   return { text: `${field} != ${v.placeholder}`, vars: v.vars };
 }

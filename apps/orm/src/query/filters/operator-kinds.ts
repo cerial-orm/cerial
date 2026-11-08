@@ -1,8 +1,7 @@
 /**
  * Which operators a field takes. This restates, per field kind, the operator table the generated Where type
  * is built from (`generateFieldWhereType`), so an operator the type omits is refused at runtime too, naming
- * the field, instead of reaching the database. Array fields are left to the array rules and literal and
- * enum fields to their variants.
+ * the field, instead of reaching the database. Literal and enum fields are left to their variants.
  */
 
 import type { FieldMetadata } from '../../types';
@@ -26,12 +25,19 @@ const unrestricted = (field: KindField): boolean => field.type === 'literal' || 
 
 export const anyKind: KindPredicate = () => true;
 
-/** gt, gte, lt, lte: numbers, dates, durations, decimals, uuids */
-export const orderable: KindPredicate = (field) =>
-  unrestricted(field) || NUMERIC.has(field.type) || field.type === 'uuid';
+/**
+ * Ordering has no meaning on a whole array, and the database sorts a set above every array, so gt, lt and
+ * between on an array or @set field would match rows by type rather than by content.
+ */
+const unrestrictedScalar = (field: KindField): boolean => field.type === 'literal' || field.type === 'any';
 
-/** between has no uuid form */
-export const rangeable: KindPredicate = (field) => unrestricted(field) || NUMERIC.has(field.type);
+/** gt, gte, lt, lte: numbers, dates, durations, decimals, uuids; never an array or @set */
+export const orderable: KindPredicate = (field) =>
+  !field.isArray && (unrestrictedScalar(field) || NUMERIC.has(field.type) || field.type === 'uuid');
+
+/** between has no uuid form; never an array or @set */
+export const rangeable: KindPredicate = (field) =>
+  !field.isArray && (unrestrictedScalar(field) || NUMERIC.has(field.type));
 
 /** contains, startsWith, endsWith */
 export const textual: KindPredicate = (field) =>
