@@ -619,7 +619,7 @@ function validateSubValue(
     const element = { ...field, isArray: false };
     if (Array.isArray(value))
       return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false, true, defs));
-    if (!isObject(value)) return [];
+    if (!isObject(value)) return typeErrors(path, value, field);
 
     // { push } and { set } carry whole elements. updateWhere and unset are typed but the builder never
     // applies them, so a call that reports success would change nothing: refuse them by name.
@@ -656,6 +656,11 @@ function validateSubValue(
 
   if (isObject(value) && isSetWrapper(value)) return validateSubValue(value.set, field, model, path, false, true, defs);
 
+  // A nested object or tuple holds an object or a tuple, however deep it sits: the database checks nothing
+  // below a self-referencing object, and a tuple element's type is only as strict as this check
+  const shape = typeErrors(path, value, field);
+  if (shape.length) return shape;
+
   if (field.type === 'tuple') {
     if (!field.tupleInfo) return [];
     if (Array.isArray(value)) return validateTupleArray(value, field.tupleInfo, model, path, defs);
@@ -668,6 +673,13 @@ function validateSubValue(
   const { objectName, fields } = field.objectInfo;
 
   return validateObjectData(value, objectName, fields, field.isFlexible, model, path, partial, inline, defs);
+}
+
+/** The refusal when a value is not the kind of thing the field holds (an object, a tuple, an array of them) */
+function typeErrors(path: string, value: unknown, field: WalkField): DataValidationError[] {
+  const error = validateFieldValue(path, value, { ...field, isRequired: false });
+
+  return error ? [error] : [];
 }
 
 /**
@@ -722,6 +734,15 @@ function validateTupleArray(
   path: string,
   defs: ObjectDefs,
 ): DataValidationError[] {
+  // The database refuses an extra position, and the builder would drop it from a write
+  if (data.length > tupleInfo.elements.length)
+    return [
+      {
+        field: path,
+        message: `${path} holds ${data.length} elements and its tuple has ${tupleInfo.elements.length}`,
+      },
+    ];
+
   return tupleInfo.elements.flatMap((element) =>
     validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false, true, defs),
   );
@@ -799,11 +820,14 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
     if (isNone(value)) continue;
 
     // Partial object merge sub-keys, and whole object or tuple values, are checked here
-    if (field.type === 'object' || field.type === 'tuple')
-      errors.push(...validateSubValue(value, field, model, fieldName, true));
+    const subErrors =
+      field.type === 'object' || field.type === 'tuple' ? validateSubValue(value, field, model, fieldName, true) : [];
+    errors.push(...subErrors);
 
-    // For updates, don't require fields - just validate types
-    const error = validateFieldValue(fieldName, value, { ...field, isRequired: false });
+    // For updates, don't require fields - just validate types. The walk above already named a wrong shape.
+    const error = subErrors.some((e) => e.field === fieldName)
+      ? null
+      : validateFieldValue(fieldName, value, { ...field, isRequired: false });
     if (error) {
       errors.push(error);
     }
