@@ -38,6 +38,14 @@ function findRecordTargetTable(fieldName: string, model: ModelMetadata): string 
   return pairedRelation?.relationInfo?.targetTable;
 }
 
+/**
+ * Apply `convert` to every non-array member however deeply the lists nest: the members of an array field's
+ * in/notIn are lists themselves, and each element still has to be converted as create converts it.
+ */
+function mapLeaves(value: unknown, convert: (v: unknown) => unknown): unknown {
+  return Array.isArray(value) ? value.map((v) => mapLeaves(v, convert)) : convert(value);
+}
+
 /** Transform a UUID value to SDK Uuid */
 function transformUuidValue(value: unknown): unknown {
   if (value instanceof Uuid) return value;
@@ -100,12 +108,18 @@ export function transformGeometryValue(value: unknown): unknown {
   return value;
 }
 
+/** A bare point is [x, y]; any other array is a list, however deeply nested, whatever form its members take */
+function transformGeometryOperand(value: unknown): unknown {
+  if (Array.isArray(value) && typeof value[0] !== 'number') return value.map(transformGeometryOperand);
+
+  return transformGeometryValue(value);
+}
+
 /** A date string becomes a Date as it does on create; a string compared as-is would match against the wrong type. */
 function transformDateOperand(value: unknown, field: Pick<FieldMetadata, 'type'>): unknown {
   if (field.type !== 'date') return value;
-  if (Array.isArray(value)) return value.map((v) => transformValue(v, 'date'));
 
-  return transformValue(value, 'date');
+  return mapLeaves(value, (v) => transformValue(v, 'date'));
 }
 
 /** Transform value for ID, Record, or UUID fields - handles all input types */
@@ -153,55 +167,24 @@ export function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata
   }
 
   // Transform UUID field values to SDK Uuid
-  if (fieldMetadata.type === 'uuid') {
-    if (Array.isArray(value)) {
-      return value.map((v) => transformUuidValue(v));
-    }
-
-    return transformUuidValue(value);
-  }
+  if (fieldMetadata.type === 'uuid') return mapLeaves(value, transformUuidValue);
 
   // Transform Duration field values to SDK Duration
-  if (fieldMetadata.type === 'duration') {
-    if (Array.isArray(value)) {
-      return value.map((v) => transformDurationValue(v));
-    }
-
-    return transformDurationValue(value);
-  }
+  if (fieldMetadata.type === 'duration') return mapLeaves(value, transformDurationValue);
 
   // Transform Decimal field values to SDK Decimal
-  if (fieldMetadata.type === 'decimal') {
-    if (Array.isArray(value)) {
-      return value.map((v) => transformDecimalValue(v));
-    }
-
-    return transformDecimalValue(value);
-  }
+  if (fieldMetadata.type === 'decimal') return mapLeaves(value, transformDecimalValue);
 
   if (fieldMetadata.type === 'date') return transformDateOperand(value, fieldMetadata);
 
   if (fieldMetadata.type === 'uint64' || fieldMetadata.type === 'float16' || fieldMetadata.type === 'float32') {
-    if (Array.isArray(value)) return value.map((v) => transformSizedValue(v, fieldMetadata.type));
-
-    return transformSizedValue(value, fieldMetadata.type);
+    return mapLeaves(value, (v) => transformSizedValue(v, fieldMetadata.type));
   }
 
-  if (fieldMetadata.type === 'bytes') {
-    if (Array.isArray(value)) {
-      return value.map((v) => transformBytesValue(v));
-    }
-
-    return transformBytesValue(value);
-  }
+  if (fieldMetadata.type === 'bytes') return mapLeaves(value, transformBytesValue);
 
   if (fieldMetadata.type === 'geometry') {
-    // A bare point is [x, y]; any other array is a list, whatever form its members take
-    if (Array.isArray(value) && typeof value[0] !== 'number') {
-      return value.map((v) => transformGeometryValue(v));
-    }
-
-    return transformGeometryValue(value);
+    return transformGeometryOperand(value);
   }
 
   return value;

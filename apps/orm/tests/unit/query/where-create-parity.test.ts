@@ -398,3 +398,50 @@ describe('a whole value compared to an object or tuple field is checked like cre
     expect(errorsAt(owner, { inner: { isNone: true } }).join()).not.toContain('must be of type');
   });
 });
+
+describe('array fields convert every member of every list operand', () => {
+  const cases: Array<[string, SchemaFieldType, unknown]> = [
+    ['uuids', 'uuid', '0190c3f8-6c5d-7a3a-9d3a-1e1f2a3b4c5d'],
+    ['dus', 'duration', '1h'],
+    ['decs', 'decimal', '1.5'],
+    ['dates', 'date', '2024-01-02T00:00:00Z'],
+    ['bytess', 'bytes', 'AQI='],
+    ['pts', 'geometry', [1, 1]],
+  ];
+
+  describe.each(cases)('%s', (field, type, good) => {
+    const converted = JSON.stringify([create(good, type)]);
+
+    test.each(['in', 'notIn'])('%s binds each member as a converted list', (op) => {
+      const bound = varsOf({ [field]: { [op]: [[good]] } })[0] as unknown[];
+      expect(JSON.stringify(bound[0])).toEqual(converted);
+    });
+
+    test.each(['eq', 'neq'])('%s binds the whole array converted', (op) => {
+      expect(JSON.stringify(varsOf({ [field]: { [op]: [good] } })[0])).toEqual(converted);
+    });
+
+    test('a negated list is converted the same way', () => {
+      const bound = varsOf({ NOT: { [field]: { notIn: [[good]] } } })[0] as unknown[];
+      expect(JSON.stringify(bound[0])).toEqual(converted);
+    });
+
+    test('the same holds through a relation sub-filter', () => {
+      const bound = Object.values(
+        buildConditions(createCompileContext(), w({ owner: { [field]: { notIn: [[good]] } } }), place, registry).vars,
+      )[0] as unknown[];
+      expect(JSON.stringify(bound[0])).toEqual(converted);
+    });
+  });
+
+  test('has, hasAll and hasAny still convert', () => {
+    const u = '0190c3f8-6c5d-7a3a-9d3a-1e1f2a3b4c5d';
+    expect(JSON.stringify(varsOf({ uuids: { hasAll: [u] } })[0])).toEqual(JSON.stringify([create(u, 'uuid')]));
+    expect(JSON.stringify(varsOf({ uuids: { has: u } })[0])).toEqual(JSON.stringify(create(u, 'uuid')));
+  });
+
+  test('a member that create would refuse is still refused inside the nested list', () => {
+    expect(errorsAt(owner, { uuids: { notIn: [['nope']] } }).length).toBe(1);
+    expect(errorsAt(owner, { dus: { in: [['nope']] } }).length).toBe(1);
+  });
+});
