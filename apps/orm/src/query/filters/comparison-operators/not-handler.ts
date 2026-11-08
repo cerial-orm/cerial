@@ -5,6 +5,7 @@
 import type { FieldMetadata } from '../../../types';
 import type { QueryFragment } from '../../compile/types';
 import type { FilterCompileContext } from '../../compile/var-allocator';
+import { bindOperand } from '../set-operand';
 
 /** Handle not operator - negates a value comparison */
 export function handleNot(
@@ -20,7 +21,7 @@ export function handleNot(
   }
 
   // Handle { not: someValue } - means field != value
-  const v = ctx.bind(field, 'not', value, fieldMetadata.type);
+  const v = bindOperand(ctx, field, 'not', value, fieldMetadata);
 
   return { text: `${field} != ${v.placeholder}`, vars: v.vars };
 }

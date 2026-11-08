@@ -5,6 +5,7 @@
 import type { FieldMetadata } from '../../../types';
 import type { QueryFragment } from '../../compile/types';
 import type { FilterCompileContext } from '../../compile/var-allocator';
+import { bindOperand } from '../set-operand';
 
 /** Handle eq (equals) operator */
 export function handleEq(
@@ -19,7 +20,7 @@ export function handleEq(
     return { text: `${field} = NULL`, vars: {} };
   }
 
-  const v = ctx.bind(field, 'eq', value, fieldMetadata.type);
+  const v = bindOperand(ctx, field, 'eq', value, fieldMetadata);
 
   return { text: `${field} = ${v.placeholder}`, vars: v.vars };
 }

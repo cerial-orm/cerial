@@ -85,6 +85,8 @@ model Owner {
   bytess Bytes[]
   pts Geometry[] @point
   pairs Pair[]
+  sets Int[] @set
+  strSets String[] @set
   places Relation[] @model(Place)
 }
 
@@ -108,6 +110,8 @@ const place = registry.Place!;
 const w = (value: unknown): WhereClause => value as WhereClause;
 const errorsAt = (model: typeof owner, where: unknown): string[] =>
   validateWhere(w(where), model, registry).errors.map((e) => e.message);
+const textFor = (model: typeof owner, where: unknown): string =>
+  buildConditions(createCompileContext(), w(where), model, registry).text;
 const varsOf = (where: unknown): unknown[] =>
   Object.values(buildConditions(createCompileContext(), w(where), owner, registry).vars);
 
@@ -443,5 +447,38 @@ describe('array fields convert every member of every list operand', () => {
   test('a member that create would refuse is still refused inside the nested list', () => {
     expect(errorsAt(owner, { uuids: { notIn: [['nope']] } }).length).toBe(1);
     expect(errorsAt(owner, { dus: { in: [['nope']] } }).length).toBe(1);
+  });
+});
+
+describe('a set field compares as the set create stores', () => {
+  test.each(['eq', 'neq', 'not'])('%s casts an array operand to a set', (op) => {
+    const text = textFor(owner, { sets: { [op]: [2, 1, 1] } });
+    expect(text).toContain('<set>$');
+  });
+
+  test('the shorthand and NOT cast it too', () => {
+    expect(textFor(owner, { sets: [1, 2] })).toContain('<set>$');
+    expect(textFor(owner, { NOT: { sets: [1, 2] } })).toContain('<set>$');
+    expect(textFor(owner, { strSets: ['b', 'a'] })).toContain('<set>$');
+  });
+
+  test.each(['in', 'notIn'])('%s casts each array member', (op) => {
+    const text = textFor(owner, { sets: { [op]: [[1, 2], [3]] } });
+    expect(text).toContain('<set>$m');
+  });
+
+  test('a relation sub-filter casts it', () => {
+    expect(textFor(place, { owner: { sets: { neq: [1, 2] } } })).toContain('<set>$');
+  });
+
+  test('a plain array field is not cast, and has/hasAll keep their form', () => {
+    expect(textFor(owner, { ints: { eq: [1, 2] } })).not.toContain('<set>');
+    expect(textFor(owner, { ints: { in: [[1, 2]] } })).not.toContain('<set>');
+    expect(textFor(owner, { sets: { has: 1 } })).not.toContain('<set>');
+    expect(textFor(owner, { sets: { hasAll: [1, 2] } })).not.toContain('<set>');
+  });
+
+  test('a null operand is not cast', () => {
+    expect(textFor(owner, { sets: { eq: null } })).not.toContain('<set>');
   });
 });

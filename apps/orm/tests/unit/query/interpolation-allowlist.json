@@ -564,5 +564,6 @@
   "src/query/builders/bulk-write.ts::captureMatchedIds::template::table": 1,
   "src/query/builders/bulk-write.ts::captureMatchedIds::template::target": 1,
   "src/query/builders/bulk-write.ts::captureMatchedIds::template::whereText": 1,
-  "src/query/builders/bulk-write.ts::inTransaction::template::s": 1
+  "src/query/builders/bulk-write.ts::inTransaction::template::s": 1,
+  "src/query/filters/set-operand.ts::bindOperand::template::bound.placeholder": 2
 }

@@ -30,6 +30,7 @@ import { expandCompositeKeys } from './composite-key';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { buildForwardNoRecord, buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
 import { getOperatorHandler, isRegisteredOperator } from './registry';
+import { asStoredArray } from './set-operand';
 
 /** Find target table for a Record field by looking at paired Relation field */
 function findRecordTargetTable(fieldName: string, model: ModelMetadata): string | undefined {
@@ -352,13 +353,19 @@ export function buildObjectCondition(
     // Primitive sub-field with operators
     if (isOperatorShape(value, subField)) {
       conditions.push(
-        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, subField, {} as ModelMetadata),
+        buildFieldCondition(
+          ctx,
+          subPath,
+          value as Record<string, unknown>,
+          asStoredArray(subField),
+          {} as ModelMetadata,
+        ),
       );
       continue;
     }
 
     // Direct value (shorthand for eq)
-    conditions.push(buildDirectCondition(ctx, subPath, value, subField, {} as ModelMetadata));
+    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), {} as ModelMetadata));
   }
 
   if (!conditions.length) return { text: '', vars: {} };
@@ -489,12 +496,18 @@ function buildObjectConditionForClosure(
 
     if (isOperatorShape(value, subField)) {
       conditions.push(
-        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, subField, {} as ModelMetadata),
+        buildFieldCondition(
+          ctx,
+          subPath,
+          value as Record<string, unknown>,
+          asStoredArray(subField),
+          {} as ModelMetadata,
+        ),
       );
       continue;
     }
 
-    conditions.push(buildDirectCondition(ctx, subPath, value, subField, {} as ModelMetadata));
+    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), {} as ModelMetadata));
   }
 
   if (!conditions.length) return { text: '', vars: {} };
