@@ -250,6 +250,39 @@ export function validateNoNestedWrites(
   return errors;
 }
 
+/**
+ * Validate one field's input value the way create does: the id check for an id field, otherwise the type
+ * rules of the field and, for an object or tuple, every nested element. A where operand goes through the same
+ * function, so a filter refuses exactly what create refuses. `path` names the field in the refusal.
+ */
+export function validateFieldInput(
+  field: FieldMetadata,
+  value: unknown,
+  model: ModelMetadata,
+  path: string = field.name,
+): DataValidationError[] {
+  if (field.isId) {
+    if (value === undefined || value === null) return [];
+    if (field.recordIdTypes?.length) {
+      if (validateTypedRecordId(value, field.recordIdTypes)) return [];
+
+      return [{ field: path, message: `${path} must be a valid ${field.recordIdTypes.join(' | ')} record ID` }];
+    }
+
+    return isRecordIdInput(value) ? [] : [{ field: path, message: `${path} must be a valid record ID` }];
+  }
+
+  const error = validateFieldValue(path, value, field);
+  if (error) return [error];
+
+  // The top-level call above already covered literal fields. A create is stored whole, so an undeclared
+  // key in a strict object is refused here rather than by the database, which would echo it raw.
+  if (field.type === 'object' || field.type === 'tuple')
+    return validateSubValue(value, field, model, path, false, true);
+
+  return [];
+}
+
 /** Validate data for create operation */
 export function validateCreateData(
   data: Record<string, unknown>,
@@ -277,18 +310,7 @@ export function validateCreateData(
     if (field.type === 'relation') continue;
 
     if (field.isId) {
-      if (value !== undefined && value !== null) {
-        if (field.recordIdTypes?.length) {
-          if (!validateTypedRecordId(value, field.recordIdTypes)) {
-            errors.push({
-              field: field.name,
-              message: `${field.name} must be a valid ${field.recordIdTypes.join(' | ')} record ID`,
-            });
-          }
-        } else if (!isRecordIdInput(value)) {
-          errors.push({ field: field.name, message: `${field.name} must be a valid record ID` });
-        }
-      }
+      errors.push(...validateFieldInput(field, value, model));
       continue;
     }
 
@@ -314,16 +336,7 @@ export function validateCreateData(
     // Skip Record fields that will be populated by nested operations
     if (field.type === 'record' && fieldsFromNestedOps.has(field.name)) continue;
 
-    const error = validateFieldValue(field.name, value, field);
-    if (error) {
-      errors.push(error);
-      continue;
-    }
-
-    // The top-level call above already covered literal fields. A create is stored whole, so an undeclared
-    // key in a strict object is refused here rather than by the database, which would echo it raw.
-    if (field.type === 'object' || field.type === 'tuple')
-      errors.push(...validateSubValue(value, field, model, field.name, false, true));
+    errors.push(...validateFieldInput(field, value, model));
   }
 
   return {

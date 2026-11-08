@@ -6,6 +6,7 @@ export type { DataValidationError, DataValidationResult } from './data-validator
 export {
   validateCreateData,
   validateDataUnsetOverlap,
+  validateFieldInput,
   validateFieldValue,
   validateUnset,
   validateUpdateData,

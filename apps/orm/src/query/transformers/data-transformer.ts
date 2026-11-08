@@ -688,6 +688,172 @@ function transformArrayOps(ops: Record<string, unknown>, type: SchemaFieldType):
   return Object.keys(transformed).length ? transformed : ops;
 }
 
+/** Marks a field the transformer leaves out of the result (an undefined value) */
+export const OMIT_FIELD: unique symbol = Symbol('omit-field');
+
+/**
+ * Transform one field's input value the way a write stores it: record ids to RecordId, objects and tuples
+ * recursively, literals by variant, scalars to their SDK types. A where operand goes through the same
+ * function, so a filter compares against exactly what create stores. Returns OMIT_FIELD for an undefined value.
+ */
+export function transformFieldInput(
+  field: FieldMetadata,
+  value: unknown,
+  model: ModelMetadata,
+  context: 'create' | 'update' = 'create',
+): unknown {
+  // Handle id/record fields specially with RecordId
+  if (field.isId && value !== undefined && value !== null) {
+    return transformOrValidateRecordId(model.tableName, toRecordIdInput(value), field.recordIdTypes);
+  } else if (field.type === 'record') {
+    // For record fields, skip undefined but pass null and NONE sentinel through
+    // The update builder handles null/NONE → SurrealQL NONE/NULL translation
+    if (value === undefined) return OMIT_FIELD;
+    // NONE sentinel → pass through for builder to handle
+    if (isNone(value)) {
+      return NONE;
+    }
+    // null → pass through for builder to handle (NONE for non-nullable, NULL for nullable)
+    if (value === null) {
+      return null;
+    }
+    // Handle Record fields - transform to RecordId
+    const targetTable = findRecordTargetTable(field.name, model);
+    if (targetTable) {
+      if (field.isArray) {
+        if (Array.isArray(value)) {
+          // Array of records - direct assignment
+          return value.map((element) =>
+            transformOrValidateRecordId(targetTable, toRecordIdInput(element), field.recordIdTypes),
+          );
+        } else if (typeof value === 'object' && ('push' in value || 'unset' in value)) {
+          // Push/unset operations for Record[] - transform values inside
+          const ops = value as { push?: unknown; unset?: unknown };
+          const transformed: { push?: unknown; unset?: unknown } = {};
+          if (ops.push !== undefined) {
+            transformed.push = Array.isArray(ops.push)
+              ? ops.push.map((el) => transformOrValidateRecordId(targetTable, toRecordIdInput(el), field.recordIdTypes))
+              : transformOrValidateRecordId(targetTable, toRecordIdInput(ops.push), field.recordIdTypes);
+          }
+          if (ops.unset !== undefined) {
+            transformed.unset = Array.isArray(ops.unset)
+              ? ops.unset.map((el) =>
+                  transformOrValidateRecordId(targetTable, toRecordIdInput(el), field.recordIdTypes),
+                )
+              : transformOrValidateRecordId(targetTable, toRecordIdInput(ops.unset), field.recordIdTypes);
+          }
+          return transformed;
+        } else {
+          return value;
+        }
+      } else {
+        // Single record
+        return transformOrValidateRecordId(targetTable, toRecordIdInput(value), field.recordIdTypes);
+      }
+    } else {
+      // No paired relation found, keep value as-is
+      return value;
+    }
+  } else if (field.type === 'object' && field.objectInfo) {
+    // Handle object fields - recursively transform
+    // Objects cannot be @nullable (validated in schema), so null → skip (NONE)
+    if (value === undefined || value === null) return OMIT_FIELD;
+    // NONE sentinel → pass through for builder to handle
+    if (isNone(value)) {
+      return NONE;
+    }
+    if (field.isArray && Array.isArray(value)) {
+      return value.map((item) =>
+        typeof item === 'object' && item !== null
+          ? transformObjectData(item as Record<string, unknown>, field.objectInfo!, context)
+          : item,
+      );
+    } else if (typeof value === 'object') {
+      return transformObjectData(value as Record<string, unknown>, field.objectInfo, context);
+    } else {
+      return value;
+    }
+  } else if (field.type === 'tuple' && field.tupleInfo) {
+    // Handle tuple fields - transform and normalize to array
+    if (value === undefined) return OMIT_FIELD;
+    // NONE sentinel → pass through for builder to handle
+    if (isNone(value)) {
+      return NONE;
+    }
+    // Pass null through — builder converts to NONE (non-nullable) or NULL (@nullable)
+    if (value === null) {
+      return null;
+    }
+    if (field.isArray) {
+      if (Array.isArray(value)) {
+        // Direct array assignment: [[1,2], [3,4]]
+        return value.map((item) => transformTupleData(item, field.tupleInfo!));
+      } else if (typeof value === 'object' && value !== null) {
+        // Push/set operations: { push: [...], set: [...] }
+        const ops = value as Record<string, unknown>;
+        if ('set' in ops && ops.set !== undefined) {
+          // set = full array replacement → unwrap to direct array assignment
+          return Array.isArray(ops.set) ? ops.set.map((item) => transformTupleData(item, field.tupleInfo!)) : ops.set;
+        } else if ('push' in ops && ops.push !== undefined) {
+          const transformed: Record<string, unknown> = {};
+          if (isSingleTupleInput(ops.push, field.tupleInfo!)) {
+            // Single tuple: wrap in array so SurrealDB += appends one tuple element
+            transformed.push = [transformTupleData(ops.push, field.tupleInfo!)];
+          } else if (Array.isArray(ops.push)) {
+            // Array of tuples
+            transformed.push = ops.push.map((item) => transformTupleData(item, field.tupleInfo!));
+          } else {
+            transformed.push = ops.push;
+          }
+          return transformed;
+        } else {
+          return value;
+        }
+      } else {
+        return value;
+      }
+    } else if (context === 'update' && !Array.isArray(value) && typeof value === 'object' && value !== null) {
+      // Update context: object form = per-element update
+      return transformTupleElementUpdate(value as Record<string, unknown>, field.tupleInfo);
+    } else {
+      // Create context or array form: full tuple replace/input
+      return transformTupleData(value, field.tupleInfo);
+    }
+  } else if (field.type === 'literal' && field.literalInfo) {
+    // Handle literal fields - pass primitive values through,
+    // transform tuple/object variants if needed
+    if (value === undefined) return OMIT_FIELD;
+    if (isNone(value)) {
+      return NONE;
+    }
+    if (value === null) {
+      return null;
+    }
+    if (field.isArray) {
+      if (Array.isArray(value)) {
+        return value.map((item) => transformLiteralValue(item, field.literalInfo!));
+      } else if (typeof value === 'object' && value !== null) {
+        // Push/unset operations - pass through as-is (handled by update builder)
+        return value;
+      } else {
+        return value;
+      }
+    } else {
+      return transformLiteralValue(value, field.literalInfo!);
+    }
+  } else if (field.isArray) {
+    if (Array.isArray(value)) {
+      return value.map((element) => transformValue(element, field.type));
+    } else if (typeof value === 'object' && value !== null) {
+      return transformArrayOps(value as Record<string, unknown>, field.type);
+    } else {
+      return value;
+    }
+  } else {
+    return transformValue(value, field.type);
+  }
+}
+
 /** Transform data object based on model fields */
 export function transformData(
   data: Record<string, unknown>,
@@ -698,171 +864,12 @@ export function transformData(
 
   for (const [key, value] of Object.entries(data)) {
     const field = model.fields.find((f) => f.name === key);
-    if (field) {
-      // Handle id/record fields specially with RecordId
-      if (field.isId && value !== undefined && value !== null) {
-        result[key] = transformOrValidateRecordId(model.tableName, toRecordIdInput(value), field.recordIdTypes);
-      } else if (field.type === 'record') {
-        // For record fields, skip undefined but pass null and NONE sentinel through
-        // The update builder handles null/NONE → SurrealQL NONE/NULL translation
-        if (value === undefined) continue;
-        // NONE sentinel → pass through for builder to handle
-        if (isNone(value)) {
-          result[key] = NONE;
-          continue;
-        }
-        // null → pass through for builder to handle (NONE for non-nullable, NULL for nullable)
-        if (value === null) {
-          result[key] = null;
-          continue;
-        }
-        // Handle Record fields - transform to RecordId
-        const targetTable = findRecordTargetTable(field.name, model);
-        if (targetTable) {
-          if (field.isArray) {
-            if (Array.isArray(value)) {
-              // Array of records - direct assignment
-              result[key] = value.map((element) =>
-                transformOrValidateRecordId(targetTable, toRecordIdInput(element), field.recordIdTypes),
-              );
-            } else if (typeof value === 'object' && ('push' in value || 'unset' in value)) {
-              // Push/unset operations for Record[] - transform values inside
-              const ops = value as { push?: unknown; unset?: unknown };
-              const transformed: { push?: unknown; unset?: unknown } = {};
-              if (ops.push !== undefined) {
-                transformed.push = Array.isArray(ops.push)
-                  ? ops.push.map((el) =>
-                      transformOrValidateRecordId(targetTable, toRecordIdInput(el), field.recordIdTypes),
-                    )
-                  : transformOrValidateRecordId(targetTable, toRecordIdInput(ops.push), field.recordIdTypes);
-              }
-              if (ops.unset !== undefined) {
-                transformed.unset = Array.isArray(ops.unset)
-                  ? ops.unset.map((el) =>
-                      transformOrValidateRecordId(targetTable, toRecordIdInput(el), field.recordIdTypes),
-                    )
-                  : transformOrValidateRecordId(targetTable, toRecordIdInput(ops.unset), field.recordIdTypes);
-              }
-              result[key] = transformed;
-            } else {
-              result[key] = value;
-            }
-          } else {
-            // Single record
-            result[key] = transformOrValidateRecordId(targetTable, toRecordIdInput(value), field.recordIdTypes);
-          }
-        } else {
-          // No paired relation found, keep value as-is
-          result[key] = value;
-        }
-      } else if (field.type === 'object' && field.objectInfo) {
-        // Handle object fields - recursively transform
-        // Objects cannot be @nullable (validated in schema), so null → skip (NONE)
-        if (value === undefined || value === null) continue;
-        // NONE sentinel → pass through for builder to handle
-        if (isNone(value)) {
-          result[key] = NONE;
-          continue;
-        }
-        if (field.isArray && Array.isArray(value)) {
-          result[key] = value.map((item) =>
-            typeof item === 'object' && item !== null
-              ? transformObjectData(item as Record<string, unknown>, field.objectInfo!, context)
-              : item,
-          );
-        } else if (typeof value === 'object') {
-          result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo, context);
-        } else {
-          result[key] = value;
-        }
-      } else if (field.type === 'tuple' && field.tupleInfo) {
-        // Handle tuple fields - transform and normalize to array
-        if (value === undefined) continue;
-        // NONE sentinel → pass through for builder to handle
-        if (isNone(value)) {
-          result[key] = NONE;
-          continue;
-        }
-        // Pass null through — builder converts to NONE (non-nullable) or NULL (@nullable)
-        if (value === null) {
-          result[key] = null;
-          continue;
-        }
-        if (field.isArray) {
-          if (Array.isArray(value)) {
-            // Direct array assignment: [[1,2], [3,4]]
-            result[key] = value.map((item) => transformTupleData(item, field.tupleInfo!));
-          } else if (typeof value === 'object' && value !== null) {
-            // Push/set operations: { push: [...], set: [...] }
-            const ops = value as Record<string, unknown>;
-            if ('set' in ops && ops.set !== undefined) {
-              // set = full array replacement → unwrap to direct array assignment
-              result[key] = Array.isArray(ops.set)
-                ? ops.set.map((item) => transformTupleData(item, field.tupleInfo!))
-                : ops.set;
-            } else if ('push' in ops && ops.push !== undefined) {
-              const transformed: Record<string, unknown> = {};
-              if (isSingleTupleInput(ops.push, field.tupleInfo!)) {
-                // Single tuple: wrap in array so SurrealDB += appends one tuple element
-                transformed.push = [transformTupleData(ops.push, field.tupleInfo!)];
-              } else if (Array.isArray(ops.push)) {
-                // Array of tuples
-                transformed.push = ops.push.map((item) => transformTupleData(item, field.tupleInfo!));
-              } else {
-                transformed.push = ops.push;
-              }
-              result[key] = transformed;
-            } else {
-              result[key] = value;
-            }
-          } else {
-            result[key] = value;
-          }
-        } else if (context === 'update' && !Array.isArray(value) && typeof value === 'object' && value !== null) {
-          // Update context: object form = per-element update
-          result[key] = transformTupleElementUpdate(value as Record<string, unknown>, field.tupleInfo);
-        } else {
-          // Create context or array form: full tuple replace/input
-          result[key] = transformTupleData(value, field.tupleInfo);
-        }
-      } else if (field.type === 'literal' && field.literalInfo) {
-        // Handle literal fields - pass primitive values through,
-        // transform tuple/object variants if needed
-        if (value === undefined) continue;
-        if (isNone(value)) {
-          result[key] = NONE;
-          continue;
-        }
-        if (value === null) {
-          result[key] = null;
-          continue;
-        }
-        if (field.isArray) {
-          if (Array.isArray(value)) {
-            result[key] = value.map((item) => transformLiteralValue(item, field.literalInfo!));
-          } else if (typeof value === 'object' && value !== null) {
-            // Push/unset operations - pass through as-is (handled by update builder)
-            result[key] = value;
-          } else {
-            result[key] = value;
-          }
-        } else {
-          result[key] = transformLiteralValue(value, field.literalInfo!);
-        }
-      } else if (field.isArray) {
-        if (Array.isArray(value)) {
-          result[key] = value.map((element) => transformValue(element, field.type));
-        } else if (typeof value === 'object' && value !== null) {
-          result[key] = transformArrayOps(value as Record<string, unknown>, field.type);
-        } else {
-          result[key] = value;
-        }
-      } else {
-        result[key] = transformValue(value, field.type);
-      }
-    } else {
+    if (!field) {
       result[key] = value;
+      continue;
     }
+    const transformed = transformFieldInput(field, value, model, context);
+    if (transformed !== OMIT_FIELD) result[key] = transformed;
   }
 
   return result;
