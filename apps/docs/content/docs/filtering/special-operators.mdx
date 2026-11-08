@@ -13,7 +13,7 @@ For null and absence checks (`isNull`, `isNone`, `isDefined`), see [Null & None]
 
 | Operator | Available on | Checks for |
 | --- | --- | --- |
-| `between` | Numeric, Date, String fields | Inclusive range `[min, max]` |
+| `between` | Numeric, Date, Duration, Decimal fields | Inclusive range `[min, max]` |
 
 See [Null & None](/filtering/null-and-none) for `isNull`, `isNone`, and `isDefined` operator availability.
 
@@ -48,16 +48,7 @@ const posts = await client.db.Post.findMany({
 });
 ```
 
-### With Strings
-
-String ranges use lexicographic ordering:
-
-```typescript
-const users = await client.db.User.findMany({
-  where: { name: { between: ['A', 'M'] } },
-});
-// Matches names from 'A' through 'M' (inclusive)
-```
+`between` is not available on String fields. A `between` on one is refused with an error naming the field.
 
 ## Combining Special Operators
 
