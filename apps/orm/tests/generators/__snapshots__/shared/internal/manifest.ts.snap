@@ -2299,6 +2299,32 @@ export const manifest = deepFreeze({
       indexes: [],
     },
     {
+      name: 'wo_holder',
+      fields: [
+        { path: ['name'], kind: 'string' },
+        { path: ['box'], kind: 'none | object' },
+        { path: ['box', 'ref'], kind: 'none | record' },
+        { path: ['box', 'refs'], kind: 'array<record>' },
+        { path: ['lists'], kind: 'array<object>' },
+        { path: ['lists', { element: true }, 'n'], kind: 'int | none' },
+        { path: ['lists', { element: true }, 'tags'], kind: 'array<int>' },
+        { path: ['duo'], kind: '[int, string] | none' },
+        { path: ['duos'], kind: 'array<[int, string]>' },
+        { path: ['withList'], kind: '[int, { n: int | none, tags: array<int> }] | none' },
+        { path: ['node'], kind: 'none | object', flexible: true },
+      ],
+      indexes: [],
+    },
+    {
+      name: 'wo_post',
+      fields: [
+        { path: ['name'], kind: 'string' },
+        { path: ['tagIds'], kind: 'array<record<wo_tag>>', value: 'IF $value THEN $value.distinct() ELSE [] END' },
+      ],
+      indexes: [],
+    },
+    { name: 'wo_tag', fields: [{ path: ['name'], kind: 'string' }], indexes: [] },
+    {
       name: 'kitchen_sink_user',
       fields: [
         { path: ['email'], kind: 'string', assert: 'string::is_email($value)' },

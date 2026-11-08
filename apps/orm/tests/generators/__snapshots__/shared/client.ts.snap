@@ -272,6 +272,9 @@ import type {
   UuidFkOwner,
   UuidFkOptional,
   UuidFkMulti,
+  WoHolder,
+  WoPost,
+  WoTag,
   KitchenSinkUser,
   KitchenSinkProfile,
   KitchenSinkPost,
@@ -525,6 +528,9 @@ import type {
   UuidFkOwnerModel,
   UuidFkOptionalModel,
   UuidFkMultiModel,
+  WoHolderModel,
+  WoPostModel,
+  WoTagModel,
   KitchenSinkUserModel,
   KitchenSinkProfileModel,
   KitchenSinkPostModel,
@@ -786,6 +792,9 @@ export interface TypedDb {
   UuidFkOwner: UuidFkOwnerModel;
   UuidFkOptional: UuidFkOptionalModel;
   UuidFkMulti: UuidFkMultiModel;
+  WoHolder: WoHolderModel;
+  WoPost: WoPostModel;
+  WoTag: WoTagModel;
   KitchenSinkUser: KitchenSinkUserModel;
   KitchenSinkProfile: KitchenSinkProfileModel;
   KitchenSinkPost: KitchenSinkPostModel;
@@ -1816,6 +1825,18 @@ export class CerialClient {
 
   get UuidFkMulti(): UuidFkMultiModel {
     return this._ensureDb().UuidFkMulti;
+  }
+
+  get WoHolder(): WoHolderModel {
+    return this._ensureDb().WoHolder;
+  }
+
+  get WoPost(): WoPostModel {
+    return this._ensureDb().WoPost;
+  }
+
+  get WoTag(): WoTagModel {
+    return this._ensureDb().WoTag;
   }
 
   get KitchenSinkUser(): KitchenSinkUserModel {

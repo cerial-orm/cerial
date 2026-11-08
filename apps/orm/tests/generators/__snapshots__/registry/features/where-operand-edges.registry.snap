@@ -1,0 +1,467 @@
+{
+  "models": {
+    "WoHolder": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "box",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "ref",
+                "type": "record"
+              },
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "refs",
+                "type": "record"
+              }
+            ],
+            "objectName": "WoRefBox"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "lists",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "n",
+                "type": "int"
+              },
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "tags",
+                "type": "int"
+              }
+            ],
+            "objectName": "WoList"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "duo",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "int"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "string"
+              }
+            ],
+            "tupleName": "WoDuo"
+          },
+          "type": "tuple"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "duos",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "int"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "string"
+              }
+            ],
+            "tupleName": "WoDuo"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "withList",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "int"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "n",
+                      "type": "int"
+                    },
+                    {
+                      "isArray": true,
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "tags",
+                      "type": "int"
+                    }
+                  ],
+                  "objectName": "WoList"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "WoWithList"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "node",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "n",
+                "type": "int"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "when",
+                "type": "date"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "child",
+                "objectInfo": {
+                  "fields": [],
+                  "objectName": "WoNode"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "WoNode"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "WoHolder",
+      "tableName": "wo_holder"
+    },
+    "WoPost": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tagIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tags",
+          "relationInfo": {
+            "fieldRef": "tagIds",
+            "isReverse": false,
+            "targetModel": "WoTag",
+            "targetTable": "wo_tag"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "WoPost",
+      "tableName": "wo_post"
+    },
+    "WoTag": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "posts",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "WoPost",
+            "targetTable": "wo_post"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "WoTag",
+      "tableName": "wo_tag"
+    }
+  },
+  "objects": {
+    "WoList": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "n",
+          "type": "int"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tags",
+          "type": "int"
+        }
+      ],
+      "name": "WoList"
+    },
+    "WoNode": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "n",
+          "type": "int"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "when",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "child",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "n",
+                "type": "int"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "when",
+                "type": "date"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "child",
+                "objectInfo": {
+                  "fields": [],
+                  "objectName": "WoNode"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "WoNode"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "WoNode"
+    },
+    "WoRefBox": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "ref",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "refs",
+          "type": "record"
+        }
+      ],
+      "name": "WoRefBox"
+    }
+  },
+  "tuples": {
+    "WoDuo": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "string"
+        }
+      ],
+      "name": "WoDuo"
+    },
+    "WoWithList": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "n",
+                "type": "int"
+              },
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "tags",
+                "type": "int"
+              }
+            ],
+            "objectName": "WoList"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "WoWithList"
+    }
+  }
+}

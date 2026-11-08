@@ -1,0 +1,51 @@
+# A Record inside an object, a self-referencing object, tuples and objects bound whole, and a
+# one-directional Record[] whose other side is a reverse Relation[] with no @field
+object WoRefBox {
+  ref Record?
+  refs Record[]
+}
+
+object WoList {
+  n Int?
+  tags Int[]
+}
+
+object WoNode {
+  n Int?
+  when Date?
+  child WoNode?
+}
+
+tuple WoDuo {
+  Int,
+  String
+}
+
+tuple WoWithList {
+  Int,
+  WoList
+}
+
+model WoHolder {
+  id Record @id
+  name String
+  box WoRefBox?
+  lists WoList[]
+  duo WoDuo?
+  duos WoDuo[]
+  withList WoWithList?
+  node WoNode?
+}
+
+model WoPost {
+  id Record @id
+  name String
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(WoTag)
+}
+
+model WoTag {
+  id Record @id
+  name String
+  posts Relation[] @model(WoPost)
+}

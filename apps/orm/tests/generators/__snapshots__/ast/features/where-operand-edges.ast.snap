@@ -1,0 +1,400 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "box",
+          "objectName": "WoRefBox",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "lists",
+          "objectName": "WoList",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "duo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "WoDuo",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "duos",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "WoDuo",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "withList",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "tupleName": "WoWithList",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "node",
+          "objectName": "WoNode",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "WoHolder",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tagIds",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "field",
+              "value": "tagIds"
+            },
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "WoTag"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "WoPost",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
+              "type": "model",
+              "value": "WoPost"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "posts",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "WoTag",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "ref",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "refs",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "record"
+        }
+      ],
+      "name": "WoRefBox",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "n",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int"
+        }
+      ],
+      "name": "WoList",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "n",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "when",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "child",
+          "objectName": "WoNode",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "WoNode",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int"
+        },
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "string"
+        }
+      ],
+      "name": "WoDuo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "int"
+        },
+        {
+          "isOptional": false,
+          "objectName": "WoList",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "WoWithList",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
+    }
+  ]
+}

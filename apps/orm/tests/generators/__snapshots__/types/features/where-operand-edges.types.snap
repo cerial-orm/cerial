@@ -1,0 +1,1555 @@
+// ===== models/woholder.ts =====
+/**
+ * Generated types for WoHolder
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type { WoRefBox, WoRefBoxInput, WoRefBoxWhere, WoRefBoxSelect, WoRefBoxOrderBy } from '../objects/worefbox.js';
+import type { WoList, WoListInput, WoListWhere, WoListSelect, WoListOrderBy } from '../objects/wolist.js';
+import type { WoNode, WoNodeInput, WoNodeWhere, WoNodeSelect, WoNodeOrderBy } from '../objects/wonode.js';
+import type { WoDuo, WoDuoInput, WoDuoWhere, WoDuoUpdate } from '../tuples/woduo.js';
+import type {
+  WoWithList,
+  WoWithListInput,
+  WoWithListWhere,
+  WoWithListUpdate,
+  WoWithListSelect,
+  WoWithListUnset,
+} from '../tuples/wowithlist.js';
+export interface WoHolder {
+  id: CerialId<string>;
+  name: string;
+  box?: WoRefBox;
+  lists: WoList[];
+  duo?: WoDuo;
+  duos: WoDuo[];
+  withList?: WoWithList;
+  node?: WoNode;
+}
+
+export interface WoHolderInput {
+  id?: string;
+  name: string;
+  box?: WoRefBoxInput;
+  lists: WoListInput[];
+  duo?: WoDuoInput;
+  duos: WoDuoInput[];
+  withList?: WoWithListInput;
+  node?: WoNodeInput;
+}
+
+export interface WoHolderWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  box?: WoRefBoxWhere;
+  lists?: { some?: WoListWhere; every?: WoListWhere; none?: WoListWhere };
+  duo?: WoDuoWhere;
+  duos?: { some?: WoDuoWhere; every?: WoDuoWhere; none?: WoDuoWhere };
+  withList?: WoWithListWhere;
+  node?: WoNodeWhere;
+  $raw?: SqlFragment;
+  AND?: WoHolderWhere[];
+  OR?: WoHolderWhere[];
+  NOT?: WoHolderWhere;
+}
+
+export type WoHolderWhereInput = WoHolderWhere;
+
+export type WoHolderFindUniqueWhere = { id: RecordIdInput<string> } & Omit<WoHolderWhere, 'id'>;
+
+export type WoHolderCreate = O.Optional<WoHolderInput, 'id' | 'box' | 'lists' | 'duo' | 'duos' | 'withList' | 'node'>;
+
+export type WoHolderNestedCreate = O.Optional<
+  WoHolderInput,
+  'id' | 'box' | 'lists' | 'duo' | 'duos' | 'withList' | 'node'
+>;
+
+export type WoHolderCreateInput = WoHolderCreate;
+
+export type WoHolderUpdate = Partial<
+  O.Omit<WoHolderInput, 'id' | 'box' | 'lists' | 'node' | 'duo' | 'duos' | 'withList'>
+> & {
+  box?: Partial<WoRefBoxInput> | { set: WoRefBoxInput } | CerialNone;
+  lists?:
+    | WoListInput[]
+    | {
+        push?: WoListInput | WoListInput[];
+        set?: WoListInput[];
+        updateWhere?: {
+          where: WoListWhere;
+          data: Partial<WoListInput>;
+        };
+        unset?: { where: WoListWhere };
+      };
+  node?: Partial<WoNodeInput> | { set: WoNodeInput } | CerialNone;
+  duo?: [number, string] | WoDuoUpdate | CerialNone;
+  duos?:
+    | WoDuoInput[]
+    | {
+        push?: WoDuoInput | WoDuoInput[];
+        set?: WoDuoInput[];
+      };
+  withList?: [number, WoListInput] | WoWithListUpdate | CerialNone;
+};
+
+export type WoHolderUpdateInput = WoHolderUpdate;
+
+export type WoHolderUnset = {
+  box?:
+    | true
+    | {
+        ref?: true;
+      };
+  duo?: true;
+  withList?: true | WoWithListUnset;
+  node?:
+    | true
+    | {
+        n?: true;
+        when?: true;
+        child?: true;
+      };
+};
+
+export interface WoHolderSelectFields {
+  id?: boolean;
+  name?: boolean;
+  box?: boolean | WoRefBoxSelect;
+  lists?: boolean | WoListSelect;
+  duo?: boolean;
+  duos?: boolean;
+  withList?: boolean | WoWithListSelect;
+  node?: boolean | WoNodeSelect;
+}
+
+export type WoHolderSelect = AtLeastOne<WoHolderSelectFields>;
+
+export interface WoHolderOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  box?: WoRefBoxOrderBy;
+  lists?: WoListOrderBy;
+  node?: WoNodeOrderBy;
+}
+
+export interface WoHolderGroupByKeys {
+  id?: true;
+  name?: true;
+  box?: { ref?: true; refs?: true };
+  node?: { n?: true; when?: true };
+}
+
+export interface WoHolderCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  box?: true;
+  lists?: true;
+  duo?: true;
+  duos?: true;
+  withList?: true;
+  node?: true;
+}
+
+export interface WoHolderMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface WoHolderGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface WoHolderGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  box?: { ref?: 'asc' | 'desc'; refs?: 'asc' | 'desc' };
+  node?: { n?: 'asc' | 'desc'; when?: 'asc' | 'desc' };
+  _count?: {
+    _all?: 'asc' | 'desc';
+    id?: 'asc' | 'desc';
+    name?: 'asc' | 'desc';
+    box?: 'asc' | 'desc';
+    lists?: 'asc' | 'desc';
+    duo?: 'asc' | 'desc';
+    duos?: 'asc' | 'desc';
+    withList?: 'asc' | 'desc';
+    node?: 'asc' | 'desc';
+  };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface WoHolderGroupByArgs {
+  by: WoHolderGroupByKeys;
+  where?: WoHolderWhere;
+  _count?: true | WoHolderCountAggregate;
+  _min?: WoHolderMinMaxAggregate;
+  _max?: WoHolderMinMaxAggregate;
+  _group?: WoHolderGroupAggregate;
+  orderBy?: WoHolderGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface WoHolderGroupByAggregates {
+  _count: {
+    _all: number;
+    id: number;
+    name: number;
+    box: number;
+    lists: number;
+    duo: number;
+    duos: number;
+    withList: number;
+    node: number;
+  };
+  _min: { id: NonNullable<WoHolder['id']> | null; name: NonNullable<WoHolder['name']> | null };
+  _max: { id: NonNullable<WoHolder['id']> | null; name: NonNullable<WoHolder['name']> | null };
+  _group: { id: GroupMember<WoHolder['id']>[]; name: GroupMember<WoHolder['name']>[] };
+}
+
+export type WoHolderGroupByResult<A extends WoHolderGroupByArgs> = GroupByRow<WoHolder, A, WoHolderGroupByAggregates>;
+
+export type WoHolder$Relations = {};
+
+export type GetWoHolderPayload<S extends WoHolderSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends WoHolderSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof WoHolder
+          ? ResolveFieldSelect<WoHolder[K], S[K]>
+          : never;
+      }
+    : WoHolder,
+  'flat'
+>;
+
+export interface WoHolderModel {
+  findOne<
+    S extends WoHolderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: WoHolderWhere;
+    select?: SelectArg<S, WoHolderSelectFields>;
+    compute?: C & { [K in keyof C & (keyof WoHolder | keyof WoHolderWhere)]?: never };
+    orderBy?: WoHolderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoHolderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends WoHolderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: WoHolderWhere;
+    select?: SelectArg<S, WoHolderSelectFields>;
+    compute?: C & { [K in keyof C & (keyof WoHolder | keyof WoHolderWhere)]?: never };
+    orderBy?: WoHolderOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoHolderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends WoHolderSelect | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: WoHolderFindUniqueWhere;
+    select?: SelectArg<S, WoHolderSelectFields>;
+    compute?: C & { [K in keyof C & (keyof WoHolder | keyof WoHolderWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoHolderPayload<S> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends WoHolderSelect | undefined = undefined>(options: {
+    data: WoHolderCreateInput;
+    select?: SelectArg<S, WoHolderSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWoHolderPayload<S>>;
+
+  updateMany<
+    S extends WoHolderSelect | undefined = undefined,
+    D extends WoHolderUpdateInput = WoHolderUpdateInput,
+  >(options: {
+    where: WoHolderWhere;
+    data: DataArg<D, WoHolderUpdateInput>;
+    unset?: SafeUnset<WoHolderUnset, D>;
+    select?: SelectArg<S, WoHolderSelectFields>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWoHolderPayload<S>[]>;
+
+  updateUnique<
+    S extends WoHolderSelect | undefined = undefined,
+    D extends WoHolderUpdateInput = WoHolderUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: WoHolderFindUniqueWhere;
+    data: DataArg<D, WoHolderUpdateInput>;
+    unset?: SafeUnset<WoHolderUnset, D>;
+    select?: SelectArg<S, WoHolderSelectFields>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns WoHolder | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetWoHolderPayload<S>, R>>;
+
+  upsert<
+    S extends WoHolderSelect | undefined = undefined,
+    D extends WoHolderUpdateInput = WoHolderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WoHolderFindUniqueWhere;
+    create: WoHolderCreateInput;
+    update?: DataArg<D, WoHolderUpdateInput>;
+    unset?: SafeUnset<WoHolderUnset, D>;
+    select?: SelectArg<S, WoHolderSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetWoHolderPayload<S>, R>>;
+
+  upsert<
+    S extends WoHolderSelect | undefined = undefined,
+    D extends WoHolderUpdateInput = WoHolderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WoHolderWhere;
+    create: WoHolderCreateInput;
+    update?: DataArg<D, WoHolderUpdateInput>;
+    unset?: SafeUnset<WoHolderUnset, D>;
+    select?: SelectArg<S, WoHolderSelectFields>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetWoHolderPayload<S>, R>>;
+
+  deleteMany(options: { where: WoHolderWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: WoHolderFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns WoHolder | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<WoHolder, R>>;
+
+  count(where?: WoHolderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends WoHolderGroupByArgs>(
+    args: GroupByArg<A, WoHolderGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<WoHolderGroupByResult<A>[]>;
+
+  exists(where?: WoHolderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: WoHolderWhere }): Promise<import('cerial').CerialLiveHandle<WoHolder>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/wopost.ts =====
+/**
+ * Generated types for WoPost
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  WoTag,
+  WoTagWhere,
+  WoTagSelect,
+  WoTagOrderBy,
+  WoTagNestedCreate,
+  WoTagInclude,
+  GetWoTagIncludePayload,
+} from './wotag.js';
+export interface WoPost {
+  id: CerialId<string>;
+  name: string;
+  tagIds: CerialId<string>[];
+}
+
+export interface WoPostInput {
+  id?: string;
+  name: string;
+  tagIds: RecordIdInput<string>[];
+}
+
+export interface WoPostWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  tags?: { some?: Omit<WoTagWhere, '$raw'>; every?: Omit<WoTagWhere, '$raw'>; none?: Omit<WoTagWhere, '$raw'> };
+  $raw?: SqlFragment;
+  AND?: WoPostWhere[];
+  OR?: WoPostWhere[];
+  NOT?: WoPostWhere;
+}
+
+export type WoPostWhereInput = WoPostWhere;
+
+export type WoPostFindUniqueWhere = { id: RecordIdInput<string> } & Omit<WoPostWhere, 'id'>;
+
+export type WoPostCreate = O.Optional<O.Omit<WoPostInput, 'tags'>, 'id' | 'tagIds'>;
+
+export type WoPostNestedCreate = O.Optional<O.Omit<WoPostInput, 'tags' | 'tagIds'>, 'id'>;
+
+export type WoPostCreateInput =
+  | WoPostCreate
+  | (O.Omit<WoPostCreate, 'tagIds'> & {
+      tags?: {
+        create?: WoTagNestedCreate | WoTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type WoPostUpdate = Partial<O.Omit<WoPostInput, 'id' | 'tags' | 'tagIds'>> & {
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type WoPostUpdateInput =
+  | WoPostUpdate
+  | (O.Omit<WoPostUpdate, 'tagIds'> & {
+      tags?: {
+        create?: WoTagNestedCreate | WoTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type WoPostUnset = {};
+
+export interface WoPostSelectFields {
+  id?: boolean;
+  name?: boolean;
+  tagIds?: boolean;
+}
+
+export type WoPostSelect = AtLeastOne<WoPostSelectFields>;
+
+export interface WoPostOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  tagIds?: 'asc' | 'desc';
+}
+
+export interface WoPostGroupByKeys {
+  id?: true;
+  name?: true;
+  tagIds?: true;
+}
+
+export interface WoPostCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+  tagIds?: true;
+}
+
+export interface WoPostMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface WoPostGroupAggregate {
+  id?: true;
+  name?: true;
+  tagIds?: true;
+}
+
+export interface WoPostGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  tagIds?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc'; tagIds?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface WoPostGroupByArgs {
+  by: WoPostGroupByKeys;
+  where?: WoPostWhere;
+  _count?: true | WoPostCountAggregate;
+  _min?: WoPostMinMaxAggregate;
+  _max?: WoPostMinMaxAggregate;
+  _group?: WoPostGroupAggregate;
+  orderBy?: WoPostGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface WoPostGroupByAggregates {
+  _count: { _all: number; id: number; name: number; tagIds: number };
+  _min: { id: NonNullable<WoPost['id']> | null; name: NonNullable<WoPost['name']> | null };
+  _max: { id: NonNullable<WoPost['id']> | null; name: NonNullable<WoPost['name']> | null };
+  _group: {
+    id: GroupMember<WoPost['id']>[];
+    name: GroupMember<WoPost['name']>[];
+    tagIds: GroupMember<WoPost['tagIds']>[];
+  };
+}
+
+export type WoPostGroupByResult<A extends WoPostGroupByArgs> = GroupByRow<WoPost, A, WoPostGroupByAggregates>;
+
+export interface WoPostInclude {
+  tags?:
+    | boolean
+    | {
+        select?: WoTagSelect;
+        where?: WoTagWhere;
+        orderBy?: WoTagOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: WoTagInclude;
+      };
+}
+
+export type WoPost$Relations = {
+  tags: { type: WoTag[]; include: WoTagInclude };
+};
+
+export type GetWoPostIncludePayload<I extends WoPostInclude | undefined> = I extends WoPostInclude
+  ? Pick<
+      {
+        tags: I['tags'] extends true
+          ? WoTag[]
+          : I['tags'] extends { select: infer S extends WoTagSelect; include: infer NI extends WoTagInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof WoTag
+                  ? ResolveFieldSelect<WoTag[P], S[P]>
+                  : never;
+              } & GetWoTagIncludePayload<NI>)[]
+            : I['tags'] extends { select: infer S extends WoTagSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof WoTag
+                    ? ResolveFieldSelect<WoTag[P], S[P]>
+                    : never;
+                }[]
+              : I['tags'] extends { include: infer NI extends WoTagInclude }
+                ? (WoTag & GetWoTagIncludePayload<NI>)[]
+                : WoTag[];
+      },
+      Extract<keyof I, keyof WoPost$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetWoPostPayload<
+  S extends WoPostSelect | undefined = undefined,
+  I extends WoPostInclude | undefined = undefined,
+> = A.Compute<
+  S extends WoPostSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof WoPost
+          ? ResolveFieldSelect<WoPost[K], S[K]>
+          : never;
+      } & GetWoPostIncludePayload<I>
+    : I extends WoPostInclude
+      ? WoPost & GetWoPostIncludePayload<I>
+      : WoPost,
+  'flat'
+>;
+
+export interface WoPostModel {
+  findOne<
+    S extends WoPostSelect | undefined = undefined,
+    I extends WoPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: WoPostWhere;
+    select?: SelectArg<S, WoPostSelectFields>;
+    include?: IncludeArg<I, WoPostInclude>;
+    compute?: C & { [K in keyof C & (keyof WoPost | keyof WoPostWhere)]?: never };
+    orderBy?: WoPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends WoPostSelect | undefined = undefined,
+    I extends WoPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: WoPostWhere;
+    select?: SelectArg<S, WoPostSelectFields>;
+    compute?: C & { [K in keyof C & (keyof WoPost | keyof WoPostWhere)]?: never };
+    orderBy?: WoPostOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, WoPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends WoPostSelect | undefined = undefined,
+    I extends WoPostInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: WoPostFindUniqueWhere;
+    select?: SelectArg<S, WoPostSelectFields>;
+    include?: IncludeArg<I, WoPostInclude>;
+    compute?: C & { [K in keyof C & (keyof WoPost | keyof WoPostWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoPostPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends WoPostSelect | undefined = undefined, I extends WoPostInclude | undefined = undefined>(options: {
+    data: WoPostCreateInput;
+    select?: SelectArg<S, WoPostSelectFields>;
+    include?: IncludeArg<I, WoPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWoPostPayload<S, I>>;
+
+  updateMany<
+    S extends WoPostSelect | undefined = undefined,
+    I extends WoPostInclude | undefined = undefined,
+    D extends WoPostUpdateInput = WoPostUpdateInput,
+  >(options: {
+    where: WoPostWhere;
+    data: DataArg<D, WoPostUpdateInput>;
+    unset?: SafeUnset<WoPostUnset, D>;
+    select?: SelectArg<S, WoPostSelectFields>;
+    include?: IncludeArg<I, WoPostInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWoPostPayload<S, I>[]>;
+
+  updateUnique<
+    S extends WoPostSelect | undefined = undefined,
+    I extends WoPostInclude | undefined = undefined,
+    D extends WoPostUpdateInput = WoPostUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: WoPostFindUniqueWhere;
+    data: DataArg<D, WoPostUpdateInput>;
+    unset?: SafeUnset<WoPostUnset, D>;
+    select?: SelectArg<S, WoPostSelectFields>;
+    include?: IncludeArg<I, WoPostInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns WoPost | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetWoPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends WoPostSelect | undefined = undefined,
+    I extends WoPostInclude | undefined = undefined,
+    D extends WoPostUpdateInput = WoPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WoPostFindUniqueWhere;
+    create: WoPostCreateInput;
+    update?: DataArg<D, WoPostUpdateInput>;
+    unset?: SafeUnset<WoPostUnset, D>;
+    select?: SelectArg<S, WoPostSelectFields>;
+    include?: IncludeArg<I, WoPostInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetWoPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends WoPostSelect | undefined = undefined,
+    I extends WoPostInclude | undefined = undefined,
+    D extends WoPostUpdateInput = WoPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WoPostWhere;
+    create: WoPostCreateInput;
+    update?: DataArg<D, WoPostUpdateInput>;
+    unset?: SafeUnset<WoPostUnset, D>;
+    select?: SelectArg<S, WoPostSelectFields>;
+    include?: IncludeArg<I, WoPostInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetWoPostPayload<S, I>, R>>;
+
+  deleteMany(options: { where: WoPostWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: WoPostFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns WoPost | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<WoPost, R>>;
+
+  count(where?: WoPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends WoPostGroupByArgs>(
+    args: GroupByArg<A, WoPostGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<WoPostGroupByResult<A>[]>;
+
+  exists(where?: WoPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: WoPostWhere }): Promise<import('cerial').CerialLiveHandle<WoPost>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/wotag.ts =====
+/**
+ * Generated types for WoTag
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { SqlFragment } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+  SelectArg,
+  DataArg,
+  IncludeArg,
+  GroupByArg,
+  GroupByRow,
+  GroupMember,
+} from '../index.js';
+import type { CerialQueryPromise } from '../index.js';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+import type {
+  WoPost,
+  WoPostWhere,
+  WoPostSelect,
+  WoPostOrderBy,
+  WoPostNestedCreate,
+  WoPostInclude,
+  GetWoPostIncludePayload,
+} from './wopost.js';
+export interface WoTag {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface WoTagInput {
+  id?: string;
+  name: string;
+}
+
+export interface WoTagWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  posts?:
+    | {
+        some?: Omit<WoPostWhere, '$raw'>;
+        every?: Omit<WoPostWhere, '$raw'>;
+        none?: Omit<WoPostWhere, '$raw'>;
+        isEmpty?: boolean;
+      }
+    | Omit<WoPostWhere, 'AND' | 'OR' | 'NOT' | '$raw'>;
+  $raw?: SqlFragment;
+  AND?: WoTagWhere[];
+  OR?: WoTagWhere[];
+  NOT?: WoTagWhere;
+}
+
+export type WoTagWhereInput = WoTagWhere;
+
+export type WoTagFindUniqueWhere = { id: RecordIdInput<string> } & Omit<WoTagWhere, 'id'>;
+
+export type WoTagCreate = O.Optional<O.Omit<WoTagInput, 'posts'>, 'id'>;
+
+export type WoTagNestedCreate = O.Optional<O.Omit<WoTagInput, 'posts'>, 'id'>;
+
+export type WoTagCreateInput = WoTagCreate & {
+  posts?: {
+    create?: WoPostNestedCreate | WoPostNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type WoTagUpdate = Partial<O.Omit<WoTagInput, 'id' | 'posts'>>;
+
+export type WoTagUpdateInput = WoTagUpdate & {
+  posts?: {
+    create?: WoPostNestedCreate | WoPostNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type WoTagUnset = {};
+
+export interface WoTagSelectFields {
+  id?: boolean;
+  name?: boolean;
+}
+
+export type WoTagSelect = AtLeastOne<WoTagSelectFields>;
+
+export interface WoTagOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface WoTagGroupByKeys {
+  id?: true;
+  name?: true;
+}
+
+export interface WoTagCountAggregate {
+  _all?: true;
+  id?: true;
+  name?: true;
+}
+
+export interface WoTagMinMaxAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface WoTagGroupAggregate {
+  id?: true;
+  name?: true;
+}
+
+export interface WoTagGroupByOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  _count?: { _all?: 'asc' | 'desc'; id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _min?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+  _max?: { id?: 'asc' | 'desc'; name?: 'asc' | 'desc' };
+}
+
+export interface WoTagGroupByArgs {
+  by: WoTagGroupByKeys;
+  where?: WoTagWhere;
+  _count?: true | WoTagCountAggregate;
+  _min?: WoTagMinMaxAggregate;
+  _max?: WoTagMinMaxAggregate;
+  _group?: WoTagGroupAggregate;
+  orderBy?: WoTagGroupByOrderBy;
+  limit?: number;
+  offset?: number;
+}
+
+export interface WoTagGroupByAggregates {
+  _count: { _all: number; id: number; name: number };
+  _min: { id: NonNullable<WoTag['id']> | null; name: NonNullable<WoTag['name']> | null };
+  _max: { id: NonNullable<WoTag['id']> | null; name: NonNullable<WoTag['name']> | null };
+  _group: { id: GroupMember<WoTag['id']>[]; name: GroupMember<WoTag['name']>[] };
+}
+
+export type WoTagGroupByResult<A extends WoTagGroupByArgs> = GroupByRow<WoTag, A, WoTagGroupByAggregates>;
+
+export interface WoTagInclude {
+  posts?:
+    | boolean
+    | {
+        select?: WoPostSelect;
+        where?: WoPostWhere;
+        orderBy?: WoPostOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: WoPostInclude;
+      };
+}
+
+export type WoTag$Relations = {
+  posts: { type: WoPost[]; include: WoPostInclude };
+};
+
+export type GetWoTagIncludePayload<I extends WoTagInclude | undefined> = I extends WoTagInclude
+  ? Pick<
+      {
+        posts: I['posts'] extends true
+          ? WoPost[]
+          : I['posts'] extends { select: infer S extends WoPostSelect; include: infer NI extends WoPostInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof WoPost
+                  ? ResolveFieldSelect<WoPost[P], S[P]>
+                  : never;
+              } & GetWoPostIncludePayload<NI>)[]
+            : I['posts'] extends { select: infer S extends WoPostSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof WoPost
+                    ? ResolveFieldSelect<WoPost[P], S[P]>
+                    : never;
+                }[]
+              : I['posts'] extends { include: infer NI extends WoPostInclude }
+                ? (WoPost & GetWoPostIncludePayload<NI>)[]
+                : WoPost[];
+      },
+      Extract<keyof I, keyof WoTag$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetWoTagPayload<
+  S extends WoTagSelect | undefined = undefined,
+  I extends WoTagInclude | undefined = undefined,
+> = A.Compute<
+  S extends WoTagSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof WoTag
+          ? ResolveFieldSelect<WoTag[K], S[K]>
+          : never;
+      } & GetWoTagIncludePayload<I>
+    : I extends WoTagInclude
+      ? WoTag & GetWoTagIncludePayload<I>
+      : WoTag,
+  'flat'
+>;
+
+export interface WoTagModel {
+  findOne<
+    S extends WoTagSelect | undefined = undefined,
+    I extends WoTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: WoTagWhere;
+    select?: SelectArg<S, WoTagSelectFields>;
+    include?: IncludeArg<I, WoTagInclude>;
+    compute?: C & { [K in keyof C & (keyof WoTag | keyof WoTagWhere)]?: never };
+    orderBy?: WoTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  findMany<
+    S extends WoTagSelect | undefined = undefined,
+    I extends WoTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options?: {
+    where?: WoTagWhere;
+    select?: SelectArg<S, WoTagSelectFields>;
+    compute?: C & { [K in keyof C & (keyof WoTag | keyof WoTagWhere)]?: never };
+    orderBy?: WoTagOrderBy & NoInfer<{ [K in keyof C]?: 'asc' | 'desc' }>;
+    limit?: number;
+    offset?: number;
+    include?: IncludeArg<I, WoTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown })[]
+  >;
+
+  findUnique<
+    S extends WoTagSelect | undefined = undefined,
+    I extends WoTagInclude | undefined = undefined,
+    C extends Record<string, SqlFragment> = Record<never, never>,
+  >(options: {
+    where: WoTagFindUniqueWhere;
+    select?: SelectArg<S, WoTagSelectFields>;
+    include?: IncludeArg<I, WoTagInclude>;
+    compute?: C & { [K in keyof C & (keyof WoTag | keyof WoTagWhere)]?: never };
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<
+    (GetWoTagPayload<S, I> & { [K in keyof C]: C[K] extends SqlFragment<infer T> ? T : unknown }) | null
+  >;
+
+  create<S extends WoTagSelect | undefined = undefined, I extends WoTagInclude | undefined = undefined>(options: {
+    data: WoTagCreateInput;
+    select?: SelectArg<S, WoTagSelectFields>;
+    include?: IncludeArg<I, WoTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWoTagPayload<S, I>>;
+
+  updateMany<
+    S extends WoTagSelect | undefined = undefined,
+    I extends WoTagInclude | undefined = undefined,
+    D extends WoTagUpdateInput = WoTagUpdateInput,
+  >(options: {
+    where: WoTagWhere;
+    data: DataArg<D, WoTagUpdateInput>;
+    unset?: SafeUnset<WoTagUnset, D>;
+    select?: SelectArg<S, WoTagSelectFields>;
+    include?: IncludeArg<I, WoTagInclude>;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWoTagPayload<S, I>[]>;
+
+  updateUnique<
+    S extends WoTagSelect | undefined = undefined,
+    I extends WoTagInclude | undefined = undefined,
+    D extends WoTagUpdateInput = WoTagUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: WoTagFindUniqueWhere;
+    data: DataArg<D, WoTagUpdateInput>;
+    unset?: SafeUnset<WoTagUnset, D>;
+    select?: SelectArg<S, WoTagSelectFields>;
+    include?: IncludeArg<I, WoTagInclude>;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns WoTag | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetWoTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends WoTagSelect | undefined = undefined,
+    I extends WoTagInclude | undefined = undefined,
+    D extends WoTagUpdateInput = WoTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WoTagFindUniqueWhere;
+    create: WoTagCreateInput;
+    update?: DataArg<D, WoTagUpdateInput>;
+    unset?: SafeUnset<WoTagUnset, D>;
+    select?: SelectArg<S, WoTagSelectFields>;
+    include?: IncludeArg<I, WoTagInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetWoTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends WoTagSelect | undefined = undefined,
+    I extends WoTagInclude | undefined = undefined,
+    D extends WoTagUpdateInput = WoTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WoTagWhere;
+    create: WoTagCreateInput;
+    update?: DataArg<D, WoTagUpdateInput>;
+    unset?: SafeUnset<WoTagUnset, D>;
+    select?: SelectArg<S, WoTagSelectFields>;
+    include?: IncludeArg<I, WoTagInclude>;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetWoTagPayload<S, I>, R>>;
+
+  deleteMany(options: { where: WoTagWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: WoTagFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns WoTag | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<WoTag, R>>;
+
+  count(where?: WoTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  groupBy<const A extends WoTagGroupByArgs>(
+    args: GroupByArg<A, WoTagGroupByArgs>,
+    txn?: CerialTransaction,
+  ): CerialQueryPromise<WoTagGroupByResult<A>[]>;
+
+  exists(where?: WoTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  $raw<R = unknown>(fragment: SqlFragment<R>, options?: { txn?: CerialTransaction }): CerialQueryPromise<R[]>;
+
+  $live(options?: { where?: WoTagWhere }): Promise<import('cerial').CerialLiveHandle<WoTag>>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/wolist.ts =====
+/**
+ * Generated types for WoList
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '../index.js';
+export interface WoList {
+  n?: number;
+  tags: number[];
+}
+
+export interface WoListInput {
+  n?: number;
+  tags: number[];
+}
+
+export interface WoListWhere {
+  n?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  tags?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  AND?: WoListWhere[];
+  OR?: WoListWhere[];
+  NOT?: WoListWhere;
+}
+
+export interface WoListSelectFields {
+  n?: boolean;
+  tags?: boolean;
+}
+
+export type WoListSelect = AtLeastOne<WoListSelectFields>;
+
+export interface WoListOrderBy {
+  n?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+}
+
+// ===== objects/wonode.ts =====
+/**
+ * Generated types for WoNode
+ * Do not edit manually
+ */
+
+import type { AtLeastOne } from '../index.js';
+export interface WoNode {
+  n?: number;
+  when?: Date;
+  child?: WoNode;
+}
+
+export interface WoNodeInput {
+  n?: number;
+  when?: Date;
+  child?: WoNodeInput;
+}
+
+export interface WoNodeWhere {
+  n?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  when?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  child?: WoNodeWhere;
+  AND?: WoNodeWhere[];
+  OR?: WoNodeWhere[];
+  NOT?: WoNodeWhere;
+}
+
+export interface WoNodeSelectFields {
+  n?: boolean;
+  when?: boolean;
+  child?: boolean | WoNodeSelect;
+}
+
+export type WoNodeSelect = AtLeastOne<WoNodeSelectFields>;
+
+export interface WoNodeOrderBy {
+  n?: 'asc' | 'desc';
+  when?: 'asc' | 'desc';
+  child?: WoNodeOrderBy;
+}
+
+// ===== objects/worefbox.ts =====
+/**
+ * Generated types for WoRefBox
+ * Do not edit manually
+ */
+
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { AtLeastOne } from '../index.js';
+export interface WoRefBox {
+  ref?: CerialId<string>;
+  refs: CerialId<string>[];
+}
+
+export interface WoRefBoxInput {
+  ref?: RecordIdInput<string>;
+  refs: RecordIdInput<string>[];
+}
+
+export interface WoRefBoxWhere {
+  ref?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  refs?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+        isNone?: boolean;
+      };
+  AND?: WoRefBoxWhere[];
+  OR?: WoRefBoxWhere[];
+  NOT?: WoRefBoxWhere;
+}
+
+export interface WoRefBoxSelectFields {
+  ref?: boolean;
+  refs?: boolean;
+}
+
+export type WoRefBoxSelect = AtLeastOne<WoRefBoxSelectFields>;
+
+export interface WoRefBoxOrderBy {
+  ref?: 'asc' | 'desc';
+  refs?: 'asc' | 'desc';
+}
+
+// ===== tuples/woduo.ts =====
+/**
+ * Generated types for WoDuo
+ * Do not edit manually
+ */
+
+export type WoDuo = [number, string];
+
+export type WoDuoInput =
+  | [number, string]
+  | {
+      0?: number;
+      1?: string;
+    };
+
+export interface WoDuoWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+}
+
+export type WoDuoUpdate = {
+  0?: number;
+  1?: string;
+};
+
+// ===== tuples/wowithlist.ts =====
+/**
+ * Generated types for WoWithList
+ * Do not edit manually
+ */
+
+import type { WoList, WoListInput, WoListWhere, WoListSelect, WoListOrderBy } from '../objects/wolist.js';
+export type WoWithList = [number, WoList];
+
+export type WoWithListInput =
+  | [number, WoListInput]
+  | {
+      0?: number;
+      1?: WoListInput;
+    };
+
+export interface WoWithListWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?: WoListWhere;
+}
+
+export type WoWithListUpdate = {
+  0?: number;
+  1?: Partial<WoListInput> | { set: WoListInput };
+};
+
+export type WoWithListSelect = {
+  1?: boolean | WoListSelect;
+};
+
+export type WoWithListUnset = {
+  1?: {
+    n?: true;
+  };
+};

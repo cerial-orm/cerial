@@ -1,0 +1,22 @@
+-- WoHolder
+DEFINE TABLE OVERWRITE wo_holder SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE wo_holder TYPE string;
+DEFINE FIELD OVERWRITE box ON TABLE wo_holder TYPE option<object>;
+DEFINE FIELD OVERWRITE box.ref ON TABLE wo_holder TYPE option<record>;
+DEFINE FIELD OVERWRITE box.refs ON TABLE wo_holder TYPE array<record>;
+DEFINE FIELD OVERWRITE lists ON TABLE wo_holder TYPE array<object>;
+DEFINE FIELD OVERWRITE lists.*.n ON TABLE wo_holder TYPE option<int>;
+DEFINE FIELD OVERWRITE lists.*.tags ON TABLE wo_holder TYPE array<int>;
+DEFINE FIELD OVERWRITE duo ON TABLE wo_holder TYPE option<[int, string]>;
+DEFINE FIELD OVERWRITE duos ON TABLE wo_holder TYPE array<[int, string]>;
+DEFINE FIELD OVERWRITE withList ON TABLE wo_holder TYPE option<[int, { n: option<int>, tags: array<int> }]>;
+DEFINE FIELD OVERWRITE node ON TABLE wo_holder TYPE option<object> FLEXIBLE;
+
+-- WoPost
+DEFINE TABLE OVERWRITE wo_post SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE wo_post TYPE string;
+DEFINE FIELD OVERWRITE tagIds ON TABLE wo_post TYPE array<record<wo_tag>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+
+-- WoTag
+DEFINE TABLE OVERWRITE wo_tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE wo_tag TYPE string;

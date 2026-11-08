@@ -218,6 +218,9 @@ export type {
   UuidFkOwner,
   UuidFkOptional,
   UuidFkMulti,
+  WoHolder,
+  WoPost,
+  WoTag,
   KitchenSinkUser,
   KitchenSinkProfile,
   KitchenSinkPost,
@@ -475,6 +478,9 @@ export type {
   UuidFkOwnerInput,
   UuidFkOptionalInput,
   UuidFkMultiInput,
+  WoHolderInput,
+  WoPostInput,
+  WoTagInput,
   KitchenSinkUserInput,
   KitchenSinkProfileInput,
   KitchenSinkPostInput,
@@ -732,6 +738,9 @@ export type {
   UuidFkOwnerCreate,
   UuidFkOptionalCreate,
   UuidFkMultiCreate,
+  WoHolderCreate,
+  WoPostCreate,
+  WoTagCreate,
   KitchenSinkUserCreate,
   KitchenSinkProfileCreate,
   KitchenSinkPostCreate,
@@ -989,6 +998,9 @@ export type {
   UuidFkOwnerNestedCreate,
   UuidFkOptionalNestedCreate,
   UuidFkMultiNestedCreate,
+  WoHolderNestedCreate,
+  WoPostNestedCreate,
+  WoTagNestedCreate,
   KitchenSinkUserNestedCreate,
   KitchenSinkProfileNestedCreate,
   KitchenSinkPostNestedCreate,
@@ -1246,6 +1258,9 @@ export type {
   UuidFkOwnerCreateInput,
   UuidFkOptionalCreateInput,
   UuidFkMultiCreateInput,
+  WoHolderCreateInput,
+  WoPostCreateInput,
+  WoTagCreateInput,
   KitchenSinkUserCreateInput,
   KitchenSinkProfileCreateInput,
   KitchenSinkPostCreateInput,
@@ -1503,6 +1518,9 @@ export type {
   UuidFkOwnerUpdate,
   UuidFkOptionalUpdate,
   UuidFkMultiUpdate,
+  WoHolderUpdate,
+  WoPostUpdate,
+  WoTagUpdate,
   KitchenSinkUserUpdate,
   KitchenSinkProfileUpdate,
   KitchenSinkPostUpdate,
@@ -1760,6 +1778,9 @@ export type {
   UuidFkOwnerUpdateInput,
   UuidFkOptionalUpdateInput,
   UuidFkMultiUpdateInput,
+  WoHolderUpdateInput,
+  WoPostUpdateInput,
+  WoTagUpdateInput,
   KitchenSinkUserUpdateInput,
   KitchenSinkProfileUpdateInput,
   KitchenSinkPostUpdateInput,
@@ -2017,6 +2038,9 @@ export type {
   UuidFkOwnerUnset,
   UuidFkOptionalUnset,
   UuidFkMultiUnset,
+  WoHolderUnset,
+  WoPostUnset,
+  WoTagUnset,
   KitchenSinkUserUnset,
   KitchenSinkProfileUnset,
   KitchenSinkPostUnset,
@@ -2274,6 +2298,9 @@ export type {
   UuidFkOwnerWhere,
   UuidFkOptionalWhere,
   UuidFkMultiWhere,
+  WoHolderWhere,
+  WoPostWhere,
+  WoTagWhere,
   KitchenSinkUserWhere,
   KitchenSinkProfileWhere,
   KitchenSinkPostWhere,
@@ -2531,6 +2558,9 @@ export type {
   UuidFkOwnerFindUniqueWhere,
   UuidFkOptionalFindUniqueWhere,
   UuidFkMultiFindUniqueWhere,
+  WoHolderFindUniqueWhere,
+  WoPostFindUniqueWhere,
+  WoTagFindUniqueWhere,
   KitchenSinkUserFindUniqueWhere,
   KitchenSinkProfileFindUniqueWhere,
   KitchenSinkPostFindUniqueWhere,
@@ -2788,6 +2818,9 @@ export type {
   UuidFkOwnerSelect,
   UuidFkOptionalSelect,
   UuidFkMultiSelect,
+  WoHolderSelect,
+  WoPostSelect,
+  WoTagSelect,
   KitchenSinkUserSelect,
   KitchenSinkProfileSelect,
   KitchenSinkPostSelect,
@@ -3045,6 +3078,9 @@ export type {
   UuidFkOwnerOrderBy,
   UuidFkOptionalOrderBy,
   UuidFkMultiOrderBy,
+  WoHolderOrderBy,
+  WoPostOrderBy,
+  WoTagOrderBy,
   KitchenSinkUserOrderBy,
   KitchenSinkProfileOrderBy,
   KitchenSinkPostOrderBy,
@@ -3302,6 +3338,9 @@ export type {
   UuidFkOwnerModel,
   UuidFkOptionalModel,
   UuidFkMultiModel,
+  WoHolderModel,
+  WoPostModel,
+  WoTagModel,
   KitchenSinkUserModel,
   KitchenSinkProfileModel,
   KitchenSinkPostModel,
@@ -3419,6 +3458,9 @@ export type {
   UnsetDeepMid,
   UnsetDeepOuter,
   UnsetTreeNode,
+  WoRefBox,
+  WoList,
+  WoNode,
   CompanyMeta,
 } from './objects/index.js';
 
@@ -3497,6 +3539,9 @@ export type {
   UnsetDeepMidInput,
   UnsetDeepOuterInput,
   UnsetTreeNodeInput,
+  WoRefBoxInput,
+  WoListInput,
+  WoNodeInput,
   CompanyMetaInput,
 } from './objects/index.js';
 
@@ -3591,6 +3636,9 @@ export type {
   UnsetDeepMidWhere,
   UnsetDeepOuterWhere,
   UnsetTreeNodeWhere,
+  WoRefBoxWhere,
+  WoListWhere,
+  WoNodeWhere,
   CompanyMetaWhere,
 } from './objects/index.js';
 
@@ -3669,6 +3717,9 @@ export type {
   UnsetDeepMidSelect,
   UnsetDeepOuterSelect,
   UnsetTreeNodeSelect,
+  WoRefBoxSelect,
+  WoListSelect,
+  WoNodeSelect,
   CompanyMetaSelect,
 } from './objects/index.js';
 
@@ -3747,6 +3798,9 @@ export type {
   UnsetDeepMidOrderBy,
   UnsetDeepOuterOrderBy,
   UnsetTreeNodeOrderBy,
+  WoRefBoxOrderBy,
+  WoListOrderBy,
+  WoNodeOrderBy,
   CompanyMetaOrderBy,
 } from './objects/index.js';
 
@@ -3810,6 +3864,8 @@ export type {
   UnsetObjTuple,
   UnsetDeepTuple,
   UnsetRecursive,
+  WoDuo,
+  WoWithList,
 } from './tuples/index.js';
 
 // Tuple input types (accepts array or object form)
@@ -3872,6 +3928,8 @@ export type {
   UnsetObjTupleInput,
   UnsetDeepTupleInput,
   UnsetRecursiveInput,
+  WoDuoInput,
+  WoWithListInput,
 } from './tuples/index.js';
 
 // Tuple where types
@@ -3934,6 +3992,8 @@ export type {
   UnsetObjTupleWhere,
   UnsetDeepTupleWhere,
   UnsetRecursiveWhere,
+  WoDuoWhere,
+  WoWithListWhere,
 } from './tuples/index.js';
 
 // Tuple update types (per-element update)
@@ -3996,6 +4056,8 @@ export type {
   UnsetObjTupleUpdate,
   UnsetDeepTupleUpdate,
   UnsetRecursiveUpdate,
+  WoDuoUpdate,
+  WoWithListUpdate,
 } from './tuples/index.js';
 
 // Tuple select types (sub-field selection for tuples with object elements)
@@ -4010,6 +4072,7 @@ export type {
   ExtCoordPairSelect,
   UnsetObjTupleSelect,
   UnsetDeepTupleSelect,
+  WoWithListSelect,
 } from './tuples/index.js';
 
 // Tuple unset types (per-element unset for tuples with optional elements)
@@ -4043,6 +4106,7 @@ export type {
   UnsetObjTupleUnset,
   UnsetDeepTupleUnset,
   UnsetRecursiveUnset,
+  WoWithListUnset,
 } from './tuples/index.js';
 
 // Literal types (output types - union of variant values)
@@ -4250,6 +4314,8 @@ export type {
   UuidFkOwnerInclude,
   UuidFkOptionalInclude,
   UuidFkMultiInclude,
+  WoPostInclude,
+  WoTagInclude,
   KitchenSinkUserInclude,
   KitchenSinkProfileInclude,
   KitchenSinkPostInclude,
@@ -4371,6 +4437,8 @@ export type {
   GetUuidFkOwnerIncludePayload,
   GetUuidFkOptionalIncludePayload,
   GetUuidFkMultiIncludePayload,
+  GetWoPostIncludePayload,
+  GetWoTagIncludePayload,
   GetKitchenSinkUserIncludePayload,
   GetKitchenSinkProfileIncludePayload,
   GetKitchenSinkPostIncludePayload,
@@ -4624,6 +4692,9 @@ export type {
   UuidFkOwner$Relations,
   UuidFkOptional$Relations,
   UuidFkMulti$Relations,
+  WoHolder$Relations,
+  WoPost$Relations,
+  WoTag$Relations,
   KitchenSinkUser$Relations,
   KitchenSinkProfile$Relations,
   KitchenSinkPost$Relations,
@@ -4881,6 +4952,9 @@ export type {
   GetUuidFkOwnerPayload,
   GetUuidFkOptionalPayload,
   GetUuidFkMultiPayload,
+  GetWoHolderPayload,
+  GetWoPostPayload,
+  GetWoTagPayload,
   GetKitchenSinkUserPayload,
   GetKitchenSinkProfilePayload,
   GetKitchenSinkPostPayload,

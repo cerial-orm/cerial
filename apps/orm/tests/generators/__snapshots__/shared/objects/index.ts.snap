@@ -76,4 +76,7 @@ export type * from './unsetdeepinner.js';
 export type * from './unsetdeepmid.js';
 export type * from './unsetdeepouter.js';
 export type * from './unsettreenode.js';
+export type * from './worefbox.js';
+export type * from './wolist.js';
+export type * from './wonode.js';
 export type * from './companymeta.js';

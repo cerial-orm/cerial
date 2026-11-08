@@ -325,6 +325,7 @@ export const tables = {
     'standalone_ref_model',
   ],
   uuidFk: ['uuid_fk_target', 'uuid_fk_owner', 'uuid_fk_optional', 'uuid_fk_multi'],
+  whereOperandEdges: ['wo_holder', 'wo_post', 'wo_tag'],
   unset: ['unset_test'],
   placeholderNames: ['pn_owner', 'pn_item', 'pn_tag', 'pn_post'],
   transactionPrefix: ['txp_acct', 'txp_post'],

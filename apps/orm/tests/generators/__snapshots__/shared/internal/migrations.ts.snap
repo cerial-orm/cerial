@@ -225,6 +225,9 @@ export type ModelName =
   | 'UuidFkOwner'
   | 'UuidFkOptional'
   | 'UuidFkMulti'
+  | 'WoHolder'
+  | 'WoPost'
+  | 'WoTag'
   | 'KitchenSinkUser'
   | 'KitchenSinkProfile'
   | 'KitchenSinkPost'
@@ -481,6 +484,9 @@ export const modelNames = [
   'UuidFkOwner',
   'UuidFkOptional',
   'UuidFkMulti',
+  'WoHolder',
+  'WoPost',
+  'WoTag',
   'KitchenSinkUser',
   'KitchenSinkProfile',
   'KitchenSinkPost',
@@ -748,6 +754,9 @@ export const modelFingerprints: Record<ModelName, string> = {
   UuidFkOwner: 'fbff809290ee3384f4908976f24a1a4a4b340b74c800fd31a387a9ece5dd049d',
   UuidFkOptional: '783937ca9120ba984d23c2ea11d76e483db5935e9df93c845d8d22d2df8219ba',
   UuidFkMulti: '991c36abb648b813887e9e1e50434daf3349b1273f415c251745e0ae9c264c8a',
+  WoHolder: 'd2f10a86ebd4e14818d183b638a1bac640506c7a9fd0cebabe9942e3ee938efb',
+  WoPost: '0fe55b02623a785e7ae07840e781ec114ab972022926e461bc8a463488121d30',
+  WoTag: '2643bdea3ad38c0e12696b1615807641ef5b21a03bfafbae1c5af0c62499da47',
   KitchenSinkUser: '3baa369c05b490eee859d31a4c91b629f7837203721fd407e8287c82ee3670ac',
   KitchenSinkProfile: '169aded5ae5871b30953fd93043a3040182c84942c3785d132bd51ed8e77485c',
   KitchenSinkPost: '58041bbce5211bdd438d1861c2174672c9cbf5a965ecec1a7d1a3513d632098c',
@@ -791,7 +800,7 @@ export const modelFingerprints: Record<ModelName, string> = {
 };
 
 /** Fingerprint of the whole schema, written to the state when every model is applied together */
-export const wholeSchemaFingerprint = '86786ec9bc5a4aec2307a2dc15980287e68c23b88003110c4fd0380daf761d6c';
+export const wholeSchemaFingerprint = '2b0e0199b573c232044c40ebce1e08c0a550d03afbd37d12fafa209abd811302';
 
 /** Get migration query string for a specific model */
 export function getModelMigrationQuery(modelName: ModelName): string {

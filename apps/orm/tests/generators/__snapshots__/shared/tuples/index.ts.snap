@@ -61,3 +61,5 @@ export type * from './unsetopttuple.js';
 export type * from './unsetobjtuple.js';
 export type * from './unsetdeeptuple.js';
 export type * from './unsetrecursive.js';
+export type * from './woduo.js';
+export type * from './wowithlist.js';
