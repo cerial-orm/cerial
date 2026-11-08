@@ -496,6 +496,12 @@ function buildObjectMergeClauses(
 
     const subPath = `${fieldPath}.${subKey}`;
 
+    // Array of objects (a self-referencing object's own list among them): written whole, never merged by index
+    if (subField.type === 'object' && subField.isArray) {
+      buildObjectArrayClauses(ctx, subPath, subValue, setParts, setVars);
+      continue;
+    }
+
     // Nested object: recursive merge
     if (
       subField.type === 'object' &&
@@ -562,6 +568,50 @@ function buildObjectMergeClauses(
 }
 
 /**
+ * Build SET clauses for an array of objects: direct assignment, or { push, set }.
+ * `path` may be dotted (a sub-key of an object); variable names are derived from it without the dots.
+ */
+function buildObjectArrayClauses(
+  ctx: FilterCompileContext,
+  path: string,
+  value: unknown,
+  setParts: string[],
+  setVars: Record<string, unknown>,
+): void {
+  const varName = path.replace(/[^a-zA-Z0-9_]/g, '_');
+
+  // Direct array assignment
+  if (Array.isArray(value)) {
+    const varBinding = ctx.bind(varName, 'set', value, 'object');
+    setParts.push(`${path} = ${varBinding.placeholder}`);
+    Object.assign(setVars, varBinding.vars);
+
+    return;
+  }
+
+  // Object array operations
+  if (!isObjectArrayUpdateOps(value)) return;
+  const ops = value as Record<string, unknown>;
+
+  if (ops.push !== undefined) {
+    const pushValue = Array.isArray(ops.push) ? ops.push : [ops.push];
+    for (const item of pushValue) {
+      const varBinding = ctx.bind(varName, 'push', item, 'object');
+      setParts.push(`${path} += ${varBinding.placeholder}`);
+      Object.assign(setVars, varBinding.vars);
+    }
+  }
+
+  if (ops.set !== undefined) {
+    const varBinding = ctx.bind(varName, 'set', ops.set, 'object');
+    setParts.push(`${path} = ${varBinding.placeholder}`);
+    Object.assign(setVars, varBinding.vars);
+  }
+
+  // updateWhere and unset are refused by the data validator before this builder runs
+}
+
+/**
  * Build SET clauses for object field updates.
  * Handles: merge (partial), { set: ... } (full replace), null (clear), and array ops.
  */
@@ -582,40 +632,8 @@ function buildObjectUpdateClauses(
     return;
   }
 
-  // Array of objects
   if (fieldMetadata.isArray) {
-    // Direct array assignment
-    if (Array.isArray(value)) {
-      const varBinding = ctx.bind(field, 'set', value, 'object');
-      setParts.push(`${field} = ${varBinding.placeholder}`);
-      Object.assign(setVars, varBinding.vars);
-
-      return;
-    }
-
-    // Object array operations
-    if (isObjectArrayUpdateOps(value)) {
-      const ops = value as Record<string, unknown>;
-
-      if (ops.push !== undefined) {
-        const pushValue = Array.isArray(ops.push) ? ops.push : [ops.push];
-        for (const item of pushValue) {
-          const varBinding = ctx.bind(field, 'push', item, 'object');
-          setParts.push(`${field} += ${varBinding.placeholder}`);
-          Object.assign(setVars, varBinding.vars);
-        }
-      }
-
-      if (ops.set !== undefined) {
-        const varBinding = ctx.bind(field, 'set', ops.set, 'object');
-        setParts.push(`${field} = ${varBinding.placeholder}`);
-        Object.assign(setVars, varBinding.vars);
-      }
-
-      // updateWhere and unset are refused by the data validator before this builder runs
-
-      return;
-    }
+    buildObjectArrayClauses(ctx, field, value, setParts, setVars);
 
     return;
   }
