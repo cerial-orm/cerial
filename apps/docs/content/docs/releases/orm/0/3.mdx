@@ -418,6 +418,53 @@ development branch and is not available on npm.
   with the rules `create` uses, and a mistake is refused before any query. See the
   Changed entry on where operand types.
 
+- Date operands given as a string in a `where`: the string was compared as text
+  against the stored datetimes instead of being converted to a date, and a text
+  operand matches every datetime. `deleteMany({ where: { createdAt: { gte:
+  '2021-06-01' } } })` removed every row, and `updateMany` with the same filter
+  changed every row. Reads returned every row too. It is reachable wherever a
+  date filter comes from request input, where a date is a string, so a filter
+  built from a JSON body hit it with no cast. Present in 0.1.0 and 0.2.0, which
+  did not convert where operands.
+
+  Date operands are now converted the way `create` converts them, on every
+  operator, at any depth and inside a relation filter. A string that is not a
+  date is refused before any query, naming the field. A `Date` and a valid date
+  string both work as before. If you filter dates by string, upgrade; until then
+  pass a `Date` built with `new Date(value)` and check it with
+  `Number.isNaN(date.getTime())`. See the Changed entry on where operand types.
+
+- Object array sub-fields dropped in an object update: an update that merges an
+  object field wrote its sub-fields one by one and treated an array of objects
+  inside it as another nested object, so nothing matched and the array was
+  skipped with no error. `updateUnique({ where, data: { metadata: { children:
+  [...] } } })` stored nothing and reported success, and `{ children: { push:
+  item } }` added nothing, so old values stayed. Self-referencing objects, whose
+  `children` list is exactly this shape, were the usual case. It applies to
+  `updateUnique`, `updateMany` and the update half of `upsert`, and it is hit by
+  ordinary code with no crafted input. Present in 0.1.0 and 0.2.0.
+
+  An array of objects inside an object update is now written whole, or by
+  `push` and `set`, as an array of objects directly on the model already was. If
+  you worked around this by replacing the whole object with `{ set: ... }`, you
+  can drop the workaround. Rows updated before the upgrade did not receive the
+  array; re-run those updates.
+
+- Object fields replaced in the update half of an `upsert` with a `where` other
+  than `id`: `upsert({ where: { email }, create, update: { address: { city:
+  'Oslo' } } })` replaced the stored `address` with `{ city: 'Oslo' }` and lost
+  its `zip` and every other sub-field, and `update: { tags: { push: 'x' } }` on
+  an object array stored the literal `{ push: 'x' }` as a value. An `upsert` by
+  `id` and `updateUnique` merged correctly, so the same `update` behaved
+  differently by the shape of the `where`. Present in 0.1.0 and 0.2.0.
+
+  The update half now merges objects and applies `push` and `set` exactly as
+  `updateUnique` does, whichever field the `where` uses. If you passed a partial
+  object here and relied on it replacing the stored one, pass the whole object in
+  `{ set: ... }`. Check objects that went through such an `upsert`: sub-fields
+  you did not pass may be missing, and an object array may hold a stray
+  `{ push }` entry.
+
 ### Added
 
 - A raw query hatch for SurrealQL the typed API has no position for: graph
@@ -762,8 +809,16 @@ development branch and is not available on npm.
   `upsert`, at any depth, including objects inside tuples and the element keys
   of a tuple updated in object form. `@flexible` is a property of the field, not
   of the object type, so the same object type accepts undeclared sub-keys on a
-  `@flexible` field and rejects them on a strict one. A `{ set: ... }` full
-  replace is unaffected.
+  `@flexible` field and rejects them on a strict one.
+
+  A value written whole is checked the same way: the contents of
+  `{ set: ... }`, an element of an array of objects and a `push` item. Before,
+  its top level skipped the check. A self-referencing object, which the database
+  accepts any key in, therefore stored `{ set: { ...tree, extra: 1 } }` with the
+  undeclared key intact, and a strict object did the same for `{ set }` on
+  `updateUnique`, `updateMany` and the update half of `upsert`. These now throw,
+  naming the full path (`metadata.children[0].extra`) and leaving the row
+  untouched. A `@flexible` field still accepts undeclared keys there.
 
 - Unknown sub-keys of a strict object in `unset` are now rejected the same
   way. `unset: { address: { cty: true } }` used to emit a write to a path that
