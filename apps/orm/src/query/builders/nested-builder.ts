@@ -422,6 +422,33 @@ function buildTargetGuard(
   };
 }
 
+/** A reverse disconnect or set: the rows of the target model that carry this record's foreign key */
+interface ReverseUnlink {
+  targetModel: ModelMetadata;
+  targetRecordField: string;
+  isTargetFieldNullable?: boolean;
+  /** The foreign key is a Record[], so this record is removed from the array rather than the field cleared */
+  isArrayField: boolean;
+  /** The variable holding the named ids */
+  idsVar: string;
+  hasIds: boolean;
+  /** `disconnect: true`: every row that points at this record, named or not */
+  all?: true;
+}
+
+/**
+ * Unlink this record from the target rows `rowFilter` selects, among those that currently point at it. A
+ * single foreign key is cleared (NULL when @nullable, so it can still be queried, else NONE); an array key
+ * loses only this record. A required key cannot be cleared, so the database refuses it, naming the field.
+ */
+function reverseUnlinkStatement(rd: ReverseUnlink, rowFilter: string): string {
+  const { targetModel, targetRecordField: fk } = rd;
+  if (rd.isArrayField)
+    return `UPDATE ${targetModel.tableName} SET ${fk} -= $result[0].id WHERE ${fk} CONTAINS $result[0].id AND ${rowFilter};`;
+
+  return `UPDATE ${targetModel.tableName} SET ${fk} = ${rd.isTargetFieldNullable ? 'NULL' : 'NONE'} WHERE ${fk} = $result[0].id AND ${rowFilter};`;
+}
+
 /**
  * Build complete transaction for create with nested operations
  */
@@ -811,11 +838,8 @@ export function buildUpdateWithNestedTransaction(
   }> = [];
 
   // Track reverse relation operations that need to update target records
-  const reverseDisconnects: Array<{
-    targetModel: ModelMetadata;
-    targetRecordField: string;
-    isTargetFieldNullable?: boolean;
-  }> = [];
+  const reverseDisconnects: ReverseUnlink[] = [];
+  const reverseSets: ReverseUnlink[] = [];
 
   const reverseCreates: string[] = [];
 
@@ -881,15 +905,33 @@ export function buildUpdateWithNestedTransaction(
             `CREATE ${targetModel.tableName} CONTENT object::extend($${varName}, { ${reverseFieldName}: $result[0].id });`,
           );
         });
-      } else if (isNestedDisconnect(op)) {
-        // Reverse disconnect: update target records to clear their reference
-        const targetRecordFieldMeta = targetModel.fields.find((f) => f.name === reverseFieldName);
-        reverseDisconnects.push({
+      }
+      const targetRecordFieldMeta = targetModel.fields.find((f) => f.name === reverseFieldName);
+      const unlink = (ids: RecordIdInput[], prefix: string): ReverseUnlink => {
+        const idsVar = ctx.name(prefix);
+        vars[idsVar] = ids.map((id) =>
+          transformOrValidateRecordId(targetModel.tableName, id, modelIdTypes(targetModel)),
+        );
+
+        return {
           targetModel,
           targetRecordField: reverseFieldName,
           isTargetFieldNullable: targetRecordFieldMeta?.isNullable,
-        });
-      } else if (isNestedConnect(op)) {
+          isArrayField: !!targetRecordFieldMeta?.isArray,
+          idsVar,
+          hasIds: ids.length > 0,
+        };
+      };
+      if (isNestedDisconnect(op)) {
+        // Only the named rows are unlinked, and only those that point at this record. `true` is the one form
+        // that names no row and means all of them; `false` names none
+        if (op.disconnect === true) reverseDisconnects.push({ ...unlink([], 'rev_disconnect'), all: true });
+        else if (op.disconnect !== false) {
+          const named = (Array.isArray(op.disconnect) ? op.disconnect : [op.disconnect]) as RecordIdInput[];
+          if (named.length) reverseDisconnects.push(unlink(named, 'rev_disconnect'));
+        }
+      }
+      if (isNestedConnect(op)) {
         const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
         reverseConnects.push({
           targetModel,
@@ -897,6 +939,7 @@ export function buildUpdateWithNestedTransaction(
           targetRecordField: reverseFieldName,
         });
       }
+      if (isNestedSet(op)) reverseSets.push(unlink(op.set, 'rev_set'));
       continue;
     }
 
@@ -1124,15 +1167,10 @@ export function buildUpdateWithNestedTransaction(
     );
   });
 
-  // Handle reverse disconnects (update target records to clear their reference)
-  reverseDisconnects.forEach((rd) => {
-    // @nullable fields use NULL (queryable), non-@nullable fields use NONE (absent)
-    const clearValue = rd.isTargetFieldNullable ? 'NULL' : 'NONE';
-    // Update all records in target model where the reference points to our record
-    postStatements.push(
-      `UPDATE ${rd.targetModel.tableName} SET ${rd.targetRecordField} = ${clearValue} WHERE ${rd.targetRecordField} = $result[0].id;`,
-    );
-  });
+  // Handle reverse disconnects: clear the reference on the named rows that point at this record
+  reverseDisconnects.forEach((rd) =>
+    postStatements.push(reverseUnlinkStatement(rd, rd.all ? 'true' : `id INSIDE $${rd.idsVar}`)),
+  );
 
   // Handle reverse connects (update target records to point to us)
   reverseConnects.forEach((rc, idx) => {
@@ -1142,6 +1180,18 @@ export function buildUpdateWithNestedTransaction(
     );
     postStatements.push(
       `UPDATE ${rc.targetModel.tableName} SET ${rc.targetRecordField} = $result[0].id WHERE id INSIDE $${varName};`,
+    );
+  });
+
+  // Reverse set: the named rows point at this record and no other row does
+  reverseSets.forEach((rs) => {
+    const { targetModel, targetRecordField: fk } = rs;
+    postStatements.push(reverseUnlinkStatement(rs, `!(id INSIDE $${rs.idsVar})`));
+    if (!rs.hasIds) return;
+    postStatements.push(
+      rs.isArrayField
+        ? `UPDATE ${targetModel.tableName} SET ${fk} += $result[0].id WHERE id INSIDE $${rs.idsVar} AND !(${fk} CONTAINS $result[0].id);`
+        : `UPDATE ${targetModel.tableName} SET ${fk} = $result[0].id WHERE id INSIDE $${rs.idsVar};`,
     );
   });
 
