@@ -553,9 +553,10 @@ describe('INFO FOR DB keys', () => {
 });
 
 describe('cost of many INFO FOR TABLE calls', () => {
-  test('200 calls one by one against one multi-statement request', async () => {
+  // Each call is a round trip (about 10 ms locally, more on CI), so 50 keep it inside the default budget
+  test('50 calls one by one against one multi-statement request', async () => {
     const db = await open('timing');
-    const tables = Array.from({ length: 200 }, (_, i) => `timing_${i}`);
+    const tables = Array.from({ length: 50 }, (_, i) => `timing_${i}`);
     const define = tables.map((name) => `DEFINE TABLE ${name} SCHEMAFULL; DEFINE FIELD a ON ${name} TYPE string;`);
     for (const result of await run(db, define.join('\n'))) expect(result.status).toBe('OK');
 
@@ -570,8 +571,8 @@ describe('cost of many INFO FOR TABLE calls', () => {
     const batch = await run(db, tables.map((name) => `INFO FOR TABLE ${name};`).join('\n'));
     const batchMs = performance.now() - batchStart;
 
-    expect(batch).toHaveLength(200);
+    expect(batch).toHaveLength(50);
     for (const result of batch) expect(result.status).toBe('OK');
-    console.log(`INFO FOR TABLE x200: one by one ${singleMs.toFixed(0)} ms, one request ${batchMs.toFixed(0)} ms`);
+    console.log(`INFO FOR TABLE x50: one by one ${singleMs.toFixed(0)} ms, one request ${batchMs.toFixed(0)} ms`);
   });
 });
