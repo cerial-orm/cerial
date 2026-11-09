@@ -495,7 +495,8 @@ development branch and is not available on npm.
   field by its whole value, upgrade.
 
   The same held for a tuple given in object form that left out a position, and for
-  an object inside a tuple or array element that left out a required array.
+  an object inside a tuple or array element that left out a required field, an
+  array or any other.
   `create` and `where` both accepted them and only the database refused the write,
   so `NOT` with such a value in a `where` removed every row. Both are now refused,
   naming the field path. A partial update that merges an object or one tuple
@@ -661,6 +662,20 @@ development branch and is not available on npm.
   An ISO string is now converted to a date, as a `Date` field converts it, on `create`
   and in a `where`, unless a string variant of the literal takes it. A string that is
   neither a date nor a variant is refused naming the field.
+
+- Reverse-side `disconnect` unlinked every child: from the parent's side of a
+  relation, `User.updateUnique({ where, data: { posts: { disconnect: [id] } } })`
+  cleared the foreign key on every post that pointed at the user, not just the
+  one named, so disconnecting one child unlinked all of them. A reverse `set`
+  did nothing and reported success. It is hit by ordinary code with no crafted
+  input. Present in 0.1.0 and 0.2.0.
+
+  `disconnect` and `set` on a reverse relation now change exactly the named rows:
+  `disconnect` unlinks the named rows that point at the parent, and `set` links
+  the named rows and unlinks the others. A required foreign key that would be
+  left empty is refused, naming the field. `disconnect: true` still unlinks every
+  child, as documented. If you disconnect through a reverse relation, upgrade, and
+  check which rows lost their link in earlier calls.
 
 ### Added
 
@@ -923,6 +938,15 @@ development branch and is not available on npm.
   `{ tags: { disconnect: id } }`, did nothing and reported success. It now
   disconnects that id, as `connect` accepts one id. A boolean still names no id
   and changes nothing. Present in 0.1.0 and 0.2.0.
+
+  `set` given one id, such as `{ tags: { set: id } }`, threw a raw `TypeError`.
+  It now takes one id as a list of one, on forward and reverse relations, and
+  anything that names no id is refused with a validation error naming the field.
+  Present in 0.1.0 and 0.2.0.
+
+- `include` of a reverse relation whose foreign key is a `Record[]` on the other
+  model returned an empty list. It now returns the rows whose list holds the
+  parent's id. Present in 0.1.0 and 0.2.0.
 
 - `create`, `createMany` and nested creates now refuse an undeclared key in a strict
   object field before any query, naming the field, as updates already did. Before,
