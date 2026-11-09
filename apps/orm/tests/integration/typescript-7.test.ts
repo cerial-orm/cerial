@@ -59,7 +59,7 @@ export const Post = model('Post', { id: f.record().id(), title: f.string(), auth
   expect(text).toContain('Post');
   expect(text).toContain('author');
   expect(text).toContain('Tag');
-}, 60_000);
+});
 
 it('parses a module written with syntax TypeScript 7 accepts', async () => {
   const dir = await typescript7Project(
@@ -79,4 +79,4 @@ export type { Foo };
 
   expect(code, output).toBe(0);
   expect(await generatedText(join(dir, 'out'))).toContain('User');
-}, 60_000);
+});

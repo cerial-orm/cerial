@@ -186,7 +186,7 @@ describe.each(runtimes)('$name', ({ binary }) => {
     expect(code, output).toBe(1);
     expect(output).toMatch(/exist/i);
     expect(await hashes(dir)).toEqual(before);
-  }, 60_000);
+  });
 
   it('scans modules from the linked install without reporting the library and refuses a computed default', async () => {
     const dir = await project({
@@ -208,7 +208,7 @@ export const C = model('C', { id: f.record().id(), name: f.string().default(comp
     expect(output).not.toContain(`${PACKAGE}${sep}src`);
     expect(output).not.toContain(`${PACKAGE}${sep}dist`);
     expect(await hashes(dir)).toEqual(before);
-  }, 60_000);
+  });
 });
 
 it('converts a TypeScript schema to .cerial with TypeScript 7 installed', async () => {
@@ -228,4 +228,4 @@ export const User = model('User', { id: f.record().id(), name: f.string() });
 
   expect(await proc.exited, stdout + stderr).toBe(0);
   expect(await names(dir)).toEqual(['user.cerial']);
-}, 60_000);
+});
