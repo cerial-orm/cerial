@@ -9,10 +9,10 @@
  * For n-n (bidirectional): Updates both sides atomically in a transaction
  */
 
-import type { RecordId } from 'surrealdb';
+import { RecordId, StringRecordId } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
-import type { RecordIdInput } from '../../utils/cerial-id';
+import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import type { TargetCheckMap } from '../compile/types';
 import type { PartsCompiledQuery, StatementParts } from '../executor';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
@@ -159,6 +159,24 @@ function validateNestedOperation(
   }
 }
 
+/** `set` takes a list of ids; one id is a list of one, as `connect` takes it. Anything else names no id. */
+function setIdsOf(fieldName: string, set: unknown, model: ModelMetadata): RecordIdInput[] {
+  if (Array.isArray(set)) return set as RecordIdInput[];
+  const isId =
+    typeof set === 'string' ||
+    typeof set === 'number' ||
+    typeof set === 'bigint' ||
+    set instanceof RecordId ||
+    set instanceof StringRecordId ||
+    CerialId.is(set);
+  if (isId) return [set as RecordIdInput];
+
+  throw new CerialValidationError(
+    `Invalid data: ${fieldName} set must be a record id or an array of record ids on model ${model.name}`,
+    { model: model.name, field: fieldName },
+  );
+}
+
 /**
  * Extract nested operations from data object
  * Returns the data without nested operations, and the operations separately
@@ -182,7 +200,7 @@ export function extractNestedOperations(
       if (bad) throw new CerialValidationError(`Invalid data: ${bad.message}`, { model: model.name, field: key });
       // Validate the nested operation
       validateNestedOperation(key, value, field, model);
-      nestedOps.set(key, value);
+      nestedOps.set(key, isNestedSet(value) ? { ...value, set: setIdsOf(key, value.set, model) } : value);
     } else if (field) {
       const bad = validateRelationValue(field, value, model);
       if (bad) throw new CerialValidationError(`Invalid data: ${bad.message}`, { model: model.name, field: key });

@@ -54,6 +54,7 @@ model Tag {
 const owner = registry.Owner!;
 const publisher = registry.Publisher!;
 const tag = registry.Tag!;
+const cat = registry.Cat!;
 
 const where = { id: 'x' };
 const compile = (model: typeof owner, data: Record<string, unknown>) =>
@@ -163,6 +164,12 @@ describe('reverse set makes exactly the named rows point at the parent', () => {
     expect(lines(text)).toEqual([expect.stringMatching(/AND !\(id INSIDE \$rev_set_\w+\);$/)]);
   });
 
+  test('a single id is the list of one', () => {
+    expect(lines(compile(publisher, { books: { set: 'book:a' } }).text)).toEqual(
+      lines(compile(publisher, { books: { set: ['book:a'] } }).text),
+    );
+  });
+
   test('array foreign key: remove the parent from the others, add it to the named rows once', () => {
     const { text } = compile(tag, { cats: { set: ['cat:a'] } });
     expect(lines(text)).toEqual([
@@ -178,5 +185,31 @@ describe('reverse set makes exactly the named rows point at the parent', () => {
   test('the named rows are checked to exist before anything is written', () => {
     const query = compile(publisher, { books: { set: ['book:a'] } });
     expect(query.targetCheck?.entries).toEqual([{ field: 'books', verb: 'set', targetModel: 'Book', id: 'book:a' }]);
+  });
+});
+
+describe('set with one id on a forward array relation', () => {
+  test('a single id is the list of one', () => {
+    const single = compile(cat, { tags: { set: 'tag:a' } });
+    const list = compile(cat, { tags: { set: ['tag:a'] } });
+    expect(single.text).toBe(list.text);
+    expect(idsOf(single.vars, 'nested_set')).toEqual(['tag:a']);
+  });
+
+  test.each([true, false, null, {}, undefined])('%j is refused naming the field, not a TypeError', (set) => {
+    let error: unknown;
+    try {
+      compile(cat, { tags: { set } });
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).name).toBe('CerialValidationError');
+    expect((error as Error).message).toContain('tags');
+    expect((error as Error).message).not.toContain('setIds');
+  });
+
+  test('an id of another table is refused', () => {
+    expect(() => compile(cat, { tags: { set: 'cat:a' } })).toThrow(/tag/);
   });
 });

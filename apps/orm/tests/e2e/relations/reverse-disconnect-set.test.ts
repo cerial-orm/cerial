@@ -194,6 +194,12 @@ describe('E2E: reverse-side disconnect and set', () => {
       expect(await links()).toEqual({ a: null, b: 'p1', c: null, d: 'p1' });
     });
 
+    test('set with a single id is the list of one', async () => {
+      await seed();
+      await getClient().db.Publisher.updateUnique({ where: { id: p1 }, data: loose({ books: { set: 'c' } }) });
+      expect(await links()).toEqual({ a: null, b: null, c: 'p1', d: 'p2' });
+    });
+
     test('set to the rows already linked changes nothing', async () => {
       await seed();
       await getClient().db.Publisher.updateUnique({
@@ -417,6 +423,56 @@ describe('E2E: reverse-side disconnect and set', () => {
       });
       const written: unknown = tag;
       expect((written as { posts: Array<{ name: string }> }).posts.map((p) => p.name)).toEqual(['qb']);
+    });
+  });
+
+  describe('set with one id on a forward array relation', () => {
+    const seed = async (): Promise<string> => {
+      const { db } = getClient();
+      for (const id of ['t1', 't2']) await db.WoTag.create({ data: loose({ id, name: id }) });
+      const post = await db.WoPost.create({ data: loose({ name: 'p', tagIds: [], tags: { connect: ['t1', 't2'] } }) });
+
+      return post.id.toString();
+    };
+    const tagIds = async (): Promise<string[]> =>
+      (await getClient().db.WoPost.findOne({ where: { name: 'p' } }))!.tagIds.map((t) => t.toString()).sort();
+
+    test.each([true, false, null, {}])('%j is refused naming the field and nothing is written', async (set) => {
+      await seed();
+      await expect(
+        (async () => {
+          await getClient().db.WoPost.updateMany({ where: { name: 'p' }, data: loose({ tags: { set } }) });
+        })(),
+      ).rejects.toThrow(/tags/);
+      expect(await tagIds()).toEqual(['wo_tag:t1', 'wo_tag:t2']);
+    });
+
+    test('an id of another table is refused and nothing is written', async () => {
+      await seed();
+      await expect(
+        (async () => {
+          await getClient().db.WoPost.updateMany({ where: { name: 'p' }, data: loose({ tags: { set: 'other:1' } }) });
+        })(),
+      ).rejects.toThrow(/wo_tag/);
+      expect(await tagIds()).toEqual(['wo_tag:t1', 'wo_tag:t2']);
+    });
+
+    test('a single id replaces the list with that id, on every write method', async () => {
+      const id = await seed();
+      await getClient().db.WoPost.updateMany({ where: { name: 'p' }, data: loose({ tags: { set: 't2' } }) });
+      expect(await tagIds()).toEqual(['wo_tag:t2']);
+      await getClient().db.WoPost.updateUnique({ where: { id }, data: loose({ tags: { set: 't1' } }) });
+      expect(await tagIds()).toEqual(['wo_tag:t1']);
+      await getClient().db.WoPost.upsert({
+        where: { id },
+        create: { name: 'p', tagIds: [] as never },
+        update: loose({ tags: { set: 't2' } }),
+      });
+      expect(await tagIds()).toEqual(['wo_tag:t2']);
+      await getClient().$transaction(async (tx) =>
+        tx.WoPost.updateUnique({ where: { id }, data: loose({ tags: { set: 't1' } }) }),
+      );
+      expect(await tagIds()).toEqual(['wo_tag:t1']);
     });
   });
 });
