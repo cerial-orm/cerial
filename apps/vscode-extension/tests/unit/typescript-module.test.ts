@@ -1,4 +1,3 @@
-import { pathToFileURL } from 'node:url';
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -20,7 +19,7 @@ async function diagnose(name: string, source: string, indexed: Record<string, st
   Object.assign(stub.connection, {
     languages: { diagnostics: { on: (h: DiagnosticHandler) => (handler = h) } },
   });
-  const uri = pathToFileURL(testPath(name)).href;
+  const uri = testPath(name);
   const documents = new Map([
     [uri, TextDocument.create(uri, name.endsWith('.ts') ? 'typescript' : 'cerial', 1, source)],
   ]);
