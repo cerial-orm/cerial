@@ -28,7 +28,10 @@ import { asStoredArray } from './set-operand';
 
 /** The refusal a builder throws when an operand fails the checks the where validator makes first */
 function operandError(field: string, issue: OperandIssue): CerialValidationError {
-  return new CerialValidationError(`Invalid where clause: ${issue.message}`, { field, operation: 'where' });
+  return new CerialValidationError(`Invalid where clause: ${issue.message}`, {
+    field: escapeControl(field),
+    operation: 'where',
+  });
 }
 
 /** Build a condition for a single field with operators */
@@ -47,7 +50,7 @@ export function buildFieldCondition(
     // Dropping an unknown operator would widen the filter, so fail closed; the where validator refuses it first
     if (!handler)
       throw new CerialValidationError(`Invalid where clause: Unknown operator: ${escapeControl(op)}`, {
-        field,
+        field: escapeControl(field),
         operation: 'where',
       });
     if (value === undefined) continue;

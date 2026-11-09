@@ -7,6 +7,7 @@
  * - a self-referencing object is filtered by name at every depth
  * - a reverse relation over a Record[] on the other side matches per key
  * - a single id disconnects that id from an array relation
+ * - the field property of a refusal is escaped like its message
  *
  * Destructive calls come first in each group: the refused ones must leave every row, the accepted ones must
  * remove exactly the rows the typed equivalent selects.
@@ -317,6 +318,29 @@ describe('E2E: where operand edges', () => {
         /./,
       );
       expect(await linked()).toEqual(['t1', 't2', 't3']);
+    });
+  });
+
+  describe('a refusal’s field property is escaped like its message', () => {
+    const KEY = 'k\u001b[2J\u0007\nforged';
+    const hasControl = (text: string): boolean => /(?!\t)[\p{Cc}\p{Zl}\p{Zp}]/u.test(text);
+
+    test.each([
+      ['an unknown field', { [KEY]: 1 }],
+      ['an operator beside an unknown key', { name: { eq: 'x', [KEY]: 1 } }],
+    ])('findMany with %s carries no control characters', async (_name, where) => {
+      await getClient().db.WoHolder.create({ data: { name: 'h', lists: [], duos: [] } });
+      let error: { message: string; field?: string } | undefined;
+      try {
+        await getClient().db.WoHolder.deleteMany({ where: loose(where) });
+      } catch (e) {
+        error = e as { message: string; field?: string };
+      }
+      expect(error).toBeDefined();
+      expect(hasControl(error!.message)).toBe(false);
+      expect(error!.field).toBeDefined();
+      expect(hasControl(error!.field!)).toBe(false);
+      expect(await names()).toEqual(['h']);
     });
   });
 });

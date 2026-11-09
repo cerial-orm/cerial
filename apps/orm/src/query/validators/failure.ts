@@ -1,4 +1,5 @@
 import { CerialUnknownFieldError, CerialValidationError } from '../../errors';
+import { escapeControl } from '../../utils/safe-text';
 
 /** What every validator reports: where the problem is, what it is, and whether it was a name the model lacks. */
 export interface ValidationProblem {
@@ -24,7 +25,9 @@ export function validationFailure(
   const unknown = problems.find((p) => p.kind === 'unknownField');
   const first = unknown ?? problems[0];
   // The where validator roots its paths at `where`, which is the argument, not part of the field name.
-  const field = (first?.path ?? first?.field)?.replace(/^where\./, '');
+  // The path can hold an undeclared @flexible key or an operator the caller chose, which the message escapes too
+  const raw = (first?.path ?? first?.field)?.replace(/^where\./, '');
+  const field = raw === undefined ? undefined : escapeControl(raw);
   const options = { model: model.name, operation, field };
 
   return unknown ? new CerialUnknownFieldError(message, options) : new CerialValidationError(message, options);
