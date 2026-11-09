@@ -9,24 +9,30 @@ Cerial is published as compiled JavaScript with dual ESM and CJS output, making 
 
 | Runtime | Version | Support Level |
 |---------|---------|---------------|
-| Node.js | 20+ | Full support (ESM and CJS) |
+| Node.js | 22.12+ | Full support (ESM and CJS) |
 | Bun | 1.0+ | Full support (ESM) |
 | Deno | Latest | Via `npm:` specifier |
 
 ## Supported TypeScript Versions
 
-Cerial declares TypeScript as a peer dependency with the range `>=5.9.3`.
+Cerial declares TypeScript as a peer dependency with the range `>=5.9.3`. The peer is what type-checks the generated client. Your own `tsc` and editor keep using the TypeScript you installed.
 
 | Version | Support Level |
 |---------|---------------|
 | 5.9.3 | Tested floor. CI compiles the generated types against it on every change |
-| Current release | Tested. CI compiles against whatever `latest` resolves to |
+| 7 | Tested. The generated client type-checks on TypeScript 7 |
 | Between the two | Supported, not individually tested |
 | Below 5.9.3 | Not supported. Install refuses with a peer-dependency error |
+
+Reading [TypeScript schema](/schema/typescript) modules and `cerial convert` inputs does not depend on the TypeScript you installed. Cerial parses them with its own bundled copy of TypeScript 5.9, so `cerial generate` and `cerial convert` work on any version of the `typescript` package, TypeScript 7 included. Nothing in your schema modules is executed by that step.
 
 The floor is a tested one rather than a guess: installing below it fails immediately instead of
 producing type errors inside the generated client. The range stays open at the top so a new
 TypeScript release does not require a Cerial release to install cleanly.
+
+## Running on Node.js without a build step
+
+The generated client imports its own files with `.js` extensions, so `node --experimental-strip-types` cannot run TypeScript application code that imports it directly: Node stops with `ERR_MODULE_NOT_FOUND` on the client's `index.js`. On Node.js, compile your project with `tsc` and run the output, or run the project on Bun, which resolves these imports as they are.
 
 ## Module Formats
 
@@ -60,7 +66,7 @@ The CLI is ESM-only internally, but this doesn't affect how you run it — the s
 Cerial supports two config formats:
 
 - **`cerial.config.json`** — Works with all runtimes. Recommended for Node.js projects.
-- **`cerial.config.ts`** — Requires a runtime with native TypeScript support (Bun, Deno, or Node.js with `--experimental-strip-types`).
+- **`cerial.config.ts`** — Requires a runtime with native TypeScript support (Bun, Deno, or Node.js with `--experimental-strip-types`). Type stripping applies to the config file only; it does not let Node run application code that imports the generated client (see above).
 
 If your project runs on Node.js without a TypeScript loader, use the JSON config format. See [Configuration](/cli/configuration) for details.
 

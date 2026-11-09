@@ -65,7 +65,7 @@ Add it to `.gitignore` rather than committing it. Generation writes it before it
 
 Use the DSL for the stable core that tooling should understand. Use TypeScript for the parts that are generated, shared across packages, or derived from something else.
 
-The `.cerial` half keeps the formatter, diagnostics, hover and completion. The TypeScript half keeps the compiler and your editor's own tooling. See [Choosing a Schema Form](/schema/typescript/choosing) for the full trade.
+The `.cerial` half keeps diagnostics, hover and completion. The formatter works on it too, with one limit: `cerial format` refuses a `.cerial` file that names a type declared in a TypeScript module (for example `role Role` where `Role` is a TypeScript enum), although `cerial generate` accepts it. See [the formatter](/cli/formatter). The TypeScript half keeps the compiler and your editor's own tooling. See [Choosing a Schema Form](/schema/typescript/choosing) for the full trade.
 
 ## Extending across the boundary
 

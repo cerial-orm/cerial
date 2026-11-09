@@ -504,8 +504,8 @@ development branch and is not available on npm.
 
 - List operands on array fields in a `where`: `in` and `notIn` on an array field take
   a list of arrays, and the members of those arrays were not converted on a Uuid,
-  Duration, Decimal, Date, Bytes or Geometry array. `deleteMany({ where: { tokens:
-  { notIn: [[uuid]] } } })` removed all three rows when two of them held a different
+  Duration, Decimal, Date, Bytes or Geometry array.
+  `deleteMany({ where: { tokens: { notIn: [[uuid]] } } })` removed all three rows when two of them held a different
   array. It covered `updateMany`, `$transaction`, `include` and relation filters, and
   a filter built from a JSON body hit it with no cast. Present in 0.1.0 and 0.2.0.
 
@@ -931,6 +931,14 @@ development branch and is not available on npm.
   or an error tracker would carry them. Turn it on in development, not where
   errors are shipped elsewhere. The `statement` is the call's main statement; a
   nested write may run others.
+
+- TypeScript 7 is supported. Schema modules (`*.schema.ts`) and `cerial convert`
+  inputs are parsed with a bundled TypeScript 5.9 that Cerial now depends on, so
+  `cerial generate` and `cerial convert` work whatever version of `typescript`
+  your project has installed, and no longer need the `typescript` peer to read
+  them. The peer (`>=5.9.3`) still type-checks the generated client, which is
+  tested on 5.9.3 and 7. Your own `tsc` and editor keep using your TypeScript.
+  See [Runtime Compatibility](/compatibility#supported-typescript-versions).
 
 ### Fixed
 
@@ -1927,3 +1935,14 @@ development branch and is not available on npm.
   helpers; for identifier quoting use `sql.ident`.
 - `@biomejs/js-api` and `@biomejs/wasm-nodejs` are no longer dependencies.
   Install them yourself only if your own code imports them.
+
+### Known limitations
+
+- `cerial format` and `cerial format --check` refuse a `.cerial` file that names
+  a type declared in a TypeScript schema module, such as an enum (`Invalid field
+  type: Role`), while `cerial generate` accepts the same schema. See
+  [the formatter](/cli/formatter).
+- `node --experimental-strip-types` cannot run TypeScript application code that
+  imports the generated client, because the client imports its own files with
+  `.js` extensions. On Node.js, compile with `tsc` and run the output, or use
+  Bun. See [Runtime Compatibility](/compatibility#running-on-nodejs-without-a-build-step).

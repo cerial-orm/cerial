@@ -139,7 +139,7 @@ With no config at all, a `cerial.schema.ts` at the project root is picked up as 
 - `entry` can replace `path`, or sit beside it. With both, the declarations from each are combined.
 - Every model in the list must be an exported binding of a module the entry imports (`export const User = model(...)`). A `model()` call written inline in the list is refused.
 - Only value imports and re-exports are followed. `import type`, `export type` and dynamic `import()` are not, and neither are files under `node_modules`.
-- The `typescript` package, already a peer dependency of Cerial, must be installed.
+- Cerial reads these modules with its own bundled TypeScript, so it works on any `typescript` version your project has. You do not need the package installed for this step.
 - An entry can sit beside `.cerial` files in the same schema; Cerial generates one client from both. See [Mixing .cerial and TypeScript](/schema/typescript/mixed).
 - Only a module that exports a `defineSchema()` result is followed. A plain `*.schema.ts` file keeps its imports unregistered.
 - `cerial generate --watch` regenerates when the entry or any module it imports changes, wherever that module sits.
