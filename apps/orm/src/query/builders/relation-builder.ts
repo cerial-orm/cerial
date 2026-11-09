@@ -278,7 +278,10 @@ function buildReverseRelationSelectInternal(
     field.name,
     selectFields,
     targetTable,
-    `${sourceFieldName} = $parent.id`,
+    // A one-directional Record[] on the target holds a list per row, so the row links back when the list holds it
+    targetModel.fields.find((f) => f.name === sourceFieldName)?.isArray
+      ? `${sourceFieldName} CONTAINS $parent.id`
+      : `${sourceFieldName} = $parent.id`,
     options,
     targetModel,
     registry,

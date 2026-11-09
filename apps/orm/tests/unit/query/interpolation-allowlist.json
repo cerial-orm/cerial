@@ -330,7 +330,7 @@
   "src/query/builders/relation-builder.ts::buildIncludeSubquery::template::table": 1,
   "src/query/builders/relation-builder.ts::buildNestedSelectFields::template::nestedFields.join(', ')": 1,
   "src/query/builders/relation-builder.ts::buildReverseRelationSelectInternal::template::field.name": 2,
-  "src/query/builders/relation-builder.ts::buildReverseRelationSelectInternal::template::sourceFieldName": 1,
+  "src/query/builders/relation-builder.ts::buildReverseRelationSelectInternal::template::sourceFieldName": 2,
   "src/query/builders/relation-builder.ts::buildReverseRelationSelectInternal::template::sub": 2,
   "src/query/builders/relation-builder.ts::buildSubqueryLimit::template::limit": 1,
   "src/query/builders/relation-builder.ts::buildSubqueryOffset::template::offset": 1,
