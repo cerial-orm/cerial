@@ -128,17 +128,39 @@ For array relations, `disconnect` takes an array of IDs to remove.
 
 ### Disconnect from the Reverse Side
 
-The reverse side also supports disconnect — clearing the FK on target records that currently reference the parent:
+The reverse side also supports disconnect, clearing the FK on target records that currently reference the parent. Name the records to unlink:
 
 ```typescript
-// Disconnect all posts from a user (from the User side)
+// Unlink two posts from a user (from the User side)
 await client.db.User.updateUnique({
   where: { id: userId },
   data: {
-    posts: { disconnect: true },
+    posts: { disconnect: [postId1, postId2] },
   },
 });
-// Sets Post.authorId = NONE (or NULL if @nullable) on posts that reference this user
+// Sets Post.authorId = NONE (or NULL if @nullable) on those two posts only
+```
+
+Only named records that reference this parent are changed: an ID of a post that belongs to another user, or `[]`, changes nothing, and the parent's other posts stay linked. Pass `disconnect: true` to unlink every record that references the parent. When the FK is a `Record[]`, only this parent is removed from the array.
+
+A required FK cannot be cleared, so unlinking a record that references the parent through one is refused naming the FK field.
+
+:::caution
+Naming records to unlink and the reverse-side `set` below are not yet available in the current release. They will ship in an upcoming version. Before then, a reverse-side `disconnect` with IDs unlinked every record that references the parent.
+:::
+
+### Set from the Reverse Side
+
+`set` on the reverse side makes exactly the records you list reference the parent. Records that referenced it and are not listed are unlinked, so the same rules apply: a required FK that would be left without a parent is refused naming the FK field.
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: userId },
+  data: {
+    posts: { set: [postId1, postId2] },
+  },
+});
+// Only postId1 and postId2 reference this user afterwards
 ```
 
 ## Set (Replace All)
@@ -157,6 +179,8 @@ await client.db.User.updateUnique({
 // Old tags that were removed lose userId from their userIds
 // New tags that were added gain userId in their userIds
 ```
+
+A single ID is accepted where a list is, as with `connect`.
 
 For N:N relations, `set` handles bidirectional sync — old items not in the new set are cleaned up, and new items not in the old set are synced.
 
