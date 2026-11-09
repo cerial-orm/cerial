@@ -11,7 +11,8 @@
  * it or the file does, which is when a person should look at it again.
  */
 
-import ts from 'typescript';
+// The compiler API at a pinned version: TypeScript 7 has none, and CI swaps `typescript` for the latest
+import ts from 'typescript-5.9';
 
 export type SiteKind = 'template' | 'concat';
 

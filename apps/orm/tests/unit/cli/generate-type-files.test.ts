@@ -6,7 +6,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
-import ts from 'typescript';
+// The compiler API at a pinned version: TypeScript 7 has none, and CI swaps `typescript` for the latest
+import ts from 'typescript-5.9';
 import type { TypeFilesMode } from '../../../src/cli/config';
 import { generateSingleSchema } from '../../../src/cli/generate';
 import { singleSchemaOptions } from '../../../src/cli/watcher';
