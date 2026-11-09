@@ -13,6 +13,7 @@ import { RecordId, StringRecordId } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
+import { escapeControl } from '../../utils/safe-text';
 import type { TargetCheckMap } from '../compile/types';
 import type { PartsCompiledQuery, StatementParts } from '../executor';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
@@ -159,22 +160,43 @@ function validateNestedOperation(
   }
 }
 
+function isSingleId(value: unknown): value is RecordIdInput {
+  return (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'bigint' ||
+    value instanceof RecordId ||
+    value instanceof StringRecordId ||
+    CerialId.is(value)
+  );
+}
+
 /** `set` takes a list of ids; one id is a list of one, as `connect` takes it. Anything else names no id. */
 function setIdsOf(fieldName: string, set: unknown, model: ModelMetadata): RecordIdInput[] {
   if (Array.isArray(set)) return set as RecordIdInput[];
-  const isId =
-    typeof set === 'string' ||
-    typeof set === 'number' ||
-    typeof set === 'bigint' ||
-    set instanceof RecordId ||
-    set instanceof StringRecordId ||
-    CerialId.is(set);
-  if (isId) return [set as RecordIdInput];
+  if (isSingleId(set)) return [set];
 
   throw new CerialValidationError(
-    `Invalid data: ${fieldName} set must be a record id or an array of record ids on model ${model.name}`,
+    `Invalid data: ${escapeControl(fieldName)} set must be a record id or an array of record ids on model ${model.name}`,
     { model: model.name, field: fieldName },
   );
+}
+
+/**
+ * `connect` takes one id or a list, `create` one object or a list. A single value of another kind used to
+ * reach the builders as a list and be dropped or fail without naming the field.
+ */
+function assertConnectAndCreateShapes(fieldName: string, op: NestedOperation, model: ModelMetadata): void {
+  const refuse = (verb: string, wanted: string): never => {
+    throw new CerialValidationError(
+      `Invalid data: ${escapeControl(fieldName)} ${verb} must be ${wanted} on model ${model.name}`,
+      { model: model.name, field: fieldName },
+    );
+  };
+  if (isNestedConnect(op) && !Array.isArray(op.connect) && !isSingleId(op.connect))
+    refuse('connect', 'a record id or an array of record ids');
+  if (isNestedCreate(op) && !Array.isArray(op.create) && !(typeof op.create === 'object' && op.create !== null))
+    refuse('create', 'an object or an array of objects');
 }
 
 /**
@@ -200,6 +222,7 @@ export function extractNestedOperations(
       if (bad) throw new CerialValidationError(`Invalid data: ${bad.message}`, { model: model.name, field: key });
       // Validate the nested operation
       validateNestedOperation(key, value, field, model);
+      assertConnectAndCreateShapes(key, value, model);
       nestedOps.set(key, isNestedSet(value) ? { ...value, set: setIdsOf(key, value.set, model) } : value);
     } else if (field) {
       const bad = validateRelationValue(field, value, model);
@@ -540,15 +563,17 @@ export function buildCreateWithNestedTransaction(
               fieldName,
             });
           }
-        } else if (Array.isArray(createData)) {
-          createData.forEach((item, idx) => {
+        } else {
+          // One object is a list of one, as `connect` takes one id
+          const items = Array.isArray(createData) ? createData : [createData];
+          items.forEach((item, idx) => {
             const varName = `$${ctx.name('nested_create')}`;
             const contentName = ctx.name('nested_content');
             const contentVarName = `$${contentName}`;
             vars[contentName] = prepareNestedCreateData(
               item as Record<string, unknown>,
               targetModel,
-              `${fieldName}[${idx}]`,
+              Array.isArray(createData) ? `${fieldName}[${idx}]` : fieldName,
             );
             statements.push(`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVarName};`);
             createdVars.push(`${varName}.id`);
@@ -569,7 +594,7 @@ export function buildCreateWithNestedTransaction(
               recordFieldName: reverseFieldName,
             });
           }
-        } else if (Array.isArray(op.connect)) {
+        } else {
           connectName = ctx.name('nested_connect');
           connectVarName = `$${connectName}`;
           const transformedIds = connectIds.map((id) =>
@@ -603,10 +628,10 @@ export function buildCreateWithNestedTransaction(
               isCreated: true,
             });
           }
-          if (hasConnect && Array.isArray(op.connect)) {
+          if (hasConnect && !field.relationInfo.isReverse) {
             arrayConnects.push({
               targetModel,
-              targetIds: op.connect as RecordIdInput[],
+              targetIds: (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[],
               targetRecordField: bidirectional.targetRecordField,
               idsVarName: connectName,
             });
@@ -1011,6 +1036,16 @@ export function buildUpdateWithNestedTransaction(
 
         if (isArrayField) {
           fieldUpdates.push(`${recordFieldName} += ${varName}.id`);
+
+          const bidirectional = findBidirectionalNtoNField(model, field, targetModel);
+          if (bidirectional) {
+            arrayConnects.push({
+              targetModel,
+              targetIds: [`${varName}.id`],
+              targetRecordField: bidirectional.targetRecordField,
+              isCreated: true,
+            });
+          }
         } else {
           fieldUpdates.push(`${recordFieldName} = ${varName}.id`);
         }

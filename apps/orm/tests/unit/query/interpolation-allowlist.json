@@ -297,7 +297,7 @@
   "src/query/builders/nested-builder.ts::buildUpdateWithNestedTransaction::template::sync.targetRecordField": 3,
   "src/query/builders/nested-builder.ts::buildUpdateWithNestedTransaction::template::syncIdx": 2,
   "src/query/builders/nested-builder.ts::buildUpdateWithNestedTransaction::template::targetModel.tableName": 3,
-  "src/query/builders/nested-builder.ts::buildUpdateWithNestedTransaction::template::varName": 11,
+  "src/query/builders/nested-builder.ts::buildUpdateWithNestedTransaction::template::varName": 12,
   "src/query/builders/nested-builder.ts::buildUpdateWithNestedTransaction::template::varRef": 1,
   "src/query/builders/nested-builder.ts::buildUpdateWithNestedTransaction::template::scope": 3,
   "src/query/builders/nested-builder.ts::buildUpdateWithNestedTransaction::template::whereClause.text": 1,
