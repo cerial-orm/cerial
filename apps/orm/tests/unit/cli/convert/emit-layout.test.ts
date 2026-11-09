@@ -34,7 +34,8 @@ function rejected(files: Readonly<Record<string, string>>): string[] {
     writeFileSync(join(dir, 'src', name), text);
   }
   const run = Bun.spawnSync([OXFMT, '--check', '-c', join(dir, '.oxfmtrc.json'), 'src'], { cwd: dir });
-  const lines = `${run.stdout}`.split('\n');
+  // oxfmt colours file names when CI is set, so strip escape codes before matching
+  const lines = Bun.stripANSI(`${run.stdout}`).split('\n');
 
   return Object.keys(files).filter((name) => lines.some((line) => line.startsWith(`src/${name} `)));
 }
