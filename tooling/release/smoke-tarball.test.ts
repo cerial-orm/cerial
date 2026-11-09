@@ -6,12 +6,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { newScratch, removeScratchesAfterAll, seed, write } from '../hooks/test-support.ts';
 import {
+  aliasVersion,
   CONSUMER_TYPES,
   dirtyViolation,
   disallowedFiles,
   exportSpecifiers,
   mapLeaks,
   smokeTarball,
+  tscMajor,
 } from './smoke-tarball.ts';
 
 removeScratchesAfterAll();
@@ -116,6 +118,37 @@ describe('typecheck consumers', () => {
   test('the typecheck loops over every consumer type under each resolution mode', () => {
     expect(SOURCE).toMatch(/for \(const type of CONSUMER_TYPES\)/);
     expect(SOURCE).not.toMatch(/const type = 'commonjs'/);
+  });
+});
+
+describe('typescript 7 consumer', () => {
+  const pkg = (devDependencies: Record<string, string>) => ({ name: 'cerial', version: '1.0.0', devDependencies });
+
+  test('reads the exact version an npm alias pins', () => {
+    expect(aliasVersion(pkg({ 'typescript-7': 'npm:typescript@7.0.2' }), 'typescript-7')).toBe('7.0.2');
+  });
+
+  test.each([
+    ['a range', 'npm:typescript@^7.0.0'],
+    ['a tag', 'npm:typescript@latest'],
+    ['a plain version', '7.0.2'],
+    ['nothing', ''],
+  ])('refuses %s', (_name, spec) => {
+    expect(aliasVersion(pkg({ 'typescript-7': spec }), 'typescript-7')).toBeUndefined();
+  });
+
+  test('an absent alias is undefined', () => {
+    expect(aliasVersion({ name: 'cerial', version: '1.0.0' }, 'typescript-7')).toBeUndefined();
+  });
+
+  test('reads the major from tsc --version', () => {
+    expect(tscMajor('Version 7.0.2\n')).toBe(7);
+    expect(tscMajor('Version 5.9.3')).toBe(5);
+  });
+
+  test('a line without a version has no major', () => {
+    expect(tscMajor('')).toBeUndefined();
+    expect(tscMajor('command not found')).toBeUndefined();
   });
 });
 

@@ -32,6 +32,7 @@ interface PackageJson {
   readonly version: string;
   readonly exports?: Readonly<Record<string, unknown>>;
   readonly peerDependencies?: Readonly<Record<string, string>>;
+  readonly devDependencies?: Readonly<Record<string, string>>;
 }
 
 const ALLOWED_TOP = new Set(['package/package.json', 'package/README.md', 'package/LICENSE']);
@@ -85,6 +86,20 @@ export function exportSpecifiers(pkg: PackageJson): string[] {
   return Object.keys(pkg.exports ?? {})
     .filter((key) => key === '.' || key.startsWith('./'))
     .map((key) => (key === '.' ? pkg.name : `${pkg.name}/${key.slice(2)}`));
+}
+
+/** The exact version an `npm:` alias in devDependencies pins, e.g. `npm:typescript@7.0.2` gives `7.0.2`. */
+export function aliasVersion(pkg: PackageJson, alias: string): string | undefined {
+  const spec = pkg.devDependencies?.[alias] ?? '';
+
+  return /^npm:[^@]+@(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/.exec(spec)?.[1];
+}
+
+/** The major version a `tsc --version` line reports, e.g. `Version 7.0.2` gives 7. */
+export function tscMajor(output: string): number | undefined {
+  const major = /\bVersion\s+(\d+)\./.exec(output)?.[1];
+
+  return major ? Number(major) : undefined;
 }
 
 function walk(dir: string): string[] {
@@ -242,21 +257,88 @@ function smokeConvert(smoke: Smoke, root: string, tarball: string, runtime: Runt
   const toCerial = cli(runtime, dir, ['convert', '--to', 'cerial', '--remove-source']);
   smoke.expect(toCerial.status === 0, `${label} --to cerial`, toCerial.stdout + toCerial.stderr);
   smoke.expect(names() === 'post.cerial,user.cerial', `${label} --to cerial left ${names()}`);
+}
 
-  // Without the peer, the failure is a message and not a stack
-  const bare = consumer(root, `${runtime.name}-no-peer`, { 'schemas/user.schema.ts': USER_MODULE });
-  const noPeer = install(bare, tarball, ['--legacy-peer-deps']);
-  smoke.expect(noPeer.status === 0, `${label} without the peer: npm install`, noPeer.stderr);
-  if (noPeer.status) return;
+/** Cerial parses schema modules with its own TypeScript, so generate and convert need no typescript in the project. */
+function smokeNoPeer(smoke: Smoke, root: string, tarball: string, runtime: Runtime): void {
+  const label = `${runtime.name} without the peer`;
+  const bare = consumer(root, `${runtime.name}-no-peer`, {
+    'schemas/user.schema.ts': USER_MODULE,
+    'schemas/post.schema.ts': POST_MODULE,
+  });
+  const installed = install(bare, tarball, ['--legacy-peer-deps']);
+  smoke.expect(installed.status === 0, `${label}: npm install`, installed.stderr);
+  if (installed.status) return;
+  smoke.expect(!existsSync(join(bare, 'node_modules/typescript')), `${label} still installed typescript`);
+  smoke.expect(existsSync(join(bare, 'node_modules/typescript-5.9')), `${label} has no bundled typescript-5.9`);
+  const generated = cli(runtime, bare, ['generate', '-y']);
+  const generatedOutput = generated.stdout + generated.stderr;
+  smoke.expect(generated.status === 0, `${label} generate`, generatedOutput);
+  smoke.expect(!STACK.test(generatedOutput), `${label} generate prints a stack`, generatedOutput);
   smoke.expect(
-    !existsSync(join(bare, 'node_modules/typescript')),
-    `${label} without the peer still installed typescript`,
+    listed(join(bare, 'out')).some((file) => file.endsWith('.ts')),
+    `${label} generate wrote no client files`,
   );
-  const refused = cli(runtime, bare, ['convert', '--to', 'cerial']);
-  const output = refused.stdout + refused.stderr;
-  smoke.expect(refused.status === 1, `${label} without the peer exits 1`, `exit ${refused.status}: ${output}`);
-  smoke.expect(/typescript/i.test(output), `${label} without the peer does not name the typescript package`, output);
-  smoke.expect(!STACK.test(output), `${label} without the peer prints a stack`, output);
+  const converted = cli(runtime, bare, ['convert', '--to', 'cerial']);
+  const convertedOutput = converted.stdout + converted.stderr;
+  smoke.expect(converted.status === 0, `${label} convert`, convertedOutput);
+  smoke.expect(!STACK.test(convertedOutput), `${label} convert prints a stack`, convertedOutput);
+  smoke.expect(
+    existsSync(join(bare, 'schemas/user.cerial')),
+    `${label} convert left ${readdirSync(join(bare, 'schemas')).sort().join(',')}`,
+  );
+}
+
+/** A project on TypeScript 7, which has no JS compiler API: generate and convert still work, and `.bin/tsc` stays the user's. */
+function smokeTypescript7(smoke: Smoke, root: string, tarball: string, runtime: Runtime, version: string): void {
+  const label = `${runtime.name} typescript ${version} project`;
+  const dir = consumer(root, `${runtime.name}-ts7`, {
+    'schemas/customer.cerial': CUSTOMER_CERIAL,
+    'schemas/order.schema.ts': ORDER_MODULE,
+    'tsconfig.json': JSON.stringify({
+      compilerOptions: {
+        module: 'nodenext',
+        moduleResolution: 'nodenext',
+        target: 'es2022',
+        strict: true,
+        skipLibCheck: true,
+        noEmit: true,
+      },
+      include: ['out/**/*.ts', 'schemas/**/*.ts'],
+    }),
+  });
+  const installed = install(dir, tarball, [`typescript@${version}`]);
+  smoke.expect(installed.status === 0, `${label}: npm install`, installed.stderr);
+  if (installed.status) return;
+
+  const tsc = join(dir, 'node_modules/.bin/tsc');
+  const reported = run(tsc, ['--version'], dir);
+  smoke.expect(
+    tscMajor(reported.stdout) === 7 && reported.stdout.includes(version),
+    `${label}: .bin/tsc is not the user's TypeScript ${version}`,
+    reported.stdout + reported.stderr,
+  );
+  smoke.expect(existsSync(join(dir, 'node_modules/typescript-5.9')), `${label} has no bundled typescript-5.9`);
+
+  const generated = cli(runtime, dir, ['generate', '-y']);
+  smoke.expect(generated.status === 0, `${label}: generate`, generated.stdout + generated.stderr);
+  smoke.expect(
+    listed(join(dir, 'out')).some((file) => file.endsWith('.ts')),
+    `${label}: generate wrote no client files`,
+  );
+  smoke.expect(existsSync(join(dir, 'schemas/cerial/handles.ts')), `${label}: generate wrote no cerial/handles.ts`);
+  if (!generated.status) {
+    const checked = run(tsc, ['-p', '.'], dir);
+    smoke.expect(
+      checked.status === 0,
+      `${label}: tsc typechecks the generated client`,
+      checked.stdout + checked.stderr,
+    );
+  }
+
+  const converted = cli(runtime, dir, ['convert', '--to', 'cerial']);
+  smoke.expect(converted.status === 0, `${label}: convert`, converted.stdout + converted.stderr);
+  smoke.expect(existsSync(join(dir, 'schemas/order.cerial')), `${label}: convert wrote no order.cerial`);
 }
 
 function smokeHelp(smoke: Smoke, dir: string, runtime: Runtime): void {
@@ -356,6 +438,8 @@ export function smokeTarball({ packageDir, allowDirty = false }: SmokeOptions): 
 
     const typescript = `typescript@${(pkg.peerDependencies?.typescript ?? '').replace(/^[^\d]*/, '') || 'latest'}`;
     const peer = [typescript];
+    const typescript7 = aliasVersion(pkg, 'typescript-7');
+    smoke.expect(!!typescript7, 'package.json has no exact typescript-7 alias to smoke against');
     const runtimes: Runtime[] = [
       { name: 'node', binary: 'node' },
       { name: 'bun', binary: process.execPath },
@@ -370,6 +454,8 @@ export function smokeTarball({ packageDir, allowDirty = false }: SmokeOptions): 
       }
       smokeGenerate(smoke, root, tarball, runtime, peer);
       smokeConvert(smoke, root, tarball, runtime, peer);
+      smokeNoPeer(smoke, root, tarball, runtime);
+      if (typescript7) smokeTypescript7(smoke, root, tarball, runtime, typescript7);
     }
     smokeTypes(smoke, root, tarball, peer);
   } finally {
