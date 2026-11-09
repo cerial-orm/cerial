@@ -109,7 +109,9 @@ function prepareList(
 
 /**
  * Check one operator's operand against the field and convert it to what create would store.
- * `path` locates the operand in the filter, `label` names the field in a refusal.
+ * `path` locates the operand in the filter, `label` names the field in a refusal. `nested` is set for a field
+ * inside an object or tuple, which has no paired relation to name a Record's table; a model's own field, a
+ * related model's included, is converted by its model whatever its label.
  */
 export function prepareOperand(
   field: FieldMetadata,
@@ -118,9 +120,8 @@ export function prepareOperand(
   model: ModelMetadata,
   path: string,
   label: string,
+  nested: boolean,
 ): PreparedOperand {
-  // The label is the field's own name only on a model's top level; a path into an object or tuple differs
-  const nested = label !== field.name;
   // It can hold an undeclared @flexible key, which reaches every message below as written
   label = escapeControl(label);
   const entry = getOperatorEntry(op);

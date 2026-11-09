@@ -30,6 +30,7 @@ export function operandIssues(
   path: string,
   label: string,
   model: ModelMetadata,
+  nested = false,
 ): OperandIssue[] {
   if (field.type === 'relation' || filter === undefined) return [];
 
@@ -47,7 +48,7 @@ export function operandIssues(
     for (const [op, value] of Object.entries(filter)) {
       // An unregistered operator is reported by the caller as an unknown operator
       if (value === undefined || !isRegisteredOperator(op)) continue;
-      issues.push(...(prepareOperand(field, op, value, model, `${path}.${op}`, label).issues ?? []));
+      issues.push(...(prepareOperand(field, op, value, model, `${path}.${op}`, label, nested).issues ?? []));
     }
 
     return issues;
@@ -57,5 +58,5 @@ export function operandIssues(
   // operator and constrains nothing
   if (isPlainObject(filter)) return [];
 
-  return prepareOperand(field, 'eq', filter, model, path, label).issues ?? [];
+  return prepareOperand(field, 'eq', filter, model, path, label, nested).issues ?? [];
 }

@@ -38,6 +38,7 @@ export function buildFieldCondition(
   operators: Record<string, unknown>,
   fieldMetadata: FieldMetadata,
   model: ModelMetadata,
+  nested = false,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -51,7 +52,7 @@ export function buildFieldCondition(
       });
     if (value === undefined) continue;
 
-    const prepared = prepareOperand(fieldMetadata, op, value, model, field, field);
+    const prepared = prepareOperand(fieldMetadata, op, value, model, field, field, nested);
     if (prepared.issues) throw operandError(field, prepared.issues[0]!);
     conditions.push(handler(ctx, field, prepared.value, fieldMetadata));
   }
@@ -75,10 +76,11 @@ export function buildDirectCondition(
   value: unknown,
   fieldMetadata: FieldMetadata,
   model: ModelMetadata,
+  nested = false,
 ): QueryFragment {
   const handler = getOperatorHandler('eq');
   if (!handler) return { text: '', vars: {} };
-  const prepared = prepareOperand(fieldMetadata, 'eq', value, model, field, field);
+  const prepared = prepareOperand(fieldMetadata, 'eq', value, model, field, field, nested);
   if (prepared.issues) throw operandError(field, prepared.issues[0]!);
 
   return handler(ctx, field, prepared.value, fieldMetadata);
@@ -191,8 +193,8 @@ export function buildObjectCondition(
       const flexible = flexibleSubField(key);
       conditions.push(
         isOperatorObject(value)
-          ? buildFieldCondition(ctx, subPath, value, flexible, model)
-          : buildDirectCondition(ctx, subPath, value, flexible, model),
+          ? buildFieldCondition(ctx, subPath, value, flexible, model, true)
+          : buildDirectCondition(ctx, subPath, value, flexible, model, true),
       );
       continue;
     }
@@ -231,13 +233,13 @@ export function buildObjectCondition(
     // Primitive sub-field with operators
     if (isOperatorShape(value, subField)) {
       conditions.push(
-        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, asStoredArray(subField), model),
+        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, asStoredArray(subField), model, true),
       );
       continue;
     }
 
     // Direct value (shorthand for eq)
-    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), model));
+    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), model, true));
   }
 
   if (!conditions.length) return { text: '', vars: {} };
@@ -353,8 +355,8 @@ function buildObjectConditionForClosure(
       const flexible = flexibleSubField(key);
       conditions.push(
         isOperatorObject(value)
-          ? buildFieldCondition(ctx, subPath, value, flexible, model)
-          : buildDirectCondition(ctx, subPath, value, flexible, model),
+          ? buildFieldCondition(ctx, subPath, value, flexible, model, true)
+          : buildDirectCondition(ctx, subPath, value, flexible, model, true),
       );
       continue;
     }
@@ -397,12 +399,12 @@ function buildObjectConditionForClosure(
 
     if (isOperatorShape(value, subField)) {
       conditions.push(
-        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, asStoredArray(subField), model),
+        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, asStoredArray(subField), model, true),
       );
       continue;
     }
 
-    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), model));
+    conditions.push(buildDirectCondition(ctx, subPath, value, asStoredArray(subField), model, true));
   }
 
   if (!conditions.length) return { text: '', vars: {} };
@@ -502,12 +504,12 @@ export function buildTupleCondition(
 
     // Operator object
     if (isOperatorShape(value, syntheticField)) {
-      conditions.push(buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, model));
+      conditions.push(buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, model, true));
       continue;
     }
 
     // Direct value (shorthand for eq)
-    conditions.push(buildDirectCondition(ctx, subPath, value, syntheticField, model));
+    conditions.push(buildDirectCondition(ctx, subPath, value, syntheticField, model, true));
   }
 
   if (!conditions.length) return { text: '', vars: {} };
@@ -645,7 +647,7 @@ export function buildConditions(
       const resolvedField = resolveDotNotationField(key, model);
       if (resolvedField) {
         // Build a direct equality condition using the dot-notation path as the field name
-        conditions.push(buildDirectCondition(ctx, key, value, resolvedField, model));
+        conditions.push(buildDirectCondition(ctx, key, value, resolvedField, model, true));
         continue;
       }
     }
