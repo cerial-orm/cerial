@@ -84,7 +84,7 @@ describe('$live across a reconnect', () => {
     // A second connection straight to the database, so a write never travels the line under test.
     writer = new CerialClient();
     await writer.connect(config('ws://127.0.0.1:8000'));
-    await writer.migrate();
+    // Migrates only what it touches; a full migrate() re-checks every e2e model, past a hook's default budget on CI
     await writer.db.User.deleteMany({ where: {} });
   });
 
@@ -123,7 +123,6 @@ describe('$live across a reconnect', () => {
 
   test('control: an unmanaged LIVE query hears nothing after the same drop', async () => {
     const surreal = client.getSurreal()!;
-    await client.migrate();
     const [id] = await surreal.query('LIVE SELECT * FROM user').collect<[never]>();
     const unmanaged = await surreal.liveOf(id as never);
     const cursor = unmanaged[Symbol.asyncIterator]();
