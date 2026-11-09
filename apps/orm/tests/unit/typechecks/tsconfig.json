@@ -1,7 +1,9 @@
 {
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    // TypeScript 6 and later load no @types by default; the checked sources use Bun and Node globals
+    "types": ["bun"]
   },
   "include": ["./*.check.ts"]
 }

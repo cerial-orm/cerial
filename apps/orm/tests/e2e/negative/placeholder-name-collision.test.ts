@@ -227,12 +227,9 @@ describe('Deep nested writes', () => {
     const owner = await client.db.PnOwner.create({ data: { title: 'o', inc_title: 'i' } });
     const run = (where: { id: unknown }) =>
       (async () => {
-        // @ts-expect-error — testing the runtime guard
-        await client.db.PnOwner.upsert({
-          where,
-          create: { title: 'c', inc_title: 'c', ...deep },
-          update: { title: 'u', ...deep },
-        });
+        const args = { where, create: { title: 'c', inc_title: 'c', ...deep }, update: { title: 'u', ...deep } };
+        // @ts-expect-error — testing the runtime guard; one line, as TypeScript 7 reports per property, 5 on the call
+        await client.db.PnOwner.upsert(args);
       })();
 
     await expect(run({ id: owner.id })).rejects.toThrow(refused);
