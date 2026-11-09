@@ -1,3 +1,4 @@
+import { pathToFileURL } from 'node:url';
 import { describe, expect, test } from 'bun:test';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import type { Diagnostic, DocumentDiagnosticReport } from 'vscode-languageserver';
@@ -17,7 +18,7 @@ async function diagnose(source: string): Promise<Diagnostic[]> {
     languages: { diagnostics: { on: (h: DiagnosticHandler) => (handler = h) } },
   });
 
-  const uri = `file://${testPath('sort.cerial')}`;
+  const uri = pathToFileURL(testPath('sort.cerial')).href;
   const documents = new Map([[uri, TextDocument.create(uri, 'cerial', 1, source)]]);
 
   registerDiagnosticsProvider(
