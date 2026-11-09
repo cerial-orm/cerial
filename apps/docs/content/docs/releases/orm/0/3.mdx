@@ -494,6 +494,13 @@ development branch and is not available on npm.
   tuple is converted the way `create` converts it. If you filter an object or tuple
   field by its whole value, upgrade.
 
+  The same held for a tuple given in object form that left out a position, and for
+  an object inside a tuple or array element that left out a required array.
+  `create` and `where` both accepted them and only the database refused the write,
+  so `NOT` with such a value in a `where` removed every row. Both are now refused,
+  naming the field path. A partial update that merges an object or one tuple
+  element key by key may still leave things out. Present in 0.1.0 and 0.2.0.
+
 - List operands on array fields in a `where`: `in` and `notIn` on an array field take
   a list of arrays, and the members of those arrays were not converted on a Uuid,
   Duration, Decimal, Date, Bytes or Geometry array. `deleteMany({ where: { tokens:
@@ -528,6 +535,39 @@ development branch and is not available on npm.
   and a union that admits a string keeps it a string. An array where one id is
   required is refused naming the field, except where the id type is itself an array
   or tuple. If you filter by a uuid id or a foreign key to one, upgrade.
+
+  A `Record` id inside an object field had the same flaw: it was compared as
+  given, not converted to a record id, so `{ NOT: { meta: { ref: id } } }` removed
+  every row, the one holding that id included. It is now converted the way
+  `create` stores it, and a value that is not a record id is refused naming the
+  field path. Present in 0.1.0 and 0.2.0, whose object filters did not convert
+  operands.
+
+- Self-referencing objects in a `where`: an object that contains itself, such as
+  a tree node with a `child` of its own type, lists its fields only to a fixed
+  depth. Below that depth a filter key was not looked up in the object and its
+  value was compared as a whole object instead, which never matched what was
+  stored. `deleteMany({ where: { NOT: { node: { child: { child: { child: { n: 3 }
+  } } } } } })` removed the row holding that value, and an equality on the same
+  path did not find it. It covered objects inside arrays and tuples of such
+  objects, and a filter built from a JSON body hit it with no cast. Present in
+  0.1.0 and 0.2.0.
+
+  A key below the cut is now resolved by name at every depth, so nested objects
+  and tuples keep their structure and a leaf is compared on its own path. If you
+  filter a self-referencing object more than a few levels deep, upgrade.
+
+- Reverse relations over a `Record[]` foreign key in a `where`: when the other
+  model holds the link as a list of ids, `some` never matched, so `none` matched
+  every row and `every` matched none. `deleteMany({ where: { tags: { none: {} } }
+  })` on the model at the other end of such a relation removed every row,
+  including those that had a related record. It covered `updateMany`,
+  `$transaction` and filters nested in a relation, and the filter shape is plain
+  TypeScript, with no cast. Present in 0.1.0 and 0.2.0.
+
+  Each id in the list is now compared to the row's id, as a single foreign key
+  is. If you filter through a reverse relation whose other side is a `Record[]`,
+  upgrade, and check rows that `none` or `every` deleted or changed before.
 
 - Uuid keys written as strings: a foreign key to a `Record(uuid)` model given as a
   uuid string was stored as a string key, a reference to a record that cannot exist,
@@ -878,6 +918,11 @@ development branch and is not available on npm.
   nested write may run others.
 
 ### Fixed
+
+- `disconnect` given one id instead of an array on an array relation, such as
+  `{ tags: { disconnect: id } }`, did nothing and reported success. It now
+  disconnects that id, as `connect` accepts one id. A boolean still names no id
+  and changes nothing. Present in 0.1.0 and 0.2.0.
 
 - `create`, `createMany` and nested creates now refuse an undeclared key in a strict
   object field before any query, naming the field, as updates already did. Before,
