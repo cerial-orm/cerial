@@ -944,6 +944,14 @@ development branch and is not available on npm.
   anything that names no id is refused with a validation error naming the field.
   Present in 0.1.0 and 0.2.0.
 
+- One id in `connect` or one object in `create` on an array relation, such as
+  `{ tags: { connect: id } }` or `{ tags: { create: { name } } }`, was dropped
+  when you wrote it inside a `create` call: the call succeeded and linked
+  nothing on either side. A one-object `create` in an update linked only the
+  parent side of a many-to-many pair. Both now behave as a list of one, link both
+  sides, and a value that is neither an id nor an object (or a list of them) is
+  refused with a validation error naming the field. Present in 0.1.0 and 0.2.0.
+
 - `include` of a reverse relation whose foreign key is a `Record[]` on the other
   model returned an empty list. It now returns the rows whose list holds the
   parent's id. Present in 0.1.0 and 0.2.0.
