@@ -107,6 +107,9 @@ describe('generate deletes only files its manifest lists', () => {
       expect(refused.success).toBe(false);
       expect(refused.errors[0]).toContain(join(outputDir, 'client.ts'));
       expect(refused.errors[0]).toContain(ALLOW_UNSAFE_OUTPUT_FLAG);
+      expect(refused.errors[0]).toContain(`has no ${OUTPUT_MANIFEST_NAME}`);
+      expect(refused.errors[0]).toContain(`Delete '${outputDir}' and run generate again`);
+      expect(refused.errors[0]).toContain('can shadow the new types');
       expect(await readFile(join(outputDir, 'client.ts'), 'utf8')).toBe('// mine\n');
       expect(existsSync(join(outputDir, OUTPUT_MANIFEST_NAME))).toBe(false);
     }
@@ -133,6 +136,10 @@ describe('generate deletes only files its manifest lists', () => {
     const result = await generateSingleSchema({ schemaPath: schemaDir, outputDir });
     expect(result.success).toBe(false);
     expect(await readFile(join(outputDir, 'models', 'extra.d.ts'), 'utf8')).toBe('// mine\n');
+    expect(result.errors[0]).toContain('that a previous generate did not write');
+    expect(result.errors[0]).toContain(`Pass ${ALLOW_UNSAFE_OUTPUT_FLAG} to overwrite them`);
+    expect(result.errors[0]).not.toContain('has no ');
+    expect(result.errors[0]).not.toContain('Delete ');
   });
 
   it('a copy that fails under --clean deletes nothing', async () => {

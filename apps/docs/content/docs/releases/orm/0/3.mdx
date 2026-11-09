@@ -1661,9 +1661,12 @@ development branch and is not available on npm.
   `.cerial-output.json`, with `--clean` too, and only after the new files are
   copied. It refuses to overwrite an existing file it did not write, and refuses
   an output outside the project root or one that contains schema sources. Files
-  you added to the output folder are kept. The first run over an output from
-  0.2.0 has no manifest and removes nothing, so delete old leftovers by hand
-  once.
+  you added to the output folder are kept. An output
+  folder from 0.2.0 has no manifest, so the first `cerial generate` over it is
+  refused and names the files. When you upgrade, delete the old output folder
+  once and generate again (`rm -rf ./db-client && bunx cerial generate`). Passing
+  `--allow-unsafe-output` instead overwrites in place but leaves old files such
+  as `models/*.ts` behind, and they shadow the new `.d.ts` types.
 
   ```bash
   # refused: the output holds the schema sources, or lies outside the project
@@ -1677,7 +1680,7 @@ development branch and is not available on npm.
   bunx cerial generate -s ./schemas -o ../shared/db-client --allow-unsafe-output
   ```
 
-  `--allow-unsafe-output` lifts the location refusals; it is new in this release.
+  `--allow-unsafe-output` lifts the location refusals and the overwrite refusal; it is new in this release.
 - `cerial convert` converts a schema source that lies outside the entry root
   beside itself, under the same exists, `--force` and protected-source checks,
   and writes nothing outside the planned outputs. An export name in a kept

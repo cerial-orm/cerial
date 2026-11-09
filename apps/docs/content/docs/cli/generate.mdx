@@ -18,7 +18,7 @@ bunx cerial generate [options]
 | `--config <path>` | `-C` | Path to config file | - |
 | `--name <name>` | `-n` | Target a specific schema by name (multi-schema) | - |
 | `--clean` | `-c` | Delete the files the previous run wrote before generating | `false` |
-| `--allow-unsafe-output` | - | Allow an output directory outside the project root or one that contains schema sources | `false` |
+| `--allow-unsafe-output` | - | Allow an output directory outside the project root or one that contains schema sources, and overwrite existing files that no earlier generate recorded | `false` |
 | `--watch` | `-w` | Watch for schema changes and regenerate | `false` |
 | `--verbose` | `-v` | Verbose output showing generation details | `false` |
 | `--log <level>` | `-l` | Log output level: `minimal`, `medium`, or `full` | `minimal` |
@@ -222,7 +222,16 @@ All generated files are formatted with Biome and written to the output directory
 
 After writing all files, the generator removes the files its previous run recorded in `.cerial-output.json` that this run did not write. This handles renamed or deleted models, objects, and tuples. Empty directories left behind are also cleaned up. Files cerial never wrote are never touched.
 
-If the output has no `.cerial-output.json` (the first run, or an output from an older version), nothing is removed and the run logs that. Delete such leftovers by hand once.
+If the output folder has no `.cerial-output.json`, nothing is removed. That is the case for the first run and for any output written by cerial 0.2.0 or earlier. When such a folder already holds files this run would write, generate stops and names them, because it cannot tell whether they are yours. `--clean` is refused the same way.
+
+When you upgrade from 0.2.0, do this once: delete the old output folder and generate again.
+
+```bash
+rm -rf ./db-client
+bunx cerial generate
+```
+
+Passing `--allow-unsafe-output` instead overwrites those files in place, but it leaves behind old files this run does not write. A stale `models/*.ts` from 0.2.0 then shadows the new `.d.ts` types and causes type errors until you delete it. Later runs write the manifest and clean up on their own.
 
 ## Typical Workflow
 

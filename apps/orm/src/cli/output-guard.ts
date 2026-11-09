@@ -125,6 +125,14 @@ export async function assertNoUnclaimedTargets(
   if (!clashes.length) return;
   const shown = clashes.slice(0, 5).join(', ');
   const more = clashes.length > 5 ? ` and ${clashes.length - 5} more` : '';
+  if (previous === null) {
+    throw new Error(
+      `Refusing to overwrite ${clashes.length} existing file(s) in '${outputDir}': ${shown}${more}. ` +
+        `This folder has no ${OUTPUT_MANIFEST_NAME}, so cerial cannot tell which files it wrote (the usual cause is output from cerial 0.2.0 or earlier). ` +
+        `Delete '${outputDir}' and run generate again. ` +
+        `${ALLOW_UNSAFE_OUTPUT_FLAG} overwrites these files in place, but it leaves behind old files this run does not write, and those can shadow the new types.`,
+    );
+  }
   throw new Error(
     `Refusing to overwrite ${clashes.length} existing file(s) in '${outputDir}' that a previous generate did not write: ${shown}${more}. Pass ${ALLOW_UNSAFE_OUTPUT_FLAG} to overwrite them.`,
   );
