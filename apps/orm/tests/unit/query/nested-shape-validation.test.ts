@@ -77,7 +77,6 @@ describe('an object or tuple that is a tuple element is an object or a tuple', (
 
   test('a well formed value is accepted', () => {
     expect(createErrors({ boxT: [1, { fUuid: '0190c3f8-6c5d-7a3a-9d3a-1e1f2a3b4c5d', fDur: '1h' }] })).toEqual([]);
-    expect(createErrors({ objTup: [D, { fInt: 1 }] })).toEqual([]);
     expect(createErrors({ deepT: [1, { t: [1, '1h'], fDec: '1.5' }] })).toEqual([]);
   });
 });

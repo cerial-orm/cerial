@@ -165,6 +165,9 @@ describe('validateUpdateData @flexible is per field, not per object type', () =>
   });
 });
 
+// A value bound whole is checked against every required sub-field, so the elements written whole are complete
+const completeMid = { note: 'n', inner: { label: 'l' }, looseInner: { label: 'l' } };
+
 describe('validateUpdateData objects inside tuples', () => {
   test('rejects an unknown element key of a per-element tuple update', () => {
     expect(errorsFor({ pair: { nope: 1 } }).map((e) => e.field)).toEqual(['pair.nope']);
@@ -195,12 +198,14 @@ describe('validateUpdateData objects inside tuples', () => {
   });
 
   test('accepts an array-form tuple replace and a { set } element', () => {
-    expect(errorsFor({ pair: [{ label: 'a' }, { note: 'b' }] })).toEqual([]);
-    expect(errorsFor({ pair: { mid: { set: { note: 'b' } } } })).toEqual([]);
+    expect(errorsFor({ pair: [{ label: 'a' }, completeMid] })).toEqual([]);
+    expect(errorsFor({ pair: { mid: { set: completeMid } } })).toEqual([]);
   });
 
   test('refuses an undeclared key in a { set } element, which the inline tuple type would refuse', () => {
-    expect(errorsFor({ pair: { mid: { set: { whatever: 1 } } } }).map((e) => e.field)).toEqual(['pair.mid.whatever']);
+    expect(errorsFor({ pair: { mid: { set: { ...completeMid, whatever: 1 } } } }).map((e) => e.field)).toEqual([
+      'pair.mid.whatever',
+    ]);
   });
 });
 

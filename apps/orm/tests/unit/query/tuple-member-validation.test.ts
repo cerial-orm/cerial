@@ -168,7 +168,7 @@ describe('object members of a tuple', () => {
   });
 
   test('refuses an undeclared key beside a flexible field', () => {
-    expect(errors({ profiled: ['a', { bio: 'b', extra: 1 }] })).toHaveLength(1);
+    expect(errors({ profiled: ['a', { bio: 'b', meta: { label: 'l' }, extra: 1 }] })).toHaveLength(1);
   });
 
   test('a strict object outside a tuple refuses undeclared keys on create', () => {

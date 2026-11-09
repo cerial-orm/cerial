@@ -5,7 +5,15 @@
 
 import type { FieldMetadata, ModelMetadata, SchemaFieldType } from '../../../../src/types';
 import { validateFieldValue } from '../../../../src/query/validators/data-validator';
-import { CORPUS, idCorpus, LITERAL_CORPUS, NESTED_WHOLE, WHOLE_OBJECT, WHOLE_TUPLE } from './corpus';
+import {
+  CORPUS,
+  idCorpus,
+  LITERAL_CORPUS,
+  NESTED_WHOLE,
+  WHOLE_OBJECT,
+  WHOLE_OBJECT_ARRAY,
+  WHOLE_TUPLE,
+} from './corpus';
 import { FK_ARRAY_KEYS, ID_MODELS, LITERALS, model, SCALARS, SET_KEYS } from './schema';
 
 export type Step =
@@ -253,7 +261,11 @@ function build(): void {
   for (const name of ['oneLeaf', 'optLeaf', 'leaves', 'flexLeaf', 'deep', 'selfRef', 'recBox']) {
     const f = field(name);
     walk(f, [{ t: 'key', k: name }], name, 1, new Map());
-    scalar(name, f.type, WHOLE_OBJECT, { id: `${name}=whole`, whole: true, scalarArray: !!f.isArray });
+    scalar(name, f.type, f.isArray ? [...WHOLE_OBJECT, ...WHOLE_OBJECT_ARRAY] : WHOLE_OBJECT, {
+      id: `${name}=whole`,
+      whole: true,
+      scalarArray: !!f.isArray,
+    });
   }
   for (const name of ['pairT', 'pairs', 'optPair', 'boxT', 'deepT', 'objTup']) {
     const f = field(name);

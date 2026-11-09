@@ -783,20 +783,19 @@ function validateObjectData(
   }
 
   // A model field defaults a required array to []; nothing does under a bare value, so the database
-  // refuses the object when one is left out
+  // refuses the object when a required sub-field, an array or any other, is left out
   if (bare && !partial)
     for (const f of fields)
-      if (data[f.name] === undefined && isRequiredArray(f))
+      if (data[f.name] === undefined && isRequiredUnfilled(f))
         errors.push({ field: `${path}.${f.name}`, message: `${path}.${f.name} is required` });
 
   return errors;
 }
 
-/** True when an array sub-field must be written and no decorator supplies it when left out */
-function isRequiredArray(field: FieldMetadata): boolean {
+/** True when a sub-field must be written and no decorator supplies it when left out */
+function isRequiredUnfilled(field: FieldMetadata): boolean {
   return (
     field.isRequired &&
-    field.isArray === true &&
     field.defaultValue === undefined &&
     field.defaultAlwaysValue === undefined &&
     field.timestampDecorator === undefined &&

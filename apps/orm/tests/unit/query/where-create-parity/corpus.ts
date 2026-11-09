@@ -223,6 +223,7 @@ export const NESTED_WHOLE: Record<string, unknown[]> = {
   ],
   objTup: [
     [D, { fInt: 1 }],
+    [D, {}],
     [D, 5],
     [D, { fInt: 'x' }],
     [D, { fInt: 1, extra: 1 }],
@@ -233,6 +234,9 @@ export const NESTED_WHOLE: Record<string, unknown[]> = {
 
 /** Whole values for an object field: only a non-plain value is compared whole, a plain object holds sub-filters */
 export const WHOLE_OBJECT: unknown[] = [5, 'x', true, [1], []];
+
+/** Whole values for an array of objects: elements that leave out required sub-fields, which nothing fills in */
+export const WHOLE_OBJECT_ARRAY: unknown[] = [[{}], [{ fInt: 1 }], [{ fInt: 1, extra: 1 }], [{}, {}], [5]];
 
 /** Record ids of one table, as each id type reads them */
 export function idCorpus(key: string, table: string): unknown[] {
