@@ -130,19 +130,13 @@ function isWalkable(path: string): boolean {
   return !/(^|\/)cerial\/handles\.ts$/.test(normal);
 }
 
-type TypeScript = typeof import('typescript');
+type TypeScript = typeof import('typescript-5.9');
 
+// The bundled copy, because the user's `typescript` may be 7, whose JS entry has no compiler API
 async function loadTypescript(): Promise<TypeScript> {
-  try {
-    const module = (await import('typescript')) as TypeScript & { default?: TypeScript };
+  const module = (await import('typescript-5.9')) as TypeScript & { default?: TypeScript };
 
-    return module.default ?? module;
-  } catch (error) {
-    throw new CerialGenerationError(
-      "Following an entry module's imports needs the 'typescript' package, a peer dependency of cerial. Install it with your package manager.",
-      { cause: error },
-    );
-  }
+  return module.default ?? module;
 }
 
 /** Specifiers of the value-level static imports and re-exports of `source`; type-only ones and dynamic imports are no edges. */

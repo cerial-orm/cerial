@@ -676,8 +676,8 @@ async function modulesWithOtherCode(
   files: readonly string[],
   declarations: readonly ExportedDeclaration[],
 ): Promise<string[]> {
-  const imported = (await import('typescript')) as typeof import('typescript') & {
-    default?: typeof import('typescript');
+  const imported = (await import('typescript-5.9')) as typeof import('typescript-5.9') & {
+    default?: typeof import('typescript-5.9');
   };
   const ts = imported.default ?? imported;
   const exported = new Map<string, Set<string>>();
@@ -688,9 +688,9 @@ async function modulesWithOtherCode(
   for (const file of files) {
     const source = ts.createSourceFile(file, await readFile(file, 'utf8'), ts.ScriptTarget.Latest, true);
     const own = exported.get(file) ?? new Set<string>();
-    const isExported = (node: import('typescript').Node): boolean =>
+    const isExported = (node: import('typescript-5.9').Node): boolean =>
       ts.canHaveModifiers(node) && !!ts.getModifiers(node)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
-    const names = (name: import('typescript').BindingName): string[] =>
+    const names = (name: import('typescript-5.9').BindingName): string[] =>
       ts.isIdentifier(name)
         ? [name.text]
         : name.elements.flatMap((el) => (ts.isOmittedExpression(el) ? [] : names(el.name)));

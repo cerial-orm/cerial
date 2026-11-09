@@ -6,10 +6,10 @@ import { moduleGraph } from '../../parser/builder/load';
 import type { ImportReader } from '../../parser/builder/load';
 import { lossyCase } from './lossy-cases';
 
-type TypeScript = typeof import('typescript');
-type Node = import('typescript').Node;
-type Expression = import('typescript').Expression;
-type SourceFile = import('typescript').SourceFile;
+type TypeScript = typeof import('typescript-5.9');
+type Node = import('typescript-5.9').Node;
+type Expression = import('typescript-5.9').Expression;
+type SourceFile = import('typescript-5.9').SourceFile;
 
 /** One construct the AST cannot show, found by reading the source of a module the entry reaches. */
 export interface ScanHit {
@@ -160,7 +160,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
     excludes: (path) => own.some((root) => path.startsWith(root)),
   });
   if (!graph.length) return [];
-  const imported = (await import('typescript')) as TypeScript & { default?: TypeScript };
+  const imported = (await import('typescript-5.9')) as TypeScript & { default?: TypeScript };
   const ts = imported.default ?? imported;
   const resolveSpecifier = options.resolve ?? defaultResolve;
   const ownSchema = own.map((root) => join(root, 'schema'));
@@ -520,7 +520,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
       return;
     }
     if (ts.isArrowFunction(e) && !ts.isBlock(e.body) && ts.isIdentifier(unwrap(e.body))) {
-      return reference(context, e, (unwrap(e.body) as import('typescript').Identifier).text);
+      return reference(context, e, (unwrap(e.body) as import('typescript-5.9').Identifier).text);
     }
     if (ts.isConditionalExpression(e) || (ts.isBinaryExpression(e) && isLogical(e))) {
       conditional(context, e);
@@ -541,7 +541,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
     hit(context, 'computed-value', e, snippet(e, context.info));
   }
 
-  function isLogical(e: import('typescript').BinaryExpression): boolean {
+  function isLogical(e: import('typescript-5.9').BinaryExpression): boolean {
     return [
       ts.SyntaxKind.AmpersandAmpersandToken,
       ts.SyntaxKind.BarBarToken,
@@ -549,7 +549,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
     ].includes(e.operatorToken.kind);
   }
 
-  function checkFieldMap(context: Context, map: import('typescript').ObjectLiteralExpression): void {
+  function checkFieldMap(context: Context, map: import('typescript-5.9').ObjectLiteralExpression): void {
     for (const property of map.properties) {
       if (ts.isSpreadAssignment(property)) {
         const target = unwrap(property.expression);
@@ -703,7 +703,7 @@ export async function scanModules(roots: readonly string[], options: ScanOptions
     ts.forEachChild(node, (child) => scan(child, context));
   }
 
-  function bindingNames(name: import('typescript').BindingName): string[] {
+  function bindingNames(name: import('typescript-5.9').BindingName): string[] {
     if (ts.isIdentifier(name)) return [name.text];
 
     return name.elements.flatMap((element) => (ts.isOmittedExpression(element) ? [] : bindingNames(element.name)));

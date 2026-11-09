@@ -77,11 +77,11 @@ export async function moduleEdges(roots: readonly string[]): Promise<Map<string,
 
 /** The files among `files` that hold only imports, re-exports and a `defineSchema` call, with at least one of them. */
 export async function pureModules(files: readonly string[]): Promise<Set<string>> {
-  const imported = (await import('typescript')) as typeof import('typescript') & {
-    default?: typeof import('typescript');
+  const imported = (await import('typescript-5.9')) as typeof import('typescript-5.9') & {
+    default?: typeof import('typescript-5.9');
   };
   const ts = imported.default ?? imported;
-  const registers = (node: import('typescript').Expression | undefined): boolean =>
+  const registers = (node: import('typescript-5.9').Expression | undefined): boolean =>
     !!node && ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'defineSchema';
 
   const pure = new Set<string>();

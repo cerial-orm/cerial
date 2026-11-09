@@ -14,6 +14,7 @@ import { mkdir, mkdtemp, readdir, readFile, realpath, rm, symlink, writeFile } f
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, sep } from 'node:path';
 import { assertSupportedNode } from '../../src/parser/builder';
+import { typescript7Project } from './typescript-7-project';
 
 const PACKAGE = join(import.meta.dir, '../..');
 const CLI = join(PACKAGE, 'dist/bin/cerial.mjs');
@@ -209,3 +210,22 @@ export const C = model('C', { id: f.record().id(), name: f.string().default(comp
     expect(await hashes(dir)).toEqual(before);
   }, 60_000);
 });
+
+it('converts a TypeScript schema to .cerial with TypeScript 7 installed', async () => {
+  const dir = await typescript7Project(
+    {
+      'schemas/user.schema.ts': `import { f, model } from 'cerial/schema';
+export const User = model('User', { id: f.record().id(), name: f.string() });
+`,
+    },
+    cleanups,
+  );
+  const proc = Bun.spawn(
+    ['node', join(dir, 'node_modules/cerial/dist/bin/cerial.mjs'), 'convert', '--to', 'cerial', '--remove-source'],
+    { cwd: dir, stdout: 'pipe', stderr: 'pipe' },
+  );
+  const [stdout, stderr] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text()]);
+
+  expect(await proc.exited, stdout + stderr).toBe(0);
+  expect(await names(dir)).toEqual(['user.cerial']);
+}, 60_000);

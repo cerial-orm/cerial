@@ -167,14 +167,14 @@ export function renderUnresolved(report: UnresolvedReport): string[] {
  * such an initialiser builds, so it is the fail-closed set when a computed value has no single owner.
  */
 export async function nonLiteralExports(file: string, names: readonly string[]): Promise<string[]> {
-  const imported = (await import('typescript')) as typeof import('typescript') & {
-    default?: typeof import('typescript');
+  const imported = (await import('typescript-5.9')) as typeof import('typescript-5.9') & {
+    default?: typeof import('typescript-5.9');
   };
   const ts = imported.default ?? imported;
   const source = ts.createSourceFile(file, await readFile(file, 'utf8'), ts.ScriptTarget.Latest, true);
 
   const builders = new Set<string>();
-  const initialisers = new Map<string, import('typescript').Expression>();
+  const initialisers = new Map<string, import('typescript-5.9').Expression>();
   const exported = new Map<string, string>();
   for (const statement of source.statements) {
     if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
@@ -199,8 +199,8 @@ export async function nonLiteralExports(file: string, names: readonly string[]):
     }
   }
 
-  const rootOf = (node: import('typescript').Expression): string | undefined => {
-    let current: import('typescript').Expression = node;
+  const rootOf = (node: import('typescript-5.9').Expression): string | undefined => {
+    let current: import('typescript-5.9').Expression = node;
     while (
       ts.isCallExpression(current) ||
       ts.isPropertyAccessExpression(current) ||
@@ -211,7 +211,7 @@ export async function nonLiteralExports(file: string, names: readonly string[]):
 
     return ts.isIdentifier(current) ? current.text : undefined;
   };
-  const computes = (node: import('typescript').Node): boolean => {
+  const computes = (node: import('typescript-5.9').Node): boolean => {
     if (ts.isCallExpression(node)) {
       const root = rootOf(node.expression);
       if (root === undefined || !builders.has(root)) return true;

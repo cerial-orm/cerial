@@ -165,25 +165,3 @@ describe('scanModules: no false positives', () => {
     expect(summary(hits)).toEqual([]);
   });
 });
-
-describe('scanModules: the typescript peer', () => {
-  test('a missing peer gives the loader message, not a skipped scan', async () => {
-    const script = `
-      Bun.plugin({ setup(build) { build.module('typescript', () => { throw new Error('not installed'); }); } });
-      const { scanModules } = await import(${JSON.stringify(join(import.meta.dir, '..', '..', '..', '..', 'src', 'cli', 'convert', 'scan-module.ts'))});
-      try {
-        await scanModules([${JSON.stringify(at('literals.ts'))}]);
-        console.log('SCANNED');
-      } catch (error) {
-        console.log(error.message);
-      }
-    `;
-    const run = Bun.spawn(['bun', '-e', script], { stdout: 'pipe', stderr: 'pipe' });
-    const output = await new Response(run.stdout).text();
-    await run.exited;
-
-    expect(output).toContain(
-      "Following an entry module's imports needs the 'typescript' package, a peer dependency of cerial.",
-    );
-  });
-});
