@@ -152,7 +152,7 @@
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.14",
     "jiti": "^2.7.0",
-    "oxfmt": "0.76.0",
+    "oxfmt": "0.77.0",
     "surrealdb": "2.2.2",
     "ts-toolbelt": "^9.6.0",
     "typescript-5.9": "npm:typescript@5.9.3",
