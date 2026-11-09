@@ -63,6 +63,9 @@ jobs:
         working-directory: apps/orm
       - run: bun run generate:test-client
         working-directory: apps/orm
+      # Generating from *.schema.ts modules must work whichever compiler this job installed
+      - run: bun run generate:test-client-ts
+        working-directory: apps/orm
       - run: bunx tsc --noEmit
         working-directory: apps/orm
       - run: bun run typecheck
