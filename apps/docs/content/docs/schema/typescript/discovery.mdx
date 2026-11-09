@@ -3,10 +3,6 @@ title: Finding Your Schemas
 description: The three ways Cerial finds TypeScript schemas, how they combine, how to exclude a module, and why generation runs your code.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Cerial finds TypeScript schemas three ways: by the `*.schema.ts` file suffix, through an entry module that calls `defineSchema`, and through a list of files in `cerial.config.ts`. They add up. Use one, or mix them.
 
 With no config and no entry module, the suffix alone is enough: put `*.schema.ts` files in a `schemas` or `schema` folder (or anywhere under a path you point `cerial generate` at) and run `cerial generate`.

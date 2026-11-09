@@ -144,10 +144,6 @@ With no config at all, a `cerial.schema.ts` at the project root is picked up as 
 - Only a module that exports a `defineSchema()` result is followed. A plain `*.schema.ts` file keeps its imports unregistered.
 - `cerial generate --watch` regenerates when the entry or any module it imports changes, wherever that module sits.
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 :::warning
 An entry module runs when you generate, and so does every module it imports. See [the note on the config loader](#config-file-formats).
 :::
@@ -167,10 +163,6 @@ export default defineConfig({
 });
 ```
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 - A schema needs at least one of `path`, `entry` or `files`. Whichever you give all contribute, and none switches another off: a `path` still finds its `*.schema.ts` files, and an `entry` still registers what it imports.
 - A model that more than one of them reaches is generated once. Two different models with the same name are refused, and the error names the file of each.
 - A listed `.ts` file is imported as a module, whatever it is called. It does not have to end in `.schema.ts`. Its imports are not followed unless it exports a `defineSchema()` result.
@@ -181,10 +173,6 @@ This feature is not yet available in the current release. It will ship in an upc
 - Exclusion beats registration. A model that `defineSchema()` lists is left out when its module is excluded, and so is whatever only that module imports. The excluded module still runs, because the module that imports it imports it. If the entry itself, or every listed file, is excluded, generation says so and names it.
 
 ### typeFiles
-
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
 
 `typeFiles` sets the extension of the generated type-only files (`models/`, `objects/`, `tuples/` and `literals/`). `enums/` is always `.ts`.
 

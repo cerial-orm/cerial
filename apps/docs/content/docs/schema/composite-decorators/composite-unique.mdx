@@ -175,10 +175,6 @@ This matches the single-field behavior — see [@unique — Null Behavior](/sche
 
 By default a composite never compares `null` columns, so `(null, 'val')` can repeat. Add `nullsNotDistinct` as a third argument to treat `null` as a value:
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ```cerial
 model Slot {
   id Record @id

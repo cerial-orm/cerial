@@ -175,10 +175,6 @@ const users = await client.db.User.findMany({
 
 ### Logical Operators in Nested Filters
 
-:::caution
-`AND`, `OR` and `NOT` in a relation to a single record are not yet available in the current release. They will ship in an upcoming version. Before that, such a filter was ignored and every row came back.
-:::
-
 `AND`, `OR` and `NOT` work inside a relation filter, with the same shapes as at the top level: `AND` and `OR` take an array of filters, `NOT` takes one filter. On a relation to a single record they apply to the related record:
 
 ```typescript

@@ -39,10 +39,6 @@ db-client/
 
 With `typeFiles: 'ts'` the same folders use plain `.ts` files (`models/user.ts`, `models/index.ts`, and so on) and the barrels are ordinary `export *`. Everything else is identical.
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ### Why declaration files
 
 TypeScript does not check the inside of a `.d.ts` file when `skipLibCheck` is `true`. The generated type surface is large, so skipping it makes `tsc` and your editor much faster. Measured on a schema of 500 models:

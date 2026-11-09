@@ -67,10 +67,6 @@ model WithPrivate extends Base[!email] {
 
 `!!private` applies to every level below the type that declares it, not only the direct child. With `A extends B extends C`, a member marked private in `C` cannot be redeclared in `A`, even though `B` never mentions it. The same holds for model fields, object fields and tuple elements.
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ```cerial
 abstract model Base {
   id Record @id !!private
@@ -94,10 +90,6 @@ If the leaf does not redeclare the member, it inherits it as normal and generati
 ### Pick and Omit Do Not Detach a Private Member
 
 Dropping a private member with `pick` or `omit` removes it from that branch's fields, but it does not release the name. The name stays reserved for everything further down the chain, including branches that no longer carry the field.
-
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
 
 ```cerial
 abstract model Base {

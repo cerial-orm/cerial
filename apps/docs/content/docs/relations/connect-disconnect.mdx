@@ -145,10 +145,6 @@ Only named records that reference this parent are changed: an ID of a post that 
 
 A required FK cannot be cleared, so unlinking a record that references the parent through one is refused naming the FK field.
 
-:::caution
-Naming records to unlink and the reverse-side `set` below are not yet available in the current release. They will ship in an upcoming version. Before then, a reverse-side `disconnect` with IDs unlinked every record that references the parent.
-:::
-
 ### Set from the Reverse Side
 
 `set` on the reverse side makes exactly the records you list reference the parent. Records that referenced it and are not listed are unlinked, so the same rules apply: a required FK that would be left without a parent is refused naming the FK field.

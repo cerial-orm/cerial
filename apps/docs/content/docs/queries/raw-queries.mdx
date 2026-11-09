@@ -3,10 +3,6 @@ title: Raw Queries
 description: The sql tag, $raw, compute and $live. Write SurrealQL where the typed API has no position for it, and what that skips.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Some SurrealQL has no typed equivalent: graph traversal, vector search, `GROUP BY`, table views, live queries. The `sql` tag lets you write that SurrealQL and plug it into the typed API at four places. Every interpolated value is bound as a parameter, never spliced into the text.
 
 ```typescript

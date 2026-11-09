@@ -85,10 +85,6 @@ await client.db.Post.findMany();
 
 If you disconnect and reconnect, migrations will run again on the next query or `migrate()` call.
 
-:::caution
-The migration modes, change classes and state tables below are not yet available in the current release. They will ship in an upcoming version.
-:::
-
 ## Migration Modes
 
 The `migrations` client option sets how a client treats the schema. It takes `'auto'`, `'verify'` or `'off'`.

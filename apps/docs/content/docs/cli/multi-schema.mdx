@@ -216,10 +216,6 @@ export default defineConfig({
 
 Schemas without their own `connection` inherit from the root config.
 
-:::caution
-Embedding the connection in the generated client is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Each generated client embeds the `url`, `namespace` and `database` of its schema, and `connect()` with no argument uses them:
 
 ```typescript
@@ -259,10 +255,6 @@ If a schema has no connection of its own and the root config has none, `connect(
 ### Shared Table Names
 
 Two schemas must not define models that end up as the same table, because two clients would then write one table with different shapes. `cerial generate` refuses such a config before it writes any file, and names the table, both schemas and the model in each.
-
-:::caution
-This refusal is not yet available in the current release. It will ship in an upcoming version.
-:::
 
 Table names come from the model name in snake case, so models with different casing can collide: `UserAccount` and `userAccount` both become `user_account`. Abstract models produce no table and do not count.
 

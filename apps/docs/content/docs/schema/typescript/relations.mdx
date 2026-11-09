@@ -3,10 +3,6 @@ title: Relations
 description: Declare forward and reverse relations in TypeScript, with derived foreign keys, f.field(), f.key() and onDelete.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 A relation has two sides in `.cerial`: a `Record` field that stores the foreign key, and a `Relation` field that points through it. In TypeScript the forward side is one field, `f.relation(Target)`, and the `Record` field behind it is derived. The reverse side, which stores nothing, is `f.reverse(Target)`.
 
 | `.cerial` | TypeScript |

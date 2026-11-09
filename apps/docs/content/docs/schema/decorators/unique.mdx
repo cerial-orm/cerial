@@ -95,10 +95,6 @@ For composite uniqueness constraints with optional fields, see `@@unique`.
 
 By default `null` is not compared, so any number of records can hold `null`. Pass `nullsNotDistinct` to treat `null` as a value: at most one record can hold it.
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ```cerial
 model User {
   id Record @id

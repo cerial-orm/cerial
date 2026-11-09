@@ -216,10 +216,6 @@ For N:N relations, both sides are cleaned up atomically — the deleted record's
 
 ## How deletes walk the graph
 
-:::caution
-This behavior is not yet available in the current release. It will ship in an upcoming version. In 0.2.0 a delete only reached the direct dependents of the deleted record.
-:::
-
 A delete follows the relations below the record you delete, not only the first level. Each action keeps its meaning at every level:
 
 | Action | At any level |

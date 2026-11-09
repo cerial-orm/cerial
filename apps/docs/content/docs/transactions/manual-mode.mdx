@@ -27,10 +27,6 @@ try {
 }
 ```
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ## Only txn Is Transactional
 
 Unlike callback mode, manual mode does not route `client.db`. A query on `client.db` without `txn` runs outside the transaction, even between `$transaction()` and `commit()`. Use `txn.Model` or pass `txn`.
@@ -340,10 +336,6 @@ const afterCommit = await client.db.User.findMany({
 });
 console.log(afterCommit.length); // 1
 ```
-
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
 
 ## Isolation Level and Read-Only
 

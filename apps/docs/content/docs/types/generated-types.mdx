@@ -7,10 +7,6 @@ Cerial generates a comprehensive set of TypeScript types for every model, object
 
 ## Sized Number Types
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 [Sized number](/schema/field-types/sized-numbers) fields (`Int8`, `Uint8`, `Int16`, `Uint16`, `Int32`, `Uint32`, `Float16`, `Float32`) generate `number`. `Uint64` generates `bigint` in the output type and `bigint | number` in create, update and where types. The `Where` type for a sized field has the same operators as `Int`.
 
 ## Types Per Model
@@ -336,10 +332,6 @@ Methods check the keys you pass against these types, so a misspelt key is refuse
 
 ## groupBy Types
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Each model gets the types behind [`groupBy`](/queries/group-by). A type that would have no members is left out: a model with no numeric field has no `UserNumericAggregate`, and `_sum` and `_avg` are not accepted for it.
 
 | Type | Description |
@@ -408,10 +400,6 @@ db-client/
 │   └── migrations.ts        # DEFINE TABLE / DEFINE FIELD statements
 └── index.ts                 # Re-exports all public types and client
 ```
-
-:::caution
-The `.d.ts` layout is not yet available in the current release. It will ship in an upcoming version.
-:::
 
 Set [`typeFiles`](/cli/configuration#typefiles) to `'ts'` for plain `.ts` files instead. The `.d.ts` layout type checks much faster when `skipLibCheck` is `true`; a deep import such as `./db-client/models/user` must then be `import type`. See [Generated Output](/cli/generated-output#why-declaration-files).
 

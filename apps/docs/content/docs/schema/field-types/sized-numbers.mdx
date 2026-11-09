@@ -3,10 +3,6 @@ title: Sized Numbers
 description: Int8, Uint8, Int16, Uint16, Int32, Uint32, Uint64, Float16 and Float32 field types for numbers with a fixed range or precision.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Sized number types store a number in a fixed width, and the database refuses a value outside it. Use them when a field has a known range (a channel 0 to 255, a pixel component) or when a smaller float is enough. Everything else keeps using [Int](/schema/field-types/int) and [Float](/schema/field-types/float), which are already 64-bit; there is no `Int64` or `Float64`.
 
 ## Schema Syntax

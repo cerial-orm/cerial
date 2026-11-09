@@ -3,10 +3,6 @@ title: Objects and tuples
 description: Declare embedded objects and positional tuples in TypeScript, with element builders, named elements and flexible fields.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ## Objects
 
 `object(name, fields)` declares an embedded object. Its fields are the same builders as a model's, minus the ones that need identity (`.id()` and relations). A model uses the object with `f.object(Address)`, and the usual modifiers apply.

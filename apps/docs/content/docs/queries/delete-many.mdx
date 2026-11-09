@@ -113,10 +113,6 @@ const count = await client.db.User.deleteMany({
 });
 ```
 
-:::caution
-`isEmpty` on an array relation, such as `posts: { isEmpty: true }` for "has no related records" (`false` for "has at least one"), is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ## Cascade Behavior
 
 When records are deleted, Cerial automatically handles related records based on their relationship configuration:

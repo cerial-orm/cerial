@@ -94,10 +94,6 @@ deno run --allow-net app.ts
 
 For CLI usage in Deno projects, use `npx cerial generate` (requires Node.js installed) or `bunx cerial generate` (requires Bun installed).
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ## Cloudflare Workers
 
 Transactions need the `nodejs_compat` compatibility flag on Cloudflare Workers. Cerial relies on `AsyncLocalStorage` from `node:async_hooks` to run `client.db` queries inside a transaction callback or function item on that transaction, and Workers only provides it with the flag set. Without it the client fails to load.

@@ -82,10 +82,6 @@ An array that is absent matches neither `isEmpty: true` nor `isEmpty: false`, an
 
 ### isNone
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Array fields that can be absent, meaning array fields inside an optional object, accept `isNone`. `isNone: true` matches only records where the array is absent, and `isNone: false` matches records where it is present (empty or not). Using `isNone` on a field that is always present is a type error.
 
 ```typescript

@@ -152,10 +152,6 @@ const reviewed = await client.db.Document.findMany({
 });
 ```
 
-:::caution
-`isEmpty` on an array relation, as in `authoredDocs: { isEmpty: false }` above, is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 ## More Than Two Relations
 
 You can define any number of relations between the same models. Each one needs a unique `@key` value:

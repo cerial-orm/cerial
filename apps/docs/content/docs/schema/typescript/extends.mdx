@@ -3,10 +3,6 @@ title: Extends
 description: Inherit from models, objects, tuples, enums and literals in TypeScript, with pick and omit lists checked by the compiler.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Inheritance works the same as in `.cerial` and is resolved when the schema is generated. In TypeScript, `extends` is a key of the declaration's options, and it takes the parent declaration. `Parent.pick(...)` and `Parent.omit(...)` take the place of `Parent[a, b]` and `Parent[!a, !b]`.
 
 | Form | `.cerial` | TypeScript |

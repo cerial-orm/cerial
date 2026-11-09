@@ -3,10 +3,6 @@ title: Errors
 description: The error classes Cerial throws, the stable code each carries, and how to catch them by class instead of by message.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Every error Cerial raises extends `CerialError`. Catch a class with `instanceof`, or switch on `code` when only the kind matters. Do not match on `message`: its wording can change between releases, the class and the code cannot.
 
 ```typescript

@@ -3,10 +3,6 @@ title: Fields
 description: Field types, modifiers and decorators in TypeScript schemas, shown beside their .cerial spelling.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 A field is a key in the object you pass to `model` or `object`, and its value is a builder from `f`. The type comes from the factory (`f.string()`), and everything else is a method chained onto it. Each call returns a new builder, so a partial chain can be stored in a const and reused.
 
 ## Field types

@@ -121,10 +121,6 @@ const user = await client.db.User.findOne({
 
 ## Filtering Included Records
 
-:::caution
-Filtering with `where` inside `include` is not yet working in the current release: the option was accepted and ignored, and every related record came back. The behaviour below ships in an upcoming version.
-:::
-
 `where` inside an include keeps only the related records that match. `orderBy`, `limit` and `offset` apply to the filtered set, so `limit: 5` is the first five matching records, not the matching records among the first five:
 
 ```typescript

@@ -64,10 +64,6 @@ const child = await client.db.Category.findOne({
 
 ### Cascading deletes through a tree
 
-:::caution
-This behavior is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 Add `@onDelete(Cascade)` to the parent relation and deleting a node removes its whole subtree, however deep:
 
 ```cerial

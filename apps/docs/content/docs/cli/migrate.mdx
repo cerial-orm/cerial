@@ -3,10 +3,6 @@ title: Migrate
 description: Inspect the live database against your schema, plan changes as a reviewable file, and apply them with explicit approval for anything destructive.
 ---
 
-:::caution
-This feature is not yet available in the current release. It will ship in an upcoming version.
-:::
-
 `cerial migrate` compares your schema with the live SurrealDB database and changes the database to match. It is the tool for deployments, where you want to see a change before it runs and approve anything that can lose data. For how migrations run from application code, see [Migrations](/connection/migrations).
 
 ```bash
