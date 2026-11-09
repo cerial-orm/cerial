@@ -68,12 +68,17 @@ jobs:
           echo "Version verified: $TAG_VERSION"
         working-directory: apps/orm
 
-      - name: Run tests
-        run: bun run test
-        working-directory: apps/orm
-
+      # The tests import the built package and the generated test clients, as in ORM CI
       - name: Build
         run: bun run build
+        working-directory: apps/orm
+
+      - name: Generate test clients
+        run: bun run generate:test-client && bun run generate:mixed-client
+        working-directory: apps/orm
+
+      - name: Run tests
+        run: bun run test
         working-directory: apps/orm
 
       # Publish FIRST so a publish failure never leaves a dangling GitHub Release
