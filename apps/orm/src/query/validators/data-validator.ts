@@ -264,10 +264,12 @@ export function validateRelationValue(
   const keys = isObject(value) ? Object.keys(value) : [];
   if (keys.length && keys.every((key) => allowed.includes(key))) return null;
 
+  const shown = escapeControl(path);
+
   return {
-    field: path,
-    message: `Relation '${path}' on model ${model.name} takes a nested operation with only these keys: ${allowed.join(', ')}. Got ${
-      isObject(value) ? `keys {${keys.join(', ') || 'none'}}` : 'a plain value'
+    field: shown,
+    message: `Relation '${shown}' on model ${model.name} takes a nested operation with only these keys: ${allowed.join(', ')}. Got ${
+      isObject(value) ? `keys {${keys.map((key) => escapeControl(key)).join(', ') || 'none'}}` : 'a plain value'
     }, which cannot be written`,
   };
 }

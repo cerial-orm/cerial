@@ -7,11 +7,12 @@
 
 import { describe, expect, test } from 'bun:test';
 import { assertKnownOptionKeys } from '../../../src/client/model/option-keys';
-import { validateCreateData } from '../../../src/query/validators/data-validator';
+import { buildRelationSelectFields } from '../../../src/query/builders/relation-builder';
+import { validateCreateData, validateRelationValue } from '../../../src/query/validators/data-validator';
 import { validateOrderBy, validateSelect } from '../../../src/query/validators/select-validator';
 import { validateWhere } from '../../../src/query/validators/where-validator';
 import { escapeControl } from '../../../src/utils/safe-text';
-import { place, placeRegistry } from './where-validation-helpers';
+import { owner, place, placeRegistry } from './where-validation-helpers';
 
 const HOSTILE = 'zz\n2026-11-08 INFO login ok\u001b[2J\u001b]52;c;cHduZWQ=\u0007';
 // Every C0 and C1 control character except the tab, plus the Unicode line and paragraph separators
@@ -94,5 +95,37 @@ describe('ordinary keys read as before', () => {
     expect(() => assertKnownOptionKeys('findMany', { wehre: {} }, 'Place')).toThrow(
       /^findMany does not take the option 'wehre'; it takes /,
     );
+  });
+});
+
+describe('control characters in relation-value refusals', () => {
+  const places = owner.fields.find((f) => f.name === 'places');
+
+  test('a nested-operation key and the field it names', () => {
+    expect(places).toBeDefined();
+    const bad = validateRelationValue(places!, { [HOSTILE]: ['a1'] }, owner);
+
+    expect(bad).not.toBeNull();
+    expectEscaped(bad!.message);
+    expect(bad!.field).not.toMatch(RAW_CONTROL);
+  });
+
+  test('a relation name with a control character', () => {
+    const bad = validateRelationValue(places!, { x: 1 }, owner, 'a\nb');
+
+    expect(bad!.field).toBe('a\\nb');
+    expect(bad!.message).not.toMatch(RAW_CONTROL);
+  });
+});
+
+describe('control characters in an unknown include key', () => {
+  test('the message and the field property', () => {
+    expect.assertions(5);
+    try {
+      buildRelationSelectFields({ [HOSTILE]: true }, owner, placeRegistry);
+    } catch (error) {
+      expectEscaped((error as Error).message);
+      expect((error as { field?: string }).field).not.toMatch(RAW_CONTROL);
+    }
   });
 });

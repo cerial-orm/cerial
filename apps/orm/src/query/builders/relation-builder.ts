@@ -312,13 +312,13 @@ function buildRelationSelectFieldsInternal(
       if (!known) {
         throw new CerialUnknownFieldError(
           `Invalid include: Unknown field '${escapeControl(relationName)}' on model ${model.name} — check the field name against the schema`,
-          { model: model.name, field: relationName, operation: 'include' },
+          { model: model.name, field: escapeControl(relationName), operation: 'include' },
         );
       }
 
       throw new CerialValidationError(
         `Invalid include: '${escapeControl(relationName)}' on model ${model.name} is a ${known.type} field, not a relation — only relation fields can be included`,
-        { model: model.name, field: relationName, operation: 'include' },
+        { model: model.name, field: escapeControl(relationName), operation: 'include' },
       );
     }
 
